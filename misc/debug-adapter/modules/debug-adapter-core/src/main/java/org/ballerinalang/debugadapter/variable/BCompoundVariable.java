@@ -26,39 +26,30 @@ import java.util.Map;
  */
 public abstract class BCompoundVariable implements BVariable {
 
-    private Variable dapVariable;
-    private Map<String, Value> childVariables;
+    protected Value jvmValue;
+    private final Variable dapVariable;
+    private final Map<String, Value> childVariables;
 
-    public BCompoundVariable() {
-        this(null);
-    }
-
-    public BCompoundVariable(Variable dapVariable) {
+    public BCompoundVariable(BVariableType bVariableType, Value jvmValue, Variable dapVariable) {
+        this.jvmValue = jvmValue;
+        dapVariable.setType(bVariableType.getString());
+        dapVariable.setValue(computeValue());
         this.dapVariable = dapVariable;
-        this.childVariables = null;
+        this.childVariables = computeChildVariables();
     }
 
     /**
-     * Returns the value of the variable variable instance in string form. Each extended variable type must have their
-     * own implementation to compute/fetch the value.
+     * Returns a map of JDI value representations of all the child variables against their indexes. Each
+     * compound variable type must have their own implementation to compute/fetch values.
      */
-    public abstract void computeChildVariables();
+    protected abstract Map<String, Value> computeChildVariables();
 
     public Map<String, Value> getChildVariables() {
         return childVariables;
     }
 
-    public void setChildVariables(Map<String, Value> childVariables) {
-        this.childVariables = childVariables;
-    }
-
     @Override
     public Variable getDapVariable() {
         return dapVariable;
-    }
-
-    @Override
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
     }
 }

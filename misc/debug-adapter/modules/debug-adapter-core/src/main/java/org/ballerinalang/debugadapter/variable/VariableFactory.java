@@ -61,7 +61,7 @@ public class VariableFactory {
         if (value == null) {
             // variables of "nil" type.
             if (parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
-                return new BNil(dapVariable);
+                return new BNil(null, dapVariable);
             } else {
                 return null;
             }

@@ -27,13 +27,11 @@ import org.eclipse.lsp4j.debug.Variable;
 public class BDecimal extends BPrimitiveVariable {
 
     public BDecimal(Value value, Variable dapVariable) {
-        dapVariable.setType(BVariableType.DECIMAL.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+        super(BVariableType.DECIMAL, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         // Todo - how to extract value?
         return "unknown";
     }

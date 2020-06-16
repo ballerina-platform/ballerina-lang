@@ -17,14 +17,15 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,19 +33,17 @@ import java.util.stream.Collectors;
  */
 public class BError extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BError(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.ERROR.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+        super(BVariableType.ERROR, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return "unknown";
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Field valueField = fields.stream().filter(field -> field.name().equals("reason"))
                     .collect(Collectors.toList()).get(0);
@@ -56,8 +55,8 @@ public class BError extends BCompoundVariable {
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         // Todo
-        this.setChildVariables(new HashMap<>());
+        return new HashMap<>();
     }
 }

@@ -17,8 +17,8 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
@@ -31,21 +31,19 @@ import java.util.Map;
  */
 public class BObjectValue extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BObjectValue(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.OBJECT.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        computeChildVariables();
+        super(BVariableType.OBJECT, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return "unknown";
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             // Extracts object type name from the reflected type class.
-            String[] split = this.jvmValueRef.referenceType().classObject().reflectedType().name().split("\\.");
+            String[] split = jvmValueRef.referenceType().classObject().reflectedType().name().split("\\.");
             for (String element : split) {
                 if (element.contains("$value$")) {
                     return element.replaceFirst("\\$value\\$", "");
@@ -58,20 +56,24 @@ public class BObjectValue extends BCompoundVariable {
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return new HashMap<>();
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
             Map<String, Value> values = new HashMap<>();
             // Uses the ballerina record type name to extract ballerina record fields from the jvm reference.
-            String balObjectFiledIdentifier = this.getValue() + ".";
+            String balObjectFiledIdentifier = this.computeValue() + ".";
             fieldValueMap.forEach((field, value) -> {
                 if (field.toString().contains(balObjectFiledIdentifier)) {
                     values.put(field.name(), value);
                 }
             });
-            this.setChildVariables(values);
+            return values;
         } catch (Exception ignored) {
-            this.setChildVariables(new HashMap<>());
+            return new HashMap<>();
         }
     }
 }

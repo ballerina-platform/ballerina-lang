@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
@@ -25,14 +26,12 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public class BNil extends BPrimitiveVariable {
 
-    public BNil(Variable dapVariable) {
-        dapVariable.setType(BVariableType.NIL.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+    public BNil(Value value, Variable dapVariable) {
+        super(BVariableType.NIL, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         return "()";
     }
 }

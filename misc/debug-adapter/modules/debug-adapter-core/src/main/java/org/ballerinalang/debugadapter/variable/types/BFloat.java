@@ -16,10 +16,10 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.DoubleValue;
 import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.DoubleValueImpl;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
@@ -31,21 +31,16 @@ import java.util.stream.Collectors;
  */
 public class BFloat extends BPrimitiveVariable {
 
-    private final Value jvmValue;
-
     public BFloat(Value value, Variable dapVariable) {
-        this.jvmValue = value;
-        dapVariable.setType(BVariableType.FLOAT.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+        super(BVariableType.FLOAT, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        if (jvmValue instanceof DoubleValueImpl) {
+    public String computeValue() {
+        if (jvmValue instanceof DoubleValue) {
             return jvmValue.toString();
-        } else if (jvmValue instanceof ObjectReferenceImpl) {
-            ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);
+        } else if (jvmValue instanceof ObjectReference) {
+            ObjectReference valueObjectRef = ((ObjectReference) jvmValue);
             Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
                     field.name().equals("value")).collect(Collectors.toList()).get(0);
             return valueObjectRef.getValue(valueField).toString();

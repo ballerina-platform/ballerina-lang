@@ -16,28 +16,29 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
+
+import java.util.Optional;
 
 /**
  * Ballerina variable implementation for unknown types.
  */
 public class BUnknown extends BPrimitiveVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BUnknown(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.UNKNOWN.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+        super(BVariableType.UNKNOWN, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        return jvmValueRef != null ? jvmValueRef.toString() : "unknown";
+    public String computeValue() {
+        if (!(jvmValue instanceof ObjectReference)) {
+            return "unknown";
+        }
+        ObjectReference jvmValueRef = (ObjectReference) jvmValue;
+        return Optional.of(jvmValueRef).map(ObjectReference::toString).orElse("unknown");
     }
 }

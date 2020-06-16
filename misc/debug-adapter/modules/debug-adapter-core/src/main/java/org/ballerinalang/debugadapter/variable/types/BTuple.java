@@ -19,8 +19,8 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
@@ -37,19 +37,17 @@ import java.util.stream.Collectors;
  */
 public class BTuple extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BTuple(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.TUPLE.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+        super(BVariableType.TUPLE, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return "unknown";
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                     fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
@@ -71,8 +69,12 @@ public class BTuple extends BCompoundVariable {
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return new HashMap<>();
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
 
             Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
@@ -95,9 +97,9 @@ public class BTuple extends BCompoundVariable {
                 int varIndex = nextVarIndex.getAndIncrement();
                 values.put("[" + varIndex + "]", valueSubList.get(varIndex));
             });
-            this.setChildVariables(values);
+            return values;
         } catch (Exception ignored) {
-            this.setChildVariables(new HashMap<>());
+            return new HashMap<>();
         }
     }
 }

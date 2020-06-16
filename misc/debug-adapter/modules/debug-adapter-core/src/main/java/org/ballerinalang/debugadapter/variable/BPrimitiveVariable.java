@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.Value;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
@@ -23,15 +24,18 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public abstract class BPrimitiveVariable implements BVariable {
 
-    private Variable dapVariable;
+    protected final Value jvmValue;
+    private final Variable dapVariable;
+
+    public BPrimitiveVariable(BVariableType bVariableType, Value jvmValue, Variable dapVariable) {
+        this.jvmValue = jvmValue;
+        dapVariable.setType(bVariableType.getString());
+        dapVariable.setValue(computeValue());
+        this.dapVariable = dapVariable;
+    }
 
     @Override
     public Variable getDapVariable() {
         return dapVariable;
-    }
-
-    @Override
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
     }
 }

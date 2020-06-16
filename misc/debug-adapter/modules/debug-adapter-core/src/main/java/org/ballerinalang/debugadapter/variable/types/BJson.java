@@ -18,8 +18,8 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
@@ -36,53 +36,51 @@ import java.util.Optional;
  */
 public class BJson extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BJson(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.JSON.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+        super(BVariableType.JSON, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         return "object";
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return new HashMap<>();
+            }
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             List<Field> fields = jvmValueRef.referenceType().allFields();
             Optional<Field> valueField = fields.stream().filter(field -> field.typeName()
                     .equals("java.util.HashMap$Node[]")).findFirst();
             if (!valueField.isPresent()) {
-                return;
+                return new HashMap<>();
             }
             Value jsonValue = jvmValueRef.getValue(valueField.get());
             Map<String, Value> values = new HashMap<>();
             ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
+                List<Field> jsonValueFields = ((ObjectReference) jsonMap).referenceType().visibleFields();
                 Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
                         field.name().equals("key")).findFirst();
                 Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
                         field.name().equals("value")).findFirst();
 
                 if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
-                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
-                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
+                    Value jsonKey = ((ObjectReference) jsonMap).getValue(jsonKeyField.get());
+                    Value jsonValue1 = ((ObjectReference) jsonMap).getValue(jsonValueField.get());
                     values.put(getJsonKeyString(jsonKey), jsonValue1);
                 }
             });
-            this.setChildVariables(values);
+            return values;
         } catch (Exception ignored) {
-            this.setChildVariables(new HashMap<>());
+            return new HashMap<>();
         }
     }
 
     private String getJsonKeyString(Value key) {
-        ObjectReferenceImpl keyRef = key instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) key : null;
+        ObjectReference keyRef = (key instanceof ObjectReference) ? (ObjectReference) key : null;
         if (keyRef == null) {
             return "unknown";
         }

@@ -16,37 +16,36 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Ballerina xml variable type.
  */
 public class BXmlItem extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
     public BXmlItem(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.XML.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+        super(BVariableType.XML, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
+        if (!(jvmValue instanceof ObjectReference)) {
+            return "unknown";
+        }
+        ObjectReference jvmValueRef = (ObjectReference) jvmValue;
         return jvmValueRef.toString();
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
         // Todo
-        this.setChildVariables(new HashMap<>());
+        return new HashMap<>();
     }
 }
