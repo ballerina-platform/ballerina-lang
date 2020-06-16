@@ -344,9 +344,6 @@ public class CompilerDriver {
 
     private BPackageSymbol getLangModuleFromSource(PackageID modID) {
 
-        System.out.println("OOOOOOO");
-        System.out.println(modID);
-
         BLangPackage pkg = taintAnalyze(
                 documentationAnalyzer.analyze(codeAnalyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(modID)))));
         if (dlog.getErrorCount() > 0) {

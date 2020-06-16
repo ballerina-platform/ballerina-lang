@@ -3,7 +3,6 @@ package org.wso2.ballerinalang.compiler.packaging.module.resolver.model;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
-import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 
 import java.io.File;
 import java.io.IOException;

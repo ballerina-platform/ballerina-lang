@@ -4,6 +4,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -13,6 +14,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
 
@@ -25,6 +27,7 @@ public class PackageBalo implements PackageSource {
     private final Path sourcePath;
 
     public PackageBalo(PackageID moduleId, Path sourcePath) {
+        // If sourcePath not exists return null
         this.moduleId = moduleId;
         this.sourcePath = sourcePath;
         this.sourceFiles = getSourceFiles();
@@ -33,23 +36,34 @@ public class PackageBalo implements PackageSource {
     private List<CompilerInput> getSourceFiles() {
         List<CompilerInput> compilerInputs = new ArrayList<>();
 
-        try (FileSystem zipFileSystem = FileSystems
-                .newFileSystem(URI.create("jar:file:" + this.sourcePath), new HashMap<>())) {
-            for (Path rootDirectory : zipFileSystem.getRootDirectories()) {
-                Files.walk(rootDirectory).forEach(path -> {
-                    if (path.toFile().isFile() && path.endsWith(BLANG_SOURCE_EXT)) {
-                        try {
-                            byte[] code = Files.readAllBytes(path);
-                            CompilerInput compilerInput = new CompilerInputImpl(code, path);
-                            compilerInputs.add(compilerInput);
-                        } catch (IOException e) {
-                            throw new ModuleResolveException("reading balo source files failed");
+        File[] files = new File(String.valueOf(this.sourcePath)).listFiles();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.getPath().endsWith(".balo")) {
+                    URI balo = URI.create("jar:file:" + file.getPath());
+                    Map<String, Object> env = new HashMap<>();
+                    env.put("create", "true");
+
+                    try (FileSystem zipFileSystem = FileSystems
+                            .newFileSystem(balo, env)) {
+                        for (Path rootDirectory : zipFileSystem.getRootDirectories()) {
+                            Files.walk(rootDirectory).forEach(path -> {
+                                if (Files.isRegularFile(path) && path.toString().endsWith(BLANG_SOURCE_EXT)) {
+                                    try {
+                                        byte[] code = Files.readAllBytes(path);
+                                        CompilerInput compilerInput = new CompilerInputImpl(code, path);
+                                        compilerInputs.add(compilerInput);
+                                    } catch (IOException e) {
+                                        throw new ModuleResolveException("reading balo source files failed");
+                                    }
+                                }
+                            });
                         }
+                    } catch (IOException e) {
+                        throw new ModuleResolveException("reading balo failed");
                     }
-                });
+                }
             }
-        } catch (IOException e) {
-            throw new ModuleResolveException("reading balo failed");
         }
         return compilerInputs;
     }

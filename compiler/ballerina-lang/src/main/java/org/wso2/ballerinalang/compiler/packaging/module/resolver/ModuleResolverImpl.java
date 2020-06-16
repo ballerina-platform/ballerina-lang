@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.ballerinalang.compiler.packaging.module.resolver;
 
 import org.ballerinalang.model.elements.PackageID;
@@ -12,6 +30,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +41,9 @@ import java.util.TreeMap;
 import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isAbsoluteVersion;
 import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isGreaterVersion;
 
+/**
+ * Module resolver implementation.
+ */
 public class ModuleResolverImpl implements ModuleResolver {
 
     private Project project;
@@ -27,7 +51,7 @@ public class ModuleResolverImpl implements ModuleResolver {
     private boolean isLockEnabled;
 
     // store moduleId and Repo which module exists
-    private Map<PackageID, Cache> resolvedModules = new HashMap<>();
+    public Map<PackageID, Cache> resolvedModules = new HashMap<>();
 
     private static final String DEFAULT_VERSION = "0.0.0";
 
@@ -43,28 +67,23 @@ public class ModuleResolverImpl implements ModuleResolver {
         if (isVersionExists(packageID)) {
             PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
                     packageID.version.getValue());
-            if (isVersionExists(resolvedModuleId)) {
+            if (isVersionExists(resolvedModuleId) && resolvedModules.containsKey(packageID)) {
                 return resolvedModuleId;
             }
-        }
-
-        // if `ballerina` org module, directly resolve from distribution BIR cache
-        if (packageID.getOrgName().getValue().equals("ballerina")) {
-            List<String> resolvedVersions = this.repoHierarchy.getDistributionBirCache().resolveVersions(packageID, "*");
-            if (!resolvedVersions.isEmpty()) {
-                packageID.version = new Name(resolvedVersions.get(0));
-                resolvedModules.put(packageID, this.repoHierarchy.getDistributionBirCache());
-                return packageID;
-            }
-//            else {
-//                packageID.version = new Name(DEFAULT_VERSION);
-//            }
         }
 
         // if module is in the current project
         if (this.project.isModuleExists(packageID)) {
             packageID.version = new Name(this.project.getManifest().getProject().getVersion());
             resolvedModules.put(packageID, repoHierarchy.getProjectModules());
+            return packageID;
+        }
+
+        // if module exists in project build repo, This applies in the build
+        if (this.repoHierarchy.getProjectBuildRepo().isModuleExists(packageID)) {
+            List<String> resolvedVersions = this.repoHierarchy.getProjectBuildRepo().resolveVersions(packageID, "*");
+            packageID.version = new Name(resolvedVersions.get(resolvedVersions.size() - 1));
+            resolvedModules.put(packageID, this.repoHierarchy.getProjectBuildRepo());
             return packageID;
         }
 
@@ -88,12 +107,9 @@ public class ModuleResolverImpl implements ModuleResolver {
         if (enclPackageID != null && this.project.getManifest() != null && this.project.isModuleExists(enclPackageID)) {
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(packageID, this.project.getManifest());
-            if (versionFromManifest != null) {
-                PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
-                        versionFromManifest);
-                if (isVersionExists(resolvedModuleId)) {
-                    return resolvedModuleId;
-                }
+            PackageID resolvedModuleId = getPackageIDFromRepos(packageID, versionFromManifest);
+            if (resolvedModuleId != null) {
+                return resolvedModuleId;
             }
         }
 
@@ -102,12 +118,11 @@ public class ModuleResolverImpl implements ModuleResolver {
         if (enclPackageID != null && !this.project.isModuleExists(enclPackageID)) {
             BaloCache homeBaloCache = this.repoHierarchy.getHomeBaloCache();
             PackageBalo parentModule = (PackageBalo) homeBaloCache.getModule(enclPackageID);
-            Manifest parentManifest = RepoUtils.getManifestFromBalo(parentModule.getSourcePath());
-            versionFromManifest = resolveVersionFromManifest(packageID, parentManifest);
-            if (versionFromManifest != null) {
-                PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
-                        versionFromManifest);
-                if (isVersionExists(resolvedModuleId)) {
+            if (parentModule != null) {
+                Manifest parentManifest = RepoUtils.getManifestFromBalo(getBaloPath(parentModule.getSourcePath()));
+                versionFromManifest = resolveVersionFromManifest(packageID, parentManifest);
+                PackageID resolvedModuleId = getPackageIDFromRepos(packageID, versionFromManifest);
+                if (resolvedModuleId != null) {
                     return resolvedModuleId;
                 }
             }
@@ -122,6 +137,36 @@ public class ModuleResolverImpl implements ModuleResolver {
         return packageID;
     }
 
+    private Path getBaloPath(Path srcPath) {
+        File[] files = new File(String.valueOf(srcPath)).listFiles();
+        if (files != null && files.length > 0) {
+            for (File file : files) {
+                if (file.getPath().endsWith(".balo")) {
+                    return Paths.get(file.getPath());
+                }
+            }
+        }
+        throw new ModuleResolveException("cannot find balo in the path: " + srcPath);
+    }
+
+    private PackageID getPackageIDFromRepos(PackageID packageID, String versionFromManifest) {
+        if (versionFromManifest != null) {
+            PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
+                    versionFromManifest);
+            if (isVersionExists(resolvedModuleId)) {
+                return resolvedModuleId;
+            }
+        } else {
+            // If cannot resolve from Ballerina.toml, we will fetch the latest package from the repos
+            PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
+                    "*");
+            if (isVersionExists(resolvedModuleId)) {
+                return resolvedModuleId;
+            }
+        }
+        return null;
+    }
+
     @Override
     public PackageEntity resolveModule(PackageID moduleId) {
         // if moduleId exists in `resolvedModules` map
@@ -129,14 +174,6 @@ public class ModuleResolverImpl implements ModuleResolver {
             Cache cache = resolvedModules.get(moduleId);
             return cache.getModule(moduleId);
         }
-
-//        for (Repo repo : this.repoHierarchy.getRepoList()) {
-//            if (repo.isModuleExists(moduleId)) {
-//                if (repo instanceof Cache) {
-//                    return ((Cache) repo).getModule(moduleId);
-//                }
-//            }
-//        }
         return null;
     }
 
@@ -208,7 +245,7 @@ public class ModuleResolverImpl implements ModuleResolver {
     }
 
     private boolean isVersionExists(PackageID packageID) {
-        return packageID.version != null && !"".equals(packageID.version.getValue()) && packageID.version != Names.DEFAULT_VERSION
-                && !packageID.version.getValue().equals(DEFAULT_VERSION);
+        return packageID.version != null && !"".equals(packageID.version.getValue())
+                && packageID.version != Names.DEFAULT_VERSION && !packageID.version.getValue().equals(DEFAULT_VERSION);
     }
 }

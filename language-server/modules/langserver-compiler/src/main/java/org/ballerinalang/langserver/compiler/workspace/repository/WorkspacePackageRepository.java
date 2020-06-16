@@ -7,7 +7,6 @@ import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.repository.fs.GeneralFSPackageRepository;
-import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

@@ -24,7 +24,8 @@ public class PackageBir implements PackageBinary {
 
     private CompilerInput getBirContent() {
         try {
-            return new CompilerInputImpl(Files.readAllBytes(this.sourcePath), this.sourcePath);
+            Path birPath = this.sourcePath.resolve(this.moduleId.getName().getValue() + ".bir");
+            return new CompilerInputImpl(Files.readAllBytes(birPath), this.sourcePath);
         } catch (IOException e) {
             throw new ModuleResolveException("reading bir failed");
         }

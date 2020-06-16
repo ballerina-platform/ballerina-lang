@@ -84,7 +84,7 @@ public class RepoHierarchyTest {
 
         // Part 2
         order.clear();
-        subject = resolution.resolvedBy;
+        subject = resolution.getResolvedBy();
 
         subject.resolve(repo0sPkg);
 
@@ -109,7 +109,7 @@ public class RepoHierarchyTest {
         // Part 2
         order.clear();
         PackageID repo4sPkg = newPackageID("ugly", "ok.pkg", "4");
-        subject = resolution.resolvedBy;
+        subject = resolution.getResolvedBy();
 
         subject.resolve(repo4sPkg);
 

@@ -260,7 +260,7 @@ public class Pull {
      */
     private static void createBaloFileDirectory(Path fullPathToStoreBalo) {
         try {
-            Files.createDirectory(fullPathToStoreBalo);
+            Files.createDirectories(fullPathToStoreBalo);
         } catch (IOException e) {
             createError("error creating directory for balo file");
         }

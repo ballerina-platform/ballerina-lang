@@ -1,3 +1,21 @@
+/*
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
+
 package org.wso2.ballerinalang.compiler.packaging.module.resolver;
 
 import org.wso2.ballerinalang.compiler.SourceDirectory;
@@ -8,6 +26,9 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Repo hierarchy which resolves modules.
+ */
 public class RepoHierarchy {
 
     private List<Repo> repoList = new ArrayList<>();
@@ -27,37 +48,35 @@ public class RepoHierarchy {
                 sourceDirectory.getPath().resolve(ProjectDirConstants.SOURCE_DIR_NAME), projectOrgName, projectVersion);
         repos.add(projectModules);
 
-        // Project build repo
+        // 2. Project build repo
         ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(
                 Paths.get(System.getProperty(USER_DIR)).resolve("build").resolve("ballerina-home").resolve("main")
                         .resolve("lib").resolve("repo"));
         repos.add(projectBuildRepo);
 
-        // 2. project bir cache
+        // 3. project bir cache
         BirCache projectBirCache = new BirCache(
                 Paths.get(String.valueOf(Paths.get(System.getProperty(USER_DIR))), ProjectDirConstants.TARGET_DIR_NAME,
                         ProjectDirConstants.CACHES_DIR_NAME, ProjectDirConstants.BIR_CACHE_DIR_NAME));
         repos.add(projectBirCache);
 
-        // 3. distribution bir cache
+        // 4. distribution bir cache
         BirCache distBirCache = new BirCache(
                 Paths.get(System.getProperty(ProjectDirConstants.BALLERINA_HOME), BIR_CACHE));
-        //        BirCache distBirCache = new BirCache(RepoUtils.createAndGetHomeReposPath()
-        //                .resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME + "-" + RepoUtils.getBallerinaVersion()));
         repos.add(distBirCache);
 
-        // 4. home bir cache
+        // 5. home bir cache
         BirCache homeBirCache = new BirCache(
                 RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BIR_CACHE_DIR_NAME));
         repos.add(homeBirCache);
 
-        // 5. home balo cache
+        // 6. home balo cache
         BaloCache homeBaloCache = new BaloCache(
                 RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME));
         repos.add(homeBaloCache);
 
         if (!offline) {
-            // 6. central repo
+            // 7. central repo
             Central central = new Central();
             repos.add(central);
         }
@@ -69,6 +88,10 @@ public class RepoHierarchy {
 
     public ProjectModules getProjectModules() {
         return (ProjectModules) this.repoList.get(0);
+    }
+
+    public ProjectBuildRepo getProjectBuildRepo() {
+        return (ProjectBuildRepo) this.repoList.get(1);
     }
 
     public BirCache getProjectBirCache() {

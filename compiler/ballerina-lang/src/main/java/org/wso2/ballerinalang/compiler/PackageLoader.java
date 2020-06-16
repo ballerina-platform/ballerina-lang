@@ -74,7 +74,6 @@ import java.util.stream.Stream;
 
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
@@ -160,7 +159,8 @@ public class PackageLoader {
 
         this.project = new Project(this.manifest, this.lockFile);
         this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
-                this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline, this.sourceDirectory);
+                this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline,
+                this.sourceDirectory);
         this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
     }
     
@@ -250,7 +250,7 @@ public class PackageLoader {
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        // PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId, null);
+
         // resolve the module version
         pkgId = moduleResolver.resolveVersion(pkgId, enclPackageId);
         // if module resolve version fails return null
@@ -279,18 +279,13 @@ public class PackageLoader {
 
     private BLangPackage loadPackage(PackageID pkgId) {
         // TODO Remove this method()
-        System.out.println("PPPPPPPPP");
-        System.out.println(pkgId);
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
         // resolve the module version
-        System.out.println("%%%%%%%%%%%%");
-        System.out.println(pkgId);
         pkgId = moduleResolver.resolveVersion(pkgId, null);
-        System.out.println(pkgId);
 
         // resolve module
         PackageEntity pkgEntity = moduleResolver.resolveModule(pkgId);
@@ -315,12 +310,6 @@ public class PackageLoader {
     }
 
     public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId) {
-
-        // if module resolve version fails return null
-        //if (packageId == null || packageId.version.getValue() == null || "".equals(packageId.version.getValue())) {
-        //    return null;
-        //}
-
         // check if the module version exists in the package cache
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
@@ -331,6 +320,10 @@ public class PackageLoader {
         packageId = moduleResolver.resolveVersion(packageId, enclPackageId);
         // resolve module
         PackageEntity pkgEntity = moduleResolver.resolveModule(packageId);
+
+        if (pkgEntity == null) {
+            return null;
+        }
 
         // lookup symbol cache again as the updated pkg from repo resolving can reside in the cache
         packageSymbol = this.packageCache.getSymbol(pkgEntity.getPackageId());

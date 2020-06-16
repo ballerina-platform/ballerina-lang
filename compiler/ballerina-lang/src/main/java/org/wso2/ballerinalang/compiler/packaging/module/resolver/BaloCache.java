@@ -17,9 +17,13 @@ public class BaloCache extends FileSystemCache {
     }
 
     @Override
-    PackageEntity getModule(PackageID moduleId) {
+    public PackageEntity getModule(PackageID moduleId) {
         Path srcPath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
                 moduleId.getName().getValue(), moduleId.version.getValue());
-        return new PackageBalo(moduleId, srcPath);
+        if (srcPath.toFile().exists()) {
+            return new PackageBalo(moduleId, srcPath);
+        } else {
+            return null;
+        }
     }
 }

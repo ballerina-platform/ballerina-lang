@@ -65,7 +65,7 @@ public class RepoHierarchy {
                 }
                 log2(repo, patten, paths);
                 if (!paths.isEmpty()) {
-                    return new Resolution(getChildHierarchyForRepo(i), paths);
+                    return new Resolution(getChildHierarchyForRepo(i));
                 }
             } else {
                 log3(repo);
