@@ -1364,11 +1364,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.RECORD:
                 return types.isAssignable(type, symTable.anydataOrReadOnlyMapType);
             case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
-                if (elementType.tag == TypeTags.MAP || elementType.tag == TypeTags.RECORD) {
-                    return types.isAssignable(elementType, symTable.anydataOrReadOnlyMapType);
-                }
-                return false;
+                return isValidAnnotationType(((BArrayType) type).eType);
         }
 
         return types.isAssignable(type, symTable.trueType);
