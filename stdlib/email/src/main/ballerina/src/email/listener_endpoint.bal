@@ -98,7 +98,7 @@ public type Listener object {
         check self.stop();
     }
 
-    function start() returns error? {
+    function 'start() returns error? {
         var scheduler = self.config.cronExpression;
         if (scheduler is string) {
             task:AppointmentConfiguration config = {appointmentDetails: scheduler};

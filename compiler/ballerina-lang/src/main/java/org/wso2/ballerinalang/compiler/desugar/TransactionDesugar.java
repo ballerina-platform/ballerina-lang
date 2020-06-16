@@ -17,7 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.tree.BlockNode;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -49,7 +48,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -414,15 +412,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createVariableDef(pos, outputVariable);
     }
 
-    private void createErrorReturn(DiagnosticPos pos, BlockNode blockStmt, BLangSimpleVarRef resultRef) {
-        BLangIf returnError = ASTBuilderUtil.createIfStmt(pos, blockStmt);
-        returnError.expr = desugar.createTypeCheckExpr(pos, resultRef, desugar.getErrorTypeNode());
-        returnError.body = ASTBuilderUtil.createBlockStmt(pos);
-        BLangReturn bLangReturn = ASTBuilderUtil.createReturnStmt(pos,
-                desugar.addConversionExprIfRequired(resultRef, symTable.errorType));
-        returnError.body.stmts.add(bLangReturn);
-    }
-
     public BLangStatementExpression desugar(BLangRetryTransaction retryTrxBlock, SymbolEnv env) {
         BLangBlockStmt blockStmt = desugarTransactionBody(retryTrxBlock.transaction, env, true, retryTrxBlock.pos);
         BLangSimpleVariableDef retryMgrDef =
@@ -433,7 +422,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 resultRef);
         createRollbackIfFailed(retryTrxBlock.pos, retryWhileLoop.body, resultRef.symbol);
         blockStmt.stmts.add(retryWhileLoop);
-        createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
+        desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
 
         if (retryTrxBlock.transactionReturns) {
             //  returns <TypeCast>$result$;

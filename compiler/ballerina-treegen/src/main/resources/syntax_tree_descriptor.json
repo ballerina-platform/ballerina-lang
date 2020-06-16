@@ -53,6 +53,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -2099,6 +2104,22 @@
             ]
         },
         {
+            "name": "XmlTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "XML_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "xmlKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
             "name": "LetVariableDeclarationNode",
             "base": "Node",
             "kind": "LET_VAR_DECL",
@@ -3705,6 +3726,11 @@
                 },
                 {
                     "name": "remoteKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "transactionalKeyword",
                     "type": "Token",
                     "isOptional": true
                 },
