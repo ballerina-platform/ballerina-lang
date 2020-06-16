@@ -37,7 +37,7 @@ public final class Tag implements Comparable<Tag> {
         this.hashCode = Objects.hash(key, value);
     }
 
-    static Tag of(String key, String value) {
+    public static Tag of(String key, String value) {
         return new Tag(key, value);
     }
 
@@ -74,10 +74,8 @@ public final class Tag implements Comparable<Tag> {
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder("Tag{");
-        sb.append("key='").append(key).append('\'');
-        sb.append(", value='").append(value).append('\'');
-        sb.append('}');
-        return sb.toString();
+        return "Tag{" + "key='" + key + '\'' +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

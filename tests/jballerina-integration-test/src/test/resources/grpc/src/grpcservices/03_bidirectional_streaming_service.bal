@@ -78,7 +78,6 @@ service Chat on ep3 {
             }
         });
         if (e is grpc:EOS) {
-            grpc:Caller conn;
             string msg = string `${caller.getId()} left the chat`;
             log:printInfo(msg);
             var v = connectionsMap.remove(caller.getId().toString());
@@ -86,6 +85,7 @@ service Chat on ep3 {
             log:printInfo("Map length: " + connectionsMap.length().toString());
             log:printInfo(connectionsMap.toString());
             foreach var [callerId, connection] in connectionsMap.entries() {
+                grpc:Caller conn;
                 conn = connection;
                 grpc:Error? err = conn->send(msg);
                 if (err is grpc:Error) {

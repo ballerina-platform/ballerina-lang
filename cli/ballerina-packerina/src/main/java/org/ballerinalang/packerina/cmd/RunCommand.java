@@ -27,8 +27,10 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
+import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
+import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -38,6 +40,8 @@ import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
@@ -114,6 +118,9 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--old-parser", description = "Enable new parser.", hidden = true)
     private boolean useOldParser;
+
+    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
+    private boolean withChoreo;
 
     public RunCommand() {
         this.outStream = System.err;
@@ -275,6 +282,10 @@ public class RunCommand implements BLauncherCmd {
         buildContext.setOut(this.outStream);
         buildContext.setErr(this.errStream);
 
+        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
+        boolean isChoreoExtensionSkipped = !(withChoreo ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
+
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -286,8 +297,10 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
+                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
+                .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(false, true))
                 .addTask(new PrintExecutablePathTask(), isSingleFileBuild)   // print the location of the executable
                 .addTask(new PrintRunningExecutableTask(!isSingleFileBuild))   // print running executables
