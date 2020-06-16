@@ -92,7 +92,7 @@ function testAnonFunctionExpression() {
         return testObj;
     };
 
-    var y = function(int, TestObject1) returns TestObject1;
+    //var y = function(int, TestObject1) returns TestObject1;
     function(int, int) returns int z = (param1, param2) => param1 + param2;
 }
 

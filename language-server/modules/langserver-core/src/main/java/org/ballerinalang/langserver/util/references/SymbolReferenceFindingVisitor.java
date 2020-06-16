@@ -1039,7 +1039,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
         return this.workerLambdas.stream()
-                .filter(function -> function.defaultWorkerName.getPosition() == position)
+                .filter(function -> {
+                    DiagnosticPos namePosition = function.defaultWorkerName.getPosition();
+                    return namePosition.sLine == position.sLine && namePosition.eLine == position.eLine
+                            && namePosition.sCol == position.sCol && namePosition.eCol == position.eCol;
+                })
                 .findAny();
     }
     
@@ -1059,7 +1063,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private BSymbol getWorkerSymbolForPosition(DiagnosticPos pos) {
         return this.workerVarDefMap.entrySet().stream()
-                .filter(entry -> entry.getValue() == pos)
+                .filter(workerPos -> {
+                    DiagnosticPos posValue = workerPos.getValue();
+                    return posValue.sLine == pos.sLine && posValue.eLine == pos.eLine
+                            && posValue.sCol == pos.sCol && posValue.eCol == pos.eCol;
+                })
                 .findAny()
                 .map(Map.Entry::getKey)
                 .orElse(null);
