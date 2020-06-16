@@ -15,6 +15,7 @@
 
 import ballerina/java.jdbc;
 import ballerina/sql;
+import ballerina/io;
 
 function testConnection1(string jdbcURL, string user, string password) returns error? {
     jdbc:Client testDB = check new (url = jdbcURL, user = user, password = password);
@@ -120,4 +121,25 @@ function testWithAllParams(string jdbcURL, string user, string password) returns
     };
     jdbc:Client dbClient = check new (jdbcURL, user, password, options, connectionPool);
     check dbClient.close();
+}
+
+function test(){
+   sql:ConnectionPool connPool = {maxOpenConnections: 5};
+
+       jdbc:Client|sql:Error dbClient = new (url = "jdbc:mysql://localhost:3306/testdb",
+                                    connectionPool = connPool);
+       if (dbClient is jdbc:Client){
+           string name = "Anne";
+           int age = 8;
+
+           var ret = dbClient->execute(`INSERT INTO student(age, name)
+                                        values (${age}, ${name})`);
+           if (ret is sql:ExecutionResult) {
+               io:println("Inserted row count to Students table: ", ret.affectedRowCount);
+           } else {
+               error err = ret;
+               io:println("Insert to Students table failed: ",
+                           <string>err.detail()["message"]);
+           }
+       }
 }
