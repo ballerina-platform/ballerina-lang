@@ -18,9 +18,12 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
@@ -42,6 +45,7 @@ import java.util.List;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -93,6 +97,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
     private boolean offline;
+
+    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
+    private boolean newParserEnabled;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -275,8 +282,12 @@ public class DocCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
+
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true);
+        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
         
