@@ -782,6 +782,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
             }
 
+            if (qualifier.kind() == SyntaxKind.READONLY_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.READONLY);
+            }
+
             if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
                 objectTypeNode.flagSet.add(SERVICE);
             }
