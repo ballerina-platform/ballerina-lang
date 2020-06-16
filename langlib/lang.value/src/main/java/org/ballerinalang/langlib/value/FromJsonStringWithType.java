@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.JSONParser;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.TypedescValue;
@@ -28,6 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
@@ -62,7 +64,8 @@ public class FromJsonStringWithType {
             Object jsonFromString = JSONParser.parse(str);
             return FromJsonWithType.fromJsonWithType(strand, jsonFromString, t);
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError("{ballerina}FromJsonStringWithTypeError", e.getMessage());
+            return BallerinaErrors.createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
+                    StringUtils.fromString(e.getMessage()));
         }
     }
 }
