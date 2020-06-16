@@ -136,7 +136,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.env = this.symTable.pkgEnvMap.get(pkgNode.symbol);
-//        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
+        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode));
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         pkgNode.getTestablePkgs().forEach(this::analyze);
         return pkgNode;
