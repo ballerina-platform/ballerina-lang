@@ -600,10 +600,7 @@ public class BindgenUtils {
 
     private static boolean isJarFile(File file) {
         String fileName = file.getName();
-        if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
-            return true;
-        }
-        return false;
+        return file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar");
     }
 
     public static void setErrStream(PrintStream errStream) {

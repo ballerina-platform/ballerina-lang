@@ -150,8 +150,8 @@ function {{prefix}}_{{constructorName}}({{#parameters}}{{externalType}} {{fieldN
 {{/if}}{{#methodList}}
 function {{prefix}}_{{methodName}}({{#getInteropMethod this "param"}}{{/getInteropMethod}}){{#getInteropMethod this "return"}}{{/getInteropMethod}} = {{interopType}} {
     name: "{{javaMethodName}}",
-    class: "{{className}}"{{#if isOverloaded}},
-    paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]{{/if}}
+    class: "{{className}}",
+    paramTypes: [{{#parameters}}"{{type}}"{{#if hasNext}}, {{/if}}{{/parameters}}]
 } external;
 {{/methodList}}{{#if fieldList}}
 // External interop functions for mapping public fields.
