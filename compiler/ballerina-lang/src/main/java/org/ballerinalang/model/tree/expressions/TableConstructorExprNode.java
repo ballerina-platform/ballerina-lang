@@ -18,7 +18,6 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.TableKeySpecifierNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
 
