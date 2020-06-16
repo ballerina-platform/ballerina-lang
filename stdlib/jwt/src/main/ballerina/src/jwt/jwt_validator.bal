@@ -273,17 +273,17 @@ function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPaylo
     JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
 
     JwksConfig? jwksConfig = config?.jwksConfig;
+    JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
     if (jwksConfig is JwksConfig) {
         string? kid = jwtHeader?.kid;
         if (kid is string) {
             _ = check validateSignatureByJwks(jwt, kid, alg, jwksConfig);
+        } else if (trustStoreConfig is JwtTrustStoreConfig) {
+            _ = check validateSignatureByTrustStore(jwt, alg, trustStoreConfig);
         } else {
             return prepareError("Key ID (kid) is not provided in JOSE header.");
         }
-    }
-
-    JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
-    if (trustStoreConfig is JwtTrustStoreConfig) {
+    } else if (trustStoreConfig is JwtTrustStoreConfig) {
         _ = check validateSignatureByTrustStore(jwt, alg, trustStoreConfig);
     }
 
