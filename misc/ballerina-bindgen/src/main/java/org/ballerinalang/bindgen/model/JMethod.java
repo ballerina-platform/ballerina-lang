@@ -48,7 +48,6 @@ public class JMethod {
     private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean returnError = false;
-    private boolean isOverloaded = true;
     private boolean objectReturn = false;
     private boolean reservedWord = false;
     private boolean isArrayReturn = false;
@@ -57,6 +56,7 @@ public class JMethod {
     private boolean isStringReturn = false;
     private boolean hasPrimitiveParam = false;
 
+    private Method method;
     private String methodName;
     private String returnType;
     private String externalType;
@@ -72,6 +72,7 @@ public class JMethod {
     private StringBuilder paramTypes = new StringBuilder();
 
     JMethod(Method m) {
+        method = m;
         javaMethodName = m.getName();
         methodName = m.getName();
         shortClassName = getAlias(m.getDeclaringClass());
@@ -127,6 +128,7 @@ public class JMethod {
         returnTypeJava = getJavaType(returnTypeClass);
         externalType = getBallerinaHandleType(returnTypeClass);
         returnType = getBallerinaParamType(returnTypeClass);
+        returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             hasException = true;
             returnError = true;
@@ -137,14 +139,7 @@ public class JMethod {
                 objectReturn = false;
             } else {
                 returnComponentType = getAlias(returnTypeClass.getComponentType());
-                // Append the prefix "J" in front of bindings generated for Java exceptions.
-                try {
-                    if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
-                            .isAssignableFrom(returnTypeClass)) {
-                        returnComponentType = "J" + returnComponentType;
-                    }
-                } catch (ClassNotFoundException ignore) {
-                }
+                returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 objectReturn = true;
             }
         } else if (returnTypeClass.isPrimitive()) {
@@ -154,6 +149,18 @@ public class JMethod {
         } else {
             objectReturn = true;
         }
+    }
+
+    private String getExceptionName(Class exception, String name) {
+        try {
+            // Append the prefix "J" in front of bindings generated for Java exceptions.
+            if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
+                    .isAssignableFrom(exception)) {
+                return "J" + name;
+            }
+        } catch (ClassNotFoundException ignore) {
+        }
+        return name;
     }
 
     private void setParameters(Parameter[] paramArr) {
@@ -173,7 +180,7 @@ public class JMethod {
         }
     }
 
-    String getJavaMethodName() {
+    public String getJavaMethodName() {
         return javaMethodName;
     }
 
@@ -199,10 +206,6 @@ public class JMethod {
 
     public String getReturnType() {
         return returnType;
-    }
-
-    public void setIsOverloaded(boolean overloaded) {
-        isOverloaded = overloaded;
     }
 
     public String getMethodName() {
@@ -241,7 +244,11 @@ public class JMethod {
         return returnError;
     }
 
-    public void setShortClassName(String shortClassName) {
+    void setShortClassName(String shortClassName) {
         this.shortClassName = shortClassName;
+    }
+
+    public Method getMethod() {
+        return method;
     }
 }
