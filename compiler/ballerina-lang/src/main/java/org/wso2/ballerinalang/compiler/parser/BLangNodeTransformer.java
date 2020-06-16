@@ -3768,11 +3768,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return true;
         }
 
-        if (typeNode.kind() == SyntaxKind.ERROR_TYPE_DESC) {
-            Optional<ErrorTypeParamsNode> typeParam = ((ErrorTypeDescriptorNode) typeNode).errorTypeParamsNode();
-            return typeParam.isPresent() && typeParam.get().parameter().kind() == SyntaxKind.ASTERISK_TOKEN;
-        }
-
         return false;
     }
 

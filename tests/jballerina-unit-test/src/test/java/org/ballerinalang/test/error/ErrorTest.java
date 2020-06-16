@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class ErrorTest {
 
     private CompileResult errorTestResult;
