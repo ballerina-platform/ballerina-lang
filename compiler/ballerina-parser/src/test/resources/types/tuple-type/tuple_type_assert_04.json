@@ -503,10 +503,49 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "d"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "d",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "COMMA_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "STRING_KEYWORD"
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_BRACKET_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -646,6 +685,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -653,9 +693,11 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TUPLE_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "OPEN_BRACKET_TOKEN",
@@ -668,12 +710,32 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "INT_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "INT_KEYWORD",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "PERCENT_TOKEN",
+                                        "trailingMinutiae": [
+                                          {
+                                            "kind": "WHITESPACE_MINUTIAE",
+                                            "value": " "
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -888,10 +950,36 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "h"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "h",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "DOT_TOKEN"
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_BRACKET_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -958,10 +1046,43 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "i"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "i",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "DOT_TOKEN"
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "DOT_TOKEN"
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_BRACKET_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1031,9 +1152,28 @@
                             },
                             {
                               "kind": "INT_TYPE_DESC",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "INT_KEYWORD",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "PERCENT_TOKEN",
+                                        "trailingMinutiae": [
+                                          {
+                                            "kind": "WHITESPACE_MINUTIAE",
+                                            "value": " "
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -1076,10 +1216,29 @@
                 },
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "j"
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "value": "j",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "CLOSE_BRACKET_TOKEN",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
@@ -1096,6 +1255,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -1103,6 +1263,7 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TUPLE_TYPE_DESC",
@@ -1136,10 +1297,29 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "k"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "k",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_BRACKET_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }

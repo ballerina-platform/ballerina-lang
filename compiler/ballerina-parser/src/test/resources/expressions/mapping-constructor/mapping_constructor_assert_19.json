@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -46,6 +47,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -58,9 +60,11 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -94,6 +98,7 @@
                 },
                 {
                   "kind": "MAPPING_CONSTRUCTOR",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACE_TOKEN",
@@ -106,12 +111,33 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SPECIFIC_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "READONLY_KEYWORD",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                    "value": "5",
+                                    "trailingMinutiae": [
+                                      {
+                                        "kind": "WHITESPACE_MINUTIAE",
+                                        "value": " "
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -157,6 +183,7 @@
             },
             {
               "kind": "ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "SIMPLE_NAME_REFERENCE",
@@ -190,6 +217,7 @@
                 },
                 {
                   "kind": "MAPPING_CONSTRUCTOR",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "OPEN_BRACE_TOKEN",
@@ -202,9 +230,11 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "SPECIFIC_FIELD",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "READONLY_KEYWORD",
@@ -217,7 +247,26 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "value": "a",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "DECIMAL_INTEGER_LITERAL",
+                                    "value": "6",
+                                    "trailingMinutiae": [
+                                      {
+                                        "kind": "WHITESPACE_MINUTIAE",
+                                        "value": " "
+                                      }
+                                    ]
+                                  }
+                                }
+                              ]
                             },
                             {
                               "kind": "COLON_TOKEN"

@@ -147,6 +147,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -154,6 +155,7 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "STREAM_TYPE_DESC",
@@ -177,10 +179,36 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "STRING_KEYWORD"
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "GT_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -561,6 +589,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -568,9 +597,11 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "STREAM_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "STREAM_KEYWORD",
@@ -583,6 +614,7 @@
                         },
                         {
                           "kind": "STREAM_TYPE_PARAMS",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LT_TOKEN"
@@ -603,6 +635,18 @@
                             },
                             {
                               "kind": "GT_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "PERCENT_TOKEN"
+                                  }
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -645,6 +689,7 @@
               "children": [
                 {
                   "kind": "TYPE_CAST_EXPRESSION",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LT_TOKEN",
@@ -688,6 +733,31 @@
                     },
                     {
                       "kind": "GT_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN",
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "COMMA_TOKEN",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "ERROR_KEYWORD"
+                          }
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -719,6 +789,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -726,6 +797,7 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "STREAM_TYPE_DESC",
@@ -762,10 +834,29 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "GT_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }

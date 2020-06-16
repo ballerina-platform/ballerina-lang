@@ -16,6 +16,7 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SIMPLE_NAME_REFERENCE",
@@ -55,13 +56,27 @@
         },
         {
           "kind": "FUNCTION_CALL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "SIMPLE_NAME_REFERENCE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "bar"
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_INVALID_TOKEN"
+                  ],
+                  "value": "bar",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "COMMA_TOKEN"
+                      }
+                    }
+                  ]
                 }
               ]
             },

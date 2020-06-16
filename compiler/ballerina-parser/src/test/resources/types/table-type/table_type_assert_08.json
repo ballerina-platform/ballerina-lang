@@ -1023,6 +1023,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -1030,6 +1031,7 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TABLE_TYPE_DESC",
@@ -1066,10 +1068,29 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "GT_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ]
                         }
                       ]
                     }
@@ -1088,6 +1109,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -1095,9 +1117,11 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TABLE_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TABLE_KEYWORD",
@@ -1110,6 +1134,7 @@
                         },
                         {
                           "kind": "TYPE_PARAMETER",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "LT_TOKEN"
@@ -1124,6 +1149,26 @@
                             },
                             {
                               "kind": "GT_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN",
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "COMMA_TOKEN"
+                                  }
+                                },
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "Mytype"
+                                  }
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -1167,6 +1212,7 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TABLE_TYPE_DESC",
@@ -1228,10 +1274,29 @@
                     },
                     {
                       "kind": "CAPTURE_BINDING_PATTERN",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "IDENTIFIER_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
                           "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_PAREN_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": " "
+                                  }
+                                ]
+                              }
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",
@@ -1255,6 +1320,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -1262,9 +1328,11 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TABLE_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TABLE_KEYWORD",
@@ -1303,12 +1371,14 @@
                         },
                         {
                           "kind": "KEY_TYPE_CONSTRAINT",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "KEY_KEYWORD"
                             },
                             {
                               "kind": "TYPE_PARAMETER",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "LT_TOKEN"
@@ -1324,6 +1394,26 @@
                                 },
                                 {
                                   "kind": "GT_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_INVALID_TOKEN",
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "COMMA_TOKEN"
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "IDENTIFIER_TOKEN",
+                                        "value": "name"
+                                      }
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
@@ -1361,6 +1451,7 @@
             },
             {
               "kind": "LOCAL_VAR_DECL",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
@@ -1368,9 +1459,11 @@
                 },
                 {
                   "kind": "TYPED_BINDING_PATTERN",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "TABLE_TYPE_DESC",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "TABLE_KEYWORD",
@@ -1409,6 +1502,7 @@
                         },
                         {
                           "kind": "KEY_SPECIFIER",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "KEY_KEYWORD"
@@ -1422,6 +1516,18 @@
                             },
                             {
                               "kind": "CLOSE_PAREN_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "INT_KEYWORD"
+                                  }
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

@@ -94,8 +94,8 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
-        removeInvalidToken();
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        sol.removedToken = getInvalidToken();
         return sol;
     }
 
@@ -112,16 +112,20 @@ public abstract class AbstractParserErrorHandler {
         // TODO: add this error node to the tree
     }
 
+    public STToken getInvalidToken() {
+        return this.tokenReader.read();
+    }
+
     /**
      * Apply the fix to the current context.
      *
      * @param currentCtx Current context
-     * @param fix Fix to apply
-     * @param args Arguments that requires to continue parsing from the given parser context
+     * @param fix        Fix to apply
+     * @param args       Arguments that requires to continue parsing from the given parser context
      */
     private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
-            removeInvalidToken();
+            fix.removedToken = getInvalidToken();
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
@@ -416,6 +420,7 @@ public abstract class AbstractParserErrorHandler {
         public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
+        public STNode removedToken;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;

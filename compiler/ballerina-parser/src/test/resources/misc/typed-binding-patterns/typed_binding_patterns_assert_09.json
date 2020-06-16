@@ -12,6 +12,7 @@
       "children": [
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -58,6 +59,24 @@
             },
             {
               "kind": "EQUAL_TOKEN",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN"
+              ],
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "CLOSE_BRACKET_TOKEN",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -626,6 +645,7 @@
                   "children": [
                     {
                       "kind": "LOCAL_VAR_DECL",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
@@ -683,6 +703,18 @@
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "CLOSE_BRACKET_TOKEN"
+                              }
+                            }
+                          ],
                           "trailingMinutiae": [
                             {
                               "kind": "END_OF_LINE_MINUTIAE",

@@ -445,7 +445,19 @@
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "value": "c",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "COLON_TOKEN"
+                                  }
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN",

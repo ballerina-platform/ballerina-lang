@@ -226,10 +226,29 @@
                         },
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
                               "value": "e",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "IN_KEYWORD",
+                                    "trailingMinutiae": [
+                                      {
+                                        "kind": "WHITESPACE_MINUTIAE",
+                                        "value": " "
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

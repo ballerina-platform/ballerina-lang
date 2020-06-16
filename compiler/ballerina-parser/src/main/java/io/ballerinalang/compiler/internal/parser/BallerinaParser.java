@@ -8746,7 +8746,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getKeyKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae());
+        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(),
+                token.trailingMinutiae(), token.diagnostics());
     }
 
     /**
@@ -9239,7 +9240,7 @@ public class BallerinaParser extends AbstractParser {
             if (nextToken.kind == SyntaxKind.EOF_TOKEN || nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
                 break;
             } else {
-                consume();
+                nextToken = consume();
                 expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
                         DiagnosticErrorCode.ERROR_INVALID_TOKEN);
             }

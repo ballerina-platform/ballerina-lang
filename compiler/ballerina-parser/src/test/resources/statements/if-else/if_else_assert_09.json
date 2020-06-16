@@ -123,16 +123,43 @@
                         },
                         {
                           "kind": "LIST",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "FIELD_BINDING_PATTERN",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INVALID_TOKEN"
+                                      ],
                                       "value": "x",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INT_KEYWORD",
+                                            "leadingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": "        "
+                                              }
+                                            ],
+                                            "trailingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": " "
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ],
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",

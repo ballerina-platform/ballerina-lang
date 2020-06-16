@@ -1,5 +1,6 @@
 {
   "kind": "XML_STEP_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "SIMPLE_NAME_REFERENCE",
@@ -18,6 +19,7 @@
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SLASH_LT_TOKEN",
@@ -30,6 +32,7 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "ASTERISK_TOKEN",
@@ -51,10 +54,29 @@
             },
             {
               "kind": "XML_ATOMIC_NAME_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_INVALID_TOKEN"
+                  ],
+                  "value": "b",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "PUBLIC_KEYWORD",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 },
                 {
                   "kind": "COLON_TOKEN"

@@ -300,10 +300,29 @@
                                 },
                                 {
                                   "kind": "CAPTURE_BINDING_PATTERN",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INVALID_TOKEN"
+                                      ],
                                       "value": "test",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "IN_KEYWORD",
+                                            "trailingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": " "
+                                              }
+                                            ]
+                                          }
+                                        }
+                                      ],
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",

@@ -129,6 +129,7 @@
             },
             {
               "kind": "REST_PARAM",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "COMMA_TOKEN",
@@ -154,6 +155,24 @@
                 },
                 {
                   "kind": "ELLIPSIS_TOKEN",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_INVALID_TOKEN"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      }
+                    }
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
