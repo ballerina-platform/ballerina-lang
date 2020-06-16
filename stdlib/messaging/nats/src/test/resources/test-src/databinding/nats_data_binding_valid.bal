@@ -123,7 +123,7 @@ service dataBindingJsonConsumerService on lis {
  }
  service dataBindingRecordConsumerService on lis {
       resource function onMessage(nats:StreamingMessage message, Entry data) {
-          json | error val = data.cloneWithType(typedesc<json>);
+          json | error val = data.cloneWithType(JsonTypedesc);
           if (val is json) {
              io:println("Received Message - service: " + val.toString());
           }
@@ -133,3 +133,6 @@ service dataBindingJsonConsumerService on lis {
          io:println("Error occurred!!!!");
      }
  }
+
+ type JsonTypedesc typedesc<json>;
+ 

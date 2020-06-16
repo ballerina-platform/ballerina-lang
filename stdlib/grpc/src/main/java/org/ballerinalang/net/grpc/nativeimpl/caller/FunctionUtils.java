@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getMappingHttpStatusCode;
 
@@ -72,8 +72,8 @@ public class FunctionUtils {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
                     responseObserver.onCompleted();
                 }
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
-                        HttpResponseStatus.OK.codeAsText().toString()));
+                observerContext.ifPresent(ctx -> ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE,
+                        HttpResponseStatus.OK.code()));
             } catch (Exception e) {
                 LOG.error("Error while sending complete message to caller.", e);
                 return MessageUtils.getConnectorError(e);
@@ -180,8 +180,8 @@ public class FunctionUtils {
                     headers.entries().forEach(
                             x -> observerContext.ifPresent(ctx -> ctx.addTag(x.getKey(), x.getValue())));
                 }
-                observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
-                        String.valueOf(getMappingHttpStatusCode((int) statusCode))));
+                int mappedStatusCode = getMappingHttpStatusCode((int) statusCode);
+                observerContext.ifPresent(ctx -> ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, mappedStatusCode));
                 responseObserver.onError(errorMessage);
             } catch (Exception e) {
                 LOG.error("Error while sending error to caller.", e);

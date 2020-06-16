@@ -53,6 +53,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(functionDefinitionNode.metadata());
         Token visibilityQualifier =
                 modifyToken(functionDefinitionNode.visibilityQualifier().orElse(null));
+        Token transactionalKeyword =
+                modifyToken(functionDefinitionNode.transactionalKeyword().orElse(null));
         Token functionKeyword =
                 modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName =
@@ -64,6 +66,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -1587,6 +1590,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public XmlTypeDescriptorNode transform(
+            XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        Token xmlKeywordToken =
+                modifyToken(xmlTypeDescriptorNode.xmlKeywordToken());
+        TypeParameterNode xmlTypeParamsNode =
+                modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
+        return xmlTypeDescriptorNode.modify(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
+    }
+
+    @Override
     public LetVariableDeclarationNode transform(
             LetVariableDeclarationNode letVariableDeclarationNode) {
         NodeList<AnnotationNode> annotations =
@@ -2778,6 +2793,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(objectMethodDefinitionNode.visibilityQualifier().orElse(null));
         Token remoteKeyword =
                 modifyToken(objectMethodDefinitionNode.remoteKeyword().orElse(null));
+        Token transactionalKeyword =
+                modifyToken(objectMethodDefinitionNode.transactionalKeyword().orElse(null));
         Token functionKeyword =
                 modifyToken(objectMethodDefinitionNode.functionKeyword());
         IdentifierToken methodName =
@@ -2790,6 +2807,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,

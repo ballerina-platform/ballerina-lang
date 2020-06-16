@@ -33,6 +33,7 @@ import java.util.Collections;
 public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
+    public final STNode transactionalKeyword;
     public final STNode functionKeyword;
     public final STNode functionName;
     public final STNode functionSignature;
@@ -41,6 +42,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     STFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -48,6 +50,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         this(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -58,6 +61,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     STFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -66,6 +70,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
+        this.transactionalKeyword = transactionalKeyword;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
         this.functionSignature = functionSignature;
@@ -74,6 +79,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         addChildren(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -84,6 +90,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         return new STFunctionDefinitionNode(
                 this.metadata,
                 this.visibilityQualifier,
+                this.transactionalKeyword,
                 this.functionKeyword,
                 this.functionName,
                 this.functionSignature,
@@ -94,6 +101,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public STFunctionDefinitionNode modify(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -101,6 +109,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -111,6 +120,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         return new STFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,

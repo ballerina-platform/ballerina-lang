@@ -49,6 +49,7 @@ configurations {
 
 dependencies {
     dist project(':ballerina-rt')
+    dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
