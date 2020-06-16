@@ -30,6 +30,10 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.compiler.format.FormattingVisitorEntry;
+import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
+import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
+import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,13 +69,13 @@ public class BallerinaTriggerModifyUtil {
 
     public static LSContext modifyTrigger(String type, JsonObject config, String fileUri, Path compilationPath,
                                           WorkspaceDocumentManager documentManager)
-            throws CompilationFailedException, WorkspaceDocumentException, IOException {
+            throws CompilationFailedException, WorkspaceDocumentException, IOException, JSONGenerationException {
         LSContext astContext = new DocumentOperationContext
                 .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, true);
+                false, false, false);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
 
@@ -93,7 +97,7 @@ public class BallerinaTriggerModifyUtil {
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
-                false, false, true);
+                false, false, false);
         BLangPackage updatedTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
 
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
@@ -108,14 +112,20 @@ public class BallerinaTriggerModifyUtil {
             updatedSyntaxTreeString = updatedSyntaxTree.toString();
             documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
         }
+
+        //Format bal file code
+        JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
+        JsonObject model = jsonAST.getAsJsonObject("model");
+        FormattingSourceGen.build(model, "CompilationUnit");
+        FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
+        formattingUtil.accept(model);
+
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
 //        logger.info("Updated Tree v2 : " + updatedSyntaxTree);
-
         File outputFile = compilationPath.toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(updatedSyntaxTreeString);
         }
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         return astContext;
     }
 
