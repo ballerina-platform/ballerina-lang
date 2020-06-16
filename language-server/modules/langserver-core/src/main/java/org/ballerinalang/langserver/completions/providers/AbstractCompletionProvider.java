@@ -205,6 +205,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                 completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
             }
         });
+        
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
 
         return completionItems;
     }

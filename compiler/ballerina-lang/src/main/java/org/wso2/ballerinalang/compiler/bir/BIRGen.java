@@ -303,6 +303,9 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
+
+    // If the Function in the Basic block exists in the MockFunctionMap
+    // Replace the function call with the equivalent '$MOCK_' substitute
     private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
         for (BIRFunction function : birPkg.functions) {
             List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
@@ -311,12 +314,27 @@ public class BIRGen extends BLangNodeVisitor {
                 if (bbTerminator.kind.equals(InstructionKind.CALL)) {
                     //We get the callee and the name and generate 'calleepackage#name'
                     BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
+
                     String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
                             + callTerminator.name.toString();
+
+                    // If the generated Key exists in the map, then use the old implementation
                     if (mockFunctionMap.get(functionKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
                         String mockfunctionName = mockFunctionMap.get(functionKey);
                         callTerminator.name = new Name(mockfunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    }
+
+
+                    // If function in basic block exists in the MockFunctionMap
+                    if (mockFunctionMap.containsKey(callTerminator.name.getValue())) {
+                        // Replace the function call with the equivalent $MOCK_ substitiute
+                        // TODO : Change MOCK_ to $MOCK_ when replacing with Desugar mock function.
+                        String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
+                        callTerminator.name = new Name(desugarFunction);
+
+                        // TODO : Change this to package where the desugar mock function resides.
                         callTerminator.calleePkg = function.pos.src.pkgID;
                     }
                 }
