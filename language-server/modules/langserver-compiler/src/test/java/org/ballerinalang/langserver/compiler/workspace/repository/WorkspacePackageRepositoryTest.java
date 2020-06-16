@@ -160,7 +160,7 @@ public class WorkspacePackageRepositoryTest {
         WorkspaceDocumentManagerImpl documentManager = ExtendedWorkspaceDocumentManagerImpl.getInstance();
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(packageName), Names.DEFAULT_VERSION);
         return LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument, documentManager,
-                false);
+                false, true);
     }
 
     private BLangPackage compileFile(String packageName, CompilerContext context) {
