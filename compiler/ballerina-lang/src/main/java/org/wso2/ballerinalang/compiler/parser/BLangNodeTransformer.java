@@ -743,7 +743,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Optional<ErrorTypeParamsNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
         errorType.pos = getPosition(errorTypeDescriptorNode);
         if (typeParam.isPresent()) {
-            BLangType detail = createTypeNode(typeParam.get());
+            ErrorTypeParamsNode typeNode = typeParam.get();
+            BLangType detail = null;
+            if (isAnonymousTypeNode(typeNode)) {
+                detail = deSugarTypeAsUserDefType(createTypeNode(typeNode));
+            } else {
+                detail = createTypeNode(typeNode);
+            }
+
             if (detail != null) {
                 errorType.detailType = detail;
                 if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
@@ -755,6 +762,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return errorType;
+    }
+
+    private boolean isAnonymousTypeNode(ErrorTypeParamsNode typeNode) {
+        SyntaxKind paramKind = typeNode.parameter().kind();
+        if (paramKind == SyntaxKind.RECORD_TYPE_DESC || paramKind == SyntaxKind.OBJECT_TYPE_DESC
+                || paramKind == SyntaxKind.ERROR_TYPE_DESC) {
+            return checkIfAnonymous(typeNode);
+        }
+        return false;
     }
 
     @Override
