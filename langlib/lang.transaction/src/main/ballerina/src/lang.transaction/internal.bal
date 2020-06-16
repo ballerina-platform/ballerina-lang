@@ -510,7 +510,13 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
 # + transactionId - Globally unique transaction ID.
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
-public function endTransaction(string transactionId, string transactionBlockId) returns @tainted string|error {
+public transactional function endTransaction(string transactionId, string transactionBlockId)
+        returns @tainted string|error? {
+
+    if (getRollbackOnly()) {
+        return getRollbackOnlyError();
+    }
+
     string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
     if (!initiatedTransactions.hasKey(transactionId) && !participatedTransactions.hasKey(participatedTxnId)) {
         error err = error("Transaction: " + participatedTxnId + " not found");
@@ -617,3 +623,5 @@ function getHostAddress() returns string = external;
 function uuid() returns string = external;
 
 function timeNow() returns int = external;
+
+function getRollbackOnlyError() returns error? = external;
