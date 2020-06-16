@@ -45,7 +45,7 @@ public type Client client object {
     #
     # + url - URL of the target service
     # + config - The configurations to be used when initializing the `client`
-    public function __init(string url, public ClientConfiguration? config = ()) {
+    public function init(string url, public ClientConfiguration? config = ()) {
         self.config = config ?: {};
         self.url = url;
         var cookieConfigVal = self.config.cookieConfig;
@@ -71,7 +71,7 @@ public type Client client object {
     public remote function post(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->post(path, req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_POST, response.statusCode, self.url);
         }
         return response;
@@ -86,7 +86,7 @@ public type Client client object {
     public remote function head(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->head(path, message = req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_HEAD, response.statusCode, self.url);
         }
         return response;
@@ -101,7 +101,7 @@ public type Client client object {
     public remote function put(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->put(path, req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_PUT, response.statusCode, self.url);
         }
         return response;
@@ -117,7 +117,7 @@ public type Client client object {
     public remote function execute(@untainted string httpVerb, @untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->execute(httpVerb, path, req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, httpVerb, response.statusCode, self.url);
         }
         return response;
@@ -132,7 +132,7 @@ public type Client client object {
     public remote function patch(@untainted string path, RequestMessage message) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->patch(path, req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_PATCH, response.statusCode, self.url);
         }
         return response;
@@ -147,7 +147,7 @@ public type Client client object {
     public remote function delete(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->delete(path, req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_DELETE, response.statusCode, self.url);
         }
         return response;
@@ -162,7 +162,7 @@ public type Client client object {
     public remote function get(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->get(path, message = req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_GET, response.statusCode, self.url);
         }
         return response;
@@ -177,7 +177,7 @@ public type Client client object {
     public remote function options(@untainted string path, public RequestMessage message = ()) returns Response|ClientError {
         Request req = buildRequest(message);
         Response|ClientError response = self.httpClient->options(path, message = req);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, HTTP_OPTIONS, response.statusCode, self.url);
         }
         return response;
@@ -190,7 +190,7 @@ public type Client client object {
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function forward(@untainted string path, Request request) returns Response|ClientError {
         Response|ClientError response = self.httpClient->forward(path, request);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(path, request.method, response.statusCode, self.url);
         }
         return response;
@@ -245,7 +245,7 @@ public type Client client object {
     # + return - A promised `http:Response` message or else an `http:ClientError` if the invocation fails
     public remote function getPromisedResponse(PushPromise promise) returns Response|ClientError {
         Response|ClientError response = self.httpClient->getPromisedResponse(promise);
-        if (response is Response) {
+        if (observabilityEnabled && response is Response) {
             addObservabilityInformation(promise.path, promise.method, response.statusCode, self.url);
         }
         return response;

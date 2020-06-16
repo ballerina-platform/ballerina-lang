@@ -37,7 +37,7 @@ function readBytes(int numberOfBytes) returns @tainted byte[]|io:Error {
     if (rChannel is io:ReadableByteChannel) {
         return rChannel.read(numberOfBytes);
     } else {
-        io:GenericError e = error(io:GENERIC_ERROR, message = "ReadableByteChannel not initialized");
+        io:GenericError e = io:GenericError("ReadableByteChannel not initialized");
         return e;
     }
 }
@@ -53,7 +53,7 @@ function writeBytes(byte[] content, int startOffset) returns int|io:Error {
             return result;
         }
     } else {
-       io:GenericError e = error(io:GENERIC_ERROR, message = "WritableByteChannel not initialized");
+       io:GenericError e = io:GenericError("WritableByteChannel not initialized");
        return e;
     }
 }

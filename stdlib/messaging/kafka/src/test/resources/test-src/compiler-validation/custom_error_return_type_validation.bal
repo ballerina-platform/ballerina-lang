@@ -31,7 +31,7 @@ listener kafka:Consumer kafkaConsumer = new (consumerConfigs);
 service kafkaTestService on kafkaConsumer {
     resource function onMessage(kafka:Consumer consumer, kafka:ConsumerRecord[] records) returns kafka:ConsumerError? {
         foreach kafka:ConsumerRecord kafkaRecord in records {
-            kafka:ConsumerError e = error(kafka:CONSUMER_ERROR, message = "Consumer failed purposefully");
+            kafka:ConsumerError e = kafka:ConsumerError("Consumer failed purposefully");
         }
         return;
     }

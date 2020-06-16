@@ -19,11 +19,15 @@
 package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.packerina.JarResolverImpl;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
+import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
@@ -36,6 +40,8 @@ import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
@@ -112,6 +118,9 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
     private boolean newParserEnabled;
+
+    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
+    private boolean withChoreo;
 
     public RunCommand() {
         this.outStream = System.err;
@@ -268,19 +277,27 @@ public class RunCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, false);
+        buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(this.outStream);
         buildContext.setErr(this.errStream);
+
+        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
+        boolean isChoreoExtensionSkipped = !(withChoreo ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
+                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
                 .addTask(new ResolveMavenDependenciesTask())
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
+                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)

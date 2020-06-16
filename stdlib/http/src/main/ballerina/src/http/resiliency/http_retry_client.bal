@@ -54,7 +54,7 @@ public type RetryClient client object {
     # + config - HTTP ClientConfiguration to be used for HTTP client invocation
     # + retryInferredConfig - Derived set of configurations associated with retry
     # + httpClient - HTTP client for outbound HTTP requests
-    public function __init(string url, ClientConfiguration config, RetryInferredConfig retryInferredConfig,
+    public function init(string url, ClientConfiguration config, RetryInferredConfig retryInferredConfig,
                                         HttpClient httpClient) {
         self.url = url;
         self.config = config;
@@ -291,8 +291,7 @@ function performRetryAction(@untainted string path, Request request, HttpOperati
     boolean[] statusCodeIndex = retryClient.retryInferredConfig.statusCodes;
     initializeBackOffFactorAndMaxWaitInterval(retryClient);
     
-    string message = "All the retry attempts failed.";
-    AllRetryAttemptsFailed retryFailedError = error(ALL_RETRY_ATTEMPTS_FAILED, message = message);
+    AllRetryAttemptsFailed retryFailedError = AllRetryAttemptsFailed("All the retry attempts failed.");
     ClientError httpConnectorErr = retryFailedError;
     Request inRequest = request;
     // When performing passthrough scenarios using retry client, message needs to be built before sending out the

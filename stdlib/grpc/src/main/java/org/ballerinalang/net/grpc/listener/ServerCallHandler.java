@@ -19,12 +19,12 @@ package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 import org.ballerinalang.net.grpc.CallStreamObserver;
@@ -35,7 +35,6 @@ import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.ServiceResource;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
-import org.ballerinalang.net.grpc.callback.StreamingCallableUnitCallBack;
 import org.ballerinalang.net.grpc.callback.UnaryCallableUnitCallBack;
 
 import java.util.HashMap;
@@ -58,7 +57,7 @@ public abstract class ServerCallHandler {
 
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
-    private Descriptors.MethodDescriptor methodDescriptor;
+    protected Descriptors.MethodDescriptor methodDescriptor;
 
     ServerCallHandler(Descriptors.MethodDescriptor methodDescriptor) {
         this.methodDescriptor = methodDescriptor;
@@ -141,7 +140,7 @@ public abstract class ServerCallHandler {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    private ObjectValue getConnectionParameter(StreamObserver responseObserver) {
+    ObjectValue getConnectionParameter(StreamObserver responseObserver) {
         // generate client responder struct on request message with response observer and response msg type.
         ObjectValue clientEndpoint = BallerinaValues.createObjectValue(GrpcConstants.PROTOCOL_GRPC_PKG_ID,
                 GrpcConstants.CALLER);
@@ -160,42 +159,12 @@ public abstract class ServerCallHandler {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(ServiceResource resource, StreamObserver responseObserver, Message error,
-                       ObserverContext context) {
-        List<BType> signatureParams = resource.getParamTypes();
-        Object[] paramValues = new Object[signatureParams.size() * 2];
-        paramValues[0] = getConnectionParameter(responseObserver);
-        paramValues[1] = true;
-
-        ErrorValue errorStruct = MessageUtils.getConnectorError(error.getError());
-        paramValues[2] = errorStruct;
-        paramValues[3] = true;
-
-        ObjectValue headerStruct = null;
-
-        if (resource.isHeaderRequired()) {
-            headerStruct = getHeaderObject();
-            headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
-        }
-
-        if (headerStruct != null && signatureParams.size() == 3) {
-            paramValues[4] = headerStruct;
-            paramValues[5] = true;
-        }
-
-        Map<String, Object> properties = new HashMap<>();
-        if (ObserveUtils.isObservabilityEnabled()) {
-            properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
-        }
-        CallableUnitCallback callback = new StreamingCallableUnitCallBack(null, context);
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
-                properties, paramValues);
-    }
-
     void onMessageInvoke(ServiceResource resource, Message request, StreamObserver responseObserver,
                          ObserverContext context) {
         CallableUnitCallback callback = new UnaryCallableUnitCallBack(responseObserver, isEmptyResponse(), context);
-        Object[] requestParams = computeMessageParams(resource, request, responseObserver);
+        Object requestParam = request != null ? request.getbMessage() : null;
+        HttpHeaders headers = request != null ? request.getHeaders() : null;
+        Object[] requestParams = computeResourceParams(resource, requestParam, headers, responseObserver);
         Map<String, Object> properties = new HashMap<>();
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
@@ -204,18 +173,17 @@ public abstract class ServerCallHandler {
                 properties, requestParams);
     }
 
-    Object[] computeMessageParams(ServiceResource resource, Message request, StreamObserver responseObserver) {
+    Object[] computeResourceParams(ServiceResource resource, Object requestParam, HttpHeaders headers,
+                                   StreamObserver responseObserver) {
         List<BType> signatureParams = resource.getParamTypes();
         Object[] paramValues = new Object[signatureParams.size() * 2];
         paramValues[0] = getConnectionParameter(responseObserver);
         paramValues[1] = true;
-
         ObjectValue headerStruct = null;
         if (resource.isHeaderRequired()) {
             headerStruct = getHeaderObject();
-            headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
+            headerStruct.addNativeData(MESSAGE_HEADERS, headers);
         }
-        Object requestParam = request != null ? request.getbMessage() : null;
         if (requestParam != null) {
             paramValues[2] = requestParam;
             paramValues[3] = true;
@@ -257,8 +225,10 @@ public abstract class ServerCallHandler {
          * timeouts, explicit cancellation by the client, network errors, etc.
          *
          * <p>There will be no further callbacks for the call.
+         *
+         * @param message a received error message.
          */
-        void onCancel();
+        void onCancel(Message message);
 
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.

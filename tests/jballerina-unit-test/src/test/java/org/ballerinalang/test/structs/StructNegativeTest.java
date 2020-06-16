@@ -65,7 +65,7 @@ public class StructNegativeTest {
         BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 39, 31);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testInvalidStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/invalid-struct-literal-key-negative.bal");
         // test struct init with invalid field name
@@ -73,7 +73,7 @@ public class StructNegativeTest {
                                           "record literal keys", 12, 23);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testExpressionAsStructLiteralKey() {
         CompileResult result = BCompileUtil.compile("test-src/structs/expression-as-struct-literal-key-negative.bal");
         BAssertUtil.validateError(result, 0, "invalid key: only identifiers and strings are allowed as " +

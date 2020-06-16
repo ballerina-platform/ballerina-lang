@@ -77,7 +77,38 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
                 diagnostics);
     }
 
+    public STNamedArgumentNode modify(
+            STNode leadingComma,
+            STNode argumentName,
+            STNode equalsToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return new STNamedArgumentNode(
+                leadingComma,
+                argumentName,
+                equalsToken,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedArgumentNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

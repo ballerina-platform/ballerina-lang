@@ -37,8 +37,7 @@ public function testMapFields() returns string {
     };
     grpc:Headers | error publishMetrics = negotiatorEp->publishMetrics(request);
     if (publishMetrics is error) {
-        return io:sprintf("Metrics publish failed: %s - %s",
-                            publishMetrics.reason(), <string>publishMetrics.detail()["message"]);
+        return io:sprintf("Metrics publish failed: %s", publishMetrics.message());
     } else {
         return "Metrics published successfully";
     }
@@ -48,7 +47,7 @@ public function testOptionalFields() returns string {
     HandshakeRequest request = {};
     [HandshakeResponse, grpc:Headers] | grpc:Error result = negotiatorEp->handshake(request);
     if (result is error) {
-        return io:sprintf("Handshake failed: %s - %s", result.reason(), <string>result.detail()["message"]);
+        return io:sprintf("Handshake failed: %s", result.message());
     } else {
         HandshakeResponse handshakeResponse;
         [handshakeResponse, _] = result;
@@ -62,7 +61,7 @@ public type NegotiatorBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new (url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -100,7 +99,7 @@ public type NegotiatorClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new (url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

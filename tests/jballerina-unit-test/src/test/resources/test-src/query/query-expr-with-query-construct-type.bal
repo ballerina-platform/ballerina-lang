@@ -259,37 +259,6 @@ function testSimpleQueryExprReturnTable() returns boolean {
     return testPassed;
 }
 
-function testKeyLessTableWithReturnTable() returns boolean {
-    boolean testPassed = true;
-
-    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
-    Customer c2 = {id: 2, name: "James", noOfItems: 5};
-    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
-
-    Customer[] customerList = [c1, c2, c3];
-
-    CustomerKeyLessTable|error customerTable = table key(id, name) from var customer in customerList
-        select {
-            id: customer.id,
-            name: customer.name,
-            noOfItems: customer.noOfItems
-        };
-
-    if (customerTable is CustomerKeyLessTable) {
-        var itr = customerTable.iterator();
-        Customer? customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == customerList[0];
-        customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == customerList[1];
-        customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == customerList[2];
-        customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == ();
-    }
-
-    return testPassed;
-}
-
 function testTableWithDuplicateKeys() returns CustomerTable|error {
     boolean testPassed = false;
 
@@ -437,6 +406,37 @@ function testQueryExprWithLimitClauseReturnTable() returns boolean {
         var itr = customerTable.iterator();
         Customer? customer = getCustomer(itr.next());
         testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == ();
+    }
+
+    return testPassed;
+}
+
+function testKeyLessTableWithReturnTable() returns boolean {
+    boolean testPassed = true;
+
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "Anne", noOfItems: 20};
+
+    Customer[] customerList = [c1, c2, c3];
+
+    CustomerKeyLessTable|error customerTable = table key(id, name) from var customer in customerList
+        select {
+            id: customer.id,
+            name: customer.name,
+            noOfItems: customer.noOfItems
+        };
+
+    if (customerTable is CustomerKeyLessTable) {
+        var itr = customerTable.iterator();
+        Customer? customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[0];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[1];
+        customer = getCustomer(itr.next());
+        testPassed = testPassed && customer == customerList[2];
         customer = getCustomer(itr.next());
         testPassed = testPassed && customer == ();
     }

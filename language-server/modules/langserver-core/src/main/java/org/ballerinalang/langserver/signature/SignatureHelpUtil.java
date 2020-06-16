@@ -99,7 +99,7 @@ public class SignatureHelpUtil {
     private static final String COMMA = ",";
     private static final String SEMI_COLON = ";";
     private static final String EQUAL = "=";
-    private static final String INIT_SYMBOL = ".__init";
+    private static final String INIT_SYMBOL = ".init";
 
     private SignatureHelpUtil() {
     }
@@ -487,9 +487,8 @@ public class SignatureHelpUtil {
                 boolean isDirectErrorConstructor = bInvokableSymbol.type.tsymbol.kind == null;
                 if (isDirectErrorConstructor) {
                     // If it is direct error constructor, `reason` is mandatory
-                    BType reasonType = bErrorType.reasonType;
-                    parameters.add(new Parameter(" ", reasonType, false, false));
                 }
+                // todo: need to support error detail map case
                 if (bErrorType.detailType instanceof BRecordType) {
                     BRecordType bRecordType = (BRecordType) bErrorType.detailType;
                     bRecordType.fields.values().forEach(p -> {

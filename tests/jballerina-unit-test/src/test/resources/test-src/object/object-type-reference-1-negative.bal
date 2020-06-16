@@ -45,33 +45,6 @@ type ManagerWithTwoSalaries object {
     *EmployeeWithSalary;
 };
 
-// Direct circular reference
-type Foo abstract object {
-    *Foo;
-};
-
-// Indirect circular references
-type A abstract object {
-    *B;
-};
-
-type B abstract object {
-    *C;
-};
-
-type C abstract object {
-    *D;
-    *E;
-};
-
-type D abstract object {
-    *A;
-};
-
-type E abstract object {
-    *C;
-};
-
 // Test errors for unimplemented methods
 type Person2 abstract object {
     public int age;

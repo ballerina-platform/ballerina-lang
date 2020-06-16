@@ -70,7 +70,7 @@ jobs:
           - nvm install 8
           - nvm use 8
           - npm install -g npm@'5.6.0'
-      install:
+      install: 
         - |
           if [ $TRAVIS_OS_NAME == "linux" ]; then
             export DISPLAY=':99.0'
@@ -122,11 +122,9 @@ cache:
 
 branches:
   only:
-    - master
     - packerina-dev
-    - observability-improvements
     - next-release
     - release-stage
-    - new-table-impl
+    - new-transaction-impl
     - stage
     - /^ballerina-\d*[.]\d*[.]x$/

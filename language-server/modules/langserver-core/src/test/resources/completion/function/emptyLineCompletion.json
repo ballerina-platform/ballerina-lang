@@ -62,6 +62,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "error",
+      "sortText": "200",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -247,6 +255,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "Never",
+      "sortText": "230",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "null",
       "kind": "Unit",
       "detail": "Nil",
@@ -333,17 +349,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
-      },
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "stream",
@@ -704,6 +709,29 @@
             }
           },
           "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },

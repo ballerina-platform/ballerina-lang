@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarNegativeTest {
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");

@@ -70,7 +70,35 @@ public class STImplicitAnonymousFunctionParameters extends STNode {
                 diagnostics);
     }
 
+    public STImplicitAnonymousFunctionParameters modify(
+            STNode openParenToken,
+            STNode parameters,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                parameters,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STImplicitAnonymousFunctionParameters(
+                openParenToken,
+                parameters,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImplicitAnonymousFunctionParameters(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

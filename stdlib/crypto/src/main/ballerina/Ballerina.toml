@@ -11,3 +11,10 @@ target = "java8"
     path = "./lib/ballerina-crypto-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["crypto"]
+
+    [[platform.libraries]]
+    artifactId = "commons-codec"
+    version = "1.9"
+    path = "./lib/commons-codec-1.9.jar"
+    groupId = "commons-codec"
+    modules = ["crypto"]

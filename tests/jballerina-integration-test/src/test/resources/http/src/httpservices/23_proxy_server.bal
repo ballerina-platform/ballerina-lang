@@ -58,8 +58,7 @@ function sendRequest(string url, http:Request req, http:Caller caller) {
     if (response is http:Response) {
         checkpanic listenerEP->respond(response);
     } else {
-        error err = response;
-        checkpanic listenerEP->respond(err.reason());
+        checkpanic listenerEP->respond(response.message());
     }
 }
 

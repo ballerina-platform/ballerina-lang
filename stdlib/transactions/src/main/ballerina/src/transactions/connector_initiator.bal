@@ -28,7 +28,7 @@ type InitiatorClientConfig record {
 type InitiatorClientEP client object {
     http:Client httpClient;
 
-    function __init(InitiatorClientConfig conf) {
+    function init(InitiatorClientConfig conf) {
         http:Client httpEP = new(conf.registerAtURL, {
                 timeoutInMillis:conf.timeoutInMillis,
                 retryConfig:{
@@ -54,9 +54,8 @@ type InitiatorClientEP client object {
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:STATUS_OK) {
-            error err = error("Registration for transaction: " + transactionId + " failed response code: "
+            return TransactionError("Registration for transaction: " + transactionId + " failed response code: "
                 + statusCode.toString());
-            return err;
         }
         json resPayload = check res.getJsonPayload();
         return <@untainted> resPayload.cloneWithType(typedesc<RegistrationResponse>);

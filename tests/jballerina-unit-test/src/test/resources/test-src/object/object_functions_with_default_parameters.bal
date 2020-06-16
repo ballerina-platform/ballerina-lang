@@ -48,7 +48,7 @@ type FooObject object {
     string a;
     int b;
 
-    function __init(string a, int b) {
+    function init(string a, int b) {
         self.a = a;
         self.b = b;
     }
@@ -97,7 +97,7 @@ type ObjectOne object {
     FooRecord e;
     FooObject f;
 
-    function __init(string a = getString(), boolean b = true, int c = getInt(), float d = 1.1, FooRecord e = { a: "default", b: 50, c: false, d: 11.1 }, FooObject f = new("def", 200)) {
+    function init(string a = getString(), boolean b = true, int c = getInt(), float d = 1.1, FooRecord e = { a: "default", b: 50, c: false, d: 11.1 }, FooObject f = new("def", 200)) {
         self.a = a;
         self.b = b;
         self.c = c;
@@ -125,7 +125,7 @@ type ObjectTwo object {
     float c;
     FooRecord d;
 
-    function __init(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + getInt(), FooRecord d = getRecord()) {
+    function init(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + getInt(), FooRecord d = getRecord()) {
         self.a = a;
         self.b = b;
         self.c = c;

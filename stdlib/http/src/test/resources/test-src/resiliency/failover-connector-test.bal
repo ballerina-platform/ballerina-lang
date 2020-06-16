@@ -81,7 +81,7 @@ public type MockClient client object {
     public http:Client httpClient;
     public http:CookieStore? cookieStore = ();
 
-    public function __init(string url, http:ClientConfiguration? config = ()) {
+    public function init(string url, http:ClientConfiguration? config = ()) {
         http:Client simpleClient = new(url);
         self.url = url;
         self.config = config ?: {};
@@ -133,8 +133,7 @@ public type MockClient client object {
         if (result is http:Response) {
             response = result;
         } else {
-            error err = result;
-            string errMessage = err.reason();
+            string errMessage = result.message();
             response.statusCode = http:STATUS_INTERNAL_SERVER_ERROR;
             response.setTextPayload(errMessage);
         }
@@ -183,8 +182,7 @@ public type MockClient client object {
 
 function handleFailoverScenario (int count) returns (http:Response | http:ClientError) {
     if (count == 0) {
-        http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Connection refused");
-        return err;
+        return http:GenericClientError("Connection refused");
     } else {
         http:Response inResponse = new;
         inResponse.statusCode = http:STATUS_OK;
@@ -193,8 +191,7 @@ function handleFailoverScenario (int count) returns (http:Response | http:Client
 }
 
 function getUnsupportedError() returns http:ClientError {
-    http:GenericClientError err = error(http:GENERIC_CLIENT_ERROR, message = "Unsupported fucntion for MockClient");
-    return err;
+    return http:GenericClientError("Unsupported fucntion for MockClient");
 }
 
 function createMockClient(string url) returns MockClient {

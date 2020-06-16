@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -39,10 +40,10 @@ import static org.ballerinalang.net.http.HttpUtil.checkRequestBodySizeHeadersAva
  */
 public class Forward extends AbstractHTTPAction {
     @SuppressWarnings("unchecked")
-    public static Object forward(ObjectValue httpClient, String path, ObjectValue requestObj) {
+    public static Object forward(ObjectValue httpClient, BString path, ObjectValue requestObj) {
         String url = httpClient.getStringValue(CLIENT_ENDPOINT_SERVICE_URI).getValue();
         Strand strand = Scheduler.getStrand();
-        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path, requestObj);
+        HttpCarbonMessage outboundRequestMsg = createOutboundRequestMsg(strand, url, path.getValue(), requestObj);
         HttpClientConnector clientConnector = (HttpClientConnector) httpClient.getNativeData(HttpConstants.CLIENT);
         DataContext dataContext = new DataContext(strand, clientConnector, new NonBlockingCallback(strand), requestObj,
                                                   outboundRequestMsg);

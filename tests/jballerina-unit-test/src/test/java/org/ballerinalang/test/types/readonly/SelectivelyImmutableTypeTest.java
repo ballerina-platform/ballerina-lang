@@ -42,42 +42,54 @@ public class SelectivelyImmutableTypeTest {
     }
 
     @Test
-    public void testReadonlyType() {
-        BRunUtil.invoke(result, "testReadonlyType");
+    public void testImmutableTypes() {
+        BRunUtil.invoke(result, "testImmutableTypes");
     }
 
     @Test
-    public void testReadonlyRecordFieldsNegative() {
+    public void testImmutableTypesNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/types/readonly/test_selectively_immutable_type_negative.bal");
         int index = 0;
 
         // Assignment and initialization.
-        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly'", 41, 17);
-        validateError(result, index++, "incompatible types: expected '(int|string)', found 'PersonalDetails & " +
-                "readonly'", 42, 20);
-        validateError(result, index++, "incompatible types: expected 'Student', found 'Person & readonly?'", 43, 17);
+        validateError(result, index++, "incompatible types: expected 'Student', found '(Person & readonly)'", 41, 17);
+        validateError(result, index++, "incompatible types: expected '(int|string)', found '(PersonalDetails & " +
+                "readonly)'", 42, 20);
+        validateError(result, index++, "incompatible types: expected 'Student', found '(Person & readonly)?'", 43, 17);
         validateError(result, index++, "incompatible types: expected 'string', found 'int'", 44, 16);
-        validateError(result, index++, "incompatible types: expected 'Student & readonly', found 'Student'", 57, 30);
-        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
+        validateError(result, index++, "incompatible types: expected '(Student & readonly)', found 'Student'", 57, 30);
+        validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
-        validateError(result, index++, "incompatible types: expected '(A|B|any & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected 'PersonalDetails & readonly', found " +
-                "'PersonalDetails'", 105, 18);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly' for field 'dept', found " +
-                "'Department'", 106, 12);
+        validateError(result, index++, "incompatible types: expected '((A|B|any) & readonly)', found 'Obj'", 78, 26);
+        validateError(result, index++, "incompatible types: expected '(anydata & readonly)', found 'string[]'", 81, 28);
+        validateError(result, index++, "incompatible types: expected '(any & readonly)', found 'future'", 83, 30);
+        validateError(result, index++, "incompatible types: expected '((Obj|int[]) & readonly)', found 'string[]'",
+                      85, 32);
+        validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
+                "'PersonalDetails'", 112, 18);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)' for field 'dept', " +
+                "found 'Department'", 113, 12);
 
         // Updates.
-        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 129, 5);
+        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);
         validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 129, 17);
-        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 133, 5);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 138,
-                      14);
-        validateError(result, index++, "incompatible types: expected 'Department & readonly', found 'Department'", 139,
-                      17);
+                "'other'", 136, 17);
+        validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 140, 5);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
+                      145, 14);
+        validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
+                      146, 17);
+
         validateError(result, index++, "invalid intersection type with 'readonly', 'table<Bar> key(name)' can never " +
-                              "be 'readonly'", 152, 5);
+                              "be 'readonly'", 159, 5);
+        validateError(result, index++, "invalid intersection type with 'readonly', 'Baz' can never be 'readonly'", 171,
+                      5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(Config & readonly)'", 194, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'MyConfig'", 197, 5);
+
+        validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
+        validateError(result, index++, "invalid intersection type '(JKL & readonly)': no intersection", 209, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

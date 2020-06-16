@@ -42,8 +42,6 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
  */
 public class WebSubSubscriberServiceValidator {
 
-    private static final int CUSTOM_RESOURCE_PARAM_COUNT = 2;
-
     public static void validateDefaultResources(BLangFunction resource, DiagnosticLog dlog) {
         String resourceName = resource.getName().getValue();
         switch (resourceName) {

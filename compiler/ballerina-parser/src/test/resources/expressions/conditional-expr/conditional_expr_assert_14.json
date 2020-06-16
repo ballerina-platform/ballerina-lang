@@ -1,9 +1,14 @@
 {
   "kind": "CONDITIONAL_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     },
     {
       "kind": "QUESTION_MARK_TOKEN"

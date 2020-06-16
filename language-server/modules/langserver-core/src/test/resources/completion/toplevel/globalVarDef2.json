@@ -12,7 +12,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config: Configurations for the HTTP service listener(Defaultable)"
         }
       },
       "sortText": "120",
@@ -30,7 +30,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config(Defaultable)"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nGets invoked during module initialization to initialize the listener.\n  \n**Params**  \n- `int` port: Listening port of the HTTP service listener  \n- `(http:ListenerConfiguration|())` config: Configurations for the HTTP service listener(Defaultable)"
         }
       },
       "sortText": "120",
@@ -253,6 +253,29 @@
             }
           },
           "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "120",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },

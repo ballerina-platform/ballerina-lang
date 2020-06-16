@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
@@ -65,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
@@ -120,6 +122,7 @@ import static org.objectweb.asm.Opcodes.LSTORE;
 import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
+import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.SIPUSH;
 import static org.objectweb.asm.Opcodes.V1_8;
@@ -155,6 +158,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STOP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
@@ -163,6 +168,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_U
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER_START_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULE_FUNCTION_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.START_FUNCTION_SUFFIX;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STOP_FUNCTION_SUFFIX;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -221,6 +228,7 @@ import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
 public class JvmMethodGen {
 
     private static final FunctionParamComparator FUNCTION_PARAM_COMPARATOR = new FunctionParamComparator();
+    private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
     private int nextId = -1;
     private int nextVarId = -1;
     private JvmPackageGen jvmPackageGen;
@@ -315,9 +323,11 @@ public class JvmMethodGen {
                         String.format("L%s;", TYPEDESC_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.NEVER ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.INTERSECTION ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FINITE ||
                     bType.tag == TypeTags.READONLY) {
@@ -451,9 +461,11 @@ public class JvmMethodGen {
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", FUNCTION_POINTER));
             } else if (bType.tag == TypeTags.NIL ||
+                    bType.tag == TypeTags.NEVER ||
                     bType.tag == TypeTags.ANY ||
                     bType.tag == TypeTags.ANYDATA ||
                     bType.tag == TypeTags.UNION ||
+                    bType.tag == TypeTags.INTERSECTION ||
                     bType.tag == TypeTags.JSON ||
                     bType.tag == TypeTags.FINITE ||
                     bType.tag == TypeTags.READONLY) {
@@ -554,9 +566,11 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.TYPEDESC) {
             jvmType = String.format("L%s;", TYPEDESC_VALUE);
         } else if (bType.tag == TypeTags.NIL
+                || bType.tag == TypeTags.NEVER
                 || bType.tag == TypeTags.ANY
                 || bType.tag == TypeTags.ANYDATA
                 || bType.tag == TypeTags.UNION
+                || bType.tag == TypeTags.INTERSECTION
                 || bType.tag == TypeTags.JSON
                 || bType.tag == TypeTags.FINITE
                 || bType.tag == TypeTags.READONLY) {
@@ -746,7 +760,6 @@ public class JvmMethodGen {
 
         return func.name.value.equals(calculateModuleSpecialFuncName(packageToModuleId(module), "<testinit>"));
     }
-
     private static String calculateModuleInitFuncName(PackageID id) {
 
         return calculateModuleSpecialFuncName(id, "<init>");
@@ -775,12 +788,15 @@ public class JvmMethodGen {
     }
 
     private static void scheduleStopMethod(MethodVisitor mv, String initClass, String stopFuncName,
-                                           int schedulerIndex, int futureIndex) {
+                                           int schedulerIndex, int futureIndex, String moduleClass) {
 
         String lambdaFuncName = "$lambda$" + stopFuncName;
         // Create a schedular. A new schedular is used here, to make the stop function to not to
         // depend/wait on whatever is being running on the background. eg: a busy loop in the main.
 
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_START_ATTEMPTED, "Z");
+        Label labelIf = new Label();
+        mv.visitJumpInsn(IFEQ, labelIf);
         mv.visitVarInsn(ALOAD, schedulerIndex);
 
         mv.visitIntInsn(BIPUSH, 1);
@@ -814,8 +830,9 @@ public class JvmMethodGen {
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
 
         // handle any runtime errors
-        Label labelIf = new Label();
         mv.visitJumpInsn(IFNULL, labelIf);
+        mv.visitFieldInsn(GETSTATIC, moduleClass, MODULE_STARTED, "Z");
+        mv.visitJumpInsn(IFEQ, labelIf);
 
         mv.visitVarInsn(ALOAD, futureIndex);
         mv.visitFieldInsn(GETFIELD, FUTURE_VALUE, PANIC_FIELD, String.format("L%s;", THROWABLE));
@@ -865,12 +882,14 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.TABLE ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.CHAR_STRING ||
                 bType.tag == TypeTags.DECIMAL ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
@@ -938,10 +957,12 @@ public class JvmMethodGen {
                 bType.tag == TypeTags.ARRAY ||
                 bType.tag == TypeTags.ERROR ||
                 bType.tag == TypeTags.NIL ||
+                bType.tag == TypeTags.NEVER ||
                 bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.OBJECT ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.RECORD ||
                 bType.tag == TypeTags.TUPLE ||
                 bType.tag == TypeTags.FUTURE ||
@@ -1041,7 +1062,7 @@ public class JvmMethodGen {
             return String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             return "Z";
-        } else if (bType.tag == TypeTags.NIL) {
+        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
             return String.format("L%s;", ARRAY_VALUE);
@@ -1049,6 +1070,7 @@ public class JvmMethodGen {
             return String.format("L%s;", ERROR_VALUE);
         } else if (bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.ANY ||
@@ -1078,8 +1100,9 @@ public class JvmMethodGen {
     }
 
     private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
+        bType = typeBuilder.build(bType);
 
-        if (bType == null || bType.tag == TypeTags.NIL) {
+        if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             if (isExtern) {
                 return ")V";
             }
@@ -1115,6 +1138,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.READONLY) {
@@ -1182,7 +1206,8 @@ public class JvmMethodGen {
      * @return cleaned name
      */
     static String cleanupTypeName(String name) {
-
+        name = name.replace("/", "_");
+        name = name.replace(".", "_");
         return name.replace("$", "_");
     }
 
@@ -1211,7 +1236,7 @@ public class JvmMethodGen {
             typeSig = String.format("L%s;", DECIMAL_VALUE);
         } else if (bType.tag == TypeTags.BOOLEAN) {
             typeSig = "Z";
-        } else if (bType.tag == TypeTags.NIL) {
+        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             typeSig = String.format("L%s;", OBJECT);
         } else if (bType.tag == TypeTags.MAP) {
             typeSig = String.format("L%s;", MAP_VALUE);
@@ -1237,6 +1262,7 @@ public class JvmMethodGen {
         } else if (bType.tag == TypeTags.ANY ||
                 bType.tag == TypeTags.ANYDATA ||
                 bType.tag == TypeTags.UNION ||
+                bType.tag == TypeTags.INTERSECTION ||
                 bType.tag == TypeTags.JSON ||
                 bType.tag == TypeTags.FINITE ||
                 bType.tag == TypeTags.READONLY) {
@@ -1444,7 +1470,12 @@ public class JvmMethodGen {
         int ignoreStrandVarIndex = indexMap.getIndex(strandVar);
 
         // generate method desc
-        String desc = getMethodDesc(func.type.paramTypes, func.type.retType, null, false);
+        BType retType = func.type.retType;
+        if (isExternFunc(func) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(func.type.retType);
+        }
+
+        String desc = getMethodDesc(func.type.paramTypes, retType, null, false);
         int access = ACC_PUBLIC;
         int localVarOffset;
         if (attachedType != null) {
@@ -1466,6 +1497,11 @@ public class JvmMethodGen {
         LabelGenerator labelGen = new LabelGenerator();
 
         mv.visitCode();
+        if (isModuleStartFunction(module, funcName)) {
+            mv.visitInsn(ICONST_1);
+            mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                    module.version.value, MODULE_INIT_CLASS_NAME), MODULE_START_ATTEMPTED, "Z");
+        }
 
         Label methodStartLabel = new Label();
         mv.visitLabel(methodStartLabel);
@@ -1501,8 +1537,7 @@ public class JvmMethodGen {
 
         BIRVariableDcl varDcl = getVariableDcl(localVars.get(0));
         returnVarRefIndex = indexMap.getIndex(varDcl);
-        BType returnType = func.type.retType;
-        genDefaultValue(mv, returnType, returnVarRefIndex);
+        genDefaultValue(mv, retType, returnVarRefIndex);
 
         BIRVariableDcl stateVar = new BIRVariableDcl(symbolTable.stringType, //should  be javaInt
                 new Name("state"), null, VarKind.TEMP);
@@ -1652,6 +1687,11 @@ public class JvmMethodGen {
 
         mv.visitMaxs(0, 0);
         mv.visitEnd();
+    }
+
+    private static boolean isModuleStartFunction(BIRPackage module, String functionName) {
+        return functionName.equals(cleanupFunctionName(calculateModuleSpecialFuncName(packageToModuleId(module),
+                START_FUNCTION_SUFFIX)));
     }
 
     public void generateBasicBlocks(MethodVisitor mv, List<BIRBasicBlock> basicBlocks,
@@ -1837,6 +1877,12 @@ public class JvmMethodGen {
                         terminator instanceof Return) {
                     generateAnnotLoad(mv, module.typeDefs, getPackageName(module.org.value, module.name.value,
                                                                           module.version.value));
+                }
+                //set module start success to true for ___init class
+                if (isModuleStartFunction(module, funcName) && terminator.kind == InstructionKind.RETURN) {
+                    mv.visitInsn(ICONST_1);
+                    mv.visitFieldInsn(PUTSTATIC, getModuleLevelClassName(module.org.value, module.name.value,
+                            module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
                 }
                 termGen.genTerminator(terminator, func, funcName, localVarOffset, returnVarRefIndex, attachedType,
                         lambdaMetadata);
@@ -2367,14 +2413,13 @@ public class JvmMethodGen {
         // generate another lambda for start function as well
         generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
 
-        String stopFuncName = "<stop>";
         PackageID currentModId = packageToModuleId(pkg);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
+        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
         generateLambdaForDepModStopFunc(cw, cleanupFunctionName(fullFuncName), initClass);
 
         for (PackageID id : depMods) {
-            fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
+            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
             // String lookupKey = getPackageName(id.orgName, id.name, id.version) + fullFuncName;
 
             // String jvmClass = lookupFullQualifiedClassName(lookupKey);
@@ -2439,7 +2484,7 @@ public class JvmMethodGen {
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
-        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, "<start>");
+        BIRFunction startFunc = generateDepModInit(moduleImports, pkg, MODULE_START, START_FUNCTION_SUFFIX);
         javaClass.functions.add(startFunc);
         pkg.functions.add(startFunc);
 
@@ -2683,24 +2728,25 @@ public class JvmMethodGen {
 
         mv.visitVarInsn(ASTORE, schedulerIndex);
 
-        String stopFuncName = "<stop>";
 
         PackageID currentModId = packageToModuleId(module);
-        String fullFuncName = calculateModuleSpecialFuncName(currentModId, stopFuncName);
+        String moduleInitClass = getModuleLevelClassName(currentModId.orgName.value, currentModId.name.value,
+                currentModId.version.value, MODULE_INIT_CLASS_NAME);
+        String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
 
-        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                futureIndex);
+        scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex, futureIndex,
+                moduleInitClass);
 
         int i = imprtMods.size() - 1;
         while (i >= 0) {
             PackageID id = imprtMods.get(i);
             i -= 1;
-            fullFuncName = calculateModuleSpecialFuncName(id, stopFuncName);
-
+            fullFuncName = calculateModuleSpecialFuncName(id, STOP_FUNCTION_SUFFIX);
+            moduleInitClass = getModuleLevelClassName(id.orgName.value, id.name.value, id.version.value,
+                    MODULE_INIT_CLASS_NAME);
             scheduleStopMethod(mv, initClass, cleanupFunctionName(fullFuncName), schedulerIndex,
-                    futureIndex);
+                    futureIndex, moduleInitClass);
         }
-
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();

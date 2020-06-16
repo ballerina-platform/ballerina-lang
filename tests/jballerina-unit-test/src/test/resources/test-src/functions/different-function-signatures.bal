@@ -143,7 +143,7 @@ public type Employee object {
     public string name = "";
     public int salary = 0;
 
-    function __init(string name = "supun", int salary = 100) {
+    function init(string name = "supun", int salary = 100) {
         self.name = name;
         self.salary = salary;
     }

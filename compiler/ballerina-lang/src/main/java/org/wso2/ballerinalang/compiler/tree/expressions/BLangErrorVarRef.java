@@ -37,7 +37,8 @@ import java.util.List;
 public class BLangErrorVarRef extends BLangVariableReference implements ErrorVariableReferenceNode {
     public BVarSymbol varSymbol;
     public BLangIdentifier pkgAlias;
-    public BLangVariableReference reason;
+    public BLangVariableReference message;
+    public BLangVariableReference cause;
     public List<BLangNamedArgsExpression> detail;
     public BLangVariableReference restVar;
     public BLangType typeNode;
@@ -52,8 +53,8 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
     }
 
     @Override
-    public ExpressionNode getReason() {
-        return reason;
+    public ExpressionNode getMessage() {
+        return message;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class BLangErrorVarRef extends BLangVariableReference implements ErrorVar
 
     @Override
     public String toString() {
-        return "error (" + reason + ", " + detail + ")";
+        return "error (" + message + ", " + (cause != null ? cause.toString() : "") + detail + ")";
     }
 
     @Override

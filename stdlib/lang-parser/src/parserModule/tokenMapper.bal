@@ -179,7 +179,7 @@ const tripleGtSym = ">>>";
 type TokenMapper object {
     map<int> tokenMap = {};
 
-    public function __init() {
+    public function init() {
         self.fillTokenMap();
     }
 

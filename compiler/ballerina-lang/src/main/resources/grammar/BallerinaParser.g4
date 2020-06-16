@@ -78,7 +78,7 @@ functionDefinitionBody
     ;
 
 functionDefinition
-    :   (PUBLIC | PRIVATE)? REMOTE? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
+    :   (PUBLIC | PRIVATE)? REMOTE? TRANSACTIONAL? FUNCTION anyIdentifierName functionSignature functionDefinitionBody
     ;
 
 anonymousFunctionExpr
@@ -120,7 +120,8 @@ typeReference
     ;
 
 objectFieldDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? SEMICOLON
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TYPE_READONLY? typeName Identifier
+            (ASSIGN expression)? SEMICOLON
     ;
 
 fieldDefinition
@@ -224,17 +225,17 @@ finiteTypeUnit
     ;
 
 typeName
-    :   simpleTypeName                                                                          # simpleTypeNameLabel
+    :   DISTINCT? simpleTypeName                                                                # simpleTypeNameLabel
     |   typeName (LEFT_BRACKET (integerLiteral | MUL)? RIGHT_BRACKET)+                          # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                                               # unionTypeNameLabel
     |   typeName BIT_AND typeName                                                               # intersectionTypeNameLabel
     |   typeName QUESTION_MARK                                                                  # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                             # groupTypeNameLabel
     |   tupleTypeDescriptor                                                                     # tupleTypeNameLabel
-    |   ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) OBJECT LEFT_BRACE objectBody RIGHT_BRACE     # objectTypeNameLabel
-    |   inclusiveRecordTypeDescriptor                                                           # inclusiveRecordTypeNameLabel
-    |   exclusiveRecordTypeDescriptor                                                           # exclusiveRecordTypeNameLabel
-    |   tableTypeDescriptor                                                                     # tableTypeNameLabel
+    |   DISTINCT? ((ABSTRACT? CLIENT?) | (CLIENT? ABSTRACT)) TYPE_READONLY? OBJECT LEFT_BRACE objectBody RIGHT_BRACE  # objectTypeNameLabel
+    |   inclusiveRecordTypeDescriptor                                                                       # inclusiveRecordTypeNameLabel
+    |   exclusiveRecordTypeDescriptor                                                                       # exclusiveRecordTypeNameLabel
+    |   tableTypeDescriptor                                                                                 # tableTypeNameLabel
     ;
 
 inclusiveRecordTypeDescriptor
@@ -263,6 +264,7 @@ simpleTypeName
     :   TYPE_ANY
     |   TYPE_ANYDATA
     |   TYPE_HANDLE
+    |   TYPE_NEVER
     |   TYPE_READONLY
     |   valueTypeName
     |   referenceTypeName
@@ -332,7 +334,7 @@ functionTypeName
     ;
 
 errorTypeName
-    :   TYPE_ERROR (LT typeName (COMMA typeName)? GT)?
+    :   TYPE_ERROR (LT (typeName | MUL) GT)?
     ;
 
 xmlNamespaceName
@@ -371,8 +373,9 @@ statement
     |   workerSendAsyncStatement
     |   expressionStmt
     |   transactionStatement
-    |   abortStatement
+    |   rollbackStatement
     |   retryStatement
+    |   retryTransactionStatement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   blockStatement
@@ -423,7 +426,7 @@ recordDestructuringStatement
     :   recordRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
- errorDestructuringStatement
+errorDestructuringStatement
     :   errorRefBindingPattern ASSIGN expression SEMICOLON
     ;
 
@@ -486,13 +489,12 @@ structuredBindingPattern
     ;
 
 errorBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS Identifier (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)? RIGHT_PARENTHESIS
-    |   typeName LEFT_PARENTHESIS errorFieldBindingPatterns RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS errorBindingPatternParamaters RIGHT_PARENTHESIS
+    |   userDefineTypeName LEFT_PARENTHESIS errorBindingPatternParamaters RIGHT_PARENTHESIS
     ;
 
-errorFieldBindingPatterns
-    :   errorDetailBindingPattern (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
-    |   errorRestBindingPattern
+errorBindingPatternParamaters
+    : Identifier (COMMA Identifier)? (COMMA errorDetailBindingPattern)* (COMMA errorRestBindingPattern)?
     ;
 
 errorMatchPattern
@@ -572,9 +574,12 @@ recordRefBindingPattern
     ;
 
 errorRefBindingPattern
-    :   TYPE_ERROR LEFT_PARENTHESIS ((variableReference (COMMA errorNamedArgRefPattern)*) | errorNamedArgRefPattern+) (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
-    |   TYPE_ERROR LEFT_PARENTHESIS errorRefRestPattern RIGHT_PARENTHESIS
-    |   typeName LEFT_PARENTHESIS errorNamedArgRefPattern (COMMA errorNamedArgRefPattern)*  (COMMA errorRefRestPattern)? RIGHT_PARENTHESIS
+    :   TYPE_ERROR LEFT_PARENTHESIS errorRefArgsPattern RIGHT_PARENTHESIS
+    |   typeName LEFT_PARENTHESIS errorRefArgsPattern RIGHT_PARENTHESIS
+    ;
+
+errorRefArgsPattern
+    :  variableReference (COMMA variableReference)? (COMMA errorNamedArgRefPattern)* (COMMA errorRefRestPattern)?
     ;
 
 errorNamedArgRefPattern
@@ -767,51 +772,27 @@ expressionStmt
     ;
 
 transactionStatement
-    :   transactionClause onretryClause? committedAbortedClauses
+    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-committedAbortedClauses
-    :   (committedClause? abortedClause?) | (abortedClause? committedClause?)
-    ;
-
-transactionClause
-    :   TRANSACTION (WITH transactionPropertyInitStatementList)? LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-transactionPropertyInitStatement
-    :   retriesStatement
-    ;
-
-transactionPropertyInitStatementList
-    :   transactionPropertyInitStatement (COMMA transactionPropertyInitStatement)*
+rollbackStatement
+    :   ROLLBACK expression? SEMICOLON
     ;
 
 lockStatement
     :   LOCK LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-onretryClause
-    :   ONRETRY LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-committedClause
-    :   COMMITTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-abortedClause
-    :   ABORTED LEFT_BRACE statement* RIGHT_BRACE
-    ;
-
-abortStatement
-    :   ABORT SEMICOLON
+retrySpec
+    :   (LT typeName GT)?   (LEFT_PARENTHESIS invocationArgList? RIGHT_PARENTHESIS)?
     ;
 
 retryStatement
-    :   RETRY SEMICOLON
+    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-retriesStatement
-    :   RETRIES ASSIGN expression
+retryTransactionStatement
+    :   RETRY retrySpec transactionStatement
     ;
 
 namespaceDeclarationStatement
@@ -863,6 +844,8 @@ expression
     |   queryExpr                                                           # queryExpression
     |   queryAction                                                         # queryActionExpression
     |   letExpr                                                             # letExpression
+    |   transactionalExpr                                                   # transactionalExpression
+    |   commitAction                                                        # commitActionExpression
     ;
 
 constantExpression
@@ -905,6 +888,14 @@ shiftExpression
     ;
 
 shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
+
+transactionalExpr
+    :   TRANSACTIONAL
+    ;
+
+commitAction
+    :   COMMIT
+    ;
 
 limitClause
     :   LIMIT expression

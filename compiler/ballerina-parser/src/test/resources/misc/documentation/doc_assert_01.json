@@ -22,19 +22,43 @@
                       "children": [
                         {
                           "kind": "DOCUMENTATION_LINE",
-                          "value": "# Adds parameter `x` and parameter `y`"
+                          "value": "# Adds parameter `x` and parameter `y`",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         },
                         {
                           "kind": "DOCUMENTATION_LINE",
-                          "value": "# + x - one thing to be added"
+                          "value": "# + x - one thing to be added",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         },
                         {
                           "kind": "DOCUMENTATION_LINE",
-                          "value": "# + y - another thing to be added"
+                          "value": "# + y - another thing to be added",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         },
                         {
                           "kind": "DOCUMENTATION_LINE",
-                          "value": "# + return - the sum of them"
+                          "value": "# + return - the sum of them",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -47,7 +71,13 @@
               ]
             },
             {
-              "kind": "FUNCTION_KEYWORD"
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -64,7 +94,13 @@
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -72,7 +108,17 @@
               "kind": "FUNCTION_BODY_BLOCK",
               "children": [
                 {
-                  "kind": "OPEN_BRACE_TOKEN"
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    },
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 },
                 {
                   "kind": "LIST",

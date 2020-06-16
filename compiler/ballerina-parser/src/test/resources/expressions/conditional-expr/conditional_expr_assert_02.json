@@ -9,19 +9,8 @@
       "kind": "QUESTION_MARK_TOKEN"
     },
     {
-      "kind": "BRACED_EXPRESSION",
-      "children": [
-        {
-          "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "b"
-        },
-        {
-          "kind": "CLOSE_PAREN_TOKEN"
-        }
-      ]
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "b"
     },
     {
       "kind": "COLON_TOKEN"

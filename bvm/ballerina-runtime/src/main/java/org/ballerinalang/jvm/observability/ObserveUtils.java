@@ -87,7 +87,6 @@ public class ObserveUtils {
 
     /**
      * Start observation of a resource invocation.
-     * This is used in the BString mode in the compiler.
      *
      * @param serviceName name of the service to which the observer context belongs
      * @param resourceName name of the resource being invoked
@@ -112,7 +111,6 @@ public class ObserveUtils {
         observerContext.setServiceName(service);
         observerContext.setResourceName(resourceName.getValue());
         observerContext.setServer();
-        observerContext.setStarted();
 
         observerContext.addMainTag(TAG_KEY_MODULE, pkg.getValue());
         observerContext.addMainTag(TAG_KEY_INVOCATION_POSITION, position.getValue());
@@ -121,6 +119,7 @@ public class ObserveUtils {
         observerContext.addMainTag(TAG_KEY_RESOURCE, observerContext.getResourceName());
         observerContext.addMainTag(TAG_KEY_CONNECTOR_NAME, observerContext.getObjectName());
 
+        observerContext.setStarted();
         observers.forEach(observer -> observer.startServerObservation(strand.observerContext));
         strand.setProperty(ObservabilityConstants.SERVICE_NAME, service);
     }
@@ -129,14 +128,17 @@ public class ObserveUtils {
      * Stop observation of an observer context.
      */
     public static void stopObservation() {
+        if (!enabled) {
+            return;
+        }
         Strand strand = Scheduler.getStrand();
-        if (!enabled || strand.observerContext == null) {
+        if (strand.observerContext == null) {
             return;
         }
         ObserverContext observerContext = strand.observerContext;
 
         Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-        if (statusCode != null) {
+        if (statusCode != null && statusCode >= 100) {
             observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE_GROUP, (statusCode / 100) + STATUS_CODE_GROUP_SUFFIX);
         }
 
@@ -155,8 +157,11 @@ public class ObserveUtils {
      * @param errorValue the error value to be attached to the observer context
      */
     public static void reportError(ErrorValue errorValue) {
+        if (!enabled) {
+            return;
+        }
         Strand strand = Scheduler.getStrand();
-        if (!enabled || strand.observerContext == null) {
+        if (strand.observerContext == null) {
             return;
         }
         ObserverContext observerContext = strand.observerContext;
@@ -168,7 +173,6 @@ public class ObserveUtils {
 
     /**
      * Start observability for the synchronous function/action invocations.
-     * This is used in the BString mode in the compiler.
      *
      * @param isRemote True if this was a remove function invocation
      * @param isMainEntryPoint True if this was a main entry point invocation
@@ -189,7 +193,6 @@ public class ObserveUtils {
 
         ObserverContext newObContext = new ObserverContext();
         newObContext.setParent(observerCtx);
-        newObContext.setStarted();
         newObContext.setServiceName(observerCtx == null ? UNKNOWN_SERVICE : observerCtx.getServiceName());
         newObContext.setResourceName(observerCtx == null ? UNKNOWN_RESOURCE : observerCtx.getResourceName());
         if (typeDef == null) {
@@ -228,6 +231,7 @@ public class ObserveUtils {
             newObContext.addMainTag(TAG_KEY_RESOURCE, newObContext.getResourceName());
         }
 
+        newObContext.setStarted();
         setObserverContextToCurrentFrame(strand, newObContext);
         observers.forEach(observer -> observer.startClientObservation(newObContext));
     }

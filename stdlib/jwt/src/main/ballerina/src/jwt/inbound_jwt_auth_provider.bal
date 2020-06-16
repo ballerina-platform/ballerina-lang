@@ -32,7 +32,6 @@ import ballerina/stringutils;
 #     }
 # });
 # ```
-#
 public type InboundJwtAuthProvider object {
 
     *auth:InboundAuthProvider;
@@ -42,7 +41,7 @@ public type InboundJwtAuthProvider object {
     # Provides authentication based on the provided JWT.
     #
     # + jwtValidatorConfig - JWT validator configurations
-    public function __init(JwtValidatorConfig jwtValidatorConfig) {
+    public function init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
     }
 

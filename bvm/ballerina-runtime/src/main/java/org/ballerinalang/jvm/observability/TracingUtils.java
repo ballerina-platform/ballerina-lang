@@ -112,7 +112,7 @@ public class TracingUtils {
                 span.logError(logProps);
             }
             Integer statusCode = (Integer) observerContext.getProperty(PROPERTY_KEY_HTTP_STATUS_CODE);
-            if (statusCode != null) {
+            if (statusCode != null && statusCode >= 100) {
                 span.addTags(Collections.singletonMap(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(statusCode)));
             }
             span.addTags(observerContext.getAllTags()

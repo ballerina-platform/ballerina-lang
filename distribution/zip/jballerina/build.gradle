@@ -49,6 +49,7 @@ configurations {
 
 dependencies {
     dist project(':ballerina-rt')
+    dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -108,6 +109,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
@@ -162,6 +164,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
 
     // ballerinax modules
     balSource project(path: ':ballerina-java', configuration: 'balSource')

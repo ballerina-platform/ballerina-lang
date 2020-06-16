@@ -43,7 +43,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  * An lvalue that is both defined and initialized refers to a storage location that holds a value:
  * - an lvalue referring to a variable is always defined but may be uninitialized;
  * - an lvalue referring to a specific named field of an object is always defined but may not be initialized until the
- * __init method returns
+ * init method returns
  * - an lvalue referring to member of a container having a specific key is undefined if the container does not have a
  * member with that key; if such an lvalue is defined, it is also initialized; note that an lvalue always refers to a
  * container that is already constructed.

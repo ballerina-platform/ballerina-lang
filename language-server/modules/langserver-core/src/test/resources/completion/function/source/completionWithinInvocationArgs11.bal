@@ -2,7 +2,7 @@ type TestObject object {
     int testVal1;
     OuterRec testVal2;
 
-    public function __init(int arg1, OuterRec arg2 = {}) {
+    public function init(int arg1, OuterRec arg2 = {}) {
         self.testVal1 = arg1;
         self.testVal2 = arg2;
     }

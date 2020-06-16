@@ -1,24 +1,36 @@
 {
-    "kind": "XML_FILTER_EXPRESSION",
-    "children": [
+  "kind": "XML_FILTER_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "a",
+      "trailingMinutiae": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "DOT_LT_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_XML_ATOMIC_NAME_PATTERN"
+          ]
         },
         {
-            "kind": "XML_NAME_PATTERN_CHAIN",
-            "children": [
-                {
-                    "kind": "DOT_LT_TOKEN"
-                },
-                {
-                    "kind": "LIST",
-                    "children": []
-                },
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "GT_TOKEN"
         }
-    ]
+      ]
+    }
+  ]
 }

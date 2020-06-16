@@ -303,10 +303,12 @@ function testAnyStructToJson() returns json {
     return value;
 }
 
+type JsonTypedesc typedesc<json>;
+
 function testAnyNullToJson() returns json|error {
     anydata a = ();
     json value;
-    value = check a.cloneWithType(typedesc<json>);
+    value = check a.cloneWithType(JsonTypedesc);
     return value;
 }
 
@@ -354,9 +356,11 @@ function testCompatibleStructForceCasting() returns A|error {
     return c;
 }
 
+type ATypedesc typedesc<A>;
+
 function testInCompatibleStructForceCasting() returns A|error {
     B b = {x: "x-valueof-b"};
-    A a = check b.cloneWithType(typedesc<A>);
+    A a = check b.cloneWithType(ATypedesc);
 
     //TODO Handle error
 
@@ -511,7 +515,7 @@ function testAnonRecordInCast() returns record {| string name; |} {
     return <record {| string name; |}>{ name: "Pubudu" };
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -524,5 +528,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

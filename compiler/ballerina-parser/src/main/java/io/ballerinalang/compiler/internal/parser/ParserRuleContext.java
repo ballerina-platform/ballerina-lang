@@ -49,7 +49,6 @@ public enum ParserRuleContext {
     FUNC_BODY_OR_TYPE_DESC_RHS("func-body-or-type-desc-rhs"),
     ANON_FUNC_BODY("annon-func-body"),
     FUNC_TYPE_DESC_END("func-type-desc-end"),
-
     EXTERNAL_FUNC_BODY("external-func-body"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
@@ -79,8 +78,7 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_FIELD_RHS("object-field-rhs"),
-    OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
-    OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
+    OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
     IMPORT_DECL("import-decl"),
     IMPORT_ORG_OR_MODULE_NAME("import-org-or-module-name"),
@@ -144,7 +142,7 @@ public enum ParserRuleContext {
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
     LET_CLAUSE("let-clause"),
-    AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-func-type-desc-rhs"),
+    MODULE_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("module-level-func-type-desc-rhs"),
     EXPLICIT_ANON_FUNC_EXPR_BODY_START("explicit-anon-func-expr-body-start"),
     BRACED_EXPR_OR_ANON_FUNC_PARAMS("braced-expr-or-anon-func-params"),
     BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS("braced-expr-or-anon-func-param-rhs"),
@@ -206,10 +204,21 @@ public enum ParserRuleContext {
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
     TYPED_BINDING_PATTERN_TYPE_RHS("type-binding-pattern-type-rhs"),
     UNION_OR_INTERSECTION_TOKEN("union-or-intersection"),
-
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR("mapping-bp-or-mapping-cons"),
     MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER("mapping-bp-or-mapping-cons-member"),
     LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER("list-bp-or-list-cons-member"),
+    VAR_REF_OR_TYPE_REF("var-ref"),
+    FUNC_TYPE_DESC_OR_ANON_FUNC("func-desc-type-or-anon-func"),
+    FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
+    STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
+    RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
+    MATCH_BODY("match-body"),
+    MATCH_PATTERN("match-pattern"),
+    MATCH_PATTERN_START("match-pattern-start"),
+    MATCH_PATTERN_END("match-pattern-end"),
+    MATCH_PATTERN_RHS("match-pattern-rhs"),
+    OPTIONAL_MATCH_GUARD("optional-match-guard"),
+    JOIN_CLAUSE("join-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -217,7 +226,7 @@ public enum ParserRuleContext {
     ASSIGNMENT_STMT("assignment-stmt"),
     VAR_DECL_STMT("var-decl-stmt"),
     VAR_DECL_STMT_RHS("var-decl-rhs"),
-    STATEMENT_START_IDENTIFIER("type-or-var-name"),
+    TYPE_NAME_OR_VAR_NAME("type-or-var-name"),
     ASSIGNMENT_OR_VAR_DECL_STMT("assign-or-var-decl"),
     ASSIGNMENT_OR_VAR_DECL_STMT_RHS("assign-or-var-decl-rhs"),
     IF_BLOCK("if-block"),
@@ -234,7 +243,7 @@ public enum ParserRuleContext {
     RETURN_STMT_RHS("return-stmt-rhs"),
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
-    STMT_START_IDENTIFIER_RHS("stmt-start-identifier-rhs"),
+    BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
@@ -246,6 +255,7 @@ public enum ParserRuleContext {
     RETRY_STMT("retry-stmt"),
     ROLLBACK_STMT("rollback-stmt"),
     AMBIGUOUS_STMT("ambiguous-stmt"),
+    MATCH_STMT("match-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -314,6 +324,13 @@ public enum ParserRuleContext {
     ENUM_KEYWORD("enum"),
     BASE16_KEYWORD("base16"),
     BASE64_KEYWORD("base64"),
+    READONLY_KEYWORD("readonly"),
+    MATCH_KEYWORD("match"),
+    DISTINCT_KEYWORD("distinct"),
+    CONFLICT_KEYWORD("conflict"),
+    LIMIT_KEYWORD("limit"),
+    JOIN_KEYWORD("join"),
+    OUTER_KEYWORD("outer"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -357,6 +374,7 @@ public enum ParserRuleContext {
     SLASH_LT_TOKEN("/<"),
     DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
     SLASH_ASTERISK_TOKEN("/*"),
+    RIGHT_DOUBLE_ARROW("=>"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -396,6 +414,7 @@ public enum ParserRuleContext {
     FIRST_MAPPING_FIELD("first-mapping-field"),
     MAPPING_FIELD_NAME("maping-field-name"),
     SPECIFIC_FIELD_RHS("specific-field-rhs"),
+    SPECIFIC_FIELD("specific-field"),
     COMPUTED_FIELD_NAME("computed-field-name"),
     MAPPING_FIELD_END("mapping-field-end"),
     TYPEOF_EXPRESSION("typeof-expr"),
@@ -439,6 +458,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
+    VARIABLE_REF_RHS("variable-ref-rhs"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

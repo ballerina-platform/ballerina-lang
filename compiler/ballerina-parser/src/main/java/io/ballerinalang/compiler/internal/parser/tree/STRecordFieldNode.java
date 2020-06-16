@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STRecordFieldNode extends STNode {
     public final STNode metadata;
+    public final STNode readonlyKeyword;
     public final STNode typeName;
     public final STNode fieldName;
     public final STNode questionMarkToken;
@@ -39,12 +40,14 @@ public class STRecordFieldNode extends STNode {
 
     STRecordFieldNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode questionMarkToken,
             STNode semicolonToken) {
         this(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -54,6 +57,7 @@ public class STRecordFieldNode extends STNode {
 
     STRecordFieldNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode questionMarkToken,
@@ -61,6 +65,7 @@ public class STRecordFieldNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.RECORD_FIELD, diagnostics);
         this.metadata = metadata;
+        this.readonlyKeyword = readonlyKeyword;
         this.typeName = typeName;
         this.fieldName = fieldName;
         this.questionMarkToken = questionMarkToken;
@@ -68,6 +73,7 @@ public class STRecordFieldNode extends STNode {
 
         addChildren(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -77,6 +83,7 @@ public class STRecordFieldNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRecordFieldNode(
                 this.metadata,
+                this.readonlyKeyword,
                 this.typeName,
                 this.fieldName,
                 this.questionMarkToken,
@@ -84,7 +91,44 @@ public class STRecordFieldNode extends STNode {
                 diagnostics);
     }
 
+    public STRecordFieldNode modify(
+            STNode metadata,
+            STNode readonlyKeyword,
+            STNode typeName,
+            STNode fieldName,
+            STNode questionMarkToken,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                questionMarkToken,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STRecordFieldNode(
+                metadata,
+                readonlyKeyword,
+                typeName,
+                fieldName,
+                questionMarkToken,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RecordFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

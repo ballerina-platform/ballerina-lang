@@ -19,11 +19,12 @@ package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BPackage;
+import org.ballerinalang.jvm.util.BLangConstants;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.values.HandleValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR;
 
 /**
  * This class contains various utility functions required to provide the 'ballerina/java' module API.
@@ -43,7 +44,8 @@ public class JavaUtils {
     private static final String longTypeName = "long";
     private static final String floatTypeName = "float";
     private static final String doubleTypeName = "double";
-
+    private static final BPackage JAVA_PACKAGE_ID = new BPackage(BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX, "java",
+                                                                 "0.9.0");
 
     /**
      * Returns the Java Class object associated with the class or interface with the given string name.
@@ -63,7 +65,8 @@ public class JavaUtils {
             clazz = Class.forName(name);
             return new HandleValue(clazz);
         } catch (ClassNotFoundException e) {
-            return BallerinaErrors.createError(JAVA_CLASS_NOT_FOUND_ERROR, name);
+            return BallerinaErrors.createDistinctError(BallerinaErrorReasons.JAVA_CLASS_NOT_FOUND_ERROR,
+                    JAVA_PACKAGE_ID, name);
         }
     }
 

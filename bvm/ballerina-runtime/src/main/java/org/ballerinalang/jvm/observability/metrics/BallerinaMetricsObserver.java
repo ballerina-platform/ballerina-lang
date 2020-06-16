@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.observability.ObserverContext;
 
 import java.io.PrintStream;
 import java.time.Duration;
-import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -90,30 +89,25 @@ public class BallerinaMetricsObserver implements BallerinaObserver {
     }
 
     private void stopObservation(ObserverContext observerContext) {
-        // Connector name must be a part of the metric name to make sure that every metric is unique with
-        // the combination of name and tags.
         Set<Tag> mainTags = observerContext.getMainTags();
         Set<Tag> allTags = observerContext.getAllTags();
-
-        Set<Tag> allTagsForCounts = new HashSet<>(allTags.size() + 1);
-        Tags.tags(allTagsForCounts, allTags);
         try {
             Long startTime = (Long) observerContext.getProperty(PROPERTY_START_TIME);
             long duration = System.nanoTime() - startTime;
             getInprogressGauge(mainTags).decrement();
-            metricRegistry.gauge(new MetricId("response_time_seconds", "Response Time",
+            metricRegistry.gauge(new MetricId("response_time_seconds", "Response time",
                     allTags), responseTimeStatisticConfigs).setValue(duration / 1E9);
             metricRegistry.counter(new MetricId("response_time_nanoseconds_total",
-                    "Response Time Total Count", allTags)).increment(duration);
+                    "Total response response time for all requests", allTags)).increment(duration);
             metricRegistry.counter(new MetricId("requests_total",
-                    "Total number of requests", allTagsForCounts)).increment();
+                    "Total number of requests", allTags)).increment();
         } catch (RuntimeException e) {
             handleError("multiple metrics", allTags, e);
         }
     }
 
     private Gauge getInprogressGauge(Set<Tag> tags) {
-        return metricRegistry.gauge(new MetricId("inprogress_requests", "Inprogress Requests", tags));
+        return metricRegistry.gauge(new MetricId("inprogress_requests", "In-progress requests", tags));
     }
 
     private void handleError(String metricName, Set<Tag> tags, RuntimeException e) {

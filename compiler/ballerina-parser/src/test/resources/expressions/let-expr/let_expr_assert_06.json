@@ -1,8 +1,15 @@
 {
   "kind": "LET_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "LET_KEYWORD"
+      "kind": "LET_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",
@@ -19,25 +26,49 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "T"
+                  "value": "T",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "CAPTURE_BINDING_PATTERN",
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "B"
+                      "value": "B",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }
               ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "E1"
+              "value": "E1",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }
@@ -48,7 +79,11 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_IDENTIFIER"
+      ]
     }
   ]
 }

@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { enabled: true, isShared: true } });
+http:Client maxAgeCacheEp = new("http://localhost:9246", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/maxAge"
@@ -39,7 +39,7 @@ service maxAgeProxyService on new http:Listener(9245) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<@untainted> response.message());
             checkpanic caller->respond(res);
         }
     }

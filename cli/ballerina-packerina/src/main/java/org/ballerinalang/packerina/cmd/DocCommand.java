@@ -21,9 +21,11 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.packerina.TaskExecutor;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
+import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
 import org.ballerinalang.packerina.task.CreateDocsTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
+import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -57,6 +59,7 @@ public class DocCommand implements BLauncherCmd {
     private final PrintStream outStream;
     private final PrintStream errStream;
     private Path sourceRootPath;
+    private Path jsonPath;
 
     public DocCommand() {
         this.sourceRootPath = Paths.get(System.getProperty("user.dir"));
@@ -70,6 +73,22 @@ public class DocCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = {"--all", "-a"}, description = "Generate docs for all the modules of the project.")
     private boolean buildAll;
+
+    @CommandLine.Option(names = {"--toJSON", "-toJSON"}, description = "Generate JSON containing doc data.")
+    private boolean toJson;
+
+    @CommandLine.Option(names = {"--fromJSON", "-fromJSON"}, description = "Generate API Docs from a JSON.")
+    private String jsonLoc;
+
+    @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
+    private String outputLoc;
+
+    @CommandLine.Option(names = {"--excludeIndex", "-excludeIndex"}, description = "Prevents project index from " +
+            "being generated.")
+    private boolean excludeIndex;
+
+    @CommandLine.Option(names = {"--combine", "-combine"}, description = "Creates index using modules.")
+    private boolean combine;
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
@@ -104,6 +123,50 @@ public class DocCommand implements BLauncherCmd {
             CommandUtil.exitError(true);
             return;
         }
+        Path sourcePath = null;
+        Path targetPath;
+        // validation and decide source root and source full path
+        this.sourceRootPath = null != this.sourceRoot ?
+                Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
+        // combine docs
+        if (this.combine) {
+            BuildContext buildContext = new BuildContext(this.sourceRootPath);
+            buildContext.setOut(outStream);
+            buildContext.setErr(errStream);
+            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                    .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
+                    .build();
+
+            taskExecutor.executeTasks(buildContext);
+            Runtime.getRuntime().exit(0);
+        }
+        // Generating API Docs through a JSON file
+        if (this.jsonLoc != null) {
+            this.jsonPath = Paths.get(this.jsonLoc).toAbsolutePath();
+            if (Files.notExists(jsonPath)) {
+                CommandUtil.printError(this.errStream,
+                        "cannot find json file",
+                        null,
+                        false);
+                CommandUtil.exitError(true);
+                return;
+            }
+            targetPath = null != this.outputLoc ?
+                    Paths.get(this.outputLoc).toAbsolutePath() : this.sourceRootPath.
+                    resolve(ProjectDirConstants.TARGET_DIR_NAME);
+            BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, null);
+            buildContext.setOut(outStream);
+            buildContext.setErr(errStream);
+            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                    .addTask(new CreateTargetDirTask()) // create target directory.
+                    .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
+                    .build();
+
+            taskExecutor.executeTasks(buildContext);
+            Runtime.getRuntime().exit(0);
+        } else {
+            this.jsonPath = null;
+        }
     
         // if -a or --all flag is not given, then it is mandatory to give a module name.
         if (!this.buildAll && (this.argList == null || this.argList.size() == 0)) {
@@ -115,13 +178,6 @@ public class DocCommand implements BLauncherCmd {
             CommandUtil.exitError(true);
             return;
         }
-        
-        // validation and decide source root and source full path
-        this.sourceRootPath = null != this.sourceRoot ?
-                Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
-        Path sourcePath = null;
-        Path targetPath;
-        
         // when -a or --all flag is provided. check if the command is executed within a ballerina project. update source
         // root path if command executed inside a project.
         if (this.buildAll) {
@@ -225,9 +281,11 @@ public class DocCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
         
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                .addTask(new CleanTargetDirTask())   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
+                .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateDocsTask()) // creates API documentation
+                .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
                 .build();
         
         taskExecutor.executeTasks(buildContext);

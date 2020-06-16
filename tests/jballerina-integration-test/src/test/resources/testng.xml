@@ -147,7 +147,8 @@
         </classes>
     </test>
 
-    <test name="ballerina-transaction-tests" parallel="false">
+    <!-- TODO Transaction - disabled due to new syntax -->
+    <test name="ballerina-transaction-tests" parallel="false" enabled="false">
         <groups>
             <run>
                 <exclude name="brokenOnTableRemove"/>
@@ -217,7 +218,6 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.InvalidServiceMethodTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
-            <class name="org.ballerinalang.test.service.grpc.sample.InvalidMessageTypeTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServiceUnavailableTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ProtoBuilderTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.ServerStreamingTestCase"/>
@@ -314,17 +314,18 @@
             </run>
         </groups>
         <classes>
-<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
-<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
+            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
+            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
+            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
+            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
             <class name="org.ballerinalang.test.packaging.MultipleVersionsModuleTestCase"/>
             <class name="org.ballerinalang.test.packaging.DependencyScopeTestCase"/>
+            <class name="org.ballerinalang.test.packaging.MavenTestCase"/>
         </classes>
     </test>
 
@@ -385,6 +386,13 @@
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>
             <class name="org.ballerinalang.test.docerina.BallerinaApiDocsTestCase" />
+        </classes>
+    </test>
+
+    <test name="ballerina-bindgen-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.bindgen.BindgenTestCase" />
         </classes>
     </test>
 </suite>

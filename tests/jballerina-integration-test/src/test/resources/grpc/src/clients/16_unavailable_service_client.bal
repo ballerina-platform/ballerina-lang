@@ -28,7 +28,7 @@ HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9106");
 function testUnaryBlockingClient(string name) returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello(name);
     if (unionResp is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -44,7 +44,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -65,7 +65,7 @@ public type helloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

@@ -131,8 +131,8 @@ function populateTypes(jvm:ClassWriter cw, bir:TypeDef?[] typeDefs) returns stri
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
             mv.visitInsn(DUP);
             addObjectFields(mv, bType.fields);
-            addObjectInitFunction(mv, bType.generatedConstructor, bType, indexMap, "$__init$", "setGeneratedInitializer");
-            addObjectInitFunction(mv, bType.constructor, bType, indexMap, "__init", "setInitializer");
+            addObjectInitFunction(mv, bType.generatedConstructor, bType, indexMap, "$init$", "setGeneratedInitializer");
+            addObjectInitFunction(mv, bType.constructor, bType, indexMap, "init", "setInitializer");
             addObjectAttachedFunctions(mv, bType.attachedFunctions, bType, indexMap);
         } else if (bType is bir:BServiceType) {
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
@@ -317,7 +317,7 @@ function generateObjectValueCreateMethod(jvm:ClassWriter cw, bir:TypeDef?[] obje
         mv.visitVarInsn(ALOAD, tempVarIndex);
         mv.visitVarInsn(ALOAD, strandVarIndex);
 
-        mv.visitLdcInsn("$__init$");
+        mv.visitLdcInsn("$init$");
         mv.visitVarInsn(ALOAD, argsIndex);
 
         string methodDesc = io:sprintf("(L%s;L%s;[L%s;)L%s;", STRAND, STRING_VALUE, OBJECT, OBJECT);

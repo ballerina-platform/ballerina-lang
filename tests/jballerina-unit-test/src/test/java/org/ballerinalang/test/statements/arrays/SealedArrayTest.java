@@ -197,7 +197,7 @@ public class SealedArrayTest {
         BAssertUtil.validateError(resultNegative, 0, "variable 'sealedArray1' is not initialized", 19, 5);
     }
 
-    @Test()
+    @Test(groups = { "brokenOnNewParser" })
     public void testNegativeAutoFillSealedArray() {
         BAssertUtil.validateError(listExprNegative, 0,
                                   "invalid usage of list constructor: type 'Person[5]' does not have a filler value",
@@ -253,7 +253,7 @@ public class SealedArrayTest {
         Assert.assertEquals(listExprNegative.getErrorCount(), 16);
     }
 
-    @Test()
+    @Test(groups = { "brokenOnNewParser" })
     public void testSemanticsNegativeSealedArrays() {
         Assert.assertEquals(semanticsNegative.getErrorCount(), 22);
         int i = 0;

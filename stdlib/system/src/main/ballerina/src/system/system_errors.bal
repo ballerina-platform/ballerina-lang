@@ -14,44 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
+# Represents an `InvalidOperationError` with the message and the cause.
+public type InvalidOperationError distinct error;
 
-# Represents the error code for invalid operations.
-public const INVALID_OPERATION_ERROR = "{ballerina/system}InvalidOperationError";
+# Represents a `PermissionError` with the message and the cause.
+public type PermissionError distinct error;
 
-# Represents an `InvalidOperationError` with a detailed message.
-public type InvalidOperationError error<INVALID_OPERATION_ERROR, Detail>;
+# Represents a `FileSystemError` with the message and the cause.
+public type FileSystemError distinct error;
 
-# Represents the error code for permission errors.
-public const PERMISSION_ERROR = "{ballerina/system}PermissionError";
+# Represents a `FileNotFoundError` with the message and the cause.
+public type FileNotFoundError distinct error;
 
-# Represents a `PermissionError` with a detailed message.
-public type PermissionError error<PERMISSION_ERROR, Detail>;
+# Represents an `ProcessExecError` with the message and the cause.
+public type ProcessExecError distinct error;
 
-# Represents the error code for file system errors.
-public const FILE_SYSTEM_ERROR = "{ballerina/system}FileSystemError";
-
-# Represents a `FileSystemError` with a detailed message.
-public type FileSystemError error<FILE_SYSTEM_ERROR, Detail>;
-
-# Represents the error code for file not found.
-public const FILE_NOT_FOUND_ERROR = "{ballerina/system}FileNotFoundError";
-
-# Represents a `FileNotFoundError` with a detailed message.
-public type FileNotFoundError error<FILE_NOT_FOUND_ERROR, Detail>;
-
-# Represents the error code for process execute error.
-public const PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
-
-# Represents an `ProcessExecError` with a detailed message.
-public type ProcessExecError error<PROCESS_EXEC_ERROR, Detail>;
-
-# Represents System related errors.
+# The union of all the System related errors.
 public type Error InvalidOperationError|PermissionError|FileSystemError|FileNotFoundError|ProcessExecError;

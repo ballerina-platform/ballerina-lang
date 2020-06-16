@@ -27,13 +27,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BNeverType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -76,6 +79,10 @@ public interface TypeVisitor {
 
     void visit(BTypedescType bTypedescType);
 
+    void visit(BParameterizedType bTypedescType);
+
+    void visit(BNeverType bNeverType);
+
     void visit(BNilType bNilType);
 
     void visit(BNoType bNoType);
@@ -89,6 +96,8 @@ public interface TypeVisitor {
     void visit(BTupleType bTupleType);
 
     void visit(BUnionType bUnionType);
+
+    void visit(BIntersectionType bIntersectionType);
 
     void visit(BXMLType bxmlType);
 

@@ -21,14 +21,18 @@ package org.ballerinalang.debugadapter.variable;
  */
 public enum JVMValueType {
 
+    INT("int"),
     LONG("long"),
     BOOLEAN("boolean"),
     DOUBLE("double"),
+    J_INT("java.lang.Int"),
     J_LONG("java.lang.Long"),
     J_BOOLEAN("java.lang.Boolean"),
     J_DOUBLE("java.lang.Double"),
     J_STRING("java.lang.String"),
     J_OBJECT("java.lang.Object"),
+    BMPSTRING("org.ballerinalang.jvm.values.BmpStringValue"),
+    NONBMPSTRING("org.ballerinalang.jvm.values.NonBmpStringValue"),
     DECIMAL("org.ballerinalang.jvm.values.DecimalValue"), // todo - parent var name
     OBJECT_TYPE("org.ballerinalang.jvm.types.BObjectType"),
     OBJECT_VALUE("org.ballerinalang.jvm.values.ObjectValue"),

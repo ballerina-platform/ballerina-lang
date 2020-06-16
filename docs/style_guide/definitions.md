@@ -132,7 +132,7 @@
       string name;
   
       // Object init function.
-      function __init(int age = 0, string name) {
+      function init(int age = 0, string name) {
           self.age = age;
           self.name = name;
       }
@@ -203,7 +203,7 @@ Block indent each of the field definitions (including the Rest field) in their o
   type Employee object {
       *Person; // Reference to Person abstract object.
 
-      function __init() {
+      function init() {
           self.name = "asd";
       }
 

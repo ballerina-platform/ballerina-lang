@@ -28,8 +28,7 @@ public function testGzipEncoding() returns string {
     headers.setEntry("grpc-encoding", "gzip");
     [string, grpc:Headers]|error result = blockingEp->addOrder('order, headers);
     if (result is error) {
-        return io:sprintf("gzip encoding failed: %s - %s", result.reason(), <string>result.detail()
-    	 ["message"]);
+        return io:sprintf("gzip encoding failed: %s", result.message());
     } else {
         string orderId;
         [orderId, _] = result;
@@ -43,7 +42,7 @@ public type OrderManagementBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -73,7 +72,7 @@ public type OrderManagementClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

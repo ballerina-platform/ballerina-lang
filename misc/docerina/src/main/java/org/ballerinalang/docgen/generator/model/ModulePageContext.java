@@ -21,8 +21,8 @@ package org.ballerinalang.docgen.generator.model;
 public class ModulePageContext extends PageContext {
     public Module module;
     public Project project;
-    public ModulePageContext(Module module, Project project, String rootPath, String title) {
-        super(rootPath, title);
+    public ModulePageContext(Module module, Project project, String rootPath, String title, boolean excludeIndex) {
+        super(rootPath, title, excludeIndex);
         this.module = module;
         this.project = project;
     }

@@ -70,7 +70,35 @@ public class STStartActionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STStartActionNode modify(
+            STNode annotations,
+            STNode startKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                annotations,
+                startKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STStartActionNode(
+                annotations,
+                startKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new StartActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

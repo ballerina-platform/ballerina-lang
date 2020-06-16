@@ -84,7 +84,41 @@ public class STNamedWorkerDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    public STNamedWorkerDeclarationNode modify(
+            STNode annotations,
+            STNode workerKeyword,
+            STNode workerName,
+            STNode returnTypeDesc,
+            STNode workerBody) {
+        if (checkForReferenceEquality(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody)) {
+            return this;
+        }
+
+        return new STNamedWorkerDeclarationNode(
+                annotations,
+                workerKeyword,
+                workerName,
+                returnTypeDesc,
+                workerBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new NamedWorkerDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

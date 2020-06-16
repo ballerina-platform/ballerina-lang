@@ -82,7 +82,7 @@ public type MyErrorData record {|
     error cause?;
 |};
 
-type MyError error<string, MyErrorData>;
+type MyError error<MyErrorData>;
 
 public type CustomErrorData record {|
     string data;
@@ -90,7 +90,7 @@ public type CustomErrorData record {|
     error cause?;
 |};
 
-type CustomError error<string, CustomErrorData>;
+type CustomError error<CustomErrorData>;
 
 function getPerson() returns Person | MyError {
    //myerror e = error("ddd");
@@ -106,12 +106,12 @@ function testSafeAssignOpInAssignmentStatement7 () returns (string | error) {
 
 
 function readLineError() returns string | MyError {
-    MyError e = error("io error");
+    MyError e = MyError("io error");
     return e;
 }
 
 function readLineCustomError() returns string | CustomError {
-    CustomError e = error("custom io error", data = "foo.txt");
+    CustomError e = CustomError("custom io error", data = "foo.txt");
     return e;
 }
 

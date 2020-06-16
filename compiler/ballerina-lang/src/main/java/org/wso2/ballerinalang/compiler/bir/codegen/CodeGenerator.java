@@ -19,8 +19,8 @@ package org.wso2.ballerinalang.compiler.bir.codegen;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.NativeDependencyResolver;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.emit.BIREmitter;
@@ -49,7 +49,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.wso2.ballerinalang.compiler.NativeDependencyResolver.JAR_RESOLVER_KEY;
+import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -156,10 +156,10 @@ public class CodeGenerator {
             moduleDependencies.addAll(readInteropDependencies());
         }
 
-        NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
+        JarResolver jarResolver = compilerContext.get(JAR_RESOLVER_KEY);
 
-        if (nativeDependencyResolver != null) {
-            moduleDependencies.addAll(nativeDependencyResolver.nativeDependencies(packageID));
+        if (jarResolver != null) {
+            moduleDependencies.addAll(jarResolver.nativeDependencies(packageID));
             moduleDependencies.add(getRuntimeAllJarPath());
         }
 
@@ -170,10 +170,10 @@ public class CodeGenerator {
 
         Set<Path> testDependencies = new HashSet<>(moduleDependencies);
 
-        NativeDependencyResolver nativeDependencyResolver = compilerContext.get(JAR_RESOLVER_KEY);
+        JarResolver jarResolver = compilerContext.get(JAR_RESOLVER_KEY);
 
-        if (nativeDependencyResolver != null) {
-            testDependencies.addAll(nativeDependencyResolver.nativeDependenciesForTests(testPackageId));
+        if (jarResolver != null) {
+            testDependencies.addAll(jarResolver.nativeDependenciesForTests(testPackageId));
         }
 
         return testDependencies;

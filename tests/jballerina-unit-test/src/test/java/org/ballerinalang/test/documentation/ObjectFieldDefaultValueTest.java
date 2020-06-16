@@ -33,11 +33,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -61,9 +59,8 @@ public class ObjectFieldDefaultValueTest {
                 Paths.get("src/test/resources", sourceRoot).toAbsolutePath().toString(), modules);
         List<ModuleDoc> moduleDocList = new ArrayList<>(docsMap.values());
         moduleDocList.sort(Comparator.comparing(pkg -> pkg.bLangPackage.packageID.toString()));
-        Map<String, List<Path>> resources = new HashMap<>();
 
-        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList, resources);
+        Project project = BallerinaDocGenerator.getDocsGenModel(moduleDocList);
         testModule = project.modules.get(0);
         objects = testModule.objects;
     }
