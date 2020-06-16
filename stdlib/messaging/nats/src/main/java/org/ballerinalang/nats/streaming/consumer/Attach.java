@@ -17,8 +17,8 @@
  */
 package org.ballerinalang.nats.streaming.consumer;
 
-import io.nats.streaming.StreamingConnection;
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.nats.Constants;
@@ -44,12 +44,13 @@ public class Attach {
                 (ConcurrentHashMap<ObjectValue, StreamingListener>) streamingListener
                         .getNativeData(STREAMING_DISPATCHER_LIST);
         boolean manualAck = getAckMode(service);
-        StreamingConnection streamingConnection = (StreamingConnection) streamingListener
-                .getNativeData(Constants.NATS_STREAMING_CONNECTION);
+        String streamingConnectionUrl =
+                streamingListener.getObjectValue(StringUtils.fromString("connection"))
+                        .get(StringUtils.fromString("url")).toString();
         NatsMetricsReporter natsMetricsReporter =
                 (NatsMetricsReporter) connectionObject.getNativeData(Constants.NATS_METRIC_UTIL);
         serviceListenerMap.put(service, new StreamingListener(service, manualAck, BRuntime.getCurrentRuntime(),
-                                                              streamingConnection.getNatsConnection().getConnectedUrl(),
+                                                              streamingConnectionUrl,
                                                               natsMetricsReporter));
     }
 
