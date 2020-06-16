@@ -107,7 +107,7 @@ public class JvmErrorGen {
                         THROWABLE, ERROR_VALUE), false);
                 jvmInstructionGen.generateVarStore(this.mv, retVarDcl, this.currentPackageName, retIndex);
                 BIRTerminator.Return term = catchIns.term;
-                termGen.genReturnTerm(term, retIndex, func, false, -1);
+                termGen.genReturnTerm(term, retIndex, func, -1);
                 this.mv.visitJumpInsn(GOTO, jumpLabel);
             }
             if (!exeptionExist) {

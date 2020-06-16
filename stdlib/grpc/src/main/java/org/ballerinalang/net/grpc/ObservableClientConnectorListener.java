@@ -41,30 +41,30 @@ public class ObservableClientConnectorListener extends ClientConnectorListener {
 
     @Override
     public void onMessage(HttpCarbonMessage httpCarbonMessage) {
-        super.onMessage(httpCarbonMessage);
         Integer statusCode = (Integer) httpCarbonMessage.getProperty(RESPONSE_STATUS_CODE_FIELD.getValue());
         addHttpStatusCode(statusCode == null ? 0 : statusCode);
+        super.onMessage(httpCarbonMessage);
     }
 
     @Override
     public void onError(Throwable throwable) {
-        super.onError(throwable);
         if (throwable instanceof ClientConnectorException) {
             ClientConnectorException clientConnectorException = (ClientConnectorException) throwable;
             addHttpStatusCode(clientConnectorException.getHttpStatusCode());
             Optional<ObserverContext> observerContext =
                     ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
             observerContext.ifPresent(ctx -> {
-                ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR, Boolean.TRUE);
+                ctx.addTag(ObservabilityConstants.TAG_KEY_ERROR, ObservabilityConstants.TAG_TRUE_VALUE);
                 ctx.addProperty(ObservabilityConstants.PROPERTY_ERROR_MESSAGE, throwable.getMessage());
             });
 
         }
+        super.onError(throwable);
     }
 
     private void addHttpStatusCode(int statusCode) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(context.getStrand());
-        observerContext.ifPresent(ctx -> ctx.addTag(ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE,
-                String.valueOf(statusCode)));
+        observerContext.ifPresent(ctx -> ctx.addProperty(ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE,
+                statusCode));
     }
 }
