@@ -2380,13 +2380,17 @@ public class BallerinaParser extends AbstractParser {
         STToken node = peek();
         if (isSimpleType(node.kind)) {
             STToken token = consume();
-            SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
-            return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
+            return createBuiltinSimpleNameReference(token);
         } else {
             Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
             STNode recoveredNode = sol.recoveredNode;
-            return STNodeFactory.createBuiltinSimpleNameReferenceNode(recoveredNode.kind, recoveredNode);
+            return createBuiltinSimpleNameReference(recoveredNode);
         }
+    }
+
+    private STNode createBuiltinSimpleNameReference(STNode token) {
+        SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+        return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
     /**
@@ -3267,6 +3271,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
+            readOnlyQualifier = createBuiltinSimpleNameReference(readOnlyQualifier);
             type = parseComplexTypeDescriptor(readOnlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
             readOnlyQualifier = STNodeFactory.createEmptyNode();
         }
@@ -5405,6 +5410,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
+            readonlyQualifier = createBuiltinSimpleNameReference(readonlyQualifier);
             type = parseComplexTypeDescriptor(readonlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
             readonlyQualifier = STNodeFactory.createEmptyNode();
         }
@@ -8357,6 +8363,8 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.SERVICE_TYPE_DESC;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_TYPE_DESC;
+            case READONLY_KEYWORD:
+                return SyntaxKind.READONLY_TYPE_DESC;
             default:
                 return SyntaxKind.TYPE_DESC;
         }
