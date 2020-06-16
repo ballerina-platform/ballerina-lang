@@ -175,7 +175,8 @@ public class ReferencesUtil {
                 throw new IllegalStateException("Couldn't find a valid identifier token at cursor!");
             }
 
-            return LSModuleCompiler.getBLangPackages(context, docManager, errStrategy, compileProject, false, false);
+            return LSModuleCompiler.getBLangPackages(context, docManager, errStrategy, compileProject, false, false,
+                    true);
         } finally {
             lock.ifPresent(Lock::unlock);
         }

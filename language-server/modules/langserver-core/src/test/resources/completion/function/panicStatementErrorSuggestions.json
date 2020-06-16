@@ -6,17 +6,6 @@
   "source": "function/source/panicStatementErrorSuggestions.bal",
   "items": [
     {
-      "label": "error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
-      },
-      "sortText": "200",
-      "insertText": "error",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "err",
       "kind": "Variable",
       "detail": "error",

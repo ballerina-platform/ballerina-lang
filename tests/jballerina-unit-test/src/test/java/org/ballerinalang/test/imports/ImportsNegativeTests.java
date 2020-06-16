@@ -39,4 +39,16 @@ public class ImportsNegativeTests {
         validateError(result, 0, "cannot resolve module 'unknown/module'", 1, 1);
         validateError(result, 1, "cannot resolve module 'unknown/module'", 1, 1);
     }
+
+    @Test(description = "Test invalid autoimports")
+    public void testInvalidAutoImports() {
+        CompileResult result = BCompileUtil.compile("test-src/imports/predeclared-imports", "rpg");
+        int index = 0;
+        validateError(result, index++, "undefined function 'max'", 18, 12);
+        validateError(result, index++, "undefined function 'min'", 22, 12);
+        validateError(result, index++, "undefined function 'concat'", 24, 12);
+        validateError(result, index++, "unknown type 'Listener'", 28, 6);
+        validateError(result, index++, "unknown type 'CallStackElement'", 51, 30);
+        assertEquals(result.getErrorCount(), index);
+    }
 }
