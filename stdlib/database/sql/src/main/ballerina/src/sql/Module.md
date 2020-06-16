@@ -128,8 +128,9 @@ from the type of the Ballerina variable that is passed in.
 string name = "Anne";
 int age = 8;
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
@@ -144,12 +145,13 @@ corresponding subtype of the `sql:TypedValue` such as `sql:Varchar`, `sql:Char`,
 provide more details such as the exact SQL type of the parameter.
 
 ```ballerina
-sql:Varchar name = new ("James");
-sql:Integer age = new (10);
+sql:VarcharValue name = new ("James");
+sql:IntegerValue age = new (10);
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
-if (ret is sql:ExecutionResult) {
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
+f (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
@@ -166,8 +168,10 @@ This example demonstrates inserting data while returning the auto-generated keys
 ```ballerina
 int age = 31;
 string name = "Kate";
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
+
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     int? count = ret.affectedRowCount;
     string|int? generatedKey = ret.lastInsertId;
@@ -205,9 +209,11 @@ type Student record {
 // `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
-                                                          WHERE id < ${id} AND 
-                                                          age > ${age}`, Student);
+sql:ParameterizedQuery query = `SELECT * FROM students
+                                WHERE id < ${id} AND
+                                age > ${age}`;
+stream<Student, sql:Error> resultStream = 
+<stream<Student, sql:Error>>dbClient->query(query, Student);
 
 // Iterating the returned table.
 error? e = resultStream.forEach(function(Student student) {
@@ -230,9 +236,10 @@ type will be the same as how the column is defined in the database.
 // `sql:TypedValue`s as well.
 int id = 10;
 int age = 12;
-stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
-                                                            WHERE id < ${id} AND 
-                                                            age > ${age}`, Student);
+sql:ParameterizedQuery query = `SELECT * FROM students
+                                WHERE id < ${id} AND
+                                age > ${age}`;
+stream<record{}, sql:Error> resultStream = dbClient->query(query);
 
 // Iterating the returned table.
 error? e = resultStream.forEach(function(record{} student) {
@@ -277,7 +284,8 @@ the client.
 
 ```ballerina
 int age = 23;
-var ret = dbClient->execute(`UPDATE students SET name = 'John' WHERE age = ${age}`);
+sql:ParameterizedQuery query = `UPDATE students SET name = 'John' WHERE age = ${age}`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
 } else {
@@ -294,7 +302,8 @@ the client.
 
 ```ballerina
 string name = "John";
-var ret = dbClient->execute(`DELETE from students WHERE name = ${name}`);
+sql:ParameterizedQuery query = `DELETE from students WHERE name = ${name}`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Deleted student count: ", ret.affectedRowCount);
 } else {
@@ -313,19 +322,20 @@ parameterizing the SQL query as same as the  above `execute` operations.
 ```ballerina
 // Create the table with the records that need to be inserted.
 var data = [
-  { name: "John", age: 25  },
-  { name: "Peter", price: 24 },
-  { name: "jane", price: 22 }
-];
+             { name: "John", age: 25  },
+             { name: "Peter", age: 24 },
+             { name: "jane", age: 22 }
+           ];
 
 // Do the batch update by passing the batches.
-var ret = dbClient->batchExecute(from {name, age} in data 
-                                 select `INSERT INTO students 
-                                 ('name', 'age') 
-                                 VALUES (${name}, ${age})`);
+sql:ParameterizedQuery[] batch = from var row in data
+                                 select `INSERT INTO students
+                                 ('name', 'age')
+                                 VALUES (${row.name}, ${row.age})`;
+var ret = dbClient->batchExecute(batch);
 
 if (ret is error) {
-    io:println("Error occurred:", <string>e.detail()["message"]);
+    io:println("Error occurred:", <string>ret.detail()["message"]);
 } else {
     io:println("Batch item 1 update count: ", ret[0].affectedRowCount);
     io:println("Batch item 2 update count: ", ret[1].affectedRowCount);
