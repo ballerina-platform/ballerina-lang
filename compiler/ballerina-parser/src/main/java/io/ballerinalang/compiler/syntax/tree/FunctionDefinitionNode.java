@@ -41,20 +41,24 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(1);
     }
 
-    public Token functionKeyword() {
-        return childInBucket(2);
+    public Optional<Token> transactionalKeyword() {
+        return optionalChildInBucket(2);
     }
 
-    public IdentifierToken functionName() {
+    public Token functionKeyword() {
         return childInBucket(3);
     }
 
-    public FunctionSignatureNode functionSignature() {
+    public IdentifierToken functionName() {
         return childInBucket(4);
     }
 
-    public FunctionBodyNode functionBody() {
+    public FunctionSignatureNode functionSignature() {
         return childInBucket(5);
+    }
+
+    public FunctionBodyNode functionBody() {
+        return childInBucket(6);
     }
 
     @Override
@@ -72,6 +76,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return new String[]{
                 "metadata",
                 "visibilityQualifier",
+                "transactionalKeyword",
                 "functionKeyword",
                 "functionName",
                 "functionSignature",
@@ -81,6 +86,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     public FunctionDefinitionNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
+            Token transactionalKeyword,
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
@@ -88,6 +94,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -98,6 +105,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return NodeFactory.createFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -117,6 +125,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         private final FunctionDefinitionNode oldNode;
         private MetadataNode metadata;
         private Token visibilityQualifier;
+        private Token transactionalKeyword;
         private Token functionKeyword;
         private IdentifierToken functionName;
         private FunctionSignatureNode functionSignature;
@@ -126,6 +135,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
+            this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();
             this.functionName = oldNode.functionName();
             this.functionSignature = oldNode.functionSignature();
@@ -143,6 +153,13 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
                 Token visibilityQualifier) {
             Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
             this.visibilityQualifier = visibilityQualifier;
+            return this;
+        }
+
+        public FunctionDefinitionNodeModifier withTransactionalKeyword(
+                Token transactionalKeyword) {
+            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
+            this.transactionalKeyword = transactionalKeyword;
             return this;
         }
 
@@ -178,6 +195,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             return oldNode.modify(
                     metadata,
                     visibilityQualifier,
+                    transactionalKeyword,
                     functionKeyword,
                     functionName,
                     functionSignature,

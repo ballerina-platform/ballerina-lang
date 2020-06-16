@@ -34,6 +34,7 @@ public class STObjectMethodDefinitionNode extends STNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
     public final STNode remoteKeyword;
+    public final STNode transactionalKeyword;
     public final STNode functionKeyword;
     public final STNode methodName;
     public final STNode methodSignature;
@@ -43,6 +44,7 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode metadata,
             STNode visibilityQualifier,
             STNode remoteKeyword,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -51,6 +53,7 @@ public class STObjectMethodDefinitionNode extends STNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -62,6 +65,7 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode metadata,
             STNode visibilityQualifier,
             STNode remoteKeyword,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -71,6 +75,7 @@ public class STObjectMethodDefinitionNode extends STNode {
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
         this.remoteKeyword = remoteKeyword;
+        this.transactionalKeyword = transactionalKeyword;
         this.functionKeyword = functionKeyword;
         this.methodName = methodName;
         this.methodSignature = methodSignature;
@@ -80,6 +85,7 @@ public class STObjectMethodDefinitionNode extends STNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -91,6 +97,7 @@ public class STObjectMethodDefinitionNode extends STNode {
                 this.metadata,
                 this.visibilityQualifier,
                 this.remoteKeyword,
+                this.transactionalKeyword,
                 this.functionKeyword,
                 this.methodName,
                 this.methodSignature,
@@ -102,6 +109,7 @@ public class STObjectMethodDefinitionNode extends STNode {
             STNode metadata,
             STNode visibilityQualifier,
             STNode remoteKeyword,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -110,6 +118,7 @@ public class STObjectMethodDefinitionNode extends STNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -121,6 +130,7 @@ public class STObjectMethodDefinitionNode extends STNode {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,

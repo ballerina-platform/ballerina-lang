@@ -403,6 +403,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(letExpressionNode);
     }
 
+    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        visitSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
         visitSyntaxNode(letVariableDeclarationNode);
     }

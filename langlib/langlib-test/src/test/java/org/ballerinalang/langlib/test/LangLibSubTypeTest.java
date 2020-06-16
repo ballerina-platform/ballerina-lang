@@ -51,7 +51,7 @@ public class LangLibSubTypeTest {
     private static final String FOUND_STRING = " found 'string'";
 
 
-    @Test
+    @Test(enabled = false)
     public void testIntSubType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/subtypes/int_subtypes_test.bal");
         BRunUtil.invoke(compileResult, "testValueAssignment");
@@ -91,7 +91,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testMapping");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNegativeIntSubType() {
 
         CompileResult result = BCompileUtil.compile("test-src/subtypes/int_subtype_test_negative.bal");

@@ -445,6 +445,10 @@ public class JvmPackageGen {
             }
         }
 
+        // Desugar BIR to include the observations
+        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(this);
+        jvmObservabilityGen.rewriteObservableFunctions(module);
+
         String moduleInitClass = getModuleLevelClassName(orgName, moduleName, version, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameMapping(module, pkgName, moduleInitClass,
                 interopValidator, isEntry);
