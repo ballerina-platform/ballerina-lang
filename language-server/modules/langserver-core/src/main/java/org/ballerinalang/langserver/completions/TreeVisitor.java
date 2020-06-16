@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -104,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -493,7 +495,7 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         final TreeVisitor visitor = this;
-        Class fallbackCursorPositionResolver = this.cursorPositionResolver;
+        Class<?> fallbackCursorPositionResolver = this.cursorPositionResolver;
         this.cursorPositionResolver = InvocationParameterScopeResolver.class;
         this.blockOwnerStack.push(invocationNode);
         // Visit all arguments
@@ -735,6 +737,18 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
         this.acceptNode(annAttachmentNode.expr, annotationAttachmentEnv);
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(rollbackNode.getPosition(), this, this.lsContext, rollbackNode);
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(commitExpr.getPosition(), this, this.lsContext, commitExpr);
     }
 
     @Override
