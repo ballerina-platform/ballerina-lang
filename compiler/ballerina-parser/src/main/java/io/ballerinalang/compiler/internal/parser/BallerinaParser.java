@@ -9232,7 +9232,19 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
         STNode expr = parseExpression();
-        removeAdditionalTokensInInterpolation();
+
+        // Remove additional token in interpolation
+        while (true) {
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.EOF_TOKEN || nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+                break;
+            } else {
+                consume();
+                expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+            }
+        }
+
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
@@ -9252,24 +9264,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
             return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Remove if there any tokens left after the expression inside the interpolation.
-     */
-    private void removeAdditionalTokensInInterpolation() {
-        while (true) {
-            STToken nextToken = peek();
-            switch (nextToken.kind) {
-                case EOF_TOKEN:
-                    return;
-                case CLOSE_BRACE_TOKEN:
-                    return;
-                default:
-                    consume();
-                    this.errorHandler.reportInvalidNode(nextToken, "invalid token '" + nextToken.text() + "'");
-            }
         }
     }
 
