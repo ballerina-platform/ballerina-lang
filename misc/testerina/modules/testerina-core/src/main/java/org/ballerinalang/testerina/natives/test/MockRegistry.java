@@ -73,7 +73,10 @@ public class MockRegistry {
     private String constructCaseId(ObjectValue mockObject, String functionName, ArrayValue argsList) {
         StringBuilder caseIdBuilder = new StringBuilder();
         if (mockObject != null) {
-            caseIdBuilder.append(mockObject.hashCode()).append("-").append(functionName);
+            caseIdBuilder.append(mockObject.hashCode());
+            if (functionName != null) {
+                caseIdBuilder.append("-").append(functionName);
+            }
             if (argsList != null && argsList.size() > 0) {
                 IteratorValue argIterator = argsList.getIterator();
                 while (argIterator.hasNext()) {

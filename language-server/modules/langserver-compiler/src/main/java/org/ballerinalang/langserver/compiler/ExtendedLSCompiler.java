@@ -99,7 +99,7 @@ public class ExtendedLSCompiler extends LSModuleCompiler {
             return null;
         }
         String packageName = path.toString();
-        CompilerContext context = contextManager.createNewCompilerContext(parent.toString(), docManager);
+        CompilerContext context = contextManager.createNewCompilerContext(parent.toString(), docManager, true);
         LangServerFSProgramDirectory programDirectory = LangServerFSProgramDirectory.getInstance(parent, docManager);
         context.put(SourceDirectory.class, programDirectory);
         

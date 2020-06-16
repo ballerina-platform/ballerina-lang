@@ -137,6 +137,8 @@ public class StatementContextProvider extends AbstractCompletionProvider {
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         // Add the error snippet
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
+        // Add the error type CompletionItem
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
         // Add the checkpanic keyword
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
         // Add the check keyword

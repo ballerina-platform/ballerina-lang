@@ -63,4 +63,10 @@ public class ImportsTest {
         BValue[] returns = BRunUtil.invoke(result, "getStringValueOfPI");
         Assert.assertTrue((returns[0]).stringValue().startsWith("3.14"));
     }
+
+    @Test(description = "Test auto imports")
+    public void testPredeclaredModules() {
+        BCompileUtil.compile("test-src/imports/predeclared-imports", "bar");
+        BCompileUtil.compile("test-src/imports/predeclared-imports", "foo");
+    }
 }

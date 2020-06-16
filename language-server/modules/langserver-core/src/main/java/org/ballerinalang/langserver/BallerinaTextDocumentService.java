@@ -174,7 +174,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 CompletionUtil.pruneSource(context);
-                LSModuleCompiler.getBLangPackage(context, docManager, null, false, false);
+                LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -250,7 +250,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Prune the source and compile
                 SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false);
+                        LSCustomErrorStrategy.class, false, false, true);
 
                 docManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
@@ -374,7 +374,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withDocumentSymbolParams(fileUri)
                         .build();
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false);
+                        LSCustomErrorStrategy.class, false, false, true);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -602,7 +602,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager,
                                                                          GotoImplementationCustomErrorStrategy.class,
-                                                                         false, false);
+                                                                         false, false, true);
                 List<Location> locations = getImplementationLocation(bLangPkg, context, position.getPosition(),
                                                                      lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
@@ -654,7 +654,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                     context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
                     LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, false,
-                            true, true);
+                            true, true, true);
                     // Populate the Standard Library Cache
                     CommonUtil.updateStdLibCache(context);
                     // Note: If the source is a cached stdlib source then return early and ignore sending diagnostics
