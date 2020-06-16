@@ -31,7 +31,7 @@ connection pool handling.  For its properties and possible values, see the `sql:
     The JDBC module example below shows how the global connection pool is used. 
 
     ```ballerina
-    jdbc:Client dbClient = new ("jdbc:mysql://localhost:3306/testdb", 
+    jdbc:Client|sql:Error dbClient = new ("jdbc:mysql://localhost:3306/testdb", 
                                 "root", "root");
     ```
 
@@ -42,7 +42,7 @@ connection pool handling.  For its properties and possible values, see the `sql:
     connection pool is used.
 
     ```ballerina
-    jdbc:Client dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", 
+    jdbc:Client|sql:Error dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", 
                                 connectionPool = { maxOpenConnections: 5 });
     ```
 
@@ -53,13 +53,13 @@ connection pool handling.  For its properties and possible values, see the `sql:
     connection pool will be created. The JDBC module example below shows how the global connection pool is used.
 
     ```ballerina
-    sql:ConnectionPool connPool = {maximumPoolSize: 5};
+    sql:ConnectionPool connPool = {maxOpenConnections: 5};
     
-    jdbc:Client dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb",    
+    jdbc:Client|sql:Error dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb",    
                                  connectionPool = connPool);
-    jdbc:Client dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb",       
+    jdbc:Client|sql:Error dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb",       
                                  connectionPool = connPool);
-    jdbc:Client dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb",    
+    jdbc:Client|sql:Error dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb",    
                                  connectionPool = connPool);
     ```
     
