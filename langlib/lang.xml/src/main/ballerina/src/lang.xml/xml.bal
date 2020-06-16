@@ -217,7 +217,7 @@ public function elementChildren(xml x, string? nm = ()) returns xml<Element> = e
 # + x - the xml value
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying `func` to each child or `item`
-public function map(xml<ItemType> x, function(ItemType item) returns XmlType func)
+public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType func)
     returns xml<XmlType> = external;
 
 # Applies a function to each item in an xml sequence.

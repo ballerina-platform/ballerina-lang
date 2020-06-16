@@ -26,7 +26,7 @@ public type MockListener object {
     private ListenerConfiguration config = {};
 
     public function __start() returns error? {
-        return self.start();
+        return self.startEndpoint();
     }
 
     public function __gracefulStop() returns error? {
@@ -61,7 +61,7 @@ public type MockListener object {
         return externMockRegister(self, s, name);
     }
 
-    public function start() returns error? {
+    public function startEndpoint() returns error? {
         return externMockStart(self);
     }
 

@@ -34,7 +34,7 @@ function testGetAsArray(string key) returns anydata[] {
 
 function testGetAsArray2(string key) returns int[] {
     var keyArray = config:getAsArray(key);
-    int[]|error ports = keyArray.cloneWithType(int[]);
+    int[]|error ports = keyArray.cloneWithType(IntArray);
     if (ports is int[]) {
         return ports;
     } else {
@@ -44,10 +44,14 @@ function testGetAsArray2(string key) returns int[] {
 
 function testGetAsArray3(string key) returns map<anydata>[] {
     var keyArray = config:getAsArray(key);
-    map<anydata>[]|error result = keyArray.cloneWithType(map<anydata>[]);
+    map<anydata>[]|error result = keyArray.cloneWithType(AnyMapArray);
     if (result is error) {
         panic result;
     } else {
         return result;
     }
 }
+
+type IntArray int[];
+type AnyMapArray map<anydata>[];
+
