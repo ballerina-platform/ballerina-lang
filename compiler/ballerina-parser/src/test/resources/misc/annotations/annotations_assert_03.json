@@ -97,11 +97,16 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "foo",
-                                          "trailingMinutiae": [
+                                          "children": [
                                             {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
+                                              "kind": "STRING_LITERAL",
+                                              "value": "foo",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -114,12 +119,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "description",
-                                          "leadingMinutiae": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "    "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "description",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "    "
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -134,7 +144,12 @@
                                         },
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "some function"
+                                          "children": [
+                                            {
+                                              "kind": "STRING_LITERAL",
+                                              "value": "some function"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -213,7 +228,12 @@
                                                 },
                                                 {
                                                   "kind": "STRING_LITERAL",
-                                                  "value": "none"
+                                                  "children": [
+                                                    {
+                                                      "kind": "STRING_LITERAL",
+                                                      "value": "none"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -243,8 +263,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "code"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
