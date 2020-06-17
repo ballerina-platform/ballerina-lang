@@ -255,7 +255,7 @@ public class BindgenUtils {
 
     private static String getParamsHelper(JParameter param) {
         StringBuilder returnString = new StringBuilder();
-        String checkToHandle = "check toHandle(";
+        String checkToHandle = "check jarrays:toHandle(";
         if (param.getIsObjArray()) {
             returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
