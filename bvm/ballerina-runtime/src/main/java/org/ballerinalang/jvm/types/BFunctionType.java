@@ -124,4 +124,9 @@ public class BFunctionType extends AnnotatableType {
     public boolean isReadOnly() {
         return true;
     }
+
+    @Override
+    public BType getImmutableType() {
+        return this;
+    }
 }
