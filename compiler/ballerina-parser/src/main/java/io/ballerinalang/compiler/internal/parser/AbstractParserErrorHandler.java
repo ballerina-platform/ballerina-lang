@@ -33,7 +33,6 @@ import java.util.List;
 public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
-    protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
 
     /**
@@ -43,7 +42,6 @@ public abstract class AbstractParserErrorHandler {
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
-        this.errorListener = new BallerinaParserErrorListener();
     }
 
     /*
@@ -192,10 +190,6 @@ public abstract class AbstractParserErrorHandler {
     public void switchContext(ParserRuleContext context) {
         this.ctxStack.pop();
         this.ctxStack.push(context);
-    }
-
-    public void reportInvalidNode(STToken startingToken, String message) {
-        this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
     protected ParserRuleContext getParentContext() {
