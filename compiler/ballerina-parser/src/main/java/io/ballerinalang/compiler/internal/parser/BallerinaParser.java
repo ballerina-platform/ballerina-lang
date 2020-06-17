@@ -2269,8 +2269,9 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
                 STToken nextNextToken = getNextNextToken(tokenKind);
                 SyntaxKind nextNextTokenKind = nextNextToken.kind;
-                if (nextNextTokenKind != SyntaxKind.OBJECT_KEYWORD && nextNextTokenKind != SyntaxKind.ABSTRACT_KEYWORD
-                        && nextNextTokenKind != SyntaxKind.CLIENT_KEYWORD) {
+                if (nextNextTokenKind != SyntaxKind.OBJECT_KEYWORD &&
+                        nextNextTokenKind != SyntaxKind.ABSTRACT_KEYWORD &&
+                        nextNextTokenKind != SyntaxKind.CLIENT_KEYWORD) {
                     return parseSimpleTypeDescriptor();
                 }
                 // Else fall through
@@ -4049,7 +4050,7 @@ public class BallerinaParser extends AbstractParser {
             case CHECKPANIC_KEYWORD:
                 // In the checking action, nested actions are allowed. And that's the only
                 // place where actions are allowed within an action or an expression.
-                return parseCheckExpression(isRhsExpr, allowActions);
+                return parseCheckExpression(isRhsExpr, allowActions, isInConditionalExpr);
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
@@ -4058,13 +4059,13 @@ public class BallerinaParser extends AbstractParser {
             case MINUS_TOKEN:
             case NEGATION_TOKEN:
             case EXCLAMATION_MARK_TOKEN:
-                return parseUnaryExpression(isRhsExpr);
+                return parseUnaryExpression(isRhsExpr, isInConditionalExpr);
             case TRAP_KEYWORD:
-                return parseTrapExpression(isRhsExpr, allowActions);
+                return parseTrapExpression(isRhsExpr, allowActions, isInConditionalExpr);
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
             case LT_TOKEN:
-                return parseTypeCastExpr(isRhsExpr, allowActions);
+                return parseTypeCastExpr(isRhsExpr, allowActions, isInConditionalExpr);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
             case FROM_KEYWORD:
@@ -4918,8 +4919,8 @@ public class BallerinaParser extends AbstractParser {
             if (isEndOfParametersList(nextToken.kind)) {
                 int prevArgIndex = argsList.size() - 1;
                 STNode prevArg = argsList.remove(prevArgIndex);
-                STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
-                        prevArg, argEnd, DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevArg, argEnd,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN);
                 argsList.add(prevArgWithDiagnostics);
                 return STNodeFactory.createNodeList(argsList);
             }
@@ -5706,9 +5707,10 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr Is rhs expression
      * @return Check expression node
      */
-    private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions) {
+    private STNode parseCheckExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode checkingKeyword = parseCheckingKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
+        STNode expr =
+                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
         } else {
@@ -6863,7 +6865,7 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr
      * @return Unary expression node
      */
-    private STNode parseUnaryExpression(boolean isRhsExpr) {
+    private STNode parseUnaryExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode unaryOperator = parseUnaryOperator();
 
         // allow-actions flag is always false, since there will not be any actions
@@ -7210,8 +7212,8 @@ public class BallerinaParser extends AbstractParser {
                 lengthExpr = STNodeFactory.createEmptyNode();
         }
 
-        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
-                lengthExpr, indexedExpr.closeBracket);
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket, lengthExpr,
+                indexedExpr.closeBracket);
     }
 
     private STNode getExpressionAsStatement(STNode expression) {
@@ -7260,7 +7262,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseCallStatement(STNode expression) {
         // TODO Validate the expression.
-        //  This is not a must because this expression is validated in the semantic analyzer.
+        // This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
@@ -8043,8 +8045,7 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                expr = SyntaxErrors.addDiagnostics(expr,
-                        DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
+                expr = SyntaxErrors.addDiagnostics(expr, DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
         }
 
         return expr;
@@ -8466,7 +8467,7 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr Whether this is a RHS expression or not
      * @return Trap expression node
      */
-    private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions) {
+    private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
         STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
         if (isAction(expr)) {
@@ -8637,7 +8638,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseTypeCastExpr(boolean isRhsExpr, boolean allowActions) {
+    private STNode parseTypeCastExpr(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         startContext(ParserRuleContext.TYPE_CAST);
         STNode ltToken = parseLTToken();
         STNode typeCastParam = parseTypeCastParam();
@@ -8646,7 +8647,8 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the type-cast-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
+        STNode expression =
+                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
     }
 
@@ -8793,8 +8795,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getKeyKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(),
-                token.trailingMinutiae(), token.diagnostics());
+        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae(),
+                token.diagnostics());
     }
 
     /**
@@ -11186,7 +11188,7 @@ public class BallerinaParser extends AbstractParser {
         STNode doKeyword = parseDoKeyword();
         STNode blockStmt = parseBlockNode();
         endContext();
-        
+
         STNode limitClause = parseLimitClause(isRhsExpr);
         return STNodeFactory.createQueryActionNode(queryPipeline, doKeyword, blockStmt, limitClause);
     }
