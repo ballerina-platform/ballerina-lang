@@ -724,6 +724,7 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 if (metadata != null) {
+                    // addInvalidNodeToNextToken(metadata)
                     this.errorHandler.reportInvalidNode(null, "invalid metadata");
                 }
                 return null;
@@ -3341,7 +3342,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             if (sol.tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
-                invalidNodeStack.push(errorHandler.consumeInvalidToken());
+                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(currentCtx, isInConditionalExpr);
             }
 
@@ -3379,7 +3380,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(identifier);
             }
 
-            invalidNodeStack.push(errorHandler.consumeInvalidToken());
+            addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
             return parseQualifiedIdentifier(identifier, isInConditionalExpr);
         }
     }
@@ -3551,7 +3552,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                invalidNodeStack.push(errorHandler.consumeInvalidToken());
+                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement();
             case AT_TOKEN:
                 annots = parseAnnotations(tokenKind);
@@ -3650,7 +3651,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                invalidNodeStack.push(errorHandler.consumeInvalidToken());
+                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement(annots);
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
