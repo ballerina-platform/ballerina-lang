@@ -218,9 +218,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         connection.setDoOutput(true);
         try (OutputStream outputStream = connection.getOutputStream()) {
             outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
-            try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
-                Map returnedJSON =  new ObjectMapper().readValue(in, Map.class);
-                return (String) returnedJSON.get("answer");
+            try (InputStream inputStream = new BufferedInputStream(connection.getInputStream())) {
+                Map response =  new ObjectMapper().readValue(inputStream, Map.class);
+                return (String) response.get("answer");
             }
         }
     }
