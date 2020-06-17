@@ -173,8 +173,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 startTransactionInvocation);
 
         BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
-        ((BLangBlockFunctionBody)trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
-        ((BLangBlockFunctionBody)trxMainFunc.function.body).stmts.add(1, infoAssignment);
+        ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
+        ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(1, infoAssignment);
 
         trxMainFunc.function = desugar.resolveReturnTypeCast(trxMainFunc.function, env);
 
