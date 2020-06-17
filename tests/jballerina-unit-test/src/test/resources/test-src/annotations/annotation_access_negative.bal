@@ -44,12 +44,12 @@ function testRecordTypeAnnotationReadonlyValueEdit()  {
     };
 
     error? res = trap fn();
-        assertEquality(true, res is error);
+    assertEquality(true, res is error);
 
-        error resError = <error> res;
-        assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
-        assertEquality("Invalid update of record field: modification not allowed on readonly value",
-                           resError.detail()["message"].toString());
+    error resError = <error> res;
+    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                       resError.detail()["message"].toString());
 }
 
 @v1 {
