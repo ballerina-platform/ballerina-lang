@@ -164,7 +164,9 @@ public class Compiler {
         for (BLangPackage pkgNode : packages) {
             if (pkgNode.symbol != null) {
                 this.compilerDriver.compilePackage(pkgNode);
-                dlog.resetErrorCount();
+                if (this.dlog.getErrorCount() > 0) {
+                    throw new BLangCompilerException("compilation contains errors");
+                }
             }
         }
         return packages;
