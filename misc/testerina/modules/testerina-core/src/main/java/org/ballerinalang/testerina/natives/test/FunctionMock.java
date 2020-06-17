@@ -48,6 +48,7 @@ public class FunctionMock {
                         && returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
                     return callFunction(returnVal.toString(), args);
                 }
+                break;
             }
         }
         if (returnVal == null) {
