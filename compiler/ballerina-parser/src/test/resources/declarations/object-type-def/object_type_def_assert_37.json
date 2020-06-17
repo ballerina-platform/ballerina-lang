@@ -30,10 +30,14 @@
       ]
     },
     {
-      "kind": "RECORD_TYPE_DESC",
+      "kind": "OBJECT_TYPE_DESC",
       "children": [
         {
-          "kind": "RECORD_KEYWORD",
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "OBJECT_KEYWORD",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -54,7 +58,7 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "RECORD_FIELD",
+              "kind": "OBJECT_FIELD",
               "children": [
                 {
                   "kind": "METADATA",
@@ -66,16 +70,26 @@
                   ]
                 },
                 {
-                  "kind": "READONLY_TYPE_DESC",
+                  "kind": "READONLY_KEYWORD",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "READONLY_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -86,13 +100,8 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    }
-                  ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -106,7 +115,7 @@
               ]
             },
             {
-              "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+              "kind": "OBJECT_FIELD",
               "children": [
                 {
                   "kind": "METADATA",
@@ -118,42 +127,13 @@
                   ]
                 },
                 {
-                  "kind": "READONLY_TYPE_DESC",
-                  "children": [
+                  "kind": "READONLY_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "READONLY_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
                     }
-                  ]
-                },
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "EQUAL_TOKEN",
+                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -162,13 +142,22 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "kind": "READONLY_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "v"
+                      "kind": "READONLY_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
