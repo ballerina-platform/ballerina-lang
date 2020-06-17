@@ -33,4 +33,5 @@ public class ProgramFileConstants {
     public static final String IMPLEMENTATION_VERSION = "2020r1";
     public static final String[] SUPPORTED_PLATFORMS = {"java8"};
     public static final String ANY_PLATFORM = "any";
+    public static final String CLIENT_ID = "slp1";
 }

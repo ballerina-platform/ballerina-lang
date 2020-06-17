@@ -80,7 +80,7 @@ public class Pull {
      */
     public static void execute(String url, String modulePathInBaloCache, String moduleNameWithOrg, String proxyHost,
             int proxyPort, String proxyUsername, String proxyPassword, String supportedVersionRange, boolean isBuild,
-            boolean isNightlyBuild, String langSpecVersion, String platform) {
+            boolean isNightlyBuild, String langSpecVersion, String platform, String clientId) {
         if (isBuild) {
             logFormatter = new BuildLogFormatter();
         }
@@ -98,6 +98,7 @@ public class Pull {
             conn.setRequestProperty(BALLERINA_PLATFORM, platform);
             conn.setRequestProperty(BAL_LANG_SPEC_VERSION, langSpecVersion);
             conn.setRequestProperty(HttpHeaders.ACCEPT_ENCODING, IDENTITY);
+            conn.setRequestProperty(HttpHeaders.USER_AGENT, clientId);
 
             boolean redirect = false;
             // 302 - Module is found
