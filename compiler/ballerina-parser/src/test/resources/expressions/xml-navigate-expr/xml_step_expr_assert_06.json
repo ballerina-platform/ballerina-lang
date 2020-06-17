@@ -5,12 +5,17 @@
       "kind": "XML_STEP_EXPRESSION",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a",
-          "trailingMinutiae": [
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },
@@ -29,8 +34,13 @@
       "kind": "DOT_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -43,7 +53,12 @@
           "children": [
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5"
+                }
+              ]
             }
           ]
         },
@@ -60,8 +75,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
             }
           ]
         },
@@ -78,12 +98,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "age",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "age",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -98,7 +123,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "18"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "18"
+                }
+              ]
             }
           ]
         },
@@ -118,8 +148,13 @@
               "kind": "ELLIPSIS_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "subjects"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "subjects"
+                }
+              ]
             }
           ]
         }

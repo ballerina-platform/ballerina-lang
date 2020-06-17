@@ -20,18 +20,21 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-mysql-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+    </listeners>
     <test name="ballerina-mysql-test" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
+        <parameter name="enableNewParserForTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.mysql.BaseTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitTest"/>
+            <class name="org.ballerinalang.mysql.pool.ConnectionPoolTest"/>
             <class name="org.ballerinalang.mysql.init.ConnectionInitSSLTest"/>
             <class name="org.ballerinalang.mysql.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.mysql.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.mysql.query.ParamsQueryTest"/>
             <class name="org.ballerinalang.mysql.execute.ExecuteTest"/>
             <class name="org.ballerinalang.mysql.execute.ParamsExecuteTest"/>
-            <class name="org.ballerinalang.mysql.pool.ConnectionPoolTest"/>
         </classes>
     </test>
 </suite>

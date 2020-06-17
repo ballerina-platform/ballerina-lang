@@ -58,8 +58,13 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "bar"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "bar"
+                    }
+                  ]
                 },
                 {
                   "kind": "MAPPING_BINDING_PATTERN",

@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -46,6 +47,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -58,20 +60,28 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "CALL_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FUNCTION_CALL",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "x",
-                      "leadingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "x",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "   "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -80,20 +90,31 @@
                     },
                     {
                       "kind": "LIST",
+                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "POSITIONAL_ARG",
+                          "hasDiagnostics": true,
                           "children": [
                             {
                               "kind": "REMOTE_METHOD_CALL_ACTION",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_EXPRESSION_EXPECTED_ACTION_FOUND"
+                              ],
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "y",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "y",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -107,8 +128,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "z"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "z"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"

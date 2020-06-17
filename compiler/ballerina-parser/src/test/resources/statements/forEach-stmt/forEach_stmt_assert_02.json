@@ -94,11 +94,16 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "VAR_KEYWORD",
-                      "trailingMinutiae": [
+                      "kind": "VAR_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "VAR_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -129,12 +134,17 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "fruits",
-                  "trailingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "fruits",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

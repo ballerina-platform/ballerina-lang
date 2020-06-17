@@ -44,6 +44,7 @@ public class TransactionLocalContext {
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
     private Object infoRecord;
+    private Object rollbackOnlyError;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
@@ -54,8 +55,9 @@ public class TransactionLocalContext {
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
         this.infoRecord = infoRecord;
-        transactionBlockIdStack = new Stack<>();
-        transactionFailure = new Stack<>();
+        this.transactionBlockIdStack = new Stack<>();
+        this.transactionFailure = new Stack<>();
+        this.rollbackOnlyError = null;
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
@@ -136,6 +138,14 @@ public class TransactionLocalContext {
     public void rollbackTransaction(Strand strand, String transactionBlockId, Object error) {
         transactionContextStore.clear();
         transactionResourceManager.rollbackTransaction(strand, globalTransactionId, transactionBlockId, error);
+    }
+
+    public void setRollbackOnlyError(Object error) {
+        rollbackOnlyError = error;
+    }
+
+    public Object getRollbackOnly() {
+        return rollbackOnlyError;
     }
 
     public void notifyLocalParticipantFailure() {

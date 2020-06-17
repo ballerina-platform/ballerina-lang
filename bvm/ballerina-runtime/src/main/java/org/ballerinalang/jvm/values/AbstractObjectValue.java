@@ -118,12 +118,17 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        throw new UnsupportedOperationException();
+        return this;
+    }
+
+    @Override
+    public void freezeDirect() {
+        return;
     }
 
     @Override
     public Object frozenCopy(Map<Object, Object> refs) {
-        throw new UnsupportedOperationException();
+        return this;
     }
 
     @Override

@@ -70,17 +70,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -156,17 +161,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -247,17 +257,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },

@@ -392,6 +392,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static org.ballerinalang.model.elements.Flag.SERVICE;
+import static org.ballerinalang.model.elements.Flag.TRANSACTIONAL;
 import static org.wso2.ballerinalang.compiler.util.Constants.OPEN_SEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.UNSEALED_ARRAY_INDICATOR;
 import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_PREFIX;
@@ -531,7 +532,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(MethodDeclarationNode methodDeclarationNode) {
         BLangFunction bLFunction = createFunctionNode(methodDeclarationNode.methodName(),
-                methodDeclarationNode.visibilityQualifier(), methodDeclarationNode.methodSignature(), null);
+                methodDeclarationNode.visibilityQualifier(), methodDeclarationNode.methodSignature(), null,
+                Optional.empty());
 
         bLFunction.annAttachments = applyAll(methodDeclarationNode.metadata().annotations());
         bLFunction.pos = getPosition(methodDeclarationNode);
@@ -743,7 +745,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Optional<ErrorTypeParamsNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
         errorType.pos = getPosition(errorTypeDescriptorNode);
         if (typeParam.isPresent()) {
-            BLangType detail = createTypeNode(typeParam.get());
+            ErrorTypeParamsNode typeNode = typeParam.get();
+            BLangType detail = null;
+            if (isAnonymousTypeNode(typeNode)) {
+                detail = deSugarTypeAsUserDefType(createTypeNode(typeNode));
+            } else {
+                detail = createTypeNode(typeNode);
+            }
+
             if (detail != null) {
                 errorType.detailType = detail;
                 if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
@@ -755,6 +764,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return errorType;
+    }
+
+    private boolean isAnonymousTypeNode(ErrorTypeParamsNode typeNode) {
+        SyntaxKind paramKind = typeNode.parameter().kind();
+        if (paramKind == SyntaxKind.RECORD_TYPE_DESC || paramKind == SyntaxKind.OBJECT_TYPE_DESC
+                || paramKind == SyntaxKind.ERROR_TYPE_DESC) {
+            return checkIfAnonymous(typeNode);
+        }
+        return false;
     }
 
     @Override
@@ -1100,7 +1118,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(FunctionDefinitionNode funcDefNode) {
         BLangFunction bLFunction = createFunctionNode(funcDefNode.functionName(), funcDefNode.visibilityQualifier(),
-                funcDefNode.functionSignature(), funcDefNode.functionBody());
+                funcDefNode.functionSignature(), funcDefNode.functionBody(), funcDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
         bLFunction.pos = getPosition(funcDefNode);
@@ -1110,7 +1128,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
-                                             FunctionSignatureNode functionSignature, FunctionBodyNode functionBody) {
+            FunctionSignatureNode functionSignature, FunctionBodyNode functionBody, Optional<Token> transactional) {
+
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
         // Set function name
@@ -1126,6 +1145,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.RESOURCE);
             }
         });
+
+        if (transactional.isPresent()) {
+            bLFunction.flagSet.add(TRANSACTIONAL);
+        }
 
         // Set function signature
         populateFuncSignature(bLFunction, functionSignature);
@@ -1148,7 +1171,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ObjectMethodDefinitionNode methodDefNode) {
         BLangFunction bLFunction =
                 createObjectMethodNode(methodDefNode.methodName(), methodDefNode.visibilityQualifier(),
-                        methodDefNode.remoteKeyword(), methodDefNode.methodSignature(), methodDefNode.functionBody());
+                        methodDefNode.remoteKeyword(), methodDefNode.methodSignature(), methodDefNode.functionBody(),
+                        methodDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(methodDefNode.metadata().annotations());
         bLFunction.pos = getPosition(methodDefNode);
@@ -1159,7 +1183,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangFunction createObjectMethodNode(IdentifierToken methodName, Optional<Token> visibilityQualifier,
                                                  Optional<Token> remoteKeyword, FunctionSignatureNode methodSignature,
-                                                 FunctionBodyNode functionBody) {
+                                                 FunctionBodyNode functionBody, Optional<Token> transactional) {
         BLangFunction bLFunction = (BLangFunction) TreeBuilder.createFunctionNode();
 
         // Set method name
@@ -1173,6 +1197,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.PRIVATE);
             }
         });
+
+        if (transactional.isPresent()) {
+            bLFunction.flagSet.add(TRANSACTIONAL);
+        }
 
         // Set remote flag
         if (remoteKeyword.isPresent()) {

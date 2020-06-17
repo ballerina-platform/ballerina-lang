@@ -25,7 +25,9 @@ import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -35,8 +37,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_FILE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_UTILS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_BINDINGS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
@@ -47,8 +47,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEPENDENCIES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TYPES_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_FILE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.JOBJECT_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.UTILS_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
@@ -88,6 +86,8 @@ public class BindingsGenerator {
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
+
+    public static Map<String, String> aliases = new HashMap<>();
 
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
@@ -133,6 +133,13 @@ public class BindingsGenerator {
             // Handle failed binding generations.
             if (failedClassGens != null) {
                 handleFailedClassGens();
+            }
+            try {
+                ((URLClassLoader) classLoader).close();
+            } catch (IOException e) {
+                outStream.println("\nError while exiting the classloader:\n" + e.getMessage());
+            } catch (ClassCastException ignore) {
+                // Ignore if the classloader is not a URLClassLoader.
             }
         }
     }
@@ -199,14 +206,6 @@ public class BindingsGenerator {
         createDirectory(utilsDirStrPath);
         createDirectory(Paths.get(utilsDirStrPath, ERROR_TYPES_DIR).toString());
 
-        // Create the JObject.bal file.
-        writeOutputFile(null, DEFAULT_TEMPLATE_DIR, JOBJECT_TEMPLATE_NAME,
-                Paths.get(utilsDirStrPath, JOBJECT_FILE_NAME).toString(), false);
-
-        // Create the ArrayUtils.bal file.
-        writeOutputFile(null, DEFAULT_TEMPLATE_DIR, ARRAY_UTILS_TEMPLATE_NAME,
-                Paths.get(utilsDirStrPath, ARRAY_UTILS_FILE_NAME).toString(), false);
-
         // Create the Constants.bal file.
         Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
         Set<String> names = new HashSet<>(allClasses);
@@ -220,6 +219,7 @@ public class BindingsGenerator {
 
         // Create the .bal files for Ballerina error types.
         for (JError jError : exceptionList) {
+            jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, ERROR_TYPES_DIR, fileName).toString(), false);

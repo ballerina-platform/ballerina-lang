@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
 /**
  * JSON Canonicalizer.
  *
- * @author Anders Rundgren
+ * @since 2.0.0
  */
 public class JsonCanonicalizer {
 

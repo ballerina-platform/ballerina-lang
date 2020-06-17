@@ -125,7 +125,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "read-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "read-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -168,11 +173,16 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "green-color",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "STRING_LITERAL",
+                          "value": "green-color",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -215,7 +225,12 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD"
+                      "kind": "TRUE_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -230,6 +245,7 @@
                 },
                 {
                   "kind": "ENUM_MEMBER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
@@ -249,6 +265,31 @@
                     },
                     {
                       "kind": "EQUAL_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "value",
+                            "leadingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": "  "
+                              }
+                            ],
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        }
+                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -264,7 +305,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -308,7 +354,12 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "NULL_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },

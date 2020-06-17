@@ -61,7 +61,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "24"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "24"
+                        }
+                      ]
                     }
                   ]
                 }
@@ -96,7 +101,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "25"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "25"
+                        }
+                      ]
                     }
                   ]
                 }

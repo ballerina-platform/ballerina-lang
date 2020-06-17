@@ -19,6 +19,16 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
+type IntTypedesc typedesc<int>;
+type BooleanTypedesc typedesc<boolean>;
+type FloatTypedesc typedesc<float>;
+type TestIntTypedesc typedesc<TestInt>;
+type TestStringTypedesc typedesc<TestString>;
+type TestBooleanTypedesc typedesc<TestBoolean>;
+type TestFloatTypedesc typedesc<TestFloat>;
+type TestStructTypedesc typedesc<TestStruct>;
+
+
 // Enable when you need to test locally.
 //public function main() {
 //
@@ -231,7 +241,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<int>);
+        var value = result.cloneWithType(IntTypedesc);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -252,7 +262,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<float>);
+        var value = result.cloneWithType(FloatTypedesc);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -265,7 +275,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<boolean>);
+        var value = result.cloneWithType(BooleanTypedesc);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -287,7 +297,7 @@ public type HelloWorldBlockingClient client object {
         anydata result =();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestInt>);
+        var value = result.cloneWithType(TestIntTypedesc);
         if (value is TestInt) {
             return [value, resHeaders];
         } else {
@@ -301,7 +311,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestString>);
+        var value = result.cloneWithType(TestStringTypedesc);
         if (value is TestString) {
             return [value, resHeaders];
         } else {
@@ -315,7 +325,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestFloat>);
+        var value = result.cloneWithType(TestFloatTypedesc);
         if (value is TestFloat) {
             return [value, resHeaders];
         } else {
@@ -329,7 +339,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestBoolean>);
+        var value = result.cloneWithType(TestBooleanTypedesc);
         if (value is TestBoolean) {
             return [value, resHeaders];
         } else {
@@ -343,7 +353,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestStruct>);
+        var value = result.cloneWithType(TestStructTypedesc);
         if (value is TestStruct) {
             return [value, resHeaders];
         } else {

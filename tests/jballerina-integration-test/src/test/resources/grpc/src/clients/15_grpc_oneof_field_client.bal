@@ -20,6 +20,9 @@ import ballerina/io;
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 const string ERROR_MESSAGE = "Expected response value type not received";
 
+type Response1Typedesc typedesc<Response1>;
+type ZZZTypedesc typedesc<ZZZ>;
+
 // Enable when you need to test locally.
 //public function main() {
 //    string resp;
@@ -86,17 +89,17 @@ public function testFloatFieldValue() returns string {
     }
 }
 
-public function testInt64FieldValue() returns string {
-    ZZZ zzz = {one_c:-9223372036854775808};
-    var result = blockingEp->testOneofField(zzz);
-    if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s", result.message());
-    } else {
-        ZZZ resp;
-        [resp, _] = result;
-        return resp?.one_c.toString();
-    }
-}
+//public function testInt64FieldValue() returns string {
+//    ZZZ zzz = {one_c:-9223372036854775808};
+//    var result = blockingEp->testOneofField(zzz);
+//    if (result is grpc:Error) {
+//        return io:sprintf("Error from Connector: %s", result.message());
+//    } else {
+//        ZZZ resp;
+//        [resp, _] = result;
+//        return resp?.one_c.toString();
+//    }
+//}
 
 public function testUInt64FieldValue() returns string {
     ZZZ zzz = {one_d:9223372036854775807};
@@ -215,7 +218,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<Response1>);
+        var value = result.cloneWithType(Response1Typedesc);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
@@ -229,7 +232,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<ZZZ>);
+        var value = result.cloneWithType(ZZZTypedesc);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {

@@ -80,8 +80,13 @@
                       "kind": "LT_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "MyRecord"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "MyRecord"
+                        }
+                      ]
                     },
                     {
                       "kind": "GT_TOKEN",
