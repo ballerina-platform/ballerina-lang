@@ -724,8 +724,7 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    // addInvalidNodeToNextToken(metadata)
-                    this.errorHandler.reportInvalidNode(null, "invalid metadata");
+                    addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -1370,8 +1369,8 @@ public class BallerinaParser extends AbstractParser {
 
     private void reportInvalidQualifier(STNode qualifier) {
         if (qualifier != null && qualifier.kind != SyntaxKind.NONE) {
-            this.errorHandler.reportInvalidNode((STToken) qualifier,
-                    "invalid qualifier '" + qualifier.toString().trim() + "'");
+            addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_INVALID_QUALIFIER,
+                    qualifier.toString().trim());
         }
     }
 
@@ -3527,7 +3526,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
-                this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                addInvalidNodeToNextToken(stmt, DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
                 break;
             }
             stmts.add(stmt);
@@ -3647,7 +3646,7 @@ public class BallerinaParser extends AbstractParser {
         // TODO: validate annotations: not every statement supports annots
         switch (tokenKind) {
             case CLOSE_BRACE_TOKEN:
-                this.errorHandler.reportInvalidNode(null, "invalid annotations");
+                addInvalidNodeToNextToken(annots, DiagnosticErrorCode.ERROR_INVALID_ANNOTATIONS);
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:

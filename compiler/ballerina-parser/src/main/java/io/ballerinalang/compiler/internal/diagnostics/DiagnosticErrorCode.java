@@ -248,6 +248,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS("BCE217", "error.invalid.expr.in.assignment.lhs"),
     ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS("BCE217",
             "error.invalid.expr.in.compound.assignment.lhs"),
+    ERROR_INVALID_METADATA("BCE218", "error.invalid.metadata"),
+    ERROR_INVALID_QUALIFIER("BCE219", "error.invalid.qualifier"),
+    ERROR_INVALID_ANNOTATIONS("BCE220", "error.invalid.annotations"),
+
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",
