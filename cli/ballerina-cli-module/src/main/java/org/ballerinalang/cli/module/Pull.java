@@ -77,6 +77,7 @@ public class Pull {
      * @param isNightlyBuild        is nightly build
      * @param langSpecVersion       lang spec version
      * @param platform              supported version
+     * @param clientId              client version
      */
     public static void execute(String url, String modulePathInBaloCache, String moduleNameWithOrg, String proxyHost,
             int proxyPort, String proxyUsername, String proxyPassword, String supportedVersionRange, boolean isBuild,
