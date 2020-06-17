@@ -20,6 +20,9 @@ import ballerina/io;
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 const string ERROR_MESSAGE = "Expected response value type not received";
 
+type Response1Typedesc typedesc<Response1>;
+type ZZZTypedesc typedesc<ZZZ>;
+
 // Enable when you need to test locally.
 //public function main() {
 //    string resp;
@@ -215,7 +218,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<Response1>);
+        var value = result.cloneWithType(Response1Typedesc);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
@@ -229,7 +232,7 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<ZZZ>);
+        var value = result.cloneWithType(ZZZTypedesc);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
