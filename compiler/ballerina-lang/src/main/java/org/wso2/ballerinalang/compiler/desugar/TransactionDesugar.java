@@ -161,12 +161,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         BLangType transactionReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
-        BLangBlockFunctionBody trxMainBody = ASTBuilderUtil.createBlockFunctionBody(transactionNode.pos);
-        trxMainBody.scope = transactionNode.transactionBody.scope;
-        SymbolEnv trxMainBodyEnv = SymbolEnv.createFuncBodyEnv(trxMainBody, env);
         BLangSimpleVariable trxMainFuncParamPrevAttempt = createPrevAttemptVariable(env, pos);
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
-                Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, trxMainBody);
+                Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
+                env, transactionNode.transactionBody.scope);
 
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,
                 ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
@@ -175,11 +173,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 startTransactionInvocation);
 
         BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
-        trxMainBody.stmts.add(startTrxAssignment);
-        trxMainBody.stmts.add(infoAssignment);
-
-        transactionNode.transactionBody.stmts.forEach(stmt ->
-                trxMainBody.stmts.add(desugar.rewrite(stmt, trxMainBodyEnv)));
+        ((BLangBlockFunctionBody)trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
+        ((BLangBlockFunctionBody)trxMainFunc.function.body).stmts.add(1, infoAssignment);
 
         trxMainFunc.function = desugar.resolveReturnTypeCast(trxMainFunc.function, env);
 
