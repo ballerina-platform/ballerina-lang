@@ -32,6 +32,8 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_
 
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
+ *
+ * @since 2.0.0
  */
 public class OpenTracerExtension implements OpenTracer {
     private static volatile Reporter reporterInstance;

@@ -22,6 +22,8 @@ import java.io.Serializable;
 
 /**
  * Holds information about an error occurred in the client.
+ *
+ * @since 2.0.0
  */
 public class ChoreoError implements Serializable {
     private static final long serialVersionUID = -1L;

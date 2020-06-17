@@ -21,6 +21,8 @@ import java.util.Map;
 
 /**
  * Represents a Trace Span published to Choreo.
+ *
+ * @since 2.0.0
  */
 public class ChoreoTraceSpan {
     private long traceId;

@@ -20,6 +20,8 @@ package org.ballerinalang.observe.trace.extension.choreo.client.error;
 
 /**
  * Collection of helper methods to create Choreo specific exceptions.
+ *
+ * @since 2.0.0
  */
 public class ChoreoErrors {
 

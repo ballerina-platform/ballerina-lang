@@ -24,6 +24,8 @@ import java.util.Map;
 
 /**
  * Holds a package of a list of compilation units holding the AST JSONs.
+ *
+ * @since 2.0.0
  */
 public class PkgASTHolder {
     private String name;
