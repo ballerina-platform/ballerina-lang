@@ -96,7 +96,7 @@ public class SignatureHelpTest {
                 //TODO Table remove - Fix
 //                {"exprTableConstructor.json", "functionsAndTypeDefs.bal"},
                 //TODO: Broken with new parser
-//                {"exprStringTemplate.json", "functionsAndTypeDefs.bal"},
+                {"exprStringTemplate.json", "functionsAndTypeDefs.bal"},
                 {"exprXML.json", "functionsAndTypeDefs.bal"},
                 {"exprNewImplicit.json", "functionsAndTypeDefs.bal"},
                 {"exprNewExplicit.json", "functionsAndTypeDefs.bal"},
@@ -117,7 +117,7 @@ public class SignatureHelpTest {
 //                {"exprFunctionCallRestArgs1.json", "functionsAndTypeDefs.bal"},
                 {"exprFunctionCallRestArgs2.json", "functionsAndTypeDefs.bal"},
                 {"exprMethodCall.json", "functionsAndTypeDefs.bal"},
-                // TODO: This is a regression introduced by #23884 need to find a proper way to handle this 
+                // TODO: This is a regression introduced by #23884 need to find a proper way to handle this
 //                {"exprErrorConstructorDirect.json", "functionsAndTypeDefs.bal"},
                 // //TODO: Broken with new parser
 //                {"exprErrorConstructorIndirect.json", "functionsAndTypeDefs.bal"},
