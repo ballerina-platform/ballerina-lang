@@ -38,6 +38,9 @@ import java.util.List;
  */
 public class SyntaxErrors {
 
+    private SyntaxErrors() {
+    }
+
     public static STNodeDiagnostic createDiagnostic(DiagnosticCode diagnosticCode, Object... args) {
         return STNodeDiagnostic.from(diagnosticCode, args);
     }
