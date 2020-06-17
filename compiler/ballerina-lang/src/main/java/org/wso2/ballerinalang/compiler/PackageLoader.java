@@ -495,7 +495,8 @@ public class PackageLoader {
 
     private BLangPackage parse(PackageID pkgId, PackageSource pkgSource) {
         BLangPackage packageNode;
-        if (this.newParserEnabled) {
+
+        if (newParserEnabled) {
             packageNode = this.parser.parseNew(pkgSource, this.sourceDirectory.getPath());
         } else {
             packageNode = this.parser.parse(pkgSource, this.sourceDirectory.getPath());

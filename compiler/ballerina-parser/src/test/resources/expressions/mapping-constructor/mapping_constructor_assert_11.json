@@ -61,8 +61,13 @@
               "kind": "COLON_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "d"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
             }
           ]
         }

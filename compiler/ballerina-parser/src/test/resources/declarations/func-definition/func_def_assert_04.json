@@ -37,7 +37,25 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_TOKEN"
+      ],
+      "value": "foo",
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "CLOSE_BRACE_TOKEN",
+            "trailingMinutiae": [
+              {
+                "kind": "WHITESPACE_MINUTIAE",
+                "value": " "
+              }
+            ]
+          }
+        }
+      ]
     },
     {
       "kind": "FUNCTION_SIGNATURE",
@@ -75,11 +93,16 @@
               "children": []
             },
             {
-              "kind": "INT_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "INT_TYPE_DESC",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "INT_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

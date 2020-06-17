@@ -13,11 +13,11 @@ function testTypeDescFunction() {
     SimpleTypeDesc? tDesc4;
 }
 
-public type ErrorTypeDesc1 error<TestReason, TestDetail>;
+public type ErrorTypeDesc1 error<TestDetail>;
 
-public type ErrorTypeDesc2 error<TestReason>;
+public type ErrorTypeDesc2 error<TestDetail>;
 
-public type ErrorTypeDesc3 error<REASON_CONST, TestDetail>;
+public type ErrorTypeDesc3 error<TestDetail>;
 
 public type TestReason string;
 
@@ -42,5 +42,15 @@ function testErrorTypeDesc2() {
     error testError = error(testErrorCode, message = eMessage, cause = eCause, testField = testFieldVal);
 
     // Indirect Error Constructor
-    ErrorTypeDesc1 testError2 = ErrorTypeDesc3(message = eMessage, cause = eCause);
+    ErrorTypeDesc1 testError2 = ErrorTypeDesc3("Error Message", cause = eCause);
+}
+
+type Foo distinct error;
+
+function testFooError() returns Foo {
+    Foo foo = Foo("error message", detailField=true);
+    var x = foo.detail();
+    Foo f = foo;
+
+    return foo;
 }

@@ -74,17 +74,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -167,8 +172,13 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": " \n                    "
+                                  "kind": "XML_TEXT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": " \n                    "
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "INTERPOLATION",
@@ -285,8 +295,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": "\n                 "
+                                  "kind": "XML_TEXT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": "\n                 "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -316,8 +331,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": " "
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },

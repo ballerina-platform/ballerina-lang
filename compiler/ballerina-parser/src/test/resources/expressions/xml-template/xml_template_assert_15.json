@@ -74,17 +74,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -167,13 +172,19 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
+                                  "kind": "XML_TEXT",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE",
-                                    "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
-                                  ],
-                                  "value": " hello \u0026#56; world! \u0026#5a6; \u0026#x5a6\""
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE",
+                                        "ERROR_MISSING_SEMICOLON_IN_XML_REFERENCE"
+                                      ],
+                                      "value": " hello \u0026#56; world! \u0026#5a6; \u0026#x5a6\""
+                                    }
+                                  ]
                                 }
                               ]
                             },

@@ -77,7 +77,7 @@ public class ExternalMethodGen {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
                     jvmMethodGen, moduleClassName, serviceName, lambdaGenMetadata);
         } else {
-            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, false, moduleClassName, serviceName,
+            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
                                             attachedType, lambdaGenMetadata);
         }
     }

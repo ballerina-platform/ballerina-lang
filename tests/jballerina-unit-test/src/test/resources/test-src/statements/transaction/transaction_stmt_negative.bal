@@ -207,3 +207,15 @@ function isTransactionalBlockFunc(string str) returns string {
     var rslt = testTransactionalInvo(str);
     return str + " non-transactional call";
 }
+
+function testNestedTrxBlocks() returns (string) {
+   string a = "";
+   retry(2) transaction {
+        transaction {
+            a += "nested block";
+            var commitResInner = commit;
+        }
+        var commitResOuter = commit;
+    }
+    return a;
+}

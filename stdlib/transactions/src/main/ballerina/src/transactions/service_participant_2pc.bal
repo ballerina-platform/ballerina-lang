@@ -71,7 +71,7 @@ service Participant2pcService on coordinatorListener {
             }
         }
 
-        var jsonResponse = prepareRes.cloneWithType(typedesc<json>);
+        var jsonResponse = prepareRes.cloneWithType(JsonTypedesc);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);
@@ -141,7 +141,7 @@ service Participant2pcService on coordinatorListener {
             removeParticipatedTransaction(participatedTxnId);
         }
 
-        var jsonResponse = notifyRes.cloneWithType(typedesc<json>);
+        var jsonResponse = notifyRes.cloneWithType(JsonTypedesc);
         if (jsonResponse is json) {
             res.setJsonPayload(jsonResponse);
             var resResult = conn->respond(res);

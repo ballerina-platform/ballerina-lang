@@ -286,7 +286,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false);
+                    false, false, true);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
         } catch (Throwable e) {
@@ -366,9 +366,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
             LSContext astContext = modifyTree(request.getAstModifications(), fileUri, compilationPath);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false,
-                    false);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, 
+                    LSCustomErrorStrategy.class, false, false, true);
             reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(true);
@@ -390,7 +389,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 .withCommonParams(null, fileUri, documentManager)
                 .build();
         LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                false, false);
+                false, false, true);
         BLangPackage oldTree = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
         String fileName = compilationPath.toFile().getName();
         ArrayList<io.ballerinalang.compiler.text.TextEdit> edits = new ArrayList<>();

@@ -52,7 +52,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello3.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello3.com"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -98,7 +103,12 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "http://hello3.com"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "http://hello3.com"
+                    }
+                  ]
                 }
               ]
             },
@@ -119,11 +129,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             },
             {
@@ -166,8 +182,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "s2"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "s2"
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -186,11 +207,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             },
             {

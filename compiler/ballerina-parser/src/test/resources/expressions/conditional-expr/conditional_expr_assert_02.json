@@ -2,22 +2,37 @@
   "kind": "CONDITIONAL_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        }
+      ]
     },
     {
       "kind": "QUESTION_MARK_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     },
     {
       "kind": "COLON_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "c"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "c"
+        }
+      ]
     }
   ]
 }

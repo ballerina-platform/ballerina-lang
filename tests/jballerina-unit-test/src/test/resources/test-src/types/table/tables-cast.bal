@@ -40,10 +40,10 @@ CustomerTable tab3 = table key(name) [
     { id: 13 , name: "Bar" , lname: "UYOR" }
     ];
 
-//PersonTable3 tab4 = table key(age) [
-//    { name: "AAA", age: 31, country: "LK" },
-//    { name: "BBB", age: 34, country: "US" }
-//    ];
+PersonTable3 tab4 = table key(age) [
+    { name: "AAA", age: 31, country: "LK" },
+    { name: "BBB", age: 34, country: "US" }
+    ];
 
 function testKeyConstraintCastToString1() returns boolean {
     table<Person> key<string> tab = <table<Person> key<string>> tab1;
@@ -60,8 +60,7 @@ function testKeyConstraintCastToString3() returns boolean {
     return tab[31]["name"] == "AAA";
 }
 
-// See https://github.com/ballerina-platform/ballerina-lang/issues/24105#issuecomment-643760140
-//function testKeyConstraintCastToString4() returns boolean {
-//    table<Person> key<int> tab =<table<Person> key<int>> tab4;
-//    return tab[31]["name"] == "AAA";
-//}
+function testKeyConstraintCastToString4() returns boolean {
+    table<Person> key<int> tab =<table<Person> key<int>> tab4;
+    return tab[31]["name"] == "AAA";
+}

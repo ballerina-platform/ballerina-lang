@@ -45,12 +45,17 @@
           "kind": "EXPRESSION_LIST_ITEM",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "someListner",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "someListner",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

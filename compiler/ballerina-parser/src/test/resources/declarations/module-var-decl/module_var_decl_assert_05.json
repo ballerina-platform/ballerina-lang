@@ -114,11 +114,16 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "STRING_TYPE_DESC",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -143,7 +148,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello3.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello3.com"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",

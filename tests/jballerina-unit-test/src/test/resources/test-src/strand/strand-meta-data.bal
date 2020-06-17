@@ -81,7 +81,7 @@ function testStrandMetadataAsyncCalls() {
         errorMessages.forEach(function(string message) {
             io:println(message);
         });
-        panic AssertionError(message = "Test failed due to errors.");
+        panic error(ASSERTION_ERROR_REASON, message = "Test failed due to errors.");
     }
 }
 
@@ -174,8 +174,6 @@ function getTypeName(handle strandMetadata) returns handle = @java:FieldGet {
     name : "typeName"
 
 } external;
-
-type AssertionError error<ASSERTION_ERROR_REASON>;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
