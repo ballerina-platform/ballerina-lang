@@ -102,12 +102,6 @@ function testAnnotationOnFunctionTypeReadonlyValueEdit() {
                    resError.detail()["message"].toString());
 }
 
-public function main() {
-    testAnnotationOnFunctionTypeReadonlyValueEdit();
-    testAnnotationOnObjectTypeReadonlyValueEdit();
-    testRecordTypeAnnotationReadonlyValueEdit();
-}
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

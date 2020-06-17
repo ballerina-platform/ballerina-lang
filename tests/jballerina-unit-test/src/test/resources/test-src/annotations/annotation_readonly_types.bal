@@ -69,10 +69,6 @@ function testReadonlyTypeAnnotationAttachment()  {
     assertTrue(annot is Annot);
 }
 
-public function main() {
-    testTypeAnnotAccess1();
-}
-
 listener Listener lis = new;
 
 service ser on lis {
