@@ -71,18 +71,23 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "leadingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "   "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -96,8 +101,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -109,8 +119,13 @@
                           "kind": "POSITIONAL_ARG",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             }
                           ]
                         }

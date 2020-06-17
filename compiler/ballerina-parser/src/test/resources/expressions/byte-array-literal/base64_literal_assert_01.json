@@ -82,11 +82,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -175,11 +180,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -272,11 +282,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -369,11 +384,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -466,11 +486,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -563,11 +588,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -660,11 +690,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },

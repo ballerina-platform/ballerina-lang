@@ -13,7 +13,12 @@
           "children": []
         },
         {
-          "kind": "INT_KEYWORD"
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD"
+            }
+          ]
         }
       ]
     },
@@ -21,11 +26,17 @@
       "kind": "GT_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true,
+      "kind": "SIMPLE_NAME_REFERENCE",
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_IDENTIFIER"
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
       ]
     }
   ]

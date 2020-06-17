@@ -27,10 +27,16 @@
             },
             {
               "kind": "TYPE_DESC",
-              "isMissing": true,
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_TYPE_DESC"
+              "children": [
+                {
+                  "kind": "TYPE_DESC",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_TYPE_DESC"
+                  ]
+                }
               ]
             },
             {

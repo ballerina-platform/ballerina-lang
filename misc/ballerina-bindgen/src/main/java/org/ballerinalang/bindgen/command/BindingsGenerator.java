@@ -25,7 +25,9 @@ import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -89,6 +91,8 @@ public class BindingsGenerator {
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
 
+    public static Map<String, String> aliases = new HashMap<>();
+
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.errStream = err;
@@ -133,6 +137,13 @@ public class BindingsGenerator {
             // Handle failed binding generations.
             if (failedClassGens != null) {
                 handleFailedClassGens();
+            }
+            try {
+                ((URLClassLoader) classLoader).close();
+            } catch (IOException e) {
+                outStream.println("\nError while exiting the classloader:\n" + e.getMessage());
+            } catch (ClassCastException ignore) {
+                // Ignore if the classloader is not a URLClassLoader.
             }
         }
     }

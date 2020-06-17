@@ -260,7 +260,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "read-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "read-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -303,7 +308,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "green-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "green-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -374,7 +384,12 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD"
+                      "kind": "TRUE_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -447,7 +462,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -491,7 +511,12 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "NULL_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },

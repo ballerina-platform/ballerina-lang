@@ -3,14 +3,24 @@
   "children": [
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "1"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "1"
+        }
+      ]
     },
     {
       "kind": "ELLIPSIS_TOKEN"
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "10"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "10"
+        }
+      ]
     }
   ]
 }

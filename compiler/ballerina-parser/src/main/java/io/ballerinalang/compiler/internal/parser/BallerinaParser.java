@@ -27,7 +27,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STArrayTypeDescriptorNode;
 import io.ballerinalang.compiler.internal.parser.tree.STAsyncSendActionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBinaryExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
-import io.ballerinalang.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STConditionalExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
@@ -54,6 +53,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STTypeReferenceTypeDescNod
 import io.ballerinalang.compiler.internal.parser.tree.STTypeTestExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STTypedBindingPatternNode;
 import io.ballerinalang.compiler.internal.parser.tree.STUnionTypeDescriptorNode;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -616,8 +616,8 @@ public class BallerinaParser extends AbstractParser {
                     // If an import occurs after any other module level declaration,
                     // we add it to the other-decl list to preserve the order. But
                     // log an error and mark it as invalid.
-                    otherDecls.add(decl);
-                    this.errorHandler.reportInvalidNode(token, "imports must be declared before other declarations");
+                    updateLastNodeInListWithInvalidNode(otherDecls, decl,
+                            DiagnosticErrorCode.ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS);
                 }
             } else {
                 if (processImports) {
@@ -1658,7 +1658,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEmpty(STNode node) {
-        return node == null;
+        return !SyntaxUtils.isSTNodePresent(node);
     }
 
     /**
@@ -1782,14 +1782,14 @@ public class BallerinaParser extends AbstractParser {
             // context is ended inside parseParameter() method
             STNode param = parseParameter(paramEnd, prevParamKind, isParamNameOptional);
             if (paramOrderErrorPresent) {
-                updateParamListWithInvalidNode(paramsList, param, null);
+                updateLastNodeInListWithInvalidNode(paramsList, param, null);
             } else {
                 DiagnosticCode paramOrderError = validateParamOrder(param, prevParamKind);
                 if (paramOrderError == null) {
                     paramsList.add(param);
                 } else {
                     paramOrderErrorPresent = true;
-                    updateParamListWithInvalidNode(paramsList, param, paramOrderError);
+                    updateLastNodeInListWithInvalidNode(paramsList, param, paramOrderError);
                 }
             }
 
@@ -1816,22 +1816,13 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    /**
-     * Clones the last parameter in list with the invalid node as minutiae and update the list.
-     *
-     * @param paramList function parameter list
-     * @param invalidParam the param to be attached to the last param in list as minutiae
-     * @param diagnosticCode diagnostic code related to the invalid node
-     */
-    private void updateParamListWithInvalidNode(ArrayList<STNode> paramList, STNode invalidParam,
-                                                DiagnosticCode diagnosticCode) {
-        int lastIndex = paramList.size() - 1;
-        STNode prevParamNode = paramList.remove(lastIndex);
-        STNode newParamNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevParamNode, invalidParam);
-        if (diagnosticCode != null) {
-            newParamNode = SyntaxErrors.addDiagnostics(newParamNode, diagnosticCode);
+    private boolean isNodeWithSyntaxKindInList(List<STNode> nodeList, SyntaxKind kind) {
+        for (STNode node : nodeList) {
+            if (node.kind == kind) {
+                return true;
+            }
         }
-        paramList.add(newParamNode);
+        return false;
     }
 
     private STNode parseParameterRhs() {
@@ -2531,7 +2522,8 @@ public class BallerinaParser extends AbstractParser {
                 case DEFAULT_WORKER:
                 default:
                     if (stmt.kind == SyntaxKind.NAMED_WORKER_DECLARATION) {
-                        this.errorHandler.reportInvalidNode(null, "named-workers are not allowed here");
+                        updateLastNodeInListWithInvalidNode(secondStmtList, stmt,
+                                DiagnosticErrorCode.ERROR_NAMED_WORKER_NOT_ALLOWED_HERE);
                         break;
                     }
                     secondStmtList.add(stmt);
@@ -3182,9 +3174,9 @@ public class BallerinaParser extends AbstractParser {
         // Following loop will only run if there are more fields after the rest type descriptor.
         // Try to parse them and mark as invalid.
         while (!endOfFields && !isEndOfRecordTypeNode(token.kind)) {
-            parseFieldOrRestDescriptor(isInclusive);
-            // TODO: Mark these nodes as error/invalid nodes.
-            this.errorHandler.reportInvalidNode(token, "cannot have more fields after the rest type descriptor");
+            STNode invalidField = parseFieldOrRestDescriptor(isInclusive);
+            updateLastNodeInListWithInvalidNode(recordFields, invalidField,
+                    DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
             token = peek();
         }
 
@@ -3348,7 +3340,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             if (sol.tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
-                this.errorHandler.removeInvalidToken();
+                invalidNodeStack.push(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(currentCtx, isInConditionalExpr);
             }
 
@@ -3386,7 +3378,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(identifier);
             }
 
-            this.errorHandler.removeInvalidToken();
+            invalidNodeStack.push(errorHandler.consumeInvalidToken());
             return parseQualifiedIdentifier(identifier, isInConditionalExpr);
         }
     }
@@ -3558,7 +3550,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                this.errorHandler.removeInvalidToken();
+                invalidNodeStack.push(errorHandler.consumeInvalidToken());
                 return parseStatement();
             case AT_TOKEN:
                 annots = parseAnnotations(tokenKind);
@@ -3657,7 +3649,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                this.errorHandler.removeInvalidToken();
+                invalidNodeStack.push(errorHandler.consumeInvalidToken());
                 return parseStatement(annots);
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
@@ -3888,11 +3880,19 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseAssignmentStmtRhs(STNode lvExpr) {
-        validateLVExpr(lvExpr);
         STNode assign = parseAssignOp();
         STNode expr = parseActionOrExpression();
         STNode semicolon = parseSemicolon();
         endContext();
+
+        boolean lvExprValid = isValidLVExpr(lvExpr);
+        if (!lvExprValid) {
+            // Create a missing simple variable reference and attach the invalid lvExpr as minutiae
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            lvExpr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(simpleNameRef, lvExpr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS);
+        }
         return STNodeFactory.createAssignmentStatementNode(lvExpr, assign, expr, semicolon);
     }
 
@@ -3930,13 +3930,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExpression(boolean isRhsExpr) {
         return parseExpression(DEFAULT_OP_PRECEDENCE, isRhsExpr, false);
-    }
-
-    private void validateLVExpr(STNode expression) {
-        if (isValidLVExpr(expression)) {
-            return;
-        }
-        this.errorHandler.reportInvalidNode(null, "invalid expression for assignment lhs");
     }
 
     private boolean isValidLVExpr(STNode expression) {
@@ -4026,8 +4019,9 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions, isInConditionalExpr);
-        if (!isEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
-            this.errorHandler.reportInvalidNode(null, "annotations are not supported for expressions");
+        if (!isNodeListEmpty(annots) && expr.kind != SyntaxKind.START_ACTION) {
+            expr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(expr, annots,
+                    DiagnosticErrorCode.ERROR_ANNOTATIONS_ATTACHED_TO_EXPRESSION);
         }
 
         return expr;
@@ -4431,13 +4425,15 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
                 if (!allowActions) {
-                    this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
+                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
                 if (!allowActions) {
-                    this.errorHandler.reportInvalidNode(null, "actions are not allowed here");
+                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
             case RIGHT_DOUBLE_ARROW_TOKEN:
@@ -4523,10 +4519,16 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMemberAccessExpr(STNode lhsExpr, boolean isRhsExpr) {
         startContext(ParserRuleContext.MEMBER_ACCESS_KEY_EXPR);
         STNode openBracket = parseOpenBracket();
-
         STNode keyExpr = parseMemberAccessKeyExprs(isRhsExpr);
         STNode closeBracket = parseCloseBracket();
         endContext();
+
+        // If this is in RHS, then its definitely a member-access.
+        if (isRhsExpr && ((STNodeList) keyExpr).isEmpty()) {
+            keyExpr = STNodeFactory.createNodeList(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+            closeBracket = SyntaxErrors.addDiagnostics(closeBracket,
+                    DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
+        }
         return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
     }
 
@@ -4554,17 +4556,6 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
             exprList.add(keyExprEnd);
-        }
-
-        // If this is in RHS, then its definitely a member-access.
-        if (isRhsExpr && exprList.isEmpty()) {
-            exprList.add(STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
-            this.errorHandler.reportInvalidNode(null, "missing key expression");
-        }
-
-        // member-access on LHS / array-type-desc can have only a single key expr.
-        if (!isRhsExpr && exprList.size() > 1) {
-            this.errorHandler.reportInvalidNode(null, "cannot have multiple keys");
         }
 
         return STNodeFactory.createNodeList(exprList);
@@ -4891,67 +4882,86 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode arg = parseArg(leadingComma);
-        if (arg == null) {
-            STNode args = STNodeFactory.createEmptyNodeList();
+        STNode firstArg = parseArg(leadingComma);
+        if (firstArg == null) {
             endContext();
-            return args;
+            return STNodeFactory.createEmptyNodeList();
         }
 
-        // TODO: Is this check required?
-        ArrayList<STNode> argsList = new ArrayList<>();
-        SyntaxKind lastProcessedArgKind;
-        if (SyntaxKind.POSITIONAL_ARG.ordinal() <= arg.kind.ordinal()) {
-            argsList.add(arg);
-            lastProcessedArgKind = arg.kind;
-        } else {
-            reportInvalidOrderOfArgs(peek(), SyntaxKind.POSITIONAL_ARG, arg.kind);
-            lastProcessedArgKind = SyntaxKind.POSITIONAL_ARG;
-        }
-
-        parseFollowUpArgs(argsList, lastProcessedArgKind);
-        STNode args = STNodeFactory.createNodeList(argsList);
+        STNode argsList = parseArgList(firstArg);
         endContext();
-        return args;
+        return argsList;
     }
 
     /**
      * Parse follow up arguments.
      *
-     * @param argsList Arguments list to which the parsed argument must be added
-     * @param lastProcessedArgKind Kind of the argument processed prior to this
+     * @param firstArg first argument in the list
+     * @return the argument list
      */
-    private void parseFollowUpArgs(ArrayList<STNode> argsList, SyntaxKind lastProcessedArgKind) {
+    private STNode parseArgList(STNode firstArg) {
+        boolean invalidArgFound = false;
+        ArrayList<STNode> argsList = new ArrayList<>();
+        argsList.add(firstArg);
+        SyntaxKind prevArgKind = firstArg.kind;
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
             STNode argEnd = parseArgEnd(nextToken.kind);
             if (argEnd == null) {
                 // null marks the end of args
-                break;
+                return STNodeFactory.createNodeList(argsList);
             }
 
             // If there's an extra comma at the end of arguments list, remove it.
             // Then stop the argument parsing.
             nextToken = peek();
             if (isEndOfParametersList(nextToken.kind)) {
-                this.errorHandler.reportInvalidNode((STToken) argEnd, "invalid token " + argEnd);
-                break;
+                int prevArgIndex = argsList.size() - 1;
+                STNode prevArg = argsList.remove(prevArgIndex);
+                STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        prevArg, argEnd, DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                argsList.add(prevArgWithDiagnostics);
+                return STNodeFactory.createNodeList(argsList);
             }
 
-            STNode arg = parseArg(nextToken.kind, argEnd);
-            if (lastProcessedArgKind.ordinal() <= arg.kind.ordinal()) {
-                if (lastProcessedArgKind == SyntaxKind.REST_ARG && arg.kind == SyntaxKind.REST_ARG) {
-                    this.errorHandler.reportInvalidNode(nextToken, "cannot more than one rest arg");
-                } else {
-                    argsList.add(arg);
-                    lastProcessedArgKind = arg.kind;
-                }
+            STNode curArg = parseArg(nextToken.kind, argEnd);
+            if (invalidArgFound) {
+                updateLastNodeInListWithInvalidNode(argsList, curArg, null);
             } else {
-                reportInvalidOrderOfArgs(nextToken, lastProcessedArgKind, arg.kind);
+                DiagnosticErrorCode errorCode = validateArgumentOrder(prevArgKind, curArg.kind);
+                if (errorCode == null) {
+                    argsList.add(curArg);
+                    prevArgKind = curArg.kind;
+                } else {
+                    updateLastNodeInListWithInvalidNode(argsList, curArg, errorCode);
+                    invalidArgFound = true;
+                }
             }
 
             nextToken = peek();
         }
+        return STNodeFactory.createNodeList(argsList);
+    }
+
+    private DiagnosticErrorCode validateArgumentOrder(SyntaxKind prevArgKind, SyntaxKind curArgKind) {
+        DiagnosticErrorCode errorCode = null;
+        switch (prevArgKind) {
+            case POSITIONAL_ARG:
+                break;
+            case NAMED_ARG:
+                if (curArgKind == SyntaxKind.POSITIONAL_ARG) {
+                    errorCode = DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG;
+                }
+                break;
+            case REST_ARG:
+                // Nothing is allowed after a rest arg
+                errorCode = DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                break;
+            default:
+                // This line should never get reached
+                throw new IllegalStateException("Invalid SyntaxKind in an argument");
+        }
+        return errorCode;
     }
 
     private STNode parseArgEnd() {
@@ -4977,17 +4987,6 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseArgEnd(solution.tokenKind);
         }
-    }
-
-    /**
-     * Report invalid order of args.
-     *
-     * @param token Staring token of the arg.
-     * @param lastArgKind Kind of the previously processed arg
-     * @param argKind Current arg
-     */
-    private void reportInvalidOrderOfArgs(STToken token, SyntaxKind lastArgKind, SyntaxKind argKind) {
-        this.errorHandler.reportInvalidNode(token, "cannot have a " + argKind + " after the " + lastArgKind);
     }
 
     /**
@@ -5097,16 +5096,13 @@ public class BallerinaParser extends AbstractParser {
         STNode firstQualifier;
         switch (kind) {
             case CLIENT_KEYWORD:
-                STNode clientKeyword = parseClientKeyword();
-                firstQualifier = clientKeyword;
+                firstQualifier = parseClientKeyword();
                 break;
             case ABSTRACT_KEYWORD:
-                STNode abstractKeyword = parseAbstractKeyword();
-                firstQualifier = abstractKeyword;
+                firstQualifier = parseAbstractKeyword();
                 break;
             case READONLY_KEYWORD:
-                STNode readonlyKeyword = parseReadonlyKeyword();
-                firstQualifier = readonlyKeyword;
+                firstQualifier = parseReadonlyKeyword();
                 break;
             case OBJECT_KEYWORD:
                 return STNodeFactory.createEmptyNodeList();
@@ -5123,44 +5119,43 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectTypeQualifiers(solution.tokenKind);
         }
 
-        // Parse the second qualifier if available.
-        STNode secondQualifier = parseObjectTypeNextQualifier(firstQualifier, firstQualifier);
+        return parseObjectTypeNextQualifiers(firstQualifier);
+    }
 
+    private STNode parseObjectTypeNextQualifiers(STNode firstQualifier) {
         List<STNode> qualifiers = new ArrayList<>();
         qualifiers.add(firstQualifier);
 
-        if (secondQualifier != null) {
-            qualifiers.add(secondQualifier);
-
-            // Parse the third qualifier if available.
-            STNode thirdQualifier = parseObjectTypeNextQualifier(firstQualifier, secondQualifier);
-            if (thirdQualifier != null) {
-                qualifiers.add(thirdQualifier);
+        // Parse the second and third qualifiers
+        for (int i = 0; i < 2; i++) {
+            STNode nextToken = peek();
+            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+                // Consumer the nextToken
+                nextToken = consume();
+                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
+                        DiagnosticErrorCode.ERROR_SAME_OBJECT_TYPE_QUALIFIER);
+                continue;
             }
+
+            STNode nextQualifier;
+            switch (nextToken.kind) {
+                case CLIENT_KEYWORD:
+                    nextQualifier = parseClientKeyword();
+                    break;
+                case ABSTRACT_KEYWORD:
+                    nextQualifier = parseAbstractKeyword();
+                    break;
+                case READONLY_KEYWORD:
+                    nextQualifier = parseReadonlyKeyword();
+                    break;
+                case OBJECT_KEYWORD:
+                default:
+                    return STNodeFactory.createNodeList(qualifiers);
+            }
+            qualifiers.add(nextQualifier);
         }
 
         return STNodeFactory.createNodeList(qualifiers);
-    }
-
-    private STNode parseObjectTypeNextQualifier(STNode firstQualifier, STNode secondQualifier) {
-        SyntaxKind nextTokenKind = peek().kind;
-        if (firstQualifier.kind == nextTokenKind || secondQualifier.kind == nextTokenKind) {
-            // if the same qualifier occurs twice it is simply discarded
-            this.errorHandler.reportInvalidNode(null, "Cannot have the  same qualifier twice");
-            consume();
-            nextTokenKind = peek().kind;
-        }
-        switch (nextTokenKind) {
-            case CLIENT_KEYWORD:
-                return parseClientKeyword();
-            case ABSTRACT_KEYWORD:
-                return parseAbstractKeyword();
-            case READONLY_KEYWORD:
-                return parseReadonlyKeyword();
-            case OBJECT_KEYWORD:
-            default:
-                return null;
-        }
     }
 
     /**
@@ -6208,12 +6203,20 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseCompoundAssignmentStmtRhs(STNode lvExpr) {
-        validateLVExpr(lvExpr);
         STNode binaryOperator = parseCompoundBinaryOperator();
         STNode equalsToken = parseAssignOp();
         STNode expr = parseActionOrExpression();
         STNode semicolon = parseSemicolon();
         endContext();
+
+        boolean lvExprValid = isValidLVExpr(lvExpr);
+        if (!lvExprValid) {
+            // Create a missing simple variable reference and attach the invalid lvExpr as minutiae
+            STNode identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(identifier);
+            lvExpr = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(simpleNameRef, lvExpr,
+                    DiagnosticErrorCode.ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS);
+        }
         return STNodeFactory.createCompoundAssignmentStatementNode(lvExpr, binaryOperator, equalsToken, expr,
                 semicolon);
     }
@@ -7183,12 +7186,16 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode getArrayLength(STNodeList exprs) {
-        if (exprs.isEmpty()) {
-            return STNodeFactory.createEmptyNode();
+    private STNode parseArrayTypeDescriptorNode(STIndexedExpressionNode indexedExpr) {
+        STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
+        STNodeList lengthExprs = (STNodeList) indexedExpr.keyExpression;
+        if (lengthExprs.isEmpty()) {
+            return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
+                    STNodeFactory.createEmptyNode(), indexedExpr.closeBracket);
         }
 
-        STNode lengthExpr = exprs.get(0);
+        // Validate the array length expression
+        STNode lengthExpr = lengthExprs.get(0);
         switch (lengthExpr.kind) {
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
@@ -7197,10 +7204,14 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "invalid array length");
-                break;
+                STNode newOpenBracketWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        indexedExpr.openBracket, lengthExpr, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
+                indexedExpr = indexedExpr.replace(indexedExpr.openBracket, newOpenBracketWithDiagnostics);
+                lengthExpr = STNodeFactory.createEmptyNode();
         }
-        return lengthExpr;
+
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
+                lengthExpr, indexedExpr.closeBracket);
     }
 
     private STNode getExpressionAsStatement(STNode expression) {
@@ -7224,10 +7235,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
-                // TODO: Add proper error reporting
-                this.errorHandler.reportInvalidNode(null,
-                        "left hand side of an assignment must be a variable reference");
-
                 STNode semicolon = parseSemicolon();
                 endContext();
                 STNode exprStmt = STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID_EXPRESSION_STATEMENT,
@@ -7252,34 +7259,11 @@ public class BallerinaParser extends AbstractParser {
      * @return Call statement node
      */
     private STNode parseCallStatement(STNode expression) {
-        validateExprInCallStmt(expression);
+        // TODO Validate the expression.
+        //  This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
-    }
-
-    private void validateExprInCallStmt(STNode expression) {
-        switch (expression.kind) {
-            case FUNCTION_CALL:
-            case METHOD_CALL:
-                break;
-            case CHECK_EXPRESSION:
-                validateExprInCallStmt(((STCheckExpressionNode) expression).expression);
-                break;
-            case REMOTE_METHOD_CALL_ACTION:
-                break;
-            case BRACED_EXPRESSION:
-                validateExprInCallStmt(((STBracedExpressionNode) expression).expression);
-                break;
-            default:
-                if (isMissingNode(expression)) {
-                    break;
-                }
-
-                this.errorHandler.reportInvalidNode(null, "expression followed by the checking keyword must be a " +
-                        "func-call, a method-call or a check-expr");
-                break;
-        }
     }
 
     /**
@@ -8059,7 +8043,8 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "namespace uri must be a subtype of string");
+                expr = SyntaxErrors.addDiagnostics(expr,
+                        DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
         }
 
         return expr;
@@ -8425,11 +8410,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse multiple named worker declarations.
+     * Parse fork statement.
+     * <code>fork-stmt := fork { named-worker-decl+ }</code>
      *
-     * @return named-worker-declarations node array
+     * @return Fork statement
      */
-    private STNode parseMultipleNamedWorkerDeclarations() {
+    private STNode parseForkStatement() {
+        startContext(ParserRuleContext.FORK_STMT);
+        STNode forkKeyword = parseForkKeyword();
+        STNode openBrace = parseOpenBrace();
+
+        // Parse named-worker declarations
         ArrayList<STNode> workers = new ArrayList<>();
         while (!isEndOfStatements()) {
             STNode stmt = parseStatement();
@@ -8442,25 +8433,20 @@ public class BallerinaParser extends AbstractParser {
                     workers.add(stmt);
                     break;
                 default:
-                    this.errorHandler.reportInvalidNode(null, "Only named-workers are allowed here");
-                    break;
+                    // TODO need to check whether we've already added the same diagnostics before
+                    // TODO We need to avoid repetitive diagnostics of same kind
+                    // I think we need a method to check whether a node has a particular diagnostic
+                    if (workers.isEmpty()) {
+                        openBrace = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBrace, stmt,
+                                DiagnosticErrorCode.ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE);
+                    } else {
+                        updateLastNodeInListWithInvalidNode(workers, stmt,
+                                DiagnosticErrorCode.ERROR_ONLY_NAMED_WORKERS_ALLOWED_HERE);
+                    }
             }
         }
 
-        return STNodeFactory.createNodeList(workers);
-    }
-
-    /**
-     * Parse fork statement.
-     * <code>fork-stmt := fork { named-worker-decl+ }</code>
-     *
-     * @return Fork statement
-     */
-    private STNode parseForkStatement() {
-        startContext(ParserRuleContext.FORK_STMT);
-        STNode forkKeyword = parseForkKeyword();
-        STNode openBrace = parseOpenBrace();
-        STNode namedWorkerDeclarations = parseMultipleNamedWorkerDeclarations();
+        STNode namedWorkerDeclarations = STNodeFactory.createNodeList(workers);
         STNode closeBrace = parseCloseBrace();
         endContext();
 
@@ -8807,7 +8793,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode getKeyKeyword(STToken token) {
-        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(), token.trailingMinutiae());
+        return STNodeFactory.createToken(SyntaxKind.KEY_KEYWORD, token.leadingMinutiae(),
+                token.trailingMinutiae(), token.diagnostics());
     }
 
     /**
@@ -9311,7 +9298,19 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.INTERPOLATION);
         STNode interpolStart = parseInterpolationStart();
         STNode expr = parseExpression();
-        removeAdditionalTokensInInterpolation();
+
+        // Remove additional token in interpolation
+        while (true) {
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.EOF_TOKEN || nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
+                break;
+            } else {
+                nextToken = consume();
+                expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+            }
+        }
+
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
@@ -9331,24 +9330,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.INTERPOLATION_START_TOKEN);
             return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Remove if there any tokens left after the expression inside the interpolation.
-     */
-    private void removeAdditionalTokensInInterpolation() {
-        while (true) {
-            STToken nextToken = peek();
-            switch (nextToken.kind) {
-                case EOF_TOKEN:
-                    return;
-                case CLOSE_BRACE_TOKEN:
-                    return;
-                default:
-                    consume();
-                    this.errorHandler.reportInvalidNode(nextToken, "invalid token '" + nextToken.text() + "'");
-            }
         }
     }
 
@@ -9598,7 +9579,9 @@ public class BallerinaParser extends AbstractParser {
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
             default:
-                this.errorHandler.reportInvalidNode(null, "lhs must be an identifier or a param list");
+                // TODO Can insert an empty param list here and attach the invalid param list as minutiae
+                params = SyntaxErrors.addDiagnostics(params,
+                        DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
         }
         STNode rightDoubleArrow = parseDoubleRightArrow();
         STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
@@ -9959,11 +9942,11 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            // If there are more clauses after select clause they are ignored
+            // If there are more clauses after select clause they are add as invalid nodes to the select clause
             if (selectClause != null) {
-                // TODO: In future we should store ignored nodes
-                this.errorHandler.reportInvalidNode(null, "extra clauses after select clause");
-                break;
+                selectClause = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(selectClause, intermediateClause,
+                        DiagnosticErrorCode.ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE);
+                continue;
             }
 
             if (intermediateClause.kind == SyntaxKind.SELECT_CLAUSE) {
@@ -10353,7 +10336,20 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStartAction(STNode annots) {
         STNode startKeyword = parseStartKeyword();
         STNode expr = parseActionOrExpression();
-        validateExprInStartAction(expr);
+
+        // Validate expression or action in start action
+        switch (expr.kind) {
+            case FUNCTION_CALL:
+            case METHOD_CALL:
+            case REMOTE_METHOD_CALL_ACTION:
+                break;
+            default:
+                if (!isMissingNode(expr)) {
+                    expr = SyntaxErrors.addDiagnostics(expr,
+                            DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
+                }
+        }
+
         return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);
     }
 
@@ -10369,23 +10365,6 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(token, ParserRuleContext.START_KEYWORD);
             return sol.recoveredNode;
-        }
-    }
-
-    private void validateExprInStartAction(STNode expression) {
-        switch (expression.kind) {
-            case FUNCTION_CALL:
-            case METHOD_CALL:
-            case REMOTE_METHOD_CALL_ACTION:
-                break;
-            default:
-                if (isMissingNode(expression)) {
-                    break;
-                }
-
-                this.errorHandler.reportInvalidNode(null, "expression followed by the start keyword must be a " +
-                        "func-call, a method-call or a remote-method-call");
-                break;
         }
     }
 
@@ -10982,7 +10961,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseWaitFutureExpr() {
         STNode waitFutureExpr = parseExpression();
         if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
-            this.errorHandler.reportInvalidNode(null, "mapping constructor expression cannot use as å wait expression");
+            waitFutureExpr = SyntaxErrors.addDiagnostics(waitFutureExpr,
+                    DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
     }
@@ -11198,7 +11178,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseQueryAction(STNode queryPipeline, STNode selectClause, boolean isRhsExpr) {
         if (selectClause != null) {
-            this.errorHandler.reportInvalidNode(null, "cannot have a select clause in query action");
+            queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
+                    DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);
         }
 
         startContext(ParserRuleContext.DO_CLAUSE);
@@ -15191,11 +15172,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode getTypeDescFromExpr(STNode expression) {
         switch (expression.kind) {
             case INDEXED_EXPRESSION:
-                STIndexedExpressionNode indexedExpr = (STIndexedExpressionNode) expression;
-                STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
-                STNode arrayLength = getArrayLength((STNodeList) indexedExpr.keyExpression);
-                return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket, arrayLength,
-                        indexedExpr.closeBracket);
+                return parseArrayTypeDescriptorNode((STIndexedExpressionNode) expression);
             case BASIC_LITERAL:
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:

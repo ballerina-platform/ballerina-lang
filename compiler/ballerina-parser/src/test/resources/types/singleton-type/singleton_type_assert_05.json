@@ -89,10 +89,16 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "isMissing": true,
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                          ]
+                        }
                       ]
                     }
                   ]

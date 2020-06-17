@@ -87,8 +87,13 @@
                           "kind": "FUNCTION_CALL",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -118,8 +123,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_PAREN_TOKEN"

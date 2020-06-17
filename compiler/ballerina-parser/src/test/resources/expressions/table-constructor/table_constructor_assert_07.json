@@ -103,7 +103,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "supuns@wso2.com"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "supuns@wso2.com"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -134,11 +139,16 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "IPaaS",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_LITERAL",
+                          "value": "IPaaS",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -199,7 +209,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "lochanaj@wso2.com"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "lochanaj@wso2.com"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -230,11 +245,16 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "IPaaS",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_LITERAL",
+                          "value": "IPaaS",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }

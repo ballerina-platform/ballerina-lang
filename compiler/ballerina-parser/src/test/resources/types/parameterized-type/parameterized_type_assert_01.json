@@ -88,7 +88,12 @@
                           "kind": "LT_TOKEN"
                         },
                         {
-                          "kind": "STRING_KEYWORD"
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD"
+                            }
+                          ]
                         },
                         {
                           "kind": "GT_TOKEN",
@@ -149,8 +154,13 @@
                           "kind": "LT_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "T"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            }
+                          ]
                         },
                         {
                           "kind": "GT_TOKEN",
@@ -214,7 +224,12 @@
                           "kind": "ARRAY_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "STRING_KEYWORD"
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_BRACKET_TOKEN"
@@ -286,8 +301,13 @@
                           "kind": "OPTIONAL_TYPE_DESC",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "T"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "T"
+                                }
+                              ]
                             },
                             {
                               "kind": "QUESTION_MARK_TOKEN"

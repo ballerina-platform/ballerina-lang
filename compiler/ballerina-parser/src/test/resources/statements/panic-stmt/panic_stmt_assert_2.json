@@ -11,7 +11,12 @@
       ]
     },
     {
-      "kind": "TRUE_KEYWORD"
+      "kind": "TRUE_KEYWORD",
+      "children": [
+        {
+          "kind": "TRUE_KEYWORD"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

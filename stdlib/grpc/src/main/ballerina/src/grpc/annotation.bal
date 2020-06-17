@@ -30,7 +30,7 @@ public annotation GrpcServiceConfig ServiceConfig on service;
 # + descMap - Service dependent descriptor map, which should be set at the compile time
 public type ServiceDescriptorData record {|
     string descriptor = "";
-    map<any> descMap = {};
+    map<anydata> descMap = {};
 |};
 
 # Service descriptor annotation. This is for internal use.

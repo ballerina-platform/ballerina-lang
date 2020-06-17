@@ -25,6 +25,7 @@ import java.util.Locale;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 
 /**
  * Class for storing details pertaining to a specific Java constructor used for Ballerina bridge code generation.
@@ -49,7 +50,7 @@ public class JConstructor implements Cloneable {
     private StringBuilder paramTypes = new StringBuilder();
 
     JConstructor(Constructor c) {
-        shortClassName = c.getDeclaringClass().getSimpleName();
+        shortClassName = getAlias(c.getDeclaringClass());
         constructorName = c.getName();
         interopType = CONSTRUCTOR_INTEROP_TYPE;
         initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0)) + shortClassName.substring(1);
@@ -58,7 +59,7 @@ public class JConstructor implements Cloneable {
         for (Parameter param : c.getParameters()) {
             JParameter parameter = new JParameter(param);
             parameters.add(parameter);
-            paramTypes.append(param.getType().getSimpleName().toLowerCase(Locale.ENGLISH));
+            paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
                 returnError = true;
                 hasException = true;
