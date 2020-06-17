@@ -3976,7 +3976,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 position = matcher.end() - 2;
                 matcher = UNICODE_PATTERN.matcher(text);
             }
-            if (type != SyntaxKind.TEMPLATE_STRING) {
+            if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
                 text = StringEscapeUtils.unescapeJava(text);
             }
 
