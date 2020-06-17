@@ -25,6 +25,8 @@ type InitiatorClientConfig record {
     } retryConfig = {};
 };
 
+type RegistrationResponseTypedesc typedesc<RegistrationResponse>;
+
 type InitiatorClientEP client object {
     http:Client httpClient;
 
@@ -47,7 +49,7 @@ type InitiatorClientEP client object {
             transactionId:transactionId, participantId:participantId, participantProtocols:participantProtocols
         };
 
-        json reqPayload = check regReq.cloneWithType(typedesc<json>);
+        json reqPayload = check regReq.cloneWithType(JsonTypedesc);
         http:Request req = new;
         req.setJsonPayload(reqPayload);
         var result = httpClient->post("", req);
@@ -58,6 +60,6 @@ type InitiatorClientEP client object {
                 + statusCode.toString());
         }
         json resPayload = check res.getJsonPayload();
-        return <@untainted> resPayload.cloneWithType(typedesc<RegistrationResponse>);
+        return <@untainted> resPayload.cloneWithType(RegistrationResponseTypedesc);
     }
 };

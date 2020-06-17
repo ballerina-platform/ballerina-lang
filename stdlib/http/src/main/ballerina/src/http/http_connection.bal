@@ -96,7 +96,7 @@ public type Caller client object {
     # Sends a `100-continue` response to the caller.
     #
     # + return - An `http:ListenerError` if failed to send the `100-continue` response or else `()`
-    public remote function continue() returns ListenerError? {
+    public remote function 'continue() returns ListenerError? {
         Response res = new;
         res.statusCode = STATUS_CONTINUE;
         return self->respond(res);

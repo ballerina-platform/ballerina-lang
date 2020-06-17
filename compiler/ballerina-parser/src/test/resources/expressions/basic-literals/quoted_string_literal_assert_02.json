@@ -74,17 +74,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -117,14 +122,20 @@
                 {
                   "kind": "STRING_LITERAL",
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_DOUBLE_QUOTE"
-                  ],
-                  "value": "hello world;",
-                  "trailingMinutiae": [
+                  "children": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "STRING_LITERAL",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DOUBLE_QUOTE"
+                      ],
+                      "value": "hello world;",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -149,17 +160,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "STRING_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "STRING_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -191,7 +207,12 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "how are you?"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "how are you?"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

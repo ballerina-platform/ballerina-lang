@@ -63,18 +63,23 @@
               "kind": "ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "Foo",
-                  "leadingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "Foo",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -140,17 +145,22 @@
                                   ]
                                 },
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "leadingMinutiae": [
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "INT_KEYWORD",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "        "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -221,11 +231,16 @@
                                               "children": []
                                             },
                                             {
-                                              "kind": "INT_KEYWORD",
-                                              "trailingMinutiae": [
+                                              "kind": "INT_TYPE_DESC",
+                                              "children": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "INT_KEYWORD",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -270,12 +285,17 @@
                                               "kind": "FIELD_ACCESS",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "self",
-                                                  "leadingMinutiae": [
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
                                                     {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": "            "
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "self",
+                                                      "leadingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": "            "
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -283,12 +303,17 @@
                                                   "kind": "DOT_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "x",
-                                                  "trailingMinutiae": [
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
                                                     {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "x",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -304,8 +329,13 @@
                                               ]
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "x"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "x"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "SEMICOLON_TOKEN",
@@ -372,7 +402,12 @@
                               "children": [
                                 {
                                   "kind": "DECIMAL_INTEGER_LITERAL",
-                                  "value": "10"
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "value": "10"
+                                    }
+                                  ]
                                 }
                               ]
                             }
