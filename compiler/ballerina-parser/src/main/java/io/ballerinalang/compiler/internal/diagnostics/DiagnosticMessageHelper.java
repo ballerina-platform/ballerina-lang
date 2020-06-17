@@ -17,36 +17,25 @@
  */
 package io.ballerinalang.compiler.internal.diagnostics;
 
-import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
- * Represents a diagnostic warning code.
+ * Contains utility methods to generate diagnostic messages.
  *
  * @since 2.0.0
  */
-public enum DiagnosticWarningCode implements DiagnosticCode {
-    ;
+public class DiagnosticMessageHelper {
+    private static ResourceBundle messages = ResourceBundle.getBundle(
+            "syntax_diagnostic_message", Locale.getDefault());
 
-    String diagnosticId;
-    String messageKey;
-
-    DiagnosticWarningCode(String diagnosticId, String messageKey) {
-        this.diagnosticId = diagnosticId;
-        this.messageKey = messageKey;
+    private DiagnosticMessageHelper() {
     }
 
-    @Override
-    public DiagnosticSeverity severity() {
-        return DiagnosticSeverity.WARNING;
-    }
-
-    @Override
-    public String diagnosticId() {
-        return diagnosticId;
-    }
-
-    @Override
-    public String messageKey() {
-        return messageKey;
+    public static String getDiagnosticMessage(DiagnosticCode diagnosticCode, Object... args) {
+        String msgKey = diagnosticCode.messageKey();
+        String msg = messages.getString(msgKey);
+        return MessageFormat.format(msg, args);
     }
 }
