@@ -169,10 +169,12 @@ public class ConnectorNodeVisitor extends BaseNodeVisitor {
     private Map<PackageID, BLangImportPackage> packageMap = new HashMap<>();
     private boolean found = false;
     private List<BLangTypeDefinition> connectors;
+    private Map<String, BLangTypeDefinition> records;
 
     public ConnectorNodeVisitor(String name) {
         this.name = name;
         connectors = new ArrayList<>();
+        records = new HashMap<>();
     }
 
     public String getName() {
@@ -181,6 +183,10 @@ public class ConnectorNodeVisitor extends BaseNodeVisitor {
 
     public List<BLangTypeDefinition> getConnectors() {
         return connectors;
+    }
+
+    public Map<String, BLangTypeDefinition> getRecords() {
+        return records;
     }
 
     @Override
@@ -245,7 +251,12 @@ public class ConnectorNodeVisitor extends BaseNodeVisitor {
         if (typeDefinition.getTypeNode() instanceof BLangObjectTypeNode) {
             if (((BLangObjectTypeNode) typeDefinition.getTypeNode()).flagSet.contains(Flag.CLIENT)) {
                 this.connectors.add(typeDefinition);
+                typeDefinition.getTypeNode().accept(this);
             }
+
+        } else if (typeDefinition.getTypeNode() instanceof BLangRecordTypeNode) {
+            this.records.put(((BLangRecordTypeNode) typeDefinition.getTypeNode()).symbol.type.toString(),
+                    typeDefinition);
         }
     }
 

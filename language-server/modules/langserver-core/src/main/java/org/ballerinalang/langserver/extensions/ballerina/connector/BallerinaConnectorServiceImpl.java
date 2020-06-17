@@ -18,7 +18,9 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.moandjiezana.toml.Toml;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
@@ -33,6 +35,9 @@ import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.types.RecordTypeNode;
+import org.ballerinalang.model.types.ValueType;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -40,8 +45,13 @@ import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -57,6 +67,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
@@ -150,14 +161,41 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
                 BLangPackage bLangPackage = compiler.compile(moduleName);
 
-                ConnectorNodeVisitor visitor = new ConnectorNodeVisitor(request.getName());
-                bLangPackage.accept(visitor);
-                List<BLangTypeDefinition> connectorNode = visitor.getConnectors();
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName());
+                bLangPackage.accept(connectorNodeVisitor);
 
                 VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
                 visibleEndpointVisitor.visit(bLangPackage);
 
+                Map<String, JsonElement> jsonRecords = new HashMap<>();
+                connectorNodeVisitor.getRecords().forEach((key, record) -> {
+                    JsonElement jsonAST = null;
+                    try {
+                        jsonAST = TextDocumentFormatUtil.generateJSON(record, new HashMap<>(),
+                                visibleEndpointVisitor.getVisibleEPsByNode());
+                    } catch (JSONGenerationException e) {
+                        String msg = "Operation 'ballerinaConnector/connector' loading record " +
+                                key + " failed!";
+                        logError(msg, e, null, (Position) null);
+                    }
+                    jsonRecords.put(key, jsonAST);
+                });
+
+                Gson gson = new Gson();
+                List<BLangTypeDefinition> connectorNode = connectorNodeVisitor.getConnectors();
                 connectorNode.forEach(connector -> {
+
+                    Map<String, JsonElement> connectorRecords = new HashMap<>();
+                    FunctionNode initFunction = ((BLangObjectTypeNode) connector.getTypeNode()).getInitFunction();
+                    if (initFunction != null) {
+                        initFunction.getParameters().forEach(
+                                param -> populateConnectorRecords(((BLangVariable) param).type,
+                                        connectorNodeVisitor.getRecords(), jsonRecords, connectorRecords));
+                    }
+                    ((BLangObjectTypeNode) connector.getTypeNode()).getFunctions().forEach(f -> f.getParameters().
+                            forEach(param -> populateConnectorRecords(param.type,
+                                    connectorNodeVisitor.getRecords(), jsonRecords, connectorRecords)));
+
                     JsonElement jsonAST = null;
                     try {
                         jsonAST = TextDocumentFormatUtil.generateJSON(connector, new HashMap<>(),
@@ -166,6 +204,10 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                         String msg = "Operation 'ballerinaConnector/connector' loading " + cacheableKey + ":" +
                                 connector.getName().getValue() + " failed!";
                         logError(msg, e, null, (Position) null);
+                    }
+                    if (jsonAST instanceof JsonObject) {
+                        JsonElement recordsJson = gson.toJsonTree(connectorRecords);
+                        ((JsonObject) jsonAST).add("records", recordsJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.getName().getValue(), jsonAST);
@@ -181,6 +223,29 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName(), ast);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    private void populateConnectorRecords(ValueType type, Map<String, BLangTypeDefinition> records,
+                                          Map<String, JsonElement> jsonRecords,
+                                          Map<String, JsonElement> connectorRecords) {
+
+
+        if (type instanceof BUnionType) {
+            ((BUnionType) type).getMemberTypes().forEach(
+                    m -> populateConnectorRecords(m, records, jsonRecords, connectorRecords));
+        } else if (type instanceof BArrayType) {
+            populateConnectorRecords(((BArrayType) type).eType, records, jsonRecords, connectorRecords);
+        } else if (type instanceof BRecordType) {
+            String recordName = type.toString();
+            BLangTypeDefinition recordNode = records.get(recordName);
+            if (recordNode != null) {
+                connectorRecords.put(recordName, jsonRecords.get(recordName));
+                ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
+                            populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
+                        }
+                );
+            }
+        }
     }
 
 
