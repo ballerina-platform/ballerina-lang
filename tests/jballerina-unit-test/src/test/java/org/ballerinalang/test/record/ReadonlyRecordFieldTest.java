@@ -58,6 +58,7 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 150, 17);
         validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
                       159, 23);
+        validateError(result, index++, "cannot update 'readonly' record field 'code' in 'Quux'", 169, 5);
         assertEquals(result.getErrorCount(), index);
     }
 }
