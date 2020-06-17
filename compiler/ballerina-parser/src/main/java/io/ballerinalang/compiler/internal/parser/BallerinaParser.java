@@ -4426,14 +4426,14 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
                 if (!allowActions) {
-                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                    newLhsExpr = SyntaxErrors.addDiagnostic(newLhsExpr,
                             DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
                 if (!allowActions) {
-                    newLhsExpr = SyntaxErrors.addDiagnostics(newLhsExpr,
+                    newLhsExpr = SyntaxErrors.addDiagnostic(newLhsExpr,
                             DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
                 }
                 break;
@@ -4527,7 +4527,7 @@ public class BallerinaParser extends AbstractParser {
         // If this is in RHS, then its definitely a member-access.
         if (isRhsExpr && ((STNodeList) keyExpr).isEmpty()) {
             keyExpr = STNodeFactory.createNodeList(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
-            closeBracket = SyntaxErrors.addDiagnostics(closeBracket,
+            closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
                     DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
         }
         return STNodeFactory.createIndexedExpressionNode(lhsExpr, openBracket, keyExpr, closeBracket);
@@ -7242,7 +7242,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode exprStmt = STNodeFactory.createExpressionStatementNode(SyntaxKind.INVALID_EXPRESSION_STATEMENT,
                         expression, semicolon);
                 exprStmt =
-                        SyntaxErrors.addDiagnostics(exprStmt, DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
+                        SyntaxErrors.addDiagnostic(exprStmt, DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
                 return exprStmt;
         }
     }
@@ -8045,7 +8045,8 @@ public class BallerinaParser extends AbstractParser {
             case QUALIFIED_NAME_REFERENCE:
                 break;
             default:
-                expr = SyntaxErrors.addDiagnostics(expr, DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
+                expr = SyntaxErrors.addDiagnostic(expr,
+                        DiagnosticErrorCode.ERROR_INVALID_XML_NAMESPACE_URI);
         }
 
         return expr;
@@ -9582,7 +9583,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 // TODO Can insert an empty param list here and attach the invalid param list as minutiae
-                params = SyntaxErrors.addDiagnostics(params,
+                params = SyntaxErrors.addDiagnostic(params,
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
         }
         STNode rightDoubleArrow = parseDoubleRightArrow();
@@ -9977,10 +9978,10 @@ public class BallerinaParser extends AbstractParser {
             // Now we need to attach the diagnostic to the last intermediate clause.
             // If there are no intermediate clauses, then attach to the from clause.
             if (clauses.isEmpty()) {
-                fromClause = SyntaxErrors.addDiagnostics(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
+                fromClause = SyntaxErrors.addDiagnostic(fromClause, DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
             } else {
                 int lastIndex = clauses.size() - 1;
-                STNode intClauseWithDiagnostic = SyntaxErrors.addDiagnostics(clauses.get(lastIndex),
+                STNode intClauseWithDiagnostic = SyntaxErrors.addDiagnostic(clauses.get(lastIndex),
                         DiagnosticErrorCode.ERROR_MISSING_SELECT_CLAUSE);
                 clauses.set(lastIndex, intClauseWithDiagnostic);
             }
@@ -10347,7 +10348,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 if (!isMissingNode(expr)) {
-                    expr = SyntaxErrors.addDiagnostics(expr,
+                    expr = SyntaxErrors.addDiagnostic(expr,
                             DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
                 }
         }
@@ -10827,7 +10828,7 @@ public class BallerinaParser extends AbstractParser {
                 endLGToken.trailingMinutiae());
 
         if (!validateRightShiftOperatorWS(openGTToken)) {
-            doubleGTToken = SyntaxErrors.addDiagnostics(doubleGTToken,
+            doubleGTToken = SyntaxErrors.addDiagnostic(doubleGTToken,
                     DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP);
         }
         return doubleGTToken;
@@ -10851,7 +10852,7 @@ public class BallerinaParser extends AbstractParser {
             return unsignedRightShiftToken;
         }
 
-        unsignedRightShiftToken = SyntaxErrors.addDiagnostics(unsignedRightShiftToken,
+        unsignedRightShiftToken = SyntaxErrors.addDiagnostic(unsignedRightShiftToken,
                 DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP);
         return unsignedRightShiftToken;
     }
@@ -10963,7 +10964,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseWaitFutureExpr() {
         STNode waitFutureExpr = parseExpression();
         if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
-            waitFutureExpr = SyntaxErrors.addDiagnostics(waitFutureExpr,
+            waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
                     DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
@@ -11755,7 +11756,7 @@ public class BallerinaParser extends AbstractParser {
                 clonedStartingBackTick =
                         SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(clonedStartingBackTick, item);
             }
-            newStartingBackTick = SyntaxErrors.addDiagnostics(clonedStartingBackTick,
+            newStartingBackTick = SyntaxErrors.addDiagnostic(clonedStartingBackTick,
                     DiagnosticErrorCode.ERROR_INVALID_CONTENT_IN_BYTE_ARRAY_LITERAL);
         }
 
@@ -14159,7 +14160,7 @@ public class BallerinaParser extends AbstractParser {
 
                 if (members.isEmpty()) {
                     openBracket =
-                            SyntaxErrors.addDiagnostics(openBracket, DiagnosticErrorCode.ERROR_MISSING_TUPLE_MEMBER);
+                            SyntaxErrors.addDiagnostic(openBracket, DiagnosticErrorCode.ERROR_MISSING_TUPLE_MEMBER);
                 }
 
                 switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);

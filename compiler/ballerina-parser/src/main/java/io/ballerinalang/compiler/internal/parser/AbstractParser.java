@@ -137,7 +137,7 @@ public abstract class AbstractParser {
      */
     protected STNode cloneWithDiagnosticIfListEmpty(STNode nodeList, STNode target, DiagnosticCode diagnosticCode) {
         if (isNodeListEmpty(nodeList)) {
-            return SyntaxErrors.addDiagnostics(target, diagnosticCode);
+            return SyntaxErrors.addDiagnostic(target, diagnosticCode);
         }
         return target;
     }
@@ -156,7 +156,7 @@ public abstract class AbstractParser {
         STNode prevNode = nodeList.remove(lastIndex);
         STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
         if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode);
         }
         nodeList.add(newNode);
     }
