@@ -42,6 +42,7 @@ public class ItemResolverConstants {
     public static final String ON = "on";
     public static final String NEW = "new";
     public static final String CLIENT = "client";
+    public static final String READONLY = "readonly";
     public static final String EXTERNAL = "external";
     public static final String ABSTRACT = "abstract";
     public static final String CONTINUE = "continue";
