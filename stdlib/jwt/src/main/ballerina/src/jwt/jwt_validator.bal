@@ -397,7 +397,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
         }
         json payload = <json>result;
         json[] jwks = <json[]>payload.keys;
-        foreach (json jwk in jwks) {
+        foreach json jwk in jwks {
             if (jwk.kid == kid) {
                 return jwk;
             }
