@@ -66,11 +66,11 @@ OPTIONS
            Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
 
        --with-choreo
-           Package Choreo observability extension in the executable jars.
+           Package the Choreo observability extension in the executable JAR file(s).
 
 CONFIG PROPERTIES
        (--key=value)...
-           Set Ballerina environment parameters as key/value pairs.
+           Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
            supported by the Ballerina standard library modules are specified

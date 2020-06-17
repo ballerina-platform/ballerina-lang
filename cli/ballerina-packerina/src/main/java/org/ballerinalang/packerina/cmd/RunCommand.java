@@ -119,8 +119,8 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--old-parser", description = "Enable new parser.", hidden = true)
     private boolean useOldParser;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package Choreo observability extension " +
-            "in the executable jars created while building.")
+    @CommandLine.Option(names = "--with-choreo", description = "package the Choreo observability extension " +
+            "in the executable when run is used with a source file or a module.")
     private boolean withChoreo;
 
     public RunCommand() {

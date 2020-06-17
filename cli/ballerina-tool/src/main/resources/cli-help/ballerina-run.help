@@ -44,11 +44,12 @@ OPTIONS
            Run in remote debugging mode.
 
        --with-choreo
-           Package Choreo observability extension in the executable jars created while building.
+           Package the Choreo observability extension in the executable
+           when run is used with a source file or a module.
 
 CONFIG PROPERTIES
        (--key=value)...
-           Set Ballerina environment parameters as key/value pairs.
+           Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
            supported by the Ballerina standard library modules are specified
