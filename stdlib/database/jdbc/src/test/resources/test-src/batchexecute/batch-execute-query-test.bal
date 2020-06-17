@@ -17,51 +17,37 @@ import ballerina/java.jdbc;
 import ballerina/sql;
 
 function insertIntoDataTable(string url, string user, string password) returns sql:ExecutionResult[]|sql:Error? {
-    sql:ParameterizedString sqlQuery1 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [3, 9223372036854774807, 123.34]
-    };
-    sql:ParameterizedString sqlQuery2 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [4, 9223372036854774807, 123.34]
-        };
-
-    sql:ParameterizedString sqlQuery3 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [5, 9223372036854774807, 123.34]
-    };
-
-    sql:ParameterizedString[] sqlQueries = [sqlQuery1, sqlQuery2, sqlQuery3];
+    var data = [
+        {intVal:3, longVal:9223372036854774807, floatVal:123.34},
+        {intVal:4, longVal:9223372036854774807, floatVal:123.34},
+        {intVal:5, longVal:9223372036854774807, floatVal:123.34}
+    ];
+    sql:ParameterizedQuery[] sqlQueries =
+        from var row in data
+        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES (${row.intVal}, ${row.longVal}, ${row.floatVal})`;
     return batchExecuteQueryMockClient(url, user, password, sqlQueries);
 }
 
 function insertIntoDataTable2(string url, string user, string password) returns sql:ExecutionResult[]|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO DataTable (int_type) VALUES(", ")"],
-                insertions: [6]
-    };
-    sql:ParameterizedString[] sqlQueries = [sqlQuery];
+    int intType = 6;
+    sql:ParameterizedQuery sqlQuery = `INSERT INTO DataTable (int_type) VALUES(${intType})`;
+    sql:ParameterizedQuery[] sqlQueries = [sqlQuery];
     return batchExecuteQueryMockClient(url, user, password, sqlQueries);
 }
 
 function insertIntoDataTableFailure(string url, string user, string password) returns sql:ExecutionResult[]|sql:Error? {
-    sql:ParameterizedString sqlQuery1 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [7, 9372036854774807, 124.34]
-    };
-    sql:ParameterizedString sqlQuery2 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [1, 9372036854774807, 124.34]
-    };
-    sql:ParameterizedString sqlQuery3 = {
-            parts: ["INSERT INTO DataTable (int_type, long_type, float_type) VALUES(", ", ", ", ", ")" ],
-            insertions: [9, 9372036854774807, 124.34]
-    };
-    sql:ParameterizedString[] sqlQueries = [sqlQuery1, sqlQuery2, sqlQuery3];
+    var data = [
+        {intVal:7, longVal:9223372036854774807, floatVal:123.34},
+        {intVal:1, longVal:9223372036854774807, floatVal:123.34},
+        {intVal:9, longVal:9223372036854774807, floatVal:123.34}
+    ];
+    sql:ParameterizedQuery[] sqlQueries =
+        from var row in data
+        select `INSERT INTO DataTable (int_type, long_type, float_type) VALUES (${row.intVal}, ${row.longVal}, ${row.floatVal})`;
     return batchExecuteQueryMockClient(url, user, password, sqlQueries);
 }
 
-function batchExecuteQueryMockClient(string jdbcURL, string user, string password, sql:ParameterizedString[] sqlQueries)
+function batchExecuteQueryMockClient(string jdbcURL, string user, string password, sql:ParameterizedQuery[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error? {
     jdbc:Client dbClient = check new (url = jdbcURL, user = user, password = password);
     sql:ExecutionResult[]? result = check dbClient->batchExecute(sqlQueries);

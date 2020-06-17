@@ -2393,13 +2393,17 @@ public class BallerinaParser extends AbstractParser {
         STToken node = peek();
         if (isSimpleType(node.kind)) {
             STToken token = consume();
-            SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
-            return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
+            return createBuiltinSimpleNameReference(token);
         } else {
             Solution sol = recover(peek(), ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR);
             STNode recoveredNode = sol.recoveredNode;
-            return STNodeFactory.createBuiltinSimpleNameReferenceNode(recoveredNode.kind, recoveredNode);
+            return createBuiltinSimpleNameReference(recoveredNode);
         }
+    }
+
+    private STNode createBuiltinSimpleNameReference(STNode token) {
+        SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+        return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
     /**
@@ -3269,7 +3273,7 @@ public class BallerinaParser extends AbstractParser {
                     case SEMICOLON_TOKEN: // readonly a;
                     case EQUAL_TOKEN: // readonly a =
                         // Then treat "readonly" as type-desc, and "a" as the field-name
-                        type = readOnlyQualifier;
+                        type = createBuiltinSimpleNameReference(readOnlyQualifier);
                         readOnlyQualifier = STNodeFactory.createEmptyNode();
                         return parseFieldDescriptorRhs(metadata, readOnlyQualifier, type, fieldNameOrTypeDesc);
                     default:
@@ -3281,6 +3285,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
+            readOnlyQualifier = createBuiltinSimpleNameReference(readOnlyQualifier);
             type = parseComplexTypeDescriptor(readOnlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
             readOnlyQualifier = STNodeFactory.createEmptyNode();
         }
@@ -5422,7 +5427,7 @@ public class BallerinaParser extends AbstractParser {
                     case SEMICOLON_TOKEN: // readonly a;
                     case EQUAL_TOKEN: // readonly a =
                         // Then treat "readonly" as type-desc, and "a" as the field-name
-                        type = readonlyQualifier;
+                        type = createBuiltinSimpleNameReference(readonlyQualifier);
                         readonlyQualifier = STNodeFactory.createEmptyNode();
                         return parseObjectFieldRhs(metadata, methodQualifiers, readonlyQualifier, type,
                                 fieldNameOrTypeDesc);
@@ -5435,6 +5440,7 @@ public class BallerinaParser extends AbstractParser {
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
+            readonlyQualifier = createBuiltinSimpleNameReference(readonlyQualifier);
             type = parseComplexTypeDescriptor(readonlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
             readonlyQualifier = STNodeFactory.createEmptyNode();
         }

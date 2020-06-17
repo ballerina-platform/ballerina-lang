@@ -51,6 +51,8 @@ public class AnnotationRuntimeTest {
     private CompileResult resultTwo;
     private CompileResult resultThree;
     private CompileResult resultFour;
+    private CompileResult resultAccessNegative;
+    private CompileResult readOnlyValues;
 
     @BeforeClass
     public void setup() {
@@ -66,6 +68,10 @@ public class AnnotationRuntimeTest {
 
         resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
         Assert.assertEquals(resultFour.getErrorCount(), 0);
+
+        resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
+
+        readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -173,5 +179,21 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(mapValue.size(), 2);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("q")).toString(), "hello");
         Assert.assertEquals(mapValue.get(StringUtils.fromString("r")).toString(), "world");
+    }
+
+    public void testRecordTypeAnnotationReadonlyValueEdit() {
+        BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
+    }
+
+    public void testAnnotationOnObjectTypeReadonlyValueEdit() {
+        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
+    }
+
+    public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
+        BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
+    }
+
+    public void testReadonlyTypeAnnotationAttachment() {
+        BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 }
