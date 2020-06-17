@@ -21,6 +21,7 @@ const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
 type PersonTypedesc typedesc<Person>;
 type StockQuoteTypedesc typedesc<StockQuote>;
+type StockQuotesTypedesc typedesc<StockQuotes>;
 type StockNamesTypedesc typedesc<StockNames>;
 
 // Enable when you need to test locally.
@@ -209,7 +210,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(StockQuoteTypedesc);
+        var value = result.cloneWithType(StockQuotesTypedesc);
         if (value is StockQuotes) {
             return [value, resHeaders];
         } else {

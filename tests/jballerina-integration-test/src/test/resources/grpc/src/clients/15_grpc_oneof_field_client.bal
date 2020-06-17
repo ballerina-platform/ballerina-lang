@@ -89,17 +89,17 @@ public function testFloatFieldValue() returns string {
     }
 }
 
-public function testInt64FieldValue() returns string {
-    ZZZ zzz = {one_c:-9223372036854775808};
-    var result = blockingEp->testOneofField(zzz);
-    if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s", result.message());
-    } else {
-        ZZZ resp;
-        [resp, _] = result;
-        return resp?.one_c.toString();
-    }
-}
+//public function testInt64FieldValue() returns string {
+//    ZZZ zzz = {one_c:-9223372036854775808};
+//    var result = blockingEp->testOneofField(zzz);
+//    if (result is grpc:Error) {
+//        return io:sprintf("Error from Connector: %s", result.message());
+//    } else {
+//        ZZZ resp;
+//        [resp, _] = result;
+//        return resp?.one_c.toString();
+//    }
+//}
 
 public function testUInt64FieldValue() returns string {
     ZZZ zzz = {one_d:9223372036854775807};
