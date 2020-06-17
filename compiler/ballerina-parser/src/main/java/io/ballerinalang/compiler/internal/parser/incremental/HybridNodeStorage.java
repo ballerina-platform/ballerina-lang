@@ -178,4 +178,8 @@ public class HybridNodeStorage {
                 (textRange.startOffset() - affectedTokenStartOffset);
         return new TextEditRange(affectedTokenStartOffset, textRange.endOffset(), newTextLength);
     }
+
+    public int getCurrentIndex() {
+        return this.peekedNodeIndex;
+    }
 }

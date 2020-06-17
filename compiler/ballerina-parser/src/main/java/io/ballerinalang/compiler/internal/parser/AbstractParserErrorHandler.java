@@ -35,15 +35,24 @@ public abstract class AbstractParserErrorHandler {
     protected final AbstractTokenReader tokenReader;
     protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
+    private int previousIndex;
+    private int itterCount;
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
     protected static final int LOOKAHEAD_LIMIT = 5;
+    /**
+     * Limit for the number of times parser tries to recover staying on the same token index.
+     * This will prevent parser going to infinite loops.
+     */
+    private static final int ITTER_LIMIT = 10;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
         this.errorListener = new BallerinaParserErrorListener();
+        this.previousIndex = -1;
+        this.itterCount = 0;
     }
 
     /*
@@ -82,10 +91,18 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
+        int currentIndex = this.tokenReader.getCurrentIndex();
+        if (currentIndex == this.previousIndex) {
+            itterCount++;
+        } else {
+            itterCount = 0;
+            previousIndex = currentIndex;
+        }
+
         Result bestMatch = seekMatch(currentCtx);
         if (bestMatch.matches > 0) {
             Solution sol = bestMatch.solution;
-            if (sol != null) {
+            if (sol != null && itterCount < ITTER_LIMIT) {
                 applyFix(currentCtx, sol, args);
                 return sol;
             }
