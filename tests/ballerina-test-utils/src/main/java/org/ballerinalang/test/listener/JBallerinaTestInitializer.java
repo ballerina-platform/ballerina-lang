@@ -45,7 +45,7 @@ public class JBallerinaTestInitializer implements ITestListener {
         }
         property = context.getCurrentXmlTest().getParameter(ENABLE_OLD_PARSER_FOR_TESTS);
         if (Boolean.parseBoolean(property)) {
-            log.info("New Parser is enabled for tests...");
+            log.info("Old Parser is enabled for tests...");
             System.setProperty(ENABLE_OLD_PARSER_FOR_TESTS, "true");
         }
     }
@@ -59,7 +59,7 @@ public class JBallerinaTestInitializer implements ITestListener {
         }
         property = context.getCurrentXmlTest().getParameter(ENABLE_OLD_PARSER_FOR_TESTS);
         if (Boolean.parseBoolean(property)) {
-            log.info("New Parser is disabled...");
+            log.info("Old Parser is disabled...");
             System.clearProperty(ENABLE_OLD_PARSER_FOR_TESTS);
         }
     }

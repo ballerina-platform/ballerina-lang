@@ -589,7 +589,7 @@ public class BCompileUtil {
     }
 
     public static boolean newParserEnabled() {
-        return Boolean.parseBoolean(System.getProperty(ENABLE_OLD_PARSER_FOR_TESTS));
+        return !Boolean.parseBoolean(System.getProperty(ENABLE_OLD_PARSER_FOR_TESTS));
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
