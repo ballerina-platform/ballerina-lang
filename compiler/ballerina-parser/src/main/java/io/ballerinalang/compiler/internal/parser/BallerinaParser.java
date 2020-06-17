@@ -3273,7 +3273,7 @@ public class BallerinaParser extends AbstractParser {
                     case SEMICOLON_TOKEN: // readonly a;
                     case EQUAL_TOKEN: // readonly a =
                         // Then treat "readonly" as type-desc, and "a" as the field-name
-                        type = readOnlyQualifier;
+                        type = createBuiltinSimpleNameReference(readOnlyQualifier);
                         readOnlyQualifier = STNodeFactory.createEmptyNode();
                         return parseFieldDescriptorRhs(metadata, readOnlyQualifier, type, fieldNameOrTypeDesc);
                     default:
@@ -5427,7 +5427,7 @@ public class BallerinaParser extends AbstractParser {
                     case SEMICOLON_TOKEN: // readonly a;
                     case EQUAL_TOKEN: // readonly a =
                         // Then treat "readonly" as type-desc, and "a" as the field-name
-                        type = readonlyQualifier;
+                        type = createBuiltinSimpleNameReference(readonlyQualifier);
                         readonlyQualifier = STNodeFactory.createEmptyNode();
                         return parseObjectFieldRhs(metadata, methodQualifiers, readonlyQualifier, type,
                                 fieldNameOrTypeDesc);
