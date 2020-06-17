@@ -67,7 +67,12 @@ public class HandleValue implements BHandle, RefValue {
 
     @Override
     public Object copy(Map<Object, Object> refs) {
-        return null;
+        return this;
+    }
+
+    @Override
+    public void freezeDirect() {
+        return;
     }
 
     @Override

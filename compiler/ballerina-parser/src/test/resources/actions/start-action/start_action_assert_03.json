@@ -63,18 +63,23 @@
               "kind": "ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "f1",
-                  "leadingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "     "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "f1",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "     "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -100,8 +105,13 @@
                               "kind": "AT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "strand"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "strand"
+                                }
+                              ]
                             },
                             {
                               "kind": "MAPPING_CONSTRUCTOR",
@@ -124,7 +134,12 @@
                                         },
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "any"
+                                          "children": [
+                                            {
+                                              "kind": "STRING_LITERAL",
+                                              "value": "any"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -158,8 +173,13 @@
                       "kind": "FUNCTION_CALL",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "add_1"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "add_1"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_PAREN_TOKEN"
@@ -212,8 +232,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "strand"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "strand"
+                                }
+                              ]
                             },
                             {
                               "kind": "MAPPING_CONSTRUCTOR",
@@ -236,7 +261,12 @@
                                         },
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "any"
+                                          "children": [
+                                            {
+                                              "kind": "STRING_LITERAL",
+                                              "value": "any"
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -276,8 +306,13 @@
                       "kind": "FUNCTION_CALL",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "add_2"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "add_2"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_PAREN_TOKEN"

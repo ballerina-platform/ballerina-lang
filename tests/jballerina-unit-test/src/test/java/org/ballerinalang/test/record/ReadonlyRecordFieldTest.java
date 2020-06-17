@@ -39,7 +39,7 @@ public class ReadonlyRecordFieldTest {
         BRunUtil.invoke(result, "testReadonlyRecordFields");
     }
 
-    @Test(groups = { "brokenOnNewParser" }) // Syntax kind is not supported: READONLY_KEYWORD
+    @Test
     public void testReadonlyRecordFieldsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields_negative.bal");
         int index = 0;
@@ -58,6 +58,7 @@ public class ReadonlyRecordFieldTest {
         validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 150, 17);
         validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
                       159, 23);
+        validateError(result, index++, "cannot update 'readonly' record field 'code' in 'Quux'", 169, 5);
         assertEquals(result.getErrorCount(), index);
     }
 }

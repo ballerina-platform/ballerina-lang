@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -55,6 +56,7 @@
     },
     {
       "kind": "FUNCTION_BODY_BLOCK",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_BRACE_TOKEN",
@@ -67,48 +69,79 @@
         },
         {
           "kind": "LIST",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "FIELD_ACCESS",
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "FUNCTION_CALL",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "foo",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "CLOSE_PAREN_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "DOT_TOKEN"
-                    },
-                    {
                       "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "trailingMinutiae": [
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_EXPR_IN_COMPOUND_ASSIGNMENT_LHS"
+                      ],
+                      "leadingMinutiae": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "FIELD_ACCESS",
+                            "children": [
+                              {
+                                "kind": "FUNCTION_CALL",
+                                "children": [
+                                  {
+                                    "kind": "SIMPLE_NAME_REFERENCE",
+                                    "children": [
+                                      {
+                                        "kind": "IDENTIFIER_TOKEN",
+                                        "value": "foo",
+                                        "leadingMinutiae": [
+                                          {
+                                            "kind": "WHITESPACE_MINUTIAE",
+                                            "value": "    "
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "kind": "OPEN_PAREN_TOKEN"
+                                  },
+                                  {
+                                    "kind": "LIST",
+                                    "children": []
+                                  },
+                                  {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                  }
+                                ]
+                              },
+                              {
+                                "kind": "DOT_TOKEN"
+                              },
+                              {
+                                "kind": "SIMPLE_NAME_REFERENCE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar",
+                                    "trailingMinutiae": [
+                                      {
+                                        "kind": "WHITESPACE_MINUTIAE",
+                                        "value": " "
+                                      }
+                                    ]
+                                  }
+                                ]
+                              }
+                            ]
+                          }
                         }
                       ]
                     }
@@ -131,11 +164,16 @@
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -150,7 +188,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "6"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "6"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -172,12 +215,17 @@
                   "kind": "FIELD_ACCESS",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "foo",
-                      "leadingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "foo",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -185,12 +233,17 @@
                       "kind": "DOT_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "  "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -213,11 +266,16 @@
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -232,7 +290,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "6"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "6"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -257,12 +320,17 @@
                       "kind": "INDEXED_EXPRESSION",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "foo",
-                          "leadingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "foo",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -274,7 +342,12 @@
                           "children": [
                             {
                               "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "4"
+                              "children": [
+                                {
+                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "value": "4"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -287,12 +360,17 @@
                       "kind": "DOT_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -315,11 +393,16 @@
                   "children": [
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "4",
-                      "trailingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "4",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -334,7 +417,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "6"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "6"
+                        }
+                      ]
                     }
                   ]
                 },

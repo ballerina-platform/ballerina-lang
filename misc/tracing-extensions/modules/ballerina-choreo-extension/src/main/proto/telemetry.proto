@@ -1,0 +1,59 @@
+syntax = "proto3";
+package v0_1_2;
+
+option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
+
+import "google/protobuf/empty.proto";
+
+service Telemetry {
+    rpc publishMetrics (MetricsPublishRequest)
+    		returns (google.protobuf.Empty);
+
+    rpc publishTraces (TracesPublishRequest)
+    		returns (google.protobuf.Empty);
+}
+
+message MetricsPublishRequest {
+    repeated Metric metrics = 1;
+    string observabilityId = 2;  // ID received in the handshake
+    string version = 3;
+    string nodeId = 4;
+    string projectSecret = 5;
+}
+
+message Metric {
+    int64 timestamp = 1;
+    string name = 2;
+    double value = 3;
+    map<string, string> tags = 4;
+}
+
+message TracesPublishRequest {
+    repeated TraceSpan spans = 1;
+    string observabilityId = 2;  // ID received in the handshake
+    string version = 3;
+    string nodeId = 4;
+    string projectSecret = 5;
+}
+
+message TraceSpan {
+    uint64 traceId = 1;
+    uint64 spanId = 2;
+    string serviceName = 3;
+    string operationName = 4;
+    int64 timestamp = 5;
+    int64 duration = 6;
+    map<string, string> tags = 7;
+    repeated TraceSpanReference references = 8;
+}
+
+message TraceSpanReference {
+    uint64 traceId = 1;
+    uint64 spanId = 2;
+    TraceReferenceType refType = 3;
+}
+
+enum TraceReferenceType {
+    CHILD_OF = 0;
+    FOLLOWS_FROM = 1;
+}

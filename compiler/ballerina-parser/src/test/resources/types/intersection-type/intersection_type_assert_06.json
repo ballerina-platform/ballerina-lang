@@ -89,10 +89,16 @@
                       "children": [
                         {
                           "kind": "TYPE_DESC",
-                          "isMissing": true,
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_TYPE_DESC"
+                          "children": [
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_TYPE_DESC"
+                              ]
+                            }
                           ]
                         },
                         {
@@ -111,11 +117,16 @@
                           ]
                         },
                         {
-                          "kind": "STRING_KEYWORD",
-                          "trailingMinutiae": [
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "STRING_KEYWORD",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }

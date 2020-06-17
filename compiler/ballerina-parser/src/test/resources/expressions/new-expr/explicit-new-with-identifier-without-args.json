@@ -11,8 +11,13 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        }
+      ]
     },
     {
       "kind": "PARENTHESIZED_ARG_LIST",

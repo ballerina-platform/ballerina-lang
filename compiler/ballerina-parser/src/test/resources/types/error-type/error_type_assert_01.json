@@ -91,8 +91,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "NO_MATCHING_OBJECT"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "NO_MATCHING_OBJECT"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -279,13 +284,23 @@
                               "kind": "UNION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "STRING_KEYWORD"
+                                  "kind": "STRING_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "STRING_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "PIPE_TOKEN"
                                 },
                                 {
-                                  "kind": "FLOAT_KEYWORD"
+                                  "kind": "FLOAT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "FLOAT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -356,15 +371,25 @@
                               "kind": "ARRAY_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "A"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "A"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
                                   "kind": "DECIMAL_INTEGER_LITERAL",
-                                  "value": "5"
+                                  "children": [
+                                    {
+                                      "kind": "DECIMAL_INTEGER_LITERAL",
+                                      "value": "5"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "CLOSE_BRACKET_TOKEN"

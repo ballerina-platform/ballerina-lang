@@ -78,6 +78,6 @@ public class ErrorTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidErrorTypeExtraSymbol() {
-        test("error<NO_MATCHING_OBJECT%> a;", "error-type/error_type_assert_02.json");
+        test("error<NO_MATCHING_OBJECT%> a;", "error-type/error_type_assert_11.json");
     }
 }

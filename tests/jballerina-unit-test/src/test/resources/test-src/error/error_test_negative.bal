@@ -48,7 +48,7 @@ function testInvalidErrorTypeInFunc() {
     error<boolean> e = error(true);
 }
 
-type MyError error<string>;
+type MyError error;
 
 function testSelfReferencingErrorConstructor() {
     error e3 = error(e3.message(), e3);
@@ -92,7 +92,7 @@ type RNError error <Bee>;
 type RNStrError error <Bee>;
 
 function testIndirectErrorDestructuring() {
-    BeeError e = BeeError(message="Msg", fatal=false, other="k");
+    BeeError e = BeeError("Msg", fatal=false, other="k");
     RNError e2 = RNError(message="Msg", fatal=false, other="k");
     RNStrError e3 = RNStrError(message="Msg", fatal=false, other="k");
 }
@@ -120,4 +120,11 @@ function panicOnNonErrorMemberUnion() {
 
 function errorDefinitionNegative() {
     error<record { string message?; error cause?; int i;}> e  = 1;
+}
+
+function testErrorTypeInfer() {
+    int i = 0;
+    error<*> e0 = i;
+    error<*> e1 = "hello";
+    error<*> e2 = { a: "abc"};
 }

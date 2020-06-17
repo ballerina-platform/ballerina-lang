@@ -79,12 +79,17 @@
                   "kind": "FUNCTION_CALL",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "bar",
-                      "leadingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },

@@ -49,7 +49,7 @@ public class LSStdLibCacheUtil {
             + ZIPENTRY_FILE_SEPARATOR + ProjectDirConstants.SOURCE_DIR_NAME + ZIPENTRY_FILE_SEPARATOR;
     private static final String TOML_CONTENT = "[project]\norg-name= \"lsbalorg\"\nversion=\"1.1.0\"\n\n[dependencies]";
     private static final Logger logger = LoggerFactory.getLogger(LSStdLibCacheUtil.class);
-    private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
+    static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME).resolve("lib").resolve("repo");
 
     private LSStdLibCacheUtil() {
     }
@@ -70,18 +70,15 @@ public class LSStdLibCacheUtil {
         extract(baloPath, destinationRoot, moduleName, cacheableKey);
     }
 
-    protected static void extractSourceForCacheableKey(String cacheableKey) throws LSStdlibCacheException {
+    protected static void extractSourceForModule(String orgName, String moduleName, String version)
+            throws LSStdlibCacheException {
         /*
         Cacheable key format is as follows
         Eg: orgName_moduleName_dot.separated.version
          */
-        int versionSeparator = cacheableKey.lastIndexOf("_");
-        int modNameSeparator = cacheableKey.indexOf("_");
-        String version = cacheableKey.substring(versionSeparator + 1);
-        String moduleName = cacheableKey.substring(modNameSeparator + 1, versionSeparator);
-        String orgName = cacheableKey.substring(0, modNameSeparator);
-
-        Path baloPath = STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName).resolve(version).resolve(moduleName
+        Path modulePath = STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName);
+        String cacheableKey = orgName + "_" + moduleName + "_" + version;
+        Path baloPath = modulePath.resolve(version).resolve(moduleName
                 + ProjectDirConstants.BLANG_COMPILED_PKG_EXT);
         Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey)
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME);
@@ -209,5 +206,15 @@ public class LSStdLibCacheUtil {
         Path projectPath = Files.createDirectories(cachedProjectPath);
         Path manifestPath = projectPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         Files.write(manifestPath, Collections.singletonList(TOML_CONTENT));
+    }
+    
+    static String readModuleVersionFromDir(Path moduleDir) throws LSStdlibCacheException {
+        String[] filesList = moduleDir.toFile().list();
+        if (filesList == null || filesList.length > 1 || (filesList.length > 0
+                && !filesList[0].matches("([0-9]*\\.[0-9]*\\.[0-9]*)"))) {
+            throw new LSStdlibCacheException("Could not find a matching version directory");
+        }
+        
+        return filesList[0];
     }
 }

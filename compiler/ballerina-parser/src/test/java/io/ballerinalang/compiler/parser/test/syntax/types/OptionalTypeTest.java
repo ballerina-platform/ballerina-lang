@@ -51,7 +51,7 @@ public class OptionalTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInvalidOptionalTypeWithExtraSymbol() {
-        test("int? % a;", "optional-type/optional_type_assert_01.json");
+        test("int? % a;", "optional-type/optional_type_assert_07.json");
     }
 
     @Test

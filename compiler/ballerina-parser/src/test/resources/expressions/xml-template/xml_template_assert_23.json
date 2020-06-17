@@ -70,17 +70,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -129,8 +134,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "aaa"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "aaa"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -139,8 +149,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v1"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v1"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -148,8 +163,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "bbb"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "bbb"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -158,8 +178,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v2"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v2"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -167,8 +192,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "ccc"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "ccc"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -199,17 +229,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -258,8 +293,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "aaa"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "aaa"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -268,8 +308,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v1"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v1"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -277,8 +322,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "bbb"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "bbb"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -287,8 +337,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v2"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v2"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -296,8 +351,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "ccc{d{}e}{f{"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "ccc{d{}e}{f{"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -328,17 +388,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -387,8 +452,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "aaa"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "aaa"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -397,8 +467,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "v1"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "v1"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -406,8 +481,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "b\\"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "b\\"
+                            }
+                          ]
                         },
                         {
                           "kind": "INTERPOLATION",
@@ -416,8 +496,13 @@
                               "kind": "INTERPOLATION_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "bb"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bb"
+                                }
+                              ]
                             },
                             {
                               "kind": "CLOSE_BRACE_TOKEN"
@@ -425,8 +510,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": "cc{d{}e}{f{"
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": "cc{d{}e}{f{"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -457,17 +547,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -516,8 +611,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": " "
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -548,17 +648,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -665,8 +770,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v1"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v1"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -684,8 +794,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v2"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v2"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -744,17 +859,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -861,8 +981,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v1"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v1"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -880,8 +1005,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v2"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v2"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -940,17 +1070,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1057,8 +1192,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v1"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v1"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -1076,8 +1216,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v2"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v2"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -1138,8 +1283,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v1"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v1"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -1157,8 +1307,13 @@
                                                   "kind": "INTERPOLATION_START_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "v2"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "v2"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACE_TOKEN"
@@ -1217,17 +1372,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1370,17 +1530,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1500,11 +1665,16 @@
                                                       "children": [
                                                         {
                                                           "kind": "DECIMAL_INTEGER_LITERAL",
-                                                          "value": "3",
-                                                          "trailingMinutiae": [
+                                                          "children": [
                                                             {
-                                                              "kind": "WHITESPACE_MINUTIAE",
-                                                              "value": " "
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "3",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -1522,11 +1692,16 @@
                                                           "children": [
                                                             {
                                                               "kind": "DECIMAL_INTEGER_LITERAL",
-                                                              "value": "6",
-                                                              "trailingMinutiae": [
+                                                              "children": [
                                                                 {
-                                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                                  "value": " "
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "value": "6",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
@@ -1541,7 +1716,12 @@
                                                             },
                                                             {
                                                               "kind": "DECIMAL_INTEGER_LITERAL",
-                                                              "value": "3"
+                                                              "children": [
+                                                                {
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "value": "3"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -1578,8 +1758,13 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": "hello"
+                                  "kind": "XML_TEXT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": "hello"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -1637,17 +1822,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -1767,11 +1957,16 @@
                                                       "children": [
                                                         {
                                                           "kind": "DECIMAL_INTEGER_LITERAL",
-                                                          "value": "3",
-                                                          "trailingMinutiae": [
+                                                          "children": [
                                                             {
-                                                              "kind": "WHITESPACE_MINUTIAE",
-                                                              "value": " "
+                                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                                              "value": "3",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -1789,11 +1984,16 @@
                                                           "children": [
                                                             {
                                                               "kind": "DECIMAL_INTEGER_LITERAL",
-                                                              "value": "6",
-                                                              "trailingMinutiae": [
+                                                              "children": [
                                                                 {
-                                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                                  "value": " "
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "value": "6",
+                                                                  "trailingMinutiae": [
+                                                                    {
+                                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                                      "value": " "
+                                                                    }
+                                                                  ]
                                                                 }
                                                               ]
                                                             },
@@ -1808,7 +2008,12 @@
                                                             },
                                                             {
                                                               "kind": "DECIMAL_INTEGER_LITERAL",
-                                                              "value": "3"
+                                                              "children": [
+                                                                {
+                                                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                                                  "value": "3"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -1845,8 +2050,13 @@
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": "hello"
+                                  "kind": "XML_TEXT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": "hello"
+                                    }
+                                  ]
                                 }
                               ]
                             },

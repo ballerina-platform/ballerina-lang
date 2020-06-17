@@ -67,8 +67,19 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
-    public void testRecordFieldsWithReadonlyQualifier() {
+    public void testRecordFieldsWithReadonlyTypeDesc() {
         test("record-type-def/record_type_def_source_19.bal", "record-type-def/record_type_def_assert_19.json");
+    }
+
+    @Test
+    public void testRecordFieldsWithReadonlyQualifier() {
+        test("record-type-def/record_type_def_source_21.bal", "record-type-def/record_type_def_assert_21.json");
+    }
+
+    @Test
+    public void testRecordFieldsWithComplexTypeDescHavingReadonlyTypeDescWithin() {
+        test("record-type-def/record_type_def_source_22.bal", "record-type-def/record_type_def_assert_22.json");
+        test("record-type-def/record_type_def_source_23.bal", "record-type-def/record_type_def_assert_23.json");
     }
     
     // Recovery tests
@@ -111,5 +122,10 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testNestedRecordTypeDefMissingCloseBrace() {
         test("record-type-def/record_type_def_source_16.bal", "record-type-def/record_type_def_assert_16.json");
+    }
+
+    @Test
+    public void testRecordFieldsAfterRestField() {
+        test("record-type-def/record_type_def_source_20.bal", "record-type-def/record_type_def_assert_20.json");
     }
 }

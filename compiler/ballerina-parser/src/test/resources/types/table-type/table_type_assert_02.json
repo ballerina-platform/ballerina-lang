@@ -26,8 +26,13 @@
                   "kind": "LT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "T"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T"
+                    }
+                  ]
                 },
                 {
                   "kind": "GT_TOKEN",

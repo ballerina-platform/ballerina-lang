@@ -16,6 +16,9 @@
 import ballerina/grpc;
 import ballerina/io;
 
+type IntTypedesc typedesc<int>;
+type FloatTypedesc typedesc<float>;
+
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9095");
 
 // Enable when you need to test locally.
@@ -96,7 +99,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<int>);
+        var value = result.cloneWithType(IntTypedesc);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -109,7 +112,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<float>);
+        var value = result.cloneWithType(FloatTypedesc);
         if (value is float) {
             return [value, resHeaders];
         } else {
