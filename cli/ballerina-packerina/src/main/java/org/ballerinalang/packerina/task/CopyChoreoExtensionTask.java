@@ -30,6 +30,8 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COM
 
 /**
  * Package the Choreo extension.
+ *
+ * @since 2.0.0
  */
 public class CopyChoreoExtensionTask implements Task {
 

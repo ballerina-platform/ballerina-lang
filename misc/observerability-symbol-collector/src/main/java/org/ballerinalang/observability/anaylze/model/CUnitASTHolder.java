@@ -22,6 +22,8 @@ import com.google.gson.JsonElement;
 
 /**
  * Holds a compilation unit holding an AST JSON.
+ *
+ * @since 2.0.0
  */
 public class CUnitASTHolder {
     private String name;

@@ -19,6 +19,11 @@ import ballerina/io;
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9097");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
+type ResponseTypedesc typedesc<Response>;
+type IntTypedesc typedesc<int>;
+type BooleanTypedesc typedesc<boolean>;
+type FloatTypedesc typedesc<float>;
+
 // Enable when you need to test locally.
 //public function main() {
 //    string resp1 = testUnaryBlockingClient("A");
@@ -152,7 +157,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<int>);
+        var value = result.cloneWithType(IntTypedesc);
         if (value is int) {
             return [value, resHeaders];
         } else {
@@ -165,7 +170,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<float>);
+        var value = result.cloneWithType(FloatTypedesc);
         if (value is float) {
             return [value, resHeaders];
         } else {
@@ -178,7 +183,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<boolean>);
+        var value = result.cloneWithType(BooleanTypedesc);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
@@ -191,7 +196,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<Response>);
+        var value = result.cloneWithType(ResponseTypedesc);
         if (value is Response) {
             return [value, resHeaders];
         } else {
@@ -204,7 +209,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<Response>);
+        var value = result.cloneWithType(ResponseTypedesc);
         if (value is Response) {
             return [value, resHeaders];
         } else {

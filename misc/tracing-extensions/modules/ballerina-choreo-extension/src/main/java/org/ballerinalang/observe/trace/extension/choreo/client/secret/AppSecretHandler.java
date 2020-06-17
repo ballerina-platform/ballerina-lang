@@ -22,6 +22,8 @@ import java.io.IOException;
 
 /**
  * Mangers an application secret.
+ *
+ * @since 2.0.0
  */
 public interface AppSecretHandler {
     String getAppSecret();
