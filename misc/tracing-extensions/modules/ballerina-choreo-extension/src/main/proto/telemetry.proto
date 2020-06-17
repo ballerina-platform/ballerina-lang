@@ -1,4 +1,5 @@
 syntax = "proto3";
+package v0_1_2;
 
 option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
 
@@ -15,8 +16,9 @@ service Telemetry {
 message MetricsPublishRequest {
     repeated Metric metrics = 1;
     string observabilityId = 2;  // ID received in the handshake
-    string instanceId = 3;
-    string appId = 4;
+    string version = 3;
+    string nodeId = 4;
+    string projectSecret = 5;
 }
 
 message Metric {
@@ -29,8 +31,9 @@ message Metric {
 message TracesPublishRequest {
     repeated TraceSpan spans = 1;
     string observabilityId = 2;  // ID received in the handshake
-    string instanceId = 3;
-    string appId = 4;
+    string version = 3;
+    string nodeId = 4;
+    string projectSecret = 5;
 }
 
 message TraceSpan {

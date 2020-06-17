@@ -141,17 +141,22 @@
                                           "kind": "TYPED_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "INT_KEYWORD",
-                                              "leadingMinutiae": [
+                                              "kind": "INT_TYPE_DESC",
+                                              "children": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "        "
-                                                }
-                                              ],
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "INT_KEYWORD",
+                                                  "leadingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": "        "
+                                                    }
+                                                  ],
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -183,7 +188,12 @@
                                         },
                                         {
                                           "kind": "DECIMAL_INTEGER_LITERAL",
-                                          "value": "2"
+                                          "children": [
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "value": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "SEMICOLON_TOKEN",

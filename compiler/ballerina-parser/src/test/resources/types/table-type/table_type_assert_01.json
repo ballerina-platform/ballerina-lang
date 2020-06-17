@@ -91,8 +91,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -158,7 +163,12 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -224,8 +234,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -315,8 +330,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -411,8 +431,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -514,8 +539,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -541,7 +571,12 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "INT_KEYWORD"
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN",
@@ -609,8 +644,13 @@
                               "kind": "LT_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "Myrecord"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "Myrecord"
+                                }
+                              ]
                             },
                             {
                               "kind": "GT_TOKEN",
@@ -636,8 +676,13 @@
                                   "kind": "LT_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "MyId"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "MyId"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "GT_TOKEN",

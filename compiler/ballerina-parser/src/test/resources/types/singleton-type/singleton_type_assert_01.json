@@ -77,17 +77,22 @@
                       "children": [
                         {
                           "kind": "STRING_LITERAL",
-                          "value": "dulmina",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "STRING_LITERAL",
+                              "value": "dulmina",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -130,17 +135,22 @@
                       "children": [
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -195,11 +205,16 @@
                             },
                             {
                               "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "5",
-                              "trailingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "value": "5",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -244,17 +259,22 @@
                       "children": [
                         {
                           "kind": "HEX_INTEGER_LITERAL",
-                          "value": "0x2c",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "HEX_INTEGER_LITERAL",
+                              "value": "0x2c",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -297,17 +317,22 @@
                       "children": [
                         {
                           "kind": "DECIMAL_FLOATING_POINT_LITERAL",
-                          "value": "2.2",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                              "value": "2.2",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -350,16 +375,21 @@
                       "children": [
                         {
                           "kind": "TRUE_KEYWORD",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "TRUE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -402,16 +432,21 @@
                       "children": [
                         {
                           "kind": "FALSE_KEYWORD",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "FALSE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -454,16 +489,21 @@
                       "children": [
                         {
                           "kind": "NULL_KEYWORD",
-                          "leadingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ],
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "NULL_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -564,11 +604,16 @@
                           "children": [
                             {
                               "kind": "STRING_LITERAL",
-                              "value": "dulmina",
-                              "leadingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
+                                  "kind": "STRING_LITERAL",
+                                  "value": "dulmina",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -579,7 +624,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "6"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "6"
+                            }
+                          ]
                         },
                         {
                           "kind": "CLOSE_BRACKET_TOKEN",
@@ -632,11 +682,16 @@
                           "children": [
                             {
                               "kind": "STRING_LITERAL",
-                              "value": "mystring",
-                              "leadingMinutiae": [
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
+                                  "kind": "STRING_LITERAL",
+                                  "value": "mystring",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ]
                                 }
                               ]
                             }

@@ -18,10 +18,15 @@
           "children": [
             {
               "kind": "TRUE_KEYWORD",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "TRUE_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

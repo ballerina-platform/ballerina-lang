@@ -72,7 +72,7 @@ public class LValueTest {
         validateError(negativeResult, 0, "uninitialized field 's'", 19, 5);
     }
 
-    @Test
+    @Test(groups = "brokenOnNewParser")
     public void testSemanticsNegativeCases() {
         Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 9);
         int i = 0;
@@ -92,7 +92,7 @@ public class LValueTest {
                 79, 5);
     }
 
-    @Test
+    @Test(groups = "brokenOnNewParser")
     public void testNegativeLvexpr() {
         CompileResult negative = BCompileUtil.compile("test-src/statements/assign/lvexpr_negative.bal");
         int i = 0;

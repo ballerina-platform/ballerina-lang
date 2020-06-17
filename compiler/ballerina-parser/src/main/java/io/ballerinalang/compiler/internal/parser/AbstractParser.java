@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Action;
 import io.ballerinalang.compiler.internal.parser.AbstractParserErrorHandler.Solution;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
@@ -26,6 +27,10 @@ import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.List;
+
 /**
  * @since 2.0.0
  */
@@ -33,6 +38,7 @@ public abstract class AbstractParser {
 
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
+    protected final Deque<STNode> invalidNodeStack = new ArrayDeque<>(5);
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {
         this.tokenReader = tokenReader;
@@ -52,13 +58,29 @@ public abstract class AbstractParser {
     }
 
     protected STToken consume() {
-        return this.tokenReader.read();
+        if (invalidNodeStack.isEmpty()) {
+            return this.tokenReader.read();
+        }
+
+        return consumeWithInvalidNodes();
+    }
+
+    private STToken consumeWithInvalidNodes() {
+        // TODO can we improve this logic by cloning only once with all the invalid tokens?
+        STToken token = this.tokenReader.read();
+        while (!invalidNodeStack.isEmpty()) {
+            STNode invalidNode = invalidNodeStack.pop();
+            token = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(token, invalidNode,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+        }
+        return token;
     }
 
     protected Solution recover(STToken token, ParserRuleContext currentCtx, Object... args) {
         Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
+            this.invalidNodeStack.push(sol.removedToken);
             sol.recoveredNode = resumeParsing(currentCtx, args);
         }
         return sol;
@@ -118,5 +140,24 @@ public abstract class AbstractParser {
             return SyntaxErrors.addDiagnostics(target, diagnosticCode);
         }
         return target;
+    }
+
+    /**
+     * Clones the last node in list with the invalid node as minutiae and update the list.
+     *
+     * @param nodeList       node list to be updated
+     * @param invalidParam   the invalid node to be attached to the last node in list as minutiae
+     * @param diagnosticCode diagnostic code related to the invalid node
+     */
+    protected void updateLastNodeInListWithInvalidNode(List<STNode> nodeList,
+                                                       STNode invalidParam,
+                                                       DiagnosticCode diagnosticCode) {
+        int lastIndex = nodeList.size() - 1;
+        STNode prevNode = nodeList.remove(lastIndex);
+        STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
+        if (diagnosticCode != null) {
+            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
+        }
+        nodeList.add(newNode);
     }
 }
