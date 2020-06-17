@@ -25,11 +25,16 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://ballerinalang.org/ns0",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "STRING_LITERAL",
+                  "value": "http://ballerinalang.org/ns0",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             },
@@ -64,11 +69,16 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://ballerinalang.org/ns1",
-              "trailingMinutiae": [
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_LITERAL",
+                  "value": "http://ballerinalang.org/ns1",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },

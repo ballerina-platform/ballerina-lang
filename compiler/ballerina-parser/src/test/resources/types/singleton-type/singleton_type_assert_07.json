@@ -29,10 +29,16 @@
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "isMissing": true,
                   "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                      ]
+                    }
                   ]
                 }
               ]
@@ -41,10 +47,29 @@
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN"
+              ],
+              "value": "a",
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "PERCENT_TOKEN",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
+                }
+              ]
             }
           ]
         }

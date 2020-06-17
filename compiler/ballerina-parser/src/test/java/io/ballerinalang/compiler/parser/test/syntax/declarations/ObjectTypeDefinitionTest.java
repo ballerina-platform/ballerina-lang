@@ -189,4 +189,9 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
     public void testAdditionalTokenBetweenQualifiers() {
         test("object-type-def/object_type_def_source_21.bal", "object-type-def/object_type_def_assert_21.json");
     }
+
+    @Test
+    public void testDuplicateClientQualifiers() {
+        test("object-type-def/object_type_def_source_35.bal", "object-type-def/object_type_def_assert_35.json");
+    }
 }
