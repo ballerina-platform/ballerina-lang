@@ -12,10 +12,10 @@
 
 package datamapper;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
@@ -60,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
@@ -218,8 +219,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         try (OutputStream outputStream = connection.getOutputStream()) {
             outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
             try (InputStream in = new BufferedInputStream(connection.getInputStream())) {
-                String returnedJSON = org.apache.commons.io.IOUtils.toString(in, StandardCharsets.UTF_8);
-                return ((JsonObject) new JsonParser().parse(returnedJSON)).get("answer").getAsString();
+                Map returnedJSON =  new ObjectMapper().readValue(in, Map.class);
+                return (String) returnedJSON.get("answer");
             }
         }
     }
