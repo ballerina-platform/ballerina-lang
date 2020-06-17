@@ -291,6 +291,12 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'int'", 127, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'string'", 128, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 

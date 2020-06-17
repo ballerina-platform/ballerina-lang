@@ -121,3 +121,10 @@ function panicOnNonErrorMemberUnion() {
 function errorDefinitionNegative() {
     error<record { string message?; error cause?; int i;}> e  = 1;
 }
+
+function testErrorTypeInfer() {
+    int i = 0;
+    error<*> e0 = i;
+    error<*> e1 = "hello";
+    error<*> e2 = { a: "abc"};
+}
