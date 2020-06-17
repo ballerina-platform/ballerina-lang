@@ -40,7 +40,7 @@ public class BasicForkNegativeTest {
     @Test(groups = "brokenOnNewParser")
     public void testBasicForkNegative() {
         Assert.assertEquals(result.getErrorCount(), 1, "Incorrect error count");
-        BAssertUtil.validateError(result, 0, "empty fork statement is not allowed", 18, 10);
+        BAssertUtil.validateError(result, 0, "empty fork statement is not allowed", 18, 5);
     }
 
     @Test
