@@ -72,11 +72,16 @@
               "children": [
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "dulmina",
-                  "trailingMinutiae": [
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_LITERAL",
+                      "value": "dulmina",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 }

@@ -162,7 +162,12 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "Hello World!"
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "Hello World!"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }

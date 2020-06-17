@@ -25,16 +25,12 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
-import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
-import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.io.IOException;
@@ -103,17 +99,6 @@ public class SyntaxTreeJSONGenerator {
     }
 
     private static JsonElement getJSON(STNode treeNode) {
-        // Remove the wrappers
-        if (treeNode instanceof STBasicLiteralNode) {
-            treeNode = ((STBasicLiteralNode) treeNode).literalToken;
-        } else if (treeNode instanceof STSimpleNameReferenceNode) {
-            treeNode = ((STSimpleNameReferenceNode) treeNode).name;
-        } else if (treeNode instanceof STBuiltinSimpleNameReferenceNode) {
-            treeNode = ((STBuiltinSimpleNameReferenceNode) treeNode).name;
-        } else if (treeNode instanceof STXMLTextNode) {
-            treeNode = ((STXMLTextNode) treeNode).content;
-        }
-
         JsonObject jsonNode = new JsonObject();
         SyntaxKind nodeKind = treeNode.kind;
         jsonNode.addProperty(KIND_FIELD, nodeKind.name());
@@ -121,21 +106,21 @@ public class SyntaxTreeJSONGenerator {
         if (treeNode.isMissing()) {
             jsonNode.addProperty(IS_MISSING_FIELD, treeNode.isMissing());
             addDiagnostics(treeNode, jsonNode);
+            if (ParserTestUtils.isToken(treeNode)) {
+                addTrivia((STToken) treeNode, jsonNode);
+            }
             return jsonNode;
         }
 
         addDiagnostics(treeNode, jsonNode);
-        if (ParserTestUtils.isTerminalNode(nodeKind)) {
+        if (ParserTestUtils.isToken(treeNode)) {
 
             // If the node is a terminal node with a dynamic value (i.e: non-syntax node)
             // then add the value to the json.
-            if (!ParserTestUtils.isSyntaxToken(nodeKind)) {
-                jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText(treeNode));
+            if (!ParserTestUtils.isKeyword(nodeKind)) {
+                jsonNode.addProperty(VALUE_FIELD, ParserTestUtils.getTokenText((STToken) treeNode));
             }
-
-            if (!ParserTestUtils.isTrivia(nodeKind)) {
-                addTrivia((STToken) treeNode, jsonNode);
-            }
+            addTrivia((STToken) treeNode, jsonNode);
             // else do nothing
         } else {
             addChildren(treeNode, jsonNode);

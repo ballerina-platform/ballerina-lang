@@ -47,12 +47,17 @@
                           "kind": "AT_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "annots",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annots",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }

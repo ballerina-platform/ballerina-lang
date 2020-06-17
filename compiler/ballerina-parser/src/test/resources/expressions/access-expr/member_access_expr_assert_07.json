@@ -6,15 +6,25 @@
       "kind": "FIELD_ACCESS",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "foo"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            }
+          ]
         },
         {
           "kind": "DOT_TOKEN"
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "bar"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "bar"
+            }
+          ]
         }
       ]
     },
@@ -22,11 +32,17 @@
       "kind": "DOT_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true,
+      "kind": "SIMPLE_NAME_REFERENCE",
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_IDENTIFIER"
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
       ]
     },
     {
@@ -39,8 +55,13 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "baz"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "baz"
+                }
+              ]
             }
           ]
         }
