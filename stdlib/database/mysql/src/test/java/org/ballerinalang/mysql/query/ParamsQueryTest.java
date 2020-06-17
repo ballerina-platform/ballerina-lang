@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -56,6 +57,10 @@ public class ParamsQueryTest {
 
     @BeforeClass
     public void setup() {
+        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            throw new SkipException("Skip test class in Windows");
+        }
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.QUERY_DIR,
                 "simple-params-query-test.bal"));
     }
