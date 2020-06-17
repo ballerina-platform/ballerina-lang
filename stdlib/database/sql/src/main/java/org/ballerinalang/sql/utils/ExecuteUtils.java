@@ -22,9 +22,11 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
@@ -55,7 +57,7 @@ import java.util.Map;
  */
 public class ExecuteUtils {
 
-    public static Object nativeExecute(ObjectValue client, MapValue<BString, Object> paramSQLString) {
+    public static Object nativeExecute(ObjectValue client, Object paramSQLString) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
@@ -65,10 +67,16 @@ public class ExecuteUtils {
             ResultSet resultSet = null;
             String sqlQuery = null;
             try {
-                sqlQuery = Utils.getSqlQuery(paramSQLString);
+                if (paramSQLString instanceof StringValue) {
+                    sqlQuery = ((StringValue) paramSQLString).getValue();
+                } else {
+                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-                Utils.setParams(connection, statement, paramSQLString);
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                }
                 int count = statement.executeUpdate();
                 Object lastInsertedId = null;
                 if (!isDdlStatement(sqlQuery)) {
@@ -106,18 +114,19 @@ public class ExecuteUtils {
             ResultSet resultSet = null;
             Strand strand = Scheduler.getStrand();
             String sqlQuery = null;
-            List<MapValue<BString, Object>> parameters = new ArrayList<>();
+            List<AbstractObjectValue> parameters = new ArrayList<>();
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
             try {
-                MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(0);
-                sqlQuery = Utils.getSqlQuery(parameterizedString);
-                parameters.add(parameterizedString);
+                Object[] paramSQLObjects = paramSQLStrings.getValues();
+                AbstractObjectValue parameterizedQuery = (AbstractObjectValue) paramSQLObjects[0];
+                sqlQuery = Utils.getSqlQuery(parameterizedQuery);
+                parameters.add(parameterizedQuery);
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
-                    parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
-                    String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
+                    parameterizedQuery = (AbstractObjectValue) paramSQLObjects[i];
+                    String paramSQLQuery = Utils.getSqlQuery(parameterizedQuery);
 
                     if (sqlQuery.equals(paramSQLQuery)) {
-                        parameters.add(parameterizedString);
+                        parameters.add(parameterizedQuery);
                     } else {
                         return ErrorGenerator.getSQLApplicationError("Batch Execute cannot contain different SQL " +
                                 "commands. These has to be executed in different function calls");
@@ -125,7 +134,7 @@ public class ExecuteUtils {
                 }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-                for (MapValue<BString, Object> param : parameters) {
+                for (AbstractObjectValue param : parameters) {
                     Utils.setParams(connection, statement, param);
                     statement.addBatch();
                 }

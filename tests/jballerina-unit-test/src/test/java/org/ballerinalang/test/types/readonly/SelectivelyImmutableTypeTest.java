@@ -93,4 +93,60 @@ public class SelectivelyImmutableTypeTest {
 
         assertEquals(result.getErrorCount(), index);
     }
+
+    @Test
+    public void testInvalidImmutableValueUpdateViaLangLibMethod() {
+        CompileResult result = BCompileUtil.compile(
+                "test-src/types/readonly/test_selectively_immutable_type_langlib_negative.bal");
+        int index = 0;
+
+        // lang.array - array, tuple.
+        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 32, 14);
+        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 33, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 34, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
+                "readonly'", 35, 9);
+        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 36, 9);
+        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
+                "readonly'", 37, 25);
+        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
+                "readonly'", 38, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'int[] & readonly'", 39, 14);
+        validateError(result, index++, "cannot update 'readonly' value of type '[(Details & readonly),string...] & " +
+                "readonly'", 40, 5);
+
+        // lang.map - map, record.
+        validateError(result, index++, "cannot update 'readonly' value of type 'map<string> & readonly'", 47, 17);
+        validateError(result, index++, "cannot update 'readonly' value of type '(Details & readonly)'", 48, 18);
+        validateError(result, index++, "cannot update 'readonly' value of type 'map<string> & readonly'", 49, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type '(Details & readonly)'", 50, 5);
+
+        // lang.table
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(map<anydata> & readonly)> & " +
+                "readonly'", 64, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
+                " & readonly'", 65, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
+                " & readonly'", 66, 18);
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
+                " & readonly'", 67, 19);
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(map<anydata> & readonly)> & " +
+                "readonly'", 68, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'table<(Details & readonly)> key(name)" +
+                " & readonly'", 69, 5);
+
+        // lang.value
+        validateError(result, index++, "cannot update 'readonly' value of type 'map<(json & readonly)> & readonly'",
+                      77, 20);
+        validateError(result, index++, "cannot update 'readonly' value of type 'map<(json & readonly)> & readonly'",
+                      78, 20);
+
+        // lang.xml
+        validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 85, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'xml:Element & readonly'", 86, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'xml<(" +
+                "(xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'", 87, 9);
+
+        assertEquals(result.getErrorCount(), index);
+    }
 }

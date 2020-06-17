@@ -743,7 +743,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Optional<ErrorTypeParamsNode> typeParam = errorTypeDescriptorNode.errorTypeParamsNode();
         errorType.pos = getPosition(errorTypeDescriptorNode);
         if (typeParam.isPresent()) {
-            BLangType detail = createTypeNode(typeParam.get());
+            ErrorTypeParamsNode typeNode = typeParam.get();
+            BLangType detail = null;
+            if (isAnonymousTypeNode(typeNode)) {
+                detail = deSugarTypeAsUserDefType(createTypeNode(typeNode));
+            } else {
+                detail = createTypeNode(typeNode);
+            }
+
             if (detail != null) {
                 errorType.detailType = detail;
                 if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
@@ -755,6 +762,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         return errorType;
+    }
+
+    private boolean isAnonymousTypeNode(ErrorTypeParamsNode typeNode) {
+        SyntaxKind paramKind = typeNode.parameter().kind();
+        if (paramKind == SyntaxKind.RECORD_TYPE_DESC || paramKind == SyntaxKind.OBJECT_TYPE_DESC
+                || paramKind == SyntaxKind.ERROR_TYPE_DESC) {
+            return checkIfAnonymous(typeNode);
+        }
+        return false;
     }
 
     @Override
@@ -785,6 +801,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
                 objectTypeNode.flagSet.add(Flag.CLIENT);
+            }
+
+            if (qualifier.kind() == SyntaxKind.READONLY_KEYWORD) {
+                objectTypeNode.flagSet.add(Flag.READONLY);
             }
 
             if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
@@ -2175,6 +2195,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 .isListenerVar()
                 .build();
         var.pos = getPosition(listenerDeclarationNode);
+        var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
         return var;
     }
@@ -2568,6 +2589,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         simpleVar.pos = getPosition(requiredParameter);
+        if (requiredParameter.paramName().isPresent()) {
+            simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
+        }
         trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
@@ -3730,6 +3754,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                 NodeList<AnnotationNode> annotations) {
         BLangSimpleVariable bLSimpleVar = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         bLSimpleVar.setName(this.createIdentifier(name));
+        bLSimpleVar.name.pos = getPosition(name);
 
         if (isDeclaredWithVar(typeName)) {
             bLSimpleVar.isDeclaredWithVar = true;

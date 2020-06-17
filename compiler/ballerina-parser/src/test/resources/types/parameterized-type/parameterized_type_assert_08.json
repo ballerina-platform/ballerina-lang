@@ -37,7 +37,12 @@
               ]
             },
             {
-              "kind": "INT_KEYWORD"
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
             },
             {
               "kind": "GT_TOKEN",
