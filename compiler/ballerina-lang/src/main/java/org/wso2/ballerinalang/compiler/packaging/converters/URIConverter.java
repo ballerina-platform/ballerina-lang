@@ -38,9 +38,9 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CLIENT_ID;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CLIENT_ID;
 
 /**
  * Provide functions need to covert a patten to steam of by paths, by downloading them as url.
@@ -127,7 +127,8 @@ public class URIConverter implements Converter<URI> {
             try {
                 Pull.execute(remoteURI.toString(), modulePathInBaloCache.toString(), orgName + "/" + moduleName,
                         proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
-                        supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform, CLIENT_ID);
+                        supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform,
+                        CLIENT_ID);
             } catch (CommandException e) {
                 errorMessage = e.getMessage().trim();
             }
