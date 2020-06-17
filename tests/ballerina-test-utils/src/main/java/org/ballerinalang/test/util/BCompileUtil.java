@@ -71,7 +71,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_MODULE_DEPENDEN
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
 import static org.ballerinalang.test.util.TestConstant.ENABLE_JBALLERINA_TESTS;
-import static org.ballerinalang.test.util.TestConstant.ENABLE_NEW_PARSER_FOR_TESTS;
+import static org.ballerinalang.test.util.TestConstant.ENABLE_OLD_PARSER_FOR_TESTS;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
@@ -589,8 +589,7 @@ public class BCompileUtil {
     }
 
     public static boolean newParserEnabled() {
-
-        return Boolean.parseBoolean(System.getProperty(ENABLE_NEW_PARSER_FOR_TESTS));
+        return !Boolean.parseBoolean(System.getProperty(ENABLE_OLD_PARSER_FOR_TESTS));
     }
 
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,

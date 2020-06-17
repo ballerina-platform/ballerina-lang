@@ -22,7 +22,7 @@ listener http:Listener testSubscriber = new(23386);
 listener http:Listener testHub = new(23190);
 
 service subscriber on testSubscriber {
-    resource function start(http:Caller caller, http:Request request) returns error? {
+    resource function startup(http:Caller caller, http:Request request) returns error? {
 
         websub:Listener l1 = new(23387);
         websub:Listener l2 = new(23387);
