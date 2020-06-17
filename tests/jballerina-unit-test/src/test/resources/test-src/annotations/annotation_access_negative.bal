@@ -35,11 +35,21 @@ public type T1 record {
 T1 a = { name: "John" };
 
 function testRecordTypeAnnotationReadonlyValueEdit()  {
-    typedesc<any> t = typeof a;
-    Annot? annot = t.@v1;
-    if (annot is Annot) {
-        annot.foo = "EDITED";
-    }
+    var fn = function() {
+        typedesc<any> t = typeof a;
+        Annot? annot = t.@v1;
+        if (annot is Annot) {
+            annot.foo = "EDITED";
+        }
+    };
+
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error resError = <error> res;
+    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                       resError.detail()["message"].toString());
 }
 
 @v1 {
@@ -50,12 +60,22 @@ type T2 object {
 };
 
 function testAnnotationOnObjectTypeReadonlyValueEdit() {
-    T2 c = new;
-    typedesc<any> t = typeof c;
-    Annot? annot = t.@v1;
-    if (annot is Annot) {
-        annot.foo = "EDITED";
-    }
+     var fn = function() {
+        T2 c = new;
+        typedesc<any> t = typeof c;
+        Annot? annot = t.@v1;
+        if (annot is Annot) {
+            annot.foo = "EDITED";
+        }
+    };
+
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error resError = <error> res;
+    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                       resError.detail()["message"].toString());
 }
 
 @v3 {
@@ -65,9 +85,38 @@ function testAnnotationOnObjectTypeReadonlyValueEdit() {
 function funcWithAnnots() {}
 
 function testAnnotationOnFunctionTypeReadonlyValueEdit() {
-    typedesc<any> t = typeof funcWithAnnots;
-    Annot? annot = t.@v3;
-    if (annot is Annot) {
-        annot.foo = "EDITED";
+    var fn = function() {
+        typedesc<any> t = typeof funcWithAnnots;
+        Annot? annot = t.@v3;
+        if (annot is Annot) {
+            annot.foo = "EDITED";
+        }
+    };
+
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error resError = <error> res;
+    assertEquality("{ballerina/lang.map}InvalidUpdate", resError.message());
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                   resError.detail()["message"].toString());
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
     }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
