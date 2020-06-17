@@ -65,6 +65,9 @@ OPTIONS
        --debug
            Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
 
+       --with-choreo
+           Package Choreo observability extension in the executable jars.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.

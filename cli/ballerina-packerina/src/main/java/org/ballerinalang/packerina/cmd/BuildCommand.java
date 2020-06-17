@@ -181,7 +181,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
+    @CommandLine.Option(names = "--with-choreo", description = "package Choreo observability extension " +
+            "in the executable jars.")
     private boolean withChoreo;
 
     public void execute() {
