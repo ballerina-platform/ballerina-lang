@@ -26,6 +26,11 @@ import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
  */
 public enum DiagnosticErrorCode implements DiagnosticCode {
     // TODO figure out an order of these error codes
+
+    // The member represents a generic syntax error
+    // We should use this only when we can't figure out the exact error
+    ERROR_SYNTAX_ERROR("BCE0000", "error.syntax.error"),
+
     // Tokens
     ERROR_MISSING_TOKEN("BCE0001", "error.missing.token"),
     ERROR_MISSING_SEMICOLON_TOKEN("BCE0002", "error.missing.semicolon.token"),

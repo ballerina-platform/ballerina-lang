@@ -53,6 +53,7 @@ public class SyntaxErrors {
         return addSyntaxDiagnostics(node, Collections.singletonList(diagnostic));
     }
 
+    @SuppressWarnings("unchecked")
     public static <T extends STNode> T addSyntaxDiagnostics(T node, Collection<STNodeDiagnostic> diagnostics) {
         if (diagnostics.isEmpty()) {
             return node;
@@ -408,7 +409,7 @@ public class SyntaxErrors {
             case TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             default:
-                throw new UnsupportedOperationException("Unsupported SyntaxKind: " + expectedKind);
+                return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }
 
