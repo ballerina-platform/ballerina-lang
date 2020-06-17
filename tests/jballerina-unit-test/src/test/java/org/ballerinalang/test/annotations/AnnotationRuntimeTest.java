@@ -69,8 +69,7 @@ public class AnnotationRuntimeTest {
         resultFour = BCompileUtil.compile("test-src/annotations/annot_availability.bal");
         Assert.assertEquals(resultFour.getErrorCount(), 0);
 
-        resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative" +
-                                                                          ".bal");
+        resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -180,23 +179,14 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(mapValue.get(StringUtils.fromString("r")).toString(), "world");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "^error: \\{.*\\}InvalidUpdate message=Invalid update " +
-                  "of record field: modification not allowed on readonly value.*")
     public void testRecordTypeAnnotationReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testRecordTypeAnnotationReadonlyValueEdit");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "^error: \\{.*\\}InvalidUpdate message=Invalid update " +
-                  "of record field: modification not allowed on readonly value.*")
     public void testAnnotationOnObjectTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnObjectTypeReadonlyValueEdit");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "^error: \\{.*\\}InvalidUpdate message=Invalid update " +
-                  "of record field: modification not allowed on readonly value.*")
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
     }
