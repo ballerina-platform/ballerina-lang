@@ -42,7 +42,7 @@ public type Listener object {
     # 
     # + return - () or else error upon failure to start the listener 
     public function __start() returns error? {
-        return start(self);
+        return startEndpoint(self);
     }
 
     # Stops the `file:Listener` gracefully.
@@ -95,7 +95,7 @@ function register(Listener fileListener, service s, string? name) returns error?
     name: "register"
 } external;
 
-function start(Listener fileListener) returns error? = @java:Method {
+function startEndpoint(Listener fileListener) returns error? = @java:Method {
     class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
     name: "start"
 } external;

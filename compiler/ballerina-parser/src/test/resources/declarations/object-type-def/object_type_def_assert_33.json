@@ -98,17 +98,22 @@
                   ]
                 },
                 {
-                  "kind": "STRING_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

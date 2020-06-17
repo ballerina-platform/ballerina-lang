@@ -27,6 +27,7 @@ dependencies {
 createBalo {
     isBuiltin = 'true'
     jvmTarget = 'true'
+    newParser = 'true'
 }
 
 description = 'ballerina/lang.annotations Implementation'

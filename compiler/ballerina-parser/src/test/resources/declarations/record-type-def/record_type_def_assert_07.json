@@ -76,12 +76,42 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "name",
-                  "trailingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "IDENTIFIER_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
+                      "value": "name",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "STRING_KEYWORD",
+                            "leadingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": "    "
+                              }
+                            ],
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
                     }
                   ]
                 },

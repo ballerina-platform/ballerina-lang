@@ -38,7 +38,7 @@ public type Listener object {
     #
     # + return - An `error` if an error occurred during the listener starting process
     public function __start() returns error? {
-        return self.start();
+        return self.startEndpoint();
     }
 
     # Stops the service listener gracefully. Already-accepted requests will be served before connection closure.
@@ -116,7 +116,7 @@ public type Listener object {
     # Starts the registered service.
     #
     # + return - An `error` if an error occurred during the listener start process
-    function start() returns error? {
+    function startEndpoint() returns error? {
         return externStart(self);
     }
 

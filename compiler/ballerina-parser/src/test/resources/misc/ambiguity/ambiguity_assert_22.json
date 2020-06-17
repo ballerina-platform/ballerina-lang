@@ -100,8 +100,13 @@
                                   "kind": "LIST",
                                   "children": [
                                     {
-                                      "kind": "XML_TEXT_CONTENT",
-                                      "value": "foo"
+                                      "kind": "XML_TEXT",
+                                      "children": [
+                                        {
+                                          "kind": "XML_TEXT_CONTENT",
+                                          "value": "foo"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -126,8 +131,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "w1"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "w1"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -199,8 +209,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "w2"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "w2"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -263,8 +278,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "w3"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "w3"
+                                }
+                              ]
                             }
                           ]
                         },

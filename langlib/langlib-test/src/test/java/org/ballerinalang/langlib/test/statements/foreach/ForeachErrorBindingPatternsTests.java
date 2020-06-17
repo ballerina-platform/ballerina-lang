@@ -32,6 +32,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
+@Test(enabled = false)
 public class ForeachErrorBindingPatternsTests {
 
     private CompileResult program, negative;
@@ -42,7 +43,7 @@ public class ForeachErrorBindingPatternsTests {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_errors_negative.bal");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testArrayWithErrors() {
         BValue[] returns = BRunUtil.invoke(program, "testArrayWithErrors");
         Assert.assertEquals(returns.length, 3);
@@ -54,7 +55,7 @@ public class ForeachErrorBindingPatternsTests {
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testMapWithErrors() {
         BValue[] returns = BRunUtil.invoke(program, "testMapWithErrors");
         Assert.assertEquals(returns.length, 3);
@@ -66,7 +67,7 @@ public class ForeachErrorBindingPatternsTests {
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testNegativeForEachWithErrors() {
         Assert.assertEquals(negative.getErrorCount(), 8);
         int i = 0;

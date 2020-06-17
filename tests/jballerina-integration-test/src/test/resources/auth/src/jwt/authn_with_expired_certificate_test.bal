@@ -21,7 +21,7 @@ import ballerina/jwt;
 jwt:InboundJwtAuthProvider jwtAuthProvider08 = new({
     issuer:"ballerina",
     audience: "ballerina.io",
-    signatureConfig: {
+    trustStoreConfig: {
         certificateAlias: "cert",
         trustStore: {
             path: "../../../src/test/resources/auth/src/jwt/expired_truststore.p12",

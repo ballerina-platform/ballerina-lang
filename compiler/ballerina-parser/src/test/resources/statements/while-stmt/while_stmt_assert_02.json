@@ -88,10 +88,15 @@
                 },
                 {
                   "kind": "TRUE_KEYWORD",
-                  "trailingMinutiae": [
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "TRUE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -121,17 +126,22 @@
                               "kind": "TYPED_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "leadingMinutiae": [
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "        "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "INT_KEYWORD",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "        "
+                                        }
+                                      ],
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -163,7 +173,12 @@
                             },
                             {
                               "kind": "DECIMAL_INTEGER_LITERAL",
-                              "value": "4"
+                              "children": [
+                                {
+                                  "kind": "DECIMAL_INTEGER_LITERAL",
+                                  "value": "4"
+                                }
+                              ]
                             },
                             {
                               "kind": "SEMICOLON_TOKEN",

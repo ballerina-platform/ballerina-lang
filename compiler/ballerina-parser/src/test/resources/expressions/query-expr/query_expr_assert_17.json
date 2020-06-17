@@ -22,11 +22,16 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -57,12 +62,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }
@@ -100,11 +110,16 @@
                           "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -135,12 +150,17 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "d",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -166,11 +186,16 @@
                           "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "INT_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -200,12 +225,36 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "e",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "hasDiagnostics": true,
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_INVALID_TOKEN"
+                              ],
+                              "value": "e",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "INVALID_NODE_MINUTIAE",
+                                  "invalidNode": {
+                                    "kind": "IN_KEYWORD",
+                                    "trailingMinutiae": [
+                                      {
+                                        "kind": "WHITESPACE_MINUTIAE",
+                                        "value": " "
+                                      }
+                                    ]
+                                  }
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -232,8 +281,13 @@
           ]
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "f"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "f"
+            }
+          ]
         }
       ]
     }

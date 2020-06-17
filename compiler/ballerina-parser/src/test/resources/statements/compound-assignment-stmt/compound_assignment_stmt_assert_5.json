@@ -3,11 +3,17 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true,
+      "kind": "SIMPLE_NAME_REFERENCE",
       "hasDiagnostics": true,
-      "diagnostics": [
-        "ERROR_MISSING_IDENTIFIER"
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
       ]
     },
     {
@@ -24,7 +30,12 @@
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "5"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "5"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

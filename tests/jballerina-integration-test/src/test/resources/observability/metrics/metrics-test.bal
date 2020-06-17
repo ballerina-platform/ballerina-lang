@@ -15,16 +15,11 @@
 // under the License.
 
 import ballerina/http;
-import ballerinax/java.jdbc;
-import ballerina/jsonutils;
+import ballerina/java.jdbc;
+import ballerina/observe;
+import ballerina/sql;
 
-jdbc:Client testDB = new({
-        url: "jdbc:h2:file:../../tempdb/TEST_DB",
-        username: "SA",
-        password: "",
-        poolOptions: { maximumPoolSize: 1 },
-        dbOptions: { IFEXISTS: true }
-    });
+jdbc:Client testDB = check new("jdbc:h2:file:../../tempdb/TEST_DB", "SA", "");
 
 type Product record {
     int productId;
@@ -39,16 +34,31 @@ service metricsTest on new http:Listener(9898) {
         path: "/"
     }
     resource function getProduct (http:Caller caller, http:Request req) {
-        var dbResult = testDB->select("SELECT * FROM Products", Product);
-        if (dbResult is table<Product>) {
-            var jData = jsonutils:fromTable(dbResult);
-            string result = jData.toString();
-            http:Response resp = new;
-            resp.setTextPayload(<@untainted> result);
-            checkpanic caller->respond(resp);
-        } else {
-            error err = error ("error occurred 2222");
+        stream<record{}, error> resultsStream = testDB->query(getQuery(), Product);
+        stream<Product, sql:Error> productsStream = <stream<Product, sql:Error>>resultsStream;
+
+        Product[] products = [];
+        error? e = productsStream.forEach(function(Product product) {
+            products.push(product);
+        });
+        if (e is error) {
+            error err = error ("error occurred while reading products stream");
             panic err;
         }
+        e = productsStream.close();
+        if (e is error) {
+            error err = error ("error occurred while closing products stream");
+            panic err;
+        }
+
+        string result = products.toString();
+        http:Response resp = new;
+        resp.setTextPayload(<@untainted> result);
+        checkpanic caller->respond(resp);
     }
+}
+
+@observe:Observable
+public function getQuery() returns string {
+    return "SELECT * FROM Products";
 }

@@ -13,7 +13,12 @@
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "6"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "6"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN",

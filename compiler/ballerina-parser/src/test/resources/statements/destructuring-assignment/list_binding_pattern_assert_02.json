@@ -137,8 +137,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -222,8 +227,13 @@
                           "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -248,8 +258,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -291,11 +306,17 @@
                           "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
+                          "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
+                            }
                           ]
                         }
                       ]
@@ -321,8 +342,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -453,8 +479,13 @@
                                   "kind": "ELLIPSIS_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "z"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "z"
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -481,8 +512,13 @@
                           "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "b"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "b"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -507,8 +543,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

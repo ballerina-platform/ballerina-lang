@@ -167,6 +167,29 @@
       ]
     },
     {
+      "label": "observe:Observable",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "observe:Observable",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
