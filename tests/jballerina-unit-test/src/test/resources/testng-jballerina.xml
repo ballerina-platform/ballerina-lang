@@ -23,6 +23,7 @@
 <suite name="ballerina-test-suite" time-out="120000">
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <parameter name="enableOldParserForTests" value="true"/>
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>

@@ -369,7 +369,7 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
-    @Test(description = "Test gateway proxy with only path and query parameters")
+    @Test(description = "Test gateway proxy with only path and query parameters", enabled = false)
     public void testHelloWorldGateway() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
@@ -388,7 +388,7 @@ public class StubGeneratorTestCase {
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy including mapping from the body")
+    @Test(description = "Test gateway proxy including mapping from the body", enabled = false)
     public void testHelloWorldGatewayWithBody() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
@@ -407,7 +407,7 @@ public class StubGeneratorTestCase {
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy with primitive type input")
+    @Test(description = "Test gateway proxy with primitive type input", enabled = false)
     public void testHelloWorldGatewayWithPrimitiveInput() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
@@ -426,7 +426,7 @@ public class StubGeneratorTestCase {
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy with a repeated field in the input")
+    @Test(description = "Test gateway proxy with a repeated field in the input", enabled = false)
     public void testHelloWorldGatewayWithRepeatedField() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
@@ -445,7 +445,7 @@ public class StubGeneratorTestCase {
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy without a http method definition")
+    @Test(description = "Test gateway proxy without a http method definition", enabled = false)
     public void testHelloWorldGatewayWithoutPath() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
