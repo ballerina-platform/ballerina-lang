@@ -42,7 +42,7 @@ public abstract class AbstractParserErrorHandler {
      * Limit for the distance to travel, to determine a successful lookahead.
      */
     protected static final int LOOKAHEAD_LIMIT = 5;
-    
+
     /**
      * Limit for the number of times parser tries to recover staying on the same token index.
      * This will prevent parser going to infinite loops.
