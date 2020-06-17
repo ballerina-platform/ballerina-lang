@@ -19,7 +19,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "20"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "20"
+                }
+              ]
             }
           ]
         },
@@ -39,8 +44,13 @@
               "kind": "ELLIPSIS_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "marks"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "marks"
+                }
+              ]
             }
           ]
         },
@@ -65,7 +75,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "Supun"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "Supun"
+                }
+              ]
             }
           ]
         },
@@ -103,8 +118,13 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "expr"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN"
@@ -120,7 +140,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "value"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "value"
+                }
+              ]
             }
           ]
         }

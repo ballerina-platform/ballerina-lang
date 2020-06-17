@@ -168,8 +168,13 @@
                                       "kind": "INTERPOLATION_START_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "CLOSE_BRACE_TOKEN"

@@ -40,7 +40,12 @@
             },
             {
               "kind": "DECIMAL_FLOATING_POINT_LITERAL",
-              "value": "633.2"
+              "children": [
+                {
+                  "kind": "DECIMAL_FLOATING_POINT_LITERAL",
+                  "value": "633.2"
+                }
+              ]
             }
           ]
         }

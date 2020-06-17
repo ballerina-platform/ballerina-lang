@@ -19,8 +19,13 @@
           "kind": "ARRAY_TYPE_DESC",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "T"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "T"
+                }
+              ]
             },
             {
               "kind": "OPEN_BRACKET_TOKEN"
