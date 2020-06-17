@@ -30,10 +30,14 @@
       ]
     },
     {
-      "kind": "RECORD_TYPE_DESC",
+      "kind": "OBJECT_TYPE_DESC",
       "children": [
         {
-          "kind": "RECORD_KEYWORD",
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "OBJECT_KEYWORD",
           "trailingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
@@ -54,7 +58,7 @@
           "kind": "LIST",
           "children": [
             {
-              "kind": "RECORD_FIELD",
+              "kind": "OBJECT_FIELD",
               "children": [
                 {
                   "kind": "METADATA",
@@ -106,7 +110,7 @@
               ]
             },
             {
-              "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
+              "kind": "OBJECT_FIELD",
               "children": [
                 {
                   "kind": "METADATA",
