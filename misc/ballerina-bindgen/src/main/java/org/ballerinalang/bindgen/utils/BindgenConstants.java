@@ -82,5 +82,6 @@ public class BindgenConstants {
             "catch", "finally", "throw", "panic", "trap", "return", "transaction", "abort", "retry", "onretry",
             "retries", "committed", "aborted", "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic",
             "primarykey", "is", "flush", "wait", "default", "from", "select", "where", "limit", "order", "field",
-            "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key"};
+            "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key", "rollback", "commit",
+            "transactional", "distinct", "never", "do"};
 }

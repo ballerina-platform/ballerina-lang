@@ -29,16 +29,16 @@ function testExceptionHandling() returns error? {
 
 function testArrayUtils() returns error? {
     File file = newFile2("./src/module1");
-    string[] files = check file.list1();
+    string[] files = check file.list();
     io:println(files);
 
-    File[] filePaths = check file.listFiles1();
+    File[] filePaths = check file.listFiles();
     foreach File x in filePaths {
         io:println(x.getPath());
     }
 
     String str = newString13("hello");
-    byte[] strBytes = check str.getBytes1();
+    byte[] strBytes = check str.getBytes();
     io:println(strBytes);
 
     JArithmeticException aexception = newJArithmeticException1();
@@ -46,5 +46,5 @@ function testArrayUtils() returns error? {
     StackTraceElement trace2 = newStackTraceElement1("gh", "ij", "kl", 7);
     StackTraceElement[] stackTrace = [trace1, trace2];
     _ = check aexception.setStackTrace(stackTrace);
-    _ = aexception.printStackTrace1();
+    _ = aexception.printStackTrace();
 }

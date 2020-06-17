@@ -103,6 +103,11 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     }
 
     @Override
+    public void freezeDirect() {
+        return;
+    }
+
+    @Override
     public String toString() {
         return BLangConstants.EMPTY;
     }

@@ -51,6 +51,16 @@ public class JParameter {
         type = parameterClass.getName();
         shortTypeName = getBallerinaParamType(parameterClass);
 
+        // Append the prefix "J" in front of bindings generated for Java exceptions.
+        try {
+            if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
+                    .isAssignableFrom(parameterClass)) {
+                shortTypeName = "J" + shortTypeName;
+            }
+        } catch (ClassNotFoundException ignore) {
+            // Silently ignore this assignment if the class is not found.
+        }
+
         if (!parameterClass.isPrimitive()) {
             isObj = true;
         }
