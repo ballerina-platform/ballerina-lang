@@ -40,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the communication with Choreo cloud.
+ *
+ * @since 2.0.0
  */
 public class ChoreoClient implements AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();

@@ -20,6 +20,8 @@ package org.ballerinalang.observe.trace.extension.choreo.client.secret;
 
 /**
  * Manages app secret for linked applications.
+ *
+ * @since 2.0.0
  */
 public class LinkedAppSecretHandler implements AppSecretHandler {
     private String appSecret;
