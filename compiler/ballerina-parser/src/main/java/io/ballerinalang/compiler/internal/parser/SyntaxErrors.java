@@ -417,7 +417,7 @@ public class SyntaxErrors {
      * Clone the given {@code STNode} with the invalid node as leading minutiae.
      *
      * @param toClone     the node to be cloned
-     * @param invalidNode the invalid
+     * @param invalidNode the invalid node
      * @return a cloned node with the given invalidNode minutiae
      */
     public static STNode cloneWithLeadingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
@@ -428,8 +428,8 @@ public class SyntaxErrors {
      * Clone the given {@code STNode} with the invalid node as leading minutiae.
      *
      * @param toClone        the node to be cloned
-     * @param invalidNode    the invalid
-     * @param diagnosticCode the list of diagnostics to be added
+     * @param invalidNode    the invalid node
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
      * @param args           additional arguments required to format the diagnostic message
      * @return a cloned node with the given invalidNode minutiae
      */
@@ -447,8 +447,8 @@ public class SyntaxErrors {
      * Clone the given {@code STToken} with the invalid node as leading minutiae.
      *
      * @param toClone        the token to be cloned
-     * @param invalidNode    the invalid
-     * @param diagnosticCode the diagnostic to be added
+     * @param invalidNode    the invalid node
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
      * @param args           additional arguments required to format the diagnostic message
      * @return a cloned token with the given invalidNode minutiae
      */
@@ -467,7 +467,7 @@ public class SyntaxErrors {
      * Clone the given {@code STNode} with the invalid node as trailing minutiae.
      *
      * @param toClone     the node to be cloned
-     * @param invalidNode the invalid
+     * @param invalidNode the invalid node
      * @return a cloned node with the given invalidNode minutiae
      */
     public static STNode cloneWithTrailingInvalidNodeMinutiae(STNode toClone, STNode invalidNode) {
@@ -478,8 +478,8 @@ public class SyntaxErrors {
      * Clone the given {@code STNode} with the invalid node as trailing minutiae.
      *
      * @param toClone        the node to be cloned
-     * @param invalidNode    the invalid
-     * @param diagnosticCode the diagnostic to be added
+     * @param invalidNode    the invalid node
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
      * @param args           additional arguments required to format the diagnostic message
      * @return a cloned node with the given invalidNode minutiae
      */
@@ -497,8 +497,8 @@ public class SyntaxErrors {
      * Clone the given {@code STToken} with the invalid node as trailing minutiae.
      *
      * @param toClone        the token to be cloned
-     * @param invalidNode    the invalid
-     * @param diagnosticCode the diagnostic to be added
+     * @param invalidNode    the invalid node
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
      * @param args           additional arguments required to format the diagnostic message
      * @return a cloned token with the given invalidNode minutiae
      */
