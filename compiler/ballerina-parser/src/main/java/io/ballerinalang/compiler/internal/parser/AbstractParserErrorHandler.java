@@ -47,7 +47,7 @@ public abstract class AbstractParserErrorHandler {
      * Limit for the number of times parser tries to recover staying on the same token index.
      * This will prevent parser going to infinite loops.
      */
-    private static final int ITTER_LIMIT = 10;
+    private static final int ITTER_LIMIT = 7;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
@@ -100,15 +100,18 @@ public abstract class AbstractParserErrorHandler {
             previousIndex = currentIndex;
         }
 
-        Result bestMatch = seekMatch(currentCtx);
-        if (bestMatch.matches > 0) {
-            Solution sol = bestMatch.solution;
-            if (sol != null && itterCount < ITTER_LIMIT) {
-                applyFix(currentCtx, sol, args);
-                return sol;
+        if (itterCount < ITTER_LIMIT) {
+            Result bestMatch = seekMatch(currentCtx);
+            if (bestMatch.matches > 0) {
+                Solution sol = bestMatch.solution;
+                if (sol != null) {
+                    applyFix(currentCtx, sol, args);
+                    return sol;
+                }
+
+                // else fall through
             }
 
-            // else fall through
         }
 
         // Fail safe. This means we can't find a path to recover.

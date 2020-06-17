@@ -109,6 +109,10 @@ public class HybridNodeStorage {
 
         return peek(k);
     }
+    
+    int getCurrentIndex() {
+        return this.peekedNodeIndex;
+    }
 
     private HybridNode peek(int k) {
         return this.hybridNodeList.get(consumedNodeIndex + k);
@@ -177,9 +181,5 @@ public class HybridNodeStorage {
         int newTextLength = textEdit.text().length() +
                 (textRange.startOffset() - affectedTokenStartOffset);
         return new TextEditRange(affectedTokenStartOffset, textRange.endOffset(), newTextLength);
-    }
-
-    public int getCurrentIndex() {
-        return this.peekedNodeIndex;
     }
 }
