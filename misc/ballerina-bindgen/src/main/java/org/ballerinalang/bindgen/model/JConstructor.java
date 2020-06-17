@@ -45,6 +45,7 @@ public class JConstructor implements Cloneable {
     private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
     private boolean handleException = false; // identifies if the Java constructor throws an error
+    private boolean javaArraysModule = false;
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
@@ -61,6 +62,7 @@ public class JConstructor implements Cloneable {
             parameters.add(parameter);
             paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
+                javaArraysModule = true;
                 returnError = true;
                 hasException = true;
             }
@@ -112,5 +114,9 @@ public class JConstructor implements Cloneable {
 
     void setShortClassName(String shortClassName) {
         this.shortClassName = shortClassName;
+    }
+
+    boolean requireJavaArrays() {
+        return javaArraysModule;
     }
 }

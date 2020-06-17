@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -41,7 +42,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 /**
- * This test class verifies the behaviour of the ParameterizedString passed into the testQuery operation.
+ * This test class verifies the behaviour of the ParameterizedQuery passed into the testQuery operation.
  *
  * @since 1.3.0
  */
@@ -54,6 +55,10 @@ public class ParamsQueryTest {
 
     @BeforeClass
     public void setup() throws SQLException {
+        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            throw new SkipException("Skip test class in Windows");
+        }
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "simple-params-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,

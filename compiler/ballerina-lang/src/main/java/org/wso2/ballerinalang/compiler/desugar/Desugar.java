@@ -2427,12 +2427,10 @@ public class Desugar extends BLangNodeVisitor {
         //  var $retryFunc$ = function () returns any|error {
         //    <"Content in retry block goes here">
         //  };
-
-        BLangBlockFunctionBody retryBody = ASTBuilderUtil.createBlockFunctionBody(pos);
         BLangType retryLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
         BLangLambdaFunction retryFunc = createLambdaFunction(pos, "$retryFunc$",
-                Collections.emptyList(), retryLambdaReturnType, retryBody);
-        retryBody.stmts.addAll(retryNode.retryBody.stmts);
+                Collections.emptyList(), retryLambdaReturnType, retryNode.retryBody.stmts, env,
+                retryNode.retryBody.scope);
         retryFunc.function = resolveReturnTypeCast(retryFunc.function, env);
         BVarSymbol retryFuncVarSymbol = new BVarSymbol(0, names.fromString("$retryFunc$"),
                 env.scope.owner.pkgID, retryFunc.type, retryFunc.function.symbol);
@@ -2450,7 +2448,7 @@ public class Desugar extends BLangNodeVisitor {
                 retryLambdaVarRef, retryLambdaVariable.symbol, retryLambdaReturnType.type);
         retryLambdaInvocation.argExprs = new ArrayList<>();
 
-        retryFunc.capturedClosureEnv = env;
+        retryFunc.capturedClosureEnv = env.createClone();
 
         BVarSymbol retryFunctionVarSymbol = new BVarSymbol(0, new Name("$result$"),
                 env.scope.owner.pkgID, retryLambdaReturnType.type, env.scope.owner);
@@ -3109,7 +3107,7 @@ public class Desugar extends BLangNodeVisitor {
         return lambdaFunction;
     }
 
-    private BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
+    protected BLangLambdaFunction createLambdaFunction(DiagnosticPos pos, String functionNamePrefix,
                                                      List<BLangSimpleVariable> lambdaFunctionVariable,
                                                      TypeNode returnType, List<BLangStatement> fnBodyStmts,
                                                      SymbolEnv env, Scope trxScope) {

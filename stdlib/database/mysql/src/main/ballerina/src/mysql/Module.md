@@ -53,8 +53,8 @@ to be used within the client.
 For more details about connection pooling, see the [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
 
 ```ballerina
-mysql:Client dbClient1 = new ();
-mysql:Client dbClient2 = new ("localhost", "rootUser", "rooPass", 
+mysql:Client|sql:Error dbClient1 = new ();
+mysql:Client|sql:Error dbClient2 = new ("localhost", "rootUser", "rooPass", 
                               "information_schema", 3306);
                               
 mysql:Options mysqlOptions = {
@@ -63,9 +63,9 @@ mysql:Options mysqlOptions = {
   },
   connectTimeoutInSeconds: 10
 };
-mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
+mysql:Client|sql:Error dbClient3 = new (user = "rootUser", password = "rootPass",
                               options = mysqlOptions);
-mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
+mysql:Client|sql:Error dbClient4 = new (user = "rootUser", password = "rootPass",
                               connectionPool = {maxOpenConnections: 5});
 ```
 You can find more details about each property in the

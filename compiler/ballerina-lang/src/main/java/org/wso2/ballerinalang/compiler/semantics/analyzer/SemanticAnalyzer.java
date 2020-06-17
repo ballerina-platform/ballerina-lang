@@ -546,6 +546,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        if (shouldInferErrorType(varNode)) {
+            validateWorkerAnnAttachments(varNode.expr);
+            handleDeclaredWithVar(varNode);
+            transferForkFlag(varNode);
+            if (!types.isAssignable(varNode.type, symTable.errorType)) {
+                dlog.error(varNode.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errorType, varNode.type);
+            }
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET) {
             // This is a variable declared in a function, let expression, an action or a resource
@@ -604,6 +614,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private boolean shouldInferErrorType(BLangSimpleVariable varNode) {
+        return varNode.typeNode != null
+                && varNode.typeNode.getKind() == NodeKind.ERROR_TYPE
+                && ((BLangErrorType) varNode.typeNode).inferErrorType;
     }
 
     private void analyzeVarNode(BLangSimpleVariable varNode, SymbolEnv env, AttachPoint.Point... attachPoints) {

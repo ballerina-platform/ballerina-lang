@@ -1247,6 +1247,7 @@ public class TypeChecker {
             case TypeTags.INVOKABLE_TAG:
             case TypeTags.SERVICE_TAG:
             case TypeTags.TYPEDESC_TAG:
+            case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
         }

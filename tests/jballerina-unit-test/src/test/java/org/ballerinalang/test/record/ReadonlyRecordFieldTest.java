@@ -39,7 +39,7 @@ public class ReadonlyRecordFieldTest {
         BRunUtil.invoke(result, "testReadonlyRecordFields");
     }
 
-    @Test(groups = { "brokenOnNewParser" }) // Syntax kind is not supported: READONLY_KEYWORD
+    @Test
     public void testReadonlyRecordFieldsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields_negative.bal");
         int index = 0;

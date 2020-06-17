@@ -20,8 +20,11 @@ under the License.
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
 <suite name="ballerina-jdbc-test-suite">
+    <listeners>
+        <listener class-name="org.ballerinalang.test.listener.JBallerinaTestInitializer"/>
+    </listeners>
     <test name="ballerina-jdbc-test" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
+        <parameter name="enableNewParserForTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.jdbc.connection.ConnectorInitTest"/>
             <class name="org.ballerinalang.jdbc.pool.ConnectionPoolTest"/>
