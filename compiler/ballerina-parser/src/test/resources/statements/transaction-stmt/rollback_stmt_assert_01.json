@@ -101,8 +101,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

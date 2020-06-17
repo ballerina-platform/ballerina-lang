@@ -49,7 +49,7 @@ public class STMissingToken extends STToken {
     }
 
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STMissingToken(this.kind, diagnostics);
+        return new STMissingToken(this.kind, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {

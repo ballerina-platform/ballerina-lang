@@ -69,7 +69,7 @@ class WebSocketMetricsUtil {
             return;
         }
         //Define type of message (text, binary, control, close)
-        observerContext.addTag(WebSocketObservabilityConstants.TAG_MESSAGE_TYPE, type);
+        observerContext.addMainTag(WebSocketObservabilityConstants.TAG_MESSAGE_TYPE, type);
         //Increment messages received metric
         incrementCounterMetric(observerContext, WebSocketObservabilityConstants.METRIC_MESSAGES_RECEIVED[0],
                                WebSocketObservabilityConstants.METRIC_MESSAGES_RECEIVED[1]);
@@ -87,7 +87,7 @@ class WebSocketMetricsUtil {
         if (!ObserveUtils.isMetricsEnabled()) {
             return;
         }
-        observerContext.addTag(WebSocketObservabilityConstants.TAG_RESOURCE, resource);
+        observerContext.addMainTag(WebSocketObservabilityConstants.TAG_RESOURCE, resource);
         incrementCounterMetric(observerContext, WebSocketObservabilityConstants.METRIC_RESOURCES_INVOKED[0],
                                WebSocketObservabilityConstants.METRIC_RESOURCES_INVOKED[1]);
     }

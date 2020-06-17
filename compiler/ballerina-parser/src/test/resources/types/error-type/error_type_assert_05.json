@@ -42,8 +42,13 @@
               "kind": "LT_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "INVALID_ACC_TYPE"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "INVALID_ACC_TYPE"
+                }
+              ]
             },
             {
               "kind": "GT_TOKEN"

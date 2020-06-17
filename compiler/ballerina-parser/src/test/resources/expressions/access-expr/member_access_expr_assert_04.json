@@ -8,8 +8,13 @@
           "kind": "INDEXED_EXPRESSION",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "x"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                }
+              ]
             },
             {
               "kind": "OPEN_BRACKET_TOKEN"
@@ -21,8 +26,13 @@
                   "kind": "INDEXED_EXPRESSION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "y"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "y"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -31,8 +41,13 @@
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "z"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "z"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -52,8 +67,13 @@
           "kind": "DOT_TOKEN"
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "call"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "call"
+            }
+          ]
         },
         {
           "kind": "OPEN_PAREN_TOKEN"
@@ -75,7 +95,12 @@
       "children": [
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "3"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "3"
+            }
+          ]
         }
       ]
     },

@@ -24,7 +24,12 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "STRING_KEYWORD"
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    }
+                  ]
                 },
                 {
                   "kind": "CAPTURE_BINDING_PATTERN",

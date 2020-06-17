@@ -33,7 +33,6 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyObjectFieldTest {
 
-    @Test(groups = { "brokenOnNewParser" })
     public void testReadonlyObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields.bal");
         BRunUtil.invoke(result, "testReadonlyObjectFields");

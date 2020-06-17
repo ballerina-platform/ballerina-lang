@@ -17,8 +17,13 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
               ]
             },
@@ -36,7 +41,12 @@
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "10"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "10"
+                    }
+                  ]
                 }
               ]
             },
@@ -54,7 +64,12 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "12"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "12"
+                    }
+                  ]
                 }
               ]
             }

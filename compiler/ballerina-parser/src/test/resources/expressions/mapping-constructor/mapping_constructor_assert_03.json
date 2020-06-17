@@ -14,8 +14,13 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "key1"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "key1"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN"
@@ -31,7 +36,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "value1"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "value1"
+                }
+              ]
             }
           ]
         },
@@ -52,7 +62,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "key2"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "key2"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN"
@@ -61,8 +76,13 @@
               "kind": "COLON_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "value2"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "value2"
+                }
+              ]
             }
           ]
         }

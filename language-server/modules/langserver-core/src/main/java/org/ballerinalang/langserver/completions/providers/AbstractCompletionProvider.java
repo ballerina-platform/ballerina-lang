@@ -205,6 +205,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                 completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
             }
         });
+        
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
 
         return completionItems;
     }
@@ -402,6 +404,9 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Integer invocationType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         try {
+            if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
+                completionItems.add(new SnippetCompletionItem(context, Snippet.KW_COMMIT.get()));
+            }
             Optional<BLangType> assignmentType = getAssignmentType(context, onGlobal);
             
             if (assignmentType.isPresent() && !(assignmentType.get() instanceof BLangUserDefinedType)

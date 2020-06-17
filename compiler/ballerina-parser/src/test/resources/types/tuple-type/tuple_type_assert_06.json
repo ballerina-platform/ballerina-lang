@@ -92,7 +92,12 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN",
@@ -104,11 +109,16 @@
                               ]
                             },
                             {
-                              "kind": "STRING_KEYWORD",
-                              "trailingMinutiae": [
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "STRING_KEYWORD",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -121,7 +131,12 @@
                               ]
                             },
                             {
-                              "kind": "FLOAT_KEYWORD"
+                              "kind": "FLOAT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "FLOAT_KEYWORD"
+                                }
+                              ]
                             }
                           ]
                         },

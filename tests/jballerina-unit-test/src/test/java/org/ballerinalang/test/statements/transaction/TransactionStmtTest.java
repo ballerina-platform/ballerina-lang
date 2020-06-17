@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.test.statements.transaction;
 
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -60,9 +62,36 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testMultipleTrxBlocks");
     }
 
+    @Test
+    public void testTransactionHandlers() {
+        BValue[] params = {};
+        BValue[] result = BRunUtil.invoke(programFile, "testTrxHandlers", params);
+        Assert.assertEquals(result[0].stringValue(), "started within transactional func trxCommited endTrx");
+    }
+
+    @Test
+    public void testTransactionInsideIfStmt() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testTransactionInsideIfStmt");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 18L);
+    }
+
+    @Test(enabled = false)
+    public void testArrowFunctionInsideTransaction() {
+        BValue[] returns = BRunUtil.invoke(programFile, "testArrowFunctionInsideTransaction");
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 44L);
+    }
+
+    @Test
+    public void testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() {
+        BValue[] result = BRunUtil.invoke(programFile, "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
+        Assert.assertEquals(result[0].stringValue(), "init-in-transaction-block");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 21);
+        Assert.assertEquals(resultNegative.getErrorCount(), 22);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 5, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
@@ -106,5 +135,7 @@ public class TransactionStmtTest {
                 "from a transaction without a commit or a rollback statement", 188, 21);
         BAssertUtil.validateError(resultNegative, 20, "invoking transactional function outside " +
                 "transactional scope is prohibited", 207, 16);
+        BAssertUtil.validateError(resultNegative, 21, "transaction statement cannot be nested " +
+                "within another transaction block", 214, 9);
     }
 }

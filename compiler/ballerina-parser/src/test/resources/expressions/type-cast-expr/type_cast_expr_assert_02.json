@@ -17,8 +17,13 @@
                   "kind": "AT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "foo"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "foo"
+                    }
+                  ]
                 },
                 {
                   "kind": "MAPPING_CONSTRUCTOR",
@@ -51,8 +56,13 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     }
   ]
 }

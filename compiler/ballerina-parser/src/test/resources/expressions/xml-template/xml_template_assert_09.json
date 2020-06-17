@@ -74,17 +74,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -147,14 +152,54 @@
                                 },
                                 {
                                   "kind": "XML_SIMPLE_NAME",
+                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "IDENTIFIER_TOKEN",
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_INTERPOLATION_IS_NOT_ALLOWED_WITHIN_ELEMENT_TAGS"
+                                      ],
                                       "value": "foo",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "WHITESPACE_MINUTIAE",
                                           "value": " "
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INTERPOLATION",
+                                            "children": [
+                                              {
+                                                "kind": "INTERPOLATION_START_TOKEN",
+                                                "trailingMinutiae": [
+                                                  {
+                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                    "value": " "
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "SIMPLE_NAME_REFERENCE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "y",
+                                                    "trailingMinutiae": [
+                                                      {
+                                                        "kind": "WHITESPACE_MINUTIAE",
+                                                        "value": " "
+                                                      }
+                                                    ]
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "CLOSE_BRACE_TOKEN"
+                                              }
+                                            ]
+                                          }
                                         }
                                       ]
                                     }
@@ -204,8 +249,13 @@
                           ]
                         },
                         {
-                          "kind": "XML_TEXT_CONTENT",
-                          "value": " "
+                          "kind": "XML_TEXT",
+                          "children": [
+                            {
+                              "kind": "XML_TEXT_CONTENT",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
