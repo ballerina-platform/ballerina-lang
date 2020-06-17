@@ -58,7 +58,7 @@ public type FilterContext object {
     # + serviceRef - The service to which the context is applied
     # + serviceName - Name of the service
     # + resourceName - Name of the resource function
-    public function __init(service serviceRef, string serviceName, string resourceName) {
+    public function init(service serviceRef, string serviceName, string resourceName) {
         self.serviceRef = serviceRef;
         self.serviceName = serviceName;
         self.resourceName = resourceName;

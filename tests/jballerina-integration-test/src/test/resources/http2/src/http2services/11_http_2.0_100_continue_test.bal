@@ -38,12 +38,12 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
         var payload = request.getTextPayload();
         if (payload is string) {
             res.statusCode = 200;
-            res.setPayload(<@untaintedstring>payload);
+            res.setPayload(<@untainted string>payload);
             var result1 = caller->respond(res);
             handleError(result1);
         } else {
             res.statusCode = 500;
-            res.setPayload(<@untainted><string>payload.detail()?.message);
+            res.setPayload(<@untainted> payload.message());
             var result1 = caller->respond(res);
             handleError(result1);
         }
@@ -65,6 +65,6 @@ service helloWorld on new http:Listener(9107, {httpVersion: "2.0"}) {
 
 function handleError(error? result) {
     if (result is error) {
-        log:printError(result.reason(), err = result);
+        log:printError(result.message(), result);
     }
 }

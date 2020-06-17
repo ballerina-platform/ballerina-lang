@@ -63,7 +63,32 @@ public class STTypeofExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STTypeofExpressionNode modify(
+            STNode typeofKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                typeofKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STTypeofExpressionNode(
+                typeofKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeofExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

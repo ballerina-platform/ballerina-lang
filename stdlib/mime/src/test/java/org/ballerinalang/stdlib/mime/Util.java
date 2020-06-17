@@ -32,10 +32,8 @@ import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.jvnet.mimepull.MIMEPart;
 import org.slf4j.Logger;
@@ -356,9 +354,7 @@ public class Util {
         Assert.assertEquals(new String(outStream.toByteArray(), StandardCharsets.UTF_8), "Ballerina binary file part");
     }
 
-    public static void verifyMimeError(BValue returnValue, String errMsg, String expectedErrorCode) {
-        Assert.assertEquals(((BError) returnValue).getReason(), expectedErrorCode);
-        Assert.assertEquals(((BMap) ((BError) returnValue).getDetails()).get(MimeConstants.MIME_ERROR_MESSAGE)
-                                    .stringValue(), errMsg);
+    static void verifyMimeError(BValue returnValue, String errMsg) {
+        Assert.assertEquals(((BError) returnValue).getMessage(), errMsg);
     }
 }

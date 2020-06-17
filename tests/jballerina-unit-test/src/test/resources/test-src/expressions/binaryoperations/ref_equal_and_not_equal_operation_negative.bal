@@ -94,7 +94,7 @@ type Abc object {
     public string name;
     private int area;
 
-    public function __init(string name, int area) {
+    public function init(string name, int area) {
         self.name = name;
         self.area = area;
     }
@@ -104,7 +104,7 @@ type Def object {
     public string name;
     private int id;
 
-    public function __init(string name, int id) {
+    public function init(string name, int id) {
         self.name = name;
         self.id = id;
     }

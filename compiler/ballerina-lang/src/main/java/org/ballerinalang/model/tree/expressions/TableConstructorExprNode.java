@@ -18,7 +18,6 @@
 package org.ballerinalang.model.tree.expressions;
 
 import org.ballerinalang.model.tree.TableKeySpecifierNode;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 
 import java.util.List;
 
@@ -35,5 +34,5 @@ public interface TableConstructorExprNode extends ExpressionNode {
 
     void addRecordLiteral(RecordLiteralNode recordLiteralNode);
 
-    List<BLangRecordLiteral> getRecordLiteralList();
+    List<? extends ExpressionNode> getRecordLiteralList();
 }

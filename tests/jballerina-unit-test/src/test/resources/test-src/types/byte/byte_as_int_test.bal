@@ -201,15 +201,15 @@ function testInherentTypeViolationOfByteArrayCastToIntArray() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(err.reason(), expErrorReason);
-    assertEquality(err.detail()?.message, expErrorDetailMessage);
+    assertEquality(err.message(), expErrorReason);
+    assertEquality(err.detail()["message"], expErrorDetailMessage);
 
     res = trap fn(2, 256);
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(err.reason(), expErrorReason);
-    assertEquality(err.detail()?.message, expErrorDetailMessage);
+    assertEquality(err.message(), expErrorReason);
+    assertEquality(err.detail()["message"], expErrorDetailMessage);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

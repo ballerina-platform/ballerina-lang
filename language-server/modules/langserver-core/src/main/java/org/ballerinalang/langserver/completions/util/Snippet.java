@@ -167,10 +167,12 @@ public enum Snippet {
 
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
-    // Statement Snippets
-    STMT_ABORT(SnippetGenerator.getAbortSnippet()),
+    KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
 
+    // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
+
+    STMT_ROLLBACK(SnippetGenerator.getRollbackStatementSnippet()),
 
     STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
@@ -190,13 +192,13 @@ public enum Snippet {
 
     STMT_NAMESPACE_DECLARATION(SnippetGenerator.getNamespaceDeclarationSnippet()),
 
-    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
-
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 
     STMT_PANIC(SnippetGenerator.getPanicStatementSnippet()),
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
+
+    STMT_RETRY_TRANSACTION(SnippetGenerator.getRetryTransactionStatementSnippet()),
 
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
 

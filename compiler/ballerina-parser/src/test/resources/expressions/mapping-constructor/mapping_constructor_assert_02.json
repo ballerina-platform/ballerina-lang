@@ -19,12 +19,23 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "20"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "20"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",
@@ -38,12 +49,23 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "Supun"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "Supun"
+                }
+              ]
             }
           ]
         },
         {
-          "kind": "COMMA_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "SPECIFIC_FIELD",

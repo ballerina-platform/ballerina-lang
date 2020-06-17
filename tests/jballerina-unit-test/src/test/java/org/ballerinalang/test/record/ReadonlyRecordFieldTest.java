@@ -39,18 +39,25 @@ public class ReadonlyRecordFieldTest {
         BRunUtil.invoke(result, "testReadonlyRecordFields");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" }) // Syntax kind is not supported: READONLY_KEYWORD
     public void testReadonlyRecordFieldsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/record/readonly_record_fields_negative.bal");
         int index = 0;
 
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 27, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'name' in 'Student'", 28, 5);
-        validateError(result, index++, "incompatible types: expected 'Details & readonly', found 'Details'", 52, 9);
+        validateError(result, index++, "incompatible types: expected '(Details & readonly)', found 'Details'", 52, 9);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 56, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 57, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 58, 5);
         validateError(result, index++, "cannot update 'readonly' record field 'name' in '(Student|Customer)'", 77, 5);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 106, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 107, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Qux'", 108, 25);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 142, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 150, 17);
+        validateError(result, index++, "incompatible types: expected 'OptionalId', found 'map<(map<int>|boolean)>'",
+                      159, 23);
         assertEquals(result.getErrorCount(), index);
     }
 }

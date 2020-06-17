@@ -113,6 +113,7 @@ public class ObjectTypeNodeScopeProvider extends AbstractCompletionProvider {
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(new ArrayList<>(filteredTypes), context));
         completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
     }
 
     private void fillObjectReferences(List<LSCompletionItem> completionItems, List<CommonToken> lhsDefaultTokens,

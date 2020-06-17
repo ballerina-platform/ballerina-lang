@@ -277,7 +277,84 @@ function testTableAsRecordField()  {
     assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type Bar record {|
+    string x;
+    string y;
+|};
+
+function testTableEquality() {
+    testSameTable();
+    testIdenticalTable();
+    testUnidenticalTable();
+    testInEqualityTableV1();
+}
+
+function testSameTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    assertEquality(true, t1 == t1);
+}
+
+function testIdenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 == t2);
+}
+
+function testUnidenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 == t2);
+}
+
+function testInEqualityTableV1() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 != t2);
+}
+
+function testInEqualityTableV2() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x1", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 != t2);
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -298,5 +375,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

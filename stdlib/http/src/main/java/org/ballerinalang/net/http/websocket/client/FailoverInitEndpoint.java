@@ -24,7 +24,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.ballerinalang.net.http.websocket.client.listener.ClientConnectorListener;
 import org.ballerinalang.net.http.websocket.client.listener.FailoverConnectorListener;
@@ -105,7 +104,8 @@ public class FailoverInitEndpoint {
             }
         }
         if (newTargetUrls.isEmpty()) {
-            throw new WebSocketException("TargetUrls should have at least one valid URL.");
+            throw WebSocketUtil.getWebSocketException("TargetUrls should have at least one valid URL.",
+                    null, WebSocketConstants.ErrorCode.WsGenericError.errorCode(), null);
         }
         if (logger.isDebugEnabled()) {
             logger.debug("New targetUrls: {}", newTargetUrls);

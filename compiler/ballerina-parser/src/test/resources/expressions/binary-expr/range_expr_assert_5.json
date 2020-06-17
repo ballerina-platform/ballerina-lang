@@ -1,16 +1,26 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
         {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": "1"
-        },
-        {
-            "kind": "ELLIPSIS_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": "10"
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "1"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "ELLIPSIS_TOKEN"
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "10"
+        }
+      ]
+    }
+  ]
 }

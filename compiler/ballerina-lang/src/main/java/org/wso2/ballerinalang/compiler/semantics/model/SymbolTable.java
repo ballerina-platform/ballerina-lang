@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -113,12 +114,12 @@ public class SymbolTable {
     public final BType jsonType = new BJSONType(TypeTags.JSON, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
-    public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
-    public final BType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
-    public final BType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+    public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
+    public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
+    public final BMapType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
+    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
-    public final BType arrayType = new BArrayType(anyType);
+    public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     public final BArrayType arrayAnydataType = new BArrayType(anydataType);
     public final BArrayType arrayJsonType = new BArrayType(jsonType);
@@ -131,14 +132,16 @@ public class SymbolTable {
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
+    public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
+    public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
-    public BErrorType errorType;
-    public BRecordType detailType;
+    public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
+    public BErrorType errorType = new BErrorType(null, detailType);
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
@@ -147,6 +150,7 @@ public class SymbolTable {
     public BObjectType intRangeType;
     public BMapType mapAllType;
     public BArrayType arrayAllType;
+    public BObjectType rawTemplateType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
@@ -182,9 +186,11 @@ public class SymbolTable {
     public BPackageSymbol langXmlModuleSymbol;
     public BPackageSymbol langBooleanModuleSymbol;
     public BPackageSymbol langQueryModuleSymbol;
+    public BPackageSymbol langTransactionModuleSymbol;
 
     private Names names;
     public Map<BPackageSymbol, SymbolEnv> pkgEnvMap = new HashMap<>();
+    public Map<Name, BPackageSymbol> predeclaredModules = new HashMap<>();
 
     public static SymbolTable getInstance(CompilerContext context) {
         SymbolTable symTable = context.get(SYM_TABLE_KEY);
@@ -343,6 +349,15 @@ public class SymbolTable {
                 return this.xmlTextType;
         }
         throw new IllegalStateException("LangLib Subtype not found: " + name);
+    }
+
+    public void loadPredeclaredModules() {
+        Map<Name, BPackageSymbol> modules = new HashMap<>();
+        modules.put(Names.ERROR, this.langErrorModuleSymbol);
+        modules.put(Names.OBJECT, this.langObjectModuleSymbol);
+        modules.put(Names.XML, this.langXmlModuleSymbol);
+
+        this.predeclaredModules = Collections.unmodifiableMap(modules);
     }
 
     private void initializeType(BType type, String name) {

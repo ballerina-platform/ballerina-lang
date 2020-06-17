@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.repository.fs;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageEntity;
@@ -266,11 +268,14 @@ public class GeneralFSPackageRepository implements PackageRepository {
 
             private byte[] code;
 
+            private SyntaxTree tree;
+
             public FSCompilerInput(String name) {
                 this.name = name;
                 Path filePath = basePath.resolve(name);
                 try {
                     this.code = Files.readAllBytes(basePath.resolve(pkgPath).resolve(name));
+                    this.tree = SyntaxTree.from(TextDocuments.from(new String(this.code)));
                 } catch (IOException e) {
                     throw new RuntimeException("Error in loading module source entry '" + filePath +
                             "': " + e.getMessage(), e);
@@ -287,6 +292,10 @@ public class GeneralFSPackageRepository implements PackageRepository {
                 return code;
             }
 
+            @Override
+            public SyntaxTree getTree() {
+                return tree;
+            }
         }
 
         @Override

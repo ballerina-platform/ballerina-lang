@@ -2,7 +2,13 @@
   "kind": "MAPPING_CONSTRUCTOR",
   "children": [
     {
-      "kind": "OPEN_BRACE_TOKEN"
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "LIST",
@@ -11,7 +17,13 @@
           "kind": "SPECIFIC_FIELD",
           "children": [
             {
-              "kind": "READONLY_KEYWORD"
+              "kind": "READONLY_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -21,8 +33,13 @@
               "kind": "COLON_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
             }
           ]
         }

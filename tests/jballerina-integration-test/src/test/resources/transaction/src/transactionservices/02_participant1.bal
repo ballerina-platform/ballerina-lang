@@ -125,14 +125,14 @@ service participant1 on participant1EP01 {
                 if (payload is string) {
                     log:printInfo("payload: " + payload);
                 } else {
-                    log:printInfo("payload error: " + payload.reason());
+                    log:printInfo("payload error: " + payload.message());
                 }
 
                 var forwardRes2 = conn -> respond(getResult);
                 log:printInfo("participant1.transaction.after.respondback");
                 if (forwardRes2 is error) {
                     io:print("Participant1 could not forward response from participant2 to initiator. Error:");
-                    io:println(forwardRes2.reason());
+                    io:println(forwardRes2.message());
                 } else {
                     io:print("");
                 }
@@ -183,7 +183,7 @@ function sendErrorResponseToInitiator(http:Caller conn) {
     var respondResult = conn2 -> respond(errRes);
     if (respondResult is error) {
         io:print("Participant1 could not send error response to initiator. Error:");
-        io:println(respondResult.reason());
+        io:println(respondResult.message());
     } else {
         return;
     }

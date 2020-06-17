@@ -40,6 +40,7 @@ import org.ballerinalang.model.tree.InvokableNode;
 import org.ballerinalang.model.tree.MarkdownDocumentationNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.RetrySpecNode;
 import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TableKeySpecifierNode;
@@ -56,7 +57,6 @@ import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
-import org.ballerinalang.model.tree.statements.TransactionNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
 import org.ballerinalang.model.types.TypeKind;
@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNameReference;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangRecordVariable.BLangRecordVariableKeyValue;
+import org.wso2.ballerinalang.compiler.tree.BLangRetrySpec;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
@@ -101,6 +102,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -135,6 +137,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -159,7 +162,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -180,7 +182,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -287,8 +291,6 @@ public class BLangPackageBuilder {
 
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
-    private Stack<TransactionNode> transactionNodeStack = new Stack<>();
-
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
@@ -328,6 +330,8 @@ public class BLangPackageBuilder {
     private Stack<TableKeySpecifierNode> tableKeySpecifierNodeStack = new Stack<>();
     private Stack<TableKeyTypeConstraintNode>  tableKeyTypeConstraintNodeStack = new Stack<>();
     private Stack<TableMultiKeyExpressionNode> tableMultiKeyExpressionNodeStack = new Stack<>();
+
+    private Stack<RetrySpecNode> retrySpecNodeStack = new Stack<>();
 
     private long isInErrorType = 0;
 
@@ -517,28 +521,7 @@ public class BLangPackageBuilder {
         }
 
         if (isReadonly) {
-            BLangType typeNode = field.typeNode;
-            Set<Whitespace> typeNodeWS = typeNode.getWS();
-            DiagnosticPos typeNodePos = typeNode.getPosition();
-
-            BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
-            readOnlyTypeNode.addWS(typeNodeWS);
-            readOnlyTypeNode.pos = typeNodePos;
-            readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
-
-            if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
-                ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
-            } else {
-                BLangIntersectionTypeNode intersectionTypeNode =
-                        (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
-                intersectionTypeNode.constituentTypeNodes.add(typeNode);
-                intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
-                intersectionTypeNode.addWS(typeNodeWS);
-                intersectionTypeNode.pos = typeNodePos;
-                field.typeNode = intersectionTypeNode;
-            }
-
-            field.flagSet.add(Flag.READONLY);
+            setReadOnlyIntersectionTypeNode(field);
         }
 
         if (markdownExists) {
@@ -548,13 +531,17 @@ public class BLangPackageBuilder {
 
     void addObjectFieldVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
                                 boolean exprAvailable, int annotCount, boolean isPrivate, boolean isPublic,
-                                boolean markdownExists) {
+                                boolean markdownExists, boolean readonly) {
         BLangSimpleVariable field = addSimpleVar(pos, ws, identifier, identifierPos, exprAvailable, annotCount);
 
         if (isPublic) {
             field.flagSet.add(Flag.PUBLIC);
         } else if (isPrivate) {
             field.flagSet.add(Flag.PRIVATE);
+        }
+
+        if (readonly) {
+            setReadOnlyIntersectionTypeNode(field);
         }
 
         if (markdownExists) {
@@ -593,11 +580,14 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws) {
+    void addUserDefineType(Set<Whitespace> ws, boolean isDistinct) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
                 (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
+        if (isDistinct) {
+            userDefinedType.flagSet.add(Flag.DISTINCT);
+        }
         addType(userDefinedType);
     }
 
@@ -617,16 +607,20 @@ public class BLangPackageBuilder {
         this.isInErrorType--;
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
-                      boolean isAnonymous) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsTypeExists, boolean isErrorTypeInfer,
+                      boolean isAnonymous, boolean isDistinct) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (detailsTypeExists) {
+
+        if (isErrorTypeInfer) {
+            errorType.inferErrorType = true;
+        } else if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (reasonTypeExists) {
-            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
+
+        if (isDistinct) {
+            errorType.flagSet.add(Flag.DISTINCT);
         }
 
         endErrorType();
@@ -635,6 +629,7 @@ public class BLangPackageBuilder {
             addType(errorType);
             return;
         }
+
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         // Generate a name for the anonymous error
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
@@ -642,7 +637,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -870,7 +867,7 @@ public class BLangPackageBuilder {
             BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
             errorVariable.typeNode = errorType;
 
-            errorVariable.reason = createIgnoreVar();
+            errorVariable.message = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
         ((BLangErrorVariable) this.varStack.peek()).isInMatchStmt = true;
@@ -884,25 +881,35 @@ public class BLangPackageBuilder {
         this.restMatchPatternWS.push(ws);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
-                          boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, boolean isUserDefinedType, String reason, String cause,
+                          DiagnosticPos causePos, String restIdentifier, boolean reasonVar,
+                          boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
+
+        if (isUserDefinedType) {
+            errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+        }
 
         if (constReasonMatchPattern) {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
             errorVariable.reasonMatchConst = reasonLiteral;
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
         } else {
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
         }
 
         if (this.simpleMatchPatternWS.size() > 0) {
-            errorVariable.reason.addWS(this.simpleMatchPatternWS.pop());
+            errorVariable.message.addWS(this.simpleMatchPatternWS.pop());
+        }
+
+        if (cause != null) {
+            errorVariable.cause = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(causePos, null, cause, causePos, false);
         }
 
         errorVariable.reasonVarPrefixAvailable = reasonVar;
@@ -919,30 +926,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void addErrorVariable(DiagnosticPos currentPos, Set<Whitespace> ws, String restIdName,
-                                 DiagnosticPos restPos) {
-        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
-        errorVariable.pos = currentPos;
-        errorVariable.addWS(ws);
-
-        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
-        errorVariable.typeNode = typeNode;
-
-        errorVariable.reason = (BLangSimpleVariable)
-                generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
-
-        if (restIdName != null) {
-            errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
-            if (!this.errorRestBindingPatternWS.isEmpty()) {
-                errorVariable.restDetail.addWS(this.errorRestBindingPatternWS.pop());
-            }
-        }
-    }
-
     void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws,
                                    int numNamedArgs,
-                                   boolean reasonRefAvailable,
+                                   boolean causeRefAvailable,
                                    boolean restPatternAvailable,
                                    boolean indirectErrorRefPattern) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
@@ -960,16 +946,18 @@ public class BLangPackageBuilder {
             namedArgs.add(namedArg);
         }
 
-        if (reasonRefAvailable) {
-            ExpressionNode reasonRef = this.exprNodeStack.pop();
-            errorVarRef.reason = (BLangVariableReference) reasonRef;
-        } else if (indirectErrorRefPattern) {
-            // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-            errorVarRef.reason = createIgnoreVarRef();
-            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
-        } else {
-            errorVarRef.reason = createIgnoreVarRef();
+        if (causeRefAvailable) {
+            ExpressionNode causeRef = this.exprNodeStack.pop();
+            errorVarRef.cause = (BLangVariableReference) causeRef;
         }
+
+        ExpressionNode reasonRef = this.exprNodeStack.pop();
+        errorVarRef.message = (BLangVariableReference) reasonRef;
+
+        if (indirectErrorRefPattern) {
+            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
+        }
+
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);
 
@@ -997,7 +985,7 @@ public class BLangPackageBuilder {
             } else if (this.varStack.size() == 1) {
                 BLangVariable var = this.varStack.pop();
                 BLangErrorVariable errorVariable = new BLangErrorVariable();
-                errorVariable.reason = createIgnoreVar();
+                errorVariable.message = createIgnoreVar();
                 errorVariable.typeNode = (BLangType) typeNodeStack.pop();
                 errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
                 varStack.push(errorVariable);
@@ -1246,7 +1234,7 @@ public class BLangPackageBuilder {
         lambdaExpr.pos = pos;
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
-        endFunctionDefinition(pos, ws, lambdaFunction.getName().value, pos, false, false, false, false, true);
+        endFunctionDefinition(pos, ws, lambdaFunction.getName().value, pos, false, false, false, false, false, true);
     }
 
     void addArrowFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, PackageID pkgID) {
@@ -1345,6 +1333,9 @@ public class BLangPackageBuilder {
             var.isDeclaredWithVar = true;
         } else {
             var.setTypeNode(this.typeNodeStack.pop());
+            if (var.getTypeNode().getKind() == NodeKind.ERROR_TYPE) {
+                var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).inferErrorType;
+            }
         }
         if (isExpressionAvailable) {
             var.setInitialExpression(this.exprNodeStack.pop());
@@ -1518,7 +1509,7 @@ public class BLangPackageBuilder {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);
@@ -2167,8 +2158,8 @@ public class BLangPackageBuilder {
     }
 
     void endFunctionDefinition(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
-                               boolean publicFunc, boolean remoteFunc, boolean nativeFunc, boolean privateFunc,
-                               boolean isLambda) {
+                               boolean publicFunc, boolean remoteFunc, boolean transactionalFunc, boolean nativeFunc,
+                               boolean privateFunc, boolean isLambda) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2188,6 +2179,10 @@ public class BLangPackageBuilder {
 
         if (nativeFunc) {
             function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (transactionalFunc) {
+            function.flagSet.add(Flag.TRANSACTIONAL);
         }
 
         function.body = (BLangFunctionBody) this.funcBodyNodeStack.pop();
@@ -2506,7 +2501,7 @@ public class BLangPackageBuilder {
 
         // Create typenode for enum type definition member
         addNameReference(pos, ws, null, identifier);
-        addUserDefineType(ws);
+        addUserDefineType(ws, false);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
@@ -2527,6 +2522,9 @@ public class BLangPackageBuilder {
             if (!isTypeNameProvided) {
                 var.isDeclaredWithVar = true;
             }
+        }
+        if (var.typeNode != null && var.typeNode.getKind() == NodeKind.ERROR_TYPE) {
+            var.isDeclaredWithVar = ((BLangErrorType) var.typeNode).inferErrorType;
         }
 
         attachAnnotations(var);
@@ -2569,12 +2567,16 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isReadOnly, boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
+
+        if (isReadOnly) {
+            objectTypeNode.flagSet.add(Flag.READONLY);
         }
 
         if (isClient) {
@@ -2583,6 +2585,10 @@ public class BLangPackageBuilder {
 
         if (isService) {
             objectTypeNode.flagSet.add(Flag.SERVICE);
+        }
+
+        if (isDistinct) {
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
         }
 
         if (!isAnonymous) {
@@ -2596,7 +2602,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -3195,96 +3203,52 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(retStmt);
     }
 
-    void startTransactionStmt() {
-        transactionNodeStack.push(TreeBuilder.createTransactionNode());
-        startBlock();
-    }
-
-    void addTransactionBlock(DiagnosticPos pos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt transactionBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        transactionBlock.pos = pos;
-        transactionNode.addWS(ws);
-        transactionNode.setTransactionBody(transactionBlock);
-    }
-
-    void endTransactionPropertyInitStatementList(Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        transactionNode.addWS(ws);
-    }
-
-    void startOnretryBlock() {
-        startBlock();
-    }
-
-    void addOnretryBlock(DiagnosticPos pos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt onretryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        onretryBlock.pos = pos;
-        transactionNode.addWS(ws);
-        transactionNode.setOnRetryBody(onretryBlock);
-    }
-
-    public void startCommittedBlock() {
-        startBlock();
-    }
-
-    public void endCommittedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt committedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        committedBlock.pos = currentPos;
-        transactionNode.addWS(ws);
-        transactionNode.setCommittedBody(committedBlock);
-    }
-
-    public void startAbortedBlock() {
-        startBlock();
-    }
-
-    public void endAbortedBlock(DiagnosticPos currentPos, Set<Whitespace> ws) {
-        TransactionNode transactionNode = transactionNodeStack.peek();
-        BLangBlockStmt abortedBlock = (BLangBlockStmt) this.blockNodeStack.pop();
-        abortedBlock.pos = currentPos;
-        transactionNode.addWS(ws);
-        transactionNode.setAbortedBody(abortedBlock);
-    }
-
     void endTransactionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.pop();
+        BLangTransaction transaction = (BLangTransaction) TreeBuilder.createTransactionNode();
         transaction.pos = pos;
         transaction.addWS(ws);
+        transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
         addStmtToCurrentBlock(transaction);
-
-        // TODO This is a temporary workaround to flag coordinator service start
-        boolean transactionsModuleAlreadyImported = this.imports.stream()
-                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
-                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
-
-        if (!transactionsModuleAlreadyImported) {
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        }
     }
 
-    void addAbortStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangAbort abortNode = (BLangAbort) TreeBuilder.createAbortNode();
-        abortNode.pos = pos;
-        abortNode.addWS(ws);
-        addStmtToCurrentBlock(abortNode);
+    void createRetrySpec(DiagnosticPos pos, Set<Whitespace> ws, boolean typeParamAvailable, boolean argsAvailable) {
+        BLangRetrySpec retrySpec = (BLangRetrySpec) TreeBuilder.createRetrySpecNode();
+
+        retrySpec.pos = pos;
+        retrySpec.addWS(ws);
+
+        if (typeParamAvailable) {
+            retrySpec.retryManagerType = (BLangType) typeNodeStack.pop();
+        }
+
+        if (argsAvailable) {
+            List<ExpressionNode> exprNodes = exprNodeListStack.pop();
+            exprNodes.forEach(exprNode -> retrySpec.argExprs.add((BLangExpression) exprNode));
+            retrySpec.addWS(commaWsStack.pop());
+        }
+
+        retrySpecNodeStack.push(retrySpec);
     }
 
     void addRetryStatement(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangRetry retryNode = (BLangRetry) TreeBuilder.createRetryNode();
+        retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
         retryNode.pos = pos;
         retryNode.addWS(ws);
+        BLangBlockStmt retryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        retryBlock.pos = pos;
+        retryNode.setRetryBody(retryBlock);
         addStmtToCurrentBlock(retryNode);
     }
 
-    void addRetryCountExpression(Set<Whitespace> ws) {
-        BLangTransaction transaction = (BLangTransaction) transactionNodeStack.peek();
-        transaction.addWS(ws);
-        transaction.retryCount = (BLangExpression) exprNodeStack.pop();
+    void addRetryTransactionStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangRetryTransaction retryNode = (BLangRetryTransaction) TreeBuilder.createRetryTransactionNode();
+        retryNode.pos = pos;
+        retryNode.addWS(ws);
+        retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
+        BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) this.blockNodeStack.peek();
+        retryNode.setTransaction((BLangTransaction) blockFunctionBody.stmts.remove(blockFunctionBody.stmts.size() - 1));
+        addStmtToCurrentBlock(retryNode);
     }
 
     void startIfElseNode(DiagnosticPos pos) {
@@ -3446,6 +3410,32 @@ public class BLangPackageBuilder {
         workerSendExpr.pos = pos;
         workerSendExpr.addWS(ws);
         addExpressionNode(workerSendExpr);
+    }
+
+    void addTransactionalExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangTransactionalExpr transactionalExpr = TreeBuilder.createTransactionalExpressionNode();
+
+        transactionalExpr.pos = pos;
+        transactionalExpr.addWS(ws);
+        addExpressionNode(transactionalExpr);
+    }
+
+    void addCommitExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangCommitExpr commitExpr = TreeBuilder.createCommitExpressionNode();
+
+        commitExpr.pos = pos;
+        commitExpr.addWS(ws);
+        addExpressionNode(commitExpr);
+    }
+
+    void addRollbackStatement(DiagnosticPos pos, Set<Whitespace> ws, boolean exprAvailable) {
+        BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
+        rollbackStmt.pos = pos;
+        rollbackStmt.addWS(ws);
+        if (exprAvailable) {
+            rollbackStmt.expr = (BLangExpression) this.exprNodeStack.pop();
+        }
+        addStmtToCurrentBlock(rollbackStmt);
     }
 
     void addExpressionStmt(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -3951,5 +3941,30 @@ public class BLangPackageBuilder {
         // Filters were collected from right to left, hence need to reverse the order.
         Collections.reverse(filters);
         return filters;
+    }
+
+    private void setReadOnlyIntersectionTypeNode(BLangSimpleVariable field) {
+        BLangType typeNode = field.typeNode;
+        Set<Whitespace> typeNodeWS = typeNode.getWS();
+        DiagnosticPos typeNodePos = typeNode.getPosition();
+
+        BLangValueType readOnlyTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        readOnlyTypeNode.addWS(typeNodeWS);
+        readOnlyTypeNode.pos = typeNodePos;
+        readOnlyTypeNode.typeKind = (TreeUtils.stringToTypeKind("readonly"));
+
+        if (typeNode.getKind() == NodeKind.INTERSECTION_TYPE_NODE) {
+            ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes.add(readOnlyTypeNode);
+        } else {
+            BLangIntersectionTypeNode intersectionTypeNode =
+                    (BLangIntersectionTypeNode) TreeBuilder.createIntersectionTypeNode();
+            intersectionTypeNode.constituentTypeNodes.add(typeNode);
+            intersectionTypeNode.constituentTypeNodes.add(readOnlyTypeNode);
+            intersectionTypeNode.addWS(typeNodeWS);
+            intersectionTypeNode.pos = typeNodePos;
+            field.typeNode = intersectionTypeNode;
+        }
+
+        field.flagSet.add(Flag.READONLY);
     }
 }

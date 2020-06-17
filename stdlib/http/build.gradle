@@ -52,6 +52,7 @@ dependencies {
     implementation project(':ballerina-system')
     implementation project(':ballerina-task')
     implementation project(':ballerina-stringutils')
+    implementation project(':ballerina-observability')
     testCompile project(':ballerina-tool')
     testCompile 'org.slf4j:slf4j-simple'
 
@@ -72,6 +73,7 @@ dependencies {
     baloImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')
+    baloImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
 
     interopImports project(':ballerina-config-api')
     interopImports project(':ballerina-io')

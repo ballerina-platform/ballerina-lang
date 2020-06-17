@@ -91,7 +91,44 @@ public class STVariableDeclarationNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STVariableDeclarationNode modify(
+            STNode annotations,
+            STNode finalKeyword,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STVariableDeclarationNode(
+                annotations,
+                finalKeyword,
+                typedBindingPattern,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new VariableDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

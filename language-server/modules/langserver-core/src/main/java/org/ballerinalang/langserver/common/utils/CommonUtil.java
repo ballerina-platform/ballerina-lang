@@ -571,6 +571,23 @@ public class CommonUtil {
     }
 
     /**
+     * Get the completion Item for the error type.
+     * 
+     * @param context LS Operation context
+     * @return {@link LSCompletionItem} generated for error type
+     */
+    public static LSCompletionItem getErrorTypeCompletionItem(LSContext context) {
+        CompletionItem errorTypeCItem = new CompletionItem();
+        errorTypeCItem.setInsertText(ItemResolverConstants.ERROR);
+        errorTypeCItem.setLabel(ItemResolverConstants.ERROR);
+        errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
+        errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
+        errorTypeCItem.setKind(CompletionItemKind.Event);
+        
+        return new StaticCompletionItem(context, errorTypeCItem);
+    }
+
+    /**
      * Get the BType name as string.
      *
      * @param bType      BType to get the name
@@ -961,7 +978,7 @@ public class CommonUtil {
     public static Pair<String, String> getFunctionInvocationSignature(BInvokableSymbol symbol, String functionName,
                                                                       LSContext ctx) {
         if (symbol == null) {
-            // Symbol can be null for object init functions without an explicit __init
+            // Symbol can be null for object init functions without an explicit init
             return ImmutablePair.of(functionName + "();", functionName + "()");
         }
         StringBuilder signature = new StringBuilder(functionName + "(");
@@ -1081,8 +1098,8 @@ public class CommonUtil {
      */
     public static Predicate<BLangImportPackage> importInCurrentFilePredicate(LSContext ctx) {
         String currentFile = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
-        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile)
-                && importPkg.getWS() != null;
+        //TODO: Removed `importPkg.getWS() != null` check, need to find another way to skip streaming imports
+        return importPkg -> importPkg.pos.getSource().cUnitName.replace("/", FILE_SEPARATOR).equals(currentFile);
     }
 
     /**

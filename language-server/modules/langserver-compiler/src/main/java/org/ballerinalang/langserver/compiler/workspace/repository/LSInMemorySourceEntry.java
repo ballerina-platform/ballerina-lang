@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.elements.PackageID;
@@ -41,6 +42,16 @@ class LSInMemorySourceEntry extends FileSystemSourceInput {
     public byte[] getCode() {
         try {
             return documentManager.getFileContent(this.getPath()).getBytes(StandardCharsets.UTF_8);
+        } catch (WorkspaceDocumentException e) {
+            throw new RuntimeException("Error in loading package source entry '" + getPath() +
+                                               "': " + e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public SyntaxTree getTree() {
+        try {
+            return this.documentManager.getTree(this.getPath());
         } catch (WorkspaceDocumentException e) {
             throw new RuntimeException("Error in loading package source entry '" + getPath() +
                                                "': " + e.getMessage(), e);

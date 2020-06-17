@@ -70,7 +70,35 @@ public class STOptionalFieldAccessExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STOptionalFieldAccessExpressionNode modify(
+            STNode expression,
+            STNode optionalChainingToken,
+            STNode fieldName) {
+        if (checkForReferenceEquality(
+                expression,
+                optionalChainingToken,
+                fieldName)) {
+            return this;
+        }
+
+        return new STOptionalFieldAccessExpressionNode(
+                expression,
+                optionalChainingToken,
+                fieldName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new OptionalFieldAccessExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

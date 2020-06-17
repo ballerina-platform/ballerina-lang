@@ -25,7 +25,9 @@ import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
@@ -73,6 +75,7 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
+    private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
@@ -87,6 +90,8 @@ public class BindingsGenerator {
     private static Set<String> allJavaClasses = new HashSet<>();
     private static Set<JError> exceptionList = new HashSet<>();
     private static Map<String, String> failedClassGens = new HashMap<>();
+
+    public static Map<String, String> aliases = new HashMap<>();
 
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
@@ -132,6 +137,13 @@ public class BindingsGenerator {
             // Handle failed binding generations.
             if (failedClassGens != null) {
                 handleFailedClassGens();
+            }
+            try {
+                ((URLClassLoader) classLoader).close();
+            } catch (IOException e) {
+                outStream.println("\nError while exiting the classloader:\n" + e.getMessage());
+            } catch (ClassCastException ignore) {
+                // Ignore if the classloader is not a URLClassLoader.
             }
         }
     }
@@ -246,6 +258,7 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance);
+                        jClass.setAccessModifier(accessModifier);
                         String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
                         createDirectory(outputFile);
                         String filePath = Paths.get(outputFile, jClass.getShortClassName() + BAL_EXTENSION).toString();
@@ -307,5 +320,9 @@ public class BindingsGenerator {
 
     public static String getOutputPath() {
         return outputPath;
+    }
+
+    void setPublic() {
+        this.accessModifier = "public ";
     }
 }

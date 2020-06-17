@@ -1,16 +1,31 @@
 {
   "kind": "RETURN_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "RETURN_KEYWORD"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
     }
   ]
 }

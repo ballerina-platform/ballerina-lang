@@ -9,7 +9,18 @@
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "INT_KEYWORD"
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",

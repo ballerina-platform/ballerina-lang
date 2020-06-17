@@ -1,0 +1,34 @@
+{
+  "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "STRING_LITERAL",
+      "children": [
+        {
+          "kind": "STRING_LITERAL",
+          "value": "hello world"
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_PLUS_TOKEN"
+      ]
+    },
+    {
+      "kind": "NIL_LITERAL",
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN"
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN"
+        }
+      ]
+    }
+  ]
+}

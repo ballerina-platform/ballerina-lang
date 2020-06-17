@@ -82,6 +82,7 @@ public class JvmConstants {
     public static final String STREAM_TYPE = "org/ballerinalang/jvm/types/BStreamType";
     public static final String TABLE_TYPE = "org/ballerinalang/jvm/types/BTableType";
     public static final String UNION_TYPE = "org/ballerinalang/jvm/types/BUnionType";
+    public static final String INTERSECTION_TYPE = "org/ballerinalang/jvm/types/BIntersectionType";
     public static final String RECORD_TYPE = "org/ballerinalang/jvm/types/BRecordType";
     public static final String OBJECT_TYPE = "org/ballerinalang/jvm/types/BObjectType";
     public static final String SERVICE_TYPE = "org/ballerinalang/jvm/types/BServiceType";
@@ -94,6 +95,8 @@ public class JvmConstants {
     public static final String FINITE_TYPE = "org/ballerinalang/jvm/types/BFiniteType";
     public static final String FUTURE_TYPE = "org/ballerinalang/jvm/types/BFutureType";
     public static final String PACKAGE_TYPE = "org/ballerinalang/jvm/types/BPackage";
+    public static final String TYPE_ID_SET = "org/ballerinalang/jvm/types/BTypeIdSet";
+    public static final String TYPE_ID = "org/ballerinalang/jvm/types/BTypeIdSet$TypeId";
 
     // other jvm-specific classes
     public static final String TYPE_CHECKER = "org/ballerinalang/jvm/TypeChecker";
@@ -158,18 +161,22 @@ public class JvmConstants {
     public static final String PANIC_FIELD = "panic";
     public static final String PRINT_STACK_TRACE_METHOD = "printStackTrace";
     public static final String SET_DETAIL_TYPE_METHOD = "setDetailType";
+    public static final String SET_TYPEID_SET_METHOD = "setTypeIdSet";
     public static final String ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
     public static final String TRAP_ERROR_METHOD = "trapError";
+
+    // Immutable type related constants.
+    public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
 
     // exception classes
     public static final String BLANG_RUNTIME_EXCEPTION = "org/ballerinalang/jvm/util/exceptions/BLangRuntimeException";
     public static final String THROWABLE = "java/lang/Throwable";
     public static final String STACK_OVERFLOW_ERROR = "java/lang/StackOverflowError";
-    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrors";
-    public static final String HANDLE_STOP_PANIC_METHOD = "silentlyLogBadSad";
+    public static final String HANDLE_THROWABLE_METHOD = "handleRuntimeErrorsAndExit";
     public static final String HANDLE_RETURNED_ERROR_METHOD = "handleRuntimeReturnValues";
     public static final String UNSUPPORTED_OPERATION_EXCEPTION = "java/lang/UnsupportedOperationException";
+    public static final String HANDLE_STOP_PANIC_METHOD = "handleRuntimeErrors";
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "___init";
@@ -186,6 +193,10 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String BUILT_IN_PACKAGE_NAME = "lang.annotations";
+    public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
+    public static final String MODULE_STARTED = "$moduleStarted";
+    public static final String START_FUNCTION_SUFFIX = "<start>";
+    public static final String STOP_FUNCTION_SUFFIX = "<stop>";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -202,6 +213,11 @@ public class JvmConstants {
     // observability related constants
     public static final String OBSERVER_CONTEXT = "org/ballerinalang/jvm/observability/ObserverContext";
     public static final String OBSERVE_UTILS = "org/ballerinalang/jvm/observability/ObserveUtils";
+    public static final String START_RESOURCE_OBSERVATION_METHOD = "startResourceObservation";
+    public static final String START_CALLABLE_OBSERVATION_METHOD = "startCallableObservation";
+    public static final String REPORT_ERROR_METHOD = "reportError";
+    public static final String STOP_OBSERVATION_METHOD = "stopObservation";
+    public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
 
     // visibility flags
     public static final int BAL_PUBLIC = 1;

@@ -2,29 +2,58 @@
   "kind": "UNARY_EXPRESSION",
   "children": [
     {
-      "kind": "NEGATION_TOKEN"
+      "kind": "NEGATION_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "UNARY_EXPRESSION",
       "children": [
         {
-          "kind": "PLUS_TOKEN"
+          "kind": "PLUS_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "UNARY_EXPRESSION",
           "children": [
             {
-              "kind": "MINUS_TOKEN"
+              "kind": "MINUS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "UNARY_EXPRESSION",
               "children": [
                 {
-                  "kind": "EXCLAMATION_MARK_TOKEN"
+                  "kind": "EXCLAMATION_MARK_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "3"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "3"
+                    }
+                  ]
                 }
               ]
             }

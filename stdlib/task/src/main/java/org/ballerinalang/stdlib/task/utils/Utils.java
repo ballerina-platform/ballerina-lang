@@ -18,7 +18,6 @@
 package org.ballerinalang.stdlib.task.utils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
@@ -32,7 +31,6 @@ import org.ballerinalang.stdlib.task.objects.Timer;
 
 import java.util.Objects;
 
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.DETAIL_RECORD_NAME;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DAYS_OF_MONTH;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DAYS_OF_WEEK;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_DELAY;
@@ -43,7 +41,7 @@ import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_MONTHS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_NO_OF_RUNS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_SECONDS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.FIELD_YEAR;
-import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_ERROR_REASON;
+import static org.ballerinalang.stdlib.task.utils.TaskConstants.LISTENER_ERROR;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.MEMBER_APPOINTMENT_DETAILS;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RECORD_APPOINTMENT_DATA;
 import static org.ballerinalang.stdlib.task.utils.TaskConstants.RESOURCE_ON_TRIGGER;
@@ -62,21 +60,11 @@ public class Utils {
     private static final int VALID_RESOURCE_COUNT = 1;
 
     public static ErrorValue createTaskError(String message) {
-        return createTaskError(LISTENER_ERROR_REASON, message);
+        return createTaskError(LISTENER_ERROR, message);
     }
 
     public static ErrorValue createTaskError(String reason, String message) {
-        MapValue<BString, Object> detail = createTaskDetailRecord(message);
-        return BallerinaErrors.createError(reason, detail);
-    }
-
-    private static MapValue<BString, Object> createTaskDetailRecord(String message) {
-        return createTaskDetailRecord(message, null);
-    }
-
-    private static MapValue<BString, Object> createTaskDetailRecord(String message, ErrorValue cause) {
-        MapValue<BString, Object> detail = BallerinaValues.createRecordValue(TASK_PACKAGE_ID, DETAIL_RECORD_NAME);
-        return BallerinaValues.createRecord(detail, message, cause);
+        return BallerinaErrors.createDistinctError(reason, TASK_PACKAGE_ID, message);
     }
 
     @SuppressWarnings("unchecked")
@@ -136,7 +124,7 @@ public class Utils {
             validateOnTriggerResource(resource.getReturnParameterType());
         } else {
             throw new SchedulingException("Invalid resource function found: " + resource.getName()
-                    + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\'.");
+                                                  + ". Expected: \'" + RESOURCE_ON_TRIGGER + "\'.");
         }
     }
 

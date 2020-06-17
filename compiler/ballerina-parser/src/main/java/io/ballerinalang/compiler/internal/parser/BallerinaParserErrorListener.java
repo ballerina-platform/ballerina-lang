@@ -19,8 +19,6 @@ package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
-import java.io.PrintStream;
-
 /**
  * Error listener that is responsible for reporting syntax errors. Custom
  * error reporting mechanisms can be implemented by extending this class.
@@ -38,16 +36,13 @@ public class BallerinaParserErrorListener {
         logError(0, 0, "invalid token '" + token.toString().trim() + "'");
     }
 
-    public void reportMissingTokenError(STToken token, String message) {
-        logError(0, 0, message);
-    }
-
     public void reportInvalidNodeError(STToken token, String message) {
         logError(0, 0, message);
     }
     
     private void logError(int line, int col, String message) {
-        PrintStream out = System.out;
-        out.println("xxx.bal:" + line + ":" + col + ":" + message);
+        // TODO - Removing below lines as it breaks lang-server rpc
+        // PrintStream out = System.out;
+        // out.println("xxx.bal:" + line + ":" + col + ":" + message);
     }
 }

@@ -209,7 +209,7 @@ public type Z1 object {
     *Y1;
     public boolean s;
     
-    public function __init(int p, string q, float r, boolean s) {
+    public function init(int p, string q, float r, boolean s) {
         self.p = p;
         self.q = q;
         self.r = r;

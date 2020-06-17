@@ -40,7 +40,7 @@ type Qux record {
     string s;
 };
 
-type MyError error<string>;
+type MyError error;
 
 function testErrorAdditionForInvalidRestField() {
     error e1 = error("test reason");

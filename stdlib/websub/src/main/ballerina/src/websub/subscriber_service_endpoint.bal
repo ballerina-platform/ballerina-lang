@@ -39,8 +39,20 @@ public type Listener object {
     #
     # + port - The port number of the remote service
     # + config - The configurations related to the `websub:Listener`
-    public function __init(int port, SubscriberListenerConfiguration? config = ()) {
-        self.init(port, config);
+    public function init(int port, SubscriberListenerConfiguration? config = ()) {
+        self.config = config;
+        http:ListenerConfiguration? serviceConfig = ();
+        if (config is SubscriberListenerConfiguration) {
+            http:ListenerConfiguration httpServiceConfig = {
+                host: config.host,
+                secureSocket: config.httpServiceSecureSocket
+            };
+            serviceConfig = httpServiceConfig;
+        }
+        http:Listener httpEndpoint = new(port, serviceConfig);
+        self.serviceEndpoint = httpEndpoint;
+
+        externInitWebSubSubscriberServiceEndpoint(self);
     }
 
 # Binds a service to the `websub:Listener`.
@@ -101,25 +113,6 @@ public type Listener object {
     public function __immediateStop() returns error? {
     }
 
-    # Gets called when the `websub:Listener` is being initialized during the module initialization.
-    #
-    # + sseEpConfig - The Subscriber Service configurations of the `websub:Listener`
-    function init(int port, SubscriberListenerConfiguration? sseEpConfig = ()) {
-        self.config = sseEpConfig;
-        http:ListenerConfiguration? serviceConfig = ();
-        if (sseEpConfig is SubscriberListenerConfiguration) {
-            http:ListenerConfiguration httpServiceConfig = {
-                host: sseEpConfig.host,
-                secureSocket: sseEpConfig.httpServiceSecureSocket
-            };
-            serviceConfig = httpServiceConfig;
-        }
-        http:Listener httpEndpoint = new(port, serviceConfig);
-        self.serviceEndpoint = httpEndpoint;
-
-        externInitWebSubSubscriberServiceEndpoint(self);
-    }
-
     # Sends subscription requests to the specified/discovered hubs if specified to subscribe on startup.
     function sendSubscriptionRequests() {
         map<any>[] subscriptionDetailsArray = externRetrieveSubscriptionParameters(self);
@@ -162,13 +155,13 @@ public type Listener object {
                         if (hubDecodeResponse is string) {
                             retHub = hubDecodeResponse;
                         } else {
-                            panic <error> hubDecodeResponse;
+                            panic <encoding:DecodingError> hubDecodeResponse;
                         }
                         var topicDecodeResponse = encoding:decodeUriComponent(retTopic, "UTF-8");
                         if (topicDecodeResponse is string) {
                             retTopic = topicDecodeResponse;
                         } else {
-                            panic <error> topicDecodeResponse;
+                            panic <encoding:DecodingError> topicDecodeResponse;
                         }
                         hub = retHub;
                         [string, string] hubAndTopic = [retHub, retTopic];
@@ -176,8 +169,8 @@ public type Listener object {
                         string webSubServiceName = <string>subscriptionDetails["webSubServiceName"];
                         self.setTopic(webSubServiceName, retTopic);
                     } else {
-                        string errCause = <string> discoveredDetails.detail()?.message;
-                        log:printError("Error sending out subscription request on start up: " + errCause);
+                        log:printError("Error sending out subscription request on start up: " +
+                                        discoveredDetails.message());
                         continue;
                     }
                 }
@@ -289,7 +282,6 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
     http:Client resourceEP = new http:Client(resourceUrl, publisherClientConfig);
     http:Request request = new;
     var discoveryResponse = resourceEP->get("", request);
-    error websubError = error("Dummy");
     if (discoveryResponse is http:Response) {
         var topicAndHubs = extractTopicAndHubUrls(discoveryResponse);
         if (topicAndHubs is [string, string[]]) {
@@ -301,12 +293,9 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:ClientConfiguration? pu
             return topicAndHubs;
         }
     } else {
-        error err = discoveryResponse;
-        string errCause = <string> err.detail()?.message;
-        websubError = error(WEBSUB_ERROR_CODE, message = "Error occurred with WebSub discovery for Resource URL [" +
-                                resourceUrl + "]: " + errCause );
+        return WebSubError("Error occurred with WebSub discovery for Resource URL [" +resourceUrl + "]: " +
+                            discoveryResponse.message() );
     }
-    return websubError;
 }
 
 # Invokes the `WebSubSubscriberConnector`'s remote functions for the subscription.
@@ -342,7 +331,7 @@ function invokeClientConnectorForSubscription(string hub, http:ClientConfigurati
         }
         log:printInfo(subscriptionSuccessMsg);
     } else {
-        string errCause = <string> subscriptionResponse.detail()?.message;
-        log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " + errCause);
+        log:printError("Subscription Request failed at Hub[" + hub + "], for Topic[" + topic + "]: " +
+                       subscriptionResponse.message());
     }
 }

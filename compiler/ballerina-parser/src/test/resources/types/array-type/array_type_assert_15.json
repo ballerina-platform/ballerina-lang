@@ -17,7 +17,12 @@
           "kind": "ARRAY_TYPE_DESC",
           "children": [
             {
-              "kind": "INT_KEYWORD"
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
             },
             {
               "kind": "OPEN_BRACKET_TOKEN"
@@ -39,7 +44,13 @@
               ]
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

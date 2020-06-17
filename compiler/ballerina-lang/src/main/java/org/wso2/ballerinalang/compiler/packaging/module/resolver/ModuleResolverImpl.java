@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ModuleRes
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageBalo;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -245,7 +244,7 @@ public class ModuleResolverImpl implements ModuleResolver {
     }
 
     private boolean isVersionExists(PackageID packageID) {
-        return packageID.version != null && !"".equals(packageID.version.getValue())
-                && packageID.version != Names.DEFAULT_VERSION && !packageID.version.getValue().equals(DEFAULT_VERSION);
+        return packageID.version != null && !"".equals(packageID.version.getValue());
+//       && packageID.version != Names.DEFAULT_VERSION && !packageID.version.getValue().equals(DEFAULT_VERSION);
     }
 }

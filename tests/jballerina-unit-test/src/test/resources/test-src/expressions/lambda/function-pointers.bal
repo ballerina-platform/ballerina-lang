@@ -104,7 +104,7 @@ function testAnyToFuncPointerConversion_1() returns (int|error) {
 type Person object {
     int age;
 
-    function __init (int age) {
+    function init (int age) {
         self.age = age;
     }
 

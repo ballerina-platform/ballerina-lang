@@ -39,10 +39,13 @@ import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -117,6 +120,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPacka
  */
 public class InteropMethodGen {
 
+    private static final ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
+
     static void genJFieldForInteropField(JFieldFunctionWrapper jFieldFuncWrapper,
                                          ClassWriter classWriter,
                                          BIRPackage birModule,
@@ -134,7 +139,13 @@ public class InteropMethodGen {
 
         // Generate method desc
         BIRFunction birFunc = jFieldFuncWrapper.func;
-        String desc = getMethodDesc(birFunc.type.paramTypes, birFunc.type.retType, null, false);
+        BType retType = birFunc.type.retType;
+
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(birFunc.type.retType);
+        }
+
+        String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false);
         int access = ACC_PUBLIC + ACC_STATIC;
 
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
@@ -186,7 +197,7 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, null, false, false, null, lambdaGenMetadata);
+                    strandParamIndex, true, birModule, null, lambdaGenMetadata);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -246,7 +257,6 @@ public class InteropMethodGen {
         }
 
         // Handle return type
-        BType retType = birFunc.type.retType;
         BIRVariableDcl retVarDcl = new BIRVariableDcl(retType, new Name("$_ret_var_$"), null, VarKind.LOCAL);
         int returnVarRefIndex = indexMap.getIndex(retVarDcl);
 
@@ -276,7 +286,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, false, -1);
+        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, -1);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
     }
@@ -285,6 +295,9 @@ public class InteropMethodGen {
                                     JvmMethodGen jvmMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
+        if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+            retType = typeBuilder.build(birFunc.type.retType);
+        }
         JMethod jMethod = extFuncWrapper.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());

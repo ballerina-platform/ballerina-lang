@@ -41,6 +41,7 @@ import java.io.IOException;
  * 
  * @since 0.975.0
  */
+@Test
 public class GlobalVarServiceInBaloTest {
 
     CompileResult result;

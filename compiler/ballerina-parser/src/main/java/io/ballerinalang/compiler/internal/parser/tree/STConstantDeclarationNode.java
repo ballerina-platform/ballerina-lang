@@ -105,7 +105,50 @@ public class STConstantDeclarationNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STConstantDeclarationNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode constKeyword,
+            STNode typeDescriptor,
+            STNode variableName,
+            STNode equalsToken,
+            STNode initializer,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STConstantDeclarationNode(
+                metadata,
+                visibilityQualifier,
+                constKeyword,
+                typeDescriptor,
+                variableName,
+                equalsToken,
+                initializer,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ConstantDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

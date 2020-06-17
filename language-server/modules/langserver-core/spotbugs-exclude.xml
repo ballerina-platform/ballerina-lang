@@ -97,4 +97,13 @@
             <Bug pattern="BC_UNCONFIRMED_CAST" />
         </OR>
     </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.completions.util.filters.SymbolFilters"/>
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaASTModifyRequest"/>
+    </Match>
 </FindBugsFilter>

@@ -52,8 +52,12 @@ public class STDocumentationLineToken extends STToken {
         return text;
     }
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationLineToken(text, leadingMinutiae, trailingMinutiae, diagnostics);
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDocumentationLineToken(this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STDocumentationLineToken(this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
@@ -62,7 +66,19 @@ public class STDocumentationLineToken extends STToken {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
+    }
+
+    @Override
+    public void toSourceCode(StringBuilder builder) {
+        leadingMinutiae.toSourceCode(builder);
+        builder.append(text);
+        trailingMinutiae.toSourceCode(builder);
     }
 }

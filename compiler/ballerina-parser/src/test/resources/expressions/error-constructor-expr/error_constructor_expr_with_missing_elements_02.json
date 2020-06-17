@@ -1,5 +1,6 @@
 {
   "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "ERROR_KEYWORD"
@@ -15,7 +16,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "ERROR_REASON"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "ERROR_REASON"
+                }
+              ]
             }
           ]
         },
@@ -23,18 +29,46 @@
           "kind": "NAMED_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "message"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "message",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "error message"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "error message"
+                }
+              ]
             }
           ]
         }
@@ -42,7 +76,11 @@
     },
     {
       "kind": "CLOSE_PAREN_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+      ]
     }
   ]
 }

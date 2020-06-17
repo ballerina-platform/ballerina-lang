@@ -19,8 +19,8 @@ type ErrorReasons "reason one"|"reason two";
 const ERROR_REASON_ONE = "reason one";
 const ERROR_REASON_TWO = "reason two";
 
-type UserDefErrorOne error<ErrorReasons>;
-type UserDefErrorTwo error<ERROR_REASON_ONE>;
+type UserDefErrorOne error;
+type UserDefErrorTwo error;
 
 function testInvalidErrorReasonWithUserDefinedReasonType() returns error {
     UserDefErrorOne e = error("");
@@ -38,11 +38,11 @@ type Foo record {|
     int...;
 |};
 
-type InvalidErrorOne error<int, map<any>>;
-type InvalidErrorTwo error<string, boolean>;
+type InvalidErrorOne error<map<any>>;
+type InvalidErrorTwo error<boolean>;
 
 const FLOAT = 1.0;
-error<FLOAT, Foo> e1 = error(1.0, message = "string val", one = 1);
+error<Foo> e1 = error("message", message = "string val", one = 1);
 
 function testInvalidErrorTypeInFunc() {
     error<boolean> e = error(true);
@@ -51,8 +51,8 @@ function testInvalidErrorTypeInFunc() {
 type MyError error<string>;
 
 function testSelfReferencingErrorConstructor() {
-    error e3 = error(e3.reason(), cause = e3);
-    MyError e4 = error("reason", cause = e4);
+    error e3 = error(e3.message(), e3);
+    MyError e4 = error("reason", e4);
     UserDefErrorOne ue1 = UserDefErrorOne();
     MyError me1 = MyError();
 }
@@ -87,9 +87,9 @@ const N = "r";
 type RN R|N;
 type RNStr R|N|string;
 
-type BeeError error <R, Bee>;
-type RNError error <RN, Bee>;
-type RNStrError error <RNStr, Bee>;
+type BeeError error <Bee>;
+type RNError error <Bee>;
+type RNStrError error <Bee>;
 
 function testIndirectErrorDestructuring() {
     BeeError e = BeeError(message="Msg", fatal=false, other="k");
@@ -104,12 +104,12 @@ type TrxErrorData2 record {|
 |};
 
 const string reasonA = "ErrNo-1";
-type UserDefErrorTwoA error<reasonA, TrxErrorData2>;
+type UserDefErrorTwoA error<TrxErrorData2>;
 
 public function errorReasonInference() returns [error, error] {
-    UserDefErrorTwoA er1 = error();
+    UserDefErrorTwoA er1 = error(reasonA);
     map<string> data = {"arg1":"arg1-1", "arg2":"arg2-2"};
-    UserDefErrorTwoA er2 = error(message = "message", data = data);
+    UserDefErrorTwoA er2 = error(reasonA, message = "message", data = data);
     return [er1, er2];
 }
 
@@ -119,5 +119,5 @@ function panicOnNonErrorMemberUnion() {
 }
 
 function errorDefinitionNegative() {
-    error<string, record { string message?; error cause?; int i;}> e  = 1;
+    error<record { string message?; error cause?; int i;}> e  = 1;
 }

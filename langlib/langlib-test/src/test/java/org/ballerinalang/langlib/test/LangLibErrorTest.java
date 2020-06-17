@@ -31,6 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNull;
 
 /**
  * This class tests error lang module functionality.
@@ -52,6 +53,22 @@ public class LangLibErrorTest {
         assertEquals(returns[0].stringValue(), "GenericError");
         assertEquals(returns[1].getType().getTag(), TypeTags.RECORD_TYPE_TAG);
         assertEquals(returns[1].stringValue(), "{message:\"Test union of errors with type test\"}");
+    }
+
+    @Test(enabled = false)
+    public void testErrorCause() {
+        CompileResult errorCtor = BCompileUtil.compile("test-src/errorlib_error_ctor_test.bal");
+        BValue[] returns = BRunUtil.invoke(errorCtor, "testErrorCause");
+        assertNull(returns[0]);
+        assertEquals(returns[1].stringValue(), "This is the cause {}");
+        assertEquals(returns[2].stringValue(), "This is the cause {}");
+    }
+
+    @Test(enabled = false)
+    public void testErrorDestructureWithCause() {
+        CompileResult errorCtor = BCompileUtil.compile("test-src/errorlib_error_ctor_test.bal");
+        BValue[] returns = BRunUtil.invoke(errorCtor, "testErrorDestructureWithCause");
+        assertEquals(returns[0].stringValue(), "This is the cause {}");
     }
 
     @Test

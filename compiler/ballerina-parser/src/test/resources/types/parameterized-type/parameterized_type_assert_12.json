@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "METADATA",
@@ -12,13 +13,19 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "TABLE_TYPE_DESC",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "TABLE_KEYWORD",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_TABLE_KEYWORD"
+              ]
             },
             {
               "kind": "TYPE_PARAMETER",
@@ -27,10 +34,21 @@
                   "kind": "LT_TOKEN"
                 },
                 {
-                  "kind": "INT_KEYWORD"
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    }
+                  ]
                 },
                 {
-                  "kind": "GT_TOKEN"
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

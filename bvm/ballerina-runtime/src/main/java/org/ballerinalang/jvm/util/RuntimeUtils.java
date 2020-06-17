@@ -125,6 +125,11 @@ public class RuntimeUtils {
         }
     }
 
+    public static void handleRuntimeErrorsAndExit(Throwable throwable) {
+        handleRuntimeErrors(throwable);
+        Runtime.getRuntime().exit(1);
+    }
+
     public static void handleRuntimeErrors(Throwable throwable) {
         if (throwable instanceof ErrorValue) {
             errStream.println("error: " + ((ErrorValue) throwable).getPrintableStackTrace());
@@ -133,14 +138,12 @@ public class RuntimeUtils {
             errStream.println(BLangConstants.INTERNAL_ERROR_MESSAGE);
             silentlyLogBadSad(throwable);
         }
-
-        Runtime.getRuntime().exit(1);
     }
 
     public static void handleRuntimeReturnValues(Object returnValue) {
         if (returnValue instanceof ErrorValue) {
             ErrorValue errorValue = (ErrorValue) returnValue;
-            errStream.println("error: " + errorValue.getReason() +
+            errStream.println("error: " + errorValue.getMessage() +
                     Optional.ofNullable(errorValue.getDetails()).map(details -> " " + details).orElse(""));
             Runtime.getRuntime().exit(1);
         }

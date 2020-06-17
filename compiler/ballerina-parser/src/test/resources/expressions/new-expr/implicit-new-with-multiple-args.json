@@ -17,8 +17,13 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
               ]
             },
@@ -26,11 +31,22 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "COMMA_TOKEN"
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "10"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "10"
+                    }
+                  ]
                 }
               ]
             },
@@ -38,11 +54,22 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "COMMA_TOKEN"
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "12"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "12"
+                    }
+                  ]
                 }
               ]
             }

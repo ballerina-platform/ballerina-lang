@@ -37,7 +37,7 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
     public void testTransformerByCountingTokens() {
         SyntaxTree syntaxTree = parseFile("token_counter.bal");
         TokenCounter tokenCounter = new TokenCounter();
-        int actualNoOfTokens = syntaxTree.modulePart().apply(tokenCounter);
+        int actualNoOfTokens = syntaxTree.rootNode().apply(tokenCounter);
         int expectedNoOfTokens = 33;
 
         Assert.assertEquals(actualNoOfTokens, expectedNoOfTokens);
@@ -47,7 +47,7 @@ public class NodeTransformerTest extends AbstractSyntaxTreeAPITest {
     public void testTransformerByFindingDeepestToken() {
         SyntaxTree syntaxTree = parseFile("deepest_token.bal");
         DeepestTokenFinder deepestTokenFinder = new DeepestTokenFinder();
-        TokenWrapper deepestToken = syntaxTree.modulePart().apply(deepestTokenFinder);
+        TokenWrapper deepestToken = syntaxTree.rootNode().apply(deepestTokenFinder);
 
         Assert.assertEquals(deepestToken.depth, 11);
         Assert.assertEquals(deepestToken.token.toString(), "a");

@@ -31,18 +31,14 @@ import io.netty.handler.codec.http.HttpVersion;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONGenerator;
-import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.types.AttachedFunction;
-import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaConnectorException;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -97,7 +93,6 @@ import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -106,8 +101,8 @@ import java.util.stream.Collectors;
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_HOST;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_HTTP_PORT;
+import static org.ballerinalang.jvm.observability.ObservabilityConstants.PROPERTY_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
-import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PEER_ADDRESS;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.BALLERINA_VERSION;
@@ -142,16 +137,11 @@ import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_CER
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
 import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
 import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_CODE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_DETAIL_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_ERROR_MESSAGE;
-import static org.ballerinalang.net.http.HttpConstants.HTTP_MODULE_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
-import static org.ballerinalang.net.http.HttpConstants.MODULE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
-import static org.ballerinalang.net.http.HttpConstants.PACKAGE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
@@ -172,7 +162,6 @@ import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLI
 import static org.ballerinalang.net.http.HttpConstants.SSL_PROTOCOL_VERSION;
 import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
 import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler.sendPipelinedResponse;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.DETAIL_RECORD_TYPE_NAME;
 import static org.ballerinalang.stdlib.io.utils.IOConstants.IO_PACKAGE_ID;
 import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.HTTP_1_1_VERSION;
@@ -416,7 +405,7 @@ public class HttpUtil {
         if (!errorDetails.isEmpty()) {
             return errorDetails.get(HTTP_ERROR_MESSAGE).toString();
         }
-        return error.getReason().getValue();
+        return error.getErrorMessage().getValue();
     }
 
     private static int getStatusCode(HttpCarbonMessage requestMessage, String errorMsg) {
@@ -460,18 +449,6 @@ public class HttpUtil {
     }
 
     /**
-     * Get HTTP error value with a given error detail.
-     *
-     * @param errMsg  Error message
-     * @return Error value
-     */
-    public static ErrorValue getError(String errMsg) {
-        MapValue<BString, Object> httpErrorRecord = createHttpErrorDetailRecord(errMsg, null);
-        httpErrorRecord.put(HTTP_ERROR_MESSAGE, org.ballerinalang.jvm.StringUtils.fromString(errMsg));
-        return BallerinaErrors.createError(HTTP_ERROR_CODE, httpErrorRecord);
-    }
-
-    /**
      * Get error value from throwable.
      *
      * @param throwable Throwable representing the error.
@@ -504,12 +481,12 @@ public class HttpUtil {
         } else if (throwable instanceof ConnectionTimedOutException) {
             cause = createErrorCause(throwable.getMessage(),
                                      IOConstants.ErrorCode.ConnectionTimedOut.errorCode(),
-                                     IO_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
+                                     IO_PACKAGE_ID);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else if (throwable instanceof ClientConnectorException) {
             cause = createErrorCause(throwable.getMessage(),
                                      IOConstants.ErrorCode.GenericError.errorCode(),
-                                     IO_PACKAGE_ID, DETAIL_RECORD_TYPE_NAME);
+                                     IO_PACKAGE_ID);
             return createHttpError("Something wrong with the connection", HttpErrorType.GENERIC_CLIENT_ERROR, cause);
         } else {
             return createHttpError(throwable.getMessage());
@@ -517,23 +494,11 @@ public class HttpUtil {
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType) {
-        Map<String, Object> values = new HashMap<>();
-        values.put(BallerinaErrors.ERROR_MESSAGE_FIELD.getValue(), message);
-        MapValue<BString, Object> detail =
-                BallerinaValues.createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD, values);
-        return BallerinaErrors.createError(errorType.getReason(), detail);
+        return BallerinaErrors.createDistinctError(errorType.getErrorName(), PROTOCOL_HTTP_PKG_ID, message);
     }
 
     public static ErrorValue createHttpError(String message, HttpErrorType errorType, ErrorValue cause) {
-        MapValue<BString, Object> detailRecord = createHttpErrorDetailRecord(message, cause);
-        return BallerinaErrors.createError(errorType.getReason(), detailRecord);
-    }
-
-    private static MapValue<BString, Object> createHttpErrorDetailRecord(String message, ErrorValue cause) {
-        MapValue<BString, Object> detail = BallerinaValues.
-                createRecordValue(PROTOCOL_HTTP_PKG_ID, HTTP_ERROR_DETAIL_RECORD);
-        return cause == null ? BallerinaValues.createRecord(detail, message) :
-                BallerinaValues.createRecord(detail, message, cause);
+        return BallerinaErrors.createDistinctError(errorType.getErrorName(), PROTOCOL_HTTP_PKG_ID, message, cause);
     }
 
     // TODO: Find a better way to get the error type than String matching.
@@ -579,11 +544,8 @@ public class HttpUtil {
         }
     }
 
-    private static ErrorValue createErrorCause(String message, String reason, BPackage packageName, String recordName) {
-
-        MapValue<BString, Object> detailRecordType = BallerinaValues.createRecordValue(packageName, recordName);
-        MapValue<BString, Object> detailRecord = BallerinaValues.createRecord(detailRecordType, message, null);
-        return BallerinaErrors.createError(reason, detailRecord);
+    private static ErrorValue createErrorCause(String message, String errorTypeId, BPackage packageName) {
+        return BallerinaErrors.createDistinctError(errorTypeId, packageName, message);
     }
 
     public static HttpCarbonMessage getCarbonMsg(ObjectValue objectValue, HttpCarbonMessage defaultMsg) {
@@ -1136,17 +1098,17 @@ public class HttpUtil {
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
         observerContext.ifPresent(ctx -> {
-            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(strand.observerContext));
-            strand.observerContext.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
-            strand.observerContext.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
-            strand.observerContext.addTag(TAG_KEY_PEER_ADDRESS,
+            HttpUtil.injectHeaders(message, ObserveUtils.getContextProperties(ctx));
+            ctx.addTag(TAG_KEY_HTTP_METHOD, message.getHttpMethod());
+            ctx.addTag(TAG_KEY_HTTP_URL, String.valueOf(message.getProperty(HttpConstants.TO)));
+            ctx.addTag(TAG_KEY_PEER_ADDRESS,
                        message.getProperty(PROPERTY_HTTP_HOST) + ":" + message.getProperty(PROPERTY_HTTP_PORT));
             // Add HTTP Status Code tag. The HTTP status code will be set using the response message.
             // Sometimes the HTTP status code will not be set due to errors etc. Therefore, it's very important to set
             // some value to HTTP Status Code to make sure that tags will not change depending on various
             // circumstances.
             // HTTP Status code must be a number.
-            strand.observerContext.addTag(TAG_KEY_HTTP_STATUS_CODE, Integer.toString(0));
+            ctx.addProperty(PROPERTY_KEY_HTTP_STATUS_CODE, 0);
         });
     }
 
@@ -1716,14 +1678,6 @@ public class HttpUtil {
         String serviceTypeName = balService.getType().getName();
         int serviceIndex = serviceTypeName.lastIndexOf("$$service$");
         return serviceTypeName.substring(0, serviceIndex);
-    }
-
-    public static ErrorValue createHttpError(String reason, String errorName, String reasonType, String errorMsg) {
-        Object detail = createHttpErrorDetailRecord(errorMsg, BallerinaErrors.createError(reasonType, errorMsg));
-        return new ErrorValue(
-                new BErrorType(errorName, new BPackage(PACKAGE, MODULE, HTTP_MODULE_VERSION), BTypes.typeString,
-                               TypeChecker.getType(detail)), org.ballerinalang.jvm.StringUtils.fromString(reason),
-                detail);
     }
 
     private HttpUtil() {

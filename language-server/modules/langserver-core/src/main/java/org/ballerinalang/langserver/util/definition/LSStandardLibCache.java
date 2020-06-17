@@ -86,7 +86,12 @@ public class LSStandardLibCache {
                     public List<TopLevelNode> load(@Nonnull String module) throws UnsupportedEncodingException,
                             LSStdlibCacheException {
                         // If the content is not in the cache then we need to extract the source content and compile
-                        LSStdLibCacheUtil.extractSourceForCacheableKey(module);
+                        int versionSeparator = module.lastIndexOf("_");
+                        int modNameSeparator = module.indexOf("_");
+                        String version = module.substring(versionSeparator + 1);
+                        String moduleName = module.substring(modNameSeparator + 1, versionSeparator);
+                        String orgName = module.substring(0, modNameSeparator);
+                        LSStdLibCacheUtil.extractSourceForModule(orgName, moduleName, version);
                         return getNodesForModule(module);
                     }
                 });
@@ -182,8 +187,12 @@ public class LSStandardLibCache {
         new Thread(() -> {
             try {
                 for (String langLib : langLibs) {
-                    String cacheableKey = "ballerina_lang." + langLib + "_0.0.0";
-                    LSStdLibCacheUtil.extractSourceForCacheableKey(cacheableKey);
+                    String orgName = "ballerina";
+                    String moduleName = "lang." + langLib;
+                    Path modulePath = LSStdLibCacheUtil.STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName);
+                    String version = LSStdLibCacheUtil.readModuleVersionFromDir(modulePath);
+                    String cacheableKey = orgName + "_" + moduleName + "_" + version;
+                    LSStdLibCacheUtil.extractSourceForModule(orgName, moduleName, version);
                     topLevelNodeCache.put(cacheableKey, getNodesForModule(cacheableKey));
                 }
             } catch (LSStdlibCacheException | UnsupportedEncodingException e) {

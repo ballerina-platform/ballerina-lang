@@ -1,0 +1,138 @@
+syntax = "proto3";
+package v0_1_2;
+
+option java_package = "org.ballerinalang.observe.trace.extension.choreo.gen";
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+service Handshake {
+    rpc register (RegisterRequest) returns (RegisterResponse);
+    rpc publishAst (PublishAstRequest) returns (google.protobuf.Empty);
+}
+
+message RegisterRequest {
+    // This is the hash of the Ballerina program's AST
+    string astHash = 1; // obsId = f(astHash, projectSecret)
+
+    // This is unique for an anonymous project. This maps to a obsId, which can be public.
+    string projectSecret = 2;
+
+    // This is a unique ID for node/machine on which programs run.
+    // if two programs run in the same machine(node), they will have the same node ID
+    string nodeId = 3;
+}
+
+message RegisterResponse {
+    string obsId = 1; // When publishing, you need to send the obsId
+    string version = 2; // version of the program
+    string obsUrl = 3; // This will contain the obsid & version
+    bool sendAst = 4;
+}
+
+message PublishAstRequest {
+    string obsId = 1;
+    string projectSecret = 2;
+    string ast = 3;
+}
+
+service Negotiator {
+    rpc getAst(GetAstRequest) 
+            returns (GetAstResponse);
+
+    rpc validateProjectSecret(ValidateProjectSecretRequest) 
+            returns (ValidateProjectSecretResponse);
+
+    rpc getObsIdAndProjectSecret(GetObsIdAndProjectSecretRequest) returns (GetObsIdAndProjectSecretResponse);
+
+    rpc getProjectSecret(GetProjectSecretRequest) returns (GetProjectSecretResponse);
+
+    rpc getObservabilityUrl(GetObservabilityUrlRequest)
+            returns (GetObservabilityUrlResponse);
+
+    rpc getApplicationId(GetAppIdRequest) returns (GetAppIdResponse);
+
+    rpc getObservabilityIDs(GetObservabilityIDsRequest)
+            returns (GetObservabilityIDsResponse);
+
+    rpc linkApplication (LinkApplicationRequest)
+            returns (google.protobuf.Empty);
+}
+
+message GetAstRequest {
+    string obsId = 1;
+    string version = 2;
+}
+
+message GetAstResponse {
+    string obsId = 1;
+    string version = 2;
+    string ast = 3;
+}
+
+message ValidateProjectSecretRequest {
+    string obsId = 1;
+    string projectSecret = 2;
+}
+
+message ValidateProjectSecretResponse {
+    bool isValid = 1;
+}
+
+message GetObsIdAndProjectSecretRequest {
+    string appId = 1;
+}
+
+message GetObsIdAndProjectSecretResponse {
+    string obsId = 1;
+    string projectSecret = 2;
+}
+
+message GetProjectSecretRequest {
+    string appId = 1;
+}
+
+message GetProjectSecretResponse {
+    string projectSecret = 1;
+}
+
+message GetObservabilityUrlRequest {
+    string appId = 1;
+}
+
+message GetObservabilityUrlResponse {
+    string url = 1;
+}
+
+message GetAppIdRequest {
+    string obsId = 1;
+}
+
+message GetObservabilityIDsRequest {
+    repeated string appIDs = 1;
+}
+
+message GetObservabilityIDsResponse {
+    repeated AppIdToObservabilityIdMapping appIdToObsIdMapping = 1;
+}
+
+message AppIdToObservabilityIdMapping {
+    string appId = 1;
+    oneof id {
+        string observabilityId = 2;
+        bool notFound = 3;
+    }
+}
+
+message GetAppIdResponse {
+    oneof id {
+        string appId = 1;
+        bool notFound = 2;
+    }
+}
+
+message LinkApplicationRequest {
+    string obsId = 1;
+    string projectSecret = 2;
+    string appId = 3;
+}

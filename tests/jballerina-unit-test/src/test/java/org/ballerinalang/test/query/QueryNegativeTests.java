@@ -32,10 +32,10 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class QueryNegativeTests {
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 21);
+        Assert.assertEquals(compileResult.getErrorCount(), 23);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -63,7 +63,9 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "incompatible types: expected 'FullName[]', found 'error?'", 266, 13);
         validateError(compileResult, index++, "incompatible types: expected 'xml', found '(xml|string)'", 283, 24);
         validateError(compileResult, index++, "incompatible types: expected 'string', found 'int'", 297, 24);
-        validateError(compileResult, index, "a type compatible with mapping constructor expressions " +
+        validateError(compileResult, index++, "a type compatible with mapping constructor expressions " +
                 "not found in type 'string'", 311, 24);
+        validateError(compileResult, index++, "ambiguous type '[xml, xml]'", 333, 24);
+        validateError(compileResult, index, "ambiguous type '[string, string]'", 346, 24);
     }
 }

@@ -1,29 +1,94 @@
 {
   "kind": "ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "BINARY_EXPRESSION",
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "PLUS_TOKEN"
-        },
-        {
-          "kind": "BINARY_EXPRESSION",
-          "children": [
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS"
+          ],
+          "leadingMinutiae": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
-            },
-            {
-              "kind": "PLUS_TOKEN"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "BINARY_EXPRESSION",
+                "children": [
+                  {
+                    "kind": "BINARY_EXPRESSION",
+                    "children": [
+                      {
+                        "kind": "SIMPLE_NAME_REFERENCE",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "a",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "PLUS_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      },
+                      {
+                        "kind": "SIMPLE_NAME_REFERENCE",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "b",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "PLUS_TOKEN",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  },
+                  {
+                    "kind": "SIMPLE_NAME_REFERENCE",
+                    "children": [
+                      {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "c",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": "  "
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         }
@@ -31,11 +96,20 @@
     },
     {
       "kind": "EQUAL_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_EQUAL_TOKEN"
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "d"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

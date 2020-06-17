@@ -22,7 +22,7 @@ grpc:RetryConfiguration retryConfig = {
     intervalInMillis: 2000,
     maxIntervalInMillis: 10000,
     backoffFactor: 2,
-    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+    errorTypes: [grpc:UnavailableError, grpc:InternalError]
 };
 grpc:ClientConfiguration clientConfig = {
     timeoutInMillis: 1000,
@@ -34,7 +34,7 @@ grpc:RetryConfiguration failingRetryConfig = {
     intervalInMillis: 2000,
     maxIntervalInMillis: 10000,
     backoffFactor: 2,
-    errorTypes: [grpc:UNAVAILABLE_ERROR, grpc:INTERNAL_ERROR]
+    errorTypes: [grpc:UnavailableError, grpc:InternalError]
 };
 grpc:ClientConfiguration failingClientConfig = {
     timeoutInMillis: 1000,
@@ -63,7 +63,7 @@ public function testRetryFailingClient() returns string {
     var result = failingRetryClient->getResult("FailingRetryClient");
     if (result is grpc:Error) {
         io:println(result);
-        return result.reason();
+        return result.message();
     } else {
         var [message, headers] = result;
         return message;
@@ -76,7 +76,7 @@ public type RetryServiceBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR_22, getDescriptorMap22());
     }

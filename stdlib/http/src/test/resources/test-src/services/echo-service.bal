@@ -108,12 +108,12 @@ service echo on echoEP {
             res.setJsonPayload(<@untainted json> responseJson);
         } else {
             if (params is http:GenericClientError) {
-                error? cause = params.detail()?.cause;
+                error? cause = params.cause();
                 string? errorMsg;
                 if (cause is error) {
-                    errorMsg = cause.detail()?.message;
+                    errorMsg = cause.message();
                 } else {
-                    errorMsg = params.detail()?.message;
+                    errorMsg = params.message();
                 }
                 if (errorMsg is string) {
                     res.setPayload(<@untainted string> errorMsg);
@@ -122,7 +122,7 @@ service echo on echoEP {
                 }
             } else {
                 error err = params;
-                string? errMsg = <string> err.detail()?.message;
+                string? errMsg = <string> err.message();
                 res.setPayload(errMsg is string ? <@untainted string> errMsg : "Error in parsing form params");
             }
         }
@@ -165,7 +165,7 @@ service hello on echoEP {
     }
 
     resource function testFunctionCall(http:Caller caller, http:Request req) {
-        checkpanic caller->respond(<@untained> self.nonRemoteFunctionCall());
+        checkpanic caller->respond(<@untainted> self.nonRemoteFunctionCall());
     }
 
     function nonRemoteFunctionCall() returns string {

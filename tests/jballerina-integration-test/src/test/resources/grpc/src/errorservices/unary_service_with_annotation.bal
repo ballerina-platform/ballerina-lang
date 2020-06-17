@@ -19,67 +19,36 @@ import ballerina/io;
 listener grpc:Listener server8 = new (9100);
 
 service TestService on server8 {
-    @grpc:ResourceConfig {
-        requestType: string,
-        responseType: string
-    }
+
     resource function hello(grpc:Caller caller, string name) {
     }
 
-    @grpc:ResourceConfig {
-        requestType: int,
-        responseType: int,
-        streaming: true
-    }
     resource function testInt(grpc:Caller caller, int age) {
     }
 
-    @grpc:ResourceConfig {
-        requestType: float,
-        responseType: float
-    }
     resource function testFloat(grpc:Caller caller, float salary) {
     }
 
-    @grpc:ResourceConfig {
-        requestType: boolean,
-        responseType: boolean
-    }
     resource function testBoolean(grpc:Caller caller, boolean available) {
     }
 
-    @grpc:ResourceConfig {
-        requestType: Request,
-        responseType: Response
-    }
     resource function testStruct(grpc:Caller caller, Request msg) {
     }
 
-    @grpc:ResourceConfig {
-        responseType: string
-    }
     resource function testNoRequest(grpc:Caller caller) {
         string resp = "service invoked with no request";
         io:println("Server send response : " + resp);
         grpc:Error? err = caller->send(resp);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason());
+            io:println("Error from Connector: " + err.message());
         }
         checkpanic caller->complete();
     }
 
-    @grpc:ResourceConfig {
-        requestType: string
-    }
     resource function testNoResponse(grpc:Caller caller, string msg) {
         io:println("Request: " + msg);
     }
 
-
-    @grpc:ResourceConfig {
-        requestType: Person,
-        responseType: string
-    }
     resource function testInputNestedStruct(grpc:Caller caller, Person req) {
     }
 }

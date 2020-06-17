@@ -70,7 +70,35 @@ public class STListConstructorExpressionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STListConstructorExpressionNode modify(
+            STNode openBracket,
+            STNode expressions,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                openBracket,
+                expressions,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STListConstructorExpressionNode(
+                openBracket,
+                expressions,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ListConstructorExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

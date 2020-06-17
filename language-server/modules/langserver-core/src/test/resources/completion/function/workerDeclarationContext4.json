@@ -365,6 +365,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "myCookie",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "180",
+      "insertText": "myCookie",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "CookieClient",
       "kind": "Interface",
       "detail": "Object",
@@ -571,17 +579,6 @@
       },
       "sortText": "110",
       "insertText": "RedirectCode",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Detail",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Holds the details of an HTTP error\n"
-      },
-      "sortText": "180",
-      "insertText": "Detail",
       "insertTextFormat": "Snippet"
     },
     {
@@ -962,7 +959,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
+        "left": "Represents the error attributes in addition to the message and the cause of the `LoadBalanceActionError`.\n"
       },
       "sortText": "180",
       "insertText": "LoadBalanceActionErrorData",
@@ -1215,6 +1212,17 @@
       },
       "sortText": "180",
       "insertText": "ClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CsvPersistentCookieHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+      },
+      "sortText": "190",
+      "insertText": "CsvPersistentCookieHandler",
       "insertTextFormat": "Snippet"
     },
     {

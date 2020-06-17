@@ -77,7 +77,38 @@ public class STEnumMemberNode extends STNode {
                 diagnostics);
     }
 
+    public STEnumMemberNode modify(
+            STNode metadata,
+            STNode identifier,
+            STNode equalToken,
+            STNode constExprNode) {
+        if (checkForReferenceEquality(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode)) {
+            return this;
+        }
+
+        return new STEnumMemberNode(
+                metadata,
+                identifier,
+                equalToken,
+                constExprNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new EnumMemberNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

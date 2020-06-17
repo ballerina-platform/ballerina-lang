@@ -110,7 +110,7 @@ function handleResponseToCaller(error? responseToCaller) {
 function sendErrorResponse(http:Caller caller, error e) {
     http:Response response = new;
     response.statusCode = 500;
-    response.setPayload(<string>e.detail()?.message);
+    response.setPayload(<@untainted> e.message());
     var respondToCaller = caller->respond(response);
     handleResponseToCaller(respondToCaller);
 }

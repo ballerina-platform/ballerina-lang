@@ -29,7 +29,7 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
-    @Test
+    @Test(groups = {"brokenOnNewParser"})
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
@@ -60,9 +60,12 @@ public class AnnotationDeclarationTest {
     @Test
     public void testInvalidAnnotType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "annotation declaration requires a subtype of 'true', " +
-                "'map<anydata>' or 'map<anydata>[]', but found 'int'", 17, 12);
+                "'map<anydata|readonly>' or 'map<anydata|readonly>[]', but found 'int'", 17, 12);
+        BAssertUtil.validateError(compileResult, 1,
+                                  "annotation declaration requires a subtype of 'true', 'map<anydata|readonly>' or " +
+                                          "'map<anydata|readonly>[]', but found 'true[]'", 22, 12);
     }
 
     @Test

@@ -23,7 +23,7 @@ import ballerina/stringutils;
 # jwt:InboundJwtAuthProvider inboundJwtAuthProvider = new({
 #     issuer: "example",
 #     audience: "ballerina",
-#     signatureConfig: {
+#     trustStoreConfig: {
 #         certificateAlias: "ballerina",
 #         trustStore: {
 #             path: "/path/to/truststore.p12",
@@ -32,7 +32,6 @@ import ballerina/stringutils;
 #     }
 # });
 # ```
-#
 public type InboundJwtAuthProvider object {
 
     *auth:InboundAuthProvider;
@@ -42,7 +41,7 @@ public type InboundJwtAuthProvider object {
     # Provides authentication based on the provided JWT.
     #
     # + jwtValidatorConfig - JWT validator configurations
-    public function __init(JwtValidatorConfig jwtValidatorConfig) {
+    public function init(JwtValidatorConfig jwtValidatorConfig) {
         self.jwtValidatorConfig = jwtValidatorConfig;
     }
 

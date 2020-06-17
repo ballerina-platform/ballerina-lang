@@ -205,6 +205,10 @@ public final class ServerCall {
         return method;
     }
 
+    public HttpHeaders getHeaders() {
+        return inboundMessage.getHeaders();
+    }
+
     /**
      * Server Stream Listener instance.
      */
@@ -250,7 +254,7 @@ public final class ServerCall {
                 listener.onComplete();
             } else {
                 call.cancelled = true;
-                listener.onCancel();
+                listener.onCancel(new Message(status.asRuntimeException()));
             }
         }
     }

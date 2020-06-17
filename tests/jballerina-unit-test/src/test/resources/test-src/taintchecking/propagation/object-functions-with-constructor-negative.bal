@@ -2,7 +2,7 @@ type TestObject object {
 
     public string testString;
 
-    public function __init (string testString) {
+    public function init (string testString) {
         self.testString = testString;
     }
 

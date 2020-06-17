@@ -18,9 +18,12 @@
 
 package org.wso2.ballerinalang.compiler.packaging.module.resolver.model;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.repository.CompilerInput;
 
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 /**
@@ -31,6 +34,7 @@ public class CompilerInputImpl implements CompilerInput {
     private final byte[] code;
     private final Path path;
     private Path packageRoot;
+    private SyntaxTree tree = null;
 
     CompilerInputImpl(byte[] code, Path path) {
         this.code = code;
@@ -63,6 +67,15 @@ public class CompilerInputImpl implements CompilerInput {
     public byte[] getCode() {
         byte[] codeCopy = this.code;
         return codeCopy;
+    }
+
+    @Override
+    public SyntaxTree getTree() {
+        if (this.tree != null) {
+            return this.tree;
+        }
+        this.tree = SyntaxTree.from(TextDocuments.from(new String(getCode(), StandardCharsets.UTF_8)));
+        return this.tree;
     }
 
     public Path getPath() {

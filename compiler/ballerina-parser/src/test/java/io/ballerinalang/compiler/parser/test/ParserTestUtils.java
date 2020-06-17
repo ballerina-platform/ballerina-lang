@@ -24,17 +24,14 @@ import com.google.gson.JsonObject;
 import io.ballerinalang.compiler.internal.parser.BallerinaParser;
 import io.ballerinalang.compiler.internal.parser.ParserFactory;
 import io.ballerinalang.compiler.internal.parser.ParserRuleContext;
-import io.ballerinalang.compiler.internal.parser.tree.STBasicLiteralNode;
-import io.ballerinalang.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.internal.parser.tree.STDocumentationLineToken;
 import io.ballerinalang.compiler.internal.parser.tree.STIdentifierToken;
-import io.ballerinalang.compiler.internal.parser.tree.STLiteralValueToken;
+import io.ballerinalang.compiler.internal.parser.tree.STInvalidNodeMinutiae;
 import io.ballerinalang.compiler.internal.parser.tree.STMinutiae;
-import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
-import io.ballerinalang.compiler.internal.parser.tree.STXMLTextNode;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -44,15 +41,18 @@ import org.testng.Assert;
 
 import java.io.BufferedWriter;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 
 import static io.ballerinalang.compiler.internal.syntax.SyntaxUtils.isSTNodePresent;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.CHILDREN_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.DIAGNOSTICS_FIELD;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.HAS_DIAGNOSTICS;
+import static io.ballerinalang.compiler.parser.test.ParserTestConstants.INVALID_NODE_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.IS_MISSING_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.KIND_FIELD;
 import static io.ballerinalang.compiler.parser.test.ParserTestConstants.LEADING_MINUTIAE;
@@ -82,7 +82,7 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(Path sourceFilePath, ParserRuleContext context, Path assertFilePath) {
-        // updateAssertFiles(sourceFilePath, assertFilePath, context);
+        updateAssertFile(sourceFilePath, assertFilePath, context);
 
         String content = getSourceText(sourceFilePath);
         test(content, context, assertFilePath);
@@ -96,7 +96,7 @@ public class ParserTestUtils {
      * @param assertFilePath File to assert the resulting tree after parsing
      */
     public static void test(String source, ParserRuleContext context, Path assertFilePath) {
-        // updateAssertFiles(source, assertFilePath, context);
+        updateAssertFile(source, assertFilePath, context);
 
         // Parse the source
         BallerinaParser parser = ParserFactory.getParser(source);
@@ -116,6 +116,8 @@ public class ParserTestUtils {
      * @param assertFilePath json file path which contains the tree structure
      */
     public static void testTree(Node actualTreeRoot, Path assertFilePath) {
+        updateAssertFile(actualTreeRoot, assertFilePath);
+
         // Read the assertion file
         JsonObject assertJson = readAssertFile(RESOURCE_DIRECTORY.resolve(assertFilePath));
 
@@ -158,78 +160,148 @@ public class ParserTestUtils {
     }
 
     private static void assertNode(STNode node, JsonObject json) {
-        // Remove the wrappers
-        if (node instanceof STBasicLiteralNode) {
-            node = ((STBasicLiteralNode) node).literalToken;
-        } else if (node instanceof STSimpleNameReferenceNode) {
-            node = ((STSimpleNameReferenceNode) node).name;
-        } else if (node instanceof STBuiltinSimpleNameReferenceNode) {
-            node = ((STBuiltinSimpleNameReferenceNode) node).name;
-        } else if (node instanceof STXMLTextNode) {
-            node = ((STXMLTextNode) node).content;
+        assertNodeKind(json, node);
+        assertMissingToken(json, node);
+        assertDiagnostics(json, node);
+        if (isToken(node)) {
+            assertTerminalNode(json, (STToken) node);
+        } else {
+            assertNonTerminalNode(json, node);
         }
+    }
 
-        aseertNodeKind(json, node);
+    private static void assertMissingToken(JsonObject json, STNode node) {
+        JsonElement isMissingField = json.get(IS_MISSING_FIELD);
+        boolean expectedMissing = isMissingField != null && isMissingField.getAsBoolean();
+        boolean actualMissing = node.isMissing();
+        if (expectedMissing) {
+            Assert.assertTrue(actualMissing, "'" + node.toString().trim() +
+                    "' expected to be a STMissingToken, but found '" +
+                    node.kind + "'.");
+        } else {
+            Assert.assertFalse(actualMissing, "Expected:" + json + ", but found " + node);
+        }
+    }
 
-        if (isMissingToken(json)) {
-            Assert.assertTrue(node instanceof STMissingToken,
-                    "'" + node.toString().trim() + "' expected to be a STMissingToken, but found '" + node.kind + "'.");
+    private static void assertDiagnostics(JsonObject json, STNode node) {
+        JsonElement hasDiagnosticsField = json.get(HAS_DIAGNOSTICS);
+        boolean expectedHasDiagnostics = hasDiagnosticsField != null && hasDiagnosticsField.getAsBoolean();
+        boolean actualHasDiagnostics = node.hasDiagnostics();
+        if (expectedHasDiagnostics) {
+            Assert.assertTrue(actualHasDiagnostics, "expected to have diagnostics in node '" + node + "'");
+        } else {
+            Assert.assertFalse(actualHasDiagnostics, "unexpected diagnostics in node '" + node + "'");
+            // Return if there are no diagnostics in the node and no expected diagnostics
             return;
         }
 
-        // If the expected token is not a missing node, then validate it's content
-        Assert.assertFalse(node instanceof STMissingToken, "Expected:" + json + ", but found: " + node);
-        if (isTerminalNode(node.kind)) {
-            assertTerminalNode(json, node);
-        } else {
-            assertNonTerminalNode(json, CHILDREN_FIELD, node);
+        Collection<STNodeDiagnostic> actualDiagnostics = node.diagnostics();
+        int actualSize = actualDiagnostics.size();
+        JsonArray diagnosticJsonArray = json.getAsJsonArray(DIAGNOSTICS_FIELD);
+        if (diagnosticJsonArray == null) {
+            Assert.assertEquals(actualSize, 0, "diagnostic count mismatch in '" + node + "'");
+            return;
+        }
+
+        int expectedSize = diagnosticJsonArray.size();
+        Assert.assertEquals(actualSize, expectedSize, "diagnostic count mismatch in '" + node + "'");
+
+        int index = 0;
+        for (STNodeDiagnostic actualDiagnostic : actualDiagnostics) {
+            String actualDiagnosticId = actualDiagnostic.diagnosticCode().toString();
+            String expectedDiagnosticId = diagnosticJsonArray.get(index++).getAsString();
+            Assert.assertEquals(actualDiagnosticId, expectedDiagnosticId,
+                    "mismatch in diagnostics in node '" + node + "'");
         }
     }
 
-    private static boolean isMissingToken(JsonObject json) {
-        JsonElement isMissing = json.get(IS_MISSING_FIELD);
-        return isMissing != null && isMissing.getAsBoolean();
-    }
-
-    private static void aseertNodeKind(JsonObject json, STNode node) {
+    private static void assertNodeKind(JsonObject json, STNode node) {
         SyntaxKind expectedNodeKind = getNodeKind(json.get(KIND_FIELD).getAsString());
         SyntaxKind actualNodeKind = node.kind;
         Assert.assertEquals(actualNodeKind, expectedNodeKind, "error at node [" + node.toString() + "].");
     }
 
-    private static void assertTerminalNode(JsonObject json, STNode node) {
-        // If this is a terminal node, it has to be a STToken (i.e: lexeme)
-        if (isTrivia(node.kind)) {
-            Assert.assertTrue(node instanceof STMinutiae);
-        } else {
-            Assert.assertTrue(node instanceof STToken);
+    private static void assertTerminalNode(JsonObject json, STToken node) {
+        // We've asserted the missing property earlier
+        if (node.isMissing()) {
+            validateMinutiae(json, node);
+            return;
         }
 
         // Validate the token text, if this is not a syntax token.
         // e.g: identifiers, basic-literals, etc.
-        if (!isSyntaxToken(node.kind)) {
+        if (!isKeyword(node.kind)) {
             String expectedText = json.get(VALUE_FIELD).getAsString();
             String actualText = getTokenText(node);
             Assert.assertEquals(actualText, expectedText);
         }
 
-        if (!ParserTestUtils.isTrivia(node.kind)) {
-            validateMinutiae(json, (STToken) node);
-        }
+        validateMinutiae(json, node);
     }
 
     private static void validateMinutiae(JsonObject json, STToken token) {
-        if (json.has(LEADING_MINUTIAE)) {
-            assertNonTerminalNode(json, LEADING_MINUTIAE, token.leadingMinutiae());
+        assertMinutiaeNodes(json.get(LEADING_MINUTIAE), token, true);
+        assertMinutiaeNodes(json.get(TRAILING_MINUTIAE), token, false);
+    }
+
+    private static void assertMinutiaeNodes(JsonElement jsonElement, STToken token, boolean leading) {
+        String minutiaeDirection = leading ? "leading" : "trailing";
+        STNodeList minutiaeList = (STNodeList) (leading ? token.leadingMinutiae() : token.trailingMinutiae());
+        if (jsonElement == null) {
+            Assert.assertTrue(minutiaeList.isEmpty(), "unexpected " + minutiaeDirection +
+                    " minutiae present in token '" + token + "'");
+            return;
         }
 
-        if (json.has(TRAILING_MINUTIAE)) {
-            assertNonTerminalNode(json, TRAILING_MINUTIAE, token.trailingMinutiae());
+        JsonArray minutiaeJsonArray = jsonElement.getAsJsonArray();
+        int expectedSize = minutiaeJsonArray.size();
+        int actualSize = minutiaeList.size();
+        Assert.assertEquals(actualSize, expectedSize, minutiaeDirection +
+                " minutiae count mismatch in token '" + token + "'");
+
+        for (int index = 0; index < minutiaeJsonArray.size(); index++) {
+            assertMinutiaeNode(minutiaeJsonArray.get(index).getAsJsonObject(),
+                    (STMinutiae) minutiaeList.get(index), token, minutiaeDirection);
         }
     }
 
-    private static void assertNonTerminalNode(JsonObject json, String keyInJson, STNode tree) {
-        JsonArray children = json.getAsJsonArray(keyInJson);
+    private static void assertMinutiaeNode(JsonObject minutiaeJson,
+                                           STMinutiae minutiaeNode,
+                                           STToken token,
+                                           String minutiaeDirection) {
+        assertNodeKind(minutiaeJson, minutiaeNode);
+        switch (minutiaeNode.kind) {
+            case END_OF_LINE_MINUTIAE:
+                Assert.assertEquals(cleanupText(minutiaeNode.text()), minutiaeJson.get(VALUE_FIELD).getAsString(),
+                        "mismatch in " + minutiaeDirection + " minutiae value(" +
+                                minutiaeNode.kind + ") in token '" + token + "'");
+                break;
+            case COMMENT_MINUTIAE:
+            case WHITESPACE_MINUTIAE:
+                Assert.assertEquals(minutiaeNode.text(), minutiaeJson.get(VALUE_FIELD).getAsString(),
+                        "mismatch in " + minutiaeDirection + " minutiae value(" +
+                                minutiaeNode.kind + ") in token '" + token + "'");
+                break;
+            case INVALID_NODE_MINUTIAE:
+                STInvalidNodeMinutiae invalidNodeMinutiae = (STInvalidNodeMinutiae) minutiaeNode;
+                STNode invalidNode = invalidNodeMinutiae.invalidNode();
+                assertNode(invalidNode, minutiaeJson.get(INVALID_NODE_FIELD).getAsJsonObject());
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported minutiae kind: '" + minutiaeNode.kind + "'");
+        }
+    }
+
+    private static void assertNonTerminalNode(JsonObject json, STNode tree) {
+        // TODO This is an error in the syntax tree structure
+        // Here we get a MissingToken, but we should get a non-terminal node instead.
+        // This case is reported in this issue, https://github.com/ballerina-platform/ballerina-lang/issues/23902
+        // TODO Remove the following if condition once the above issue is fixed.
+        if (tree.isMissing()) {
+            return;
+        }
+
+        JsonArray children = json.getAsJsonArray(CHILDREN_FIELD);
         int size = children.size();
         int j = 0;
 
@@ -260,12 +332,11 @@ public class ParserTestUtils {
         return count;
     }
 
-    public static boolean isTerminalNode(SyntaxKind syntaxKind) {
-        return SyntaxKind.IMPORT_DECLARATION.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN ||
-                syntaxKind == SyntaxKind.XML_TEXT;
+    public static boolean isToken(STNode node) {
+        return SyntaxUtils.isToken(node);
     }
 
-    public static boolean isSyntaxToken(SyntaxKind syntaxKind) {
+    public static boolean isKeyword(SyntaxKind syntaxKind) {
         return SyntaxKind.IDENTIFIER_TOKEN.compareTo(syntaxKind) > 0 || syntaxKind == SyntaxKind.EOF_TOKEN;
     }
 
@@ -274,19 +345,19 @@ public class ParserTestUtils {
             case WHITESPACE_MINUTIAE:
             case END_OF_LINE_MINUTIAE:
             case COMMENT_MINUTIAE:
-            case INVALID:
+            case INVALID_NODE_MINUTIAE:
                 return true;
             default:
                 return false;
         }
     }
 
-    public static String getTokenText(STNode token) {
+    public static String getTokenText(STToken token) {
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
                 return ((STIdentifierToken) token).text;
             case STRING_LITERAL:
-                String val = ((STLiteralValueToken) token).text();
+                String val = token.text();
                 int stringLen = val.length();
                 int lastCharPosition = val.endsWith("\"") ? stringLen - 1 : stringLen;
                 return val.substring(1, lastCharPosition);
@@ -294,19 +365,12 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                return ((STLiteralValueToken) token).text();
-            case WHITESPACE_MINUTIAE:
-            case COMMENT_MINUTIAE:
-            case INVALID:
-                return ((STMinutiae) token).text();
-            case END_OF_LINE_MINUTIAE:
-                return cleanupText(((STMinutiae) token).text());
             case DOCUMENTATION_LINE:
-                return ((STDocumentationLineToken) token).text();
+                return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-                return cleanupText(((STLiteralValueToken) token).text());
+                return cleanupText(token.text());
             default:
                 return token.kind.toString();
         }
@@ -316,34 +380,46 @@ public class ParserTestUtils {
         return text.replace(System.lineSeparator(), "\n");
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
+    private static void updateAssertFile(Path sourceFilePath, Path assertFilePath, ParserRuleContext context) {
+        if (!UPDATE_ASSERTS) {
+            return;
+        }
+        try {
+            String jsonString = SyntaxTreeJSONGenerator.generateJSON(sourceFilePath, context);
+            updateAssertFile(jsonString, assertFilePath);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
-    @SuppressWarnings("unused")
-    private static void updateAssertFiles(String source, Path assertFilePath, ParserRuleContext context) {
-        if (UPDATE_ASSERTS) {
-            try {
-                String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
-                try (BufferedWriter writer =
-                        new BufferedWriter(new FileWriter(RESOURCE_DIRECTORY.resolve(assertFilePath).toFile()));) {
-                    writer.write(jsonString);
-                    writer.write("\n");
-                }
-            } catch (Exception e) {
-                // Ignore
-            }
+    private static void updateAssertFile(String source, Path assertFilePath, ParserRuleContext context) {
+        if (!UPDATE_ASSERTS) {
+            return;
+        }
+
+        String jsonString = SyntaxTreeJSONGenerator.generateJSON(source, context);
+        updateAssertFile(jsonString, assertFilePath);
+    }
+
+    private static void updateAssertFile(Node externalNode, Path assertFilePath) {
+        if (!UPDATE_ASSERTS) {
+            return;
+        }
+        String jsonString = SyntaxTreeJSONGenerator.generateJSON(externalNode.internalNode());
+        updateAssertFile(jsonString, assertFilePath);
+    }
+
+    private static void updateAssertFile(String jsonString, Path assertFilePath) {
+        if (!UPDATE_ASSERTS) {
+            return;
+        }
+
+        Path filePath = RESOURCE_DIRECTORY.resolve(assertFilePath);
+        try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8)) {
+            writer.write(jsonString);
+            writer.write("\n");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -545,6 +621,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE16_KEYWORD;
             case "BASE64_KEYWORD":
                 return SyntaxKind.BASE64_KEYWORD;
+            case "MATCH_KEYWORD":
+                return SyntaxKind.MATCH_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -819,6 +897,10 @@ public class ParserTestUtils {
                 return SyntaxKind.RETRY_STATEMENT;
             case "ROLLBACK_STATEMENT":
                 return SyntaxKind.ROLLBACK_STATEMENT;
+            case "MATCH_STATEMENT":
+                return SyntaxKind.MATCH_STATEMENT;
+            case "INVALID_EXPRESSION_STATEMENT":
+                return SyntaxKind.INVALID_EXPRESSION_STATEMENT;
 
             // Types
             case "TYPE_DESC":
@@ -881,6 +963,12 @@ public class ParserTestUtils {
                 return SyntaxKind.INTERSECTION_TYPE_DESC;
             case "SINGLETON_TYPE_DESC":
                 return SyntaxKind.SINGLETON_TYPE_DESC;
+            case "TYPEDESC_TYPE_DESC":
+                return SyntaxKind.TYPEDESC_TYPE_DESC;
+            case "VAR_TYPE_DESC":
+                return SyntaxKind.VAR_TYPE_DESC;
+            case "SERVICE_TYPE_DESC":
+                return SyntaxKind.SERVICE_TYPE_DESC;
 
             // Others
             case "FUNCTION_BODY_BLOCK":
@@ -977,7 +1065,7 @@ public class ParserTestUtils {
                 return SyntaxKind.EXPRESSION_FUNCTION_BODY;
             case "INFER_PARAM_LIST":
                 return SyntaxKind.INFER_PARAM_LIST;
-            case "FUNCTION_DECLARATION":
+            case "METHOD_DECLARATION":
                 return SyntaxKind.METHOD_DECLARATION;
             case "TYPED_BINDING_PATTERN":
                 return SyntaxKind.TYPED_BINDING_PATTERN;
@@ -1009,6 +1097,12 @@ public class ParserTestUtils {
                 return SyntaxKind.ENUM_MEMBER;
             case "WILDCARD_BINDING_PATTERN":
                 return SyntaxKind.WILDCARD_BINDING_PATTERN;
+            case "MATCH_CLAUSE":
+                return SyntaxKind.MATCH_CLAUSE;
+            case "MATCH_GUARD":
+                return SyntaxKind.MATCH_GUARD;
+            case "OBJECT_METHOD_DEFINITION":
+                return SyntaxKind.OBJECT_METHOD_DEFINITION;
 
             // XML template
             case "XML_ELEMENT":
@@ -1053,14 +1147,18 @@ public class ParserTestUtils {
             // Trivia
             case "EOF_TOKEN":
                 return SyntaxKind.EOF_TOKEN;
-            case "END_OF_LINE_TRIVIA":
+            case "END_OF_LINE_MINUTIAE":
                 return SyntaxKind.END_OF_LINE_MINUTIAE;
-            case "WHITESPACE_TRIVIA":
+            case "WHITESPACE_MINUTIAE":
                 return SyntaxKind.WHITESPACE_MINUTIAE;
-            case "COMMENT":
+            case "COMMENT_MINUTIAE":
                 return SyntaxKind.COMMENT_MINUTIAE;
-            case "INVALID":
-                return SyntaxKind.INVALID;
+            case "INVALID_NODE_MINUTIAE":
+                return SyntaxKind.INVALID_NODE_MINUTIAE;
+
+            // Invalid Token
+            case "INVALID_TOKEN":
+                return SyntaxKind.INVALID_TOKEN;
 
             // Unsupported
             default:

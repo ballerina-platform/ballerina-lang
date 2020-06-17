@@ -1,5 +1,6 @@
 {
   "kind": "LOCAL_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -9,30 +10,62 @@
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "Foo"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "CAPTURE_BINDING_PATTERN",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }
       ]
     },
     {
-      "kind": "EQUAL_TOKEN"
+      "kind": "EQUAL_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "5"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "5"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN",
-      "isMissing": true
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
     }
   ]
 }
