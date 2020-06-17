@@ -22,7 +22,12 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "message"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "message"
+                    }
+                  ]
                 },
                 {
                   "kind": "CLOSE_PAREN_TOKEN"

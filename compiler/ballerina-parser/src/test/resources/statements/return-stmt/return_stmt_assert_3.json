@@ -15,14 +15,24 @@
       "children": [
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "6"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "6"
+            }
+          ]
         },
         {
           "kind": "PLUS_TOKEN"
         },
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "7"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "7"
+            }
+          ]
         }
       ]
     },

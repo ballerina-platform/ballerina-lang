@@ -12,8 +12,13 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        }
+      ]
     },
     {
       "kind": "PARENTHESIZED_ARG_LIST",
@@ -30,7 +35,12 @@
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "1"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "1"
+                    }
+                  ]
                 }
               ]
             },
@@ -47,8 +57,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
               ]
             }

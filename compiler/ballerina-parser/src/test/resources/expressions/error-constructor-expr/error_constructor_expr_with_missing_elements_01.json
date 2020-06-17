@@ -16,7 +16,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "Test"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "Test"
+                }
+              ]
             }
           ]
         }

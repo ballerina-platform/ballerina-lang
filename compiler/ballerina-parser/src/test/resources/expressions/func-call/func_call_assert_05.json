@@ -2,8 +2,13 @@
   "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -18,8 +23,13 @@
               "kind": "ELLIPSIS_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "subjects"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "subjects"
+                }
+              ]
             }
           ]
         }

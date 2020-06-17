@@ -15,11 +15,16 @@
         },
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "8",
-          "trailingMinutiae": [
+          "children": [
             {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "8",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         }
@@ -36,7 +41,12 @@
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "3"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "3"
+        }
+      ]
     }
   ]
 }
