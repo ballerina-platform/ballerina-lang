@@ -78,6 +78,19 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      */
     protected void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
         port = findFreePort();
+        initDebugSession(executionKind, port);
+    }
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @param port          debug session port
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    protected void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, int port)
+            throws BallerinaTestException {
         debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
                 testEntryFilePath, port);
 
@@ -235,6 +248,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      * Terminates the debug session.
      */
     protected void terminateDebugSession() {
+        testBreakpoints.clear();
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
             try {
                 debugClientConnector.disconnectFromServer();
@@ -242,6 +256,8 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
                 LOGGER.error("Error occurred when trying disconnect from the debug server.", e);
             }
         }
+        isConnected = false;
+        debugClientConnector = null;
     }
 
     private void attachToDebuggee() throws BallerinaTestException {

@@ -182,7 +182,7 @@ public class TestDAPClientConnector {
             requestManager.launch(requestArgs);
         } catch (Exception e) {
             LOGGER.warn("Debuggee launch request failed.", e);
-            throw new BallerinaTestException("Launching the debugg program is failed.", e);
+            throw new BallerinaTestException("Launching the debug program is failed.", e);
         }
     }
 
