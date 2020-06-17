@@ -14,6 +14,9 @@ import ballerina/java.arrays as jarrays;{{/if}}
 #
 # + _{{shortClassName}} - The field that represents this Ballerina object, which is used for Java subtyping.{{#each superClasses}}
 # + _{{this}} - The field that represents the superclass object `{{this}}`.{{/each}}
+@java:Binding {
+    class: "{{className}}"
+}
 {{accessModifier}}type {{shortClassName}} object {
 
     *java:JObject;
