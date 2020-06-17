@@ -53,6 +53,7 @@ public class AnnotationRuntimeTest {
     private CompileResult resultThree;
     private CompileResult resultFour;
     private CompileResult resultAccessNegative;
+    private CompileResult readOnlyValues;
 
     @BeforeClass
     public void setup() {
@@ -70,6 +71,8 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(resultFour.getErrorCount(), 0);
 
         resultAccessNegative = BCompileUtil.compile("test-src/annotations/annotation_access_negative.bal");
+
+        readOnlyValues = BCompileUtil.compile("test-src/annotations/annotation_readonly_types.bal");
     }
 
     @Test(dataProvider = "annotAccessTests")
@@ -189,5 +192,9 @@ public class AnnotationRuntimeTest {
 
     public void testAnnotationOnFunctionTypeReadonlyValueEdit() {
         BRunUtil.invoke(resultAccessNegative, "testAnnotationOnFunctionTypeReadonlyValueEdit");
+    }
+
+    public void testReadonlyTypeAnnotationAttachment() {
+        BRunUtil.invoke(readOnlyValues, "testReadonlyTypeAnnotationAttachment");
     }
 }
