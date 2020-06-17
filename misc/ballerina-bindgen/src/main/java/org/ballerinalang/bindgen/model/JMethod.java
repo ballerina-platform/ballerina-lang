@@ -54,6 +54,7 @@ public class JMethod {
     private boolean hasException = false;
     private boolean handleException = false;
     private boolean isStringReturn = false;
+    private boolean javaArraysModule = false;
     private boolean hasPrimitiveParam = false;
 
     private Method method;
@@ -128,6 +129,7 @@ public class JMethod {
         returnType = getBallerinaParamType(returnTypeClass);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
+            javaArraysModule = true;
             hasException = true;
             returnError = true;
             isArrayReturn = true;
@@ -168,11 +170,13 @@ public class JMethod {
             JParameter parameter = new JParameter(param);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
+                javaArraysModule = true;
                 returnError = true;
                 hasPrimitiveParam = true;
                 hasException = true;
             }
             if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
+                javaArraysModule = true;
                 returnError = true;
                 hasException = true;
             }
@@ -249,5 +253,9 @@ public class JMethod {
 
     public Method getMethod() {
         return method;
+    }
+
+    boolean requireJavaArrays() {
+        return javaArraysModule;
     }
 }
