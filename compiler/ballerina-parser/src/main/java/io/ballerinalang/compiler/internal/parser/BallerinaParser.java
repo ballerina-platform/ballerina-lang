@@ -3341,7 +3341,7 @@ public class BallerinaParser extends AbstractParser {
             }
 
             if (sol.tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
-                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
+                addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseQualifiedIdentifier(currentCtx, isInConditionalExpr);
             }
 
@@ -3379,7 +3379,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(identifier);
             }
 
-            addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
+            addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
             return parseQualifiedIdentifier(identifier, isInConditionalExpr);
         }
     }
@@ -3551,7 +3551,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
+                addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement();
             case AT_TOKEN:
                 annots = parseAnnotations(tokenKind);
@@ -3650,7 +3650,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
-                addInvalidNodeToNextToken(errorHandler.consumeInvalidToken());
+                addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement(annots);
             case FINAL_KEYWORD:
                 STNode finalKeyword = parseFinalKeyword();
@@ -4920,7 +4920,7 @@ public class BallerinaParser extends AbstractParser {
                 int prevArgIndex = argsList.size() - 1;
                 STNode prevArg = argsList.remove(prevArgIndex);
                 STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevArg, argEnd,
-                        DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN, ((STToken) argEnd).text());
                 argsList.add(prevArgWithDiagnostics);
                 return STNodeFactory.createNodeList(argsList);
             }
@@ -9310,7 +9310,7 @@ public class BallerinaParser extends AbstractParser {
             } else {
                 nextToken = consume();
                 expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
-                        DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+                        DiagnosticErrorCode.ERROR_INVALID_TOKEN, nextToken.text());
             }
         }
 

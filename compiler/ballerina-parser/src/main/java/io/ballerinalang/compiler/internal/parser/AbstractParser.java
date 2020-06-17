@@ -80,7 +80,7 @@ public abstract class AbstractParser {
         Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
-            addInvalidNodeToNextToken(sol.removedToken);
+            addInvalidTokenToNextToken(sol.removedToken);
             sol.recoveredNode = resumeParsing(currentCtx, args);
         }
         return sol;
@@ -183,8 +183,9 @@ public abstract class AbstractParser {
      *
      * @param invalidNode invalid node to added as {@code STInvalidNodeMinutiae}
      */
-    protected void addInvalidNodeToNextToken(STNode invalidNode) {
-        invalidNodeInfoStack.push(new InvalidNodeInfo(invalidNode, DiagnosticErrorCode.ERROR_INVALID_TOKEN));
+    protected void addInvalidTokenToNextToken(STToken invalidNode) {
+        invalidNodeInfoStack.push(new InvalidNodeInfo(invalidNode,
+                DiagnosticErrorCode.ERROR_INVALID_TOKEN, invalidNode.text()));
     }
 
     /**

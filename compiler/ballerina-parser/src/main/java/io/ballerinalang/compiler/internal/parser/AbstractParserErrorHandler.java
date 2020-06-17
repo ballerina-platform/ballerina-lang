@@ -407,7 +407,7 @@ public abstract class AbstractParserErrorHandler {
         public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
-        public STNode removedToken;
+        public STToken removedToken;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;
