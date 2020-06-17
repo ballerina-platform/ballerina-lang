@@ -29,7 +29,7 @@ import java.util.Map;
  * Test cases for inbound authentication with OAuth2.
  */
 @Test(groups = "auth-test")
-public class AuthnWithOAuth2Test extends AuthBaseTest {
+public class OAuth2ServiceTest extends AuthBaseTest {
 
     private final int servicePort = 20027;
 

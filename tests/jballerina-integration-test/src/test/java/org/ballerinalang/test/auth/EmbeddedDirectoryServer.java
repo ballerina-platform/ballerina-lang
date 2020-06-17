@@ -83,9 +83,10 @@ public class EmbeddedDirectoryServer {
      * Starts directory apache directory service.
      *
      * @param port directory service port
+     * @param ldifPath path of the users ldif
      * @throws Exception If server can't be started
      */
-    public void startLdapServer(int port) throws Exception {
+    public void startLdapServer(int port, String ldifPath) throws Exception {
 
         workDir = new File(System.getProperty("java.io.tmpdir"), "TEMP_APACHEDS-" + System.currentTimeMillis());
         workDir.mkdirs();
@@ -118,10 +119,7 @@ public class EmbeddedDirectoryServer {
         ldapServer.start();
 
         // Load the LDIF file
-        String ldif = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
-                "auth" + File.separator + "src" + File.separator + "ldif").getAbsolutePath() + File.separator +
-                "users-import.ldif";
-        LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldif);
+        LdifFileLoader ldifLoader = new LdifFileLoader(service.getAdminSession(), ldifPath);
         ldifLoader.execute();
     }
 
