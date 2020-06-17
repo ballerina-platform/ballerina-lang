@@ -196,3 +196,23 @@ function testInvalidObjectUpdate() {
     MyConfig myConfig = new MyConfig("client config");
     myConfig.name = "new name";
 }
+
+type ABC record {|
+    DEF & readonly d;
+|};
+
+type DEF record {|
+    future<int> fr;
+|};
+
+type GHI object {
+    JKL & readonly j;
+
+    function init(JKL & readonly j) {
+        self.j = j;
+    }
+};
+
+type JKL abstract object {
+    future<int> fr;
+};

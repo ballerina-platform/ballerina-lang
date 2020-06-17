@@ -17,19 +17,29 @@
           "kind": "UNION_TYPE_DESC",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "T"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "T"
+                }
+              ]
             },
             {
               "kind": "PIPE_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "A",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "A",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }

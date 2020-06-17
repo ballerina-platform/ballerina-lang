@@ -393,6 +393,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(letExpressionNode);
     }
 
+    public T transform(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        return transformSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public T transform(STLetVariableDeclarationNode letVariableDeclarationNode) {
         return transformSyntaxNode(letVariableDeclarationNode);
     }
@@ -719,6 +723,22 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public T transform(STOnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
+    public T transform(STLimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(STJoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(STOnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
     }
 
     // Tokens

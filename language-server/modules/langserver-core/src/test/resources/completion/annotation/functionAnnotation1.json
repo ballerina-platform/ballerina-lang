@@ -6,29 +6,6 @@
   "source": "annotation/source/functionAnnotation1.bal",
   "items": [
     {
-      "label": "transactions:Participant",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "110",
-      "insertText": "transactions:Participant {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions;\n"
-        }
-      ]
-    },
-    {
       "label": "test:Config",
       "kind": "Property",
       "detail": "Annotation",
@@ -167,11 +144,65 @@
       ]
     },
     {
+      "label": "transactions:Participant",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions;\n"
+        }
+      ]
+    },
+    {
+      "label": "observe:Observable",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "observe:Observable",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "110",
       "insertText": "deprecated",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "icon",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "110",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
       "insertTextFormat": "Snippet"
     }
   ]

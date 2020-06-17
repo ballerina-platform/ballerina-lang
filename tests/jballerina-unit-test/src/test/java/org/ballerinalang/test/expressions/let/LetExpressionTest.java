@@ -98,9 +98,9 @@ public class LetExpressionTest {
                 {"testLetExpressionTupleBindingRef"},
                 {"testLetExpressionRecordBindingSimple"},
                 {"testLetExpressionRecordBindingComplexVar"},
-                {"testLetExpressionErrorBindingSimple"},
-                {"testLetExpressionErrorBindingVar"},
-                {"testLetExpressionRecordConstrainedErrorBinding"},
+//                {"testLetExpressionErrorBindingSimple"},
+//                {"testLetExpressionErrorBindingVar"},
+//                {"testLetExpressionRecordConstrainedErrorBinding"},
         };
     }
 }

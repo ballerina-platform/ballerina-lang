@@ -27,12 +27,17 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "class",
-                  "trailingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "class",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -138,12 +143,17 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "static",
-                              "trailingMinutiae": [
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "static",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -170,12 +180,17 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "main",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "main",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -190,12 +205,17 @@
                                       "kind": "POSITIONAL_ARG",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "String",
-                                          "trailingMinutiae": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "String",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -217,8 +237,13 @@
                                           "kind": "INDEXED_EXPRESSION",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "args"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "args"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "OPEN_BRACKET_TOKEN"
@@ -313,12 +338,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "System",
-                                          "leadingMinutiae": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "        "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "System",
+                                              "leadingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": "        "
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -347,19 +377,30 @@
                                               "hasDiagnostics": true,
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "isMissing": true,
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
                                                   "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_IDENTIFIER"
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "isMissing": true,
+                                                      "hasDiagnostics": true,
+                                                      "diagnostics": [
+                                                        "ERROR_MISSING_IDENTIFIER"
+                                                      ]
+                                                    }
                                                   ]
                                                 },
                                                 {
                                                   "kind": "DOT_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "out"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "out"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -367,8 +408,13 @@
                                               "kind": "DOT_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "println"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "println"
+                                                }
+                                              ]
                                             },
                                             {
                                               "kind": "OPEN_PAREN_TOKEN"
@@ -381,7 +427,12 @@
                                                   "children": [
                                                     {
                                                       "kind": "STRING_LITERAL",
-                                                      "value": "Java Hello World"
+                                                      "children": [
+                                                        {
+                                                          "kind": "STRING_LITERAL",
+                                                          "value": "Java Hello World"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }

@@ -980,6 +980,16 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
             case LexerTerminals.MATCH:
                 return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
+            case LexerTerminals.CONFLICT:
+                return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
+            case LexerTerminals.LIMIT:
+                return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
+            case LexerTerminals.JOIN:
+                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.OUTER:
+                return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
+            case LexerTerminals.EQUALS:
+                return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -1320,7 +1330,6 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken processDocumentationLine() {
         // TODO: validate the markdown syntax.
-        reader.advance();
         int nextToken = peek();
         while (!reader.isEOF()) {
             switch (nextToken) {

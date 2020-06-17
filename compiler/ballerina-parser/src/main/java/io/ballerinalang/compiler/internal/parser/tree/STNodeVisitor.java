@@ -393,6 +393,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(letExpressionNode);
     }
 
+    public void visit(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        visitSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public void visit(STLetVariableDeclarationNode letVariableDeclarationNode) {
         visitSyntaxNode(letVariableDeclarationNode);
     }
@@ -719,6 +723,22 @@ public abstract class STNodeVisitor {
 
     public void visit(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public void visit(STOnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
+    public void visit(STLimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(STJoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(STOnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
     }
 
     // STNodeList

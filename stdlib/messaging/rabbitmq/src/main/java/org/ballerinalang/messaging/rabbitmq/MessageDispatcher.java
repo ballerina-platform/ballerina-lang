@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.JSONUtils;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
@@ -184,7 +185,7 @@ public class MessageDispatcher {
         int dataTypeTag = dataType.getTag();
         switch (dataTypeTag) {
             case TypeTags.STRING_TAG:
-                return new String(message, StandardCharsets.UTF_8.name());
+                return StringUtils.fromString(new String(message, StandardCharsets.UTF_8.name()));
             case TypeTags.JSON_TAG:
                 return JSONParser.parse(new String(message, StandardCharsets.UTF_8.name()));
             case TypeTags.XML_TAG:

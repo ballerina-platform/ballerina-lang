@@ -115,8 +115,13 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "bar"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "bar"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -124,12 +129,17 @@
                                       "kind": "DOT_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "baz",
-                                      "trailingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "baz",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -145,12 +155,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "y",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "y",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -186,58 +201,93 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "BINARY_EXPRESSION",
+                                          "kind": "SIMPLE_NAME_REFERENCE",
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "QUALIFIED_NAME_REFERENCE",
-                                              "children": [
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "foo"
-                                                },
-                                                {
-                                                  "kind": "COLON_TOKEN",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
-                                                    }
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "bar"
-                                                }
-                                              ]
-                                            },
-                                            {
-                                              "kind": "PLUS_TOKEN"
-                                            },
-                                            {
-                                              "kind": "BINARY_EXPRESSION",
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "isMissing": true,
                                               "hasDiagnostics": true,
-                                              "children": [
+                                              "diagnostics": [
+                                                "ERROR_INVALID_EXPR_IN_ASSIGNMENT_LHS"
+                                              ],
+                                              "leadingMinutiae": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "isMissing": true,
-                                                  "hasDiagnostics": true,
-                                                  "diagnostics": [
-                                                    "ERROR_MISSING_IDENTIFIER"
-                                                  ]
-                                                },
-                                                {
-                                                  "kind": "SLASH_TOKEN"
-                                                },
-                                                {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "baz",
-                                                  "trailingMinutiae": [
-                                                    {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": "  "
-                                                    }
-                                                  ]
+                                                  "kind": "INVALID_NODE_MINUTIAE",
+                                                  "invalidNode": {
+                                                    "kind": "BINARY_EXPRESSION",
+                                                    "hasDiagnostics": true,
+                                                    "children": [
+                                                      {
+                                                        "kind": "QUALIFIED_NAME_REFERENCE",
+                                                        "children": [
+                                                          {
+                                                            "kind": "IDENTIFIER_TOKEN",
+                                                            "value": "foo"
+                                                          },
+                                                          {
+                                                            "kind": "COLON_TOKEN",
+                                                            "trailingMinutiae": [
+                                                              {
+                                                                "kind": "WHITESPACE_MINUTIAE",
+                                                                "value": " "
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                            "children": [
+                                                              {
+                                                                "kind": "IDENTIFIER_TOKEN",
+                                                                "value": "bar"
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      },
+                                                      {
+                                                        "kind": "PLUS_TOKEN"
+                                                      },
+                                                      {
+                                                        "kind": "BINARY_EXPRESSION",
+                                                        "hasDiagnostics": true,
+                                                        "children": [
+                                                          {
+                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                            "hasDiagnostics": true,
+                                                            "children": [
+                                                              {
+                                                                "kind": "IDENTIFIER_TOKEN",
+                                                                "isMissing": true,
+                                                                "hasDiagnostics": true,
+                                                                "diagnostics": [
+                                                                  "ERROR_MISSING_IDENTIFIER"
+                                                                ]
+                                                              }
+                                                            ]
+                                                          },
+                                                          {
+                                                            "kind": "SLASH_TOKEN"
+                                                          },
+                                                          {
+                                                            "kind": "SIMPLE_NAME_REFERENCE",
+                                                            "children": [
+                                                              {
+                                                                "kind": "IDENTIFIER_TOKEN",
+                                                                "value": "baz",
+                                                                "trailingMinutiae": [
+                                                                  {
+                                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                                    "value": "  "
+                                                                  }
+                                                                ]
+                                                              }
+                                                            ]
+                                                          }
+                                                        ]
+                                                      }
+                                                    ]
+                                                  }
                                                 }
                                               ]
                                             }
@@ -252,12 +302,17 @@
                                           ]
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "y",
-                                          "trailingMinutiae": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "y",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "END_OF_LINE_MINUTIAE",
+                                                  "value": "\n"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },

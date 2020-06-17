@@ -74,17 +74,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "XML_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "XML_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "XML_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -197,8 +202,13 @@
                                   ]
                                 },
                                 {
-                                  "kind": "XML_TEXT_CONTENT",
-                                  "value": ";\n    xml x2 \u003d xml "
+                                  "kind": "XML_TEXT",
+                                  "children": [
+                                    {
+                                      "kind": "XML_TEXT_CONTENT",
+                                      "value": ";\n    xml x2 \u003d xml "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -215,18 +225,29 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "bar"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bar"
+                                }
+                              ]
                             },
                             {
                               "kind": "SLASH_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
+                              "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
                               ]
                             }
                           ]
