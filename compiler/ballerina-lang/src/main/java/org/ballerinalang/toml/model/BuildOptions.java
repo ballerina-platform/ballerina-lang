@@ -24,13 +24,13 @@ package org.ballerinalang.toml.model;
  * @since 2.0.0
  */
 public class BuildOptions {
-    private boolean withChoreo;
+    private boolean observabilityIncluded;
 
-    public boolean isWithChoreo() {
-        return withChoreo;
+    public boolean isObservabilityIncluded() {
+        return observabilityIncluded;
     }
 
-    public void setWithChoreo(boolean withChoreo) {
-        this.withChoreo = withChoreo;
+    public void setObservabilityIncluded(boolean observabilityIncluded) {
+        this.observabilityIncluded = observabilityIncluded;
     }
 }

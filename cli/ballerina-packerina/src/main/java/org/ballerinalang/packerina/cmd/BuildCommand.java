@@ -181,9 +181,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package the Choreo observability extension " +
-            "in the executable JAR file(s).")
-    private boolean withChoreo;
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {
@@ -408,8 +408,8 @@ public class BuildCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
 
         Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(withChoreo ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
+        boolean isChoreoExtensionSkipped = !(observabilityIncluded ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.

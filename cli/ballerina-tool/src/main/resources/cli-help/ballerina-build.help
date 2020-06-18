@@ -65,8 +65,8 @@ OPTIONS
        --debug
            Run tests in remote debugging mode, only when the '--skip-tests' flag is not used.
 
-       --with-choreo
-           Package the Choreo observability extension in the executable JAR file(s).
+       --observability-included
+           Package observability in the executable JAR file(s).
 
 CONFIG PROPERTIES
        (--key=value)...
