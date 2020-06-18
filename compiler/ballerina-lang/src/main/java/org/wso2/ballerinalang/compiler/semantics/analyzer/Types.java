@@ -739,6 +739,9 @@ public class Types {
                         isAssignable(fields.get(0).type, field.type))) {
                     return fields.get(0);
                 }
+                break;
+            case TypeTags.INTERSECTION:
+                return getTableConstraintField(((BIntersectionType) constraintType).effectiveType, fieldName);
         }
 
         return null;

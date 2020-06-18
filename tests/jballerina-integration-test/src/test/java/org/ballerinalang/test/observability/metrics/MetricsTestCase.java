@@ -48,10 +48,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.CONFIG_
 /**
  * Integration test for observability of metrics.
  */
-
-//TODO Table remove - Fix
-@Test(groups = "brokenOnTableRemove", enabled = false)
-//@Test(groups = "metrics-test")
+@Test(groups = "metrics-test")
 public class MetricsTestCase extends BaseTest {
     private static BServerInstance serverInstance;
 
@@ -120,12 +117,32 @@ public class MetricsTestCase extends BaseTest {
 
     private void addMetrics() {
         final Pattern regexNumber = Pattern.compile("[-+]?\\d*\\.?\\d+([eE][-+]?\\d+)?");
-        expectedMetrics.put("ballerina_http_Caller_response_time_seconds_value" +
-                "{action=\"respond\",http_status_code=\"200\",}", regexNumber);
-        expectedMetrics.put("http_response_time_seconds_value{service=\"metricsTest\"," +
-                "protocol=\"http\",http_url=\"/test\",resource=\"getProduct\",http_method=\"GET\",}", regexNumber);
-        expectedMetrics.put("ballerinax_java_jdbc_Client_response_time_seconds_value{" +
-                "action=\"select\",db_instance=\"h2\",db_type=\"sql\",peer_address=\"" +
-                "jdbc:h2:file:../../tempdb/TEST_DB\",db_statement=\"SELECT * FROM Products\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",src_module=\"_anon/.:0.0.0\"," +
+                "http_status_code_group=\"2xx\",src_remote=\"true\",src_position=\"metrics_test.bal:57:20\"," +
+                "action=\"respond\",resource=\"getProduct\",connector_name=\"ballerina/http/Caller\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",connector_name=\"http\"," +
+                "src_position=\"metrics_test.bal:33:5\",src_module=\"_anon/.:0.0.0\"," +
+                "src_entry_point_resource=\"true\",protocol=\"http\",resource=\"getProduct\",http_url=\"/test\"," +
+                "http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\"," +
+                "connector_name=\"ballerina/java_jdbc/Client\",src_module=\"_anon/.:0.0.0\",src_remote=\"true\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:49\",action=\"query\",}", regexNumber);
+        expectedMetrics.put("response_time_seconds_value{service=\"metricsTest\",function=\"getQuery\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\",}",
+                regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +
+                "src_module=\"_anon/.:0.0.0\",http_status_code_group=\"2xx\",src_remote=\"true\"," +
+                "src_position=\"metrics_test.bal:57:20\",action=\"respond\",resource=\"getProduct\"," +
+                "connector_name=\"ballerina/http/Caller\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",connector_name=\"http\"," +
+                "src_position=\"metrics_test.bal:33:5\",src_module=\"_anon/.:0.0.0\"," +
+                "src_entry_point_resource=\"true\",protocol=\"http\",resource=\"getProduct\",http_url=\"/test\"," +
+                "http_method=\"GET\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\"," +
+                "connector_name=\"ballerina/java_jdbc/Client\",src_module=\"_anon/.:0.0.0\",src_remote=\"true\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:49\",action=\"query\",}", regexNumber);
+        expectedMetrics.put("response_time_nanoseconds_total_value{service=\"metricsTest\",function=\"getQuery\"," +
+                "resource=\"getProduct\",src_position=\"metrics_test.bal:37:63\",src_module=\"_anon/.:0.0.0\",}",
+                regexNumber);
     }
 }

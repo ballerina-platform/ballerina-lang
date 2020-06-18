@@ -40,7 +40,7 @@ public class JIMethodCall extends BIRTerminator {
     public String name;
     public int invocationType;
 
-    JIMethodCall(DiagnosticPos pos) {
+    public JIMethodCall(DiagnosticPos pos) {
 
         super(pos, InstructionKind.PLATFORM);
     }

@@ -55,9 +55,10 @@ As per the provided example, the `org.h2.jdbcx.JdbcDataSource` datasource  will 
 of `2000` milli seconds.
 
 ```ballerina
-jdbc:Client dbClient1 = new ("jdbc:h2:~/path/to/database");
-jdbc:Client dbClient2 = new ("jdbc:h2:~/path/to/database", "root", "root");
-jdbc:Client dbClient3 = new (url =  "jdbc:h2:~/path/to/database",
+jdbc:Client|sql:Error dbClient1 = new ("jdbc:h2:~/path/to/database");
+jdbc:Client|sql:Error dbClient2 = new ("jdbc:h2:~/path/to/database", 
+                            "root", "root");
+jdbc:Client|sql:Error dbClient3 = new (url =  "jdbc:h2:~/path/to/database",
                              user = "root", password = "root",
                              options = {
                                  datasourceName: "org.h2.jdbcx.JdbcDataSource"
@@ -65,7 +66,7 @@ jdbc:Client dbClient3 = new (url =  "jdbc:h2:~/path/to/database",
                              connectionPool = {
                                  maxOpenConnections: 5
                              });
-jdbc:Client dbClient4 = new (url =  "jdbc:h2:~/path/to/database", 
+jdbc:Client|sql:Error dbClient4 = new (url =  "jdbc:h2:~/path/to/database", 
                              user = "root", password = "root",
                              options = {
                                 datasourceName: "org.h2.jdbcx.JdbcDataSource", 

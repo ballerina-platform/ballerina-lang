@@ -154,7 +154,7 @@ public class LangLibTableTest {
         Assert.fail();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testCompilerNegativeCases() {
         assertEquals(negativeResult.getErrorCount(), 13);
         int index = 0;

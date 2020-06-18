@@ -29,10 +29,13 @@ public class STNodeDiagnostic extends IRDiagnostic {
     private DiagnosticCode diagnosticCode;
     private Object[] args;
 
-    // TODO we need to get arguments here.
-    public STNodeDiagnostic(DiagnosticCode diagnosticCode, Object... args) {
+    STNodeDiagnostic(DiagnosticCode diagnosticCode, Object... args) {
         this.diagnosticCode = diagnosticCode;
         this.args = args;
+    }
+
+    public static STNodeDiagnostic from(DiagnosticCode diagnosticCode, Object... args) {
+        return new STNodeDiagnostic(diagnosticCode, args);
     }
 
     public DiagnosticCode diagnosticCode() {

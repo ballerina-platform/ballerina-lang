@@ -47,6 +47,7 @@ class CreateBaloTask extends JavaExec {
     def isBuiltin = 'false'
     def skipWarnings = 'false'
     def jvmTarget = 'false'
+    def newParser = 'true'
 
     CreateBaloTask() {
         setMain('org.ballerinalang.stdlib.utils.GenerateBalo')
@@ -64,6 +65,7 @@ class CreateBaloTask extends JavaExec {
         args << skipWarnings
         args << jvmTarget
         args << "lang.__internal,lang.annotations,bir,jvm,utils"
+        args << newParser
 
         super.setArgs(args)
         super.exec()

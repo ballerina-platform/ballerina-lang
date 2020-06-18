@@ -107,6 +107,11 @@ public class TypedescValueImpl implements  TypedescValue {
         return this;
     }
 
+    @Override
+    public void freezeDirect() {
+        return;
+    }
+
     /**
      * {@inheritDoc}
      */

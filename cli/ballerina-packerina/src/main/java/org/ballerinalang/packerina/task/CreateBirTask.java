@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
@@ -88,6 +89,9 @@ public class CreateBirTask implements Task {
             // Look if it is a project module.
             if (ProjectDirs.isModuleExist(project, id.name.value) ||
                     buildContext.getImportPathDependency(id).isPresent()) {
+                if (null == bPackageSymbol.birPackageFile) {
+                    throw new BLangCompilerException("compilation contains errors");
+                }
                 // If so fetch from project bir cache
                 importBir = buildContext.getBirPathFromTargetCache(id);
                 birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
@@ -96,6 +100,10 @@ public class CreateBirTask implements Task {
                 importBir = buildContext.getBirPathFromHomeCache(id);
                 // Write only if bir does not exists. No need to overwrite.
                 if (Files.notExists(importBir)) {
+                    // This is a check to see if any imported modules have errors
+                    if (null == bPackageSymbol.birPackageFile) {
+                        throw new BLangCompilerException("compilation contains errors");
+                    }
                     birWriter.writeBIRToPath(bPackageSymbol.birPackageFile, id, importBir);
                 }
             }

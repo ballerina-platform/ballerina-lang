@@ -197,7 +197,7 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, null, false, false, null, lambdaGenMetadata);
+                    strandParamIndex, true, birModule, null, lambdaGenMetadata);
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -286,7 +286,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, false, -1);
+        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, -1);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
     }

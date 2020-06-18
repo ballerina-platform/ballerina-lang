@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
  */
 public class ForeachNegativeTests {
 
-    @Test
+    @Test(enabled = false)
     public void testForeachSemanticsNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 18);
@@ -80,7 +80,7 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 15, 5);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testForeachVarTypeNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 6);

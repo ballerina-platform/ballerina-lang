@@ -29,10 +29,9 @@ import org.testng.annotations.Test;
  *
  * @since 1.2.0
  */
-@Test(groups = { "brokenOnNewParser" })
 public class DeprecationAnnotationNegativeTest {
 
-    @Test(description = "Negative tests for deprecation annotation")
+    @Test(description = "Negative tests for deprecation annotation", groups = { "brokenOnNewParser" })
     public void testDeprecationAnnotation() {
 
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/deprecation_annotation_negative.bal");

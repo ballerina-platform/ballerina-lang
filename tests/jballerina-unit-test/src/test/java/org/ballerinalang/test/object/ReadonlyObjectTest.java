@@ -31,7 +31,6 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 2.0.0
  */
-@Test(groups = { "brokenOnNewParser" })
 public class ReadonlyObjectTest {
 
     @Test

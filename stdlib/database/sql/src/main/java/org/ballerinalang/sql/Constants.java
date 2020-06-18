@@ -92,8 +92,8 @@ public final class Constants {
     /**
      * Constants related to parameterized string fields.
      */
-    public static final class ParameterizedStingFields {
-        public static final BString PARTS = StringUtils.fromString("parts");
+    public static final class ParameterizedQueryFields {
+        public static final BString STRINGS = StringUtils.fromString("strings");
         public static final BString INSERTIONS = StringUtils.fromString("insertions");
     }
 

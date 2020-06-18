@@ -33,10 +33,8 @@ public class BindgenConstants {
     public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
     public static final String BAL_EXTENSION = ".bal";
     public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
-    public static final String ARRAY_UTILS_TEMPLATE_NAME = "array_utils";
     public static final String CONSTANTS_TEMPLATE_NAME = "constants";
     public static final String ERROR_TEMPLATE_NAME = "exception";
-    public static final String JOBJECT_TEMPLATE_NAME = "jobject";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
     public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
     public static final String METHOD_INTEROP_TYPE = "@java:Method";
@@ -45,9 +43,7 @@ public class BindgenConstants {
     public static final String DEFAULT_TEMPLATE_DIR = "/templates";
     public static final String USER_DIR = "user.dir";
     public static final String UTILS_DIR = "utils";
-    public static final String JOBJECT_FILE_NAME = "JObject.bal";
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
-    public static final String ARRAY_UTILS_FILE_NAME = "ArrayUtils.bal";
     public static final String DEPENDENCIES_DIR = "dependencies";
     public static final String ERROR_TYPES_DIR = "error_types";
     static final String TARGET_DIR = "target";
@@ -82,5 +78,6 @@ public class BindgenConstants {
             "catch", "finally", "throw", "panic", "trap", "return", "transaction", "abort", "retry", "onretry",
             "retries", "committed", "aborted", "with", "in", "lock", "untaint", "start", "but", "check", "checkpanic",
             "primarykey", "is", "flush", "wait", "default", "from", "select", "where", "limit", "order", "field",
-            "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key"};
+            "let", "Deprecated", "equals", "enum", "readonly", "outer", "conflict", "key", "rollback", "commit",
+            "transactional", "distinct", "never", "do"};
 }

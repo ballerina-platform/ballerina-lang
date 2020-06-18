@@ -33,7 +33,6 @@ import java.util.List;
 public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
-    protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
 
     /**
@@ -43,7 +42,6 @@ public abstract class AbstractParserErrorHandler {
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
-        this.errorListener = new BallerinaParserErrorListener();
     }
 
     /*
@@ -94,34 +92,31 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
-        removeInvalidToken();
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        sol.removedToken = consumeInvalidToken();
         return sol;
     }
 
     /**
      * Remove the invalid token. This method assumes that the next immediate token
      * of the token input stream is the culprit.
+     *
+     * @return the invalid token
      */
-    public void removeInvalidToken() {
-        STToken invalidToken = this.tokenReader.read();
-        // This means no match is found for the current token.
-        // Then consume it and return an error node
-        this.errorListener.reportInvalidToken(invalidToken);
-
-        // TODO: add this error node to the tree
+    public STToken consumeInvalidToken() {
+        return this.tokenReader.read();
     }
 
     /**
      * Apply the fix to the current context.
      *
      * @param currentCtx Current context
-     * @param fix Fix to apply
-     * @param args Arguments that requires to continue parsing from the given parser context
+     * @param fix        Fix to apply
+     * @param args       Arguments that requires to continue parsing from the given parser context
      */
     private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
-            removeInvalidToken();
+            fix.removedToken = consumeInvalidToken();
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
@@ -195,10 +190,6 @@ public abstract class AbstractParserErrorHandler {
     public void switchContext(ParserRuleContext context) {
         this.ctxStack.pop();
         this.ctxStack.push(context);
-    }
-
-    public void reportInvalidNode(STToken startingToken, String message) {
-        this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
     protected ParserRuleContext getParentContext() {
@@ -416,6 +407,7 @@ public abstract class AbstractParserErrorHandler {
         public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
+        public STToken removedToken;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;
