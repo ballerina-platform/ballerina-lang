@@ -3974,7 +3974,7 @@ public class TypeChecker extends BLangNodeVisitor {
             final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
             if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
                 tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                        .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
                 return BUnionType.create(null, tableType, symTable.errorType);
             }
             return tableType;
