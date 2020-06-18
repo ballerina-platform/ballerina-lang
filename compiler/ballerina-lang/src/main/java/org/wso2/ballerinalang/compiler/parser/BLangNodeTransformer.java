@@ -2554,7 +2554,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         invocation.async = true;
-        invocation.pos = getPosition(startActionNode);
         invocation.annAttachments = applyAll(startActionNode.annotations());
         return invocation;
     }
@@ -2983,7 +2982,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLangActionInvocation.expr = createExpression(remoteMethodCallActionNode.expression());
         bLangActionInvocation.argExprs = applyAll(remoteMethodCallActionNode.arguments());
-        bLangActionInvocation.pos = getPosition(remoteMethodCallActionNode);
 
         BLangNameReference nameReference = createBLangNameReference(remoteMethodCallActionNode.methodName().name());
         bLangActionInvocation.name = (BLangIdentifier) nameReference.name;
