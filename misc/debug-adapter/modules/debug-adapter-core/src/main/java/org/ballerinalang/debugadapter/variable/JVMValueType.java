@@ -34,13 +34,16 @@ public enum JVMValueType {
     BMPSTRING("org.ballerinalang.jvm.values.BmpStringValue"),
     NONBMPSTRING("org.ballerinalang.jvm.values.NonBmpStringValue"),
     DECIMAL("org.ballerinalang.jvm.values.DecimalValue"), // todo - parent var name
-    OBJECT_TYPE("org.ballerinalang.jvm.types.BObjectType"),
     OBJECT_VALUE("org.ballerinalang.jvm.values.ObjectValue"),
     ARRAY_VALUE("org.ballerinalang.jvm.values.ArrayValue"),
     TUPLE_VALUE("org.ballerinalang.jvm.values.TupleValue"),
     MAP_VALUE("org.ballerinalang.jvm.values.MapValue"),
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
-    XML_ITEM("org.ballerinalang.jvm.values.XMLItem");
+    XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
+    BTYPE_OBJECT("BObjectType"),
+    BTYPE_RECORD("BRecordType"),
+    BTYPE_JSON("BJSONType"),
+    BTYPE_MAP("BMapType");
 
     private final String value;
 

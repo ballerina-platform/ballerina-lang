@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
+import com.sun.jdi.Value;
 
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,12 @@ public class VariableUtils {
 
     public static final String UNKNOWN_VALUE = "unknown";
 
+    /**
+     * Returns the type of a given ballerina array typed variable.
+     *
+     * @param arrayRef object reference of the array instance.
+     * @return type of the array.
+     */
     public static String getArrayType(ObjectReference arrayRef) {
         List<Field> fields = arrayRef.referenceType().allFields();
         String arrayValueFiled = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
@@ -40,11 +47,34 @@ public class VariableUtils {
         return arrayType.equals("ref") ? "any" : arrayType;
     }
 
-    public static int getArraySize(ObjectReference array) {
-        List<Field> fields = array.referenceType().allFields();
-        Field arraySizeField = array.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+    /**
+     * Returns the size/length of a given ballerina array typed variable.
+     *
+     * @param arrayRef object reference of the array instance.
+     * @return size of the array.
+     */
+    public static int getArraySize(ObjectReference arrayRef) {
+        List<Field> fields = arrayRef.referenceType().allFields();
+        Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
                 fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
                 .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-        return ((IntegerValue) array.getValue(arraySizeField)).value();
+        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
+    }
+
+    /**
+     * Returns type of a given ballerina backend jvm variable instance.
+     *
+     * @param value jdi value instance of the ballerina jvm variable.
+     * @return variable type in string form.
+     */
+    static String getBType(Value value) {
+        try {
+            ObjectReference mapRef = (ObjectReference) value;
+            Field mapTypeField = mapRef.referenceType().fieldByName("type");
+            String mapTypeName = mapRef.getValue(mapTypeField).type().name();
+            return mapTypeName.substring(mapTypeName.lastIndexOf(".") + 1);
+        } catch (Exception e) {
+            return "";
+        }
     }
 }

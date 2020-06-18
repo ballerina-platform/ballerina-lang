@@ -31,9 +31,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 /**
  * Ballerina object variable type.
  */
-public class BObjectValue extends BCompoundVariable {
+public class BObject extends BCompoundVariable {
 
-    public BObjectValue(Value value, Variable dapVariable) {
+    public BObject(Value value, Variable dapVariable) {
         super(BVariableType.OBJECT, value, dapVariable);
     }
 
