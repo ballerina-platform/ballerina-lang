@@ -109,7 +109,9 @@ public class Parser {
                     testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
-                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
+                pkgNode.getTestablePkg().addCompilationUnit(
+                        generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource)
+                );
             } else {
                 pkgNode.addCompilationUnit(generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource));
             }
