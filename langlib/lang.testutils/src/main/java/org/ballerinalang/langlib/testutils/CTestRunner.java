@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
 
 /**
  * Invokes the test functions in the Test Suite.
@@ -39,7 +40,6 @@ import java.util.Map;
 public class CTestRunner {
     private static final PrintStream outStream = System.out;
     private static final PrintStream errStream = System.err;
-    public String functionClassName;
 
     public void invokeTestSuite(CTestSuite cTestSuite) {
         if (cTestSuite.getTestGroups().size() == 0) {
@@ -67,28 +67,28 @@ public class CTestRunner {
             return;
         }
         CompileResult compileResult = BCompileUtil.compile(cTests.getPath());
-        this.functionClassName = cTests.getPath();
         if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
             // TODO: implement function for negative tests
-            throw new RuntimeException(this.functionClassName + " compilation failed! ");
+            throw new RuntimeException(cTests.getPath() + " compilation failed! ");
         } else {
             for (TestFunction testFunction : cTests.getTestFunctions()) {
-                invokeTestSteps(compileResult, testFunction);
+                invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
             }
         }
     }
 
-    public void invokeTestSteps(CompileResult compileResult, TestFunction testFunction) {
+    public static void invokeTestSteps(CompileResult compileResult, TestFunction testFunction,
+                                       String functionClassName) {
         String functionName = testFunction.getFunctionName();
         if (!testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
             invokeFunction(compileResult, functionName);
         } else if (!testFunction.isAssertParamFlag() && testFunction.isParamFlag()) {
             invokeFunctionWithParam(compileResult, functionName, testFunction.getParameters());
         } else if (testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
-            invokeFunctionWithAssert(compileResult, functionName, testFunction.getAssertVal(),
+            invokeFunctionWithAssert(compileResult, functionName, functionClassName, testFunction.getAssertVal(),
                     testFunction.getPanicFlag());
         } else {
-            invokeFunctionWithArgs(compileResult, functionName, testFunction.getParameters(),
+            invokeFunctionWithArgs(compileResult, functionName, functionClassName, testFunction.getParameters(),
                     testFunction.getAssertVal(), testFunction.getPanicFlag());
         }
     }
@@ -111,16 +111,17 @@ public class CTestRunner {
         }
     }
 
-    private void invokeFunctionWithAssert(CompileResult compileResult, String functionName, List<Map<String,
-            String>> assertVal, boolean panicFlag) {
-        String[] functionDetails = {this.functionClassName, functionName};
+    private static void invokeFunctionWithAssert(CompileResult compileResult, String functionName,
+                                 String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
+        String[] functionDetails = {functionClassName, functionName};
         Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], panicFlag);
         validateResult(results[0], assertVal, functionDetails, results[1].toString());
     }
 
-    private void invokeFunctionWithArgs(CompileResult compileResult, String functionName,
-                            List<Map<String, String>> parmas, List<Map<String, String>> assertVal, boolean panicFlag) {
-        String[] functionDetails = {this.functionClassName, functionName};
+    private static void invokeFunctionWithArgs(CompileResult compileResult, String functionName,
+                                  String functionClassName, List<Map<String, String>> parmas, List<Map<String,
+                                  String>> assertVal, boolean panicFlag) {
+        String[] functionDetails = {functionClassName, functionName};
         int numberOfParams = parmas.size();
         Object[] args = new Object[numberOfParams];
         Class<?>[] jvmParamType = getJvmParams(parmas, args);
@@ -196,10 +197,55 @@ public class CTestRunner {
 
     private static void assertValueEqual(Object actual, Object expected, String[] functionDetails) {
         if (!TypeChecker.isEqual(expected, actual)) {
-            String msg = "{ballerina/lang.test}AssertionError" +
+            String msg = CTestConstants.TEST_FAIL_REASON +
                     " expected: [" + expected + "] but found: [" + actual + "]";
             errStream.println(functionDetails[0] + "-> " + functionDetails[1] + " failed \n " + msg);
             CTestSuite.failedTestCount++;
         }
+    }
+
+    private static void invokeWithTimeoutWithExecutor(CompileResult compileResult, TestFunction testFunction,
+                                                      String functionClassName) {
+        ExecutorService exec = Executors.newFixedThreadPool(1,
+                new ThreadFactory() {
+                    public Thread newThread(Runnable r) {
+                        Thread t = Executors.defaultThreadFactory().newThread(r);
+                        t.setDaemon(true);
+                        return t;
+                    }
+                });
+        Task task = new Task();
+        task.setArgs(compileResult, testFunction, functionClassName);
+        exec.submit(task);
+        exec.shutdown();
+        boolean finished = false;
+        try {
+            finished = exec.awaitTermination(60, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            // throw an exception if the thread is interrupted during the wait time
+            throw new RuntimeException(e.toString());
+        }
+        if (!finished) {
+            exec.shutdownNow();
+            outStream.println(functionClassName + " => " + testFunction.getFunctionName() + " failed! ");
+            throw new RuntimeException("Time limit exceeded.");
+        }
+    }
+}
+
+class Task implements Runnable {
+    private CompileResult compileResult;
+    private TestFunction testFunction;
+    private String functionClassName;
+
+    public void setArgs(CompileResult compileResult, TestFunction testFunction, String functionClassName) {
+        this.compileResult = compileResult;
+        this.testFunction = testFunction;
+        this.functionClassName = functionClassName;
+    }
+
+    @Override
+    public void run() {
+        CTestRunner.invokeTestSteps(compileResult, testFunction, functionClassName);
     }
 }

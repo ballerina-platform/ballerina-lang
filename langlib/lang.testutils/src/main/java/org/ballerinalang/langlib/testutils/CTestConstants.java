@@ -48,4 +48,6 @@ public class CTestConstants {
 
     public static final String TEST_FAILED_STATUS = "failed";
     public static final String TEST_COMPILATION_PASS_STATUS = "Compilation Successful";
+
+    public static final String TEST_FAIL_REASON = "{ballerina/lang.test}AssertionError";
 }
