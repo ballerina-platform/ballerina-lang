@@ -34,14 +34,24 @@ public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
+    private int previousIndex;
+    private int itterCount;
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
     protected static final int LOOKAHEAD_LIMIT = 5;
 
+    /**
+     * Limit for the number of times parser tries to recover staying on the same token index.
+     * This will prevent parser going to infinite loops.
+     */
+    private static final int ITTER_LIMIT = 7;
+
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
+        this.previousIndex = -1;
+        this.itterCount = 0;
     }
 
     /*
@@ -80,15 +90,26 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
-        Result bestMatch = seekMatch(currentCtx);
-        if (bestMatch.matches > 0) {
-            Solution sol = bestMatch.solution;
-            if (sol != null) {
-                applyFix(currentCtx, sol, args);
-                return sol;
+        int currentIndex = this.tokenReader.getCurrentIndex();
+        if (currentIndex == this.previousIndex) {
+            itterCount++;
+        } else {
+            itterCount = 0;
+            previousIndex = currentIndex;
+        }
+
+        if (itterCount < ITTER_LIMIT) {
+            Result bestMatch = seekMatch(currentCtx);
+            if (bestMatch.matches > 0) {
+                Solution sol = bestMatch.solution;
+                if (sol != null) {
+                    applyFix(currentCtx, sol, args);
+                    return sol;
+                }
+
+                // else fall through
             }
 
-            // else fall through
         }
 
         // Fail safe. This means we can't find a path to recover.
