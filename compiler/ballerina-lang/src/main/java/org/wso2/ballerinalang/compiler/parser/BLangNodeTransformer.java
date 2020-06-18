@@ -887,6 +887,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLService.isAnonymousServiceValue = isAnonServiceValue;
 
         DiagnosticPos pos = getPosition(serviceNode);
+        if (serviceNode instanceof ServiceDeclarationNode) {
+            trimLeft(pos, getPosition(((ServiceDeclarationNode) serviceNode).serviceKeyword()));
+        }
         String serviceName;
         DiagnosticPos identifierPos;
         if (isAnonServiceValue || serviceNameNode == null) {

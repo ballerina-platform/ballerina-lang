@@ -53,7 +53,8 @@ public class SignatureTokenTraverserFactory implements TokenTraverserFactory {
                 BallerinaParser.LT, BallerinaParser.RETURNS, BallerinaParser.TRANSACTION,
                 BallerinaParser.LEFT_CLOSED_RECORD_DELIMITER, BallerinaParser.LEFT_BRACKET,
                 BallerinaParser.ELLIPSIS,
-                BallerinaParser.XMLTemplateText
+                BallerinaParser.XMLTemplateText,
+                BallerinaParser.StringTemplateExpressionStart
         );
         RHS_TRAVERSE_TERMINALS = Arrays.asList(
                 BallerinaParser.COMMA, BallerinaParser.SEMICOLON, BallerinaParser.DocumentationLineStart,

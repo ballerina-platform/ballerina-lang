@@ -369,7 +369,7 @@ public class StubGeneratorTestCase {
                 "Expected imports not found in compile results.");
     }
 
-    @Test(description = "Test gateway proxy with only path and query parameters", enabled = false)
+    @Test(description = "Test gateway proxy with only path and query parameters")
     public void testHelloWorldGateway() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGateway.proto",
@@ -383,12 +383,12 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy including mapping from the body", enabled = false)
+    @Test(description = "Test gateway proxy including mapping from the body")
     public void testHelloWorldGatewayWithBody() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithBody.proto",
@@ -402,12 +402,12 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy with primitive type input", enabled = false)
+    @Test(description = "Test gateway proxy with primitive type input")
     public void testHelloWorldGatewayWithPrimitiveInput() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithPrimitiveInput.proto",
@@ -421,12 +421,12 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy with a repeated field in the input", enabled = false)
+    @Test(description = "Test gateway proxy with a repeated field in the input")
     public void testHelloWorldGatewayWithRepeatedField() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithRepeatedField.proto",
@@ -440,12 +440,12 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
 
-    @Test(description = "Test gateway proxy without a http method definition", enabled = false)
+    @Test(description = "Test gateway proxy without a http method definition")
     public void testHelloWorldGatewayWithoutPath() throws IllegalAccessException, ClassNotFoundException,
             InstantiationException {
         CompileResult compileResult = getProxyCompileResult("helloWorldGatewayWithoutPath.proto",
@@ -459,7 +459,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 0);
     }
