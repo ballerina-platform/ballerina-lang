@@ -61,9 +61,9 @@ public function call_Test1() {
     test:when(mock_stringAdd).call("mockStringAdd");
     test:assertEquals(stringAdd("Ibaqu"), "Hello Ibaqu");
 
-    // // FloatAdd
-    // test:when(mock_floatAdd).call("mockFloatAdd");
-    // test:assertEquals(floatAdd(10.6, 4.5), 15);
+     // FloatAdd
+     test:when(mock_floatAdd).call("mockFloatAdd");
+     test:assertEquals(floatAdd(10.6, 4.5), 6.1);
 }
 
 @test:Config {
