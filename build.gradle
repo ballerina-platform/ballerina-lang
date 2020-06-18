@@ -6,6 +6,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id 'maven-publish'
     id 'net.researchgate.release' version '2.6.0'
+    id 'org.gradle.test-retry' version '1.0.0'
 }
 
 allprojects {
@@ -16,6 +17,14 @@ allprojects {
         doLast{
             println projectDir
         }
+    }
+}
+
+test {
+    retry {
+        failOnPassedAfterRetry = false
+        maxFailures = 5
+        maxRetries = 2
     }
 }
 
