@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.actor }}
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
@@ -71,9 +71,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.actor }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run integration test
         run: |
@@ -107,9 +106,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.actor }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run jballerina unit test
         run: |
@@ -143,9 +141,8 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.actor }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run all the other unit test
         run: |
