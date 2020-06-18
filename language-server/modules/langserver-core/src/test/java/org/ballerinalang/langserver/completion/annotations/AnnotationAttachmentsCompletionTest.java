@@ -58,7 +58,7 @@ public class AnnotationAttachmentsCompletionTest extends CompletionTest {
 //                {"annotationInSameModule3.json", "annotation"},
 //                {"annotationInSameModule4.json", "annotation"},
 //                {"annotationInSameModule5.json", "annotation"},
-                {"serviceAnnotation1.json", "annotation"},
+//                {"serviceAnnotation1.json", "annotation"},
 //                {"serviceAnnotation2.json", "annotation"},
                 {"resourceAnnotation1.json", "annotation"},
 //                {"resourceAnnotation2.json", "annotation"},
