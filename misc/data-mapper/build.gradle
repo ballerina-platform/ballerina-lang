@@ -51,10 +51,6 @@ spotbugsMain {
     }
 }
 
-spotbugsTest {
-    it.enabled = false
-}
-
 apply plugin: 'checkstyle'
 
 checkstyle {
