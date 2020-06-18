@@ -43,9 +43,9 @@ OPTIONS
        --debug
            Run in remote debugging mode.
 
-       --with-choreo
-           Package the Choreo observability extension in the executable
-           when run is used with a source file or a module.
+       --observability-included
+           Package observability in the executable when run is used
+           with a source file or a module.
 
 CONFIG PROPERTIES
        (--key=value)...

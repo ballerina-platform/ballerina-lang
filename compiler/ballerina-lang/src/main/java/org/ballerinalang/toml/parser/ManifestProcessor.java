@@ -157,8 +157,8 @@ public class ManifestProcessor {
             if (toml.contains("build-options")) {
                 Toml buildOptionsTable = toml.getTable("build-options");
                 BuildOptions buildOptions = new BuildOptions();
-                if (buildOptionsTable.contains("with-choreo")) {
-                    buildOptions.setWithChoreo(buildOptionsTable.getBoolean("with-choreo"));
+                if (buildOptionsTable.contains("observability-included")) {
+                    buildOptions.setObservabilityIncluded(buildOptionsTable.getBoolean("observability-included"));
                 }
                 manifest.setBuildOptions(buildOptions);
             }
