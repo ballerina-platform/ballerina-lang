@@ -1,1 +1,3 @@
-This example demonstrates how to handle HTTP cookies in Ballerina service and client.
+// This example demonstrates how to handle HTTP cookies in Ballerina service and client.
+// For more information on the underlying module,
+// see the [HTTP module](https://ballerina.io/learn/api-docs/ballerina/http/index.html).
