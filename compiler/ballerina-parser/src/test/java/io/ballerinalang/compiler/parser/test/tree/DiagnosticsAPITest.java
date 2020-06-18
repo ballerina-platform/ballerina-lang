@@ -110,7 +110,7 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(syntaxTree.rootNode().textRangeWithMinutiae().length(), expectedLength);
 
         List<LineRange> lineRangeList = new ArrayList<>();
-        // The following line trigger the calculation of line ranges
+        // The following line triggers the calculation of line ranges
         syntaxTree.diagnostics().forEach(diagnostic -> lineRangeList.add(diagnostic.location().lineRange()));
         Assert.assertFalse(lineRangeList.isEmpty());
     }
