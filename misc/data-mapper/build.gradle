@@ -33,6 +33,7 @@ allprojects {
         implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
         compile 'org.apache.directory.studio:org.apache.commons.io:2.4'
         compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
+        compile (group: 'com.google.guava', name: 'guava', version: '14.0')
     }
 }
 

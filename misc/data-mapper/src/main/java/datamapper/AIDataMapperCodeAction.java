@@ -13,6 +13,8 @@
 package datamapper;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -78,9 +80,10 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
             CUSTOM_URL;
+    private static Cache<Integer, String> mappingCache = CacheBuilder.newBuilder().maximumSize(100).build();
 
-    public static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                    LSContext context) {
+    private static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
+                                                     LSContext context) {
         /* TODO: Complete the command and code action */
         Position startingPosition = diagnostic.getRange().getStart();
         Position endingPosition = diagnostic.getRange().getEnd();
@@ -208,19 +211,25 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        String schemasToSend = schemas.toString();
+        if (mappingCache.asMap().containsKey(schemas.hashCode())) {
+            return mappingCache.asMap().get(schemas.hashCode());
+        } else {
+            String schemasToSend = schemas.toString();
 
-        URL url = new URL(AI_SERVICE_URL);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/json; utf-8");
-        connection.setRequestProperty("Accept", "application/json");
-        connection.setDoOutput(true);
-        try (OutputStream outputStream = connection.getOutputStream()) {
-            outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
-            try (InputStream inputStream = new BufferedInputStream(connection.getInputStream())) {
-                Map response =  new ObjectMapper().readValue(inputStream, Map.class);
-                return (String) response.get("answer");
+            URL url = new URL(AI_SERVICE_URL);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Content-Type", "application/json; utf-8");
+            connection.setRequestProperty("Accept", "application/json");
+            connection.setDoOutput(true);
+            try (OutputStream outputStream = connection.getOutputStream()) {
+                outputStream.write(schemasToSend.getBytes(StandardCharsets.UTF_8));
+                try (InputStream inputStream = new BufferedInputStream(connection.getInputStream())) {
+                    Map response = new ObjectMapper().readValue(inputStream, Map.class);
+                    String mappedFunction = (String) response.get("answer");
+                    mappingCache.put(schemas.hashCode(), mappedFunction);
+                    return mappedFunction;
+                }
             }
         }
     }
