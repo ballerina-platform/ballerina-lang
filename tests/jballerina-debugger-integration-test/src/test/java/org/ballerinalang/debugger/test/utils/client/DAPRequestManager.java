@@ -69,7 +69,7 @@ public class DAPRequestManager {
     private static final int TIMEOUT_SCOPES = 2000;
     private static final int TIMEOUT_VARIABLES = 2000;
     private static final int TIMEOUT_STEP_OVER = 5000;
-    private static final int TIMEOUT_STEP_IN = 5000;
+    private static final int TIMEOUT_STEP_IN = 10000;
     private static final int TIMEOUT_STEP_OUT = 5000;
     private static final int TIMEOUT_RESUME = 10000;
     private static final int TIMEOUT_DISCONNECT = 5000;

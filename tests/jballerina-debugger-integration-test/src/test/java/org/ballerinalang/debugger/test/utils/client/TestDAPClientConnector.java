@@ -193,7 +193,6 @@ public class TestDAPClientConnector {
             requestManager.disconnect(disconnectArgs);
             stop();
         } catch (Exception e) {
-            LOGGER.warn("Disconnecting from the debug adapter failed", e);
             throw e;
         }
     }

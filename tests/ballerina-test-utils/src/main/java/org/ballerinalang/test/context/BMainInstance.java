@@ -441,17 +441,15 @@ public class BMainInstance implements BMain {
      * @param cmdArgs ballerina command args.
      */
     private void terminateProcess(Process process, String[] cmdArgs) {
-        killBashProcess(process);
-
         // Extracts the debug port from the command arguments.
         String port = "";
         for (int i = 0; i < cmdArgs.length; i++) {
             if (cmdArgs[i].equals("--debug")) {
                 port = cmdArgs[i + 1];
+                terminateProcess(process, port);
                 break;
             }
         }
-        terminateJVMProcess(port);
     }
 
     /**
@@ -460,9 +458,9 @@ public class BMainInstance implements BMain {
      * @param process     parent process instance.
      * @param programPort program port.
      */
-    public void terminateProcess(Process process, int programPort) {
+    public void terminateProcess(Process process, String programPort) {
         killBashProcess(process);
-        terminateJVMProcess(String.valueOf(programPort));
+        terminateJVMProcess(programPort);
     }
 
     /**
