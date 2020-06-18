@@ -184,7 +184,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
@@ -351,7 +351,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {

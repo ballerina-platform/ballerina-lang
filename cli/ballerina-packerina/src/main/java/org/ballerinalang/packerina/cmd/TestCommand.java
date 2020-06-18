@@ -154,7 +154,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
+    @CommandLine.Option(names = "--with-choreo", description = "package the Choreo observability extension " +
+            "in the executable.")
     private boolean withChoreo;
 
     public void execute() {
@@ -384,9 +385,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
-                .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
                 .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar

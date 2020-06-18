@@ -20,6 +20,8 @@ package org.ballerinalang.observe.trace.extension.choreo;
 /**
  * This is the constants class that defines all the constants
  * that are used by the {@link OpenTracerExtension}.
+ *
+ * @since 2.0.0
  */
 public class Constants {
 

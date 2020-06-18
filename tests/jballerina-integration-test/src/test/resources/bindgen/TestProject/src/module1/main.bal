@@ -1,9 +1,13 @@
 import ballerina/io;
+import ballerina/java;
+
+type StringTypedesc typedesc<String>;
 
 public function main() {
     io:println("Hello World!");
     error? err1 = testArrayUtils();
     error? err2 = testExceptionHandling();
+    error? err3 = testJavaCasting();
     if (err1 is error) {
         io:println(err1);
     } else {
@@ -14,6 +18,20 @@ public function main() {
     } else {
         io:println("Exception handling tests successful.");
     }
+    if (err3 is error) {
+        io:println(err3);
+    } else {
+        io:println("Java casting works as expected.");
+    }
+}
+
+function testJavaCasting() returns error? {
+    ArrayList arrayList = newArrayList1();
+    String strValue = newString13("Java Casting Works");
+    _ = arrayList.add2(strValue);
+    Object result = arrayList.get(0);
+    String castedValue = <String>check java:cast(result, StringTypedesc);
+    io:println(castedValue);
 }
 
 function testExceptionHandling() returns error? {
