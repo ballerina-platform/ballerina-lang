@@ -76,7 +76,7 @@ public class TransactionStmtTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 18L);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testArrowFunctionInsideTransaction() {
         BValue[] returns = BRunUtil.invoke(programFile, "testArrowFunctionInsideTransaction");
         Assert.assertTrue(returns[0] instanceof BInteger);

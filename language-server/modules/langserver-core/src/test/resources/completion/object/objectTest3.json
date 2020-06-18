@@ -9,6 +9,7 @@
       "label": "abstract",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "220",
       "insertText": "abstract ",
       "insertTextFormat": "Snippet"
     },
@@ -16,7 +17,16 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "220",
       "insertText": "client ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     }
   ]

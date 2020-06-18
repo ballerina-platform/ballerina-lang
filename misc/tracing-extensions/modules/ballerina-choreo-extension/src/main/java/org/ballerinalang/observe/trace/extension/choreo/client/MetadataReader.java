@@ -31,6 +31,8 @@ import java.util.Properties;
 
 /**
  * Read AST metadata from a Ballerina program package.
+ *
+ * @since 2.0.0
  */
 public class MetadataReader {
     private static final Logger LOGGER = LogFactory.getLogger();

@@ -2296,9 +2296,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
-                        // allow updates at compile-time for optional fields since it could be the first update.
-                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED);
+                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
             }
             return recordType.sealed;
         }

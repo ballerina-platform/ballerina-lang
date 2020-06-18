@@ -79,7 +79,7 @@ public class BindgenTestCase extends BaseTest {
                 "java.lang.ArithmeticException", "java.lang.AssertionError", "java.lang.StackTraceElement",
                 "java.lang.Character$Subset", "java.lang.Character", "java.io.File", "java.lang.Short",
                 "java.io.FileInputStream", "java.io.OutputStream", "java.io.FileOutputStream", "java.util.HashSet",
-                "java.util.Set", "java.util.Iterator", "java.awt.Window$Type"};
+                "java.util.Set", "java.util.Iterator", "java.awt.Window$Type", "java.util.ArrayList"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
                     new LogLeecher[]{bindgenLeecher}, projectPath.toString());

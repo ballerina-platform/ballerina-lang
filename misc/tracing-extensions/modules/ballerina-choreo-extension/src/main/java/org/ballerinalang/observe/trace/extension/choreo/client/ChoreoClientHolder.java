@@ -45,6 +45,8 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.REPORTE
 
 /**
  * Manages the Choreo Client used to communicate with the Choreo cloud.
+ *
+ * @since 2.0.0
  */
 public class ChoreoClientHolder {
     private static final Logger LOGGER = LogFactory.getLogger();

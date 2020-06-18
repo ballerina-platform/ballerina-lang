@@ -101,6 +101,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get readonly keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReadonlyKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.READONLY, "readonly ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get external keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

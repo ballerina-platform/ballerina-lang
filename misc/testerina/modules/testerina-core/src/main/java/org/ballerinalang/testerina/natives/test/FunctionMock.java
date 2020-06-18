@@ -33,7 +33,7 @@ public class FunctionMock {
     public static ErrorValue thenReturn(ObjectValue caseObj) {
         ObjectValue mockFunctionObj = caseObj.getObjectValue(StringUtils.fromString("mockFuncObj"));
         ArrayValue args = caseObj.getArrayValue(StringUtils.fromString("args"));
-        Object returnVal = caseObj.get(StringUtils.fromString("returnVal"));
+        Object returnVal = caseObj.get(StringUtils.fromString("returnValue"));
         MockRegistry.getInstance().registerCase(mockFunctionObj, null, args, returnVal);
         return null;
     }
@@ -46,19 +46,20 @@ public class FunctionMock {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if ((returnVal instanceof StringValue)
                         && returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                    return callFunction(mockFuncObj, returnVal.toString(), args);
+                    return callFunction(returnVal.toString(), args);
                 }
+                break;
             }
         }
         if (returnVal == null) {
             String detail = "no return value or action registered for function";
-            return BallerinaErrors.createError(StringUtils.fromString(MockConstants.FUNCTION_CALL_ERROR),
-                    StringUtils.fromString(detail));
+            return BallerinaErrors.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
+                    detail);
         }
         return returnVal;
     }
 
-    private static Object callFunction(ObjectValue mockFuncObj, String returnVal, ArrayValue args) {
+    private static Object callFunction(String returnVal, ArrayValue args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -76,8 +77,8 @@ public class FunctionMock {
             version = projectInfo[2].replace("_", ".");
             className = "tests." + getClassName(methodName, orgName, packageName, version);
         } catch (IOException | ClassNotFoundException | NullPointerException e) {
-            return BallerinaErrors.createError(StringUtils.fromString(MockConstants.FUNCTION_CALL_ERROR),
-                    StringUtils.fromString(e.getMessage()));
+            return BallerinaErrors.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
+                    e.getMessage());
         }
 
         List<Object> argsList = new ArrayList<>();

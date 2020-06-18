@@ -51,6 +51,8 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
+import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CLIENT_ID;
+
 /**
  *  Checks if there is a latest version in central if version is not mentioned. If there is then the version of the
  *  module is updated with that version.
@@ -110,6 +112,7 @@ public class URIDryConverter extends URIConverter {
                     conn = (HttpURLConnection) remoteURI.toURL().openConnection(this.proxy);
                 }
                 conn.setInstanceFollowRedirects(false);
+                conn.setRequestProperty("User-Agent", CLIENT_ID);
                 conn.setRequestMethod("GET");
 
                 // status code and meaning

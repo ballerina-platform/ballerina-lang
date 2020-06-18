@@ -56,6 +56,22 @@ public class ObjectTypeDefinitionTest extends AbstractDeclarationTest {
         test("object-type-def/object_type_def_source_12.bal", "object-type-def/object_type_def_assert_12.json");
     }
 
+    @Test
+    public void testObjectFieldsWithReadonlyTypeDesc() {
+        test("object-type-def/object_type_def_source_36.bal", "object-type-def/object_type_def_assert_36.json");
+    }
+
+    @Test
+    public void testObjectFieldsWithReadonlyQualifier() {
+        test("object-type-def/object_type_def_source_37.bal", "object-type-def/object_type_def_assert_37.json");
+    }
+
+    @Test
+    public void testObjectFieldsWithComplexTypeDescHavingReadonlyTypeDescWithin() {
+        test("object-type-def/object_type_def_source_38.bal", "object-type-def/object_type_def_assert_38.json");
+        test("object-type-def/object_type_def_source_39.bal", "object-type-def/object_type_def_assert_39.json");
+    }
+
     // Test object type qualifiers
 
     @Test

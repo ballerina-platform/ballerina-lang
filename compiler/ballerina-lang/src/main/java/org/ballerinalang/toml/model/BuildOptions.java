@@ -21,7 +21,7 @@ package org.ballerinalang.toml.model;
 /**
  * Model for Build Options config in Ballerina.toml.
  *
- * @since 1.0
+ * @since 2.0.0
  */
 public class BuildOptions {
     private boolean withChoreo;
