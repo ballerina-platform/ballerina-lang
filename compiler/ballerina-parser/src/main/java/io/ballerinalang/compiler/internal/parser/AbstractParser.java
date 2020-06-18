@@ -38,7 +38,7 @@ public abstract class AbstractParser {
 
     protected final AbstractParserErrorHandler errorHandler;
     protected final AbstractTokenReader tokenReader;
-    protected final Deque<STNode> invalidNodeStack = new ArrayDeque<>(5);
+    private final Deque<InvalidNodeInfo> invalidNodeInfoStack = new ArrayDeque<>(5);
 
     public AbstractParser(AbstractTokenReader tokenReader, AbstractParserErrorHandler errorHandler) {
         this.tokenReader = tokenReader;
@@ -58,7 +58,7 @@ public abstract class AbstractParser {
     }
 
     protected STToken consume() {
-        if (invalidNodeStack.isEmpty()) {
+        if (invalidNodeInfoStack.isEmpty()) {
             return this.tokenReader.read();
         }
 
@@ -68,10 +68,10 @@ public abstract class AbstractParser {
     private STToken consumeWithInvalidNodes() {
         // TODO can we improve this logic by cloning only once with all the invalid tokens?
         STToken token = this.tokenReader.read();
-        while (!invalidNodeStack.isEmpty()) {
-            STNode invalidNode = invalidNodeStack.pop();
-            token = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(token, invalidNode,
-                    DiagnosticErrorCode.ERROR_INVALID_TOKEN);
+        while (!invalidNodeInfoStack.isEmpty()) {
+            InvalidNodeInfo invalidNodeInfo = invalidNodeInfoStack.pop();
+            token = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(token, invalidNodeInfo.node,
+                    invalidNodeInfo.diagnosticCode, invalidNodeInfo.args);
         }
         return token;
     }
@@ -80,7 +80,7 @@ public abstract class AbstractParser {
         Solution sol = this.errorHandler.recover(currentCtx, token, args);
         // If the action is to remove, then re-parse the same rule.
         if (sol.action == Action.REMOVE) {
-            this.invalidNodeStack.push(sol.removedToken);
+            addInvalidTokenToNextToken(sol.removedToken);
             sol.recoveredNode = resumeParsing(currentCtx, args);
         }
         return sol;
@@ -137,7 +137,7 @@ public abstract class AbstractParser {
      */
     protected STNode cloneWithDiagnosticIfListEmpty(STNode nodeList, STNode target, DiagnosticCode diagnosticCode) {
         if (isNodeListEmpty(nodeList)) {
-            return SyntaxErrors.addDiagnostics(target, diagnosticCode);
+            return SyntaxErrors.addDiagnostic(target, diagnosticCode);
         }
         return target;
     }
@@ -156,8 +156,52 @@ public abstract class AbstractParser {
         STNode prevNode = nodeList.remove(lastIndex);
         STNode newNode = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevNode, invalidParam);
         if (diagnosticCode != null) {
-            newNode = SyntaxErrors.addDiagnostics(newNode, diagnosticCode);
+            newNode = SyntaxErrors.addDiagnostic(newNode, diagnosticCode);
         }
         nodeList.add(newNode);
+    }
+
+    /**
+     * Adds the invalid node as minutiae to the next consumed token.
+     * <p>
+     * This method pushes this invalid node into a stack and attach it
+     * as invalid node minutiae to the next token when it is consumed.
+     *
+     * @param invalidNode    invalid node to added as {@code STInvalidNodeMinutiae}
+     * @param diagnosticCode the {@code DiagnosticCode} to be added
+     * @param args           additional arguments required to format the diagnostic message
+     */
+    protected void addInvalidNodeToNextToken(STNode invalidNode, DiagnosticCode diagnosticCode, Object... args) {
+        invalidNodeInfoStack.push(new InvalidNodeInfo(invalidNode, diagnosticCode, args));
+    }
+
+    /**
+     * Adds the invalid node as minutiae to the next consumed token.
+     * <p>
+     * This method pushes this invalid node into a stack and attach it
+     * as invalid node minutiae to the next token when it is consumed.
+     *
+     * @param invalidNode invalid node to added as {@code STInvalidNodeMinutiae}
+     */
+    protected void addInvalidTokenToNextToken(STToken invalidNode) {
+        invalidNodeInfoStack.push(new InvalidNodeInfo(invalidNode,
+                DiagnosticErrorCode.ERROR_INVALID_TOKEN, invalidNode.text()));
+    }
+
+    /**
+     * Holds invalid node diagnostic information until the next token is consumed.
+     *
+     * @since 2.0.0
+     */
+    private static class InvalidNodeInfo {
+        final STNode node;
+        final DiagnosticCode diagnosticCode;
+        final Object[] args;
+
+        public InvalidNodeInfo(STNode invalidNode, DiagnosticCode diagnosticCode, Object... args) {
+            this.node = invalidNode;
+            this.diagnosticCode = diagnosticCode;
+            this.args = args;
+        }
     }
 }
