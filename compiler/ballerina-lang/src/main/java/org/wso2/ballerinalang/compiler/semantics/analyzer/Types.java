@@ -551,7 +551,7 @@ public class Types {
 
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, target);
+            return isAssignableRecordType(recordType, target, unresolvedTypes);
         }
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
@@ -603,7 +603,7 @@ public class Types {
             }
 
             if (sourceTag == TypeTags.RECORD) {
-                return isAssignableRecordType((BRecordType) source, target);
+                return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
         }
 
@@ -655,7 +655,12 @@ public class Types {
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BType type) {
+    private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
+        TypePair pair = new TypePair(recordType, type);
+        if (!unresolvedTypes.add(pair)) {
+            return true;
+        }
+
         BType targetType;
         switch (type.tag) {
             case TypeTags.MAP:
@@ -667,18 +672,19 @@ public class Types {
             default:
                 throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
-        return recordFieldsAssignableToType(recordType, targetType);
+        return recordFieldsAssignableToType(recordType, targetType, unresolvedTypes);
     }
 
-    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
+    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType,
+                                                 Set<TypePair> unresolvedTypes) {
         for (BField field : recordType.fields.values()) {
-            if (!isAssignable(field.type, targetType)) {
+            if (!isAssignable(field.type, targetType, unresolvedTypes)) {
                 return false;
             }
         }
 
         if (!recordType.sealed) {
-            return isAssignable(recordType.restFieldType, targetType);
+            return isAssignable(recordType.restFieldType, targetType, unresolvedTypes);
         }
 
         return true;

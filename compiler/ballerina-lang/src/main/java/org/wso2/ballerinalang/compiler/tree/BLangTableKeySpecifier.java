@@ -29,16 +29,16 @@ import java.util.List;
  */
 public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifierNode {
 
-    public List<BLangIdentifier> fieldNameIdentifierList = new ArrayList<>();
+    public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
 
     @Override
     public void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier) {
-        fieldNameIdentifierList.add((BLangIdentifier) fieldNameIdentifier);
+        fieldNameIdentifierList.add(fieldNameIdentifier);
     }
 
     @Override
     public List<IdentifierNode> getFieldNameIdentifierList() {
-        return getFieldNameIdentifierList();
+        return this.fieldNameIdentifierList;
     }
 
     @Override
@@ -54,11 +54,11 @@ public class BLangTableKeySpecifier extends BLangNode implements TableKeySpecifi
     @Override
     public String toString() {
         StringBuilder keyStringBuilder = new StringBuilder();
-        for (BLangIdentifier identifier : fieldNameIdentifierList) {
+        for (IdentifierNode identifier : fieldNameIdentifierList) {
             if (!keyStringBuilder.toString().equals("")) {
                 keyStringBuilder.append(", ");
             }
-            keyStringBuilder.append(identifier.value);
+            keyStringBuilder.append(((BLangIdentifier) identifier).value);
         }
 
         return "key(" + keyStringBuilder.toString() + ")";

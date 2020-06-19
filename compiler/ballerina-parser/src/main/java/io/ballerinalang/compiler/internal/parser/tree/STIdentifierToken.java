@@ -76,9 +76,9 @@ public class STIdentifierToken extends STToken {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        leadingMinutiae.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
         builder.append(text);
-        trailingMinutiae.toSourceCode(builder);
+        trailingMinutiae.writeTo(builder);
     }
 }

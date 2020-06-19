@@ -18,6 +18,7 @@
 package io.ballerina.test.compiler.plugins;
 
 import org.ballerinalang.test.balo.BaloCreator;
+import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
@@ -49,6 +50,8 @@ public class CompilerPluginTest {
     public void testCompilerPlugin() {
 
         Assert.assertEquals(compileResult.getErrorCount(), 0, "There are compilation errors");
+        Assert.assertEquals(compileResult.getWarnCount(), 1);
+        BAssertUtil.validateWarning(compileResult, 0, "compiler plugin crashed", 6, 1);
 
         Map<TestEvent.Kind, Set<TestEvent>> allEvents = TestCompilerPlugin.testEventMap;
         Map<TestEvent.Kind, Set<TestEvent>> funcEvents = FunctionsTestCompilerPlugin.testEventMap;

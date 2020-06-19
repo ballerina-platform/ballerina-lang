@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
@@ -977,9 +978,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<String> requiredFieldNames = new ArrayList<>();
         if (keySpecifier != null) {
-            for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
-                requiredFieldNames.add(identifier.value);
-                keySpecifierFieldNames.add(identifier.value);
+            for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
+                requiredFieldNames.add(((BLangIdentifier) identifierNode).value);
+                keySpecifierFieldNames.add(((BLangIdentifier) identifierNode).value);
             }
         }
 
@@ -1199,12 +1200,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             }
 
-            List<BLangIdentifier> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
+            List<IdentifierNode> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
                     fieldNameIdentifierList;
 
             int index = 0;
-            for (BLangIdentifier identifier : fieldNameIdentifierList) {
-                BField field = types.getTableConstraintField(constraintType, identifier.value);
+            for (IdentifierNode identifier : fieldNameIdentifierList) {
+                BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
                 if (!types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
@@ -1244,8 +1245,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
         List<String> fieldNamesList = new ArrayList<>();
-        for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-            fieldNamesList.add(identifier.value);
+        for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+            fieldNamesList.add(((BLangIdentifier) identifier).value);
         }
 
         return fieldNamesList;
@@ -3974,7 +3975,7 @@ public class TypeChecker extends BLangNodeVisitor {
             final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
             if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
                 tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                        .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
                 return BUnionType.create(null, tableType, symTable.errorType);
             }
             return tableType;

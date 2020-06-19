@@ -1,2 +1,3 @@
 io.ballerina.test.compiler.plugins.TestCompilerPlugin
 io.ballerina.test.compiler.plugins.FunctionsTestCompilerPlugin
+io.ballerina.test.compiler.plugins.CrashTestCompilerPlugin

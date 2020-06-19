@@ -442,7 +442,7 @@ public class BallerinaLexer extends AbstractLexer {
                 // This implementation does not replace any characters to maintain
                 // the exact source text as it is, but it does not count \r\n as two characters.
                 // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme(), 1);
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             default:
                 throw new IllegalStateException();
         }
