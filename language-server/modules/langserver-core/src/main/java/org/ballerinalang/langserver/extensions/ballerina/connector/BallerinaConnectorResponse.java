@@ -31,13 +31,16 @@ public class BallerinaConnectorResponse {
     private final String module;
     private final String version;
     private final String name;
+    private final String displayName;
     private JsonElement ast;
 
-    public BallerinaConnectorResponse(String org, String module, String version, String name, JsonElement ast) {
+    public BallerinaConnectorResponse(String org, String module, String version, String name, String displayName,
+                                      JsonElement ast) {
         this.org = org;
         this.module = module;
         this.version = version;
         this.name = name;
+        this.displayName = displayName;
         this.ast = ast;
     }
 
@@ -55,6 +58,10 @@ public class BallerinaConnectorResponse {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     public JsonElement getAst() {

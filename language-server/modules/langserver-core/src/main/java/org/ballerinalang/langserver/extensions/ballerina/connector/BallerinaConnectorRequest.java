@@ -29,12 +29,14 @@ public class BallerinaConnectorRequest {
     private String module;
     private String version = "";
     private String name;
+    private String displayName;
 
-    public BallerinaConnectorRequest(String org, String module, String version, String name) {
+    public BallerinaConnectorRequest(String org, String module, String version, String name, String displayName) {
         this.org = org;
         this.module = module;
         this.version = version;
         this.name = name;
+        this.displayName = displayName;
     }
 
     public String getOrg() {
@@ -51,6 +53,10 @@ public class BallerinaConnectorRequest {
 
     public String getName() {
         return name;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 
     @Override
