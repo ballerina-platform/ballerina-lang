@@ -148,9 +148,7 @@ public abstract class Node {
      * @return source code as a string
      */
     public String toSourceCode() {
-        StringBuilder stringBuilder = new StringBuilder();
-        internalNode.toSourceCode(stringBuilder);
-        return stringBuilder.toString();
+        return internalNode.toSourceCode();
     }
 
     private SyntaxTree populateSyntaxTree() {

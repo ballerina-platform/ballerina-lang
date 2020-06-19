@@ -203,7 +203,7 @@ class JvmObservabilityGen {
                         .map(arg -> arg.variableDcl.type)
                         .collect(Collectors.toList());
                 Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
-                        asyncCallIns.name.value));
+                        asyncCallIns.name.value.replace(".", "_")));
                 BInvokableType bInvokableType = new BInvokableType(argTypes, null,
                         returnType, null);
                 BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,

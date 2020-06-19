@@ -77,7 +77,7 @@ public class STMinutiae extends STNode {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
+    public void writeTo(StringBuilder builder) {
         builder.append(text);
     }
 }

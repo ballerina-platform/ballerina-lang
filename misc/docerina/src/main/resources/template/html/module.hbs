@@ -9,7 +9,6 @@
         <div class="navi-wrapper-content">
             {{> logo }}
             {{> currentModule }}
-            {{> allModules }}
         </div>
     </div>
 
@@ -19,7 +18,6 @@
                 {{> logo }}
                 
                 {{> currentModule }}
-                {{> allModules }}
             </div>
         </div>
     </div>
@@ -39,6 +37,9 @@
                         Module : <span class="modules">{{ module.id }}</span>
                     {{/if}}
                 </h1>
+                {{#if module.version}}
+                    <div>Version : {{ module.version }}</div>
+                {{/if}}
                     {{{ module.description }}}
 
             {{#if module.records}}

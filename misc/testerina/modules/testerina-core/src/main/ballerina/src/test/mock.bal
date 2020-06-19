@@ -16,11 +16,8 @@
 
 import ballerina/java;
 
-# Object mocking constants
-
+# Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";
-
-# Object mocking errors
 
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
@@ -42,9 +39,9 @@ public type InvalidMemberFieldError distinct error;
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
 public type FunctionCallError distinct error;
 
+# Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
 
-# Objects and functions related to object mocking
 
 # Creates and returns a mock object of provided type description.
 #
@@ -300,7 +297,6 @@ public type FunctionStub object {
     }
 };
 
-// Inter-op functions
 
 # Inter-op to create the mock object
 #
@@ -377,7 +373,7 @@ function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
-# Inter-op to call Mock Handler
+# Inter-op to handle function mocking.
 #
 # + mockFunction - mockFunction object
 # + args - function arguments
