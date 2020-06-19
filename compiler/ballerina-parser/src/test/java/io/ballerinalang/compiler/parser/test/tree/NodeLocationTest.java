@@ -63,6 +63,18 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
+    public void testLocationOfModuleNodeWithNewLinesAtTheEnd() {
+        String sourceFileName = "node_location_test_06.bal";
+        SyntaxTree syntaxTree = parseFile(sourceFileName);
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+
+        LinePosition expectedStartPos = LinePosition.from(0, 0);
+        LinePosition expectedEndPos = LinePosition.from(2, 0);
+        LineRange expectedLineRange = LineRange.from(sourceFileName, expectedStartPos, expectedEndPos);
+        assertLineRange(modulePartNode.location().lineRange(), expectedLineRange);
+    }
+
+    @Test
     public void testLocationOfMultipleImportNodes() {
         String sourceFileName = "node_location_test_03.bal";
         SyntaxTree syntaxTree = parseFile(sourceFileName);
