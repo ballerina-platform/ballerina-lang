@@ -150,7 +150,9 @@ public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolC
         List<BLangCompilationUnit> compilationUnits = module.getCompilationUnits();
         for (BLangCompilationUnit cUnit : compilationUnits) {
             CUnitASTHolder jsonCUnit = getCUnitASTHolder(visibleEPsByNode, cUnit);
-            pkgASTHolder.addCompilationUnit(cUnit.name, jsonCUnit);
+            if (jsonCUnit.getAst() != null) {
+                pkgASTHolder.addCompilationUnit(cUnit.name, jsonCUnit);
+            }
         }
         return pkgASTHolder;
     }
