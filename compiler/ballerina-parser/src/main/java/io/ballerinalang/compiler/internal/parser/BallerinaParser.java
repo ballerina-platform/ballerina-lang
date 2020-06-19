@@ -3276,7 +3276,8 @@ public class BallerinaParser extends AbstractParser {
                         // Then treat "readonly" as type-desc, and "a" as the field-name
                         type = createBuiltinSimpleNameReference(readOnlyQualifier);
                         readOnlyQualifier = STNodeFactory.createEmptyNode();
-                        return parseFieldDescriptorRhs(metadata, readOnlyQualifier, type, fieldNameOrTypeDesc);
+                        STNode fieldName = ((STSimpleNameReferenceNode) fieldNameOrTypeDesc).name;
+                        return parseFieldDescriptorRhs(metadata, readOnlyQualifier, type, fieldName);
                     default:
                         // else,
                         type = fieldNameOrTypeDesc;
@@ -9972,7 +9973,8 @@ public class BallerinaParser extends AbstractParser {
 
         if (selectClause == null) {
             STNode selectKeyword = SyntaxErrors.createMissingToken(SyntaxKind.SELECT_KEYWORD);
-            STNode expr = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            STNode expr = STNodeFactory
+                    .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
             selectClause = STNodeFactory.createSelectClauseNode(selectKeyword, expr);
 
             // Now we need to attach the diagnostic to the last intermediate clause.
