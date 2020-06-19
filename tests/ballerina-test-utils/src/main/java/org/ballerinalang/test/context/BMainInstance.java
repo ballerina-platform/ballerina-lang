@@ -370,11 +370,6 @@ public class BMainInstance implements BMain {
                 terminateProcess(process, cmdArgs);
             }
 
-//            infoReader.stop();
-//            infoReader.removeAllLeechers();
-//            errorReader.stop();
-//            errorReader.removeAllLeechers();
-
             if (elapsedTime >= timeout) {
                 throw new BallerinaTestException("Timeout expired waiting for matching logs in debug mode.");
             } else if (!leechingDone) {
