@@ -358,6 +358,11 @@ public class BMainInstance implements BMain {
                 elapsedTime++;
             }
 
+            infoReader.stop();
+            infoReader.removeAllLeechers();
+            errorReader.stop();
+            errorReader.removeAllLeechers();
+
             // Terminate the process if it is still alive, or either the program is suspended in debug mode
             // (as expected), or still being executed, in launch mode. Do not terminate if the debuggee is in attach
             // mode at this point.
@@ -365,10 +370,10 @@ public class BMainInstance implements BMain {
                 terminateProcess(process, cmdArgs);
             }
 
-            infoReader.stop();
-            infoReader.removeAllLeechers();
-            errorReader.stop();
-            errorReader.removeAllLeechers();
+//            infoReader.stop();
+//            infoReader.removeAllLeechers();
+//            errorReader.stop();
+//            errorReader.removeAllLeechers();
 
             if (elapsedTime >= timeout) {
                 throw new BallerinaTestException("Timeout expired waiting for matching logs in debug mode.");
