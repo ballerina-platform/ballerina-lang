@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -1045,8 +1046,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
             List<String> fieldNameList = new ArrayList<>();
-            for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-                fieldNameList.add(identifier.value);
+            for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNameList.add(((BLangIdentifier) identifier).value);
             }
             tableType.fieldNameList = fieldNameList;
             tableType.keyPos = tableKeySpecifier.pos;
