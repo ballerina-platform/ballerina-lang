@@ -587,7 +587,7 @@ body .content-wrapper .strike {
   text-decoration: line-through;
 }
 body .content-wrapper .main-wrapper .search-bar {
-  padding-bottom: 10px;
+  margin-bottom: 10px;
 }
 body .content-wrapper .main-wrapper .search-list .search-title {
   font-weight: 400;
