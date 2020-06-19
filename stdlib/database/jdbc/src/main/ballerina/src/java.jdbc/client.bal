@@ -85,7 +85,7 @@ public type Client client object {
     #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
     #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
     #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
-    public remote function batchExecute(sql:ParameterizedQuery[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
+    public remote function batchExecute(@untainted sql:ParameterizedQuery[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
         if (sqlQueries.length() == 0) {
             return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
         }
