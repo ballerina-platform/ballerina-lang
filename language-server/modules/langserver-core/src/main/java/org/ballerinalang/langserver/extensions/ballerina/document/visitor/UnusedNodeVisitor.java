@@ -292,7 +292,10 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         addVariableNode(varNode);
-        varNode.getTypeNode().accept(this);
+        if (varNode.getTypeNode() != null) {
+            varNode.getTypeNode().accept(this);
+        }
+
         if (varNode.getInitialExpression() != null) {
             varNode.getInitialExpression().accept(this);
         }
