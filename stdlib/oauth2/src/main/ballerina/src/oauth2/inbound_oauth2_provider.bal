@@ -111,11 +111,40 @@ public type InboundOAuth2Provider object {
                     exp = self.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
                 }
 
+                map<json> claims = {};
+                if (payload.client_id is string) {
+                    claims["clientId"] = <@untainted> <string>payload.client_id;
+                }
+                if (payload.token_type is string) {
+                    claims["tokenType"] = <@untainted> <string>payload.token_type;
+                }
+                if (payload.exp is int) {
+                    claims["exp"] = <@untainted> <int>payload.exp;
+                }
+                if (payload.iat is int) {
+                    claims["iat"] = <@untainted> <int>payload.iat;
+                }
+                if (payload.nbf is int) {
+                    claims["nbf"] = <@untainted> <int>payload.nbf;
+                }
+                if (payload.sub is string) {
+                    claims["sub"] = <@untainted> <string>payload.sub;
+                }
+                if (payload.aud is string) {
+                    claims["aud"] = <@untainted> <string>payload.aud;
+                }
+                if (payload.iss is string) {
+                    claims["iss"] = <@untainted> <string>payload.iss;
+                }
+                if (payload.jti is string) {
+                    claims["jti"] = <@untainted> <string>payload.jti;
+                }
+
                 if (oauth2Cache is cache:Cache) {
                     addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
                 }
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(username, username, getScopes(scopes ?: ""));
+                auth:setPrincipal(username, username, getScopes(scopes ?: ""), claims);
                 return true;
             }
             return false;
