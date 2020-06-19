@@ -91,7 +91,7 @@ public class BallerinaXValue extends XNamedValue {
             VariablesResponse variableResp = process.getDapClientConnector().getRequestManager()
                     .variables(variablesArgs);
             for (Variable variable : variableResp.getVariables()) {
-                list.add(variable.getName(), new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
+                list.add(variable.getName(), new BallerinaXValue(process, variable, getIconFor(variable)));
             }
             node.addChildren(list, true);
         } catch (Exception e) {
@@ -207,5 +207,22 @@ public class BallerinaXValue extends XNamedValue {
     @Override
     public void computeTypeSourcePosition(@NotNull XNavigatable navigatable) {
         // Todo
+    }
+
+    public static Icon getIconFor(@NotNull Variable variable) {
+        String variableType = variable.getType();
+        if (BallerinaValueType.ARRAY.getValue().equals(variableType)
+                || BallerinaValueType.TUPLE.getValue().equals(variableType)) {
+            return AllIcons.Debugger.Db_array;
+        } else if (BallerinaValueType.OBJECT.getValue().equals(variableType)
+                || BallerinaValueType.RECORD.getValue().equals(variableType)
+                || BallerinaValueType.MAP.getValue().equals(variableType)
+                || BallerinaValueType.JSON.getValue().equals(variableType)) {
+            return AllIcons.Debugger.Db_db_object;
+        } else if (variableType.equals(BallerinaValueType.ERROR.getValue())) {
+            return AllIcons.Nodes.ExceptionClass;
+        } else {
+            return AllIcons.Nodes.Variable;
+        }
     }
 }
