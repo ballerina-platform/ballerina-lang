@@ -61,8 +61,6 @@ import java.util.Map;
  */
 public class BallerinaTreeModifyUtil {
 
-//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
-
     private static final String DELETE = "delete";
     private static final String IMPORT = "import";
 
@@ -206,7 +204,6 @@ public class BallerinaTreeModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-//        logger.info("Updated Tree : " + updatedSyntaxTree);
         String updatedSyntaxTreeString = updatedSyntaxTree.toString();
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
 
@@ -219,7 +216,6 @@ public class BallerinaTreeModifyUtil {
 
         updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
         updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
-//        logger.info("Formatted Tree : " + updatedSyntaxTree);
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         File outputFile = compilationPath.toFile();
