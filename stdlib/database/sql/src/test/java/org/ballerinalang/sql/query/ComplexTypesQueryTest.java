@@ -57,10 +57,6 @@ public class ComplexTypesQueryTest {
 
     @BeforeClass
     public void setup() throws SQLException {
-        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            throw new SkipException("Skip test class in Windows");
-        }
         result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "query");
         SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("query",
                 "complex-test-data.sql"));

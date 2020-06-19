@@ -55,10 +55,6 @@ public class ParamsQueryTest {
 
     @BeforeClass
     public void setup() throws SQLException {
-        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            throw new SkipException("Skip test class in Windows");
-        }
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir("query", "simple-params-query-test.bal"));
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIR), DB_NAME);
         SQLDBUtils.initH2Database(SQLDBUtils.DB_DIR, DB_NAME,

@@ -48,10 +48,6 @@ public class ParamsExecuteTest {
 
     @BeforeClass
     public void setup() throws SQLException {
-        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
-        if (System.getProperty("os.name").toLowerCase().contains("win")) {
-            throw new SkipException("Skip test class in Windows");
-        }
         result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "execute");
         SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("execute",
                 "execute-params-test-data.sql"));
