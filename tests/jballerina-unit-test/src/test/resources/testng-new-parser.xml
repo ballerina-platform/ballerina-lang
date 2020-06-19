@@ -133,6 +133,7 @@
             <package name="org.ballerinalang.test.taintchecking*"/>
             <package name="org.ballerinalang.test.query.*" />
             <package name="org.ballerinalang.test.statements.retrystmt.*"/>
+            <package name="org.ballerinalang.test.types.readonly.*"/>
         </packages>
 
         <classes>
