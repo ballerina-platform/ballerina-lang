@@ -80,7 +80,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
             CUSTOM_URL;
-    private static Cache<Integer, String> mappingCache = CacheBuilder.newBuilder().maximumSize(100).build();
+    private static final int MAXIMUM_CACHE_SIZE = 100;
+    private static Cache<Integer, String> mappingCache =
+            CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
 
     private static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                      LSContext context) {
