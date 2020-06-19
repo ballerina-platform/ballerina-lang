@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.text;
 
+import java.io.PrintStream;
+
 /**
  * The {@code LineMap} represents a collection text lines in the {@code TextDocument}.
  *
@@ -39,6 +41,14 @@ class LineMap {
     LinePosition linePositionFrom(int position) {
         positionRangeCheck(position);
         TextLine textLine = findLineFrom(position);
+        if (textLine == null) {
+            PrintStream out = System.out;
+            out.println("position: " + position);
+            for (TextLine line : textLines) {
+                out.println("Line: " + line.lineNo() + ", startOffset: " + line.startOffset() +
+                        ", endOffset: " + line.endOffset() + ", newlinecharCount: " + line.lengthWithNewLineChars());
+            }
+        }
         return LinePosition.from(textLine.lineNo(), position - textLine.startOffset());
     }
 
