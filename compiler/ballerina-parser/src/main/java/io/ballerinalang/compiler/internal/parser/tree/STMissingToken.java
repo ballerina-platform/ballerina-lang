@@ -78,8 +78,8 @@ public class STMissingToken extends STToken {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        leadingMinutiae.toSourceCode(builder);
-        trailingMinutiae.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        trailingMinutiae.writeTo(builder);
     }
 }

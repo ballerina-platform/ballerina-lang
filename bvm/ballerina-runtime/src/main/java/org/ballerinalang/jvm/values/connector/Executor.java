@@ -172,6 +172,8 @@ public class Executor {
             return int.class;
         } else if (paramValue instanceof Long) {
             return long.class;
+        } else if (paramValue instanceof Double) {
+            return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
         } else {

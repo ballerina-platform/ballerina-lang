@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.providers.contextproviders;
 import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.Token;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -60,7 +59,8 @@ public class TypeDefinitionContextProvider extends AbstractCompletionProvider {
             Ex: public type <cursor> object {}
              */
             return Arrays.asList(new SnippetCompletionItem(ctx, Snippet.KW_ABSTRACT.get()),
-                    new SnippetCompletionItem(ctx, Snippet.KW_CLIENT.get()));
+                    new SnippetCompletionItem(ctx, Snippet.KW_CLIENT.get()),
+                    new SnippetCompletionItem(ctx, Snippet.KW_READONLY.get()));
         } else if (lhsTokenTypes.contains(BallerinaParser.TYPE)) {
             List<LSCompletionItem> lsCItems = new ArrayList<>();
             Integer invocationType = ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
@@ -80,9 +80,15 @@ public class TypeDefinitionContextProvider extends AbstractCompletionProvider {
                 /*
                 Ex: public type testType client | abstract <cursor>
                  */
-                SnippetBlock objectModifier = lhsTokenTypes.contains(BallerinaParser.CLIENT)
-                        ? Snippet.KW_ABSTRACT.get() : Snippet.KW_CLIENT.get();
-                lsCItems.add(new SnippetCompletionItem(ctx, objectModifier));
+                if (!lhsTokenTypes.contains(BallerinaParser.CLIENT)) {
+                    lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CLIENT.get()));
+                }
+                if (!lhsTokenTypes.contains(BallerinaParser.ABSTRACT)) {
+                    lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ABSTRACT.get()));
+                }
+                if (!lhsTokenTypes.contains(BallerinaParser.TYPE_READONLY)) {
+                    lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_READONLY.get()));
+                }
                 lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_OBJECT.get()));
             } else {
                 /*
@@ -93,6 +99,7 @@ public class TypeDefinitionContextProvider extends AbstractCompletionProvider {
                 lsCItems.addAll(this.getBasicTypesItems(ctx, visibleSymbols));
                 lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ABSTRACT.get()));
                 lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_CLIENT.get()));
+                lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_READONLY.get()));
                 lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_RECORD.get()));
                 lsCItems.add(new SnippetCompletionItem(ctx, Snippet.KW_OBJECT.get()));
             }

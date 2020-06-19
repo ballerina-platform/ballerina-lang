@@ -28,7 +28,7 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     private final STNode invalidNode;
 
     STInvalidNodeMinutiae(STNode invalidNode) {
-        super(SyntaxKind.INVALID_NODE_MINUTIAE, invalidNode.toString());
+        super(SyntaxKind.INVALID_NODE_MINUTIAE, invalidNode.toSourceCode());
         this.invalidNode = invalidNode;
     }
 
@@ -37,7 +37,7 @@ public class STInvalidNodeMinutiae extends STMinutiae {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        invalidNode.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        invalidNode.writeTo(builder);
     }
 }

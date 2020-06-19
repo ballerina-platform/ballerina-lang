@@ -53,7 +53,7 @@ public class WebSubStartupFunctionalityTestCase extends BaseTest {
     @Test(description = "Test multiple Subscriber service startup in a single port")
     public void testMultipleSubscribersStartUpInSamePort() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(
-                webSubSubscriber.getServiceURLHttp(WEBSUB_SUB_PORT, "subscriber/start"));
+                webSubSubscriber.getServiceURLHttp(WEBSUB_SUB_PORT, "subscriber/startup"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(),
                             "failed to start server connector '0.0.0.0:23387': Address already in use", "Mismatched");

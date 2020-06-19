@@ -20,6 +20,8 @@ import java.io.PrintStream;
 
 /**
  * Logger that logs everything to console.
+ *
+ * @since 2.0.0
  */
 public class ConsoleLogger implements Logger {
     private static final PrintStream console = System.out;

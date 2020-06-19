@@ -23,7 +23,6 @@
 <suite name="ballerina-new-parser-test-suite" time-out="120000">
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
-        <parameter name="enableNewParserForTests" value="true"/>
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
@@ -128,16 +127,19 @@
             <package name="org.ballerinalang.test.expressions.varref.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-<!--            <package name="org.ballerinalang.test.statements.transaction.*"/>-->
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
             <package name="org.ballerinalang.test.taintchecking*"/>
             <package name="org.ballerinalang.test.query.*" />
+            <package name="org.ballerinalang.test.statements.retrystmt.*"/>
+            <package name="org.ballerinalang.test.types.readonly.*"/>
         </packages>
 
         <classes>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>

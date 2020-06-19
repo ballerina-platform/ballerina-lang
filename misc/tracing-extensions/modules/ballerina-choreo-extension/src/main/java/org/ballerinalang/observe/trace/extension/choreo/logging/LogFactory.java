@@ -18,6 +18,8 @@ package org.ballerinalang.observe.trace.extension.choreo.logging;
 
 /**
  * Used to create a instance of loggers.
+ *
+ * @since 2.0.0
  */
 public class LogFactory {
 

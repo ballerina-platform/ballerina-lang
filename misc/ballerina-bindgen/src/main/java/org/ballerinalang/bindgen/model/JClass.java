@@ -58,7 +58,7 @@ public class JClass {
     private boolean isInterface = false;
     private boolean isDirectClass = false;
     private boolean isAbstract = false;
-    private boolean hasJavaModuleImport = false;
+    private boolean importJavaArraysModule = false;
 
     private Set<String> superClasses = new HashSet<>();
     private Set<String> superClassNames = new LinkedHashSet<>();
@@ -104,9 +104,6 @@ public class JClass {
             populateInitFunctions();
             populateMethodsInOrder(c);
             populateFields(c.getFields());
-            if (!methodList.isEmpty() || !constructorList.isEmpty() || !fieldList.isEmpty()) {
-                hasJavaModuleImport = true;
-            }
         }
     }
 
@@ -163,6 +160,9 @@ public class JClass {
         for (Constructor constructor : constructors) {
             JConstructor jConstructor = new JConstructor(constructor);
             constructorList.add(jConstructor);
+            if (jConstructor.requireJavaArrays()) {
+                importJavaArraysModule = true;
+            }
         }
         constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
         for (JConstructor jConstructor:constructorList) {
@@ -195,6 +195,9 @@ public class JClass {
             if (isPublicMethod(method)) {
                 JMethod jMethod = new JMethod(method);
                 jMethod.setShortClassName(shortClassName);
+                if (jMethod.requireJavaArrays()) {
+                    importJavaArraysModule = true;
+                }
                 methodList.add(jMethod);
             }
         }
@@ -210,7 +213,11 @@ public class JClass {
                 }
             }
             if (addField) {
-                fieldList.add(new JField(field, ACCESS_FIELD));
+                JField jFieldGetter = new JField(field, ACCESS_FIELD);
+                fieldList.add(jFieldGetter);
+                if (jFieldGetter.requireJavaArrays()) {
+                    importJavaArraysModule = true;
+                }
                 if (!isFinalField(field) && isPublicField(field)) {
                     fieldList.add(new JField(field, MUTATE_FIELD));
                 }

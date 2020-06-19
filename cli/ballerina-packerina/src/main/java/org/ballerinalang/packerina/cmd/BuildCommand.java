@@ -181,8 +181,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
-    private boolean withChoreo;
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {
@@ -407,8 +408,8 @@ public class BuildCommand implements BLauncherCmd {
         buildContext.setErr(errStream);
 
         Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(withChoreo ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
+        boolean isChoreoExtensionSkipped = !(observabilityIncluded ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
@@ -419,10 +420,10 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
                 .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
-                .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask(skipCopyLibsFromDist))   // create the jar

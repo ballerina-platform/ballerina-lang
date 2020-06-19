@@ -39,6 +39,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
@@ -247,6 +249,15 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         if (variable.expr != null) {
             this.blockPositionStack.push(variable.expr.pos);
             acceptNode(variable.expr, symbolEnv);
+            this.blockPositionStack.pop();
+        }
+    }
+
+    @Override
+    public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
+        for (BLangExpression expr : stringTemplateLiteral.exprs) {
+            this.blockPositionStack.push(expr.pos);
+            acceptNode(expr, symbolEnv);
             this.blockPositionStack.pop();
         }
     }

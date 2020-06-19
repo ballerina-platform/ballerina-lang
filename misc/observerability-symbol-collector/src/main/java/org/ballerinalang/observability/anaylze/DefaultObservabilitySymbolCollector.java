@@ -55,6 +55,8 @@ import java.util.stream.Collectors;
 
 /**
  * Default implementation of ObserverbilitySymbolCollector.
+ *
+ * @since 2.0.0
  */
 public class DefaultObservabilitySymbolCollector implements ObservabilitySymbolCollector {
 

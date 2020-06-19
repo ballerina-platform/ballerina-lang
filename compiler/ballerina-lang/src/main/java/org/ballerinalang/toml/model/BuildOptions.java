@@ -21,16 +21,16 @@ package org.ballerinalang.toml.model;
 /**
  * Model for Build Options config in Ballerina.toml.
  *
- * @since 1.0
+ * @since 2.0.0
  */
 public class BuildOptions {
-    private boolean withChoreo;
+    private boolean observabilityIncluded;
 
-    public boolean isWithChoreo() {
-        return withChoreo;
+    public boolean isObservabilityIncluded() {
+        return observabilityIncluded;
     }
 
-    public void setWithChoreo(boolean withChoreo) {
-        this.withChoreo = withChoreo;
+    public void setObservabilityIncluded(boolean observabilityIncluded) {
+        this.observabilityIncluded = observabilityIncluded;
     }
 }
