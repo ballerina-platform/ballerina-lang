@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -166,6 +167,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             consumer.accept(arg);
         } catch (Throwable e) {
             dlog.warning(pkgNode.pos, DiagnosticCode.COMPILER_PLUGIN_ERROR);
+            printErrorLog(e);
             failedPlugins.add(plugin);
         }
     }
@@ -318,9 +320,14 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
                 notifier.accept(processor, Collections.unmodifiableList(list));
             } catch (Throwable e) {
                 dlog.warning((DiagnosticPos) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                printErrorLog(e);
                 failedPlugins.add(processor);
             }
         }
+    }
+
+    private void printErrorLog(Throwable e) {
+        RuntimeUtils.printCrashLog(e);
     }
 
     private void handleServiceTypeProcesses(CompilerPlugin plugin) {
