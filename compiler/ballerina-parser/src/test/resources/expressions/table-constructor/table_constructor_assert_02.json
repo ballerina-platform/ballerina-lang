@@ -37,7 +37,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "Lochana"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "Lochana"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -62,7 +67,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "24"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "24"
+                        }
+                      ]
                     }
                   ]
                 }

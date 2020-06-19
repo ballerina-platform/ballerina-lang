@@ -63,6 +63,8 @@ public class ConnectorTest {
     public void getHTTPConnector() {
         BallerinaConnectorResponse connectorsResponse = LSExtensionTestUtil
                 .getConnector("ballerina", "http", "1.0.0", "Client", this.serviceEndpoint);
+        Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("records")).entrySet().size(),
+                15);
         Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
                 get("value").getAsString(), "Client");
     }

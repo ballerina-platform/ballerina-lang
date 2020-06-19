@@ -163,6 +163,8 @@ public enum Snippet {
 
     KW_CLIENT(SnippetGenerator.getClientKeywordSnippet()),
 
+    KW_READONLY(SnippetGenerator.getReadonlyKeywordSnippet()),
+
     KW_EXTERNAL(SnippetGenerator.getExternalKeywordSnippet()),
 
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),

@@ -178,6 +178,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
 
@@ -192,6 +193,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
@@ -625,8 +627,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclAnnotAttachments.add(annotAttachment);
     }
 
-    private boolean isCompileTimeAnnotationValue(BLangExpression expr) {
-        // TODO Compile time literal constants
+    private boolean isCompileTimeAnnotationValue(BLangExpression expression) {
+
+        BLangExpression expr = unwrapAnnotationExpressionFromCloneReadOnly(expression);
+
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
@@ -672,7 +676,18 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private BIRAnnotationValue createAnnotationValue(BLangExpression expr) {
+    private BLangExpression unwrapAnnotationExpressionFromCloneReadOnly(BLangExpression expr) {
+        if (expr.getKind() == INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            if (invocation.name.getValue().equals(CLONE_READ_ONLY)) {
+                return invocation.expr;
+            }
+        }
+        return expr;
+    }
+
+    private BIRAnnotationValue createAnnotationValue(BLangExpression expression) {
+        BLangExpression expr = unwrapAnnotationExpressionFromCloneReadOnly(expression);
         // TODO Compile time literal constants
         switch (expr.getKind()) {
             case LITERAL:

@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -61,7 +62,8 @@ public class SetTransactionContext {
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 "Info");
         Object[] trxContextData = new Object[] {
-                globalTransactionId, retryNmbr, System.currentTimeMillis(), prevAttemptInfo
+                BValueCreator.createArrayValue(globalTransactionId.getBytes()), retryNmbr, System.currentTimeMillis(),
+                prevAttemptInfo
         };
         MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext

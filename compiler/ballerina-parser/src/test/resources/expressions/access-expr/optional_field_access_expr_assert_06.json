@@ -10,8 +10,13 @@
       "hasDiagnostics": true,
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "foo"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            }
+          ]
         },
         {
           "kind": "COMMA_TOKEN",
@@ -27,11 +32,17 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             },
             {
@@ -44,8 +55,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "a"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
+                }
+              ]
             }
           ]
         }

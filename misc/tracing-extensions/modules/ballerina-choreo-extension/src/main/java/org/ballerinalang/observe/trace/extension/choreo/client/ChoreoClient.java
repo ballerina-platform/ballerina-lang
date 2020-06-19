@@ -1,27 +1,33 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
  */
 
 package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoErrors;
 import org.ballerinalang.observe.trace.extension.choreo.gen.HandshakeGrpc;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeRequest;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.HandshakeResponse;
-import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishProgramRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.PublishAstRequest;
+import org.ballerinalang.observe.trace.extension.choreo.gen.NegotiatorOuterClass.RegisterRequest;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryGrpc;
 import org.ballerinalang.observe.trace.extension.choreo.gen.TelemetryOuterClass;
 import org.ballerinalang.observe.trace.extension.choreo.logging.LogFactory;
@@ -34,6 +40,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Manages the communication with Choreo cloud.
+ *
+ * @since 2.0.0
  */
 public class ChoreoClient implements AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();
@@ -42,14 +50,16 @@ public class ChoreoClient implements AutoCloseable {
     private static final int SERVER_MAX_FRAME_SIZE_BYTES = 4 * 1024 * 1024 - MESSAGE_SIZE_BUFFER_BYTES;
 
     private String id;      // ID received from the handshake
-    private String instanceId;
-    private String appId;
+    private String nodeId;
+    private String version;
+    private String projectSecret;
+
     private ManagedChannel channel;
-    private HandshakeGrpc.HandshakeBlockingStub handshakeClient;
+    private HandshakeGrpc.HandshakeBlockingStub registrationClient;
     private TelemetryGrpc.TelemetryBlockingStub telemetryClient;
     private Thread uploadingThread;
 
-    public ChoreoClient(String hostname, int port, boolean useSSL) {
+    public ChoreoClient(String hostname, int port, boolean useSSL, String projectSecret) {
         LOGGER.info("initializing connection with observability backend " + hostname + ":" + port);
 
         ManagedChannelBuilder<?> channelBuilder = ManagedChannelBuilder.forAddress(hostname, port);
@@ -57,35 +67,70 @@ public class ChoreoClient implements AutoCloseable {
             channelBuilder.usePlaintext();
         }
         channel = channelBuilder.build();
-        handshakeClient = HandshakeGrpc.newBlockingStub(channel);
+        registrationClient = HandshakeGrpc.newBlockingStub(channel);
         telemetryClient = TelemetryGrpc.newBlockingStub(channel);
+        this.projectSecret = projectSecret;
     }
 
-    public String register(final MetadataReader metadataReader, String instanceId, String appId) {
-        HandshakeRequest handshakeRequest = HandshakeRequest.newBuilder()
-                .setProgramHash(metadataReader.getAstHash())
-                .setUserId(instanceId)
-                .setApplicationId(appId)
-                .build();
-        HandshakeResponse handshakeResponse = handshakeClient.handshake(handshakeRequest);
-        this.id = handshakeResponse.getObservabilityId();
-        this.appId = appId;
-        boolean sendProgramJson = handshakeResponse.getSendProgramJson();
+    public RegisterResponse register(final MetadataReader metadataReader, String nodeId) throws
+            ChoreoClientException {
+        RegisterRequest handshakeRequest = RegisterRequest.newBuilder()
+                                                          .setAstHash(metadataReader.getAstHash())
+                                                          .setProjectSecret(projectSecret)
+                                                          .setNodeId(nodeId)
+                                                          .build();
+
+        NegotiatorOuterClass.RegisterResponse registerResponse = null;
+        try {
+            registerResponse = registrationClient.register(handshakeRequest);
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.UNAVAILABLE.getCode()) {
+                throw ChoreoErrors.getUnavailableError();
+            }
+
+            throw e;
+        }
+
+        this.id = registerResponse.getObsId();
+        this.version = registerResponse.getVersion();
+        boolean sendProgramJson = registerResponse.getSendAst();
 
         if (sendProgramJson) {
             uploadingThread = new Thread(() -> {
-                PublishProgramRequest programRequest = PublishProgramRequest.newBuilder()
-                        .setProgramJson(metadataReader.getAstData())
-                        .setObservabilityId(id)
-                        .build();
-                handshakeClient.withCompression("gzip").publishProgram(programRequest);
+                PublishAstRequest programRequest = PublishAstRequest.newBuilder()
+                                                                    .setAst(metadataReader.getAstData())
+                                                                    .setObsId(id)
+                                                                    .setProjectSecret(projectSecret)
+                                                                    .build();
+                registrationClient.withCompression("gzip").publishAst(programRequest);
                 // TODO add debug log to indicate success
             }, "AST Uploading Thread");
             uploadingThread.start();
         }
 
-        this.instanceId = instanceId;
-        return handshakeResponse.getUrl();
+        this.nodeId = nodeId;
+        return new RegisterResponse(registerResponse.getObsUrl(), this.id);
+    }
+
+    /**
+     * Data holder for register response call.
+     */
+    public static class RegisterResponse {
+        private String obsUrl;
+        private String obsId;
+
+        public RegisterResponse(String obsUrl, String obsId) {
+            this.obsUrl = obsUrl;
+            this.obsId = obsId;
+        }
+
+        public String getObsUrl() {
+            return obsUrl;
+        }
+
+        public String getObsId() {
+            return obsId;
+        }
     }
 
     public void publishMetrics(ChoreoMetric[] metrics) {
@@ -96,12 +141,13 @@ public class ChoreoClient implements AutoCloseable {
             int messageSize = 0;
             while (i < metrics.length && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                 ChoreoMetric metric = metrics[i];
-                TelemetryOuterClass.Metric metricMessage = TelemetryOuterClass.Metric.newBuilder()
-                        .setTimestamp(metric.getTimestamp())
-                        .setName(metric.getName())
-                        .setValue(metric.getValue())
-                        .putAllTags(metric.getTags())
-                        .build();
+                TelemetryOuterClass.Metric metricMessage
+                        = TelemetryOuterClass.Metric.newBuilder()
+                                                    .setTimestamp(metric.getTimestamp())
+                                                    .setName(metric.getName())
+                                                    .setValue(metric.getValue())
+                                                    .putAllTags(metric.getTags())
+                                                    .build();
 
                 int currentMessageSize = metricMessage.getSerializedSize();
                 if (currentMessageSize >= SERVER_MAX_FRAME_SIZE_BYTES) {
@@ -117,9 +163,10 @@ public class ChoreoClient implements AutoCloseable {
                 }
             }
             telemetryClient.publishMetrics(requestBuilder.setObservabilityId(id)
-                    .setInstanceId(instanceId)
-                    .setAppId(appId)
-                    .build());
+                                                         .setNodeId(nodeId)
+                                                         .setVersion(version)
+                                                         .setProjectSecret(projectSecret)
+                                                         .build());
         }
     }
 
@@ -131,14 +178,15 @@ public class ChoreoClient implements AutoCloseable {
             int messageSize = 0;
             while (i < traceSpans.length && messageSize < SERVER_MAX_FRAME_SIZE_BYTES) {
                 ChoreoTraceSpan traceSpan = traceSpans[i];
-                TelemetryOuterClass.TraceSpan.Builder traceSpanBuilder = TelemetryOuterClass.TraceSpan.newBuilder()
-                        .setTraceId(traceSpan.getTraceId())
-                        .setSpanId(traceSpan.getSpanId())
-                        .setServiceName(traceSpan.getServiceName())
-                        .setOperationName(traceSpan.getOperationName())
-                        .setTimestamp(traceSpan.getTimestamp())
-                        .setDuration(traceSpan.getDuration())
-                        .putAllTags(traceSpan.getTags());
+                TelemetryOuterClass.TraceSpan.Builder traceSpanBuilder
+                        = TelemetryOuterClass.TraceSpan.newBuilder()
+                                                       .setTraceId(traceSpan.getTraceId())
+                                                       .setSpanId(traceSpan.getSpanId())
+                                                       .setServiceName(traceSpan.getServiceName())
+                                                       .setOperationName(traceSpan.getOperationName())
+                                                       .setTimestamp(traceSpan.getTimestamp())
+                                                       .setDuration(traceSpan.getDuration())
+                                                       .putAllTags(traceSpan.getTags());
                 for (ChoreoTraceSpan.Reference reference : traceSpan.getReferences()) {
                     traceSpanBuilder.addReferences(TelemetryOuterClass.TraceSpanReference.newBuilder()
                             .setTraceId(reference.getTraceId())
@@ -163,9 +211,10 @@ public class ChoreoClient implements AutoCloseable {
                 }
             }
             telemetryClient.publishTraces(requestBuilder.setObservabilityId(id)
-                    .setInstanceId(instanceId)
-                    .setAppId(appId)
-                    .build());
+                                                        .setNodeId(nodeId)
+                                                        .setVersion(version)
+                                                        .setProjectSecret(projectSecret)
+                                                        .build());
         }
     }
 

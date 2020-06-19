@@ -15,3 +15,8 @@
 // under the License.
 
 annotation int v1 on type;
+
+type VAL true;
+type trueArray VAL[];
+
+annotation trueArray v2 on type;

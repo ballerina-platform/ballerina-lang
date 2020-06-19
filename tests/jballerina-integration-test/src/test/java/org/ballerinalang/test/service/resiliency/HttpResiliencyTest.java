@@ -295,7 +295,7 @@ public class HttpResiliencyTest extends BaseTest {
     }
 
     // TODO: #16933
-    @Test(description = "Test basic failover scenario for HTTP2 clients")
+    @Test(description = "Test basic failover scenario for HTTP2 clients", enabled = false)
     public void testBasicHttp2Failover() throws IOException {
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_JSON);

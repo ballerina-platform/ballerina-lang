@@ -4,7 +4,12 @@
   "children": [
     {
       "kind": "STRING_LITERAL",
-      "value": "hello world"
+      "children": [
+        {
+          "kind": "STRING_LITERAL",
+          "value": "hello world"
+        }
+      ]
     },
     {
       "kind": "PLUS_TOKEN",

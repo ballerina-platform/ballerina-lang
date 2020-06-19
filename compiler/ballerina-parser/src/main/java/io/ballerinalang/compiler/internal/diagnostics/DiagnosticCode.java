@@ -30,4 +30,6 @@ public interface DiagnosticCode {
     DiagnosticSeverity severity();
 
     String diagnosticId();
+
+    String messageKey();
 }

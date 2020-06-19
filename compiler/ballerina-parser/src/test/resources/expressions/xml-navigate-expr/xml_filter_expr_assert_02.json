@@ -2,8 +2,13 @@
   "kind": "XML_FILTER_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
+        }
+      ]
     },
     {
       "kind": "XML_NAME_PATTERN_CHAIN",

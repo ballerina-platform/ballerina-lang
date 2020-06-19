@@ -24,13 +24,16 @@ import org.ballerinalang.jvm.observability.tracer.OpenTracer;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClient;
 import org.ballerinalang.observe.trace.extension.choreo.client.ChoreoClientHolder;
+import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 
 import java.util.Objects;
 
-import static org.ballerinalang.observe.trace.extension.choreo.Constants.EXTENSION_NAME;
+import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_EXTENSION_NAME;
 
 /**
  * This is the open tracing extension class for {@link OpenTracer}.
+ *
+ * @since 2.0.0
  */
 public class OpenTracerExtension implements OpenTracer {
     private static volatile Reporter reporterInstance;
@@ -38,7 +41,14 @@ public class OpenTracerExtension implements OpenTracer {
 
     @Override
     public void init() {
-        choreoClient = ChoreoClientHolder.getChoreoClient();
+        try {
+            choreoClient = ChoreoClientHolder.getChoreoClient();
+        } catch (ChoreoClientException e) {
+            throw BValueCreator.createErrorValue(
+                    StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
+                    e.getMessage());
+        }
+
         if (Objects.isNull(choreoClient)) {
             throw BValueCreator.createErrorValue(
                     StringUtils.fromString("Choreo client is not initialized. Please check Ballerina configurations."),
@@ -69,7 +79,7 @@ public class OpenTracerExtension implements OpenTracer {
 
     @Override
     public String getName() {
-        return EXTENSION_NAME;
+        return CHOREO_EXTENSION_NAME;
     }
 
 }

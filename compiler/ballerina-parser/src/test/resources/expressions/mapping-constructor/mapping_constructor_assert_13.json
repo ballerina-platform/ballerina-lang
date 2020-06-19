@@ -17,8 +17,13 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "key1"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "key1"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",
@@ -37,11 +42,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "hasDiagnostics": true,
-              "diagnostics": [
-                "ERROR_MISSING_IDENTIFIER"
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
+                  ]
+                }
               ]
             }
           ]

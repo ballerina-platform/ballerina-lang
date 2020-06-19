@@ -25,6 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Hold AST JSON data for later storage.
+ *
+ * @since 2.0.0
  */
 public class JsonASTHolder {
 

@@ -151,14 +151,14 @@ public class GenericMockObjectValue extends AbstractObjectValue {
     }
 
     private Object[] removeUnnecessaryArgs(Object[] args) {
-        Object[] newArgs = new Object[args.length / 2];
+        List<Object> newArgs = new ArrayList<>();
         int i = 0;
-        int j = 0;
         while (i < args.length) {
-            newArgs[j] = args[i];
+            if (args[i] != null) {
+                newArgs.add(args[i]);
+            }
             i += 2;
-            j += 1;
         }
-        return newArgs;
+        return newArgs.toArray();
     }
 }

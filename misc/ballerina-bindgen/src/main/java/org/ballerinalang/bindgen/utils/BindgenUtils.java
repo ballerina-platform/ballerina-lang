@@ -27,6 +27,7 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
@@ -50,11 +51,10 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
@@ -255,7 +255,7 @@ public class BindgenUtils {
 
     private static String getParamsHelper(JParameter param) {
         StringBuilder returnString = new StringBuilder();
-        String checkToHandle = "check toHandle(";
+        String checkToHandle = "check jarrays:toHandle(";
         if (param.getIsObjArray()) {
             returnString.append(checkToHandle).append(param.getFieldName())
                     .append(", \"").append(param.getComponentType()).append("\")");
@@ -324,8 +324,8 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = getDependencyFileName(className);
-                        if (file.getName().equals(fileName)) {
+                        String fileName = aliases.get(className);
+                        if (file.getName().equals(fileName + BAL_EXTENSION)) {
                             try {
                                 Files.delete(file.toPath());
                                 outStream.println("\nSuccessfully deleted the existing dependency: " + file.getPath());
@@ -347,8 +347,9 @@ public class BindgenUtils {
             if (listOfFiles.size() > 1) {
                 for (String className : classList) {
                     for (File file : listOfFiles) {
-                        String fileName = getDependencyFileName(className);
-                        if (file.getName().equals(fileName)) {
+                        String fileName = aliases.get(className);
+                        if (file.getName().equals(fileName + BAL_EXTENSION) && file.getParentFile().getName()
+                                .equals(className.substring(0, className.lastIndexOf('.')))) {
                             removeList.add(className);
                             break;
                         }
@@ -357,16 +358,6 @@ public class BindgenUtils {
             }
         }
         return removeList;
-    }
-
-    private static String getDependencyFileName(String className) {
-        char prefix;
-        if (className.contains("$")) {
-            prefix = '$';
-        } else {
-            prefix = '.';
-        }
-        return className.substring(className.lastIndexOf(prefix) + 1) + BAL_EXTENSION;
     }
 
     public static Set<String> getUpdatedConstantsList(Path existingPath, Set<String> classList) {
@@ -437,24 +428,14 @@ public class BindgenUtils {
         return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
     }
 
-    public static void handleOverloadedMethods(List<JMethod> methodList) {
-        Map<String, Integer> methodNames = new HashMap<>();
-        for (JMethod method : methodList) {
-            String mName = method.getMethodName();
-            if (methodNames.containsKey(mName)) {
-                methodNames.replace(mName, methodNames.get(mName) + 1);
-            } else {
-                methodNames.put(mName, 1);
-            }
-        }
-        for (Map.Entry<String, Integer> entry : methodNames.entrySet()) {
-            if (entry.getValue() > 1) {
-                int i = 1;
+    public static void handleOverloadedMethods(List<JMethod> methodList, List<JMethod> methods, JClass jClass) {
+        for (JMethod method: methods) {
+            jClass.setMethodCount(method.getMethodName());
+            if (jClass.getMethodCount(method.getMethodName()) > 1) {
                 for (JMethod jMethod : methodList) {
-                    if (jMethod.getMethodName().equals(entry.getKey())) {
-                        jMethod.setMethodName(jMethod.getMethodName() + i);
-                        jMethod.setIsOverloaded(true);
-                        i++;
+                    if (jMethod.getMethod().equals(method.getMethod())) {
+                        jMethod.setMethodName(jMethod.getJavaMethodName() +
+                                jClass.getMethodCount(method.getMethodName()));
                     }
                 }
             }
@@ -465,9 +446,9 @@ public class BindgenUtils {
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
-            String returnType = getBalType(javaType.getSimpleName());
+            String returnType = getBalType(getAlias(javaType));
             if (returnType.equals(HANDLE)) {
-                return javaType.getSimpleName();
+                return getAlias(javaType);
             }
             return returnType;
         }
@@ -607,8 +588,8 @@ public class BindgenUtils {
                     outStream.println("\t" + path);
                 }
             }
-            classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction) ()
-                    -> new URLClassLoader(urls.toArray(new URL[urls.size()]), parent));
+            classLoader = (URLClassLoader) AccessController.doPrivileged((PrivilegedAction<ClassLoader>) () ->
+                    new ChildFirstClassLoader(urls.toArray(new URL[0]), parent));
         } catch (RuntimeException e) {
             throw new BindgenException("Error while loading the classpaths.", e);
         } catch (Exception e) {
@@ -619,10 +600,7 @@ public class BindgenUtils {
 
     private static boolean isJarFile(File file) {
         String fileName = file.getName();
-        if (file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar")) {
-            return true;
-        }
-        return false;
+        return file.isFile() && fileName.substring(fileName.lastIndexOf('.')).equals(".jar");
     }
 
     public static void setErrStream(PrintStream errStream) {
@@ -631,5 +609,32 @@ public class BindgenUtils {
 
     public static void setOutStream(PrintStream outStream) {
         BindgenUtils.outStream = outStream;
+    }
+
+    public static String getAlias(Class className) {
+        if (!aliases.containsKey(className.getName())) {
+            int i = 2;
+            boolean notAdded = true;
+            String simpleName = className.getSimpleName();
+            String alias = simpleName;
+            if (!aliases.containsValue(alias)) {
+                aliases.put(className.getName(), alias);
+            } else {
+                while (notAdded) {
+                    if (className.isArray()) {
+                        int insertInto = simpleName.toCharArray().length - 2;
+                        alias = simpleName.substring(0, insertInto) + i + simpleName.substring(insertInto);
+                    } else {
+                        alias = simpleName + i;
+                    }
+                    if (!aliases.containsValue(alias)) {
+                        aliases.put(className.getName(), alias);
+                        notAdded = false;
+                    }
+                    i++;
+                }
+            }
+        }
+        return aliases.get(className.getName());
     }
 }
