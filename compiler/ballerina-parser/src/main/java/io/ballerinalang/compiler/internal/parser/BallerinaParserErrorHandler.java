@@ -1706,11 +1706,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA,
                         ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA };
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case COMPUTED_FIELD_NAME:
                 // Here we give high priority to the comma. Therefore order of the below array matters.
