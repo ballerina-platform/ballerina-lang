@@ -71,7 +71,6 @@ public class BArray extends BCompoundVariable {
                     .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
 
             List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
-
             // List length is 100 by default. Create a sub list with actual array size.
             List<Value> valueSubList = valueList.subList(0, VariableUtils.getArraySize(jvmValueRef));
             Map<String, Value> values = new TreeMap<>();

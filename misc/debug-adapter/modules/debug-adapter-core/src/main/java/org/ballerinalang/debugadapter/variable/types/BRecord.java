@@ -26,7 +26,7 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina record variable type.
@@ -39,22 +39,7 @@ public class BRecord extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return UNKNOWN_VALUE;
-            }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            // Extracts object type name from the reflected type class.
-            String[] split = jvmValueRef.referenceType().classObject().reflectedType().name().split("\\.");
-            for (String element : split) {
-                if (element.contains("$value$")) {
-                    return element.replaceFirst("\\$value\\$", "");
-                }
-            }
-            return UNKNOWN_VALUE;
-        } catch (Exception ignored) {
-            return UNKNOWN_VALUE;
-        }
+        return getBType(jvmValue);
     }
 
     @Override

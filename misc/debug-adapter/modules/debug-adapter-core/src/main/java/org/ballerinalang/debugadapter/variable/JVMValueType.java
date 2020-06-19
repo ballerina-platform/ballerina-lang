@@ -41,9 +41,7 @@ public enum JVMValueType {
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
     XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
     BTYPE_OBJECT("BObjectType"),
-    BTYPE_RECORD("BRecordType"),
-    BTYPE_JSON("BJSONType"),
-    BTYPE_MAP("BMapType");
+    BTYPE_RECORD("BRecordType");
 
     private final String value;
 

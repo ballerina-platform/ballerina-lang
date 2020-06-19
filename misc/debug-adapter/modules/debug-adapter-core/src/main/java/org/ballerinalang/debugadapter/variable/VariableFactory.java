@@ -37,9 +37,53 @@ import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 import org.eclipse.lsp4j.debug.Variable;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
 
 /**
- * Factory implementation for ballerina variable types.
+ * Factory implementation of ballerina debug variable types.
+ * <br><br>
+ * Language Specification Version - 2020R1.
+ * <br><br>
+ * Supported Types
+ * <ul>
+ * <li> nil
+ * <li> boolean -	true, false
+ * <li> int	- 64-bit signed integers
+ * <li> float - 64-bit IEEE 754-2008 binary floating point numbers
+ * <li> string - a sequence of Unicode scalar values
+ * <li> array - an ordered list of values, optionally with a specific length, where a single type is specified for all
+ * members of the list
+ * <li> tuple - an ordered list of values, where a type is specified separately for each member of the list
+ * <li> map	- a mapping from keys, which are strings, to values; specifies mappings in terms of a single type to which
+ * all keys are mapped
+ * <li> record - a mapping from keys, which are strings, to values; specifies maps in terms of names of fields
+ * (required keys) and value for each field
+ * <li> object - a combination of named fields and named methods
+ * <li> json - the union of (), int, float, decimal, string, and maps and arrays whose values are, recursively, json
+ * <li> error - an indication that there has been an error, with a string identifying the reason for the error, and a
+ * mapping giving additional details about the error
+ * </ul>
+ * <br>
+ * To be implemented
+ * <ul>
+ * <li> decimal - decimal floating point numbers
+ * <li> XML - a sequence of zero or more elements, processing instructions, comments or text items
+ * <li> table - a two-dimensional collection of immutable values
+ * <li> function - a function with 0 or more specified parameter types and a single return type
+ * <li> future - a value to be returned by a function execution
+ * <li> service	a collection of named methods, including resource methods
+ * <li> typedesc - a type descriptor
+ * <li> handle - reference to externally managed storage
+ * <li> stream - a sequence of values that can be generated lazily
+ * <li> singleton - a single value described by a literal
+ * <li> union - the union of the component types
+ * <li> optional - the underlying type and ()
+ * <li> any - any value other than an error
+ * <li> anydata	- not an error and does not contain behavioral members at any depth
+ * <li> never - no value
+ * <li> byte - int in the range 0 to 255 inclusive
+ * </ul>
  */
 public class VariableFactory {
 
@@ -93,17 +137,16 @@ public class VariableFactory {
             // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
             //  variables.
             String bType = getBType(value);
-            if (bType.equals(JVMValueType.BTYPE_JSON.getString())
+            if (bType.equals(BVariableType.JSON.getString())
                     || parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
                 return new BJson(value, dapVariable);
-            } else if (bType.equals(JVMValueType.BTYPE_MAP.getString())) {
+            } else if (bType.equals(BVariableType.MAP.getString())) {
                 return new BMap(value, dapVariable);
             }
         } else if (value instanceof ObjectReference) {
-            String bType = getBType(value);
-            if (bType.equals(JVMValueType.BTYPE_OBJECT.getString())) {
+            if (isObject(value)) {
                 return new BObject(value, dapVariable);
-            } else if (bType.equals(JVMValueType.BTYPE_RECORD.getString())) {
+            } else if (isRecord(value)) {
                 return new BRecord(value, dapVariable);
             }
         }

@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
  */
 public class VariableUtils {
 
+    // Used to trim redundant beginning and ending double quotes from a string, if presents.
+    private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
     public static final String UNKNOWN_VALUE = "unknown";
 
     /**
@@ -39,12 +41,11 @@ public class VariableUtils {
      * @return type of the array.
      */
     public static String getArrayType(ObjectReference arrayRef) {
-        List<Field> fields = arrayRef.referenceType().allFields();
-        String arrayValueFiled = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0).toString();
-        String arrayType = arrayValueFiled.substring(arrayValueFiled.lastIndexOf(".") + 1).replace("Values", "");
-        return arrayType.equals("ref") ? "any" : arrayType;
+        Field bTypeField = arrayRef.referenceType().fieldByName("elementType");
+        Value bTypeRef = arrayRef.getValue(bTypeField);
+        Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
+        Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+        return getStringFrom(typeNameRef);
     }
 
     /**
@@ -62,19 +63,77 @@ public class VariableUtils {
     }
 
     /**
-     * Returns type of a given ballerina backend jvm variable instance.
+     * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
      *
      * @param value jdi value instance of the ballerina jvm variable.
      * @return variable type in string form.
      */
-    static String getBType(Value value) {
+    public static String getBType(Value value) {
         try {
-            ObjectReference mapRef = (ObjectReference) value;
-            Field mapTypeField = mapRef.referenceType().fieldByName("type");
-            String mapTypeName = mapRef.getValue(mapTypeField).type().name();
-            return mapTypeName.substring(mapTypeName.lastIndexOf(".") + 1);
+            ObjectReference valueRef = (ObjectReference) value;
+            Field bTypeField = valueRef.referenceType().fieldByName("type");
+            Value bTypeRef = valueRef.getValue(bTypeField);
+            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
+            Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+            return getStringFrom(typeNameRef);
         } catch (Exception e) {
-            return "";
+            return UNKNOWN_VALUE;
         }
+    }
+
+    /**
+     * Returns the actual string value from ballerina jvm types for strings.
+     *
+     * @param stringValue JDI value of the string instance
+     * @return actual string.
+     */
+    public static String getStringFrom(Value stringValue) {
+        try {
+            if (!(stringValue instanceof ObjectReference)) {
+                return UNKNOWN_VALUE;
+            }
+            ObjectReference stringRef = (ObjectReference) stringValue;
+            if (!stringRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
+                    && !stringRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
+                // Additional filtering is required, as some ballerina variable type names may contain redundant
+                // double quotes.
+                return stringRef.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+            }
+            Field valueField = stringRef.referenceType().fieldByName("value");
+            if (valueField != null) {
+                // Additional filtering is required, as some ballerina variable type names may contain redundant
+                // double quotes.
+                return stringRef.getValue(valueField).toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
+            }
+            return UNKNOWN_VALUE;
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
+     * Verifies whether a given JDI value is a ballerina object instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina object instance.
+     */
+    static boolean isObject(Value value) {
+        ObjectReference valueRef = (ObjectReference) value;
+        Field typeField = valueRef.referenceType().fieldByName("type");
+        String typeName = valueRef.getValue(typeField).type().name();
+        return typeName.endsWith(JVMValueType.BTYPE_OBJECT.getString());
+    }
+
+    /**
+     * Verifies whether a given JDI value is a ballerina record instance.
+     *
+     * @param value JDI value instance.
+     * @return true the given JDI value is a ballerina record instance.
+     */
+    static boolean isRecord(Value value) {
+        ObjectReference valueRef = (ObjectReference) value;
+        Field typeField = valueRef.referenceType().fieldByName("type");
+        String typeName = valueRef.getValue(typeField).type().name();
+        return typeName.endsWith(JVMValueType.BTYPE_RECORD.getString());
     }
 }

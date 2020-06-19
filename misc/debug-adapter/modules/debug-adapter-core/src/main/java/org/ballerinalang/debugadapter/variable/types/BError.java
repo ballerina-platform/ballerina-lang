@@ -24,16 +24,19 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
-import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina error variable type.
  */
 public class BError extends BCompoundVariable {
+
+    private static final String FIELD_MESSAGE = "message";
+    private static final String FIELD_CAUSE = "cause";
+    private static final String FIELD_DETAILS = "details";
 
     public BError(Value value, Variable dapVariable) {
         super(BVariableType.ERROR, value, dapVariable);
@@ -41,24 +44,32 @@ public class BError extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return UNKNOWN_VALUE;
-            }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            List<Field> fields = jvmValueRef.referenceType().allFields();
-            Field valueField = fields.stream().filter(field -> field.name().equals("reason"))
-                    .collect(Collectors.toList()).get(0);
-            Value error = jvmValueRef.getValue(valueField);
-            return error.toString();
-        } catch (Exception e) {
-            return UNKNOWN_VALUE;
-        }
+        return getBType(jvmValue);
     }
 
     @Override
     public Map<String, Value> computeChildVariables() {
-        // Todo
-        return new HashMap<>();
+        try {
+            if (!(jvmValue instanceof ObjectReference)) {
+                return new HashMap<>();
+            }
+            Map<String, Value> childVarMap = new TreeMap<>();
+            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
+            Field messageField = jvmValueRef.referenceType().fieldByName(FIELD_MESSAGE);
+            Field causeField = jvmValueRef.referenceType().fieldByName(FIELD_CAUSE);
+            Field detailsField = jvmValueRef.referenceType().fieldByName(FIELD_DETAILS);
+            if (messageField != null) {
+                childVarMap.put(FIELD_MESSAGE, jvmValueRef.getValue(messageField));
+            }
+            if (causeField != null) {
+                childVarMap.put(FIELD_CAUSE, jvmValueRef.getValue(causeField));
+            }
+            if (detailsField != null) {
+                childVarMap.put(FIELD_DETAILS, jvmValueRef.getValue(detailsField));
+            }
+            return childVarMap;
+        } catch (Exception ignored) {
+            return new HashMap<>();
+        }
     }
 }

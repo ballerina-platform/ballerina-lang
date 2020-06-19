@@ -22,7 +22,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.JVMValueType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-
-import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Ballerina json variable type.
@@ -72,30 +70,12 @@ public class BJson extends BCompoundVariable {
                 if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
                     Value jsonKey = ((ObjectReference) jsonMap).getValue(jsonKeyField.get());
                     Value jsonValue1 = ((ObjectReference) jsonMap).getValue(jsonValueField.get());
-                    values.put(getJsonKeyString(jsonKey), jsonValue1);
+                    values.put(VariableUtils.getStringFrom(jsonKey), jsonValue1);
                 }
             });
             return values;
         } catch (Exception ignored) {
             return new HashMap<>();
-        }
-    }
-
-    private String getJsonKeyString(Value key) {
-        ObjectReference keyRef = (key instanceof ObjectReference) ? (ObjectReference) key : null;
-        if (keyRef == null) {
-            return UNKNOWN_VALUE;
-        }
-        if (keyRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
-                || keyRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
-            Optional<Field> valueField = keyRef.referenceType().allFields().stream()
-                    .filter(field -> field.name().equals("value")).findAny();
-            if (valueField.isPresent()) {
-                return keyRef.getValue(valueField.get()).toString();
-            }
-            return UNKNOWN_VALUE;
-        } else {
-            return keyRef.toString();
         }
     }
 }
