@@ -205,7 +205,7 @@ export class List extends React.Component<ListProps, ListState> {
                         {this.state.filteredModules.length == 0 && this.state.filteredObjects.length == 0 &&
                         this.state.filteredFunctions.length == 0 && this.state.filteredRecords.length == 0 &&
                         this.state.filteredConstants.length == 0 && this.state.filteredTypes.length == 0 &&
-                        this.state.filteredErrors.length == 0 && <h2>No results found</h2>
+                        this.state.filteredErrors.length == 0 && <p>No results found</p>
                         }
                         {this.state.filteredModules.length > 0 &&
                             <div>
