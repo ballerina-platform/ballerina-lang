@@ -18,21 +18,23 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
+import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
  * Ballerina tuple variable type.
@@ -46,14 +48,8 @@ public class BTuple extends BCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return UNKNOWN_VALUE;
-            }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            String arrayType = VariableUtils.getArrayType(jvmValueRef);
-            int arraySize = VariableUtils.getArraySize(jvmValueRef);
-            return String.format("%s[%d]", arrayType, arraySize);
-        } catch (Exception ignored) {
+            return getTupleType(jvmValue);
+        } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
     }
@@ -65,14 +61,11 @@ public class BTuple extends BCompoundVariable {
                 return new HashMap<>();
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            List<Field> fields = jvmValueRef.referenceType().allFields();
-            Field arrayValueField = jvmValueRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                    fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("Values"))
-                    .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
+            Field valueField = jvmValueRef.referenceType().fieldByName("refValues");
+            List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(valueField)).getValues();
 
             // List length is 100 by default. Create a sub list with actual array size.
-            List<Value> valueSubList = valueList.subList(0, VariableUtils.getArraySize(jvmValueRef));
+            List<Value> valueSubList = valueList.subList(0, getTupleSize(jvmValueRef));
             Map<String, Value> values = new TreeMap<>();
             AtomicInteger nextVarIndex = new AtomicInteger(0);
             valueSubList.forEach(item -> {
@@ -83,5 +76,50 @@ public class BTuple extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    /**
+     * Returns the tuple type in string form.
+     */
+    private String getTupleType(Value jvmValue) {
+        if (!(jvmValue instanceof ObjectReference)) {
+            return UNKNOWN_VALUE;
+        }
+        ObjectReference tupleRef = (ObjectReference) jvmValue;
+        Field typeField = tupleRef.referenceType().fieldByName("tupleType");
+        if (typeField == null) {
+            return UNKNOWN_VALUE;
+        }
+        ObjectReference tupleTypeRef = (ObjectReference) tupleRef.getValue(typeField);
+        Field typesField = tupleTypeRef.referenceType().fieldByName("tupleTypes");
+        if (typesField == null) {
+            return UNKNOWN_VALUE;
+        }
+        ObjectReference tupleTypesRef = (ObjectReference) tupleTypeRef.getValue(typesField);
+        Value typeArrayRef = tupleTypesRef.getValue(tupleTypesRef.referenceType().fieldByName("elementData"));
+        List<Value> subValues = ((ArrayReference) typeArrayRef).getValues();
+        StringJoiner tupleTypes = new StringJoiner(",");
+        subValues.forEach(ref -> {
+            if (ref instanceof ObjectReference) {
+                Field typeNameField = ((ObjectReference) ref).referenceType().fieldByName("typeName");
+                Value typeNameRef = ((ObjectReference) ref).getValue(typeNameField);
+                tupleTypes.add(getStringFrom(typeNameRef));
+            }
+        });
+        return String.format("tuple[%s]", tupleTypes.toString());
+    }
+
+    /**
+     * Returns the size/length of a given ballerina tuple typed variable.
+     *
+     * @param arrayRef object reference of the tuple instance.
+     * @return size of the tuple.
+     */
+    private int getTupleSize(ObjectReference arrayRef) {
+        List<Field> fields = arrayRef.referenceType().allFields();
+        Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

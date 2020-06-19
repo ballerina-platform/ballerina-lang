@@ -18,11 +18,11 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
+import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
  * Ballerina array variable type.
@@ -50,8 +51,8 @@ public class BArray extends BCompoundVariable {
                 return UNKNOWN_VALUE;
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            String arrayType = VariableUtils.getArrayType(jvmValueRef);
-            int arraySize = VariableUtils.getArraySize(jvmValueRef);
+            String arrayType = getArrayType(jvmValueRef);
+            int arraySize = getArraySize(jvmValueRef);
             return String.format("%s[%d]", arrayType, arraySize);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
@@ -72,7 +73,7 @@ public class BArray extends BCompoundVariable {
 
             List<Value> valueList = ((ArrayReference) jvmValueRef.getValue(arrayValueField)).getValues();
             // List length is 100 by default. Create a sub list with actual array size.
-            List<Value> valueSubList = valueList.subList(0, VariableUtils.getArraySize(jvmValueRef));
+            List<Value> valueSubList = valueList.subList(0, getArraySize(jvmValueRef));
             Map<String, Value> values = new TreeMap<>();
             AtomicInteger nextVarIndex = new AtomicInteger(0);
             valueSubList.forEach(item -> {
@@ -83,5 +84,33 @@ public class BArray extends BCompoundVariable {
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    /**
+     * Returns the type of a given ballerina array typed variable.
+     *
+     * @param arrayRef object reference of the array instance.
+     * @return type of the array.
+     */
+    private String getArrayType(ObjectReference arrayRef) {
+        Field bTypeField = arrayRef.referenceType().fieldByName("elementType");
+        Value bTypeRef = arrayRef.getValue(bTypeField);
+        Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
+        Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+        return getStringFrom(typeNameRef);
+    }
+
+    /**
+     * Returns the size/length of a given ballerina array typed variable.
+     *
+     * @param arrayRef object reference of the array instance.
+     * @return size of the array.
+     */
+    private int getArraySize(ObjectReference arrayRef) {
+        List<Field> fields = arrayRef.referenceType().allFields();
+        Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
+                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
+        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }
 }

@@ -17,13 +17,8 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Field;
-import com.sun.jdi.IntegerValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * JDI-based debug variable implementation related utilities.
@@ -34,33 +29,6 @@ public class VariableUtils {
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
     public static final String UNKNOWN_VALUE = "unknown";
 
-    /**
-     * Returns the type of a given ballerina array typed variable.
-     *
-     * @param arrayRef object reference of the array instance.
-     * @return type of the array.
-     */
-    public static String getArrayType(ObjectReference arrayRef) {
-        Field bTypeField = arrayRef.referenceType().fieldByName("elementType");
-        Value bTypeRef = arrayRef.getValue(bTypeField);
-        Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
-        Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
-        return getStringFrom(typeNameRef);
-    }
-
-    /**
-     * Returns the size/length of a given ballerina array typed variable.
-     *
-     * @param arrayRef object reference of the array instance.
-     * @return size of the array.
-     */
-    public static int getArraySize(ObjectReference arrayRef) {
-        List<Field> fields = arrayRef.referenceType().allFields();
-        Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
-                .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
-        return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
-    }
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
