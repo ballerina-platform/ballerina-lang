@@ -138,7 +138,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
         for (CompilerPlugin compilerPlugin : pluginList) {
-            executePluginSafely(pkgNode, compilerPlugin, pkgNode.packageID,compilerPlugin::pluginExecutionStarted);
+            executePluginSafely(pkgNode, compilerPlugin, pkgNode.packageID, compilerPlugin::pluginExecutionStarted);
         }
         for (CompilerPlugin compilerPlugin : pluginList) {
             executePluginSafely(pkgNode, compilerPlugin, pkgNode, compilerPlugin::process);
