@@ -35,7 +35,7 @@ public abstract class AbstractParserErrorHandler {
     protected final AbstractTokenReader tokenReader;
     protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
-    private int previousIndex;
+    private int previousTokenIndex;
     private int itterCount;
 
     /**
@@ -52,7 +52,7 @@ public abstract class AbstractParserErrorHandler {
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
         this.errorListener = new BallerinaParserErrorListener();
-        this.previousIndex = -1;
+        this.previousTokenIndex = -1;
         this.itterCount = 0;
     }
 
@@ -92,12 +92,12 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
-        int currentIndex = this.tokenReader.getCurrentIndex();
-        if (currentIndex == this.previousIndex) {
+        int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
+        if (currentTokenIndex == this.previousTokenIndex) {
             itterCount++;
         } else {
             itterCount = 0;
-            previousIndex = currentIndex;
+            previousTokenIndex = currentTokenIndex;
         }
 
         if (itterCount < ITTER_LIMIT) {
