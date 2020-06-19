@@ -2903,9 +2903,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case TYPE_DESC_IN_ANGLE_BRACKETS:
                 endContext();
-                if (isInTypeDescContext()) {
-                    return ParserRuleContext.TYPEDESC_RHS;
-                }
                 return ParserRuleContext.GT;
             case TYPE_DESC_IN_RETURN_TYPE_DESC:
                 endContext();
