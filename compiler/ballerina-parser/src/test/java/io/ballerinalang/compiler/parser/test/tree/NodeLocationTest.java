@@ -192,7 +192,7 @@ public class NodeLocationTest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(functionDefNode.textRange().endOffset(), expectedEndOffset);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testConvertingOffsetToLinePosition() {
         SyntaxTree syntaxTree = parseFile("node_location_test_04.bal");
         TextDocument textDocument = syntaxTree.textDocument();
