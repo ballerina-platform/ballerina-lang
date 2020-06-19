@@ -2,14 +2,15 @@
 
 This module provides the common interface and functionality to interact with a database. The corresponding database
 clients can be created by using specific database modules such as `MySQL` or using the Java Database Connectivity 
-module `JDBC`. The available database modules are listed below.
+module `JDBC`.
 
 ### List of Database Modules
-1. [JDBC (Java Database Connectivity) Module](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html)  
+1. JDBC (Java Database Connectivity) Module
 This module can be used to connect with any database by simply providing the JDBC URL and the other related properties. 
-For more details, see the [JDBC module] (https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html).
+For more details, see the [JDBC module](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html).
 
-2. [MySQL Module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html)   
+
+2. MySQL Module  
 This module is specially designed to work with a MySQL database and allows to access the functionality 
 provided by MySQL 8.0.x onwards. For more details, see the [MySQL module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html).
 
@@ -61,10 +62,10 @@ connection pool handling.  For its properties and possible values, see the `sql:
                                new (url = "jdbc:mysql://localhost:3306/testdb",
                                connectionPool = connPool);
     jdbc:Client|sql:Error dbClient2 = 
-                               new (url = "jdbc:mysql://localhost:3306/testdb",       
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
                                connectionPool = connPool);
     jdbc:Client|sql:Error dbClient3 = 
-                               new (url = "jdbc:mysql://localhost:3306/testdb",    
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
                                connectionPool = connPool);
     ```
     
@@ -99,8 +100,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Students table create status in DB: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Students table creation failed: ",
-                <string>err.detail()["message"]);
+    io:println("Students table creation failed: ", err.message());
 }
 ```
 
@@ -119,8 +119,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -140,8 +139,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -160,8 +158,7 @@ f (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -184,7 +181,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Generated key: ", generatedKey);
 } else {
     error err = ret;
-    io:println("Insert to table failed: ", <string>err.detail()["message"]);
+    io:println("Insert to table failed: ", err.message());
 }
 ```
 
@@ -215,10 +212,9 @@ type Student record {
 int id = 10;
 int age = 12;
 sql:ParameterizedQuery query = `SELECT * FROM students
-                                WHERE id < ${id} AND
-                                age > ${age}`;
+                                WHERE id < ${id} AND age > ${age}`;
 stream<Student, sql:Error> resultStream = 
-<stream<Student, sql:Error>>dbClient->query(query, Student);
+        <stream<Student, sql:Error>> dbClient->query(query, Student);
 
 // Iterating the returned table.
 error? e = resultStream.forEach(function(Student student) {
@@ -242,8 +238,7 @@ type will be the same as how the column is defined in the database.
 int id = 10;
 int age = 12;
 sql:ParameterizedQuery query = `SELECT * FROM students
-                                WHERE id < ${id} AND
-                                age > ${age}`;
+                                WHERE id < ${id} AND age > ${age}`;
 stream<record{}, sql:Error> resultStream = dbClient->query(query);
 
 // Iterating the returned table.
@@ -263,8 +258,8 @@ result stream will not be closed and you have to explicitly invoke the `close` o
 `sql:Client` to release the connection resources and avoid a connection leak as shown below.
 
 ```ballerina
-stream<record{}, sql:Error> resultStream = dbClient->query("SELECT count(*) as " + 
-                                                           "total FROM students");
+stream<record{}, sql:Error> resultStream = 
+            dbClient->query("SELECT count(*) as total FROM students");
 
 record {|record {} value;|}|error? result = resultStream.next();
 
@@ -296,8 +291,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Update to students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Update to students table failed: ", err.message());
 }
 ```
 
@@ -314,8 +308,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Deleted student count: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Delete from students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Delete from students table failed: ", err.message());
 }
 ```
 
@@ -335,13 +328,12 @@ var data = [
 
 // Do the batch update by passing the batches.
 sql:ParameterizedQuery[] batch = from var row in data
-                                 select `INSERT INTO students
-                                 ('name', 'age')
+                                 select `INSERT INTO students ('name', 'age')
                                  VALUES (${row.name}, ${row.age})`;
 var ret = dbClient->batchExecute(batch);
 
 if (ret is error) {
-    io:println("Error occurred:", <string>ret.detail()["message"]);
+    io:println("Error occurred:", err.message());
 } else {
     io:println("Batch item 1 update count: ", ret[0].affectedRowCount);
     io:println("Batch item 2 update count: ", ret[1].affectedRowCount);
