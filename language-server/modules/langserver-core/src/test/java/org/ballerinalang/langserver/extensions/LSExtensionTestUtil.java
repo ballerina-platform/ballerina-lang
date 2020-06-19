@@ -118,8 +118,10 @@ public class LSExtensionTestUtil {
     }
 
     public static BallerinaConnectorResponse getConnector(String org, String module, String version, String name,
+                                                          String displayName,
                                                           Endpoint serviceEndpoint) {
-        BallerinaConnectorRequest ballerinaConnectorRequest = new BallerinaConnectorRequest(org, module, version, name);
+        BallerinaConnectorRequest ballerinaConnectorRequest = new BallerinaConnectorRequest(org, module, version,
+                name, displayName);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, ballerinaConnectorRequest);
         return GSON.fromJson(getResult(result), BallerinaConnectorResponse.class);
     }
