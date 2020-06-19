@@ -70,7 +70,6 @@
                               "children": [
                                 {
                                   "kind": "SPECIFIC_FIELD",
-                                  "hasDiagnostics": true,
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
@@ -92,64 +91,58 @@
                                       ]
                                     },
                                     {
-                                      "kind": "CONDITIONAL_EXPRESSION",
-                                      "hasDiagnostics": true,
+                                      "kind": "STRING_LITERAL",
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "children": [
-                                            {
-                                              "kind": "STRING_LITERAL",
-                                              "value": "foo",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "QUESTION_MARK_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_QUESTION_MARK_TOKEN"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "description",
-                                              "leadingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "    "
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN",
+                                          "value": "foo",
                                           "trailingMinutiae": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
                                             }
                                           ]
-                                        },
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
+                                },
+                                {
+                                  "kind": "SPECIFIC_FIELD",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "description",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "COLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    },
+                                    {
+                                      "kind": "STRING_LITERAL",
+                                      "children": [
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "children": [
-                                            {
-                                              "kind": "STRING_LITERAL",
-                                              "value": "some function"
-                                            }
-                                          ]
+                                          "value": "some function"
                                         }
                                       ]
                                     }
