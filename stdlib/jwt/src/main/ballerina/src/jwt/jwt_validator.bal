@@ -261,7 +261,9 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
             }
         }
     }
-    jwtPayload.customClaims = customClaims;
+    if (customClaims.length() > 0) {
+        jwtPayload.customClaims = customClaims;
+    }
     return jwtPayload;
 }
 
@@ -270,8 +272,8 @@ function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPaylo
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm (alg) is not provided in JOSE header.");
     }
-    JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
 
+    JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
     JwksConfig? jwksConfig = config?.jwksConfig;
     JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
     if (jwksConfig is JwksConfig) {
@@ -403,7 +405,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
             }
         }
     } else {
-        return prepareError("JWK retrieval failed", response);
+        return prepareError("Failed to call JWKs endpoint.", response);
     }
 }
 
