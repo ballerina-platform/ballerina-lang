@@ -31,7 +31,7 @@ run the BAL file by executing the `ballerina run` command.
 
 ### Client
 To access a database, you must first create a 
-[jdbc:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/java.jdbc/index.html) object. 
+[jdbc:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/java.jdbc/clients/Client.html) object. 
 The examples for creating a JDBC client can be found below.
 
 #### Creating a client
