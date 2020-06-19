@@ -38,7 +38,7 @@ public class CopyChoreoExtensionTask implements Task {
     @Override
     public void execute(BuildContext buildContext) {
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         Path extensionJar = Paths.get(balHomePath, "bre", "lib", runtimeJarName);
         for (BLangPackage module : buildContext.getModules()) {

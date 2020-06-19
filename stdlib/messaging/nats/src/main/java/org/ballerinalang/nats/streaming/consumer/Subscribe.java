@@ -153,7 +153,7 @@ public class Subscribe {
                 break;
             case TypeTags.TUPLE_TAG:
                 ArrayValue tupleValue = (ArrayValue) startPosition;
-                String startPositionKind = (String) tupleValue.getRefValue(0);
+                String startPositionKind = tupleValue.getRefValue(0).toString();
                 long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
                 if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {
                     builder.startAtTimeDelta(Duration.ofSeconds(timeOrSequenceNo));

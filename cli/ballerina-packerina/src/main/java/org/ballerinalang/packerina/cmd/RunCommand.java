@@ -119,9 +119,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--old-parser", description = "Enable new parser.", hidden = true)
     private boolean useOldParser;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package the Choreo observability extension " +
-            "in the executable when run is used with a source file or a module.")
-    private boolean withChoreo;
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "when run is used with a source file or a module.")
+    private boolean observabilityIncluded;
 
     public RunCommand() {
         this.outStream = System.err;
@@ -284,8 +284,8 @@ public class RunCommand implements BLauncherCmd {
         buildContext.setErr(this.errStream);
 
         Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(withChoreo ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
+        boolean isChoreoExtensionSkipped = !(observabilityIncluded ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
 

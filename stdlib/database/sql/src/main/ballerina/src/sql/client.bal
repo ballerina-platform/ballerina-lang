@@ -48,7 +48,7 @@ public type Client abstract client object {
     #            will return `BatchExecuteError`, however the JDBC driver may or may not continue to process the
     #            remaining commands in the batch after a failure. The summary of the executed queries in case of error
     #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
-    public remote function batchExecute(ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
+    public remote function batchExecute(@untainted ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
 
     # Close the SQL client.
     #
