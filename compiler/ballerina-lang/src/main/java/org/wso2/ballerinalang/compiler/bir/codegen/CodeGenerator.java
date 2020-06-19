@@ -196,7 +196,7 @@ public class CodeGenerator {
 
     private Path getRuntimeAllJarPath() {
 
-        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return Paths.get(ballerinaHome.toString(), BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
     }

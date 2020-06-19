@@ -38,7 +38,6 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static org.wso2.ballerinalang.programfile.ProgramFileConstants.CLIENT_ID;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
 
@@ -128,7 +127,7 @@ public class URIConverter implements Converter<URI> {
                 Pull.execute(remoteURI.toString(), modulePathInBaloCache.toString(), orgName + "/" + moduleName,
                         proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
                         supportedVersionRange, this.isBuild, nightlyBuild, IMPLEMENTATION_VERSION, supportedPlatform,
-                        CLIENT_ID);
+                        RepoUtils.getBallerinaVersion());
             } catch (CommandException e) {
                 errorMessage = e.getMessage().trim();
             }

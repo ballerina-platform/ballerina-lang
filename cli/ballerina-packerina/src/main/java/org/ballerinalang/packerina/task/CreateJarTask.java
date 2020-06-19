@@ -160,7 +160,7 @@ public class CreateJarTask implements Task {
             return null;
         }
         String balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
-        String ballerinaVersion = RepoUtils.getBallerinaVersion();
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }

@@ -164,7 +164,8 @@ public class CompileFlagWithBuildCommandTest extends CommandTest {
         Assert.assertEquals(compileLog, "Compiling source\n" +
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
-                                      "\ttarget/balo/foo-2020r1-any-1.2.0.balo\n"
+                                      "\ttarget/balo/foo-"
+                        + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0.balo\n"
                                       );
         
         deleteDirectory(sourceRoot.resolve("target"));
