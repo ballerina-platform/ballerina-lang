@@ -7,12 +7,12 @@ module `JDBC`.
 ### List of Database Modules
 1. JDBC (Java Database Connectivity) Module
 This module can be used to connect with any database by simply providing the JDBC URL and the other related properties. 
-For more details, see the [JDBC module](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html).
+For more details, see the [JDBC module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/java.jdbc/index.html).
 
 
 2. MySQL Module  
 This module is specially designed to work with a MySQL database and allows to access the functionality 
-provided by MySQL 8.0.x onwards. For more details, see the [MySQL module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html).
+provided by MySQL 8.0.x onwards. For more details, see the [MySQL module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/index.html).
 
 
 ### Client
