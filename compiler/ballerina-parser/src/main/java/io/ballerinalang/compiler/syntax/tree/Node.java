@@ -106,7 +106,8 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(),
+                textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }
