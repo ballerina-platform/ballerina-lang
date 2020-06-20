@@ -18,15 +18,20 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
+import org.ballerinalang.sql.datasource.SQLDatasourceUtils;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.io.IOException;
@@ -52,8 +57,9 @@ import java.util.Map;
  */
 public class ExecuteUtils {
 
-    public static Object nativeExecute(ObjectValue client, MapValue<BString, Object> paramSQLString) {
+    public static Object nativeExecute(ObjectValue client, Object paramSQLString) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
+        Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
@@ -61,10 +67,16 @@ public class ExecuteUtils {
             ResultSet resultSet = null;
             String sqlQuery = null;
             try {
-                sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = sqlDatasource.getSQLConnection();
+                if (paramSQLString instanceof StringValue) {
+                    sqlQuery = ((StringValue) paramSQLString).getValue();
+                } else {
+                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                }
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-                Utils.setParams(connection, statement, paramSQLString);
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                }
                 int count = statement.executeUpdate();
                 Object lastInsertedId = null;
                 if (!isDdlStatement(sqlQuery)) {
@@ -85,7 +97,7 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(
@@ -93,37 +105,36 @@ public class ExecuteUtils {
         }
     }
 
-    public static Object nativeBatchExecute(ObjectValue client, ArrayValue paramSQLStrings,
-                                            boolean rollbackInFailure) {
+    public static Object nativeBatchExecute(ObjectValue client, ArrayValue paramSQLStrings) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
             PreparedStatement statement = null;
             ResultSet resultSet = null;
+            Strand strand = Scheduler.getStrand();
             String sqlQuery = null;
-            List<MapValue<BString, Object>> parameters = new ArrayList<>();
+            List<AbstractObjectValue> parameters = new ArrayList<>();
             List<MapValue<BString, Object>> executionResults = new ArrayList<>();
-
             try {
-                MapValue<BString, Object> parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(0);
-                sqlQuery = Utils.getSqlQuery(parameterizedString);
-                parameters.add(parameterizedString);
+                Object[] paramSQLObjects = paramSQLStrings.getValues();
+                AbstractObjectValue parameterizedQuery = (AbstractObjectValue) paramSQLObjects[0];
+                sqlQuery = Utils.getSqlQuery(parameterizedQuery);
+                parameters.add(parameterizedQuery);
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
-                    parameterizedString = (MapValue<BString, Object>) paramSQLStrings.get(i);
-                    String paramSQLQuery = Utils.getSqlQuery(parameterizedString);
+                    parameterizedQuery = (AbstractObjectValue) paramSQLObjects[i];
+                    String paramSQLQuery = Utils.getSqlQuery(parameterizedQuery);
 
                     if (sqlQuery.equals(paramSQLQuery)) {
-                        parameters.add(parameterizedString);
+                        parameters.add(parameterizedQuery);
                     } else {
                         return ErrorGenerator.getSQLApplicationError("Batch Execute cannot contain different SQL " +
                                 "commands. These has to be executed in different function calls");
                     }
                 }
-                connection = sqlDatasource.getSQLConnection();
-                connection.setAutoCommit(false);
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
-                for (MapValue<BString, Object> param : parameters) {
+                for (AbstractObjectValue param : parameters) {
                     Utils.setParams(connection, statement, param);
                     statement.addBatch();
                 }
@@ -143,7 +154,6 @@ public class ExecuteUtils {
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                             Constants.EXECUTION_RESULT_RECORD, resultField));
                 }
-                connection.commit();
                 return BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
                         new BRecordType(Constants.EXECUTION_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0)));
             } catch (BatchUpdateException e) {
@@ -155,30 +165,8 @@ public class ExecuteUtils {
                     executionResults.add(BallerinaValues.createRecordValue(Constants.SQL_PACKAGE_ID,
                             Constants.EXECUTION_RESULT_RECORD, resultField));
                 }
-                // Depending on the driver, at this point, driver may or may not have executed the remaining commands in
-                // the batch which come after the command that failed.
-                // We could have rolled back the connection to keep a consistent behavior in Ballerina regardless of
-                // the driver. But, in Ballerina, we've decided to honor whatever the behavior of the driver and
-                // decide it based on the user input of `rollbackAllInFailure` property, because a Ballerina developer
-                // might have a requirement to ignore a few failed commands in the batch and let the rest of the
-                // commands run if driver allows it.
-                String errorPostfix = "";
-                if (rollbackInFailure) {
-                    try {
-                        connection.rollback();
-                    } catch (SQLException rbe) {
-                        errorPostfix = " and failed to rollback the intermediate changes";
-                    }
-                } else {
-                    try {
-                        connection.commit();
-                    } catch (SQLException rbe) {
-                        errorPostfix = " and failed to commit the intermediate changes";
-                    }
-                }
                 return ErrorGenerator.getSQLBatchExecuteError(e, executionResults,
-                        "Error while executing batch command starting with: '" + sqlQuery + "' " +
-                                errorPostfix);
+                        "Error while executing batch command starting with: '" + sqlQuery + "'.");
             } catch (SQLException e) {
                 return ErrorGenerator.getSQLDatabaseError(e, "Error while executing sql batch " +
                         "command starting with : " + sqlQuery + ". ");
@@ -186,7 +174,7 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + e.getMessage());
             } finally {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(

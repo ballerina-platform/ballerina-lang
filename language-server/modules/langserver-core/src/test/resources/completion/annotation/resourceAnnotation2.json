@@ -6,52 +6,6 @@
   "source": "annotation/source/resourceAnnotation2.bal",
   "items": [
     {
-      "label": "transactions:Participant",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "130",
-      "insertText": "transactions:Participant {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/transactions;\n"
-        }
-      ]
-    },
-    {
-      "label": "grpc:ResourceConfig",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "130",
-      "insertText": "grpc:ResourceConfig {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/grpc;\n"
-        }
-      ]
-    },
-    {
       "label": "test:Config",
       "kind": "Property",
       "detail": "Annotation",
@@ -75,6 +29,7 @@
       ]
     },
     {
+      "label": "test:Config",
       "label": "test:Mock",
       "kind": "Property",
       "detail": "Annotation",
@@ -190,6 +145,60 @@
       ]
     },
     {
+      "label": "http:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "http:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "transactions:Participant",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions;\n"
+        }
+      ]
+    },
+    {
+      "label": "observe:Observable",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "observe:Observable",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
       "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
@@ -198,12 +207,35 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "http:ResourceConfig",
+      "label": "icon",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "130",
-      "insertText": "http:ResourceConfig {\n\t${1}\n}",
+      "insertText": "icon {\n\tpath: \"${1}\"\n}",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "grpc:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "grpc:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/grpc;\n"
+        }
+      ]
     }
   ]
 }

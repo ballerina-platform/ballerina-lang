@@ -1,4 +1,5 @@
 import ballerina/io;
+import ballerina/lang.'transaction as transactions;
 
 function testRollback() {
     string|error x =  trap actualCode(0, false);
@@ -60,7 +61,40 @@ function blowUp()  returns int {
     return 5;
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+function testLocalTransaction1(int i) returns int|error {
+    int x = i;
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+    return x;
+}
+
+function testLocalTransaction2(int i) returns int|error {
+    int x = i;
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+
+    return x;
+}
+
+function testMultipleTrxBlocks() returns error? {
+    int i = check testLocalTransaction1(1);
+    int j = check testLocalTransaction2(i);
+
+    assertEquality(4, j);
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -73,5 +107,67 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+string ss = "";
+function testTrxHandlers() returns string {
+    ss = ss + "started";
+    transactions:Info transInfo;
+        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        ss = ss + " trxAborted";
+    };
+
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " trxCommited";
+    };
+
+    transaction {
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        trxfunction();
+        var commitRes = commit;
+    }
+    ss += " endTrx";
+    return ss;
+}
+
+transactional function trxfunction() {
+    ss = ss + " within transactional func";
+}
+
+public function testTransactionInsideIfStmt() returns int {
+    int a = 10;
+    if (a == 10) {
+        int c = 8;
+        transaction {
+            int b = a + c;
+            a = b;
+            var commitRes = commit;
+        }
+    }
+    return a;
+}
+
+public function testArrowFunctionInsideTransaction() returns int {
+    int a = 10;
+    int b = 11;
+    transaction {
+        int c = a + b;
+        function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+        a = arrow(1, 1);
+        var commitRes = commit;
+    }
+    return a;
+}
+
+public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() returns int|string {
+    int|string s;
+    transaction {
+        s = "init-in-transaction-block";
+        var commitRes = commit;
+    }
+    return s;
 }

@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -44,12 +45,16 @@ import java.util.LinkedHashMap;
  */
 public class ExecuteTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_EXCUTE_QUERY";
+    private static final String DB_NAME = "TEST_SQL_EXECUTE_QUERY";
     private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
     private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
     @BeforeClass
     public void setup() throws SQLException {
+        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            throw new SkipException("Skip test class in Windows");
+        }
         result = BCompileUtil.compile(SQLDBUtils.getMockModuleDir(), "execute");
         SQLDBUtils.initHsqlDatabase(DB_NAME, SQLDBUtils.getSQLResourceDir("execute",
                 "execute-test-data.sql"));
@@ -218,11 +223,9 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("object not found: NUMERICTYPESNONEXISTTABLE"));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("object not found: NUMERICTYPESNONEXISTTABLE"));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 -5501);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42501");
@@ -233,12 +236,10 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDataTypeError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("Insert into NumericTypes (int_type) values " +
+                "('This is wrong type'). data exception: invalid character value for cast."));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Insert into NumericTypes (int_type) values ('This is wrong type'). " +
-                        "data exception: invalid character value for cast."));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), -3438);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }

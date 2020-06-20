@@ -29,6 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnostic;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -108,44 +109,9 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "unary_service_with_annotation.bal", false, false);
-        assertUnaryCompileResult(result);
-        Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
-                .getAnnotationAttachments().get(0).getExpression());
-        Assert.assertNotNull(fileDescriptor);
-        Assert.assertEquals(fileDescriptor.getServices().size(), 1);
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
-        Assert.assertEquals(serviceDescriptor.findMethodByName("hello").getOutputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("hello").getInputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testInt").getOutputType().getName(),
-                "Int64Value");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testInt").getInputType().getName(),
-                "Int64Value");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testFloat").getOutputType().getName(),
-                "FloatValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testFloat").getInputType().getName(),
-                "FloatValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testBoolean").getOutputType().getName(),
-                "BoolValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testBoolean").getInputType().getName(),
-                "BoolValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testStruct").getOutputType().getName(),
-                "Response");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testStruct").getInputType().getName(),
-                "Request");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testNoRequest").getOutputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testNoRequest").getInputType().getName(),
-                "Empty");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testNoResponse").getOutputType().getName(),
-                "Empty");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testNoResponse").getInputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testInputNestedStruct").getOutputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("testInputNestedStruct").getInputType().getName(),
-                "Person");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+                "Root descriptor and/or the descriptor map function is missing");
     }
 
     @Test(description = "Test compiler plugin for service with checked expression.")
@@ -153,14 +119,9 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "service_with_checkedexpr.bal", false, false);
-        assertUnaryCompileResult(result);
-        Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
-                .getAnnotationAttachments().get(0).getExpression());
-        Assert.assertNotNull(fileDescriptor);
-        Assert.assertEquals(fileDescriptor.getServices().size(), 1);
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
-        Assert.assertEquals(serviceDescriptor.findMethodByName("greet").getOutputType().getName(),
-                "StringValue");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+                "Root descriptor and/or the descriptor map function is missing");
     }
 
     @Test(description = "Test compiler plugin for streaming service with resource annotation.")
@@ -168,16 +129,9 @@ public class ProtoBuilderTestCase extends GrpcBaseTest {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "src", "errorservices");
         CompileResult result = BCompileUtil.compileOnJBallerina(balFilePath.toAbsolutePath().toString(),
                 "streaming_service_with_annotation.bal", false, false);
-        assertStreamingCompileResult(result);
-        Descriptors.FileDescriptor fileDescriptor = getDescriptor(result.getAST().getServices().get(0)
-                .getAnnotationAttachments().get(1).getExpression());
-        Assert.assertNotNull(fileDescriptor);
-        Assert.assertEquals(fileDescriptor.getServices().size(), 1);
-        Descriptors.ServiceDescriptor serviceDescriptor = fileDescriptor.getServices().get(0);
-        Assert.assertEquals(serviceDescriptor.findMethodByName("chat").getOutputType().getName(),
-                "StringValue");
-        Assert.assertEquals(serviceDescriptor.findMethodByName("chat").getInputType().getName(),
-                "ChatMessage");
+        Assert.assertEquals(result.getErrorCount(), 1);
+        Assert.assertEquals(((BDiagnostic) result.getDiagnostics()[0]).msg,
+                "Root descriptor and/or the descriptor map function is missing");
     }
 
     private void assertUnaryCompileResult(CompileResult result) {

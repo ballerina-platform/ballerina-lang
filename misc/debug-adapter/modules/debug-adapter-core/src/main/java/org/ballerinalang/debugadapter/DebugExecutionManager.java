@@ -30,7 +30,9 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.tools.example.debug.expr.ExpressionParser;
 import com.sun.tools.example.debug.expr.ParseException;
 import com.sun.tools.jdi.SocketAttachingConnector;
-import org.ballerinalang.debugadapter.exeption.JBalDebugEvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.ExpressionTransformer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,19 +84,26 @@ public class DebugExecutionManager {
     }
 
     /**
-     * Evaluates a given expression w.r.t. the provided debug state(stack frame).
+     * Evaluates a given ballerina expression w.r.t. the provided debug state(stack frame).
      */
-    public Optional<Value> evaluate(final StackFrame f, String expression) throws JBalDebugEvaluationException {
+    public Optional<Value> evaluate(final StackFrame f, String expression) {
         try {
             ExpressionParser.GetFrame frameGetter = () -> f;
-            return Optional.ofNullable(ExpressionParser.evaluate(expression, attachedVm, frameGetter));
+            ExpressionTransformer exprTransformer = new ExpressionTransformer();
+            String jExpression = exprTransformer.transform(expression);
+            return Optional.ofNullable(ExpressionParser.evaluate(jExpression, attachedVm, frameGetter));
+        } catch (EvaluationException e) {
+            return Optional.ofNullable(attachedVm.mirrorOf(e.getMessage()));
         } catch (ParseException | InvocationException | InvalidTypeException | ClassNotLoadedException |
                 IncompatibleThreadStateException e) {
             // Todo - Handling errors more specifically
-            String message = String.format("Failed to execute the expression: \"%s\", due to:c%s", expression,
-                    e.getMessage());
+            String message = EvaluationExceptionKind.PREFIX + e.getMessage();
             LOGGER.error(message, e);
-            throw new JBalDebugEvaluationException(message, e);
+            return Optional.ofNullable(attachedVm.mirrorOf(message));
+        } catch (Exception e) {
+            String message = EvaluationExceptionKind.PREFIX + "internal error";
+            LOGGER.error(message, e);
+            return Optional.ofNullable(attachedVm.mirrorOf(message));
         }
     }
 }

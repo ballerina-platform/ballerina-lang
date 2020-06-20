@@ -396,8 +396,16 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(streamTypeParamsNode);
     }
 
+    public T transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        return transformSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public T transform(LetExpressionNode letExpressionNode) {
         return transformSyntaxNode(letExpressionNode);
+    }
+
+    public T transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        return transformSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public T transform(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -722,6 +730,26 @@ public abstract class NodeTransformer<T> {
 
     public T transform(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
         return transformSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public T transform(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public T transform(OnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
+    public T transform(LimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(JoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(OnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
     }
 
     // Tokens

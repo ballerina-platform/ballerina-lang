@@ -49,7 +49,7 @@ service passthrough on passthroughEP2 {
                 error err = clientResponse;
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(err.reason());
+                res.setPayload(err.message());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);
@@ -60,10 +60,9 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 checkpanic caller->respond(clientResponse);
             } else  {
-                error err = clientResponse;
                 http:Response res = new;
                 res.statusCode = 500;
-                res.setPayload(err.reason());
+                res.setPayload(<@untainted> clientResponse.message());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);
@@ -74,10 +73,9 @@ service passthrough on passthroughEP2 {
             if (clientResponse is http:Response) {
                 checkpanic caller->respond(clientResponse);
             } else {
-                error err = clientResponse;
                 http:Response res = new;
                 res.statusCode =500;
-                res.setPayload(err.reason());
+                res.setPayload(<@untainted> clientResponse.message());
                 var responseError = caller->respond(res);
                 if (responseError is error) {
                     log:printError("Error sending response", responseError);

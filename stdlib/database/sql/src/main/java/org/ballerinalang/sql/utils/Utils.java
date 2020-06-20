@@ -21,6 +21,7 @@ package org.ballerinalang.sql.utils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BRecordType;
@@ -30,6 +31,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.BXMLType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -90,7 +92,7 @@ class Utils {
     private static final BArrayType floatArrayType = new BArrayType(BTypes.typeFloat);
     private static final BArrayType decimalArrayType = new BArrayType(BTypes.typeDecimal);
 
-    static void closeResources(ResultSet resultSet, Statement statement, Connection connection) {
+    static void closeResources(Strand strand, ResultSet resultSet, Statement statement, Connection connection) {
         if (resultSet != null) {
             try {
                 resultSet.close();
@@ -103,35 +105,31 @@ class Utils {
             } catch (SQLException ignored) {
             }
         }
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException ignored) {
-            }
-        }
-    }
-
-    static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
-        ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
-        ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
-        if (partsArray.size() - 1 == insertionsArray.size()) {
-            StringBuilder sqlQuery = new StringBuilder();
-            for (int i = 0; i < partsArray.size(); i++) {
-                if (i > 0) {
-                    sqlQuery.append(" ? ");
+        if (strand == null || !strand.isInTransaction() || !strand.transactionLocalContext.hasTransactionBlock()) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ignored) {
                 }
-                sqlQuery.append(partsArray.get(i).toString());
             }
-            return sqlQuery.toString();
-        } else {
-            throw new ApplicationError("Parts and insertions count doesn't match in ParametrizedString passed. "
-                    + paramString.toString());
         }
     }
 
-    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<BString,
-            Object> paramString) throws SQLException, ApplicationError, IOException {
-        ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
+    static String getSqlQuery(AbstractObjectValue paramString) {
+        ArrayValue stringsArray = paramString.getArrayValue(Constants.ParameterizedQueryFields.STRINGS);
+        StringBuilder sqlQuery = new StringBuilder();
+        for (int i = 0; i < stringsArray.size(); i++) {
+            if (i > 0) {
+                sqlQuery.append(" ? ");
+            }
+            sqlQuery.append(stringsArray.get(i).toString());
+        }
+        return sqlQuery.toString();
+    }
+
+    static void setParams(Connection connection, PreparedStatement preparedStatement, AbstractObjectValue paramString)
+        throws SQLException, ApplicationError, IOException {
+        ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedQueryFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
             int index = i + 1;
@@ -153,7 +151,7 @@ class Utils {
                     preparedStatement.setBytes(index, objectArray.getBytes());
                 } else {
                     throw new ApplicationError("Only byte[] is supported can be set directly into " +
-                            "ParameterizedString, any other array types should be wrapped as sql:Value");
+                            "ParameterizedQuery, any other array types should be wrapped as sql:Value");
                 }
             } else if (object instanceof ObjectValue) {
                 ObjectValue objectValue = (ObjectValue) object;
@@ -346,7 +344,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         date = new Date((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -370,7 +368,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         time = new Time((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -395,7 +393,7 @@ class Utils {
                     } else if (value instanceof Long) {
                         timestamp = new Timestamp((Long) value);
                     } else if (value instanceof MapValue) {
-                    MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
+                        MapValue<BString, Object> dateTimeStruct = (MapValue<BString, Object>) value;
                         if (dateTimeStruct.getType().getName()
                                 .equalsIgnoreCase(org.ballerinalang.stdlib.time.util.Constants.STRUCT_TYPE_TIME)) {
                             ZonedDateTime zonedDateTime = TimeUtils.getZonedDateTime(dateTimeStruct);
@@ -941,7 +939,7 @@ class Utils {
 
     private static MapValue<BString, Object> createTimeStruct(long millis) {
         return TimeUtils.createTimeRecord(TimeUtils.getTimeZoneRecord(), TimeUtils.getTimeRecord(), millis,
-                                          Constants.TIMEZONE_UTC);
+                Constants.TIMEZONE_UTC);
     }
 
     private static String getString(java.util.Date value) {

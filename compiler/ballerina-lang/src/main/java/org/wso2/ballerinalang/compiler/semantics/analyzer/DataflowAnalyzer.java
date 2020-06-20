@@ -99,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -767,8 +768,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (constructorExpr.tableKeySpecifier != null &&
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
-            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(fieldName -> fieldName.value)
-                    .collect(Collectors.toList());
+            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
+                    ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
@@ -1154,6 +1155,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        for (BLangLiteral string : rawTemplateLiteral.strings) {
+            analyzeNode(string, env);
+        }
+
+        for (BLangExpression expr : rawTemplateLiteral.insertions) {
+            analyzeNode(expr, env);
+        }
+    }
+
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
@@ -1239,6 +1251,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
+        analyzeNode(retryNode.retryBody, env);
     }
 
     @Override
@@ -1494,7 +1507,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.message, env);
+        if (varRefExpr.cause != null) {
+            analyzeNode(varRefExpr.cause, env);
+        }
         for (BLangNamedArgsExpression args : varRefExpr.detail) {
             analyzeNode(args.expr, env);
         }
@@ -1677,8 +1693,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
-                if (errorVarRef.reason != null) {
-                    checkAssignment(errorVarRef.reason);
+                if (errorVarRef.message != null) {
+                    checkAssignment(errorVarRef.message);
+                }
+                if (errorVarRef.cause != null) {
+                    checkAssignment(errorVarRef.cause);
                 }
                 for (BLangNamedArgsExpression expression : errorVarRef.detail) {
                     checkAssignment(expression);

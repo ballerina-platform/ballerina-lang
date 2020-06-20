@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.bir.model;
 
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -82,6 +83,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public List<BIROperand> args;
         public Name name;
         public PackageID calleePkg;
+        public List<BIRAnnotationAttachment> calleeAnnotAttachments;
+        public Set<Flag> calleeFlags;
 
         public Call(DiagnosticPos pos,
                     InstructionKind kind,
@@ -90,7 +93,9 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     Name name,
                     List<BIROperand> args,
                     BIROperand lhsOp,
-                    BIRBasicBlock thenBB) {
+                    BIRBasicBlock thenBB,
+                    List<BIRAnnotationAttachment> calleeAnnotAttachments,
+                    Set<Flag> calleeFlags) {
             super(pos, kind);
             this.lhsOp = lhsOp;
             this.isVirtual = isVirtual;
@@ -98,6 +103,8 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             this.thenBB = thenBB;
             this.name = name;
             this.calleePkg = calleePkg;
+            this.calleeAnnotAttachments = calleeAnnotAttachments;
+            this.calleeFlags = calleeFlags;
         }
 
         @Override
@@ -129,8 +136,10 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          List<BIROperand> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
-                         List<BIRAnnotationAttachment> annotAttachments) {
-            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB);
+                         List<BIRAnnotationAttachment> annotAttachments,
+                         List<BIRAnnotationAttachment> calleeAnnotAttachments,
+                         Set<Flag> calleeFlags) {
+            super(pos, kind, isVirtual, calleePkg, name, args, lhsOp, thenBB, calleeAnnotAttachments, calleeFlags);
             this.annotAttachments = annotAttachments;
         }
 

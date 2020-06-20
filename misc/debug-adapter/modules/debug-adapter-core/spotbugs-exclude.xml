@@ -19,8 +19,14 @@
 <FindBugsFilter>
     <Match>
         <And>
-            <Package name="org.ballerinalang.debugadapter.variable.types*"/>
             <Bug pattern="REC_CATCH_EXCEPTION"/>
+            <Or>
+                <Package name="org.ballerinalang.debugadapter.variable.types*"/>
+                <And>
+                    <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionParser"/>
+                    <Method name="validateAndParse"/>
+                </And>
+            </Or>
         </And>
     </Match>
 </FindBugsFilter>

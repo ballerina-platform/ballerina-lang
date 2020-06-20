@@ -28,11 +28,16 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "VAR_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "VAR_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "VAR_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -51,8 +56,13 @@
                           "kind": "FIELD_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "a"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -70,8 +80,13 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "b"
+                                }
+                              ]
                             },
                             {
                               "kind": "COLON_TOKEN"
@@ -91,12 +106,17 @@
                                       "kind": "FIELD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "p",
-                                          "trailingMinutiae": [
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
                                             {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "p",
+                                              "trailingMinutiae": [
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
+                                                }
+                                              ]
                                             }
                                           ]
                                         }
@@ -114,8 +134,13 @@
                                       "kind": "FIELD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "q"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "q"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
@@ -149,12 +174,17 @@
                                       "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "s",
-                                      "trailingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "s",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -185,12 +215,17 @@
                           "kind": "ELLIPSIS_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "d",
-                          "trailingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "d",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -219,8 +254,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "x"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -251,11 +291,16 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "VAR_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "VAR_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "VAR_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -285,8 +330,13 @@
                                   "kind": "FIELD_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "a"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "a"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -304,8 +354,13 @@
                                   "hasDiagnostics": true,
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "COLON_TOKEN"
@@ -324,8 +379,13 @@
                                               "kind": "FIELD_BINDING_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "p"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "p"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -342,8 +402,13 @@
                                               "kind": "FIELD_BINDING_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "q"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "q"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN"
@@ -384,22 +449,23 @@
                                               ]
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
+                                              "kind": "SIMPLE_NAME_REFERENCE",
                                               "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "isMissing": true,
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_MISSING_IDENTIFIER"
+                                                  ]
+                                                }
                                               ]
                                             }
                                           ]
                                         },
                                         {
-                                          "kind": "CLOSE_BRACE_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-                                          ]
+                                          "kind": "CLOSE_BRACE_TOKEN"
                                         }
                                       ]
                                     }
@@ -413,47 +479,30 @@
                                       "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "REST_BINDING_PATTERN",
-                              "children": [
-                                {
-                                  "kind": "ELLIPSIS_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "d",
-                                  "trailingMinutiae": [
+                                  "kind": "FIELD_BINDING_PATTERN",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "l"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
                               ]
                             },
                             {
-                              "kind": "CLOSE_BRACE_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "COMMA_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "CAPTURE_BINDING_PATTERN",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "l"
+                              "kind": "CLOSE_BRACE_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+                              ]
                             }
                           ]
                         }
@@ -482,8 +531,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "x"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -577,17 +631,22 @@
                           "kind": "TYPED_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "VAR_KEYWORD",
-                              "leadingMinutiae": [
+                              "kind": "VAR_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "VAR_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -604,8 +663,13 @@
                                       "kind": "FIELD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "a"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "a"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -622,8 +686,13 @@
                                       "kind": "FIELD_BINDING_PATTERN",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "b"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "b"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "COLON_TOKEN"
@@ -641,8 +710,13 @@
                                                   "kind": "FIELD_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "p"
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "p"
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 },
@@ -659,8 +733,13 @@
                                                   "kind": "FIELD_BINDING_PATTERN",
                                                   "children": [
                                                     {
-                                                      "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "q"
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                                      "children": [
+                                                        {
+                                                          "kind": "IDENTIFIER_TOKEN",
+                                                          "value": "q"
+                                                        }
+                                                      ]
                                                     },
                                                     {
                                                       "kind": "COLON_TOKEN"
@@ -694,12 +773,17 @@
                                                   "kind": "ELLIPSIS_TOKEN"
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "s",
-                                                  "trailingMinutiae": [
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
                                                     {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "s",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -730,12 +814,17 @@
                                       "kind": "ELLIPSIS_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "d",
-                                      "trailingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "d",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -764,8 +853,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "x"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -791,17 +885,22 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "VAR_KEYWORD",
-                              "leadingMinutiae": [
+                              "kind": "VAR_TYPE_DESC",
+                              "children": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "VAR_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -831,12 +930,17 @@
                                               "kind": "FIELD_BINDING_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "a",
-                                                  "trailingMinutiae": [
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
                                                     {
-                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                      "value": " "
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "a",
+                                                      "trailingMinutiae": [
+                                                        {
+                                                          "kind": "WHITESPACE_MINUTIAE",
+                                                          "value": " "
+                                                        }
+                                                      ]
                                                     }
                                                   ]
                                                 }
@@ -854,8 +958,13 @@
                                               "kind": "FIELD_BINDING_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "b"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN"
@@ -873,8 +982,13 @@
                                                           "kind": "FIELD_BINDING_PATTERN",
                                                           "children": [
                                                             {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "p"
+                                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "IDENTIFIER_TOKEN",
+                                                                  "value": "p"
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         },
@@ -891,8 +1005,13 @@
                                                           "kind": "FIELD_BINDING_PATTERN",
                                                           "children": [
                                                             {
-                                                              "kind": "IDENTIFIER_TOKEN",
-                                                              "value": "q"
+                                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                                              "children": [
+                                                                {
+                                                                  "kind": "IDENTIFIER_TOKEN",
+                                                                  "value": "q"
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "COLON_TOKEN"
@@ -926,12 +1045,17 @@
                                                           "kind": "ELLIPSIS_TOKEN"
                                                         },
                                                         {
-                                                          "kind": "IDENTIFIER_TOKEN",
-                                                          "value": "s",
-                                                          "trailingMinutiae": [
+                                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                                          "children": [
                                                             {
-                                                              "kind": "WHITESPACE_MINUTIAE",
-                                                              "value": " "
+                                                              "kind": "IDENTIFIER_TOKEN",
+                                                              "value": "s",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             }
                                                           ]
                                                         }
@@ -962,12 +1086,17 @@
                                               "kind": "ELLIPSIS_TOKEN"
                                             },
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "d",
-                                              "trailingMinutiae": [
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "d",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }
@@ -1026,8 +1155,13 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "x"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "x"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",

@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
@@ -374,7 +375,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (isLambda) {
             return;
         }
-        transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
 
         validateParams(funcNode);
 
@@ -401,7 +401,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.workerActionSystemStack.peek().endWorkerActionStateMachine();
         } finally {
             this.finalizeCurrentWorkerActionSystem();
-            transactionalFuncCheckStack.pop();
         }
         funcNode.annAttachments.forEach(annotationAttachment -> analyzeNode(annotationAttachment, env));
     }
@@ -420,6 +419,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
+        this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         this.resetFunction();
         if (Symbols.isNative(funcNode.symbol)) {
             return;
@@ -444,6 +444,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.returnTypes.pop();
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+        this.transactionalFuncCheckStack.pop();
     }
 
     private boolean isPublicInvokableNode(BLangInvokableNode invNode) {
@@ -453,7 +454,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody body) {
-        if (!transactionalFuncCheckStack.empty()) {
+        boolean prevWithinTxScope = withinTransactionScope;
+        if (!transactionalFuncCheckStack.empty() && !withinTransactionScope) {
             withinTransactionScope = transactionalFuncCheckStack.peek();
         }
         final SymbolEnv blockEnv = SymbolEnv.createFuncBodyEnv(body, env);
@@ -461,6 +463,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeNode(e, blockEnv);
         }
         this.resetLastStatement();
+        if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
+            withinTransactionScope = prevWithinTxScope;
+        }
     }
 
     @Override
@@ -493,7 +498,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -587,7 +591,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangRetrySpec retrySpec) {
         if (retrySpec.retryManagerType != null) {
-            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langInternalModuleSymbol
+            BTypeSymbol retryManagerTypeSymbol = (BObjectTypeSymbol) symTable.langTransactionModuleSymbol
                     .scope.lookup(names.fromString("RetryManager")).symbol;
             BType abstractRetryManagerType = retryManagerTypeSymbol.type;
             if (!types.isAssignable(retrySpec.retryManagerType.type, abstractRetryManagerType)) {
@@ -599,8 +603,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
+        this.returnWithinRetryCheckStack.push(false);
         analyzeNode(retryTransaction.retrySpec, env);
         analyzeNode(retryTransaction.transaction, env);
+        retryTransaction.transactionReturns = this.returnWithinRetryCheckStack.peek();
+        this.returnWithinRetryCheckStack.pop();
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -1662,7 +1669,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private List<BLangExpression> getVarRefs(BLangErrorVarRef varRef) {
         List<BLangExpression> varRefs = new ArrayList<>();
-        varRefs.add(varRef.reason);
+        varRefs.add(varRef.message);
+        if (varRef.cause != null) {
+            varRefs.add(varRef.cause);
+        }
         varRefs.addAll(varRef.detail.stream().map(e -> e.expr).collect(Collectors.toList()));
         varRefs.add(varRef.restVar);
         return varRefs;
@@ -2434,6 +2444,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(stringTemplateLiteral.exprs);
     }
 
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        analyzeExprs(rawTemplateLiteral.strings);
+        analyzeExprs(rawTemplateLiteral.insertions);
+    }
+
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         boolean isWorker = false;
         if (bLangLambdaFunction.parent.getKind() == NodeKind.VARIABLE) {
@@ -2542,8 +2557,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorType) {
-
-        analyzeTypeNode(errorType.reasonType, env);
         analyzeTypeNode(errorType.detailType, env);
     }
 
@@ -3180,7 +3193,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),
         XML_ATTRIBUTES_ACCESS("xml attribute expression"),

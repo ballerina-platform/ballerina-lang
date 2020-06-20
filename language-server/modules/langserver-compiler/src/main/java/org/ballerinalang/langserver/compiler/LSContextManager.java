@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
@@ -68,13 +69,14 @@ public class LSContextManager {
     /**
      * Returns a unique compiler context for the project directory path.
      *
-     * @param packageID         package ID or null
-     * @param projectDir        project directory path
+     * @param packageID       package ID or null
+     * @param projectDir      project directory path
      * @param documentManager {@link WorkspaceDocumentManager} Document Manager
+     * @param enableNewParser Whether enable new parser or not
      * @return compiler context
      */
     public CompilerContext getCompilerContext(@Nullable PackageID packageID, String projectDir,
-                                              WorkspaceDocumentManager documentManager) {
+                                              WorkspaceDocumentManager documentManager, boolean enableNewParser) {
         CompilerContext compilerContext = contextMap.get(projectDir);
 
         // TODO: Remove this fix once proper compiler fix is introduced
@@ -82,15 +84,18 @@ public class LSContextManager {
             compilerContext = null;
             compilationCounter = 0;
             LSClientLogger.logTrace("CompilationContext for {projectRoot: '" + projectDir +
-                                            "'}, has been reinitialized");
+                    "'}, has been reinitialized");
         }
 
-        if (compilerContext == null) {
+        // TODO: Remove the enable new parser check later.
+        if (compilerContext == null || !enableNewParser) {
             synchronized (LSContextManager.class) {
                 compilerContext = contextMap.get(projectDir);
-                if (compilerContext == null) {
-                    compilerContext = this.createNewCompilerContext(projectDir, documentManager);
-                    contextMap.put(projectDir, compilerContext);
+                if (compilerContext == null || !enableNewParser) {
+                    compilerContext = this.createNewCompilerContext(projectDir, documentManager, enableNewParser);
+                    if (enableNewParser) {
+                        contextMap.put(projectDir, compilerContext);
+                    }
                 }
             }
         }
@@ -102,8 +107,8 @@ public class LSContextManager {
     /**
      * Set compiler context for a given project directory.
      *
-     * @param projectDir        project directory
-     * @param compilerContext   compiler context.
+     * @param projectDir      project directory
+     * @param compilerContext compiler context.
      */
     public void setCompilerContext(String projectDir, CompilerContext compilerContext) {
         contextMap.put(projectDir, compilerContext);
@@ -112,7 +117,7 @@ public class LSContextManager {
     /**
      * Remove a compiler context by project directory.
      *
-     * @param projectDir        project directory
+     * @param projectDir project directory
      */
     public void removeCompilerContext(String projectDir) {
         contextMap.remove(projectDir);
@@ -132,16 +137,18 @@ public class LSContextManager {
      */
     public CompilerContext getBuiltInPackagesCompilerContext() {
         //TODO: Revisit explicitly retrieving WorkspaceDocumentManagerImpl as doc manager
-        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance());
+        return getCompilerContext(null, BUILT_IN_PACKAGES_PROJ_DIR, WorkspaceDocumentManagerImpl.getInstance(), true);
     }
 
-    public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager) {
+    public CompilerContext createNewCompilerContext(String projectDir, WorkspaceDocumentManager documentManager,
+                                                    boolean enableNewParser) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, projectDir);
         options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
         options.put(PRESERVE_WHITESPACE, Boolean.toString(true));
         options.put(OFFLINE, Boolean.toString(true));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(enableNewParser));
         context.put(SourceDirectory.class, new NullSourceDirectory(Paths.get(projectDir), documentManager));
         CollectDiagnosticListener diagnosticListener = new CollectDiagnosticListener();
         context.put(DiagnosticListener.class, diagnosticListener);
@@ -207,7 +214,7 @@ public class LSContextManager {
 
         @Override
         public void saveCompiledPackage(CompiledPackage compiledPackage, Path dirPath, String fileName) throws
-                                                                                                        IOException {
+                IOException {
 
         }
 

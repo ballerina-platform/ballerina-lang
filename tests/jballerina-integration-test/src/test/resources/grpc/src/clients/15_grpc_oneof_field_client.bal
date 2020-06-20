@@ -20,6 +20,9 @@ import ballerina/io;
 OneofFieldServiceBlockingClient blockingEp = new("http://localhost:9105");
 const string ERROR_MESSAGE = "Expected response value type not received";
 
+type Response1Typedesc typedesc<Response1>;
+type ZZZTypedesc typedesc<ZZZ>;
+
 // Enable when you need to test locally.
 //public function main() {
 //    string resp;
@@ -53,7 +56,7 @@ public function testOneofFieldValue() returns string {
     Request1 request = {first_name:"Sam", age:31};
     var result = blockingEp->hello(request);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s ", result.message());
     } else {
         Response1 resp = {message:""};
         [resp, _] = result;
@@ -66,7 +69,7 @@ public function testDoubleFieldValue() returns string {
     ZZZ zzz = {one_a:1.7976931348623157E308};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -78,7 +81,7 @@ public function testFloatFieldValue() returns string {
     ZZZ zzz = {one_b:3.4028235E38};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -86,23 +89,23 @@ public function testFloatFieldValue() returns string {
     }
 }
 
-public function testInt64FieldValue() returns string {
-    ZZZ zzz = {one_c:-9223372036854775808};
-    var result = blockingEp->testOneofField(zzz);
-    if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
-    } else {
-        ZZZ resp;
-        [resp, _] = result;
-        return resp?.one_c.toString();
-    }
-}
+//public function testInt64FieldValue() returns string {
+//    ZZZ zzz = {one_c:-9223372036854775808};
+//    var result = blockingEp->testOneofField(zzz);
+//    if (result is grpc:Error) {
+//        return io:sprintf("Error from Connector: %s", result.message());
+//    } else {
+//        ZZZ resp;
+//        [resp, _] = result;
+//        return resp?.one_c.toString();
+//    }
+//}
 
 public function testUInt64FieldValue() returns string {
     ZZZ zzz = {one_d:9223372036854775807};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -114,7 +117,7 @@ public function testInt32FieldValue() returns string {
     ZZZ zzz = {one_e:-2147483648};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -126,7 +129,7 @@ public function testFixed64FieldValue() returns string {
     ZZZ zzz = {one_f:9223372036854775807};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -138,7 +141,7 @@ public function testFixed32FieldValue() returns string {
     ZZZ zzz = {one_g:2147483647};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -150,7 +153,7 @@ public function testBolFieldValue() returns string {
     ZZZ zzz = {one_h:true};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -162,7 +165,7 @@ public function testStringFieldValue() returns string {
     ZZZ zzz = {one_i:"Testing"};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -175,7 +178,7 @@ public function testMessageFieldValue() returns string {
     ZZZ zzz = {one_j:aaa};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -189,7 +192,7 @@ public function testBytesFieldValue() returns string {
     ZZZ zzz = {one_k:bytes};
     var result = blockingEp->testOneofField(zzz);
     if (result is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", result.reason(), <string> result.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", result.message());
     } else {
         ZZZ resp;
         [resp, _] = result;
@@ -215,11 +218,11 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<Response1>);
+        var value = result.cloneWithType(Response1Typedesc);
         if (value is Response1) {
             return [value, resHeaders];
         } else {
-            grpc:Error err = grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            grpc:Error err = grpc:InternalError("Error while constructing the message", value);
             return err;
         }
     }
@@ -229,11 +232,11 @@ public type OneofFieldServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<ZZZ>);
+        var value = result.cloneWithType(ZZZTypedesc);
         if (value is ZZZ) {
             return [value, resHeaders];
         } else {
-            grpc:Error err = grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            grpc:Error err = grpc:InternalError("Error while constructing the message", value);
             return err;
         }
     }

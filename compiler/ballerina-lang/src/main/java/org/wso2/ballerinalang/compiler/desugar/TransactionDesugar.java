@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
@@ -41,7 +42,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -62,7 +62,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
 
 import static org.wso2.ballerinalang.compiler.util.Names.CLEAN_UP_TRANSACTION;
 import static org.wso2.ballerinalang.compiler.util.Names.CURRENT_TRANSACTION_INFO;
@@ -85,12 +84,15 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private final SymbolResolver symResolver;
     private final Names names;
 
-    private Stack<BSymbol> transactionErrorStack;
-    private Stack<BLangExpression> retryStmtStack;
+    private BSymbol transactionError;
+    private BLangExpression retryStmt;
 
     private BLangExpression transactionBlockID;
     private BLangExpression transactionID;
     private BLangSimpleVarRef prevAttemptInfoRef;
+
+    private String uniqueId;
+    private int transactionBlockCount;
 
     private TransactionDesugar(CompilerContext context) {
         context.put(TRANSACTION_DESUGAR_KEY, this);
@@ -98,8 +100,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.names = Names.getInstance(context);
         this.desugar = Desugar.getInstance(context);
-        this.transactionErrorStack = new Stack<>();
-        this.retryStmtStack = new Stack<>();
     }
 
     public static TransactionDesugar getInstance(CompilerContext context) {
@@ -124,13 +124,14 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangBlockStmt transactionBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
 
         // Create transaction block ID variable
+        uniqueId = String.valueOf(++transactionBlockCount);
         BLangLiteral transactionBlockIDLiteral = ASTBuilderUtil.createLiteral(pos, symTable.stringType,
-                desugar.getTransactionBlockId());
+                uniqueId);
         BType transactionBlockIDType = symTable.stringType;
-        BVarSymbol transactionBlockIDVarSymbol = new BVarSymbol(0, new Name("transactionBlockId"),
+        BVarSymbol transactionBlockIDVarSymbol = new BVarSymbol(0, new Name("transactionBlockId" + uniqueId),
                 env.scope.owner.pkgID, transactionBlockIDType, env.scope.owner);
-        BLangSimpleVariable transactionBlockIDVariable = ASTBuilderUtil.createVariable(pos, "transactionBlockId",
-                transactionBlockIDType, transactionBlockIDLiteral, transactionBlockIDVarSymbol);
+        BLangSimpleVariable transactionBlockIDVariable = ASTBuilderUtil.createVariable(pos, "transactionBlockId"
+                        + uniqueId, transactionBlockIDType, transactionBlockIDLiteral, transactionBlockIDVarSymbol);
         transactionBlockIDVariable.symbol.closure = true;
         BLangSimpleVariableDef transactionBlockIDVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 transactionBlockIDVariable);
@@ -143,9 +144,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // Invoke startTransaction method and get a transaction id
         BType transactionIDType = symTable.stringType;
-        BVarSymbol transactionIDVarSymbol = new BVarSymbol(0, new Name("transactionId"),
+        BVarSymbol transactionIDVarSymbol = new BVarSymbol(0, new Name("transactionId" + uniqueId),
                 env.scope.owner.pkgID, transactionIDType, env.scope.owner);
-        BLangSimpleVariable transactionIDVariable = ASTBuilderUtil.createVariable(pos, "transactionId",
+        BLangSimpleVariable transactionIDVariable = ASTBuilderUtil.createVariable(pos, "transactionId" + uniqueId,
                 transactionIDType, ASTBuilderUtil.createLiteral(pos, symTable.stringType, ""), transactionIDVarSymbol);
         BLangSimpleVariableDef transactionIDVariableDef = ASTBuilderUtil.createVariableDef(pos,
                 transactionIDVariable);
@@ -158,23 +159,24 @@ public class TransactionDesugar extends BLangNodeVisitor {
         env.scope.define(transactionIDVarSymbol.name, transactionIDVarSymbol);
         env.scope.define(prevAttemptVarDef.var.symbol.name, prevAttemptVarDef.var.symbol);
 
-        BLangBlockFunctionBody trxMainBody = ASTBuilderUtil.createBlockFunctionBody(transactionNode.pos);
-        BLangType transactionLambdaReturnType = ASTBuilderUtil.createTypeNode(symTable.errorOrNilType);
+        BLangType transactionReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
+
         BLangSimpleVariable trxMainFuncParamPrevAttempt = createPrevAttemptVariable(env, pos);
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
-                Lists.of(trxMainFuncParamPrevAttempt), transactionLambdaReturnType, trxMainBody);
+                Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
+                env, transactionNode.transactionBody.scope);
 
-        BLangInvocation startTransactionInvocation =
-                createStartTransactionInvocation(env, pos, transactionBlockIDLiteral,
+        BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,
                 ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
         BLangAssignment startTrxAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, transactionIDVarSymbol),
                 startTransactionInvocation);
 
-        BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(env, pos);
-        trxMainBody.stmts.add(startTrxAssignment);
-        trxMainBody.stmts.add(infoAssignment);
-        trxMainBody.stmts.addAll(transactionNode.transactionBody.stmts);
+        BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
+        ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
+        ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(1, infoAssignment);
+
+        trxMainFunc.function = desugar.resolveReturnTypeCast(trxMainFunc.function, env);
 
         BVarSymbol transactionVarSymbol = new BVarSymbol(0, names.fromString("$trxFunc$"),
                 env.scope.owner.pkgID, trxMainFunc.type, trxMainFunc.function.symbol);
@@ -188,25 +190,22 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         // Add lambda function call
         BLangInvocation transactionLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
-                transactionLambdaVarRef, transactionLambdaVariable.symbol, symTable.errorOrNilType);
+                transactionLambdaVarRef, transactionLambdaVariable.symbol, symTable.anyOrErrorType);
         transactionLambdaInvocation.argExprs = Lists.of(desugar.rewrite(prevAttemptInfoRef, env));
         transactionLambdaInvocation.requiredArgs = transactionLambdaInvocation.argExprs;
-        BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        trapExpr.type = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        trapExpr.expr = transactionLambdaInvocation;
 
         trxMainFunc.capturedClosureEnv = env;
 
-        BVarSymbol resultSymbol = new BVarSymbol(0, new Name("result"),
-                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
-        BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(pos, "result",
-                symTable.errorOrNilType, trapExpr, resultSymbol);
+        BVarSymbol resultSymbol = new BVarSymbol(0, new Name("result" + uniqueId),
+                env.scope.owner.pkgID, symTable.anyOrErrorType, env.scope.owner);
+        BLangSimpleVariable resultVariable = ASTBuilderUtil.createVariable(pos, "result" + uniqueId,
+                symTable.anyOrErrorType, transactionLambdaInvocation, resultSymbol);
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(pos,
                 resultVariable);
 
         if (shouldRetry) {
-            transactionErrorStack.push(resultSymbol);
-            retryStmtStack.push(trapExpr);
+            transactionError = resultSymbol;
+            retryStmt = transactionLambdaInvocation;
         }
 
         transactionBlockStmt.stmts.add(trxFuncVarDef);
@@ -215,10 +214,10 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return transactionBlockStmt;
     }
 
-    private BLangAssignment createPrevAttemptInfoInvocation(SymbolEnv env, DiagnosticPos pos) {
-        BInvokableSymbol transactionInfoInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)),
-                        CURRENT_TRANSACTION_INFO);
+    private BLangAssignment createPrevAttemptInfoInvocation(DiagnosticPos pos) {
+        BInvokableSymbol transactionInfoInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                CURRENT_TRANSACTION_INFO);
         BLangInvocation infoInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(pos, transactionInfoInvokableSymbol,
                         new ArrayList<>(), symResolver);
@@ -226,10 +225,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return ASTBuilderUtil.createAssignmentStmt(pos, prevAttemptInfoRef, infoInvocation);
     }
 
-    private BLangInvocation createStartTransactionInvocation(SymbolEnv env, DiagnosticPos pos,
+    private BLangInvocation createStartTransactionInvocation(DiagnosticPos pos,
             BLangLiteral transactionBlockIDLiteral, BLangSimpleVarRef prevAttempt) {
-        BInvokableSymbol startTransactionInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)), START_TRANSACTION);
+        BInvokableSymbol startTransactionInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                START_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockIDLiteral);
         args.add(prevAttempt);
@@ -248,13 +248,14 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     private BLangSimpleVariable createPrevAttemptVariable(SymbolEnv env, DiagnosticPos pos) {
         BSymbol infoRecordSymbol = symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(desugar.getTransactionSymbol(env)),
+                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(symTable.langTransactionModuleSymbol),
                 TRANSACTION_INFO_RECORD);
         BType infoRecordType = BUnionType.create(null, infoRecordSymbol.type, symTable.nilType);
-        BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt"),
+        BVarSymbol prevAttemptVarSymbol = new BVarSymbol(0, new Name("prevAttempt" + uniqueId),
                 env.scope.owner.pkgID, infoRecordType, env.scope.owner);
         prevAttemptVarSymbol.closure = true;
-        return ASTBuilderUtil.createVariable(pos, "prevAttempt", infoRecordType, null, prevAttemptVarSymbol);
+        return ASTBuilderUtil.createVariable(pos, "prevAttempt" + uniqueId, infoRecordType, null,
+                prevAttemptVarSymbol);
     }
 
     //  commit or rollback was not executed and fail(e) or panic(e) returned, so rollback
@@ -271,15 +272,16 @@ public class TransactionDesugar extends BLangNodeVisitor {
         rollbackCheck.expr = ASTBuilderUtil.createBinaryExpr(pos, transactionalExpr, errorCheck, symTable.booleanType,
                 OperatorKind.AND, null);
         BLangRollback rollbackStmt = (BLangRollback) TreeBuilder.createRollbackNode();
-        rollbackStmt.expr = result;
+        rollbackStmt.expr = desugar.addConversionExprIfRequired(result, symTable.errorOrNilType);
         rollbackCheck.body = ASTBuilderUtil.createBlockStmt(pos);
         rollbackCheck.body.stmts.add(rollbackStmt);
     }
 
-    private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos,  SymbolEnv env) {
+    private BLangInvocation createCleanupTrxStmt(DiagnosticPos pos) {
         List<BLangExpression> args;
-        BInvokableSymbol cleanupTrxInvokableSymbol = (BInvokableSymbol) symResolver.lookupSymbolInMainSpace(symTable
-                        .pkgEnvMap.get(desugar.getTransactionSymbol(env)), CLEAN_UP_TRANSACTION);
+        BInvokableSymbol cleanupTrxInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                 CLEAN_UP_TRANSACTION);
         args = new ArrayList<>();
         args.add(transactionBlockID);
         BLangInvocation cleanupTrxInvocation = ASTBuilderUtil.
@@ -288,19 +290,14 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return cleanupTrxInvocation;
     }
 
-    BLangStatementExpression desugar(BLangRollback rollbackNode, SymbolEnv env) {
+    BLangStatementExpression desugar(BLangRollback rollbackNode) {
         // Rollback desugar implementation
         DiagnosticPos pos = rollbackNode.pos;
         BLangBlockStmt rollbackBlockStmt = ASTBuilderUtil.createBlockStmt(pos);
-        BSymbol transactionSymbol = desugar.getTransactionSymbol(env);
 
-        // Create temp output variable
-        BLangSimpleVariableDef outputVariableDef = createRollbackOrCommitResultDef(env, pos);
-        BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariableDef.var.symbol);
-        rollbackBlockStmt.addStatement(outputVariableDef);
-
-        BInvokableSymbol rollbackTransactionInvokableSymbol = (BInvokableSymbol) symResolver
-                .lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionSymbol), ROLLBACK_TRANSACTION);
+        BInvokableSymbol rollbackTransactionInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                ROLLBACK_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionBlockID);
         if (rollbackNode.expr != null) {
@@ -309,46 +306,29 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangInvocation rollbackTransactionInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, rollbackTransactionInvokableSymbol, args, symResolver);
         rollbackTransactionInvocation.argExprs = args;
-
-        BLangTrapExpr rollbackTrapExpression = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
-        rollbackTrapExpression.type = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        rollbackTrapExpression.expr = rollbackTransactionInvocation;
-
-        BVarSymbol rollbackTransactionVarSymbol = new BVarSymbol(0, new Name("rollbackResult"),
-                env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
-        BLangSimpleVariable rollbackResultVariable = ASTBuilderUtil.createVariable(pos, "rollbackResult",
-                symTable.errorOrNilType, rollbackTrapExpression, rollbackTransactionVarSymbol);
-        rollbackBlockStmt.stmts.add(ASTBuilderUtil.createVariableDef(pos,
-                rollbackResultVariable));
-        BLangSimpleVarRef rollbackResult = ASTBuilderUtil.createVariableRef(pos, rollbackTransactionVarSymbol);
-        BLangIf checkResult = ASTBuilderUtil.createIfStmt(pos, rollbackBlockStmt);
-        checkResult.expr = desugar.createTypeCheckExpr(pos, rollbackResult, desugar.getErrorTypeNode());
-        checkResult.body = ASTBuilderUtil.createBlockStmt(pos);
-        checkResult.body.stmts.add(ASTBuilderUtil.createAssignmentStmt(pos, outputVarRef, rollbackResult));
-        BLangBlockStmt elseStmt = ASTBuilderUtil.createBlockStmt(pos);
-        BLangExpressionStmt cleanupTrxStmt = ASTBuilderUtil.createExpressionStmt(pos, elseStmt);
-        cleanupTrxStmt.expr = createCleanupTrxStmt(pos, env);
-        checkResult.elseStmt = elseStmt;
-        BLangStatementExpression rollbackStmtExpr =
-                ASTBuilderUtil.createStatementExpression(rollbackBlockStmt, outputVarRef);
-        rollbackStmtExpr.type = symTable.errorOrNilType;
+        BLangExpressionStmt rollbackStmt = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
+        rollbackStmt.expr = rollbackTransactionInvocation;
+        BLangExpressionStmt cleanupTrxStmt = ASTBuilderUtil.createExpressionStmt(pos, rollbackBlockStmt);
+        cleanupTrxStmt.expr = createCleanupTrxStmt(pos);
+        BLangStatementExpression rollbackStmtExpr = ASTBuilderUtil.createStatementExpression(rollbackBlockStmt,
+                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+        rollbackStmtExpr.type = symTable.nilType;
         return rollbackStmtExpr;
     }
 
     BLangStatementExpression desugar(BLangCommitExpr commitExpr, SymbolEnv env) {
         DiagnosticPos pos = commitExpr.pos;
         BLangBlockStmt commitBlockStatement = ASTBuilderUtil.createBlockStmt(pos);
-        BSymbol transactionSymbol = desugar.getTransactionSymbol(env);
 
         // Create temp output variable
-        BLangSimpleVariableDef outputVariableDef = createRollbackOrCommitResultDef(env, pos);
+        BLangSimpleVariableDef outputVariableDef = createCommitResultVarDef(env, pos);
         BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariableDef.var.symbol);
         commitBlockStatement.addStatement(outputVariableDef);
 
         // Clear failures
-        BInvokableSymbol transactionCleanerInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionSymbol),
-                        GET_AND_CLEAR_FAILURE_TRANSACTION);
+        BInvokableSymbol transactionCleanerInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                GET_AND_CLEAR_FAILURE_TRANSACTION);
         BLangInvocation transactionCleanerInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(pos, transactionCleanerInvokableSymbol, new ArrayList<>(), symResolver);
         transactionCleanerInvocation.argExprs = new ArrayList<>();
@@ -364,9 +344,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangBlockStmt failureHandlerBlockStatement = ASTBuilderUtil.createBlockStmt(pos);
 
         // Commit expr desugar implementation
-        BInvokableSymbol commitTransactionInvokableSymbol = (BInvokableSymbol) symResolver.
-                lookupSymbolInMainSpace(symTable.pkgEnvMap.get(transactionSymbol),
-                        END_TRANSACTION);
+        BInvokableSymbol commitTransactionInvokableSymbol =
+                (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
+                END_TRANSACTION);
         List<BLangExpression> args = new ArrayList<>();
         args.add(transactionID);
         args.add(transactionBlockID);
@@ -374,17 +354,13 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 createInvocationExprForMethod(pos, commitTransactionInvokableSymbol, args, symResolver);
         commitTransactionInvocation.argExprs = args;
 
-        BLangTrapExpr commitTrapExpression = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         BType commitReturnType = BUnionType.create(null, symTable.stringType, symTable.errorType);
-        commitTrapExpression.type = commitReturnType;
-        commitTrapExpression.expr = commitTransactionInvocation;
 
         BVarSymbol commitTransactionVarSymbol = new BVarSymbol(0, new Name("commitResult"),
                 env.scope.owner.pkgID, commitReturnType, env.scope.owner);
         BLangSimpleVariable commitResultVariable = ASTBuilderUtil.createVariable(pos, "commitResult",
-                commitReturnType, commitTrapExpression, commitTransactionVarSymbol);
-        BLangSimpleVariableDef commitResultVariableDef = ASTBuilderUtil.createVariableDef(pos,
-                commitResultVariable);
+                commitReturnType, commitTransactionInvocation, commitTransactionVarSymbol);
+        BLangSimpleVariableDef commitResultVariableDef = ASTBuilderUtil.createVariableDef(pos, commitResultVariable);
         BLangSimpleVarRef commitResultVarRef = ASTBuilderUtil.createVariableRef(pos, commitResultVariable.symbol);
         failureHandlerBlockStatement.addStatement(commitResultVariableDef);
 
@@ -400,7 +376,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         commitResultValidationIf.expr = commitResultValidationGroupExpr;
         commitResultValidationIf.body = ASTBuilderUtil.createBlockStmt(pos);
         BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, commitResultValidationIf.body);
-        stmt.expr = createCleanupTrxStmt(pos, env);
+        stmt.expr = createCleanupTrxStmt(pos);
         commitResultValidationIf.elseStmt = ASTBuilderUtil.createAssignmentStmt(pos, outputVarRef, commitResultVarRef);
         // Create failure validation
         BLangIf failureValidationIf = ASTBuilderUtil.createIfStmt(pos, commitBlockStatement);
@@ -425,13 +401,13 @@ public class TransactionDesugar extends BLangNodeVisitor {
         return stmtExpr;
     }
 
-    private BLangSimpleVariableDef createRollbackOrCommitResultDef(SymbolEnv env, DiagnosticPos pos) {
-        BLangExpression nilExpression = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
+    private BLangSimpleVariableDef createCommitResultVarDef(SymbolEnv env, DiagnosticPos pos) {
+        BLangExpression nilLiteral = ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE);
         BVarSymbol outputVarSymbol = new BVarSymbol(0, new Name("$outputVar$"),
                 env.scope.owner.pkgID, symTable.errorOrNilType, env.scope.owner);
         BLangSimpleVariable outputVariable =
                 ASTBuilderUtil.createVariable(pos, "$outputVar$", symTable.errorOrNilType,
-                        nilExpression, outputVarSymbol);
+                        nilLiteral, outputVarSymbol);
         return ASTBuilderUtil.createVariableDef(pos, outputVariable);
     }
 
@@ -440,12 +416,21 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef retryMgrDef =
                 desugar.createRetryManagerDef(retryTrxBlock.retrySpec, retryTrxBlock.pos);
         blockStmt.stmts.add(retryMgrDef);
-        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(retryTrxBlock.pos, transactionErrorStack.pop());
-        BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmtStack.pop(),
+        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(retryTrxBlock.pos, transactionError);
+        BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
                 resultRef);
         createRollbackIfFailed(retryTrxBlock.pos, retryWhileLoop.body, resultRef.symbol);
         blockStmt.stmts.add(retryWhileLoop);
-        return ASTBuilderUtil.createStatementExpression(blockStmt,
-                ASTBuilderUtil.createLiteral(retryTrxBlock.pos, symTable.nilType, Names.NIL_VALUE));
+        desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
+
+        if (retryTrxBlock.transactionReturns) {
+            //  returns <TypeCast>$result$;
+            BLangInvokableNode encInvokable = env.enclInvokable;
+            return ASTBuilderUtil.createStatementExpression(blockStmt,
+                    desugar.addConversionExprIfRequired(resultRef, encInvokable.returnTypeNode.type));
+        } else {
+            return ASTBuilderUtil.createStatementExpression(blockStmt,
+                    ASTBuilderUtil.createLiteral(retryTrxBlock.pos, symTable.nilType, Names.NIL_VALUE));
+        }
     }
 }

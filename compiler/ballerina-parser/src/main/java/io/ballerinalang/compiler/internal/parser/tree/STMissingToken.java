@@ -49,7 +49,7 @@ public class STMissingToken extends STToken {
     }
 
     public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STMissingToken(this.kind, diagnostics);
+        return new STMissingToken(this.kind, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
     }
 
     public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
@@ -78,8 +78,8 @@ public class STMissingToken extends STToken {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        leadingMinutiae.toSourceCode(builder);
-        trailingMinutiae.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        trailingMinutiae.writeTo(builder);
     }
 }

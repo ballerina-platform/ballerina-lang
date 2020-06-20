@@ -97,6 +97,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
@@ -480,7 +481,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             if (result.isPresent()) {
                 Value value = result.get();
                 String valueTypeName = value.type().name();
-                BVariable variable = VariableFactory.getVariable(value, valueTypeName, args.getExpression());
+                BVariable variable = VariableFactory.getVariable(value, valueTypeName, "Evaluation Result");
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
                 } else if (variable instanceof BPrimitiveVariable) {
@@ -578,7 +579,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
         // Note: directly using file separator as a regex will fail on windows.
         String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] srcNames = sourceName.split(fileSeparatorRegex);
+        String[] srcNames = getSourceNames(sourceName);
         String fileName = srcNames[srcNames.length - 1];
         String relativePath = sourcePath.replace(sourceName, fileName);
 

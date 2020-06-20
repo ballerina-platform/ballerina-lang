@@ -20,14 +20,24 @@
               "kind": "ARRAY_TYPE_DESC",
               "children": [
                 {
-                  "kind": "INT_KEYWORD"
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    }
+                  ]
                 },
                 {
                   "kind": "OPEN_BRACKET_TOKEN"
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "5"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "5"
+                    }
+                  ]
                 },
                 {
                   "kind": "CLOSE_BRACKET_TOKEN"
@@ -39,7 +49,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "8"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "8"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",

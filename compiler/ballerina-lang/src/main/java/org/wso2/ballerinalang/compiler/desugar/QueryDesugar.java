@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -87,6 +88,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValueField;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordSpreadOperatorField;
@@ -662,7 +664,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     .stream().filter(m -> m.tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
-        final List<BLangIdentifier> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
+        final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = pos;
@@ -671,7 +673,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
                     TreeBuilder.createTableKeySpecifierNode();
             keySpecifier.pos = pos;
-            for (BLangIdentifier identifier : keyFieldIdentifiers) {
+            for (IdentifierNode identifier : keyFieldIdentifiers) {
                 keySpecifier.addFieldNameIdentifier(identifier);
             }
             tableConstructorExpr.tableKeySpecifier = keySpecifier;
@@ -916,8 +918,8 @@ public class QueryDesugar extends BLangNodeVisitor {
             } else if (variable.getKind() == NodeKind.ERROR_VARIABLE) {
                 // Error binding
                 BLangErrorVariable error = (BLangErrorVariable) variable;
-                if (error.reason != null) {
-                    symbols.addAll(getIntroducedSymbols(error.reason));
+                if (error.message != null) {
+                    symbols.addAll(getIntroducedSymbols(error.message));
                 }
                 if (error.restDetail != null) {
                     symbols.addAll(getIntroducedSymbols(error.restDetail));
@@ -1099,9 +1101,6 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         fieldAccessExpr.expr.accept(this);
-        if (fieldAccessExpr.impConversionExpr != null) {
-            fieldAccessExpr.impConversionExpr.accept(this);
-        }
     }
 
     @Override
@@ -1193,8 +1192,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        if (varRefExpr.reason != null) {
-            varRefExpr.reason.accept(this);
+        if (varRefExpr.message != null) {
+            varRefExpr.message.accept(this);
         }
         if (varRefExpr.restVar != null) {
             varRefExpr.restVar.accept(this);
@@ -1365,6 +1364,17 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        for (BLangLiteral str : rawTemplateLiteral.strings) {
+            str.accept(this);
+        }
+
+        for (BLangExpression expr : rawTemplateLiteral.insertions) {
+            expr.accept(this);
+        }
+    }
+
+    @Override
     public void visit(BLangArrowFunction bLangArrowFunction) {
         bLangArrowFunction.params.forEach(param -> param.accept(this));
         bLangArrowFunction.function.accept(this);
@@ -1486,8 +1496,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
-        if (bLangErrorVariable.reason != null) {
-            bLangErrorVariable.reason.accept(this);
+        if (bLangErrorVariable.message != null) {
+            bLangErrorVariable.message.accept(this);
         }
         bLangErrorVariable.detail.forEach(var -> var.valueBindingPattern.accept(this));
         if (bLangErrorVariable.restDetail != null) {

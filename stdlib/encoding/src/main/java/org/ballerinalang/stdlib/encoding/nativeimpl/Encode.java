@@ -27,6 +27,8 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
+import static org.ballerinalang.stdlib.encoding.Constants.ENCODING_ERROR;
+
 /**
  * Extern functions of ballerina encoding.
  *of
@@ -61,7 +63,8 @@ public class Encode {
             }
             return StringUtils.fromString(buf.toString());
         } catch (Throwable e) {
-            return EncodingUtil.createError("Error occurred while encoding the URI component. " + e.getMessage());
+            return EncodingUtil
+                    .createError("Error occurred while encoding the URI component. " + e.getMessage(), ENCODING_ERROR);
         }
     }
 }

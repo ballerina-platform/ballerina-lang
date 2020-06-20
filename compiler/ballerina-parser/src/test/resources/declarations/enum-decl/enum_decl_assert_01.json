@@ -316,12 +316,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "annotationsss",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "annotationsss",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -481,7 +486,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "read-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "read-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -524,7 +534,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "green-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "green-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -559,12 +574,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "checkmising",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "checkmising",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -600,7 +620,12 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD"
+                      "kind": "TRUE_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -673,7 +698,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -736,12 +766,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "checknull",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "checknull",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -777,7 +812,12 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "NULL_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },

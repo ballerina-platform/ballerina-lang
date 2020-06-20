@@ -44,8 +44,7 @@ public class ServerErrorsTest extends WebSocketTestCommons {
     @Test(description = "Corrupted frame error")
     public void testCorruptedFrameError() throws InterruptedException, BallerinaTestException {
         String expectingErrorLog =
-                "error {ballerina/http}WsProtocolError message=received continuation data frame outside fragmented " +
-                        "message";
+                "error ProtocolError: received continuation data frame outside fragmented message";
         LogLeecher logLeecher = new LogLeecher(expectingErrorLog);
         serverInstance.addLogLeecher(logLeecher);
         client.sendCorruptedFrame();
@@ -55,8 +54,7 @@ public class ServerErrorsTest extends WebSocketTestCommons {
     @Test(description = "Frame continuation error")
     public void testContinuationFrameError() throws BallerinaTestException, InterruptedException {
         String expectingErrorLog =
-                "error {ballerina/http}WsInvalidContinuationFrameError message=Cannot interrupt WebSocket text frame " +
-                        "continuation";
+                "error InvalidContinuationFrameError: Cannot interrupt WebSocket text frame continuation";
         LogLeecher logLeecher = new LogLeecher(expectingErrorLog);
         serverInstance.addLogLeecher(logLeecher);
         client.sendText("continuation");

@@ -17,7 +17,17 @@ import ballerina/grpc;
 import ballerina/io;
 
 HelloWorldBlockingClient HelloWorldBlockingEp = new ("http://localhost:9092");
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
+
+type IntTypedesc typedesc<int>;
+type BooleanTypedesc typedesc<boolean>;
+type FloatTypedesc typedesc<float>;
+type TestIntTypedesc typedesc<TestInt>;
+type TestStringTypedesc typedesc<TestString>;
+type TestBooleanTypedesc typedesc<TestBoolean>;
+type TestFloatTypedesc typedesc<TestFloat>;
+type TestStructTypedesc typedesc<TestStruct>;
+
 
 // Enable when you need to test locally.
 //public function main() {
@@ -64,7 +74,7 @@ function testIntArrayInput(TestInt req) returns (int|string) {
     [int, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testIntArrayInput(req);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         int result = 0;
@@ -80,7 +90,7 @@ function testStringArrayInput(TestString req) returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStringArrayInput(req);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -96,7 +106,7 @@ function testFloatArrayInput(TestFloat req) returns (float|string) {
     [float, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testFloatArrayInput(req);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         float result;
@@ -112,7 +122,7 @@ function testBooleanArrayInput(TestBoolean req) returns (boolean|string) {
     [boolean, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testBooleanArrayInput(req);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         boolean result;
@@ -129,7 +139,7 @@ function testStructArrayInput() returns (string) {
     [string, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStructArrayInput(testStruct);
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         string result;
@@ -144,7 +154,7 @@ function testIntArrayOutput() returns (TestInt|string) {
     [TestInt, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testIntArrayOutput();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         TestInt result;
@@ -159,7 +169,7 @@ function testStringArrayOutput() returns (TestString|string) {
     [TestString, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStringArrayOutput();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         TestString result;
@@ -174,7 +184,7 @@ function testFloatArrayOutput() returns (TestFloat|string) {
     [TestFloat, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testFloatArrayOutput();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         TestFloat result;
@@ -189,7 +199,7 @@ function testBooleanArrayOutput() returns (TestBoolean|string) {
     [TestBoolean, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testBooleanArrayOutput();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         TestBoolean result;
@@ -204,7 +214,7 @@ function testStructArrayOutput() returns (TestStruct|string) {
     [TestStruct, grpc:Headers]|grpc:Error unionResp = HelloWorldBlockingEp->testStructArrayOutput();
     io:println(unionResp);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         io:println("Client Got Response : ");
         TestStruct result;
@@ -231,11 +241,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<int>);
+        var value = result.cloneWithType(IntTypedesc);
         if (value is int) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -252,11 +262,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<float>);
+        var value = result.cloneWithType(FloatTypedesc);
         if (value is float) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -265,11 +275,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<boolean>);
+        var value = result.cloneWithType(BooleanTypedesc);
         if (value is boolean) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -287,11 +297,11 @@ public type HelloWorldBlockingClient client object {
         anydata result =();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestInt>);
+        var value = result.cloneWithType(TestIntTypedesc);
         if (value is TestInt) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -301,11 +311,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestString>);
+        var value = result.cloneWithType(TestStringTypedesc);
         if (value is TestString) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -315,11 +325,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestFloat>);
+        var value = result.cloneWithType(TestFloatTypedesc);
         if (value is TestFloat) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -329,11 +339,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestBoolean>);
+        var value = result.cloneWithType(TestBooleanTypedesc);
         if (value is TestBoolean) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 
@@ -343,11 +353,11 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders = new;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<TestStruct>);
+        var value = result.cloneWithType(TestStructTypedesc);
         if (value is TestStruct) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };

@@ -401,10 +401,10 @@ function testTypeGuardsWithRecords_2() returns string {
     }
 }
 
-public type CustomError error<string, record { int status = 500; string message?; error cause?; }>;
+public type CustomError error<record { int status = 500; string message?; error cause?; }>;
 
 function testTypeGuardsWithError() returns string {
-    CustomError err = error("some error");
+    CustomError err = CustomError("some error");
     any|error e = err;
     if (e is error) {
         if (e is CustomError) {
@@ -418,15 +418,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-function testTypeGuardsWithErrorInmatch() returns string {
-    error e = error("some error");
-    any|error x = e;
-    match x {
-        var p if p is error => {return string `${p.reason()}`;}
-        var p => {return "Internal server error";}
-    }
-}
-
+// function testTypeGuardsWithErrorInmatch() returns string {
+//     error e = error("some error");
+//     any|error x = e;
+//     match x {
+//         var p if p is error => {return string `${p.message()}`;}
+//         var p => {return "Internal server error";}
+//     }
+// }
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -539,13 +538,13 @@ function testTypeGuardForGlobalVarsUsingLocalAssignment() returns [string, strin
     if (errorW1 is error) {
         error? e3 = errorW1;
         if (e3 is error) {
-            w1ErrMsg = e3.reason();
+            w1ErrMsg = e3.message();
         }
     }
     if (errorW2 is error) {
         error? e4 = errorW2;
         if (e4 is error) {
-            w2ErrMsg = e4.reason();
+            w2ErrMsg = e4.message();
         }
     }
     return [w1ErrMsg, w2ErrMsg];
@@ -891,7 +890,7 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e4 = a2;
 
         map<anydata|error> m = <map<anydata|error>> e4.detail();
-        return e3.reason() == reason && e4.reason() == reason && m == detail;
+        return e3.message() == reason && e4.message() == reason && m == detail;
     }
     return false;
 }
@@ -904,13 +903,13 @@ type Details record {
     error cause?;
 };
 
-type MyError error<ERR_REASON, Details>;
-type MyErrorTwo error<ERR_REASON_TWO, Details>;
+type MyError distinct error<Details>;
+type MyErrorTwo distinct error<Details>;
 
 function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
     Details d = { message: "detail message" };
-    MyError e3 = error(ERR_REASON, message = d.message);
-    MyErrorTwo e4 = error(ERR_REASON_TWO, message = "detail message");
+    MyError e3 = MyError(ERR_REASON, message = d.message);
+    MyErrorTwo e4 = MyErrorTwo(ERR_REASON_TWO, message = "detail message");
 
     any|error a1 = e3;
     any|error a2 = e4;
@@ -923,7 +922,7 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
         Details m1 = e5.detail();
         Details m2 = e6.detail();
-        isSpecificError = e5.reason() == ERR_REASON && e6.reason() == ERR_REASON_TWO && m1 == d && m2 == d;
+        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1 == d && m2 == d;
     }
 
     boolean isGenericError = a1 is error && a2 is error;
@@ -1001,27 +1000,27 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-    var error(s, message = message, code = code) = errorReturningFunc(1);
-    if (code is int) {
-        int intVal = code;
-        error(s, message = message, code = code) = errorReturningFunc(());
-        return code is ();
-    }
+// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+//     var error(s, message = message, code = code) = errorReturningFunc(1);
+//     if (code is int) {
+//         int intVal = code;
+//         error(s, message = message, code = code) = errorReturningFunc(());
+//         return code is ();
+//     }
+// 
+//     return false;
+// }
 
-    return false;
-}
-
-function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-    error<string, Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-    if (code is int) {
-        int intVal = code;
-        error(s, message = message, code = code) = errorReturningFunc(3);
-        return code is ();
-    }
-
-    return true;
-}
+// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+//     if (code is int) {
+//         int intVal = code;
+//         error(s, message = message, code = code) = errorReturningFunc(3);
+//         return code is ();
+//     }
+// 
+//     return true;
+// }
 
 type Detail record {
     string message?;
@@ -1029,8 +1028,10 @@ type Detail record {
     int? code;
 };
 
-function errorReturningFunc(int? i) returns error<string, Detail> {
-    return error("hello", message = "hello", code = i, f = 1.0);
+type ErrorD error<Detail>;
+
+function errorReturningFunc(int? i) returns error<Detail> {
+    return ErrorD("hello", message = "hello", code = i, f = 1.0);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

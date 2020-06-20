@@ -39,6 +39,9 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stax.StAXSource;
 import javax.xml.transform.stream.StreamResult;
 
+import static org.ballerinalang.xslt.XsltConstants.XSLT_PACKAGE_ID;
+import static org.ballerinalang.xslt.XsltConstants.XSLT_TRANSFORM_ERROR;
+
 /**
  * Transforms XML to another XML/HTML/plain text using XSLT.
  *
@@ -47,8 +50,6 @@ import javax.xml.transform.stream.StreamResult;
 public class XsltTransformer {
     
     private static final Logger log = LoggerFactory.getLogger(XsltTransformer.class);
-    private static final String XSLT_ERROR_RECORD = "XSLTError";
-    private static final String XSLT_ERROR_CODE = "{ballerina/xslt}" + XSLT_ERROR_RECORD;
     private static final String OPERATION = "Failed to perform XSL transformation: ";
 
     public static Object transform(XMLValue xmlInput, XMLValue xslInput) {
@@ -85,16 +86,16 @@ public class XsltTransformer {
             }
 
             if (resultStr.isEmpty()) {
-                return createError(XSLT_ERROR_CODE, OPERATION + "empty result");
+                return createTransformError(OPERATION + "empty result");
             } else {
                 return parseToXML(resultStr);
             }
 
         } catch (ClassCastException e) {
-            return createError(XSLT_ERROR_CODE, OPERATION + "invalid inputs(s)");
+            return createTransformError(OPERATION + "invalid inputs(s)");
         } catch (Exception e) {
             String errMsg = e.getCause() != null ? e.getCause().getMessage() : e.getMessage();
-            return createError(XSLT_ERROR_CODE, OPERATION + errMsg);
+            return createTransformError(OPERATION + errMsg);
         }
     }
 
@@ -108,7 +109,7 @@ public class XsltTransformer {
         return (XMLSequence) XMLFactory.parse(xmlStr);
     }
 
-    private static ErrorValue createError(String reason, String errMsg) {
-        return BallerinaErrors.createError(reason, errMsg);
+    private static ErrorValue createTransformError(String errMsg) {
+        return BallerinaErrors.createDistinctError(XSLT_TRANSFORM_ERROR, XSLT_PACKAGE_ID, errMsg);
     }
 }

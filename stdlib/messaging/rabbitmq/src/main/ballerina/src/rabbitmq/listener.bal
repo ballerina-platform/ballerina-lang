@@ -56,7 +56,7 @@ public type Listener object {
     #
     # + return - `()` or else a `rabbitmq:Error` upon failure to start
     public function __start() returns error? {
-        return start(self);
+        return 'start(self);
     }
 
     # Stops consuming messages and detaches the service from the `rabbitmq:Listener` endpoint.
@@ -122,7 +122,7 @@ function registerListener(Listener lis, service serviceType) returns Error? =
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function start(Listener lis) returns Error? =
+function 'start(Listener lis) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;

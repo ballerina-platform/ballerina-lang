@@ -77,3 +77,94 @@ function testInvalidUpdateOfReadonlyFieldInUnion() {
     sd.name = "May"; // invalid
     sd.id = 4567; // valid
 }
+
+type Foo record {|
+    int[] arr;
+    map<string> mp;
+|};
+
+type Bar record { // inclusive-type-desc
+    readonly int[] arr;
+    readonly map<string> mp;
+};
+
+type Baz record {| // not all readonly
+    readonly int[] arr;
+    map<string> mp;
+|};
+
+type Qux record {| // only readonly typed
+    readonly & int[] arr;
+    map<string> & readonly mp;
+|};
+
+function testInvalidImmutableTypeAssignmentForNotAllReadOnlyFields() {
+    Bar bar = {arr: [1, 2], mp: {a: "a"}};
+    Baz baz = {arr: [1, 2], mp: {a: "a"}};
+    Qux qux = {arr: [1, 2], mp: {a: "a"}};
+
+    Foo & readonly f1 = bar;
+    Foo & readonly f2 = baz;
+    Foo & readonly f3 = qux;
+}
+
+type Person record {|
+    readonly Particulars particulars;
+    int id;
+|};
+
+type Undergraduate record {|
+    readonly & Particulars particulars;
+    int id;
+|};
+
+type Graduate record {|
+    Particulars particulars;
+    int id;
+|};
+
+type Particulars record {|
+    string name;
+|};
+
+type OptionalId record {|
+    readonly map<int>|boolean id?;
+    map<int>|boolean...;
+|};
+
+function testSubTypingWithReadOnlyFieldsNegative() {
+    Undergraduate u = {
+        particulars: {
+            name: "Jo"
+        },
+        id: 1234
+    };
+    Person p1 = u;
+
+    Graduate g = {
+        particulars: {
+          name: "Amy"
+        },
+        id: 1121
+    };
+    Person p2 = g;
+
+    map<map<int>|boolean> mp = {
+        a: true,
+        b: {
+            x: 1,
+            y: 2
+        }
+    };
+    OptionalId opId = mp;
+}
+
+type Quux record {|
+    int id;
+    readonly string code?;
+|};
+
+function testInvalidOptionalFieldUpdate() {
+    Quux q = {id: 100};
+    q.code = "quux";
+}

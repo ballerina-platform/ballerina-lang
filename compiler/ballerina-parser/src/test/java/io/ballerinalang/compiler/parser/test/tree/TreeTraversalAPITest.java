@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
-    @Test
+    @Test(enabled = false)
     public void testFindTokenFromPosition() {
         String sourceFilePath = "find_token_test_1.bal";
         String sourceText = getFileContentAsString(sourceFilePath);

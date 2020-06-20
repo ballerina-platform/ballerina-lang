@@ -78,7 +78,7 @@ public abstract class AbstractLogFunction {
             }
         };
         consumer.accept(pckg, logMessage.get());
-        ObserveUtils.logMessageToActiveSpan(strand, logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
+        ObserveUtils.logMessageToActiveSpan(logLevel.name(), logMessage, logLevel == BLogLevel.ERROR);
     }
 
     static String getPackagePath() {

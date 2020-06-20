@@ -97,8 +97,13 @@
                       "kind": "OPEN_PAREN_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a"
+                        }
+                      ]
                     },
                     {
                       "kind": "CLOSE_PAREN_TOKEN",

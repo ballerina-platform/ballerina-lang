@@ -31,6 +31,7 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -40,7 +41,7 @@ import java.text.DecimalFormat;
 import java.util.LinkedHashMap;
 
 /**
- * This test class verifies the behaviour of the ParameterizedString passed into the testQuery operation.
+ * This test class verifies the behaviour of the ParameterizedQuery passed into the testQuery operation.
  *
  * @since 1.3.0
  */
@@ -56,6 +57,10 @@ public class ParamsQueryTest {
 
     @BeforeClass
     public void setup() {
+        // Temporary solution for https://github.com/ballerina-platform/ballerina-lang/issues/24227
+        if (System.getProperty("os.name").toLowerCase().contains("win")) {
+            throw new SkipException("Skip test class in Windows");
+        }
         result = BCompileUtil.compileOffline(SQLDBUtils.getBalFilesDir(SQLDBUtils.QUERY_DIR,
                 "simple-params-query-test.bal"));
     }
@@ -183,8 +188,7 @@ public class ParamsQueryTest {
     public void testQueryTypBitInvalidIntParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTypBitInvalidIntParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("Only 1 or 0 can be passed"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains("Only 1 or 0 can be passed"));
     }
 
     @Test
@@ -390,8 +394,7 @@ public class ParamsQueryTest {
     public void testQueryTimeDateStringInvalidParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTimeStringInvalidParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains("IllegalArgumentException"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains("IllegalArgumentException"));
     }
 
     @Test
@@ -404,8 +407,7 @@ public class ParamsQueryTest {
     public void testQueryTimestampDateStringInvalidParam() {
         BValue[] returns = BRunUtil.invokeFunction(result, "queryTimestampStringInvalidParam");
         Assert.assertEquals(returns[0].getType().getTag(), TypeTags.ERROR);
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get(SQLDBUtils.SQL_ERROR_MESSAGE)
-                .stringValue().contains(" Timestamp format must be yyyy-mm-dd hh:mm:ss"));
+        Assert.assertTrue(((BError) returns[0]).getMessage().contains(" Timestamp format must be yyyy-mm-dd hh:mm:ss"));
     }
 
     @Test

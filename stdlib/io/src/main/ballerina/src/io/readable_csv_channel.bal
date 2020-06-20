@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Represents a ReadableCSVChannel which could be used to read records from CSV file.
 public type ReadableCSVChannel object {
     private ReadableTextRecordChannel? dc;
@@ -61,7 +63,7 @@ public type ReadableCSVChannel object {
         if (recordChannel is ReadableTextRecordChannel) {
             return recordChannel.hasNext();
         } else {
-            GenericError e = error(GENERIC_ERROR, message = "channel not initialized");
+            GenericError e = GenericError("channel not initialized");
             panic e;
         }
     }
@@ -94,21 +96,23 @@ public type ReadableCSVChannel object {
         return ();
     }
 
-//TODO Table remove - Fix
-//# Returns a table, which corresponds to the CSV records.
-//# ```ballerina
-//# var tblResult = readableCSVChannel.getTable(Employee);
-//# ```
-//#
-//# + structType - The object in which the CSV records should be deserialized
-//# + return - Table, which represents the CSV records or else an `io:Error`
-    //public function getTable(typedesc<record {}> structType) returns @tainted table<record {}>|Error {
-    //    return getTableExtern(self, structType);
-    //}
+# Returns a table, which corresponds to the CSV records.
+# ```ballerina
+# var tblResult1 = readableCSVChannel.getTable(Employee);
+# var tblResult2 = readableCSVChannel.getTable(Employee, ["id", "name"]);
+# ```
+#
+# + structType - The object in which the CSV records should be deserialized
+# + fieldNames - The names of the fields used as the (composite)key of the table
+# + return - Table, which represents the CSV records or else an `io:Error`
+    public function getTable(typedesc<record {}> structType, public string[] fieldNames = [])
+    returns @tainted table<record {}>|Error {
+        return getTableExtern(self, structType, fieldNames);
+    }
 };
 
-//function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType)
-//            returns @tainted table<record {}>|Error = @java:Method {
-//    name: "getTable",
-//    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
-//} external;
+function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, public string[] fieldNames)
+            returns @tainted table<record {}>|Error = @java:Method {
+    name: "getTable",
+    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
+} external;

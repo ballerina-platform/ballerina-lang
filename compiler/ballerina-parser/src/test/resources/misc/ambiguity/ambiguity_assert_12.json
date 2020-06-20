@@ -79,12 +79,17 @@
                               "kind": "BINARY_EXPRESSION",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "A",
-                                  "leadingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "A",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -95,8 +100,13 @@
                                   "kind": "BINARY_EXPRESSION",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "B"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "B"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "PIPE_TOKEN"
@@ -105,8 +115,13 @@
                                       "kind": "INDEXED_EXPRESSION",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "C"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "C"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "OPEN_BRACKET_TOKEN"
@@ -115,8 +130,13 @@
                                           "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "k"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "k"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -145,8 +165,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "bar"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bar"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -175,12 +200,17 @@
                               "kind": "UNION_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "A",
-                                  "leadingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "A",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -191,8 +221,13 @@
                                   "kind": "UNION_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "B"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "B"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "PIPE_TOKEN"
@@ -201,15 +236,25 @@
                                       "kind": "ARRAY_TYPE_DESC",
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "C"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "C"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "k"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN",
@@ -259,15 +304,20 @@
                               "children": [
                                 {
                                   "kind": "STRING_LITERAL",
-                                  "value": "Apple",
-                                  "leadingMinutiae": [
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    },
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
+                                      "kind": "STRING_LITERAL",
+                                      "value": "Apple",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -279,7 +329,12 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "Orange"
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "Orange"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "PIPE_TOKEN"
@@ -289,7 +344,12 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "Mango"
+                                          "children": [
+                                            {
+                                              "kind": "STRING_LITERAL",
+                                              "value": "Mango"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "OPEN_BRACKET_TOKEN"
@@ -298,8 +358,13 @@
                                           "kind": "LIST",
                                           "children": [
                                             {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "k"
+                                              "kind": "SIMPLE_NAME_REFERENCE",
+                                              "children": [
+                                                {
+                                                  "kind": "IDENTIFIER_TOKEN",
+                                                  "value": "k"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -328,8 +393,13 @@
                               ]
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "bar"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bar"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -362,11 +432,16 @@
                                   "children": [
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "Apple",
-                                      "leadingMinutiae": [
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "STRING_LITERAL",
+                                          "value": "Apple",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     }
@@ -383,7 +458,12 @@
                                       "children": [
                                         {
                                           "kind": "STRING_LITERAL",
-                                          "value": "Orange"
+                                          "children": [
+                                            {
+                                              "kind": "STRING_LITERAL",
+                                              "value": "Orange"
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -398,7 +478,12 @@
                                           "children": [
                                             {
                                               "kind": "STRING_LITERAL",
-                                              "value": "Mango"
+                                              "children": [
+                                                {
+                                                  "kind": "STRING_LITERAL",
+                                                  "value": "Mango"
+                                                }
+                                              ]
                                             }
                                           ]
                                         },
@@ -406,8 +491,13 @@
                                           "kind": "OPEN_BRACKET_TOKEN"
                                         },
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
+                                          "kind": "SIMPLE_NAME_REFERENCE",
+                                          "children": [
+                                            {
+                                              "kind": "IDENTIFIER_TOKEN",
+                                              "value": "k"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "CLOSE_BRACKET_TOKEN",

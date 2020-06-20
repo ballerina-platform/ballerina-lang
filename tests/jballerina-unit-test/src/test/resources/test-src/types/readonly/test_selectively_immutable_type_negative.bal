@@ -75,7 +75,14 @@ type Obj object {
 type ABAny AB|any;
 
 function testInvalidAssignmentToWideReadOnlyIntersection() {
-    ABAny & readonly x = new Obj(1);
+    ABAny & readonly w = new Obj(1);
+
+    string[] arr = ["foo"];
+    anydata & readonly x = arr;
+
+    any & readonly y = start testInvalidReaoOnlyRecordInit();
+
+    (Obj|int[]) & readonly z = arr;
 }
 
 type Employee record {|
@@ -153,3 +160,59 @@ function testInvalidNeverReadOnlyConstraint() {
         {name: "Jo", id: new}
     ];
 }
+
+type Baz abstract object {
+    future<()> ft;
+
+    function getFt();
+};
+
+function testNeverReadOnlyObject() {
+    Baz & readonly bz;
+}
+
+type Config abstract object {
+    string name;
+
+    function getName() returns string;
+};
+
+type MyConfig object {
+    readonly string name;
+
+    public function init(string name) {
+        self.name = name;
+    }
+
+    function getName() returns string {
+        return self.name;
+    }
+};
+
+function testInvalidObjectUpdate() {
+    Config & readonly config = new MyConfig("client config");
+    config.name = "new name";
+
+    MyConfig myConfig = new MyConfig("client config");
+    myConfig.name = "new name";
+}
+
+type ABC record {|
+    DEF & readonly d;
+|};
+
+type DEF record {|
+    future<int> fr;
+|};
+
+type GHI object {
+    JKL & readonly j;
+
+    function init(JKL & readonly j) {
+        self.j = j;
+    }
+};
+
+type JKL abstract object {
+    future<int> fr;
+};

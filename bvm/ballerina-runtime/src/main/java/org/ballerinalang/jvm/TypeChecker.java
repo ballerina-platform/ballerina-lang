@@ -37,6 +37,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -939,6 +940,10 @@ public class TypeChecker {
                 return false;
             }
 
+            if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {
+                return false;
+            }
+
             // If the target field is required, the source field should be required as well.
             if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
                     && Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL)) {
@@ -967,6 +972,10 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    private static boolean hasIncompatibleReadOnlyFlags(BField targetField, BField sourceField) {
+        return Flags.isFlagOn(targetField.flags, Flags.READONLY) && !Flags.isFlagOn(sourceField.flags, Flags.READONLY);
     }
 
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
@@ -1125,9 +1134,10 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), lhsField.flags, rhsField.flags) ||
+                    hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
@@ -1237,14 +1247,11 @@ public class TypeChecker {
             case TypeTags.INVOKABLE_TAG:
             case TypeTags.SERVICE_TAG:
             case TypeTags.TYPEDESC_TAG:
+            case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
         }
         return false;
-    }
-
-    boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
     }
 
     public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
@@ -1298,6 +1305,22 @@ public class TypeChecker {
 
                 return isInherentlyImmutableType(recordRestType) ||
                         isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objectType = (BObjectType) type;
+
+                if (!Flags.isFlagOn(objectType.flags, Flags.ABSTRACT) &&
+                        !Flags.isFlagOn(objectType.flags, Flags.READONLY)) {
+                    return false;
+                }
+
+                for (BField field : objectType.getFields().values()) {
+                    BType fieldType = field.type;
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.MAP_TAG:
                 BType constraintType = ((BMapType) type).getConstrainedType();
                 return isInherentlyImmutableType(constraintType) ||
@@ -1928,9 +1951,17 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
 
-        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        if (targetType.typeIdSet == null) {
+            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        }
+
+        BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
+        if (sourceTypeIdSet == null) {
+            return false;
+        }
+
+        return sourceTypeIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1939,10 +1970,18 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues, allowNumericConversion) &&
-                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                                allowNumericConversion);
+
+        if (targetType.typeIdSet == null) {
+            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                    allowNumericConversion);
+        }
+
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        if (sourceIdSet == null) {
+            return false;
+        }
+
+        return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean isSimpleBasicType(BType type) {
@@ -2132,8 +2171,9 @@ public class TypeChecker {
         }
         checkedValues.add(compValuePair);
 
-        return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
+        return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
     /**

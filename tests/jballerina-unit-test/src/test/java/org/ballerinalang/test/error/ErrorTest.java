@@ -42,7 +42,9 @@ import org.testng.annotations.Test;
 public class ErrorTest {
 
     private CompileResult errorTestResult;
+    private CompileResult distinctErrorTestResult;
     private CompileResult negativeCompileResult;
+    private CompileResult negativeDistinctErrorRes;
 
     private static final String ERROR1 = "error1";
     private static final String ERROR2 = "error2";
@@ -53,15 +55,35 @@ public class ErrorTest {
     @BeforeClass
     public void setup() {
         errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
+        distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
+        negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
         negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
+    }
+
+    @Test
+    public void testDistinctFooError() {
+        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFooError");
+        Assert.assertEquals(errors[0].stringValue(), "error message {\"detailField\":true}");
+    }
+
+    @Test
+    public void testNegativeDistinctError() {
+        int i = 0;
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "missing error detail arg for error detail field 'code'", 8, 13);
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "incompatible types: expected 'Foo', found 'error'", 11, 13);
+        BAssertUtil.validateError(negativeDistinctErrorRes, i++,
+                "incompatible types: expected 'Foo', found 'error'", 15, 12);
+        Assert.assertEquals(negativeDistinctErrorRes.getErrorCount(), i);
     }
 
     @Test
     public void testIndirectErrorCtor() {
         BValue[] errors = BRunUtil.invoke(errorTestResult, "testIndirectErrorConstructor");
         Assert.assertEquals(errors.length, 4);
-        Assert.assertEquals(errors[0].stringValue(), "ErrNo-1 {message:\"arg\", data:{}}");
-        Assert.assertEquals(errors[1].stringValue(), "ErrNo-1 {message:\"arg\", data:{}}");
+        Assert.assertEquals(errors[0].stringValue(), "arg {message:\"\", data:{}}");
+        Assert.assertEquals(errors[1].stringValue(), "arg {message:\"\", data:{}}");
         Assert.assertEquals(errors[2], errors[0]);
         Assert.assertEquals(errors[3], errors[1]);
     }
@@ -87,9 +109,9 @@ public class ErrorTest {
     @Test
     public void errorConstructDetailTest() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "errorConstructDetailTest");
-        String detail1 = "{message:\"msg1\"}";
-        String detail2 = "{message:\"msg2\"}";
-        String detail3 = "{message:\"msg3\"}";
+        String detail1 = "{\"message\":\"msg1\"}";
+        String detail2 = "{\"message\":\"msg2\"}";
+        String detail3 = "{\"message\":\"msg3\"}";
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(((BError) returns[0]).getReason(), ERROR1);
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue().trim(), detail1);
@@ -138,7 +160,7 @@ public class ErrorTest {
         // Now panic
         args = new BValue[] { new BInteger(15) };
         returns = BRunUtil.invoke(errorTestResult, "errorTrapTest", args);
-        String result = "largeNumber {message:\"large number\"}";
+        String result = "largeNumber {\"message\":\"large number\"}";
         Assert.assertEquals(returns[0].stringValue(), result.trim());
     }
 
@@ -162,7 +184,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
@@ -236,42 +258,46 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 18);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
+                "invalid error detail type 'map<any>', expected a subtype of 'map<(anydata|readonly)>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
+                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', "
-                + "expected a subtype of 'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
-                + "of 'record {| string message?; error cause?; (anydata|error)...; |}'", 42, 36);
+                "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
+                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 48, 11);
+                "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
-        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 43);
-        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 42);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 36);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'UserDefErrorOne'", 56, 27);
+                "missing mandatory error message argument in call to error constructor", 56, 27);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'MyError'", 57, 19);
+                "missing mandatory error message argument in call to error constructor", 57, 19);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
+                "missing mandatory error message argument in call to error constructor", 96, 18);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'RNError'", 96, 18);
+                "missing mandatory error message argument in call to error constructor", 97, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
+                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "error reason is mandatory for direct error constructor", 112, 28);
+                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
-        BAssertUtil.validateError(negativeCompileResult, i,
-                "incompatible types: expected 'error<string, " +
-                        "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error<record {| " +
+                        "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'int'", 127, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'string'", 128, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")
@@ -316,7 +342,7 @@ public class ErrorTest {
     @Test()
     public void testOptionalErrorReturn() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testOptionalErrorReturn");
-        Assert.assertEquals(returns[0].stringValue(), "this is broken {message:\"too bad\"}");
+        Assert.assertEquals(returns[0].stringValue(), "this is broken {\"message\":\"too bad\"}");
     }
 
     @Test()
@@ -325,7 +351,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
@@ -337,9 +363,9 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message,
-                "error: array index out of range: index: 4, size: 2 \n\t" +
+                "error: array index out of range: index: 4, size: 2\n\t" +
                         "at ballerina.lang_array.1_1_0:slice(array.bal:106)\n\t" +
-                        "   error_test:testStackTraceInNative(error_test.bal:279)");
+                        "   error_test:testStackTraceInNative(error_test.bal:280)");
     }
 
     @Test
@@ -371,42 +397,13 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:343}";
+                "lineNumber:344}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:347}";
+                "lineNumber:348}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
         Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
-    }
-
-    @Test
-    public void testNonModuleQualifiedReasons() {
-        CompileResult compileResult = BCompileUtil.compile(
-                "test-src/error/non_module_qualified_error_reasons_negative.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 3);
-
-        int index = 0;
-        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
-                                    22, 21);
-        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
-                                    23, 21);
-        BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
-                "qualified", 23, 21);
-    }
-
-    @Test
-    public void testNonModuleQualifiedReasonsInProject() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/error/error_project", "err_module");
-        Assert.assertEquals(compileResult.getWarnCount(), 3);
-
-        int index = 0;
-        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
-                                    22, 21);
-        BAssertUtil.validateWarning(compileResult, index++, "error reason '{test string 1' is not module qualified",
-                                    23, 21);
-        BAssertUtil.validateWarning(compileResult, index, "error reason '{test/string}identifier' is not module " +
-                "qualified", 23, 21);
     }
 
     @Test
@@ -416,5 +413,20 @@ public class ErrorTest {
         Assert.assertNull(returns[1]);
         BError bError = (BError) returns[0];
         Assert.assertEquals(bError.getReason(), "panic now");
+    }
+
+    @Test
+    public void testErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testDefaultErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testDefaultErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testUnionErrorTypeDescriptionInferring() {
+        BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
     }
 }

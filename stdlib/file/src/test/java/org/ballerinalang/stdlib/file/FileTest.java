@@ -25,7 +25,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.file.utils.FileConstants;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -121,9 +120,7 @@ public class FileTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRename", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("File already exists in the new path "));
+            assertTrue(error.getMessage().contains("File already exists in the new path "));
         } finally {
             Files.deleteIfExists(tempSourcePath);
             Files.deleteIfExists(tempDestPath);
@@ -149,8 +146,7 @@ public class FileTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("Error while deleting "));
+            assertTrue(error.getMessage().contains("Error while deleting "));
 
             // Remove directory with recursive true
             BValue[] args2 = {new BString(tempSourceDirPath.toString()), new BBoolean(true)};
@@ -173,8 +169,7 @@ public class FileTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRemove", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
+        assertTrue(error.getMessage().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving file info from system")
@@ -195,8 +190,7 @@ public class FileTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFileInfo", args1);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
+        assertTrue(error.getMessage().contains("File not found: "));
     }
 
     @Test(description = "Test for retrieving files inside directory")
@@ -229,8 +223,7 @@ public class FileTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File not found: "));
+        assertTrue(error.getMessage().contains("File not found: "));
     }
 
     @Test(description = "Test for reading file info from an empty directory")
@@ -247,8 +240,7 @@ public class FileTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testReadDir", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue().contains("File in path "));
+        assertTrue(error.getMessage().contains("File in path "));
     }
 
     @Test(description = "Test for checking whether file exists")
@@ -289,9 +281,7 @@ public class FileTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateNonExistingFile", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("The file does not exist in path "));
+            assertTrue(error.getMessage().contains("The file does not exist in path "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }
@@ -303,9 +293,7 @@ public class FileTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateFile", args);
         assertTrue(returns[0] instanceof BError);
         BError error = (BError) returns[0];
-        assertEquals(error.getReason(), FileConstants.INVALID_OPERATION_ERROR);
-        assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                .contains("File already exists. Failed to create the file: "));
+        assertTrue(error.getMessage().contains("File already exists. Failed to create the file: "));
     }
 
     @Test(description = "Test for creating new file")
@@ -330,9 +318,7 @@ public class FileTest {
             BValue[] returns = BRunUtil.invoke(compileResult, "testCreateDir", args);
             assertTrue(returns[0] instanceof BError);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), FileConstants.FILE_SYSTEM_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("IO error while creating the file "));
+            assertTrue(error.getMessage().contains("IO error while creating the file "));
             assertFalse(Files.exists(filepath));
         } finally {
             FileUtils.deleteDirectory(filepath.getParent().toFile());
@@ -378,9 +364,7 @@ public class FileTest {
                     new BBoolean(false)};
             BValue[] returns = BRunUtil.invoke(compileResult, "testCopy", args);
             BError error = (BError) returns[0];
-            assertEquals(error.getReason(), FileConstants.FILE_NOT_FOUND_ERROR);
-            assertTrue(((BMap) error.getDetails()).get("message").stringValue()
-                    .contains("File not found: "));
+            assertTrue(error.getMessage().contains("File not found: "));
         } finally {
             Files.deleteIfExists(tempDestPath);
         }

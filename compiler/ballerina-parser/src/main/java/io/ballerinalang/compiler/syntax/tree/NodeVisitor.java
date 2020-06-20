@@ -395,8 +395,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
+    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        visitSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
+    }
+
+    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -721,6 +729,26 @@ public abstract class NodeVisitor {
 
     public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
         visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
     }
 
     // Tokens

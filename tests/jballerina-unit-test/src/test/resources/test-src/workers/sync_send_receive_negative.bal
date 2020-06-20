@@ -17,18 +17,18 @@
 const R1 = "r1";
 const R2 = "r2";
 
-type E1 error<R1>;
-type E2 error<R2>;
+type E1 distinct error;
+type E2 distinct error;
 
 public function main() {
     worker w1 returns E1|E2? {
         if (false) {
-            return E1();
+            return E1(R1);
         }
         100 ->> w2;
 
         if (true) {
-            return E2();
+            return E2(R2);
         }
         "hello" ->> w2;
     }

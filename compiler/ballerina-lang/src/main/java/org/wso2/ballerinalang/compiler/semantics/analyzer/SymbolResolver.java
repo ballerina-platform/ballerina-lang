@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -58,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -394,12 +396,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return entry.symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT) {
+                Name importCompUnit = ((BPackageSymbol) entry.symbol).compUnit;
+                //importCompUnit is null for predeclared modules
+                if (importCompUnit == null) {
+                    return entry.symbol;
+                } else if (importCompUnit.equals(compUnit)) {
+                    ((BPackageSymbol) entry.symbol).isUsed = true;
+                    return entry.symbol;
+                }
             }
-
+            
             entry = entry.next;
         }
 
@@ -632,6 +639,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (bSymbol == symTable.notFoundSymbol) {
+            bSymbol = lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol, name);
+        }
+
+        if (bSymbol == symTable.notFoundSymbol) {
             bSymbol = lookupLangLibMethodInModule(symTable.langQueryModuleSymbol, name);
         }
 
@@ -822,10 +833,9 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.errorType = (BErrorType) entry.symbol.type;
-            symTable.detailType = (BRecordType) symTable.errorType.detailType;
+            symTable.detailType = (BMapType) symTable.errorType.detailType;
             symTable.errorConstructor = ((BErrorTypeSymbol) symTable.errorType.tsymbol).ctorSymbol;
             symTable.pureType = BUnionType.create(null, symTable.anydataType, this.symTable.errorType);
-            symTable.detailType.restFieldType = symTable.pureType;
             symTable.streamType = new BStreamType(TypeTags.STREAM, symTable.pureType, null, null);
             symTable.tableType = new BTableType(TypeTags.TABLE, symTable.pureType, null);
             symTable.defineOperators(); // Define all operators e.g. binary, unary, cast and conversion
@@ -857,6 +867,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
+    public void loadRawTemplateType() {
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.RAW_TEMPLATE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.rawTemplateType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("'lang.object:RawTemplate' type not found");
     }
 
     // visit type nodes
@@ -933,13 +956,18 @@ public class SymbolResolver extends BLangNodeVisitor {
             flags.add(Flag.PUBLIC);
         }
 
+        boolean isReadOnly = objectTypeNode.flagSet.contains(Flag.READONLY);
+        if (isReadOnly) {
+            flags.add(Flag.READONLY);
+        }
+
         BTypeSymbol objectSymbol = Symbols.createObjectSymbol(Flags.asMask(flags), Names.EMPTY,
                 env.enclPkg.symbol.pkgID, null, env.scope.owner);
         BObjectType objectType;
         if (flags.contains(Flag.SERVICE)) {
             objectType = new BServiceType(objectSymbol);
         } else {
-            objectType = new BObjectType(objectSymbol);
+            objectType = isReadOnly ? new BObjectType(objectSymbol, Flags.READONLY) : new BObjectType(objectSymbol);
         }
         objectSymbol.type = objectType;
         objectTypeNode.symbol = objectSymbol;
@@ -1000,6 +1028,11 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangTableTypeNode tableTypeNode) {
         BType type = resolveTypeNode(tableTypeNode.type, env);
         BType constraintType = resolveTypeNode(tableTypeNode.constraint, env);
+        // If the constrained type is undefined, return noType as the type.
+        if (constraintType == symTable.noType) {
+            resultType = symTable.noType;
+            return;
+        }
 
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
@@ -1013,8 +1046,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
             List<String> fieldNameList = new ArrayList<>();
-            for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-                fieldNameList.add(identifier.value);
+            for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNameList.add(((BLangIdentifier) identifier).value);
             }
             tableType.fieldNameList = fieldNameList;
             tableType.keyPos = tableKeySpecifier.pos;
@@ -1068,34 +1101,27 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorType errorTypeNode) {
-        BType reasonType = Optional.ofNullable(errorTypeNode.reasonType)
-                .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.stringType);
         BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                 .map(bLangType -> resolveTypeNode(bLangType, env)).orElse(symTable.detailType);
 
-        // TODO: 7/12/19 FIX ME!!! This is a temporary hack to ensure the detail type is set to the error type when
-        //  compiling the annotations module which contains the error def
-        if (detailType == null && PackageID.ANNOTATIONS.equals(env.enclPkg.packageID)) {
-            BSymbol symbol = this.lookupSymbolInMainSpace(env, Names.ERROR);
-            resultType = symbol.type;
-            symTable.errorType = (BErrorType) resultType;
-            symTable.detailType = (BRecordType) symTable.errorType.detailType;
-            return;
-        }
-
-        if (reasonType == symTable.stringType && detailType == symTable.detailType) {
+        boolean distinctErrorDef = errorTypeNode.flagSet.contains(Flag.DISTINCT);
+        if (detailType == symTable.detailType && !distinctErrorDef &&
+                !this.env.enclPkg.packageID.equals(PackageID.ANNOTATIONS)) {
             resultType = symTable.errorType;
             return;
         }
 
         // Define user define error type.
         BErrorTypeSymbol errorTypeSymbol = Symbols
-                .createErrorSymbol(Flags.asMask(EnumSet.noneOf(Flag.class)), Names.EMPTY, env.enclPkg.symbol.pkgID,
+                .createErrorSymbol(Flags.asMask(errorTypeNode.flagSet), Names.EMPTY, env.enclPkg.symbol.pkgID,
                                    null, env.scope.owner);
-        BErrorType errorType = new BErrorType(errorTypeSymbol, reasonType, detailType);
+        BErrorType errorType = new BErrorType(errorTypeSymbol, detailType);
+        errorType.flags |= errorTypeSymbol.flags;
         errorTypeSymbol.type = errorType;
 
         markParameterizedType(errorType, detailType);
+
+        errorType.typeIdSet = BTypeIdSet.emptySet();
 
         resultType = errorType;
     }
@@ -1568,11 +1594,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
+
+        if (typeOne == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+
+        if (typeTwo == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
@@ -1589,6 +1623,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (!hasReadOnlyType) {
                     hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                if (type == symTable.noType) {
+                    return symTable.noType;
                 }
 
                 potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
@@ -1614,9 +1652,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType)) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
-                       potentialIntersectionType);
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
+            if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
+                // This intersection would have been valid if not for `readonly object`s.
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);
+            } else {
+                dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_INTERSECTION_TYPE,
+                           potentialIntersectionType);
+            }
             return symTable.semanticError;
         }
 

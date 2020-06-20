@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client cachingEP1 = new("http://localhost:9243", { cache: { enabled: true, isShared: true } });
+http:Client cachingEP1 = new("http://localhost:9243", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/nocache"
@@ -33,7 +33,7 @@ service cachingProxyService on new http:Listener(9244) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<@untainted> response.message());
             checkpanic caller->respond(res);
         }
     }

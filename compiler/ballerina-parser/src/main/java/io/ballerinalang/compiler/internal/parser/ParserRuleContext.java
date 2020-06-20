@@ -78,8 +78,7 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_FIELD_RHS("object-field-rhs"),
-    OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
-    OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
+    OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
     IMPORT_DECL("import-decl"),
     IMPORT_ORG_OR_MODULE_NAME("import-org-or-module-name"),
@@ -219,6 +218,7 @@ public enum ParserRuleContext {
     MATCH_PATTERN_END("match-pattern-end"),
     MATCH_PATTERN_RHS("match-pattern-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
+    JOIN_CLAUSE("join-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -326,6 +326,11 @@ public enum ParserRuleContext {
     BASE64_KEYWORD("base64"),
     READONLY_KEYWORD("readonly"),
     MATCH_KEYWORD("match"),
+    DISTINCT_KEYWORD("distinct"),
+    CONFLICT_KEYWORD("conflict"),
+    LIMIT_KEYWORD("limit"),
+    JOIN_KEYWORD("join"),
+    OUTER_KEYWORD("outer"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

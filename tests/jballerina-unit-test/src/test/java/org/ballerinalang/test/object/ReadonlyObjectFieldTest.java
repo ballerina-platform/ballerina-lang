@@ -34,13 +34,13 @@ import static org.testng.Assert.assertEquals;
 public class ReadonlyObjectFieldTest {
 
     @Test
-    public void testReadonlyRecordFields() {
+    public void testReadonlyObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields.bal");
         BRunUtil.invoke(result, "testReadonlyObjectFields");
     }
 
     @Test
-    public void testReadonlyRecordFieldsNegative() {
+    public void testReadonlyObjectFieldsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields_negative.bal");
         int index = 0;
 
@@ -49,6 +49,12 @@ public class ReadonlyObjectFieldTest {
         validateError(result, index++, "cannot update 'readonly' object field 'details' in 'Employee'", 56, 5);
         validateError(result, index++, "cannot update 'readonly' object field 'details' in 'Employee'", 57, 5);
         validateError(result, index++, "cannot update 'readonly' object field 'name' in '(Student|Customer)'", 74, 5);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Bar'", 115, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Baz'", 116, 25);
+        validateError(result, index++, "incompatible types: expected '(Foo & readonly)', found 'Qux'", 117, 25);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Undergraduate'", 160, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'Graduate'", 163, 17);
+        validateError(result, index++, "incompatible types: expected 'Person', found 'AbstractPerson'", 166, 17);
         assertEquals(result.getErrorCount(), index);
     }
 }

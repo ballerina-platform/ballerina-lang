@@ -185,7 +185,7 @@ service productmgt on serviceEndpoint5 {
         if (result is json) {
             res.setPayload(<@untainted> result);
         } else {
-            res.setPayload(<@untainted> result.reason());
+            res.setPayload(<@untainted> result.message());
         }
         checkpanic caller->respond(res);
     }

@@ -73,7 +73,7 @@ service passthroughService11 on listener11_1 {
             checkpanic caller->respond(response);
         } else {
             http:Response resp = new;
-            json errMsg = { "error": "error occurred while invoking the service: " + response.reason() };
+            json errMsg = { "error": "error occurred while invoking the service: " + response.message() };
             resp.statusCode = 500;
             resp.setPayload(errMsg);
             checkpanic caller->respond(resp);
@@ -84,7 +84,7 @@ service passthroughService11 on listener11_1 {
 jwt:InboundJwtAuthProvider jwtAuthProvider11_3 = new({
     issuer: "ballerina",
     audience: ["ballerina"],
-    signatureConfig: {
+    trustStoreConfig: {
         certificateAlias: "ballerina",
         trustStore: {
            path: config:getAsString("truststore"),

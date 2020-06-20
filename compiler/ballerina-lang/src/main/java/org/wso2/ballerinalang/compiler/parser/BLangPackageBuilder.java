@@ -580,11 +580,14 @@ public class BLangPackageBuilder {
         typeNode.grouped = true;
     }
 
-    void addUserDefineType(Set<Whitespace> ws) {
+    void addUserDefineType(Set<Whitespace> ws, boolean isDistinct) {
         BLangNameReference nameReference = nameReferenceStack.pop();
         BLangUserDefinedType userDefinedType = createUserDefinedType(nameReference.pos, ws,
                 (BLangIdentifier) nameReference.pkgAlias, (BLangIdentifier) nameReference.name);
         userDefinedType.addWS(nameReference.ws);
+        if (isDistinct) {
+            userDefinedType.flagSet.add(Flag.DISTINCT);
+        }
         addType(userDefinedType);
     }
 
@@ -604,16 +607,20 @@ public class BLangPackageBuilder {
         this.isInErrorType--;
     }
 
-    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean reasonTypeExists, boolean detailsTypeExists,
-                      boolean isAnonymous) {
+    void addErrorType(DiagnosticPos pos, Set<Whitespace> ws, boolean detailsTypeExists, boolean isErrorTypeInfer,
+                      boolean isAnonymous, boolean isDistinct) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
         errorType.pos = pos;
         errorType.addWS(ws);
-        if (detailsTypeExists) {
+
+        if (isErrorTypeInfer) {
+            errorType.inferErrorType = true;
+        } else if (detailsTypeExists) {
             errorType.detailType = (BLangType) this.typeNodeStack.pop();
         }
-        if (reasonTypeExists) {
-            errorType.reasonType = (BLangType) this.typeNodeStack.pop();
+
+        if (isDistinct) {
+            errorType.flagSet.add(Flag.DISTINCT);
         }
 
         endErrorType();
@@ -622,6 +629,7 @@ public class BLangPackageBuilder {
             addType(errorType);
             return;
         }
+
         BLangTypeDefinition typeDef = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         // Generate a name for the anonymous error
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(pos.src.pkgID);
@@ -629,7 +637,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = errorType;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -857,7 +867,7 @@ public class BLangPackageBuilder {
             BLangUserDefinedType errorType = (BLangUserDefinedType) this.typeNodeStack.pop();
             errorVariable.typeNode = errorType;
 
-            errorVariable.reason = createIgnoreVar();
+            errorVariable.message = createIgnoreVar();
         }
         this.errorMatchPatternWS.push(ws);
         ((BLangErrorVariable) this.varStack.peek()).isInMatchStmt = true;
@@ -871,25 +881,35 @@ public class BLangPackageBuilder {
         this.restMatchPatternWS.push(ws);
     }
 
-    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, String reason, String restIdentifier,
-                          boolean reasonVar, boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
+    void addErrorVariable(DiagnosticPos pos, Set<Whitespace> ws, boolean isUserDefinedType, String reason, String cause,
+                          DiagnosticPos causePos, String restIdentifier, boolean reasonVar,
+                          boolean constReasonMatchPattern, DiagnosticPos restParamPos) {
         BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
         errorVariable.pos = pos;
         errorVariable.addWS(ws);
+
+        if (isUserDefinedType) {
+            errorVariable.typeNode = (BLangType) typeNodeStack.pop();
+        }
 
         if (constReasonMatchPattern) {
             BLangLiteral reasonLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
             reasonLiteral.setValue(reason.substring(1, reason.length() - 1));
             errorVariable.reasonMatchConst = reasonLiteral;
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, "$reason$", pos, false);
         } else {
-            errorVariable.reason = (BLangSimpleVariable)
+            errorVariable.message = (BLangSimpleVariable)
                     generateBasicVarNodeWithoutType(pos, null, reason, pos, false);
         }
 
         if (this.simpleMatchPatternWS.size() > 0) {
-            errorVariable.reason.addWS(this.simpleMatchPatternWS.pop());
+            errorVariable.message.addWS(this.simpleMatchPatternWS.pop());
+        }
+
+        if (cause != null) {
+            errorVariable.cause = (BLangSimpleVariable)
+                    generateBasicVarNodeWithoutType(causePos, null, cause, causePos, false);
         }
 
         errorVariable.reasonVarPrefixAvailable = reasonVar;
@@ -906,30 +926,9 @@ public class BLangPackageBuilder {
         }
     }
 
-    public void addErrorVariable(DiagnosticPos currentPos, Set<Whitespace> ws, String restIdName,
-                                 DiagnosticPos restPos) {
-        BLangErrorVariable errorVariable = (BLangErrorVariable) varStack.peek();
-        errorVariable.pos = currentPos;
-        errorVariable.addWS(ws);
-
-        BLangType typeNode = (BLangType) this.typeNodeStack.pop();
-        errorVariable.typeNode = typeNode;
-
-        errorVariable.reason = (BLangSimpleVariable)
-                generateBasicVarNodeWithoutType(currentPos, null, "$reason$", currentPos, false);
-
-        if (restIdName != null) {
-            errorVariable.restDetail = (BLangSimpleVariable)
-                    generateBasicVarNodeWithoutType(currentPos, null, restIdName, restPos, false);
-            if (!this.errorRestBindingPatternWS.isEmpty()) {
-                errorVariable.restDetail.addWS(this.errorRestBindingPatternWS.pop());
-            }
-        }
-    }
-
     void addErrorVariableReference(DiagnosticPos pos, Set<Whitespace> ws,
                                    int numNamedArgs,
-                                   boolean reasonRefAvailable,
+                                   boolean causeRefAvailable,
                                    boolean restPatternAvailable,
                                    boolean indirectErrorRefPattern) {
         BLangErrorVarRef errorVarRef = (BLangErrorVarRef) TreeBuilder.createErrorVariableReferenceNode();
@@ -947,16 +946,18 @@ public class BLangPackageBuilder {
             namedArgs.add(namedArg);
         }
 
-        if (reasonRefAvailable) {
-            ExpressionNode reasonRef = this.exprNodeStack.pop();
-            errorVarRef.reason = (BLangVariableReference) reasonRef;
-        } else if (indirectErrorRefPattern) {
-            // Indirect error ref pattern does not allow reason var ref, hence ignore it.
-            errorVarRef.reason = createIgnoreVarRef();
-            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
-        } else {
-            errorVarRef.reason = createIgnoreVarRef();
+        if (causeRefAvailable) {
+            ExpressionNode causeRef = this.exprNodeStack.pop();
+            errorVarRef.cause = (BLangVariableReference) causeRef;
         }
+
+        ExpressionNode reasonRef = this.exprNodeStack.pop();
+        errorVarRef.message = (BLangVariableReference) reasonRef;
+
+        if (indirectErrorRefPattern) {
+            errorVarRef.typeNode = (BLangType) this.typeNodeStack.pop();
+        }
+
         Collections.reverse(namedArgs);
         errorVarRef.detail.addAll(namedArgs);
 
@@ -984,7 +985,7 @@ public class BLangPackageBuilder {
             } else if (this.varStack.size() == 1) {
                 BLangVariable var = this.varStack.pop();
                 BLangErrorVariable errorVariable = new BLangErrorVariable();
-                errorVariable.reason = createIgnoreVar();
+                errorVariable.message = createIgnoreVar();
                 errorVariable.typeNode = (BLangType) typeNodeStack.pop();
                 errorVariable.detail.add(new BLangErrorVariable.BLangErrorDetailEntry(bLangIdentifier, var));
                 varStack.push(errorVariable);
@@ -1505,7 +1506,7 @@ public class BLangPackageBuilder {
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.reason);
+                markVariableAsFinal(errorVariable.message);
                 errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
                 if (errorVariable.restDetail != null) {
                     markVariableAsFinal(errorVariable.restDetail);
@@ -2497,7 +2498,7 @@ public class BLangPackageBuilder {
 
         // Create typenode for enum type definition member
         addNameReference(pos, ws, null, identifier);
-        addUserDefineType(ws);
+        addUserDefineType(ws, false);
     }
 
     void addGlobalVariable(DiagnosticPos pos, Set<Whitespace> ws, String identifier, DiagnosticPos identifierPos,
@@ -2560,12 +2561,16 @@ public class BLangPackageBuilder {
     }
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isAnonymous, boolean isAbstract,
-                       boolean isClient, boolean isService) {
+                       boolean isReadOnly, boolean isClient, boolean isService, boolean isDistinct) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
         objectTypeNode.addWS(this.objectFieldBlockWs.pop());
 
         if (isAbstract) {
             objectTypeNode.flagSet.add(Flag.ABSTRACT);
+        }
+
+        if (isReadOnly) {
+            objectTypeNode.flagSet.add(Flag.READONLY);
         }
 
         if (isClient) {
@@ -2574,6 +2579,10 @@ public class BLangPackageBuilder {
 
         if (isService) {
             objectTypeNode.flagSet.add(Flag.SERVICE);
+        }
+
+        if (isDistinct) {
+            objectTypeNode.flagSet.add(Flag.DISTINCT);
         }
 
         if (!isAnonymous) {
@@ -2587,7 +2596,9 @@ public class BLangPackageBuilder {
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);
-
+        if (isDistinct) {
+            typeDef.flagSet.add(Flag.DISTINCT);
+        }
         typeDef.typeNode = objectTypeNode;
         typeDef.pos = pos;
         this.compUnit.addTopLevelNode(typeDef);
@@ -3192,17 +3203,6 @@ public class BLangPackageBuilder {
         transaction.addWS(ws);
         transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
         addStmtToCurrentBlock(transaction);
-
-        // TODO This is a temporary workaround to flag coordinator service start
-        boolean transactionsModuleAlreadyImported = this.imports.stream()
-                .anyMatch(importPackage -> importPackage.orgName.value.equals(Names.BALLERINA_ORG.value)
-                        && importPackage.pkgNameComps.get(0).value.equals(Names.TRANSACTION_PACKAGE.value));
-
-        if (!transactionsModuleAlreadyImported) {
-            List<String> nameComps = getPackageNameComps(Names.TRANSACTION_PACKAGE.value);
-            addImportPackageDeclaration(pos, null, Names.TRANSACTION_ORG.value, nameComps, Names.EMPTY.value,
-                    Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
-        }
     }
 
     void createRetrySpec(DiagnosticPos pos, Set<Whitespace> ws, boolean typeParamAvailable, boolean argsAvailable) {

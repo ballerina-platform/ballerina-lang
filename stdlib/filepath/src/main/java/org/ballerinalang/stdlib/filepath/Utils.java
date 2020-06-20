@@ -49,7 +49,7 @@ public class Utils {
         if (details == null) {
             details = UNKNOWN_MESSAGE;
         }
-        return BallerinaErrors.createError(reason, details);
+        return BallerinaErrors.createDistinctError(reason, Constants.PACKAGE_ID, details);
     }
 
     private Utils() {

@@ -23,10 +23,13 @@
 <suite name="ballerina-test-suite" time-out="120000">
     <test name="jballerina-test" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>
+        <parameter name="enableOldParserForTests" value="true"/>
         <groups>
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
+                <exclude name="brokenOnErrorChange"/>
+                <exclude name="disableOnOldParser"/>
             </run>
         </groups>
         <packages>
@@ -86,6 +89,7 @@
             <package name="org.ballerinalang.test.types.never.*"/>
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
+            <package name="org.ballerinalang.test.types.intersection.*"/>
             <package name="org.ballerinalang.test.types.readonly.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.let.*"/>
@@ -122,7 +126,7 @@
             <package name="org.ballerinalang.test.expressions.varref.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-<!--            <package name="org.ballerinalang.test.statements.transaction.*"/>-->
+            <package name="org.ballerinalang.test.statements.retrystmt.*"/>
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
@@ -130,9 +134,8 @@
         </packages>
 
         <classes>
-            <class name="org.ballerinalang.test.statements.transaction.RetryStmtTest"/>
             <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
-            <class name="org.ballerinalang.test.statements.transaction.Test"/>
+            <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest" />
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->

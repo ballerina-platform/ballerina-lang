@@ -103,7 +103,7 @@ service publisher on publisherServiceEP {
                 allTopics["Topic_" + index.toString()] = topic;
                 index += 1;
             }
-            json j = <json> allTopics.cloneWithType(typedesc<json>);
+            json j = <json> allTopics.cloneWithType(JsonTypedesc);
             var err = caller->respond(j);
             if (err is error) {
                 log:printError("Error responding on topicInfo request", err);
@@ -265,7 +265,7 @@ function getPayloadContent(string contentType, string mode) returns string|xml|j
     } else if (contentType == "byte[]" || contentType == "io:ReadableByteChannel") {
         errorMessage = "content type " + contentType + " not yet supported with WebSub tests";
     }
-    error e = error(websub:WEBSUB_ERROR_CODE, message = errorMessage);
+    error e = error(errorMessage);
     panic e;
 }
 
@@ -290,3 +290,5 @@ function isSubscriberAvailable(websub:SubscriberDetails[] topicDetails, string c
     }
     return false;
 }
+
+type JsonTypedesc typedesc<json>;

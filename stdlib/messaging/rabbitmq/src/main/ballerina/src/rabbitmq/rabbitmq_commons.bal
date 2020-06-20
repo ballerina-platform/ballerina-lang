@@ -68,7 +68,7 @@ public type QueueConfiguration record {|
     boolean durable = false;
     boolean exclusive = false;
     boolean autoDelete = true;
-    map<any>? arguments = ();
+    map<anydata>? arguments = ();
 |};
 
 # Configurations used to declare an exchange.
@@ -83,7 +83,7 @@ public type ExchangeConfiguration record {|
     ExchangeType exchangeType = DIRECT_EXCHANGE;
     boolean durable = false;
     boolean autoDelete = false;
-    map<any>? arguments = ();
+    map<anydata>? arguments = ();
 |};
 
 # Configurations used to create a `rabbitmq:Connection`.

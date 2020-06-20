@@ -104,6 +104,7 @@ dependencies {
     dist project(':ballerina-cli-module')
     dist project(':ballerina-encoding')
     dist project(':ballerina-rt')
+    dist project(':ballerina-choreo-extension-rt')
 
     dist project(':testerina:testerina-core')
     dist project(':ballerina-formatter')
@@ -118,6 +119,7 @@ dependencies {
     dist project(':openapi-ballerina:ballerina-client-generator')
     dist project(':docerina')
     dist project(':protobuf-ballerina')
+    dist project(':observerability-symbol-collector')
     dist project(':testerina:testerina-runtime')
     docerina project(':docerina-gradle-plugin')
 
@@ -138,7 +140,7 @@ dependencies {
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
     composerDistribution project(path: ':composer-library', configuration: 'composer')
     composerFonts project(path: ':composer-library', configuration: 'fonts')
-    
+
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
@@ -185,6 +187,9 @@ dependencies {
     balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
     balDoc project(path: ':ballerina-xmlutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-jsonutils', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-sql', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-jdbc', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-mysql', configuration: 'balDoc')
 
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
@@ -205,6 +210,7 @@ dependencies {
     balDoc project(path: ':ballerina-lang:xml', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:bool', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:query', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
     balDoc project(path: ':ballerina-java', configuration: 'balDoc')

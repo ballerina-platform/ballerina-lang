@@ -20,6 +20,7 @@ import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -41,6 +42,8 @@ import java.nio.charset.Charset;
 import java.util.Locale;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_GRPC_PKG_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.Status.Code.UNKNOWN;
@@ -108,29 +111,30 @@ public class MessageUtils {
      * @return error value.
      */
     public static ErrorValue getConnectorError(Throwable error) {
-        String reason;
+        String errorIdName;
         String message;
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
-            reason = statusException.getStatus().getReason();
+            errorIdName = statusException.getStatus().getReason();
             String errorDescription = statusException.getStatus().getDescription();
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                message = statusException.getStatus().getCause().getMessage();
+                String causeMessage = statusException.getStatus().getCause().getMessage();
+                message = causeMessage == null ? UNKNOWN_ERROR_DETAIL : causeMessage;
             } else {
                 message = UNKNOWN_ERROR_DETAIL;
             }
         } else {
             if (error.getMessage() == null) {
-                reason = GrpcConstants.UNKNOWN_ERROR;
+                errorIdName = GrpcConstants.UNKNOWN_ERROR;
                 message = UNKNOWN_ERROR_DETAIL;
             } else {
-                reason = GrpcConstants.INTERNAL_ERROR;
+                errorIdName = GrpcConstants.INTERNAL_ERROR;
                 message = error.getMessage();
             }
         }
-        return BallerinaErrors.createError(reason, message);
+        return BallerinaErrors.createDistinctError(errorIdName, PROTOCOL_GRPC_PKG_ID, message);
     }
     
     /**
@@ -378,6 +382,26 @@ public class MessageUtils {
         }
         byte[] bytes = readArray(httpContent);
         return new String(bytes, charset);
+    }
+
+
+    /**
+     * Extract the response status from trailers.
+     *
+     * @param trailers Trailer headers in last http content.
+     * @return Message status.
+     */
+    static Status statusFromTrailers(HttpHeaders trailers) {
+        String statusString = trailers.get(GRPC_STATUS_KEY);
+        Status status = null;
+        if (statusString != null) {
+            status = Status.CODE_MARSHALLER.parseAsciiString(statusString.getBytes(Charset.forName("US-ASCII")));
+        }
+        if (status != null) {
+            return status.withDescription(trailers.get(GRPC_MESSAGE_KEY));
+        } else {
+            return Status.Code.UNKNOWN.toStatus().withDescription("missing GRPC status in response");
+        }
     }
 
     private MessageUtils() {

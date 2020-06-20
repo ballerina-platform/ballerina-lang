@@ -109,6 +109,10 @@ public class HybridNodeStorage {
 
         return peek(k);
     }
+    
+    int getCurrentIndex() {
+        return this.peekedNodeIndex;
+    }
 
     private HybridNode peek(int k) {
         return this.hybridNodeList.get(consumedNodeIndex + k);

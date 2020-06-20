@@ -35,6 +35,13 @@ type Teacher record {
     string school;
 };
 
+type AnydataMapArray map<anydata>[];
+type AnydataArray anydata[];
+type TeacherArray Teacher[];
+type EmployeeArray Employee[];
+type EmployeeArrayOrIntTypedesc typedesc<Employee[]|int>;
+type EmployeeStudent [Employee, Student];
+
 //----------------------------Array Stamp -------------------------------------------------------------
 
 
@@ -43,7 +50,7 @@ function stampRecordToAnydataArray() returns anydata[]|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     Teacher[] teacherArray = [p1, p2];
-    anydata[]|error anyArray = teacherArray.cloneWithType(anydata[]);
+    anydata[]|error anyArray = teacherArray.cloneWithType(AnydataArray);
 
     return anyArray;
 }
@@ -53,7 +60,7 @@ function stampAnydataToRecordArray() returns Teacher[]|error  {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     anydata[] anydataArray = [p1, p2];
-    Teacher[]|error teacherArray = anydataArray.cloneWithType(Teacher[]);
+    Teacher[]|error teacherArray = anydataArray.cloneWithType(TeacherArray);
 
     return teacherArray;
 }
@@ -63,7 +70,7 @@ function stampAnydataToSimilarOpenRecordArray() returns Employee[]|error  {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     anydata[] teacherArray = [p1, p2];
-    Employee[]|error  employeeArray = teacherArray.cloneWithType(Employee[]);
+    Employee[]|error  employeeArray = teacherArray.cloneWithType(EmployeeArray);
 
     return employeeArray;
 }
@@ -73,7 +80,7 @@ function stampRecordToSimilarOpenRecordArray() returns Employee[]|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     Teacher[] teacherArray = [p1, p2];
-    Employee[]|error employeeArray = teacherArray.cloneWithType(Employee[]);
+    Employee[]|error employeeArray = teacherArray.cloneWithType(EmployeeArray);
 
     return employeeArray;
 }
@@ -102,7 +109,7 @@ function stampRecordToAnydataArrayV2() returns anydata[]|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     Teacher[] teacherArray = [p1, p2];
-    anydata[]|error anydataArray = teacherArray.cloneWithType(anydata[]);
+    anydata[]|error anydataArray = teacherArray.cloneWithType(AnydataArray);
 
     return anydataArray;
 }
@@ -112,7 +119,7 @@ function stampAnydataArrayToUnion() returns Employee[]|int|error  {
     Employee p2 = { name: "Mohan", "age": 30, status: "single", batch: "LK2014", "school": "Hindu College" };
 
     Employee[] teacherArray = [p1, p2];
-    Employee[]|int|error  employeeArray = teacherArray.cloneWithType(typedesc<Employee[]|int>);
+    Employee[]|int|error  employeeArray = teacherArray.cloneWithType(EmployeeArrayOrIntTypedesc);
 
     return employeeArray;
 }
@@ -121,15 +128,20 @@ function stampArrayValueToTuple() returns [Employee, Student]|error {
     Employee[] arrayValue = [{ name: "Mohan", status: "single", batch: "LK2015", "school": "Royal College" },
     { name: "Raja", status: "single", batch: "LK2014", "school": "Hindu College" }];
 
-    [Employee, Student]|error returnValue = arrayValue.cloneWithType([Employee, Student]);
+    [Employee, Student]|error returnValue = arrayValue.cloneWithType(EmployeeStudent);
     return returnValue;
 }
 
 //-------------------- Basic type array stamp ---------------------------------------------------------------
 
+type IntArray int[];
+type JsonArray json[];
+type IntInt [int, int];
+type AnydataAnydata [anydata, anydata];
+
 function stampJSONToBasicArray() returns int[]|error {
     json jsonValue = [1, 2, 3, 4];
-    int[]|error returnArray = jsonValue.cloneWithType(int[]);
+    int[]|error returnArray = jsonValue.cloneWithType(IntArray);
 
     return returnArray;
 }
@@ -137,21 +149,21 @@ function stampJSONToBasicArray() returns int[]|error {
 function stampAnydataToBasicArray() returns int[]|error {
     // todo
     anydata[] anydataValue = [1, 2, 3, 4];
-    int[]|error returnArray = anydataValue.cloneWithType(int[]);
+    int[]|error returnArray = anydataValue.cloneWithType(IntArray);
 
     return returnArray;
 }
 
 function stampAnydataArrayToBasicArray() returns int[]|error {
     anydata[] anydataArray = [1, 2, 3, 4];
-    int[]|error returnArray = anydataArray.cloneWithType(int[]);
+    int[]|error returnArray = anydataArray.cloneWithType(IntArray);
 
     return returnArray;
 }
 
 function stampJSONArrayToBasicArray() returns int[]|error {
     json[] jsonValue = [1, 2, 3, 4];
-    int[]|error returnArray = jsonValue.cloneWithType(int[]);
+    int[]|error returnArray = jsonValue.cloneWithType(IntArray);
 
     return returnArray;
 }
@@ -172,21 +184,21 @@ function stampBasicArrayToAnydata() returns anydata|error {
 
 function stampBasicArrayToAnydataArray() returns anydata[]|error {
     int[] intArrayValue = [1, 2, 3, 4];
-    anydata[]|error returnValue = intArrayValue.cloneWithType(anydata[]);
+    anydata[]|error returnValue = intArrayValue.cloneWithType(AnydataArray);
 
     return returnValue;
 }
 
 function stampBasicArrayToJSONArray() returns json[]|error {
     int[] intArrayValue = [1, 2, 3, 4];
-    json[]|error returnValue = intArrayValue.cloneWithType(json[]);
+    json[]|error returnValue = intArrayValue.cloneWithType(JsonArray);
 
     return returnValue;
 }
 
 function stampBasicArrayToTuple() returns [int,int]|error {
     int[] intArrayValue = [1, 2];
-    [int,int]|error returnValue = intArrayValue.cloneWithType([int,int]);
+    [int,int]|error returnValue = intArrayValue.cloneWithType(IntInt);
 
     return returnValue;
 }
@@ -194,21 +206,21 @@ function stampBasicArrayToTuple() returns [int,int]|error {
 function stampAnydataBasicArrayToTuple() returns [int,int]|error {
     int[] intArrayValue = [1, 2];
     anydata anydataValue = intArrayValue;
-    [int,int]|error returnValue = anydataValue.cloneWithType([int,int]);
+    [int,int]|error returnValue = anydataValue.cloneWithType(IntInt);
 
     return returnValue;
 }
 
 function stampBasicArrayToAnydataTuple() returns [anydata,anydata]|error {
     int[] intArrayValue = [1, 2];
-    [anydata,anydata]|error returnValue = intArrayValue.cloneWithType([anydata,anydata]);
+    [anydata,anydata]|error returnValue = intArrayValue.cloneWithType(AnydataAnydata);
 
     return returnValue;
 }
 
 function stampBasicArrayToBasicArray() returns int[]|error {
     int[] intArrayValue = [1, 2];
-    int[]|error returnValue = intArrayValue.cloneWithType(int[]);
+    int[]|error returnValue = intArrayValue.cloneWithType(IntArray);
 
     return returnValue;
 }
@@ -218,7 +230,7 @@ function stampBasicMapArrayToAnydataMapArray() returns map<anydata>[]|error {
     map<int> map2 = {a: 15, b: 20};
 
     map<int>[] intMap = [map1, map2];
-    map<anydata>[]|error anydataMap = intMap.cloneWithType(map<anydata>[]);
+    map<anydata>[]|error anydataMap = intMap.cloneWithType(AnydataMapArray);
 
     return anydataMap;
 }
@@ -227,6 +239,6 @@ function stampRecordArrayToJsonArray() returns json[]|error {
     Employee e1 = { name: "Waruna", status: "single", batch: "LK2018", "age": 10 };
     Employee e2 = { name: "Heshitha", status: "single", batch: "LK2019", "age": 15 };
     Employee[] employeeArray = [e1, e2];
-    json[] jsonArray = check employeeArray.cloneWithType(json[]);
+    json[] jsonArray = check employeeArray.cloneWithType(JsonArray);
     return jsonArray;
 }

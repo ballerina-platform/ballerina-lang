@@ -22,6 +22,7 @@ import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -34,9 +35,14 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class VariableReturnTypeTest {
 
-    private CompileResult result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
+    private CompileResult result;
 
-    @Test
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
+    }
+
+    @Test(groups = { "brokenOnNewParser" })
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
@@ -56,11 +62,9 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "unknown type 'td'", 64, 73);
         validateError(errors, indx++, "unknown type 'td'", 72, 54);
         validateError(errors, indx++, "unknown type 'td'", 74, 88);
-        validateError(errors, indx++, "invalid error reason type 'other', expected a subtype of 'string'", 86, 83);
-        validateError(errors, indx++, "unknown type 'reason'", 86, 83);
-        validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of 'record {| " +
-                "string message?; error cause?; (anydata|error)...; |}'", 86, 91);
-        validateError(errors, indx++, "unknown type 'detail'", 86, 91);
+        validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
+                "'map<(anydata|readonly)>'", 86, 83);
+        validateError(errors, indx++, "unknown type 'detail'", 86, 83);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
                 "in external functions", 93, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +

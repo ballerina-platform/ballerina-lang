@@ -63,8 +63,8 @@ public class TaskConstants {
     static final BString FIELD_YEAR = StringUtils.fromString("year");
 
     // Fields related to TaskError record
-    public static final String SCHEDULER_ERROR_REASON = "{ballerina/task}SchedulerError";
-    static final String LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
+    public static final String SCHEDULER_ERROR = "SchedulerError";
+    static final String LISTENER_ERROR = "ListenerError";
     static final String DETAIL_RECORD_NAME = "Detail";
 
     // Fields used in Appointment job map

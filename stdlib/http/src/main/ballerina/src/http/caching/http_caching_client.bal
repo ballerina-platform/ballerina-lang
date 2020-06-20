@@ -51,7 +51,7 @@ public const RFC_7234 = "RFC_7234";
 
 # Provides a set of configurations for controlling the caching behaviour of the endpoint.
 #
-# + enabled - Specifies whether HTTP caching is enabled. Caching is disabled by default.
+# + enabled - Specifies whether HTTP caching is enabled. Caching is enabled by default.
 # + isShared - Specifies whether the HTTP caching layer should behave as a public cache or a private cache
 # + capacity - The capacity of the cache
 # + evictionFactor - The fraction of entries to be removed when the cache is full. The value should be
@@ -60,7 +60,7 @@ public const RFC_7234 = "RFC_7234";
 #            `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
 #            header and either the `etag` or `last-modified` header are present.
 public type CacheConfig record {|
-    boolean enabled = false;
+    boolean enabled = true;
     boolean isShared = false;
     int capacity = 8388608; // 8MB
     float evictionFactor = 0.2;
@@ -648,8 +648,7 @@ function sendNewRequest(HttpClient httpClient, Request request, string path, str
         return httpClient->head(path, message = request);
     } else {
         string message = "HTTP method not supported in caching client: " + httpMethod;
-        UnsupportedActionError err = error(UNSUPPORTED_ACTION, message = message);
-        return err;
+        return UnsupportedActionError(message);
     }
 }
 

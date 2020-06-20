@@ -37,6 +37,7 @@ import java.util.Map;
  *
  * @since 0.990.4
  */
+@Test(groups = { "brokenOnNewParser" })
 public class ErrorVariableReferenceTest {
     private CompileResult result;
 
@@ -67,7 +68,7 @@ public class ErrorVariableReferenceTest {
     @Test(description = "Test simple error var def with const and map")
     public void testBasicErrorVariableWithConstAndMap() {
         BValue[] returns = BRunUtil.invoke(result, "testBasicErrorVariableWithConstAndMap");
-        Assert.assertEquals(returns.length, 12);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(returns[0].stringValue(), "Some Error One");
         Assert.assertEquals(returns[1].stringValue(), "Some Error One");
         Assert.assertEquals(returns[2].stringValue(), "Some Error Two");
@@ -81,6 +82,7 @@ public class ErrorVariableReferenceTest {
         Assert.assertEquals(returns[9].stringValue(), "Msg Four");
         Assert.assertNull(returns[10]);
         Assert.assertNull(returns[11]);
+        Assert.assertEquals(returns[12].stringValue(), "Some Error One {message:\"Msg Three\", detail:\"Detail Msg\"}");
     }
 
     @Test(description = "Test simple error var def with record as detail")
@@ -233,7 +235,7 @@ public class ErrorVariableReferenceTest {
         int i = -1;
         String incompatibleTypes = "incompatible types: ";
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 31, 12);
+                incompatibleTypes + "expected 'string', found 'boolean'", 31, 12);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'map<int>', found 'map<(string|error)>'", 31, 26);
         BAssertUtil.validateError(resultNegative, ++i,
@@ -244,17 +246,19 @@ public class ErrorVariableReferenceTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'string', found '(string|boolean)?'", 42, 43);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found '(anydata|error)'", 43, 43);
-        BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'any', found '(anydata|error)'", 43, 62);
+                "incompatible types: expected 'string', found '(anydata|readonly)'", 43, 43);
+//        BAssertUtil.validateError(resultNegative, ++i,
+//                "incompatible types: expected 'any', found '(anydata|readonly)'", 43, 62);
         BAssertUtil.validateError(resultNegative, ++i,
                 incompatibleTypes + "expected 'boolean', found 'string'", 65, 18);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
                 "expected '[any,string,map,[error,any]]', found '[int,string,error,[error,Foo]]'", 79, 58);
+        BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes +
+                "expected 'string', found 'boolean'", 93, 20);
         BAssertUtil.validateError(resultNegative, ++i, incompatibleTypes + "expected 'Bar', " +
-                "found 'record {| string message?; error cause?; (anydata|error)...; |}'", 93, 32);
+                "found 'map<(anydata|readonly)>'", 93, 32);
         BAssertUtil.validateError(resultNegative, ++i,
-                incompatibleTypes + "expected 'boolean', found 'string'", 94, 20);
+                incompatibleTypes + "expected 'string', found 'boolean'", 94, 20);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference " +
                 "'results[res1][reason]' cannot be used with binding pattern", 111, 12);
         BAssertUtil.validateError(resultNegative, ++i, "invalid binding pattern, variable reference 'results[rec]' " +
@@ -268,17 +272,17 @@ public class ErrorVariableReferenceTest {
                                   "invalid binding pattern, variable reference 'results[detail][fatal]' cannot be " +
                                           "used with binding pattern", 112, 87);
         BAssertUtil.validateError(resultNegative, ++i,
-                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 32);
+                                  "incompatible types: expected 'map', found 'map<(error|string|int)>'", 135, 35);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found 'string?'", 145, 19);
+                "incompatible types: expected 'string', found '(anydata|readonly)'", 145, 19);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r'", 157, 11);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message'", 157, 24);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc'", 157, 39);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'r2'", 160, 11);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message2'", 160, 25);
         BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'rest'", 160, 38);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message3'", 164, 21);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc3'", 164, 37);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'message3'", 164, 24);
+        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'abc3'", 164, 40);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

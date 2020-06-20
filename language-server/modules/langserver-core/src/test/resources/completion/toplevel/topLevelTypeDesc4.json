@@ -14,6 +14,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",

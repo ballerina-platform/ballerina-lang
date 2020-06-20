@@ -21,7 +21,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 string responseMsg = "";
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 const string RESP_MSG_FORMAT = "Failed: Invalid Response, expected %s, but received %s";
 
 public function testBidiStreaming() returns string {
@@ -40,7 +40,7 @@ public function testBidiStreaming() returns string {
     // Executes unary non-blocking call registering server message listener.
     var res = chatEp->chat(ChatMessageListener);
     if (res is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, res.reason(), <string> res.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, res.message());
     } else {
         ep = res;
     }
@@ -49,7 +49,7 @@ public function testBidiStreaming() returns string {
     ChatMessage mes = {name: "Sam", message: "Hi"};
     grpc:Error? result = ep->send(mes);
     if (result is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, result.reason(), <string> result.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, result.message());
     }
     if (!isValidResponse("Sam: Hi")) {
         return io:sprintf(RESP_MSG_FORMAT, "Sam: Hi", responseMsg);
@@ -86,7 +86,7 @@ service ChatMessageListener = service {
 
     // Resource registered to receive server error messages.
     resource function onError(error err) {
-        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.reason(), <string> err.detail()["message"]);
+        responseMsg = io:sprintf(ERROR_MSG_FORMAT, err.message());
         io:println(responseMsg);
     }
 

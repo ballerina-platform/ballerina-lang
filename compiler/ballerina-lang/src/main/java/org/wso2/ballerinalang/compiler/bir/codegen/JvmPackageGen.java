@@ -194,6 +194,7 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.TYPEDESC);
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
+        dependentModuleArray.add(PackageID.TRANSACTION);
     }
 
     private static boolean isSameModule(BIRPackage moduleId, PackageID importModule) {
@@ -443,6 +444,10 @@ public class JvmPackageGen {
                 return new CompiledJarFile(Collections.emptyMap());
             }
         }
+
+        // Desugar BIR to include the observations
+        JvmObservabilityGen jvmObservabilityGen = new JvmObservabilityGen(this);
+        jvmObservabilityGen.rewriteObservableFunctions(module);
 
         String moduleInitClass = getModuleLevelClassName(orgName, moduleName, version, MODULE_INIT_CLASS_NAME);
         Map<String, JavaClass> jvmClassMapping = generateClassNameMapping(module, pkgName, moduleInitClass,
