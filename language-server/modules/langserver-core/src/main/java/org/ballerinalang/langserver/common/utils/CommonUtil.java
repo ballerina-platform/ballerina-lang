@@ -151,6 +151,8 @@ public class CommonUtil {
 
     public static final Path LS_STDLIB_CACHE_DIR = TEMP_DIR.resolve("ls_stdlib_cache").resolve(SDK_VERSION);
 
+    public static final Path LS_CONNECTOR_CACHE_DIR = TEMP_DIR.resolve("ls_connector_cache").resolve(SDK_VERSION);
+
     static {
         BALLERINA_HOME = System.getProperty("ballerina.home");
         BALLERINA_CMD = BALLERINA_HOME + File.separator + "bin" + File.separator + "ballerina" +
