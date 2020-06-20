@@ -14,7 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Get the mock tracers object.
+import ballerina/java;
+
+# Get all the finished spans.
 #
-# + return - Mock tracers object in json format
-public function getMockTracers () returns json = external;
+# + return - The finished spans as a json
+public function getFinishedSpans(string serviceName) returns json {
+    handle serviceNameHandle = java:fromString(serviceName);
+    return externGetFinishedSpans(serviceNameHandle);
+}
+
+# Get all the finished spans.
+#
+# + return - The finished spans as a json
+function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
+    name: "getFinishedSpans",
+    class: "org.ballerina.testobserve.MockTracerUtils"
+} external;
