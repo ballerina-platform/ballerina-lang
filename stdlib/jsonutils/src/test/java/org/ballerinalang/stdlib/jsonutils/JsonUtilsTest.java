@@ -17,7 +17,11 @@
 
 package org.ballerinalang.stdlib.jsonutils;
 
+import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.XmlToJsonConverter;
+import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -65,5 +69,37 @@ public class JsonUtilsTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "[{\"id\":1, \"age\":30, \"salary\":\"300.5\", \"name\":\"Mary\", \"married\":true}, " +
                     "{\"id\":2, \"age\":20, \"salary\":\"300.5\", \"name\":\"John\", \"married\":true}]");
+    }
+
+    @Test
+    public void testSequenceOfSameElementNamedItems() {
+        XMLValue parse = XMLFactory.parse("<root><hello>1</hello><hello>2</hello></root>").children();
+        Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
+        String jsonString = StringUtils.getJsonString(json);
+        Assert.assertEquals(jsonString, "{\"hello\":[\"1\", \"2\"]}");
+    }
+
+    @Test
+    public void testSequenceOfDifferentElementNamedItems() {
+        XMLValue parse = XMLFactory.parse("<root><hello-0>1</hello-0><hello-1>2</hello-1></root>").children();
+        Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
+        String jsonString = StringUtils.getJsonString(json);
+        Assert.assertEquals(jsonString, "{\"hello-0\":\"1\", \"hello-1\":\"2\"}");
+    }
+
+    @Test
+    public void testElementWithDifferentNamedChildrenElementItems() {
+        XMLValue parse = XMLFactory.parse("<root><hello-0>1</hello-0><hello-1>2</hello-1></root>");
+        Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
+        String jsonString = StringUtils.getJsonString(json);
+        Assert.assertEquals(jsonString, "{\"root\":{\"hello-0\":\"1\", \"hello-1\":\"2\"}}");
+    }
+
+    @Test
+    public void testElementWithSameNamedChildrenElementItems() {
+        XMLValue parse = XMLFactory.parse("<root><hello>1</hello><hello>2</hello></root>");
+        Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
+        String jsonString = StringUtils.getJsonString(json);
+        Assert.assertEquals(jsonString, "{\"root\":{\"hello\":[\"1\", \"2\"]}}");
     }
 }
