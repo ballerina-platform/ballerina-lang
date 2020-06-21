@@ -62,24 +62,22 @@ public class XmlToJsonConverter {
      * @return JSON representation of the given xml object
      */
     public static Object convertToJSON(XMLValue xml, String attributePrefix, boolean preserveNamespaces) {
-        switch (xml.getNodeType()) {
-            case TEXT:
-                return JSONParser.parse("\"" + ((XMLText) xml).stringValue() + "\"");
-            case ELEMENT:
-                return convertElement((XMLItem) xml, attributePrefix, preserveNamespaces);
-            case SEQUENCE:
-                XMLSequence xmlSequence = (XMLSequence) xml;
-                if (xmlSequence.isEmpty()) {
-                    return newJsonList();
-                }
-                Object seq = convertXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
-                if (seq == null) {
-                    return newJsonList();
-                }
-                return seq;
-            default:
-                return newJsonMap();
+        if (xml instanceof XMLText) {
+            return JSONParser.parse("\"" + ((XMLText) xml).stringValue() + "\"");
+        } else if (xml instanceof XMLItem) {
+            return convertElement((XMLItem) xml, attributePrefix, preserveNamespaces);
+        } else if (xml instanceof XMLSequence) {
+            XMLSequence xmlSequence = (XMLSequence) xml;
+            if (xmlSequence.isEmpty()) {
+                return newJsonList();
+            }
+            Object seq = convertXMLSequence(xmlSequence, attributePrefix, preserveNamespaces);
+            if (seq == null) {
+                return newJsonList();
+            }
+            return seq;
         }
+        return newJsonMap();
     }
     /**
      * Converts given xml object to the corresponding json.
