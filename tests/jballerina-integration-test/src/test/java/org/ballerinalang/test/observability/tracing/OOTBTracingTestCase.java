@@ -34,7 +34,7 @@ import java.util.Optional;
 public class OOTBTracingTestCase extends TracingBaseTest {
 
     @Test
-    public void testChainedSameProcessResourceCall() throws Exception {
+    public void testChainedResourceFunctions() throws Exception {
         HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9091/test-service/resource-1");
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
@@ -46,7 +46,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
 
         Optional<BMockSpan> span1 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_ootb_resource_function.bal:23:5"))
+                        "01_ootb_chained_resource_functions.bal:23:5"))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
         long traceId = span1.get().getTraceId();
@@ -68,7 +68,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
 
         Optional<BMockSpan> span2 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_ootb_resource_function.bal:33:45"))
+                        "01_ootb_chained_resource_functions.bal:33:45"))
                 .findFirst();
         Assert.assertTrue(span2.isPresent());
         span2.ifPresent(span -> {
@@ -115,7 +115,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
 
         Optional<BMockSpan> span4 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_ootb_resource_function.bal:45:5"))
+                        "01_ootb_chained_resource_functions.bal:45:5"))
                 .findFirst();
         Assert.assertTrue(span4.isPresent());
         span4.ifPresent(span -> {
@@ -136,7 +136,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
 
         Optional<BMockSpan> span5 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_ootb_resource_function.bal:52:20"))
+                        "01_ootb_chained_resource_functions.bal:52:20"))
                 .findFirst();
         Assert.assertTrue(span5.isPresent());
         span5.ifPresent(span -> {
@@ -157,7 +157,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
 
         Optional<BMockSpan> span6 = mockSpans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"),
-                        "01_ootb_resource_function.bal:42:20"))
+                        "01_ootb_chained_resource_functions.bal:42:20"))
                 .findFirst();
         Assert.assertTrue(span6.isPresent());
         span6.ifPresent(span -> {

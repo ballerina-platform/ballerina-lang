@@ -56,39 +56,47 @@ public class TracingBaseTest extends BaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     private void setup() throws Exception {
-        // Don't use 9898 port here. It is used in metrics test cases.
-        int[] requiredPorts = new int[]{9090, 9091, 9092, 9093, 9095};
-        serverInstance = new BServerInstance(balServer);
+        final String serverHome = balServer.getServerHome();
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)),  Paths.get(Paths.get(System.getProperty
                 (TEST_NATIVES_JAR)).getParent() +  File.separator + TEST_NATIVES_JAR).toFile());
 
-        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
-                + DEST_FUNCTIONS_JAR));
+        copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverHome + DEST_FUNCTIONS_JAR));
 
         // copy to bre/libs
         Path observeTestBaloPath =
                 Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-balo", "repo", "ballerina", "testobserve");
         FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
-                Paths.get(serverInstance.getServerHome(), "lib", "repo", "ballerina").toFile());
+                Paths.get(serverHome, "lib", "repo", "ballerina").toFile());
 
         // copy to bir-cache
         FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
-                Paths.get(serverInstance.getServerHome(), "bir-cache", "ballerina").toFile());
+                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
         FileUtils.copyDirectoryToDirectory(
                 Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir", "ballerina", "testobserve").toFile(),
-                Paths.get(serverInstance.getServerHome(), "bir-cache", "ballerina").toFile());
+                Paths.get(serverHome, "bir-cache", "ballerina").toFile());
 
         // copy code-gen-ed generated-jar
         copyFile(Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir-jar", TEST_OBSERVE_JAR).toFile(),
-                Paths.get(serverInstance.getServerHome(), "bre", "lib", TEST_OBSERVE_JAR).toFile());
+                Paths.get(serverHome, "bre", "lib", TEST_OBSERVE_JAR).toFile());
 
         String basePath = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "observability" + File.separator + "tracing").getAbsolutePath();
 
         String configFile = new File(RESOURCE_LOCATION + "ballerina.conf").getAbsolutePath();
         String[] args = new String[] { "--b7a.config.file=" + configFile };
-        serverInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
+
+        // Don't use 9898 port here. It is used in metrics test cases.
+        {
+            int[] requiredPorts = new int[]{10010, 10011};
+            serverInstance = new BServerInstance(balServer);
+            serverInstance.startServer(basePath, "backend", null, args, requiredPorts);
+        }
+        {
+            int[] requiredPorts = new int[]{9090, 9091};
+            serverInstance = new BServerInstance(balServer);
+            serverInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
+        }
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)
