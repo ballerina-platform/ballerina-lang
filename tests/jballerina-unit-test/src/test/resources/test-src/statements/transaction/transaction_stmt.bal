@@ -115,7 +115,7 @@ string ss = "";
 function testTrxHandlers() returns string {
     ss = ss + "started";
     transactions:Info transInfo;
-        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
         ss = ss + " trxAborted";
     };
 
@@ -182,10 +182,10 @@ function testTrxReturnVal() returns string {
     }
 }
 
-function testInvokingMultipleTrx() returns string {
+function testInvokingTrxFunc() returns string {
     string str = "start";
     string res = funcWithTrx(str);
-    return str + res + "end.";
+    return res + " end.";
 
 }
 
