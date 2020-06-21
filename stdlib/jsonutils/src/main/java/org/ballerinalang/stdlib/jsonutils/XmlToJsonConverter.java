@@ -33,13 +33,14 @@ import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BXML;
 
-import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 /**
  * Convert Ballerina XML value into respective JSON value.
@@ -249,7 +250,7 @@ public class XmlToJsonConverter {
         String firstElementName = next.getElementName();
         int i = 0;
         boolean sameElementName = true;
-        for(; iterator.hasNext(); i++) {
+        for (; iterator.hasNext(); i++) {
             BXML val = iterator.next();
             if (val.getNodeType() == XMLNodeType.ELEMENT) {
                 if (!((XMLItem) val).getElementName().equals(firstElementName)) {
