@@ -43,7 +43,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @Test(groups = "tracing-test")
 public class TracingBaseTest extends BaseTest {
-    private static BServerInstance serverInstance;
+    private static BServerInstance servicesServerInstance;
+    private static BServerInstance backendServerInstance;
 
     private static final String OBESERVABILITY_TEST_BIR = System.getProperty("observability.test.utils");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
@@ -89,28 +90,31 @@ public class TracingBaseTest extends BaseTest {
         // Don't use 9898 port here. It is used in metrics test cases.
         {
             int[] requiredPorts = new int[]{10010, 10011};
-            serverInstance = new BServerInstance(balServer);
-            serverInstance.startServer(basePath, "backend", null, args, requiredPorts);
+            servicesServerInstance = new BServerInstance(balServer);
+            servicesServerInstance.startServer(basePath, "backend", null, args, requiredPorts);
         }
         {
             int[] requiredPorts = new int[]{9090, 9091};
-            serverInstance = new BServerInstance(balServer);
-            serverInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
+            backendServerInstance = new BServerInstance(balServer);
+            backendServerInstance.startServer(basePath, "tracingservices", null, args, requiredPorts);
         }
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)
     private void cleanup() throws Exception {
-        serverInstance.removeAllLeechers();
-        serverInstance.shutdownServer();
+        servicesServerInstance.removeAllLeechers();
+        servicesServerInstance.shutdownServer();
+        backendServerInstance.removeAllLeechers();
+        backendServerInstance.shutdownServer();
     }
 
     private void copyFile(File source, File dest) throws IOException {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
-    protected List<BMockSpan> getCollectedSpans(String service) throws IOException {
-        String data = HttpClientRequest.doGet("http://localhost:9090/mock-tracer/spans/" + service).getData();
+    protected List<BMockSpan> getFinishedSpans(int port, String service) throws IOException {
+        String data = HttpClientRequest.doGet("http://localhost:" + port + "/mock-tracer/spans/" + service)
+                .getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);
     }
