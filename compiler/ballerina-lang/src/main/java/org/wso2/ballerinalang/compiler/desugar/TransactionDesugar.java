@@ -115,8 +115,16 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         DiagnosticPos pos = transactionNode.pos;
         BLangBlockStmt transactionBlockStmt = desugarTransactionBody(transactionNode, env, false, pos);
-        return ASTBuilderUtil.createStatementExpression(transactionBlockStmt,
-                ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+        BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(transactionNode.pos, transactionError);
+        if (transactionNode.statementBlockReturns) {
+            //  returns <TypeCast>$result$;
+            BLangInvokableNode encInvokable = env.enclInvokable;
+            return ASTBuilderUtil.createStatementExpression(transactionBlockStmt,
+                    desugar.addConversionExprIfRequired(resultRef, encInvokable.returnTypeNode.type));
+        } else {
+            return ASTBuilderUtil.createStatementExpression(transactionBlockStmt,
+                    ASTBuilderUtil.createLiteral(transactionNode.pos, symTable.nilType, Names.NIL_VALUE));
+        }
     }
 
     private BLangBlockStmt desugarTransactionBody(BLangTransaction transactionNode, SymbolEnv env, boolean shouldRetry,
@@ -176,8 +184,6 @@ public class TransactionDesugar extends BLangNodeVisitor {
         ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
         ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(1, infoAssignment);
 
-        trxMainFunc.function = desugar.resolveReturnTypeCast(trxMainFunc.function, env);
-
         BVarSymbol transactionVarSymbol = new BVarSymbol(0, names.fromString("$trxFunc$"),
                 env.scope.owner.pkgID, trxMainFunc.type, trxMainFunc.function.symbol);
         BLangSimpleVariable transactionLambdaVariable = ASTBuilderUtil.createVariable(pos, "trxFunc",
@@ -202,9 +208,8 @@ public class TransactionDesugar extends BLangNodeVisitor {
                 symTable.anyOrErrorType, transactionLambdaInvocation, resultSymbol);
         BLangSimpleVariableDef trxFuncVarDef = ASTBuilderUtil.createVariableDef(pos,
                 resultVariable);
-
+        transactionError = resultSymbol;
         if (shouldRetry) {
-            transactionError = resultSymbol;
             retryStmt = transactionLambdaInvocation;
         }
 
@@ -423,7 +428,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         blockStmt.stmts.add(retryWhileLoop);
         desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
 
-        if (retryTrxBlock.transactionReturns) {
+        if (retryTrxBlock.transaction.statementBlockReturns) {
             //  returns <TypeCast>$result$;
             BLangInvokableNode encInvokable = env.enclInvokable;
             return ASTBuilderUtil.createStatementExpression(blockStmt,
