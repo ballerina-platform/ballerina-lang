@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.jsonutils;
 import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.XmlToJsonConverter;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.values.BMap;

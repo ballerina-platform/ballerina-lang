@@ -23,17 +23,8 @@ import org.apache.axiom.om.OMElement;
 import org.apache.axiom.om.OMFactory;
 import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.util.StAXParserConfiguration;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BPackage;
-import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.ArrayValue;
-import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.XMLComment;
 import org.ballerinalang.jvm.values.XMLItem;
@@ -42,7 +33,6 @@ import org.ballerinalang.jvm.values.XMLQName;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLText;
 import org.ballerinalang.jvm.values.XMLValue;
-import org.ballerinalang.jvm.values.XmlToJsonConverter;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
@@ -55,11 +45,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
@@ -344,19 +330,6 @@ public class XMLFactory {
      */
     public static XMLValue createXMLProcessingInstruction(BString tartget, BString data) {
         return createXMLProcessingInstruction(tartget.getValue(), data.getValue());
-    }
-
-    /**
-     * Converts given xml object to the corresponding json.
-     *
-     * @param xml                XML object to get the corresponding json
-     * @param attributePrefix    Prefix to use in attributes
-     * @param preserveNamespaces preserve the namespaces when converting
-     * @return BJSON JSON representation of the given xml object
-     */
-    @SuppressWarnings("rawtypes")
-    public static Object convertToJSON(XMLValue xml, String attributePrefix, boolean preserveNamespaces) {
-        return XmlToJsonConverter.convertToJSON(xml, attributePrefix, preserveNamespaces);
     }
 
     /**
