@@ -85,8 +85,21 @@ public class TransactionStmtTest {
 
     @Test
     public void testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() {
-        BValue[] result = BRunUtil.invoke(programFile, "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
+        BValue[] result = BRunUtil.invoke(programFile,
+                "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
         Assert.assertEquals(result[0].stringValue(), "init-in-transaction-block");
+    }
+
+    @Test
+    public void testTrxReturnVal() {
+        BValue[] result = BRunUtil.invoke(programFile, "testTrxReturnVal");
+        Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
+    }
+
+    @Test
+    public void testInvokingMultipleTrx() {
+        BValue[] result = BRunUtil.invoke(programFile, "testInvokingMultipleTrx");
+        Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
     }
 
     @Test(description = "Test transaction statement with errors")

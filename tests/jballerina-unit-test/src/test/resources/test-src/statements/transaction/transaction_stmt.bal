@@ -171,3 +171,28 @@ public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() 
     }
     return s;
 }
+
+function testTrxReturnVal() returns string {
+    string str = "start";
+    transaction {
+        str = str + " within transaction";
+        var commitRes = commit;
+        str = str + " end.";
+        return str;
+    }
+}
+
+function testInvokingMultipleTrx() returns string {
+    string str = "start";
+    string res = funcWithTrx(str);
+    return str + res + "end.";
+
+}
+
+function funcWithTrx(string str) returns string {
+    transaction {
+        string res = str + " within transaction";
+        var commitRes = commit;
+        return res;
+    }
+}
