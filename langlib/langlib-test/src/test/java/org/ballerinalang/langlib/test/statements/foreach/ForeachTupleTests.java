@@ -129,7 +129,7 @@ public class ForeachTupleTests {
         Assert.assertEquals(returns[0].stringValue(), "0:d0 1: 2:d2 3: ");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNegativeTupleForeach() {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
         Assert.assertEquals(negative.getErrorCount(), 3);
