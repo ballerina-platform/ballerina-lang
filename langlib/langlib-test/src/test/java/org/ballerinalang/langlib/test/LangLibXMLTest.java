@@ -274,7 +274,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(compileResult, "testXMLTextCtor");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;

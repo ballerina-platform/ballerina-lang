@@ -24,6 +24,8 @@ import java.nio.file.Paths;
 
 /**
  * Manages Choreo tracing extension's configs in local machine.
+ *
+ * @since 2.0.0
  */
 public class ChoreoConfigHelper {
     public static Path getGlobalChoreoConfigDir() {

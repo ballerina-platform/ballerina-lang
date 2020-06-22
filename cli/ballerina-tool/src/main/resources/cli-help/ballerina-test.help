@@ -76,9 +76,12 @@ OPTIONS
        --debug
            Run tests in remote debugging mode.
 
+       --observability-included
+           Package observability in the executable.
+
 CONFIG PROPERTIES
        (--key=value)...
-           Set Ballerina environment parameters as key/value pairs.
+           Set the Ballerina environment parameters as key/value pairs.
            If multiple parameters need to be provided, each parameter
            has to be prefixed with '--'. Details of the environment parameters
            supported by the Ballerina standard library modules are specified

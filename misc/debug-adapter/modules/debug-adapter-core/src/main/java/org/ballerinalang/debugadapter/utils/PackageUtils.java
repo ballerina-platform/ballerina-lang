@@ -63,14 +63,27 @@ public class PackageUtils {
         Path relativePath = projectRoot.relativize(path);
 
         String packagePath = relativePath.toString();
+        String separatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
         if (packagePath.startsWith("src")) {
-            packagePath = packagePath.replaceFirst("src" + File.separator, "");
+            packagePath = packagePath.replaceFirst("src" + separatorRegex, "");
         }
         // Directly using file separator as a regex will fail on windows.
-        return packagePath.split(File.separatorChar == '\\' ? "\\\\" : File.separator)[0];
+        return packagePath.split(separatorRegex)[0];
     }
 
     public static boolean isBlank(String str) {
         return str == null || str.isEmpty() || str.chars().allMatch(Character::isWhitespace);
+    }
+
+    public static String[] getSourceNames(String sourceName) {
+        String[] srcNames;
+        if (sourceName.contains("/")) {
+            srcNames = sourceName.split("/");
+        } else if (sourceName.contains("\\")) {
+            srcNames = sourceName.split("\\\\");
+        } else {
+            srcNames = new String[]{sourceName};
+        }
+        return srcNames;
     }
 }

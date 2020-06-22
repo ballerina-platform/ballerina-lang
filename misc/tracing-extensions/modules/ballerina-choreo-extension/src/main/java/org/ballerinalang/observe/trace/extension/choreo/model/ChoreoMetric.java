@@ -20,6 +20,8 @@ import java.util.Map;
 
 /**
  * Represents a Metric published to Choreo.
+ *
+ * @since 2.0.0
  */
 public class ChoreoMetric {
     private long timestamp;

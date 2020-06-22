@@ -2,16 +2,17 @@
 
 This module provides the common interface and functionality to interact with a database. The corresponding database
 clients can be created by using specific database modules such as `MySQL` or using the Java Database Connectivity 
-module `JDBC`. The available database modules are listed below.
+module `JDBC`.
 
 ### List of Database Modules
-1. [JDBC (Java Database Connectivity) Module](https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html)  
+1. JDBC (Java Database Connectivity) Module
 This module can be used to connect with any database by simply providing the JDBC URL and the other related properties. 
-For more details, see the [JDBC module] (https://ballerina.io/learn/api-docs/ballerina/java.jdbc/index.html).
+For more details, see the [JDBC module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/java.jdbc/index.html).
 
-2. [MySQL Module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html)   
+
+2. MySQL Module  
 This module is specially designed to work with a MySQL database and allows to access the functionality 
-provided by MySQL 8.0.x onwards. For more details, see the [MySQL module](https://ballerina.io/learn/api-docs/ballerina/mysql/index.html).
+provided by MySQL 8.0.x onwards. For more details, see the [MySQL module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/index.html).
 
 
 ### Client
@@ -31,19 +32,21 @@ connection pool handling.  For its properties and possible values, see the `sql:
     The JDBC module example below shows how the global connection pool is used. 
 
     ```ballerina
-    jdbc:Client dbClient = new ("jdbc:mysql://localhost:3306/testdb", 
+    jdbc:Client|sql:Error dbClient = 
+                               new ("jdbc:mysql://localhost:3306/testdb", 
                                 "root", "root");
     ```
 
 2. Client owned, unsharable connection pool
 
     If you define the `connectionPool` field inline when creating the database client with the `sql:ConnectionPool` type, 
-    an unshareable connection pool will be created. The JDBC module example below shows how the global 
+    an unsharable connection pool will be created. The JDBC module example below shows how the global 
     connection pool is used.
 
     ```ballerina
-    jdbc:Client dbClient = new (url = "jdbc:mysql://localhost:3306/testdb", 
-                                connectionPool = { maxOpenConnections: 5 });
+    jdbc:Client|sql:Error dbClient = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb", 
+                               connectionPool = { maxOpenConnections: 5 });
     ```
 
 3. Local, shareable connection pool
@@ -53,14 +56,17 @@ connection pool handling.  For its properties and possible values, see the `sql:
     connection pool will be created. The JDBC module example below shows how the global connection pool is used.
 
     ```ballerina
-    sql:ConnectionPool connPool = {maximumPoolSize: 5};
+    sql:ConnectionPool connPool = {maxOpenConnections: 5};
     
-    jdbc:Client dbClient1 = new (url = "jdbc:mysql://localhost:3306/testdb",    
-                                 connectionPool = connPool);
-    jdbc:Client dbClient2 = new (url = "jdbc:mysql://localhost:3306/testdb",       
-                                 connectionPool = connPool);
-    jdbc:Client dbClient3 = new (url = "jdbc:mysql://localhost:3306/testdb",    
-                                 connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient1 =       
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
+                               connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient2 = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
+                               connectionPool = connPool);
+    jdbc:Client|sql:Error dbClient3 = 
+                               new (url = "jdbc:mysql://localhost:3306/testdb",
+                               connectionPool = connPool);
     ```
     
 #### Closing the client
@@ -94,8 +100,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Students table create status in DB: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Students table creation failed: ",
-                <string>err.detail()["message"]);
+    io:println("Students table creation failed: ", err.message());
 }
 ```
 
@@ -114,8 +119,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -128,14 +132,14 @@ from the type of the Ballerina variable that is passed in.
 string name = "Anne";
 int age = 8;
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -144,17 +148,17 @@ corresponding subtype of the `sql:TypedValue` such as `sql:Varchar`, `sql:Char`,
 provide more details such as the exact SQL type of the parameter.
 
 ```ballerina
-sql:Varchar name = new ("James");
-sql:Integer age = new (10);
+sql:VarcharValue name = new ("James");
+sql:IntegerValue age = new (10);
 
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
-if (ret is sql:ExecutionResult) {
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
+f (ret is sql:ExecutionResult) {
     io:println("Inserted row count to Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Insert to Students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Insert to Students table failed: ", err.message());
 }
 ```
 
@@ -166,8 +170,10 @@ This example demonstrates inserting data while returning the auto-generated keys
 ```ballerina
 int age = 31;
 string name = "Kate";
-var ret = dbClient->execute(`INSERT INTO student(age, name) 
-                             values (${age}, ${name})`);
+
+sql:ParameterizedQuery query = `INSERT INTO student(age, name)
+                                values (${age}, ${name})`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     int? count = ret.affectedRowCount;
     string|int? generatedKey = ret.lastInsertId;
@@ -175,7 +181,7 @@ if (ret is sql:ExecutionResult) {
     io:println("Generated key: ", generatedKey);
 } else {
     error err = ret;
-    io:println("Insert to table failed: ", <string>err.detail()["message"]);
+    io:println("Insert to table failed: ", err.message());
 }
 ```
 
@@ -200,14 +206,15 @@ type Student record {
     string name;
 };
 
-// Select the data from the database table. The query parameters are passed directly. 
-// Similar to the `execute` examples, parameters can be passed as sub types of 
-// `sql:TypedValue`s as well.
+// Select the data from the database table. The query parameters are passed 
+// directly. Similar to the `execute` examples, parameters can be passed as
+// sub types of `sql:TypedValue` as well.
 int id = 10;
 int age = 12;
-stream<Student, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
-                                                          WHERE id < ${id} AND 
-                                                          age > ${age}`, Student);
+sql:ParameterizedQuery query = `SELECT * FROM students
+                                WHERE id < ${id} AND age > ${age}`;
+stream<Student, sql:Error> resultStream = 
+        <stream<Student, sql:Error>> dbClient->query(query, Student);
 
 // Iterating the returned table.
 error? e = resultStream.forEach(function(Student student) {
@@ -225,14 +232,14 @@ the above example can be modified as follows with an open record type as the ret
 type will be the same as how the column is defined in the database. 
 
 ```ballerina
-// Select the data from the database table. The query parameters are passed directly. 
-// Similar to the `execute` examples, parameters can be passed as sub types of 
-// `sql:TypedValue`s as well.
+// Select the data from the database table. The query parameters are passed 
+// directly. Similar to the `execute` examples, parameters can be passed as 
+// sub types of `sql:TypedValue` as well.
 int id = 10;
 int age = 12;
-stream<record{}, sql:Error> resultStream = dbClient->query(`SELECT * FROM students 
-                                                            WHERE id < ${id} AND 
-                                                            age > ${age}`, Student);
+sql:ParameterizedQuery query = `SELECT * FROM students
+                                WHERE id < ${id} AND age > ${age}`;
+stream<record{}, sql:Error> resultStream = dbClient->query(query);
 
 // Iterating the returned table.
 error? e = resultStream.forEach(function(record{} student) {
@@ -251,8 +258,8 @@ result stream will not be closed and you have to explicitly invoke the `close` o
 `sql:Client` to release the connection resources and avoid a connection leak as shown below.
 
 ```ballerina
-stream<record{}, sql:Error> resultStream = dbClient->query("SELECT count(*) as " + 
-                                                           "total FROM students");
+stream<record{}, sql:Error> resultStream = 
+            dbClient->query("SELECT count(*) as total FROM students");
 
 record {|record {} value;|}|error? result = resultStream.next();
 
@@ -277,13 +284,14 @@ the client.
 
 ```ballerina
 int age = 23;
-var ret = dbClient->execute(`UPDATE students SET name = 'John' WHERE age = ${age}`);
+sql:ParameterizedQuery query = `UPDATE students SET name = 'John' 
+                                WHERE age = ${age}`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Updated row count in Students table: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Update to students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Update to students table failed: ", err.message());
 }
 ```
 
@@ -294,13 +302,13 @@ the client.
 
 ```ballerina
 string name = "John";
-var ret = dbClient->execute(`DELETE from students WHERE name = ${name}`);
+sql:ParameterizedQuery query = `DELETE from students WHERE name = ${name}`;
+var ret = dbClient->execute(query);
 if (ret is sql:ExecutionResult) {
     io:println("Deleted student count: ", ret.affectedRowCount);
 } else {
     error err = ret;
-    io:println("Delete from students table failed: ",
-                <string>err.detail()["message"]);
+    io:println("Delete from students table failed: ", err.message());
 }
 ```
 
@@ -308,24 +316,24 @@ if (ret is sql:ExecutionResult) {
 
 This example demonstrates how to insert multiple records with a single INSERT statement that is executed via the 
 `batchExecute` remote function of the client. This is done by creating a `table` with multiple records and 
-parameterizing the SQL query as same as the  above `execute` operations.
+parameterized SQL query as same as the  above `execute` operations.
 
 ```ballerina
 // Create the table with the records that need to be inserted.
 var data = [
   { name: "John", age: 25  },
-  { name: "Peter", price: 24 },
-  { name: "jane", price: 22 }
+  { name: "Peter", age: 24 },
+  { name: "jane", age: 22 }
 ];
 
 // Do the batch update by passing the batches.
-var ret = dbClient->batchExecute(from {name, age} in data 
-                                 select `INSERT INTO students 
-                                 ('name', 'age') 
-                                 VALUES (${name}, ${age})`);
+sql:ParameterizedQuery[] batch = from var row in data
+                                 select `INSERT INTO students ('name', 'age')
+                                 VALUES (${row.name}, ${row.age})`;
+var ret = dbClient->batchExecute(batch);
 
 if (ret is error) {
-    io:println("Error occurred:", <string>e.detail()["message"]);
+    io:println("Error occurred:", err.message());
 } else {
     io:println("Batch item 1 update count: ", ret[0].affectedRowCount);
     io:println("Batch item 2 update count: ", ret[1].affectedRowCount);

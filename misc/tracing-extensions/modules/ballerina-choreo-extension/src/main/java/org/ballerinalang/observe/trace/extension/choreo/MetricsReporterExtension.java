@@ -49,6 +49,8 @@ import static org.ballerinalang.observe.trace.extension.choreo.Constants.CHOREO_
 
 /**
  * Ballerina MetricReporter extension for Choreo cloud.
+ *
+ * @since 2.0.0
  */
 public class MetricsReporterExtension implements MetricReporter, AutoCloseable {
     private static final Logger LOGGER = LogFactory.getLogger();

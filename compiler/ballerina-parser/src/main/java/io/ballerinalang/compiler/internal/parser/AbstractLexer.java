@@ -103,6 +103,6 @@ public abstract class AbstractLexer {
     }
 
     protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
-        diagnostics.add(new STNodeDiagnostic(diagnosticCode, args));
+        diagnostics.add(SyntaxErrors.createDiagnostic(diagnosticCode, args));
     }
 }

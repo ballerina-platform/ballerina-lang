@@ -22,6 +22,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -69,7 +70,8 @@ public class AddCommandTest extends CommandTest {
             readOutput(false);
 
             Path baloFile = templateProject.resolve("target")
-                    .resolve("balo").resolve("mytemplate-2020r1-any-0.1.0.balo");
+                    .resolve("balo").resolve("mytemplate-"
+                            + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0.balo");
 
             homeCache = this.tmpDir.resolve("home-cache");
             Path baloDir = homeCache.resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME)
@@ -78,9 +80,12 @@ public class AddCommandTest extends CommandTest {
             Files.createDirectories(baloDir.resolve("0.1.0"));
             Files.createDirectories(baloDir.resolve("0.2.0"));
             Files.createDirectories(baloDir.resolve("0.2.1"));
-            Files.copy(baloFile, baloDir.resolve("0.2.1").resolve("mytemplate-2020r1-any-0.2.1.balo"));
-            Files.copy(baloFile, baloDir.resolve("0.1.0").resolve("mytemplate-2020r1-any-0.1.0.balo"));
-            Files.copy(baloFile, baloDir.resolve("0.2.0").resolve("mytemplate-2020r1-any-0.2.0.balo"));
+            Files.copy(baloFile, baloDir.resolve("0.2.1").resolve("mytemplate-"
+                    + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.2.1.balo"));
+            Files.copy(baloFile, baloDir.resolve("0.1.0").resolve("mytemplate-"
+                    + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0.balo"));
+            Files.copy(baloFile, baloDir.resolve("0.2.0").resolve("mytemplate-"
+                    + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.2.0.balo"));
         } catch (URISyntaxException e) {
             Assert.fail("error loading resources");
         }

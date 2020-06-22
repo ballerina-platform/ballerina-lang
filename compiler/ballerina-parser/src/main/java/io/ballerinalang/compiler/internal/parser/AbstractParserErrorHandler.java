@@ -33,17 +33,25 @@ import java.util.List;
 public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
-    protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
+    private int previousTokenIndex;
+    private int itterCount;
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
     protected static final int LOOKAHEAD_LIMIT = 5;
 
+    /**
+     * Limit for the number of times parser tries to recover staying on the same token index.
+     * This will prevent parser going to infinite loops.
+     */
+    private static final int ITTER_LIMIT = 7;
+
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
-        this.errorListener = new BallerinaParserErrorListener();
+        this.previousTokenIndex = -1;
+        this.itterCount = 0;
     }
 
     /*
@@ -82,15 +90,26 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
-        Result bestMatch = seekMatch(currentCtx);
-        if (bestMatch.matches > 0) {
-            Solution sol = bestMatch.solution;
-            if (sol != null) {
-                applyFix(currentCtx, sol, args);
-                return sol;
+        int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
+        if (currentTokenIndex == this.previousTokenIndex) {
+            itterCount++;
+        } else {
+            itterCount = 0;
+            previousTokenIndex = currentTokenIndex;
+        }
+
+        if (itterCount < ITTER_LIMIT) {
+            Result bestMatch = seekMatch(currentCtx);
+            if (bestMatch.matches > 0) {
+                Solution sol = bestMatch.solution;
+                if (sol != null) {
+                    applyFix(currentCtx, sol, args);
+                    return sol;
+                }
+
+                // else fall through
             }
 
-            // else fall through
         }
 
         // Fail safe. This means we can't find a path to recover.
@@ -192,10 +211,6 @@ public abstract class AbstractParserErrorHandler {
     public void switchContext(ParserRuleContext context) {
         this.ctxStack.pop();
         this.ctxStack.push(context);
-    }
-
-    public void reportInvalidNode(STToken startingToken, String message) {
-        this.errorListener.reportInvalidNodeError(startingToken, message);
     }
 
     protected ParserRuleContext getParentContext() {
@@ -413,7 +428,7 @@ public abstract class AbstractParserErrorHandler {
         public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
-        public STNode removedToken;
+        public STToken removedToken;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;

@@ -40,17 +40,12 @@ function testRecordWithSimpleReadonlyFields() {
     };
     assertEquality("Maryam", st.name);
     assertEquality((), st?.id);
-
-    st.id = 1234; // Valid since first update.
-    assertEquality("Maryam", st.name);
-    assertEquality(1234, st?.id);
 }
 
 function testInvalidRecordSimpleReadonlyFieldUpdate() {
     Student st1 = {
         name: "Maryam"
     };
-    st1.id = 1234; // Valid since first update.
 
     // Invalid updates.
     var fn1 = function () {
@@ -66,7 +61,8 @@ function testInvalidRecordSimpleReadonlyFieldUpdate() {
     assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()["message"]);
 
     var fn2 = function () {
-        st1.id = 4567;
+        record {} rec = st1;
+        rec["id"] = 4567;
     };
     res = trap fn2();
     assertTrue(res is error);

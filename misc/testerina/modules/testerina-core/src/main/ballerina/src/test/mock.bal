@@ -16,135 +16,127 @@
 
 import ballerina/java;
 
-# Object mocking constants
-
+# Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";
-
-# Object mocking errors
 
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
-public type InvalidObjError distinct error<Detail>;
+public type InvalidObjectError distinct error;
 
 # Represents the reason for the non-existing member function related errors.
 public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
-public type FunctionNotFoundError distinct error<Detail>;
+public type FunctionNotFoundError distinct error;
 
 # Represents the reason for the function signature related errors.
 public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
-public type FunctionSignatureMismatchError distinct error<Detail>;
+public type FunctionSignatureMismatchError distinct error;
 
 # Represents the reason for the object member field related errors.
 public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
-public type InvalidMemberFieldError distinct error<Detail>;
+public type InvalidMemberFieldError distinct error;
 
 # Represents the reason for function mocking related errors.
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
-public type FunctionCallError distinct error<Detail>;
+public type FunctionCallError distinct error;
 
-public type Error InvalidObjError | FunctionNotFoundError | FunctionSignatureMismatchError | InvalidMemberFieldError | FunctionCallError;
+# Represents mocking related errors
+public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
 
-# The details of an error.
-public type Detail record {};
 
-# Objects and functions related to exposed API
-
-# Creates and returns a mock object of provided type description
+# Creates and returns a mock object of provided type description.
 #
-# + T - Type Description (typedesc)
-# + mockObj - mock object to replace the original (optional)
+# + T - type of object to create the mock
+# + mockObject - mock object to replace the original (optional)
 # + return - created mock object
-public function mock(typedesc<object {}> T, object{} mockObj = new) returns object{} {
-    object {}|Error mockExtResult = mockExt(T, mockObj);
+public function mock(typedesc<object {}> T, object{} mockObject = new) returns object{} {
+    object {}|Error mockExtResult = mockExt(T, mockObject);
     if (mockExtResult is Error) {
         panic mockExtResult;
     }
     return <object{}>mockExtResult;
 }
 
-# Prepares a provided mock object to register mock cases.
+# Prepares a provided default mock object for stubbing.
 #
-# + mockObj - created mock object
-# + return - prepared object that expects a member functon/field to mock
-public function prepare(object {} mockObj) returns MockObj {
-    Error? result = validatePreparedObjExt(mockObj);
+# + mockObject - created default mock object
+# + return - prepared object that allows a member function/field to register stubs
+public function prepare(object {} mockObject) returns MockObject {
+    Error? result = validatePreparedObjExt(mockObject);
     if (result is Error) {
         panic result;
     }
-    MockObj obj = new MockObj(mockObj);
+    MockObject obj = new MockObject(mockObject);
     return obj;
 }
 
-# Initial mock object created to expose functions to user to regster cases
-public type MockObj object {
-    object {} preparedObj;
+# Represents a Mock object in which to create stubs for member functions and variables
+public type MockObject object {
+    object {} mockObject;
     string fieldName = "";
 
     # Gets invoked during the mock object preparation.
     #
-    # + preparedObj - object to register cases
-    # + return - mock object
-    public function init(object{} preparedObj) {
-        self.preparedObj = preparedObj;
+    # + mockObject - object to register stubbing
+    public function init(object{} mockObject) {
+        self.mockObject = mockObject;
     }
 
-    # Accepts a member function to mock.
+    # Allows a member function to stub.
     #
-    # + funcName - member funcion name
-    # + return - mock case that expects the function behavior
-    public function when(string funcName) returns CaseMemFunc {
-        Error? result = validateFunctionNameExt(java:fromString(funcName), self.preparedObj);
+    # + functionName - function name to allow stubbing
+    # + return - object that allows stubbing calls to provided member function
+    public function when(string functionName) returns MemberFunctionStub {
+        Error? result = validateFunctionNameExt(java:fromString(functionName), self.mockObject);
         if (result is Error) {
              panic result;
         }
-        CaseMemFunc mockObjCaseMemFunc = new CaseMemFunc(self.preparedObj);
-        mockObjCaseMemFunc.functionName = funcName;
+        MemberFunctionStub mockObjCaseMemFunc = new MemberFunctionStub(self.mockObject);
+        mockObjCaseMemFunc.functionName = functionName;
         return mockObjCaseMemFunc;
     }
 
-    # Accepts a member field to mock
+    # Allows a member variable to stub
     #
-    # + fieldName - memeber field name
-    # + return - mock case that expects the value to return
-    public function getMember(string fieldName) returns CaseMemVar {
+    # + fieldName - field name to allow stubbing
+    # + return - object that allows stubbing retrieval of provided member variable
+    public function getMember(string fieldName) returns MemberVariableStub {
         self.fieldName = fieldName;
-        Error? result = validateFieldNameExt(java:fromString(fieldName), self.preparedObj);
+        Error? result = validateFieldNameExt(java:fromString(fieldName), self.mockObject);
         if (result is Error) {
              panic result;
         }
-        CaseMemVar mockObjCaseMemVar = new CaseMemVar(self.preparedObj);
-        mockObjCaseMemVar.fieldName = fieldName;
-        return mockObjCaseMemVar;
+        MemberVariableStub memberVariableStub = new MemberVariableStub(self.mockObject);
+        memberVariableStub.fieldName = fieldName;
+        return memberVariableStub;
     }
 };
 
-# Represents a single case of a member function
+# Represents an object that allows stubbing member function invocations.
 #
-# + preparedObj - created mock object
+# + mockObject - created mock object
 # + functionName - member function name
 # + args - arguments list of the function
-# + returnVal - value to return
-# + returnValSeq - equence of values to return
-public  type CaseMemFunc object {
-    object {} preparedObj;
+# + returnValue - value to return
+# + returnValueSeq - equence of values to return
+public type MemberFunctionStub object {
+    object {} mockObject;
     string functionName = "";
     anydata|error args = [];
-    any|error returnVal = ();
-    any|error returnValSeq = [];
+    any|error returnValue = ();
+    any|error returnValueSeq = [];
 
-    # Gets invoked during the mock case registration.
+    # Gets invoked during the stub registration.
     #
-    # + preparedObj - object to register cases
-    # + return - mock object
-    public function init(object{} preparedObj) {
-        self.preparedObj = preparedObj;
+    # + mockObject - object to register
+    public function init(object{} mockObject) {
+        self.mockObject = mockObject;
     }
 
-    # Accepts the arguments list to pass to the member function.
+    # Sets the arguments list to consider when stubbing the function call.
     #
     # + args - arguments list
-    # + return - mock case that expects the function behavior
-    public function withArguments(anydata|error... args) returns CaseMemFunc {
+    # + return - object that allows stubbing calls to provided member function
+    public function withArguments(anydata|error... args) returns MemberFunctionStub {
         self.args = args;
         Error? result = validateArgumentsExt(self);
         if (result is Error) {
@@ -155,13 +147,13 @@ public  type CaseMemFunc object {
 
     # Sets the value to be returned when the function is called.
     #
-    # + retVal - return value
-    public function thenReturn(any|error retVal) {
+    # + returnValue - value or error to return
+    public function thenReturn(any|error returnValue) {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        self.returnVal = retVal;
+        self.returnValue = returnValue;
         Error? thenReturnExtResult = thenReturnExt(self);
         if (thenReturnExtResult is Error) {
             panic thenReturnExtResult;
@@ -170,8 +162,8 @@ public  type CaseMemFunc object {
 
     # Sets the values to be returned when the function is called repeatedly.
     #
-    # + retVals - return values
-    public function thenReturnSequence(any|error... retVals) {
+    # + returnValues - value or error to return
+    public function thenReturnSequence(any|error... returnValues) {
         if (self.functionName == "") {
              error err = error("function to mock is not specified.");
              panic err;
@@ -180,7 +172,7 @@ public  type CaseMemFunc object {
             error err = error("'withArguments' function cannot be specified with a return sequence");
             panic err;
         }
-        self.returnValSeq = retVals;
+        self.returnValueSeq = returnValues;
         Error? thenReturnSeqExtResult = thenReturnSeqExt(self);
         if (thenReturnSeqExtResult is Error) {
             panic thenReturnSeqExtResult;
@@ -193,7 +185,7 @@ public  type CaseMemFunc object {
              error err = error("function to mock is not specified.");
              panic err;
         }
-        self.returnVal = ();
+        self.returnValue = ();
         Error? thenReturnExtResult = thenReturnExt(self);
         if (thenReturnExtResult is Error) {
             panic thenReturnExtResult;
@@ -201,32 +193,31 @@ public  type CaseMemFunc object {
     }
 };
 
-# Represents a single case of a memeber variable
+# Represents an object that allows stubbing member variables retrieved.
 #
-# + preparedObj - created mock object
-# + returnVal - value to return
-public  type CaseMemVar object {
-    object {} preparedObj;
-    any|error returnVal = ();
+# + mockObject - created mock object
+# + returnValue - value to return
+public  type MemberVariableStub object {
+    object {} mockObject;
+    any|error returnValue = ();
     string fieldName = "";
 
-    # Gets invoked during the mock case registration
+    # Gets invoked during the stub registration
     #
-    # + preparedObj - object to register cases
-    # + return - mock object
-    public function init(object{} preparedObj) {
-        self.preparedObj = preparedObj;
+    # + mockObject - object to register
+    public function init(object{} mockObject) {
+        self.mockObject = mockObject;
     }
 
     # Sets the value to be returned when the function is called.
     #
-    # + retVal - return value
-    public function thenReturn(any|error retVal) {
+    # + returnValue - value or error to return
+    public function thenReturn(any|error returnValue) {
         if (self.fieldName == "") {
              error err = error("field name is not specified.");
              panic err;
         }
-        self.returnVal = retVal;
+        self.returnValue = returnValue;
         Error? thenReturnExtResult = thenReturnExt(self);
         if (thenReturnExtResult is Error) {
             panic thenReturnExtResult;
@@ -234,42 +225,59 @@ public  type CaseMemVar object {
     }
 };
 
-// Inter-op functions
-public function when(MockFunction mockFunc) returns CaseFunction {
-    CaseFunction case = new CaseFunction(mockFunc);
-    return case;
+# Objects and functions related to function mocking
+
+# Allows a function to stub.
+#
+# + mockFunction - function name to allow stubbing
+# + return - object that allows stubbing calls to provided function
+public function when(MockFunction mockFunction) returns FunctionStub {
+    FunctionStub stub = new FunctionStub(mockFunction);
+    return stub;
 }
 
 # Represents a MockFunction object
 public type MockFunction object {};
 
-# Represents a CaseFunction object
+# Represents an object that allows stubbing function invocations
 #
 # + mockFuncObj - associated mockFunctionObj
-# + returnVal - return value
+# + returnValue - return value
 # + args - function arguments
-public type CaseFunction object {
+public type FunctionStub object {
     MockFunction mockFuncObj;
-    any|error returnVal = ();
+    any|error returnValue = ();
     anydata|error args = [];
 
-    public function init(MockFunction mockFunc) {
-        self.mockFuncObj = mockFunc;
+
+    # Gets invoked during the stub registration
+    #
+    # + mockObject - object to register
+    public function init(MockFunction mockFunction) {
+        self.mockFuncObj = mockFunction;
     }
 
-    public function thenReturn(any|error retVal) {
-        self.returnVal = retVal;
+    # Sets the value to be returned when the function is called.
+    #
+    # + returnValue - value or error to return
+    public function thenReturn(any|error returnValue) {
+        self.returnValue = returnValue;
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
             panic result;
         }
     }
 
-    public function withArguments(anydata|error... args) returns CaseFunction {
+    # Sets the arguments list to consider when stubbing the function call.
+    #
+    # + args - arguments list
+    # + return - object that allows stubbing calls to a function
+    public function withArguments(anydata|error... args) returns FunctionStub {
         self.args = args;
         return self;
     }
 
+    # Sets the function behavior to do nothing when called
     public function doNothing() {
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
@@ -277,14 +285,18 @@ public type CaseFunction object {
         }
     }
 
+    # Sets a function to be invoked when the real function is called.
+    #
+    # + functionName - mock function to call in place of the real
     public function call(string functionName) {
-        self.returnVal = "__CALL__" + functionName;
+        self.returnValue = "__CALL__" + functionName;
         Error? result = thenReturnFuncExt(self);
         if (result is Error) {
             panic result;
         }
     }
 };
+
 
 # Inter-op to create the mock object
 #
@@ -298,9 +310,9 @@ function mockExt(typedesc<object {}> T, object {} obj) returns object{}|Error = 
 
 # Inter-op to validate the mock object.
 #
-# + preparedObj - mock object
+# + mockObject - mock object
 # + return - Return Value Description
-function validatePreparedObjExt(object{} preparedObj) returns Error? = @java:Method {
+function validatePreparedObjExt(object{} mockObject) returns Error? = @java:Method {
     name: "validatePreparedObj",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -308,9 +320,9 @@ function validatePreparedObjExt(object{} preparedObj) returns Error? = @java:Met
 # Inter-op to validate the provided function name
 #
 # + functionName - function name provided
-# + preparedObj - object to validate against
+# + mockObject - object to validate against
 # + return - error if function does not exist or in case of a signature mismatch
-function validateFunctionNameExt(handle functionName, object{} preparedObj) returns Error? = @java:Method {
+function validateFunctionNameExt(handle functionName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFunctionName",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -318,9 +330,9 @@ function validateFunctionNameExt(handle functionName, object{} preparedObj) retu
 # Inter-op to validate the field name.
 #
 # + fieldName - field name provided
-# + preparedObj - obj to validate against
+# + mockObject - obj to validate against
 # + return - error if field does not exist
-function validateFieldNameExt(handle fieldName, object{} preparedObj) returns Error? = @java:Method {
+function validateFieldNameExt(handle fieldName, object{} mockObject) returns Error? = @java:Method {
     name: "validateFieldName",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -329,7 +341,7 @@ function validateFieldNameExt(handle fieldName, object{} preparedObj) returns Er
 #
 # + case - case to validate
 # + return - error in case of an argument mismatch
-function validateArgumentsExt(CaseMemFunc case) returns Error? = @java:Method {
+function validateArgumentsExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "validateArguments",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -338,7 +350,7 @@ function validateArgumentsExt(CaseMemFunc case) returns Error? = @java:Method {
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnExt(CaseMemFunc|CaseMemVar case) returns Error? = @java:Method {
+function thenReturnExt(MemberFunctionStub|MemberVariableStub case) returns Error? = @java:Method {
     name: "thenReturn",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -347,7 +359,7 @@ function thenReturnExt(CaseMemFunc|CaseMemVar case) returns Error? = @java:Metho
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnSeqExt(CaseMemFunc case) returns Error? = @java:Method {
+function thenReturnSeqExt(MemberFunctionStub case) returns Error? = @java:Method {
     name: "thenReturnSequence",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
@@ -356,12 +368,12 @@ function thenReturnSeqExt(CaseMemFunc case) returns Error? = @java:Method {
 #
 # + case - case to register
 # + return - error if case registration failed
-function thenReturnFuncExt(CaseFunction case) returns Error? = @java:Method {
+function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     name: "thenReturn",
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
-# Inter-op to call Mock Handler
+# Inter-op to handle function mocking.
 #
 # + mockFunction - mockFunction object
 # + args - function arguments

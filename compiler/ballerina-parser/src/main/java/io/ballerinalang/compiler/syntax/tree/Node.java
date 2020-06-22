@@ -106,7 +106,8 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(),
+                textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }
@@ -148,9 +149,7 @@ public abstract class Node {
      * @return source code as a string
      */
     public String toSourceCode() {
-        StringBuilder stringBuilder = new StringBuilder();
-        internalNode.toSourceCode(stringBuilder);
-        return stringBuilder.toString();
+        return internalNode.toSourceCode();
     }
 
     private SyntaxTree populateSyntaxTree() {
