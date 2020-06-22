@@ -1263,14 +1263,15 @@ public class BRunUtil {
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
-            Object errorMsg  = futureValue.strand.getProperty("lang.test.state.failMsg");
+            Object errorMsg = futureValue.strand.getProperty("lang.test.state.failMsg");
             jvmResult[0] = futureValue.result;
             jvmResult[1] = "failed";
             if (errorMsg != null && !panicFlag) {
                 jvmResult[1] = "passed";
                 jvmResult[0] = errorMsg.toString();
             } else if (futureValue.panic instanceof RuntimeException) {
-                outStream.println(funcClassName + "-> " + functionName + " failed \n" + futureValue.panic.toString());
+                jvmResult[0] = getFormattedErrorMessage(futureValue);
+                outStream.println(funcClassName + "-> " + functionName + " failed! \n" + jvmResult[0]);
             } else {
                 jvmResult[1] = "passed";
             }
@@ -1278,5 +1279,19 @@ public class BRunUtil {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
         }
         return jvmResult;
+    }
+
+    public static String getFormattedErrorMessage(FutureValue futureValue) {
+        String errMsg = futureValue.panic.toString();
+        String errorVal = null;
+        try {
+            errorVal = futureValue.getPanic().getCause().getCause().toString();
+        } catch (Exception e) {
+            //do nothing
+        }
+        if (errorVal != null) {
+            errMsg = errMsg + "\n" + errorVal + "\n";
+        }
+        return errMsg;
     }
 }

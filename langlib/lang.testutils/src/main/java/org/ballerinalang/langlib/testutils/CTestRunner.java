@@ -27,9 +27,16 @@ import org.ballerinalang.test.util.CompileResult;
 import java.io.PrintStream;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Invokes the test functions in the Test Suite.
@@ -62,6 +69,7 @@ public class CTestRunner {
     }
 
     public void invokeTests(CTests cTests) {
+        ArrayList<ReportDetails> records = new ArrayList<ReportDetails>();
         if (cTests.getTestFunctions().size() == 0) {
             outStream.println("\tNo tests steps found\n");
             return;
@@ -69,64 +77,100 @@ public class CTestRunner {
         CompileResult compileResult = BCompileUtil.compile(cTests.getPath());
         if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
             // TODO: implement function for negative tests
-            throw new RuntimeException(cTests.getPath() + " compilation failed! ");
+            throw new RuntimeException(cTests.getPath() + " compilation failed! \n" + compileResult);
         } else {
             for (TestFunction testFunction : cTests.getTestFunctions()) {
-                invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
+                ReportDetails reportDetails = new ReportDetails();
+                reportDetails.setClassName(cTests.getPath());
+                reportDetails.setFunctionName(testFunction.getFunctionName());
+                long startTime = System.currentTimeMillis();
+                String returnValue = invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
+                long endTime = System.currentTimeMillis();
+                long totalTime = (endTime - startTime) / 1000;
+                reportDetails.setExecutionTime(String.valueOf(totalTime));
+                reportDetails.setStackTrace(returnValue);
+                if (returnValue.equals(CTestConstants.TEST_PASSED_STATUS)) {
+                    reportDetails.setTestStatus(CTestConstants.TEST_PASSED_STATUS);
+                } else {
+                    reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+                }
+                records.add(reportDetails);
             }
         }
+        //generate Html report
+        GenerateHtmlReportForTest.generateReport(cTests.getTestName(), records);
     }
 
-    public static void invokeTestSteps(CompileResult compileResult, TestFunction testFunction,
-                                       String functionClassName) {
+    public static String invokeTestSteps(CompileResult compileResult, TestFunction testFunction,
+                                         String functionClassName) {
         String functionName = testFunction.getFunctionName();
+        String returnValue = null;
         if (!testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
-            invokeFunction(compileResult, functionName);
+            returnValue = invokeFunction(compileResult, functionName);
         } else if (!testFunction.isAssertParamFlag() && testFunction.isParamFlag()) {
-            invokeFunctionWithParam(compileResult, functionName, testFunction.getParameters());
+            returnValue = invokeFunctionWithParam(compileResult, functionName, testFunction.getParameters());
         } else if (testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
-            invokeFunctionWithAssert(compileResult, functionName, functionClassName, testFunction.getAssertVal(),
-                    testFunction.getPanicFlag());
+            returnValue = invokeFunctionWithAssert(compileResult, functionName,
+                    functionClassName, testFunction.getAssertVal(), testFunction.getPanicFlag());
         } else {
-            invokeFunctionWithArgs(compileResult, functionName, functionClassName, testFunction.getParameters(),
-                    testFunction.getAssertVal(), testFunction.getPanicFlag());
+            returnValue = invokeFunctionWithArgs(compileResult, functionName, functionClassName,
+                    testFunction.getParameters(), testFunction.getAssertVal(), testFunction.getPanicFlag());
         }
+        return returnValue;
     }
 
-    private static void invokeFunction(CompileResult compileResult, String functionName) {
+    private static String invokeFunction(CompileResult compileResult, String functionName) {
         Object[] status = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], true);
         if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
             CTestSuite.failedTestCount++;
+        } else {
+            status[0] = CTestConstants.TEST_PASSED_STATUS;
         }
+        return status[0].toString();
     }
 
-    private static void invokeFunctionWithParam(CompileResult compileResult, String functionName,
-                                                List<Map<String, String>> parmas) {
+    private static String invokeFunctionWithParam(CompileResult compileResult, String functionName,
+                                                  List<Map<String, String>> parmas) {
         int numberOfParams = parmas.size();
         Object[] args = new Object[numberOfParams];
         Class<?>[] jvmParamType = getJvmParams(parmas, args);
         Object[] status = BRunUtil.cInvoke(compileResult, functionName, args, jvmParamType, true);
         if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
             CTestSuite.failedTestCount++;
+        } else {
+            status[0] = CTestConstants.TEST_PASSED_STATUS;
         }
+        return status[0].toString();
     }
 
-    private static void invokeFunctionWithAssert(CompileResult compileResult, String functionName,
-                                 String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
+    private static String invokeFunctionWithAssert(CompileResult compileResult, String functionName,
+                               String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
         Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], panicFlag);
-        validateResult(results[0], assertVal, functionDetails, results[1].toString());
+        String returnValue = validateResult(results[0], assertVal, functionDetails, results[1].toString());
+        if (returnValue == null && results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
+            returnValue = results[0].toString();
+        } else if (returnValue == null) {
+            returnValue = CTestConstants.TEST_PASSED_STATUS;
+        }
+        return returnValue;
     }
 
-    private static void invokeFunctionWithArgs(CompileResult compileResult, String functionName,
-                                  String functionClassName, List<Map<String, String>> parmas, List<Map<String,
-                                  String>> assertVal, boolean panicFlag) {
+    private static String invokeFunctionWithArgs(CompileResult compileResult, String functionName,
+                                                 String functionClassName, List<Map<String, String>> parmas,
+                                                 List<Map<String, String>> assertVal, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
         int numberOfParams = parmas.size();
         Object[] args = new Object[numberOfParams];
         Class<?>[] jvmParamType = getJvmParams(parmas, args);
         Object[] results = BRunUtil.cInvoke(compileResult, functionName, args, jvmParamType, panicFlag);
-        validateResult(results[0], assertVal, functionDetails, results[1].toString());
+        String returnValue = validateResult(results[0], assertVal, functionDetails, results[1].toString());
+        if (returnValue == null && results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
+            returnValue = results[0].toString();
+        } else if (returnValue == null) {
+            returnValue = CTestConstants.TEST_PASSED_STATUS;
+        }
+        return returnValue;
     }
 
     private static Class<?>[] getJvmParams(List<Map<String, String>> parmas, Object[] args) {
@@ -145,15 +189,17 @@ public class CTestRunner {
     }
 
     // check whether the return value of a function match with the expected value
-    private static void validateResult(Object actualValue, List<Map<String, String>> assertVariable,
-                                       String[] functionDetails, String status) {
+    private static String validateResult(Object actualValue, List<Map<String, String>> assertVariable,
+                                         String[] functionDetails, String status) {
+        String returnValue = null;
         if (status.equals(CTestConstants.TEST_FAILED_STATUS)) {
             CTestSuite.failedTestCount++;
         } else {
             Object[] expectedValue = new Object[1];
             getJvmParams(assertVariable, expectedValue);
-            assertValueEqual(actualValue, expectedValue[0], functionDetails);
+            returnValue = assertValueEqual(actualValue, expectedValue[0], functionDetails);
         }
+        return returnValue;
     }
 
     // get the JVM values and Types for the xml values
@@ -195,17 +241,19 @@ public class CTestRunner {
         return paramTypes;
     }
 
-    private static void assertValueEqual(Object actual, Object expected, String[] functionDetails) {
+    private static String assertValueEqual(Object actual, Object expected, String[] functionDetails) {
+        String msg = null;
         if (!TypeChecker.isEqual(expected, actual)) {
-            String msg = CTestConstants.TEST_FAIL_REASON +
-                    " expected: [" + expected + "] but found: [" + actual + "]";
+            msg = CTestConstants.TEST_FAIL_REASON +
+                    " expected: [" + expected + "]  but found: [" + actual + "]";
             errStream.println(functionDetails[0] + "-> " + functionDetails[1] + " failed \n " + msg);
             CTestSuite.failedTestCount++;
         }
+        return msg;
     }
 
-    private static void invokeWithTimeoutWithExecutor(CompileResult compileResult, TestFunction testFunction,
-                                                      String functionClassName) {
+    private static String invokeWithTimeoutWithExecutor(CompileResult compileResult, TestFunction testFunction,
+                                                        String functionClassName) {
         ExecutorService exec = Executors.newFixedThreadPool(1,
                 new ThreadFactory() {
                     public Thread newThread(Runnable r) {
@@ -216,24 +264,35 @@ public class CTestRunner {
                 });
         Task task = new Task();
         task.setArgs(compileResult, testFunction, functionClassName);
-        exec.submit(task);
+        Future<String> future = exec.submit(task);
         exec.shutdown();
         boolean finished = false;
         try {
             finished = exec.awaitTermination(60, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             // throw an exception if the thread is interrupted during the wait time
-            throw new RuntimeException(e.toString());
+            throw new RuntimeException(e.getCause());
         }
         if (!finished) {
             exec.shutdownNow();
             outStream.println(functionClassName + " => " + testFunction.getFunctionName() + " failed! ");
             throw new RuntimeException("Time limit exceeded.");
         }
+        String returnValue = null;
+        try {
+            returnValue = future.get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(functionClassName + " -> " + testFunction.getFunctionName() +
+                    " failed \n" + e.getCause());
+        } catch (ExecutionException e) {
+            throw new RuntimeException(functionClassName + " -> " + testFunction.getFunctionName() +
+                    " failed \n" + e.getCause());
+        }
+        return returnValue;
     }
 }
 
-class Task implements Runnable {
+class Task implements Callable<String> {
     private CompileResult compileResult;
     private TestFunction testFunction;
     private String functionClassName;
@@ -245,7 +304,7 @@ class Task implements Runnable {
     }
 
     @Override
-    public void run() {
-        CTestRunner.invokeTestSteps(compileResult, testFunction, functionClassName);
+    public String call() {
+        return CTestRunner.invokeTestSteps(compileResult, testFunction, functionClassName);
     }
 }
