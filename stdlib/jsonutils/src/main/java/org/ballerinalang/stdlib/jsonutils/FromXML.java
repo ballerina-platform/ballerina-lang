@@ -20,7 +20,6 @@ package org.ballerinalang.stdlib.jsonutils;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.XMLValue;

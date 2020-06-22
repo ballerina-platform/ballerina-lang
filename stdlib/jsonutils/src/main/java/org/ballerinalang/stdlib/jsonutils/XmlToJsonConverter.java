@@ -34,13 +34,14 @@ import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
 
-import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.namespace.QName;
 
 import static org.ballerinalang.jvm.StringUtils.fromString;
 
