@@ -22,7 +22,6 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.TypeTags;
-import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -31,23 +30,20 @@ import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
 /**
  * Native implementation of assertError(any|error value, typedesc typ = error,string? expectedErrorMessage = (),
- *                                      string? message = ()).
+ * string? message = ()).
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "assertError",
         args = {@Argument(name = "value", type = TypeKind.UNION),
-                @Argument(name = "typ", type = TypeKind.TYPEDESC),
                 @Argument(name = "expectedErrorMessage", type = TypeKind.UNION),
                 @Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
 public class AssertError {
-    public static void assertError(Strand strand, Object value, TypedescValue typ, Object expectedErrorMessage,
-                                   Object message) {
-        if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG ||
-                !TypeChecker.checkIsType(value, typ.getDescribingType())) {
+    public static void assertError(Strand strand, Object value, Object expectedErrorMessage, Object message) {
+        if (TypeChecker.getType(value).getTag() != TypeTags.ERROR_TAG) {
             String msg = " expected an error type";
             msg = message != null ? message.toString() + msg : msg;
             msg = expectedErrorMessage != null ? expectedErrorMessage.toString() + msg : msg;

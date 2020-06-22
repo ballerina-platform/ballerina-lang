@@ -27,7 +27,7 @@ public function assertEquals(anydata actual, anydata expected, string? message =
 # + typ - Assertion error message
 # + expectedErrorMessage - Expected error message
 # + message - Assertion error message
-public function assertError(any|error value, typedesc<error> typ = error, string? expectedErrorMessage = (), string? message = ()) = external;
+public function assertError(any|error value, string? expectedErrorMessage = (), string? message = ()) = external;
 
 # Tests whether a value is of a non-error type.
 #

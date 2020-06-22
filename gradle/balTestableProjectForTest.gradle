@@ -30,12 +30,14 @@ dependencies {
     compile project(':ballerina-lang:testutils')
     implementation project(':ballerina-lang-test')
     baloImplementation project(path: ':ballerina-lang-test', configuration: 'baloImplementation')
-    jacocoPath  group: 'org.jacoco', name: 'org.jacoco.agent',classifier: 'runtime' , version: '0.8.5'
+    jacocoPath group: 'org.jacoco', name: 'org.jacoco.agent', classifier: 'runtime', version: '0.8.5'
 }
 
-class execsuite extends JavaExec{
-    @Input def  libPath = []
-    execsuite(){
+class execsuite extends JavaExec {
+    @Input
+    def libPath = []
+
+    execsuite() {
         setMain('org.ballerinalang.langlib.testutils.TestMain')
     }
     @Override
@@ -46,15 +48,27 @@ class execsuite extends JavaExec{
     }
 }
 
-task runTestSuites(type:execsuite){
+task copySource {
+    doFirst {
+        def src = "${project.rootDir}/langlib/lang.testutils/reportTools/"
+        def dis = "${buildDir}/reportClass/"
+        copy {
+            from(src)
+            into dis
+        }
+    }
+}
+
+task runTestSuites(type: execsuite) {
     dependsOn createTestBalHome
+    dependsOn copySource
     jvmArgs "-javaagent:${configurations.jacocoPath.asPath}=destfile=build/jacoco/test.exec,classdumpdir=build/jacocodumpclass/"
     inputs.files(configurations.baloTestImplementation);
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test"
     systemProperty "enableJBallerinaTests", "true"
     classpath = sourceSets.test.runtimeClasspath
     libPath << "${file("$projectDir")}/"
-    doLast{
+    doLast {
         copy {
             from "${buildDir}/jacocodumpclass/ballerina/"
 
@@ -71,7 +85,7 @@ task runTestSuites(type:execsuite){
 
 jacocoTestReport {
     executionData = files("${buildDir}/jacoco/test.exec")
-    classDirectories =  files("${buildDir}/jacococlasses/")
+    classDirectories = files("${buildDir}/jacococlasses/")
     reports {
         xml.enabled true
         csv.enabled false
@@ -79,6 +93,6 @@ jacocoTestReport {
     }
 }
 
-build{
+build {
     finalizedBy runTestSuites
 }
