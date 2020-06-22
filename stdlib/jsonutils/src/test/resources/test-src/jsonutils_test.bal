@@ -85,3 +85,27 @@ public function testFromTable2() returns string {
 function testFromXML2() returns json|error {
     return jsonutils:fromXML(xml `foo`);
 }
+
+xml e = xml `<Invoice xmlns="example.com" attr="attr-val" xmlns:ns="ns.com" ns:attr="ns-attr-val">
+        <PurchesedItems>
+            <PLine><ItemCode>223345</ItemCode><Count>10</Count></PLine>
+            <PLine><ItemCode>223300</ItemCode><Count>7</Count></PLine>
+            <PLine><ItemCode discount="22%">200777</ItemCode><Count>7</Count></PLine>
+        </PurchesedItems>
+        <Address xmlns="">
+            <StreetAddress>20, Palm grove, Colombo 3</StreetAddress>
+            <City>Colombo</City>
+            <Zip>00300</Zip>
+            <Country>LK</Country>
+        </Address>
+    </Invoice>`;
+
+function testComplexXMLElementToJson() returns string {
+    json j = checkpanic jsonutils:fromXML(e);
+    return j.toJsonString();
+}
+
+function testComplexXMLElementToJsonNoPreserveNS() returns string {
+    json j = checkpanic jsonutils:fromXML(e, { preserveNamespaces: false });
+    return j.toJsonString();
+}
