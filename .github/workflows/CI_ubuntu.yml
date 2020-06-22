@@ -31,17 +31,11 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Cache Gradle packages only for this workflow
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ github.sha }}
-
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          key: ${{ runner.os }}-gradle-${{ github.sha }}
           restore-keys: ${{ runner.os }}-gradle
 
       - name: Build with Gradle
@@ -78,8 +72,7 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run integration test
         run: |
@@ -114,8 +107,7 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run jballerina unit test
         run: |
@@ -150,11 +142,10 @@ jobs:
         with:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ github.sha }}
-          restore-keys: | 
-            ${{ runner.os }}-gradle
+          restore-keys: ${{ runner.os }}-gradle
 
       - name: Run all the other unit test
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x :ballerina-http:test -x :ballerina-kafka:test -x :ballerina-mysql:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=2 --scan --no-daemon
+          ./gradlew build -x createJavadoc -x :ballerina-http:test -x :ballerina-kafka:test -x :ballerina-mysql:test -x :jballerina-unit-test:test -x :jballerina-integration-test:test -x :testerina-integration-test:test --max-workers=1 --scan --no-daemon

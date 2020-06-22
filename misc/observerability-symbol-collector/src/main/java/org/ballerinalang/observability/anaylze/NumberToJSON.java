@@ -24,6 +24,8 @@ import java.math.BigInteger;
 /**
  * An implementation of Ryu for serializing IEEE-754 double precision values for
  * JSON as specified by ES6.
+ *
+ * @since 2.0.0
  */
 public final class NumberToJSON {
     private static final boolean DEBUG = false;

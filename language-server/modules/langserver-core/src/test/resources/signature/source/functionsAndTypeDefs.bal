@@ -166,7 +166,7 @@ type Employee record {
 
 public const MY_ERROR_REASON = "MyError";
 # Custom Error
-type MyError error<MY_ERROR_REASON, record {| string message?; error cause?;  string...;|}>;
+type MyError error<record {| string message?; error cause?;  string...;|}>;
 
 listener http:MockListener mockEP = new(9090);
 
@@ -350,7 +350,7 @@ public function expressions() returns error? {
     string s2 = arr[foo(1, false)];
 
     // -- expression, xml-attributes-expr
-    map<string>? attrs = fooX(1, false)@;
+    //map<string>? attrs = fooX(1, false)@;
 
     // -- expression, function-call-expr
     int f1 = foo(1, false);

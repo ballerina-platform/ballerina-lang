@@ -258,7 +258,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test ballerina version")
     public void testBallerinaVersion() throws Exception {
-        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
+        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersionDisplayName());
         balClient.runMain("version", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }

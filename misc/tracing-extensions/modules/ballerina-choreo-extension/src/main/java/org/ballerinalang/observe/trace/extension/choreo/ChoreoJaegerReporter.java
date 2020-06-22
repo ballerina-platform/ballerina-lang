@@ -42,6 +42,8 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Custom Jaeger tracing reporter for publishing stats to Choreo cloud.
+ *
+ * @since 2.0.0
  */
 public class ChoreoJaegerReporter implements Reporter, AutoCloseable {
     private static final int PUBLISH_INTERVAL_SECS = 10;

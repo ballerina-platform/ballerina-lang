@@ -186,8 +186,12 @@ public class SQLDatasource {
                     //either jdbcUrl or datasourceClassName will be honoured.
                     config.addDataSourceProperty(Constants.Options.URL.getValue(), sqlDatasourceParams.url);
                 }
-                config.addDataSourceProperty(Constants.USERNAME, sqlDatasourceParams.user);
-                config.addDataSourceProperty(Constants.PASSWORD, sqlDatasourceParams.password);
+                if (sqlDatasourceParams.user != null) {
+                    config.addDataSourceProperty(Constants.USERNAME, sqlDatasourceParams.user);
+                }
+                if (sqlDatasourceParams.password != null) {
+                    config.addDataSourceProperty(Constants.PASSWORD, sqlDatasourceParams.password);
+                }
             }
             config.setDataSourceClassName(sqlDatasourceParams.datasourceName);
             if (sqlDatasourceParams.connectionPool != null) {

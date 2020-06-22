@@ -37,6 +37,8 @@ import java.util.UUID;
 
 /**
  * Manages storage and retrieval of app secret for anonymous apps.
+ *
+ * @since 2.0.0
  */
 public class AnonymousAppSecretHandler implements AppSecretHandler {
     public static final String PROJECT_OBSERVABILITY_ID_CONFIG_KEY = "PROJECT_OBSERVABILITY_ID";

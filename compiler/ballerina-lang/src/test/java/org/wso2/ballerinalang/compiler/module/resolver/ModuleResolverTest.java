@@ -261,7 +261,7 @@ public class ModuleResolverTest extends PowerMockTestCase {
         Assert.assertEquals(resolvedModule.getPackageId(), moduleId);
     }
 
-    @Test(description = "Get module version from ModuleId if module version exists in ModuleId")
+    @Test(description = "Get module version from ModuleId if module version exists in ModuleId", enabled = false)
     void testGetCentralVersions() throws IOException {
         List<String> versions = Central.getCentralVersions("wso2", "sfdc46", "*");
 

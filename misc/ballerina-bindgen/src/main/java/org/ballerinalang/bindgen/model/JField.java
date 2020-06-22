@@ -51,6 +51,7 @@ public class JField {
     private boolean isObject = true;
     private boolean isSetter = false;
     private boolean returnError = false;
+    private boolean javaArraysModule = false;
 
     private JParameter fieldObj;
 
@@ -75,6 +76,7 @@ public class JField {
             if (!type.getComponentType().isPrimitive()) {
                 isObject = false;
             }
+            javaArraysModule = true;
         }
 
         if (fieldKind.equals(ACCESS_FIELD)) {
@@ -104,7 +106,11 @@ public class JField {
         return isSetter;
     }
 
-    public String getFieldName() {
+    String getFieldName() {
         return fieldName;
+    }
+
+    boolean requireJavaArrays() {
+        return javaArraysModule;
     }
 }

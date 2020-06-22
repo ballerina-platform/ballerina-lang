@@ -36,21 +36,21 @@ public class WorkerInActionTest {
         this.result = BCompileUtil.compile("test-src/workers/worker-in-action.bal");
     }
 
-    @Test(description = "Test TestConnector action1")
+    @Test(description = "Test TestConnector action1", groups = "brokenOnNewParser")
     public void testConnectorAction1() {
         BValue[] returns = BRunUtil.invoke(result, "testAction1");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "result from sampleWorker");
     }
 
-    @Test(description = "Test TestConnector action2")
+    @Test(description = "Test TestConnector action2", groups = "brokenOnNewParser")
     public void testConnectorAction2() {
         BValue[] returns = BRunUtil.invoke(result, "testAction2");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "request");
     }
 
-    @Test(description = "Test default strand error before send action")
+    @Test(description = "Test default strand error before send action", groups = "brokenOnNewParser")
     public void testDefaultErrorBeforeSend() {
         BValue[] returns = BRunUtil.invoke(result, "testDefaultError");
         Assert.assertEquals(returns.length, 1);

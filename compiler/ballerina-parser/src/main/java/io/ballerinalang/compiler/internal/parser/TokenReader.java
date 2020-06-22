@@ -114,6 +114,14 @@ public class TokenReader extends AbstractTokenReader {
     }
 
     /**
+     *
+     * @return current token index
+     */
+    public int getCurrentTokenIndex() {
+        return tokensAhead.getCurrentTokenIndex();
+    }
+
+    /**
      * A ring buffer of tokens.
      * 
      * @since 1.2.0
@@ -198,6 +206,14 @@ public class TokenReader extends AbstractTokenReader {
             }
 
             return this.tokens[index];
+        }
+
+        /**
+         *
+         * @return current token index
+         */
+        public int getCurrentTokenIndex() {
+            return this.startIndex;
         }
     }
 }

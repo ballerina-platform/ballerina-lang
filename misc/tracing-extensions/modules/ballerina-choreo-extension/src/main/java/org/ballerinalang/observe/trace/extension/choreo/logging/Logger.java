@@ -18,6 +18,8 @@ package org.ballerinalang.observe.trace.extension.choreo.logging;
 
 /**
  * Used for logging requirements.
+ *
+ * @since 2.0.0
  */
 public interface Logger {
     void debug(String format, Object... args);

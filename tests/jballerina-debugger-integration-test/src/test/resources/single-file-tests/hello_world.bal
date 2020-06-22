@@ -18,5 +18,19 @@ import ballerina/io;
 
 // The `main` function, which acts as the entry point.
 public function main() {
+    int a = 10;
+    int b = 5;
+    int c = a + b;
+
+    if (c == 15) {
+        io:println("c is equal to 15");
+    } else {
+        io:println("c is not equal to 15");
+    }
+
+    sayHello();
+}
+
+function sayHello() {
     io:println("Hello, World!");
 }

@@ -114,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -666,6 +667,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case CONSTRAINED_TYPE:
                 checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeNode).constraint, visitedNodes);
+                break;
+            case TABLE_TYPE:
+                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeNode).constraint, visitedNodes);
                 break;
             case USER_DEFINED_TYPE:
                 String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
@@ -1650,7 +1654,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateReadOnlyIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
-        List<BType> loggedTypes = new ArrayList<>();
+        Set<BType> loggedTypes = new HashSet<>();
 
         for (BLangTypeDefinition typeDefNode : typeDefNodes) {
             BLangType typeNode = typeDefNode.typeNode;
@@ -1665,11 +1669,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BIntersectionType intersectionType = (BIntersectionType) currentType;
 
                 BType effectiveType = intersectionType.effectiveType;
-                if (loggedTypes.contains(effectiveType)) {
+                if (!loggedTypes.add(effectiveType)) {
                     continue;
                 }
-
-                loggedTypes.add(effectiveType);
 
                 boolean hasNonReadOnlyElement = false;
                 for (BType constituentType : intersectionType.getConstituentTypes()) {
@@ -1712,10 +1714,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (loggedTypes.contains(immutableType)) {
+            if (!loggedTypes.add(immutableType)) {
                 continue;
             }
-            loggedTypes.add(immutableType);
 
             if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, immutableType);

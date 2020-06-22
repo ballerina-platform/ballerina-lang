@@ -202,6 +202,26 @@ public class RepoUtils {
         return "unknown";
     }
 
+    public static String getBallerinaPackVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_PACK_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
+    }
+
+    public static String getBallerinaVersionDisplayName() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION_DISPLAY_NAME);
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
+    }
+
 
     /**
      * Validates the org-name and package name.
@@ -241,7 +261,7 @@ public class RepoUtils {
      * @return True if ballerina version is from a nightly build, else false.
      */
     public static boolean isANightlyBuild() {
-        return getBallerinaVersion().contains("SNAPSHOT");
+        return getBallerinaPackVersion().contains("SNAPSHOT");
     }
     
     /**

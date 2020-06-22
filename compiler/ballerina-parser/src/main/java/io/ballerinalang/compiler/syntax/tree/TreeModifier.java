@@ -2080,7 +2080,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public QueryExpressionNode transform(
             QueryExpressionNode queryExpressionNode) {
         QueryConstructTypeNode queryConstructType =
-                modifyNode(queryExpressionNode.queryConstructType());
+                modifyNode(queryExpressionNode.queryConstructType().orElse(null));
         QueryPipelineNode queryPipeline =
                 modifyNode(queryExpressionNode.queryPipeline());
         SelectClauseNode selectClause =

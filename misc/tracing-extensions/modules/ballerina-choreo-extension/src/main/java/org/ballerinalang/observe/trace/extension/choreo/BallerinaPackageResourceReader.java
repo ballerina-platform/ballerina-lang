@@ -20,6 +20,8 @@ import java.io.InputStream;
 
 /**
  * Handle resource files in Ballerina program packages.
+ *
+ * @since 2.0.0
  */
 public class BallerinaPackageResourceReader {
 

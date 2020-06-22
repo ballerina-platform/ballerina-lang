@@ -79,7 +79,7 @@ public class Central implements Repo {
         String moduleNameWithOrg = moduleId.getOrgName() + "/" + moduleId.getName().getValue();
 
         Pull.execute(remoteUri, String.valueOf(modulePathInBaloCache), moduleNameWithOrg, "", 0, "", "", "", false,
-                true, IMPLEMENTATION_VERSION, "java8");
+                true, IMPLEMENTATION_VERSION, "java8", RepoUtils.getBallerinaVersion());
     }
 
     public static List<String> getCentralVersions(String orgName, String moduleName, String filter) throws IOException {

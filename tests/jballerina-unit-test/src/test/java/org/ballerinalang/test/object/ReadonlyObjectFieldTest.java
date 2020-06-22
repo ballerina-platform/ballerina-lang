@@ -33,12 +33,13 @@ import static org.testng.Assert.assertEquals;
  */
 public class ReadonlyObjectFieldTest {
 
+    @Test
     public void testReadonlyObjectFields() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields.bal");
         BRunUtil.invoke(result, "testReadonlyObjectFields");
     }
 
-    @Test(groups = { "brokenOnNewParser" }) // Syntax kind is not supported: READONLY_KEYWORD
+    @Test
     public void testReadonlyObjectFieldsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/readonly_object_fields_negative.bal");
         int index = 0;
