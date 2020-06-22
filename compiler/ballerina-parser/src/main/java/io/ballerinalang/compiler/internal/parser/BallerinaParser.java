@@ -12477,7 +12477,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-
     // ------------------------ Ambiguity resolution at statement start ---------------------------
 
     /**
