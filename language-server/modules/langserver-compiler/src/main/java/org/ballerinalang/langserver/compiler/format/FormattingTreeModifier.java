@@ -509,16 +509,20 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public SimpleNameReferenceNode transform(SimpleNameReferenceNode simpleNameReferenceNode) {
+        int startColumn = getStartColumn(simpleNameReferenceNode, simpleNameReferenceNode.kind(), true);
         Token name = getToken(simpleNameReferenceNode.name());
 
         return simpleNameReferenceNode.modify()
-                .withName(formatToken(name, 0, 0, 0, 0))
+                .withName(formatToken(name, startColumn, 0, 0, 0))
                 .apply();
     }
 
     @Override
     public IfElseStatementNode transform(IfElseStatementNode ifElseStatementNode) {
-        int startColumn = getStartColumn(ifElseStatementNode, ifElseStatementNode.kind(), true);
+        int startColumn = 1;
+        if (ifElseStatementNode.parent().kind() != SyntaxKind.ELSE_BLOCK) {
+            startColumn = getStartColumn(ifElseStatementNode, ifElseStatementNode.kind(), true);
+        }
         Token ifKeyword = getToken(ifElseStatementNode.ifKeyword());
         Node elseBody = ifElseStatementNode.elseBody().orElse(null);
 
@@ -536,6 +540,20 @@ public class FormattingTreeModifier extends TreeModifier {
         return ifElseStatementNode.modify()
                 .withIfBody(ifBody)
                 .withCondition(condition)
+                .apply();
+    }
+
+    @Override
+    public ElseBlockNode transform(ElseBlockNode elseBlockNode) {
+        Token elseKeyword = getToken(elseBlockNode.elseKeyword());
+        elseBlockNode = elseBlockNode.modify()
+                .withElseKeyword(formatToken(elseKeyword, 1, 0, 0, 0))
+                .apply();
+
+        StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
+
+        return elseBlockNode.modify()
+                .withElseBody(elseBody)
                 .apply();
     }
 
@@ -654,9 +672,17 @@ public class FormattingTreeModifier extends TreeModifier {
         Token closeBraceToken = getToken(blockStatementNode.closeBraceToken());
         NodeList<StatementNode> statements = this.modifyNodeList(blockStatementNode.statements());
 
+        int trailingNewLines = 1;
+        if (blockStatementNode.parent() != null && blockStatementNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT) {
+            IfElseStatementNode ifElseStatementNode = (IfElseStatementNode) blockStatementNode.parent();
+            if (ifElseStatementNode.elseBody().isPresent()) {
+                trailingNewLines = 0;
+            }
+        }
+
         blockStatementNode = blockStatementNode.modify()
                 .withOpenBraceToken(formatToken(openBraceToken, 1, 0, 0, 1))
-                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, 1))
+                .withCloseBraceToken(formatToken(closeBraceToken, startColumn, 0, 0, trailingNewLines))
                 .apply();
 
         return blockStatementNode.modify()
@@ -742,7 +768,55 @@ public class FormattingTreeModifier extends TreeModifier {
         return binaryExpressionNode.modify()
                 .withLhsExpr(lhsExpr)
                 .withRhsExpr(rhsExpr)
-                .withOperator(formatToken(operator, 0, 0, 0, 0))
+                .withOperator(formatToken(operator, 1, 1, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ArrayTypeDescriptorNode transform(ArrayTypeDescriptorNode arrayTypeDescriptorNode) {
+        Node arrayLength = arrayTypeDescriptorNode.arrayLength().orElse(null);
+        Token openBracket = getToken(arrayTypeDescriptorNode.openBracket());
+        Token closeBracket = getToken(arrayTypeDescriptorNode.closeBracket());
+        TypeDescriptorNode memberTypeDesc = this.modifyNode(arrayTypeDescriptorNode.memberTypeDesc());
+
+        if (arrayLength != null) {
+            arrayTypeDescriptorNode = arrayTypeDescriptorNode.modify()
+                    .withArrayLength(this.modifyNode(arrayLength)).apply();
+        }
+        return arrayTypeDescriptorNode.modify()
+                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
+                .withMemberTypeDesc(memberTypeDesc)
+                .apply();
+    }
+
+    @Override
+    public AssignmentStatementNode transform(AssignmentStatementNode assignmentStatementNode) {
+        Node varRef = this.modifyNode(assignmentStatementNode.varRef());
+        ExpressionNode expression = this.modifyNode(assignmentStatementNode.expression());
+        Token equalsToken = getToken(assignmentStatementNode.equalsToken());
+        Token semicolonToken = getToken(assignmentStatementNode.semicolonToken());
+        return assignmentStatementNode.modify()
+                .withVarRef(varRef)
+                .withExpression(expression)
+                .withEqualsToken(formatToken(equalsToken, 1, 1, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .apply();
+    }
+
+    @Override
+    public IndexedExpressionNode transform(IndexedExpressionNode indexedExpressionNode) {
+        SeparatedNodeList<ExpressionNode> keyExpression = this.modifySeparatedNodeList(
+                indexedExpressionNode.keyExpression());
+        ExpressionNode containerExpression = this.modifyNode(indexedExpressionNode.containerExpression());
+        Token openBracket = getToken(indexedExpressionNode.openBracket());
+        Token closeBracket = getToken(indexedExpressionNode.closeBracket());
+
+        return indexedExpressionNode.modify()
+                .withKeyExpression(keyExpression)
+                .withContainerExpression(containerExpression)
+                .withOpenBracket(formatToken(openBracket, 0, 0, 0, 0))
+                .withCloseBracket(formatToken(closeBracket, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -786,23 +860,30 @@ public class FormattingTreeModifier extends TreeModifier {
         if (parent == null) {
             parent = node;
         }
-        if (parent.kind() == SyntaxKind.MODULE_VAR_DECL) {
+        SyntaxKind parentKind = parent.kind();
+        if (parentKind == SyntaxKind.MODULE_VAR_DECL) {
             if (parent.parent() != null && parent.parent().kind() == SyntaxKind.MODULE_PART &&
                     syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 return null;
             }
             return parent;
-        } else if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION ||
-                parent.kind() == SyntaxKind.IF_ELSE_STATEMENT ||
-                parent.kind() == SyntaxKind.SPECIFIC_FIELD) {
+        } else if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
+                parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
+                parentKind == SyntaxKind.ELSE_BLOCK ||
+                parentKind == SyntaxKind.SPECIFIC_FIELD) {
             return parent;
-        } else if (parent.kind() == SyntaxKind.SERVICE_DECLARATION ||
-                parent.kind() == SyntaxKind.BINARY_EXPRESSION) {
+        } else if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            if (parent.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
+                return getParent(parent, syntaxKind);
+            }
+            return null;
+        } else if (parentKind == SyntaxKind.SERVICE_DECLARATION ||
+                parentKind == SyntaxKind.BINARY_EXPRESSION) {
             if (syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 return null;
             }
             return parent;
-        } else if (parent.kind() == SyntaxKind.REQUIRED_PARAM) {
+        } else if (parentKind == SyntaxKind.REQUIRED_PARAM) {
             return null;
         } else if (parent.parent() != null) {
             return getParent(parent, syntaxKind);
