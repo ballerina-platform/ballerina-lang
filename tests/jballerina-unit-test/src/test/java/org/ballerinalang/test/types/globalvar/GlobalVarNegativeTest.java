@@ -33,11 +33,13 @@ public class GlobalVarNegativeTest {
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "invalid token 'int'", 27, 8);
-        BAssertUtil.validateError(resultNegative, 1, "invalid token 'int'", 29, 8);
-        BAssertUtil.validateError(resultNegative, 2, "mismatched input ';'. expecting '='", 31, 46);
-        BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting '='", 33, 59);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
+        BAssertUtil.validateError(resultNegative, 0, "missing non-defaultable required record field 'x'", 22, 12);
+        BAssertUtil.validateError(resultNegative, 1, "invalid character ':' in field access expression", 23, 15);
+        BAssertUtil.validateError(resultNegative, 2, "invalid token 'int'", 27, 8);
+        BAssertUtil.validateError(resultNegative, 3, "invalid token 'int'", 29, 8);
+        BAssertUtil.validateError(resultNegative, 4, "mismatched input ';'. expecting '='", 31, 46);
+        BAssertUtil.validateError(resultNegative, 5, "mismatched input ';'. expecting '='", 33, 59);
     }
 
     @Test

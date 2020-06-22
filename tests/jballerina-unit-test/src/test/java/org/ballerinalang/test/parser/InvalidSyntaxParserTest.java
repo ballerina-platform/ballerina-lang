@@ -109,12 +109,16 @@ public class InvalidSyntaxParserTest {
     @Test
     public void testObjectAttachedFunctionWithInvalidSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
-        BAssertUtil.validateError(result, 0, "mismatched input '.'. expecting '('", 6, 17);
-        BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '&', '|', Identifier}", 6, 21);
-        BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
-        BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '&', '|', Identifier}",
-                                  6, 29);
-        BAssertUtil.validateError(result, 4, "extraneous input '}'", 8, 1);
+        BAssertUtil.validateError(result, 0, "no implementation found for the function 'foo' of non-abstract object " +
+                "'TestObj'", 2, 5);
+        BAssertUtil.validateError(result, 1, "no implementation found for the function 'bar' of non-abstract object " +
+                "'TestObj'", 3, 5);
+        BAssertUtil.validateError(result, 2, "mismatched input '.'. expecting '('", 6, 17);
+        BAssertUtil.validateError(result, 3, "mismatched input '('. expecting {'[', '?', '&', '|', Identifier}", 6, 21);
+        BAssertUtil.validateError(result, 4, "extraneous input 'a'", 6, 26);
+        BAssertUtil.validateError(result, 5, "mismatched input 'returns'. expecting {'[', '?', '&', '|', Identifier}",
+                6, 29);
+        BAssertUtil.validateError(result, 6, "extraneous input '}'", 8, 1);
     }
 
     @Test
