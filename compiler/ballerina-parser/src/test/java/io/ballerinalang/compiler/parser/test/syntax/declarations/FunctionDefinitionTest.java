@@ -122,4 +122,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testFuncDefWithExtraIncompleteTokenAtEnd() {
         testFile("func-definition/func_def_source_19.bal", "func-definition/func_def_assert_19.json");
     }
+
+    @Test
+    public void testIncompleteFunctionBodyStatement() {
+        testFile("func-definition/func_def_source_20.bal", "func-definition/func_def_assert_20.json");
+    }
 }

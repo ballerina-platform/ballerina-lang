@@ -3151,8 +3151,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         boolean isTable = false;
         boolean isStream = false;
 
-        QueryConstructTypeNode queryConstructTypeNode = queryExprNode.queryConstructType();
-        if (queryConstructTypeNode != null) {
+        Optional<QueryConstructTypeNode> optionalQueryConstructTypeNode = queryExprNode.queryConstructType();
+        if (optionalQueryConstructTypeNode.isPresent()) {
+            QueryConstructTypeNode queryConstructTypeNode = optionalQueryConstructTypeNode.get();
             isTable = queryConstructTypeNode.keyword().kind() == SyntaxKind.TABLE_KEYWORD;
             isStream = queryConstructTypeNode.keyword().kind() == SyntaxKind.STREAM_KEYWORD;
             if (queryConstructTypeNode.keySpecifier().isPresent()) {

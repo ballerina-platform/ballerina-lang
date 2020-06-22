@@ -253,7 +253,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
-    private Stack<Boolean> returnWithinRetryCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -515,6 +515,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopWithintransactionCheckStack.push(false);
         this.returnWithintransactionCheckStack.push(false);
         this.doneWithintransactionCheckStack.push(false);
+        this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
         if (this.transactionCount > 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
@@ -523,6 +524,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
         }
+        transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
         this.transactionCount--;
         this.withinTransactionScope = previousWithinTxScope;
         this.commitCount = previousCommitCount;
@@ -581,11 +584,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        this.returnWithinRetryCheckStack.push(false);
+        this.returnWithinLambdaWrappingCheckStack.push(false);
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
-        retryNode.retryBodyReturns = this.returnWithinRetryCheckStack.peek();
-        this.returnWithinRetryCheckStack.pop();
+        retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
     }
 
     @Override
@@ -603,11 +606,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        this.returnWithinRetryCheckStack.push(false);
         analyzeNode(retryTransaction.retrySpec, env);
         analyzeNode(retryTransaction.transaction, env);
-        retryTransaction.transactionReturns = this.returnWithinRetryCheckStack.peek();
-        this.returnWithinRetryCheckStack.pop();
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -651,9 +651,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
-        if (!this.returnWithinRetryCheckStack.empty()) {
-            this.returnWithinRetryCheckStack.pop();
-            this.returnWithinRetryCheckStack.push(true);
+        if (!this.returnWithinLambdaWrappingCheckStack.empty()) {
+            this.returnWithinLambdaWrappingCheckStack.pop();
+            this.returnWithinLambdaWrappingCheckStack.push(true);
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);

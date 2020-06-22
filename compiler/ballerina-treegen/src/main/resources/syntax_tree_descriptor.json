@@ -2783,7 +2783,8 @@
             "attributes": [
                 {
                     "name": "queryConstructType",
-                    "type": "QueryConstructTypeNode"
+                    "type": "QueryConstructTypeNode",
+                    "isOptional": true
                 },
                 {
                     "name": "queryPipeline",

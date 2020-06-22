@@ -2047,12 +2047,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SelectClauseNode selectClause,
             OnConflictClauseNode onConflictClause,
             LimitClauseNode limitClause) {
-        Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
         Objects.requireNonNull(selectClause, "selectClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
-                queryConstructType.internalNode(),
+                getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
                 selectClause.internalNode(),
                 getOptionalSTNode(onConflictClause),

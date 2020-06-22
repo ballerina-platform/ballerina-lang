@@ -33,8 +33,8 @@ public class QueryExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public QueryConstructTypeNode queryConstructType() {
-        return childInBucket(0);
+    public Optional<QueryConstructTypeNode> queryConstructType() {
+        return optionalChildInBucket(0);
     }
 
     public QueryPipelineNode queryPipeline() {
@@ -115,7 +115,7 @@ public class QueryExpressionNode extends ExpressionNode {
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
             this.oldNode = oldNode;
-            this.queryConstructType = oldNode.queryConstructType();
+            this.queryConstructType = oldNode.queryConstructType().orElse(null);
             this.queryPipeline = oldNode.queryPipeline();
             this.selectClause = oldNode.selectClause();
             this.onConflictClause = oldNode.onConflictClause().orElse(null);
