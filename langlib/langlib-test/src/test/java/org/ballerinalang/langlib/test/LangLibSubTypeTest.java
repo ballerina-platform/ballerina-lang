@@ -51,7 +51,7 @@ public class LangLibSubTypeTest {
     private static final String FOUND_STRING = " found 'string'";
 
 
-    @Test(enabled = false)
+    @Test
     public void testIntSubType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/subtypes/int_subtypes_test.bal");
         BRunUtil.invoke(compileResult, "testValueAssignment");
