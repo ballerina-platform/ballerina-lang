@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.'error as lang;
-import ballerina/lang.'int as ints;
 
 type Detail record {
     *lang:Detail;
@@ -87,49 +86,4 @@ function testMapWithErrors() returns [string, string, string] {
         result3 += reason4 + ":";
     }
     return [result1, result2, result3];
-}
-
-function testArrayForeachAndTrap() returns int {
-    string[] invalidArray = ["2", "waruna", "7"];
-    int|error result = trap convertAndGetSumFromArray(invalidArray);
-    assertTrue(result is error);
-    // Program should continue without panic.
-    string[] validArray = ["2", "5", "7"];
-    result = trap convertAndGetSumFromArray(validArray);
-    assertTrue(result is int);
-    return <int>result;
-}
-
-function testArrayForeachAndPanic() {
-    string[] invalidArray = ["2", "waruna", "7"];
-    int result = convertAndGetSumFromArray(invalidArray);
-    // This line should not be executed.
-    panic error(ASSERTION_ERROR_REASON,
-                message = "Program should be panic before this line");
-}
-
-function convertAndGetSumFromArray(string[] stringNumbers) returns int {
-    int sum = 0;
-    stringNumbers.forEach(function (string s) {
-	    int val = <int>ints:fromString(s);
-        sum = sum + val;
-    });
-    return sum;
-}
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertTrue(any|error actual) {
-    if actual is boolean && actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected 'true', found '" + actual.toString () + "'");
-}
-
-function assertEqual(anydata|error expected, anydata|error actual) {
-    if expected == actual {
-        return;
-    }
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

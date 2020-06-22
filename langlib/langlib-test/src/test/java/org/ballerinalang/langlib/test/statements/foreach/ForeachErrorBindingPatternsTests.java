@@ -18,14 +18,11 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
-import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -68,23 +65,6 @@ public class ForeachErrorBindingPatternsTests {
                 "Error One:msgOne:true:Error Two:msgTwo:false:Error Three:msgThree:true:");
         Assert.assertEquals(returns[2].stringValue(),
                 "Error One:Error Two:Error Three:Error One:Error Two:Error Three:");
-    }
-
-    @Test
-    public void testArrayForeachAndTrap() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 14);
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class, expectedExceptionsMessageRegExp =
-            "error: \\{ballerina\\}TypeCastError message=incompatible types: 'error' cannot be cast to 'int'\n" +
-                    "\tat foreach_errors:\\$lambda\\$0\\(foreach_errors.bal:112\\)")
-    public void testArrayForeachAndPanic() {
-        BValue[] returns = BRunUtil.invoke(program, "testArrayForeachAndPanic");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "{ballerina}TypeCastError message=incompatible types: " +
-                "'error' cannot be cast to 'int'");
     }
 
     @Test(enabled = false)
