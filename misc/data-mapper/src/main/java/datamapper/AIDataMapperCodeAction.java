@@ -75,7 +75,7 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private static final String REMOTE_URL = "https://datamapper.dv.choreo.dev/uploader";
+    private static final String REMOTE_URL = "https://datamapper.dv.choreo.dev/ping";
     private static final String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
     private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
     private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
@@ -230,6 +230,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                     Map response = new ObjectMapper().readValue(inputStream, Map.class);
                     String mappedFunction = (String) response.get("answer");
                     mappingCache.put(schemas.hashCode(), mappedFunction);
+                    connection.disconnect();
                     return mappedFunction;
                 }
             }
