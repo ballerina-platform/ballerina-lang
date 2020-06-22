@@ -4055,7 +4055,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
-                return parseTypeofExpression(isRhsExpr);
+                return parseTypeofExpression(isRhsExpr, isInConditionalExpr);
             case PLUS_TOKEN:
             case MINUS_TOKEN:
             case NEGATION_TOKEN:
@@ -4419,7 +4419,7 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseMemberAccessExpr(lhsExpr, isRhsExpr);
                 break;
             case DOT_TOKEN:
-                newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr);
+                newLhsExpr = parseFieldAccessOrMethodCall(lhsExpr, isInConditionalExpr);
                 break;
             case IS_KEYWORD:
                 newLhsExpr = parseTypeTestExpression(lhsExpr);
@@ -4442,10 +4442,10 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr, isRhsExpr);
                 break;
             case ANNOT_CHAINING_TOKEN:
-                newLhsExpr = parseAnnotAccessExpression(lhsExpr);
+                newLhsExpr = parseAnnotAccessExpression(lhsExpr, isInConditionalExpr);
                 break;
             case OPTIONAL_CHAINING_TOKEN:
-                newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr);
+                newLhsExpr = parseOptionalFieldAccessExpression(lhsExpr, isInConditionalExpr);
                 break;
             case QUESTION_MARK_TOKEN:
                 newLhsExpr = parseConditionalExpression(lhsExpr);
@@ -4626,7 +4626,7 @@ public class BallerinaParser extends AbstractParser {
      * @param lhsExpr Preceding expression of the field access or method call
      * @return One of <code>field-access-expression</code> or <code>method-call-expression</code>.
      */
-    private STNode parseFieldAccessOrMethodCall(STNode lhsExpr) {
+    private STNode parseFieldAccessOrMethodCall(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode dotToken = parseDotToken();
         STToken token = peek();
         if (token.kind == SyntaxKind.MAP_KEYWORD || token.kind == SyntaxKind.START_KEYWORD) {
@@ -4638,7 +4638,7 @@ public class BallerinaParser extends AbstractParser {
                     closeParen);
         }
 
-        STNode fieldOrMethodName = parseFieldAccessIdentifier();
+        STNode fieldOrMethodName = parseFieldAccessIdentifier(isInConditionalExpr);
         if (fieldOrMethodName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return STNodeFactory.createFieldAccessExpressionNode(lhsExpr, dotToken, fieldOrMethodName);
         }
@@ -6816,12 +6816,12 @@ public class BallerinaParser extends AbstractParser {
      * @param isRhsExpr
      * @return Typeof expression node
      */
-    private STNode parseTypeofExpression(boolean isRhsExpr) {
+    private STNode parseTypeofExpression(boolean isRhsExpr, boolean isInConditionalExpr) {
         STNode typeofKeyword = parseTypeofKeyword();
 
         // allow-actions flag is always false, since there will not be any actions
         // within the typeof-expression, due to the precedence.
-        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false, isInConditionalExpr);
         return STNodeFactory.createTypeofExpressionNode(typeofKeyword, expr);
     }
 
@@ -6871,7 +6871,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the unary expression, due to the precedence.
-        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false);
+        STNode expr = parseExpression(OperatorPrecedence.UNARY, isRhsExpr, false, isInConditionalExpr);
         return STNodeFactory.createUnaryExpressionNode(unaryOperator, expr);
     }
 
@@ -8471,7 +8471,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions);
+        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions,
+                isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
@@ -11137,9 +11138,9 @@ public class BallerinaParser extends AbstractParser {
      * @param lhsExpr Preceding expression of the annot access access
      * @return Parsed node
      */
-    private STNode parseAnnotAccessExpression(STNode lhsExpr) {
+    private STNode parseAnnotAccessExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode annotAccessToken = parseAnnotChainingToken();
-        STNode annotTagReference = parseFieldAccessIdentifier();
+        STNode annotTagReference = parseFieldAccessIdentifier(isInConditionalExpr);
         return STNodeFactory.createAnnotAccessExpressionNode(lhsExpr, annotAccessToken, annotTagReference);
     }
 
@@ -11165,8 +11166,8 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseFieldAccessIdentifier() {
-        return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER);
+    private STNode parseFieldAccessIdentifier(boolean isInConditionalExpr) {
+        return parseQualifiedIdentifier(ParserRuleContext.FIELD_ACCESS_IDENTIFIER, isInConditionalExpr);
     }
 
     /**
@@ -11229,9 +11230,9 @@ public class BallerinaParser extends AbstractParser {
      * @param lhsExpr Preceding expression of the optional access
      * @return Parsed node
      */
-    private STNode parseOptionalFieldAccessExpression(STNode lhsExpr) {
+    private STNode parseOptionalFieldAccessExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode optionalFieldAccessToken = parseOptionalChainingToken();
-        STNode fieldName = parseFieldAccessIdentifier();
+        STNode fieldName = parseFieldAccessIdentifier(isInConditionalExpr);
         return STNodeFactory.createOptionalFieldAccessExpressionNode(lhsExpr, optionalFieldAccessToken, fieldName);
     }
 
