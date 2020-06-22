@@ -2729,7 +2729,12 @@ public class TypeChecker extends BLangNodeVisitor {
                     resultType = symTable.semanticError;
                     return;
                 }
-
+                if (types.getErrorType(nextReturnType) == null && (types.getErrorType(expectedReturnType) != null)) {
+                    dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE,
+                            iteratorExpr);
+                    resultType = symTable.semanticError;
+                    return;
+                }
                 types.checkType(iteratorExpr.pos, nextReturnType, expectedReturnType,
                         DiagnosticCode.INCOMPATIBLE_TYPES);
                 resultType = actualType;
