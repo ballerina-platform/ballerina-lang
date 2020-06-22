@@ -12405,6 +12405,8 @@ public class BallerinaParser extends AbstractParser {
             case STRING_LITERAL:
             case IDENTIFIER_TOKEN:
                 return parseSimpleConstExpr();
+            case VAR_KEYWORD:
+                return parseVarTypedBindingPattern();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
@@ -12445,6 +12447,36 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchPatternEnd(solution.tokenKind);
         }
     }
+
+    /**
+     * Parse var typed binding pattern.
+     * <p>
+     * <code>var binding-pattern</code>
+     * </p>
+     *
+     * @return Parsed typed binding pattern node
+     */
+    private STNode parseVarTypedBindingPattern() {
+        STNode varKeyword = parseVarKeyword();
+        STNode bindingPattern = parseBindingPattern();
+        return STNodeFactory.createTypedBindingPatternNode(varKeyword, bindingPattern);
+    }
+
+    /**
+     * Parse var keyword.
+     *
+     * @return Var keyword node
+     */
+    private STNode parseVarKeyword() {
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.VAR_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(nextToken, ParserRuleContext.VAR_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------
 
