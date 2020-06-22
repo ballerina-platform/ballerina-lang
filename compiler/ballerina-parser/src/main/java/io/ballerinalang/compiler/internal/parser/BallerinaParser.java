@@ -1964,7 +1964,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseParamGivenAnnotsAndQualifier(SyntaxKind prevParamKind, STNode leadingComma, STNode annots,
                                                      STNode qualifier, boolean isParamNameOptional) {
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, false);
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode param = parseAfterParamType(prevParamKind, leadingComma, annots, qualifier, type, isParamNameOptional);
         endContext();
         return param;
@@ -2138,7 +2138,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode returnsKeyword = parseReturnsKeyword();
         STNode annot = parseAnnotations();
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC, false);
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
 
@@ -2179,7 +2179,11 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseTypeDescriptor(ParserRuleContext context, boolean isInConditionalExpr) {
+    private STNode parseTypeDescriptor(ParserRuleContext context) {
+        return parseTypeDescriptor(context, false, false);
+    }
+
+    private STNode parseTypeDescriptorInExpression(ParserRuleContext context, boolean isInConditionalExpr) {
         return parseTypeDescriptor(context, false, isInConditionalExpr);
     }
 
@@ -2339,7 +2343,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseDistinctTypeDesc(ParserRuleContext context) {
         STNode distinctKeyword = parseDistinctKeyword();
-        STNode typeDesc = parseTypeDescriptor(context, false);
+        STNode typeDesc = parseTypeDescriptor(context);
         return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeyword, typeDesc);
     }
 
@@ -2370,7 +2374,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createNilTypeDescriptorNode(openParen, closeParen);
             default:
                 if (isTypeStartingToken(nextTokenKind)) {
-                    STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS, false);
+                    STNode typedesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_PARENTHESIS);
                     closeParen = parseCloseParenthesis();
                     return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typedesc, closeParen);
                 }
@@ -2983,7 +2987,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.MODULE_TYPE_DEFINITION);
         STNode typeKeyword = parseTypeKeyword();
         STNode typeName = parseTypeName();
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF, false);
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createTypeDefinitionNode(metadata, qualifier, typeKeyword, typeName, typeDescriptor,
@@ -3218,7 +3222,7 @@ public class BallerinaParser extends AbstractParser {
                 // record-type-reference
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode asterisk = consume();
-                STNode type = parseTypeReference(false);
+                STNode type = parseTypeReference();
                 STNode semicolonToken = parseSemicolon();
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
@@ -3252,7 +3256,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseRecordField(SyntaxKind nextTokenKind, boolean isInclusive, STNode metadata) {
         if (nextTokenKind != SyntaxKind.READONLY_KEYWORD) {
-            STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
+            STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
             STNode fieldOrRestDesc = parseFieldDescriptor(isInclusive, metadata, type);
             endContext();
             return fieldOrRestDesc;
@@ -3289,7 +3293,7 @@ public class BallerinaParser extends AbstractParser {
                 }
             }
         } else if (isTypeStartingToken(nextToken.kind)) {
-            type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
+            type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
             readOnlyQualifier = createBuiltinSimpleNameReference(readOnlyQualifier);
             type = parseComplexTypeDescriptor(readOnlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
@@ -3320,8 +3324,11 @@ public class BallerinaParser extends AbstractParser {
      * <code>type-reference := identifier | qualified-identifier</code>
      *
      * @return Type reference node
-     * @param isInConditionalExpr
      */
+    private STNode parseTypeReference() {
+        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, false);
+    }
+
     private STNode parseTypeReference(boolean isInConditionalExpr) {
         return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, isInConditionalExpr);
     }
@@ -4283,7 +4290,7 @@ public class BallerinaParser extends AbstractParser {
      * @return the Parsed Explicit New Expression.
      */
     private STNode parseTypeDescriptorInNewExpr(STNode newKeyword) {
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR, false);
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_NEW_EXPR);
         STNode parenthesizedArgsList = parseParenthesizedArgList();
 
         return STNodeFactory.createExplicitNewExpressionNode(newKeyword, typeDescriptor, parenthesizedArgsList);
@@ -5286,7 +5293,7 @@ public class BallerinaParser extends AbstractParser {
                 return null;
             case ASTERISK_TOKEN:
                 STNode asterisk = consume();
-                STNode type = parseTypeReference(false);
+                STNode type = parseTypeReference();
                 STNode semicolonToken = parseSemicolon();
                 member = STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
                 break;
@@ -5411,7 +5418,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.READONLY_KEYWORD) {
             STNode readonlyQualifier = STNodeFactory.createEmptyNode();
-            STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, false);
+            STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
             STNode fieldName = parseVariableName();
             return parseObjectFieldRhs(metadata, methodQualifiers, readonlyQualifier, type, fieldName);
         }
@@ -5445,7 +5452,7 @@ public class BallerinaParser extends AbstractParser {
                 }
             }
         } else if (isTypeStartingToken(nextToken.kind)) {
-            type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
+            type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
             readonlyQualifier = createBuiltinSimpleNameReference(readonlyQualifier);
             type = parseComplexTypeDescriptor(readonlyQualifier, ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
@@ -6626,7 +6633,7 @@ public class BallerinaParser extends AbstractParser {
             return listenerDecl;
         }
 
-        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, false);
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode variableName = parseVariableName();
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
@@ -6705,7 +6712,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseConstDeclFromType(solution.tokenKind, metadata, qualifier, keyword);
         }
 
-        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, false);
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER);
         STNode variableName = parseVariableName();
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
@@ -7090,7 +7097,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeTestExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode isKeyword = parseIsKeyword();
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_EXPRESSION, isInConditionalExpr);
+        STNode typeDescriptor = parseTypeDescriptorInExpression(ParserRuleContext.TYPE_DESC_IN_EXPRESSION,
+                isInConditionalExpr);
         return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
@@ -7119,7 +7127,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.LOCAL_TYPE_DEFINITION_STMT);
         STNode typeKeyword = parseTypeKeyword();
         STNode typeName = parseTypeName();
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF, false);
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
         STNode semicolon = parseSemicolon();
         endContext();
         return STNodeFactory.createLocalTypeDefinitionStatementNode(annots, typeKeyword, typeName, typeDescriptor,
@@ -7422,7 +7430,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseParameterizedTypeDescriptor() {
         STNode parameterizedTypeKeyword = parseParameterizedTypeKeyword();
         STNode ltToken = parseLTToken();
-        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, false);
+        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
         STNode gtToken = parseGTToken();
         return STNodeFactory.createParameterizedTypeDescriptorNode(parameterizedTypeKeyword, ltToken, typeNode,
                 gtToken);
@@ -7555,7 +7563,7 @@ public class BallerinaParser extends AbstractParser {
                         annotationKeyword);
         }
 
-        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANNOTATION_DECL, false);
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANNOTATION_DECL);
         STNode annotTag = parseAnnotationTag();
         return parseAnnotationDeclAttachPoints(metadata, qualifier, constKeyword, annotationKeyword, typeDesc,
                 annotTag);
@@ -8189,7 +8197,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode returnsKeyword = consume();
         STNode annot = parseAnnotations();
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC, false);
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
 
@@ -8670,14 +8678,14 @@ public class BallerinaParser extends AbstractParser {
                 annot = parseAnnotations();
                 token = peek();
                 if (isTypeStartingToken(token.kind)) {
-                    type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, false);
+                    type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
                 } else {
                     type = STNodeFactory.createEmptyNode();
                 }
                 break;
             default:
                 annot = STNodeFactory.createEmptyNode();
-                type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, false);
+                type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
                 break;
         }
 
@@ -8890,7 +8898,7 @@ public class BallerinaParser extends AbstractParser {
         if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
             parameter = consume();
         } else {
-            parameter = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, false);
+            parameter = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
         }
         STNode gtToken = parseGTToken();
         return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
@@ -9409,7 +9417,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeParameter() {
         STNode ltToken = parseLTToken();
-        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS, false);
+        STNode typeNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
         STNode gtToken = parseGTToken();
         return STNodeFactory.createTypeParameterNode(ltToken, typeNode, gtToken);
     }
@@ -12715,7 +12723,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseActionOrExpressionInLhs(nextToken.kind, null);
                 }
 
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, false);
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
         }
 
         if (isDefiniteTypeDesc(typeOrExpr.kind)) {
@@ -14007,7 +14015,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 // error-type-desc
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
             case ELLIPSIS_TOKEN:
                 return parseListBindingPatternMember();
             case XML_KEYWORD:
@@ -14015,11 +14023,11 @@ public class BallerinaParser extends AbstractParser {
                 if (getNextNextToken(nextTokenKind).kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseExpression(false);
                 }
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
                 if (getNextNextToken(nextTokenKind).kind == SyntaxKind.LT_TOKEN) {
-                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
                 return parseExpression(false);
             case OPEN_PAREN_TOKEN:
@@ -14030,7 +14038,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 if (isTypeStartingToken(nextTokenKind)) {
-                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
 
                 Solution solution = recover(peek(), ParserRuleContext.STMT_START_BRACKETED_LIST_MEMBER);
