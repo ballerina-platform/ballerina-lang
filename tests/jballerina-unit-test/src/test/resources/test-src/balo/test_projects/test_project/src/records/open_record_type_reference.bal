@@ -34,3 +34,13 @@ public type Address record {
     string city;
     string country;
 };
+
+public type VehicleWithNever record {
+    int j;
+    never p?;
+};
+
+public type SomePerson record {
+  readonly string name;
+  int age;
+};

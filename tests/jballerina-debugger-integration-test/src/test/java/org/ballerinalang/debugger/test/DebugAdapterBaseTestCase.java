@@ -23,7 +23,9 @@ import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.debugger.test.utils.DeubgHitListener;
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
+import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
@@ -62,11 +64,22 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     protected boolean isConnected = false;
     protected static final int MAX_RETRY_COUNT = 3;
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseTestCase.class);
+    private BMainInstance balClient = null;
+    private Process debuggeeProcess;
 
     @Override
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {
         super.initialize();
+    }
+
+    protected void runDebuggeeProgram(String projectPath, int port) throws BallerinaTestException {
+        String msg = "Listening for transport dt_socket at address: " + port;
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient = new BMainInstance(balServer);
+        debuggeeProcess = balClient.debugMain("build", new String[]{"--debug", String.valueOf(port), testModuleName},
+                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath, 20, true);
+        clientLeecher.waitForText(20000);
     }
 
     /**
@@ -78,6 +91,19 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      */
     protected void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind) throws BallerinaTestException {
         port = findFreePort();
+        initDebugSession(executionKind, port);
+    }
+
+    /**
+     * Initialize test debug session.
+     *
+     * @param executionKind Defines ballerina command type to be used to launch the debuggee.(If set to null, adapter
+     *                      will try to attach to the debuggee, instead of launching)
+     * @param port          debug session port
+     * @throws BallerinaTestException if any exception is occurred during initialization.
+     */
+    protected void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, int port)
+            throws BallerinaTestException {
         debugClientConnector = new TestDAPClientConnector(balServer.getServerHome(), testProjectPath,
                 testEntryFilePath, port);
 
@@ -235,12 +261,19 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
      * Terminates the debug session.
      */
     protected void terminateDebugSession() {
+        testBreakpoints.clear();
         if (debugClientConnector != null && debugClientConnector.isConnected()) {
             try {
                 debugClientConnector.disconnectFromServer();
-            } catch (Exception e) {
-                LOGGER.error("Error occurred when trying disconnect from the debug server.", e);
+            } catch (Exception ignored) {
             }
+        }
+        isConnected = false;
+        debugClientConnector = null;
+
+        if (balClient != null) {
+            balClient.terminateProcess(debuggeeProcess, String.valueOf(port));
+            balClient = null;
         }
     }
 

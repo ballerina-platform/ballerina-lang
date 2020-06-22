@@ -1,0 +1,274 @@
+{
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "IMPORT_DECLARATION",
+          "children": [
+            {
+              "kind": "IMPORT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IMPORT_ORG_NAME",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "ballerina"
+                },
+                {
+                  "kind": "SLASH_TOKEN"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "io"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "PUBLIC_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "main"
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_BODY_BLOCK",
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "CALL_STATEMENT",
+                      "children": [
+                        {
+                          "kind": "FUNCTION_CALL",
+                          "children": [
+                            {
+                              "kind": "QUALIFIED_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "io",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "   "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COLON_TOKEN"
+                                },
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "println"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "POSITIONAL_ARG",
+                                  "children": [
+                                    {
+                                      "kind": "STRING_LITERAL",
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "Hello World!"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SEMICOLON_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_METADATA"
+      ],
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "METADATA",
+            "hasDiagnostics": true,
+            "children": [
+              {
+                "kind": "LIST",
+                "hasDiagnostics": true,
+                "children": [
+                  {
+                    "kind": "ANNOTATION",
+                    "hasDiagnostics": true,
+                    "children": [
+                      {
+                        "kind": "AT_TOKEN",
+                        "isMissing": true,
+                        "hasDiagnostics": true,
+                        "diagnostics": [
+                          "ERROR_MISSING_AT_TOKEN"
+                        ]
+                      },
+                      {
+                        "kind": "SIMPLE_NAME_REFERENCE",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "func",
+                            "leadingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ],
+                            "trailingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    }
+  ]
+}

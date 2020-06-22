@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -32,14 +35,50 @@ public class STDocumentationStringNode extends STNode {
 
     STDocumentationStringNode(
             STNode documentationLines) {
-        super(SyntaxKind.DOCUMENTATION_STRING);
+        this(
+                documentationLines,
+                Collections.emptyList());
+    }
+
+    STDocumentationStringNode(
+            STNode documentationLines,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.DOCUMENTATION_STRING, diagnostics);
         this.documentationLines = documentationLines;
 
         addChildren(
                 documentationLines);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDocumentationStringNode(
+                this.documentationLines,
+                diagnostics);
+    }
+
+    public STDocumentationStringNode modify(
+            STNode documentationLines) {
+        if (checkForReferenceEquality(
+                documentationLines)) {
+            return this;
+        }
+
+        return new STDocumentationStringNode(
+                documentationLines,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new DocumentationStringNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

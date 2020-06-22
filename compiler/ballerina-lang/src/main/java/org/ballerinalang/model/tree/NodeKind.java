@@ -56,6 +56,7 @@ public enum NodeKind {
     TABLE_KEY_SPECIFIER,
     TABLE_KEY_TYPE_CONSTRAINT,
     TABLE_MULTI_KEY,
+    RETRY_SPEC,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,
@@ -83,6 +84,7 @@ public enum NodeKind {
     RECORD_VARIABLE_REF,
     ERROR_VARIABLE_REF,
     STRING_TEMPLATE_LITERAL,
+    RAW_TEMPLATE_LITERAL,
     TERNARY_EXPR,
     WAIT_EXPR,
     TRAP_EXPR,
@@ -122,11 +124,13 @@ public enum NodeKind {
     SERVICE_CONSTRUCTOR,
     LET_EXPR,
     TABLE_CONSTRUCTOR_EXPR,
+    TRANSACTIONAL_EXPRESSION,
 
     /* Statements */
     ABORT,
     DONE,
     RETRY,
+    RETRY_TRANSACTION,
     ASSIGNMENT,
     COMPOUND_ASSIGNMENT,
     POST_INCREMENT,
@@ -164,6 +168,8 @@ public enum NodeKind {
     CHANNEL_RECEIVE,
     CHANNEL_SEND,
     DO_ACTION,
+    COMMIT,
+    ROLLBACK,
 
     /* Clauses */
     SELECT,
@@ -174,6 +180,7 @@ public enum NodeKind {
     LET_CLAUSE,
     ON_CONFLICT,
     ON,
+    LIMIT,
 
     /* Types */
     ARRAY_TYPE,

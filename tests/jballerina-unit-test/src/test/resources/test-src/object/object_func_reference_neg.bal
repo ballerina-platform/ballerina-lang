@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'int;
 
 type Bar record {
     string sbar = "sBar";
@@ -34,7 +35,7 @@ public type Foo abstract object {
 
     function test3(int anInt, string aString, string defaultable = "foo", int def2 = 10);
 
-    function test4(string aString, int anInt, Bar... bars) returns string;
+    function test4(string aString, 'int:Signed16 anInt, Bar... bars) returns string;
 
     function test5(Status... status) returns Bar;
 
@@ -44,6 +45,7 @@ public type Foo abstract object {
 
     function test8(public string s, int i);
 
+    function test9('int:Signed16 anInt, Bar... bars) returns 'int:Signed16;
 };
 
 public type FooImpl1 object {
@@ -62,8 +64,8 @@ public type FooImpl1 object {
         return "";
     }
 
-    // param type mismatch
-    function test4(string aString, int anInt, AnotherBar... bars) returns string {
+    // not assignable : param type
+    function test4(string aString,int anInt, AnotherBar... bars) returns string {
         return "";
     }
 
@@ -83,5 +85,10 @@ public type FooImpl1 object {
     // param visibility modifier mismatch
     function test8(string s, public int i) {
 
+    }
+
+    // not assignable : return type
+    function test9('int:Signed16 anInt, Bar... bars) returns int {
+        return 0;
     }
 };

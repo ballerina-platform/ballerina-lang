@@ -36,7 +36,9 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-parser')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:openapi-validator')
@@ -99,6 +101,7 @@ dependencies {
     implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
     implementation 'io.swagger.parser.v3:swagger-parser-v3'
     implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'com.moandjiezana.toml:toml4j'
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

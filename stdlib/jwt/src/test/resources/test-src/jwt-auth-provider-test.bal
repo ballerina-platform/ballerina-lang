@@ -23,7 +23,7 @@ function testCreateJwtAuthProvider(string trustStorePath) returns jwt:InboundJwt
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
         audience: "ballerina",
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -38,7 +38,7 @@ function testJwtAuthProviderAuthenticationSuccess(string jwtToken, string trustS
     jwt:JwtValidatorConfig jwtConfig = {
         issuer: "wso2",
         audience: "ballerina",
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }
@@ -73,7 +73,7 @@ function verifyJwt(string jwt, string trustStorePath) returns @tainted (jwt:JwtP
         issuer: "wso2",
         audience: "ballerina",
         clockSkewInSeconds: 0,
-        signatureConfig: {
+        trustStoreConfig: {
             trustStore: trustStore,
             certificateAlias: "ballerina"
         }

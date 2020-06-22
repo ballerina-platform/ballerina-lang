@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.model.ModuleDoc;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
+import org.ballerinalang.packerina.writer.JarFileWriter;
 import org.ballerinalang.repository.CompiledPackage;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -29,17 +30,11 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.bir.BackendDriver;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
-import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -50,8 +45,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.compiler.CompilerOptionName.BALO_GENERATION;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -76,6 +73,7 @@ public class GenerateBalo {
         boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
         String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
         String moduleFilter = args[6];
+        String newParser = args[7];
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
@@ -89,7 +87,7 @@ public class GenerateBalo {
             boolean reportWarnings = !skipReportingWarnings;
 
             genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
-                    new HashSet<>(Arrays.asList(moduleFilter.split(","))));
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))), Boolean.parseBoolean(newParser));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -106,7 +104,7 @@ public class GenerateBalo {
     }
 
     private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget,
-                                Set<String> docModuleFilter) throws IOException {
+                                Set<String> docModuleFilter, boolean newParser) throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
@@ -121,14 +119,15 @@ public class GenerateBalo {
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
+        options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
+        options.put(NEW_PARSER_ENABLED, String.valueOf(newParser));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
 
         Compiler compiler = Compiler.getInstance(context);
         List<BLangPackage> buildPackages = compiler.compilePackages(false);
-        BackendDriver backendDriver = BackendDriver.getInstance(context);
         BallerinaDocGenerator.setPrintStream(new EmptyPrintStream());
 
         List<Diagnostic> diagnostics = diagListner.getDiagnostics();
@@ -136,16 +135,17 @@ public class GenerateBalo {
 
         compiler.write(buildPackages);
 
+        JarFileWriter jarFileWriter = JarFileWriter.getInstance(context);
+
         for (BLangPackage pkg : buildPackages) {
-            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "." + pkg.packageID.name +
-                                               ".jar");
+            Path jarOutput = Paths.get("./build/generated-bir-jar/" + pkg.packageID.orgName + "-" + pkg.packageID.name +
+                                               "-" + pkg.packageID.version + ".jar");
             Path parent = jarOutput.getParent();
             if (parent != null) {
                 Files.createDirectories(parent);
             }
 
-            backendDriver.execute(pkg.symbol.bir, false, jarOutput, readModuleDependencies());
-            printErrors(reportWarnings, diagListner, diagnostics);
+            jarFileWriter.write(pkg, jarOutput);
         }
 
         // Generate api doc
@@ -159,7 +159,7 @@ public class GenerateBalo {
                                                          docModuleFilter);
         String apiDocPath = "./build/generated-apidocs/";
         Files.createDirectories(Paths.get(apiDocPath));
-        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath);
+        BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, apiDocPath, false);
     }
 
     private static void printErrors(boolean reportWarnings, CompileResult.CompileResultDiagnosticListener diagListner,
@@ -182,18 +182,6 @@ public class GenerateBalo {
         }
     }
 
-    private static HashSet<Path> readModuleDependencies() throws IOException {
-        HashSet<Path> moduleDependencies = new HashSet<>();
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(
-                new FileInputStream("build/interopJars.txt"), Charset.forName("UTF-8")))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                moduleDependencies.add(Paths.get(line));
-            }
-        }
-        return moduleDependencies;
-    }
-
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {
 
         private final String targetDir;
@@ -210,7 +198,7 @@ public class GenerateBalo {
             String dirName = fileName.endsWith(BLANG_COMPILED_PKG_EXT) ?
                              fileName.substring(0, fileName.length() - BLANG_COMPILED_PKG_EXT.length()) :
                              fileName;
-            Path path = Paths.get(targetDir, dirName, Names.DEFAULT_VERSION.getValue());
+            Path path = Paths.get(targetDir, dirName, compiledPackage.getPackageID().version.value);
             super.saveCompiledPackage(compiledPackage, path, fileName);
         }
     }

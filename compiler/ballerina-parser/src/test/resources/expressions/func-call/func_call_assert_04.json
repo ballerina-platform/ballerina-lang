@@ -1,36 +1,63 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "NAMED_ARG",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "age"
-                        },
-                        {
-                            "kind": "EQUAL_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "18"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "NAMED_ARG",
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "age",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "18"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

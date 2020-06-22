@@ -551,19 +551,19 @@ public function testSyncSendAfterSend() returns error? {
 const R1 = "r1";
 const R2 = "r2";
 
-type E1 error<R1>;
-type E2 error<R2>;
+type E1 distinct error;
+type E2 distinct error;
 
 public function testNoFailureForReceiveWithError() returns boolean {
     @strand{thread:"any"}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
-            return E1();
+            return E1(R1);
         }
         100 ->> w2;
 
         if (getFalse()) {
-            return E2();
+            return E2(R2);
         }
         error? err = "hello" ->> w2;
         return err is ();
@@ -588,12 +588,12 @@ public function testFailureForReceiveWithError() returns boolean {
     @strand{thread:"any"}
     worker w1 returns boolean|E1|E2? {
         if (getFalse()) {
-            return E1();
+            return E1(R1);
         }
         100 ->> w2;
 
         if (getTrue()) {
-            return E2();
+            return E2(R2);
         }
         error? err = "hello" ->> w2;
         return err is ();

@@ -1,32 +1,31 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "pkg"
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "foo"
-                }
-            ]
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "pkg"
         },
         {
-            "kind": "OPEN_PAREN_TOKEN"
+          "kind": "COLON_TOKEN"
         },
         {
-            "kind": "LIST",
-            "children": [
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

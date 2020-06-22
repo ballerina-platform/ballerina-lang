@@ -34,6 +34,10 @@ public enum Flag {
      */
     REMOTE,
     /**
+     * Indicates Flagged node is a transactional function.
+     */
+    TRANSACTIONAL,
+    /**
      * Indicates Flagged node is a native construct.
      */
     NATIVE,
@@ -124,5 +128,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a worker inside fork stmt.
      */
-    FORKED
+    FORKED,
+    /**
+     * Indicates flagged node is a distinct type.
+     */
+    DISTINCT,
 }

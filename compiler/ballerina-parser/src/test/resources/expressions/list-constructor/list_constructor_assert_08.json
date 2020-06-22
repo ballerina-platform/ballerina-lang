@@ -1,36 +1,73 @@
 {
-    "kind": "LIST_CONSTRUCTOR",
-    "children": [
+  "kind": "LIST_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
                 {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
-                },
-                {
-                    "kind": "COMMA_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                },
-                {
-                    "kind": "COMMA_TOKEN",
-                    "isMissing": true
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "c"
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_COMMA_TOKEN"
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

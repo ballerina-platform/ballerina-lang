@@ -1,16 +1,38 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "ELVIS_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "ELVIS_TOKEN"
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    }
+  ]
 }

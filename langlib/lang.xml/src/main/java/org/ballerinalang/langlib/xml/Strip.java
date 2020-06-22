@@ -25,6 +25,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
+
 /**
  * Strips the insignificant parts of the an xml value.
  * Comment items, processing instruction items are considered insignificant.
@@ -35,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.88
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.xml",
+        orgName = "ballerina", packageName = "lang.xml", version = XML_VERSION,
         functionName = "strip",
         returnType = {@ReturnType(type = TypeKind.XML)},
         isPublic = true

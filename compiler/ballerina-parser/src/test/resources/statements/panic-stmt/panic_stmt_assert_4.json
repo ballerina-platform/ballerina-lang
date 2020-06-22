@@ -1,15 +1,32 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
+  "kind": "PANIC_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD",
+      "trailingMinutiae": [
         {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

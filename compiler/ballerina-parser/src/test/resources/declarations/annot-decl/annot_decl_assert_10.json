@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ANNOTATION_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -21,36 +24,89 @@
               ]
             },
             {
-              "kind": "ANNOTATION_KEYWORD"
+              "kind": "ANNOTATION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "Foo"
+              "value": "Foo",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "ON_KEYWORD"
+              "kind": "ON_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "LIST",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "ANNOTATION_ATTACH_POINT",
+                  "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "SOURCE_KEYWORD"
+                      "kind": "SOURCE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "TYPE_KEYWORD",
-                      "isMissing": true
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_TYPE_KEYWORD"
+                      ]
                     }
                   ]
                 },
                 {
-                  "kind": "COMMA_TOKEN"
+                  "kind": "COMMA_TOKEN",
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_INVALID_TOKEN"
+                  ],
+                  "leadingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "bar"
+                      }
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "TYPE_KEYWORD",
-                  "isMissing": true
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_TYPE_KEYWORD"
+                  ]
                 }
               ]
             },

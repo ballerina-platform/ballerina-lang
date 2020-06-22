@@ -1,40 +1,79 @@
 {
-    "kind": "LOCAL_VAR_DECL",
-    "children": [
+  "kind": "LOCAL_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "SINGLETON_TYPE_DESC",
-            "children": [
+          "kind": "SINGLETON_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "UNARY_EXPRESSION",
+              "hasDiagnostics": true,
+              "children": [
                 {
-                    "kind": "UNARY_EXPRESSION",
-                    "children": [
-                        {
-                            "kind": "PLUS_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "isMissing": true
-                        }
-                    ]
+                  "kind": "PLUS_TOKEN"
+                },
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_DECIMAL_INTEGER_LITERAL"
+                      ]
+                    }
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "EQUAL_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EQUAL_TOKEN"
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STForEachStatementNode extends STStatementNode {
             STNode inKeyword,
             STNode actionOrExpressionNode,
             STNode blockStatement) {
-        super(SyntaxKind.FOREACH_STATEMENT);
+        this(
+                forEachKeyword,
+                typedBindingPattern,
+                inKeyword,
+                actionOrExpressionNode,
+                blockStatement,
+                Collections.emptyList());
+    }
+
+    STForEachStatementNode(
+            STNode forEachKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode actionOrExpressionNode,
+            STNode blockStatement,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FOREACH_STATEMENT, diagnostics);
         this.forEachKeyword = forEachKeyword;
         this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
@@ -55,7 +74,51 @@ public class STForEachStatementNode extends STStatementNode {
                 blockStatement);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STForEachStatementNode(
+                this.forEachKeyword,
+                this.typedBindingPattern,
+                this.inKeyword,
+                this.actionOrExpressionNode,
+                this.blockStatement,
+                diagnostics);
+    }
+
+    public STForEachStatementNode modify(
+            STNode forEachKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode actionOrExpressionNode,
+            STNode blockStatement) {
+        if (checkForReferenceEquality(
+                forEachKeyword,
+                typedBindingPattern,
+                inKeyword,
+                actionOrExpressionNode,
+                blockStatement)) {
+            return this;
+        }
+
+        return new STForEachStatementNode(
+                forEachKeyword,
+                typedBindingPattern,
+                inKeyword,
+                actionOrExpressionNode,
+                blockStatement,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ForEachStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

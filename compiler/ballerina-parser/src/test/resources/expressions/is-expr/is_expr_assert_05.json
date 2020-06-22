@@ -1,15 +1,37 @@
 {
-    "kind": "TYPE_TEST_EXPRESSION",
-    "children": [
+  "kind": "TYPE_TEST_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "IS_KEYWORD"
-        },
-        {
-            "kind": "INT_KEYWORD"
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IS_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "INT_TYPE_DESC",
+      "children": [
+        {
+          "kind": "INT_KEYWORD"
+        }
+      ]
+    }
+  ]
 }

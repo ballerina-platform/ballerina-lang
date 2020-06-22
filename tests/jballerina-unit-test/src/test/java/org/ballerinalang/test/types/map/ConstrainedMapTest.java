@@ -50,7 +50,8 @@ public class ConstrainedMapTest {
         negativeResult = BCompileUtil.compile("test-src/types/map/constrained-map-negative.bal");
     }
 
-    @Test(description = "Test Map constrained with type negative semantic validations.")
+    @Test(description = "Test Map constrained with type negative semantic validations.",
+            groups = { "brokenOnNewParser" })
     public void testConstrainedMapNegative() {
         Assert.assertEquals(negativeResult.getErrorCount(), 7);
         int i = 0;
@@ -64,7 +65,7 @@ public class ConstrainedMapTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<Person>', found 'map'", 45,
                 31);
         BAssertUtil.validateError(negativeResult, i, "incompatible types: 'map<Person>' cannot be cast to" +
-                " 'map<Student>'", 75, 29);
+                " 'map<Student>'", 77, 29);
     }
 
     @Test(description = "Test Map constrained with value type value retrieval positive case.")

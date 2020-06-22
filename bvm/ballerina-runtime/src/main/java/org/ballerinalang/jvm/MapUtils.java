@@ -52,9 +52,8 @@ public class MapUtils {
                 mapValue.put(fieldName, value);
                 break;
             case TypeTags.RECORD_TYPE_TAG:
-                //TODO: bstring - remove getValue
-                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName.getValue(), value, (BRecordType) mapType,
-                                                        true);
+                handleInherentTypeViolatingRecordUpdate(mapValue, fieldName, value, (BRecordType) mapType,
+                                                        false);
                 mapValue.put(fieldName, value);
                 break;
         }
@@ -74,19 +73,17 @@ public class MapUtils {
                                                                                expType, valuesType));
     }
 
-    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, String fieldName, Object value,
+    public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
                                                                BRecordType recType, boolean initialValue) {
-        BField recField = recType.getFields().get(fieldName);
+        BField recField = recType.getFields().get(fieldName.getValue());
         BType recFieldType;
 
         if (recField != null) {
-            // If there is a corresponding field in the record, and an entry in the value, check if it can be
-            // updated.
-            // i.e., it is not a `readonly` field or this is the first insertion of the field into the record.
+            // If there is a corresponding field in the record, check if it can be updated.
+            // i.e., it is not a `readonly` field or this is an insertion on creation.
             // `initialValue` is only true if this is an update for a field provided in the mapping constructor
             // expression.
-            if (!initialValue && mapValue.containsKey(StringUtils.fromString(fieldName)) &&
-                    Flags.isFlagOn(recField.flags, Flags.READONLY)) {
+            if (!initialValue && Flags.isFlagOn(recField.flags, Flags.READONLY)) {
 
                 throw BallerinaErrors.createError(
                         getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -37,7 +40,21 @@ public class STBracedExpressionNode extends STExpressionNode {
             STNode openParen,
             STNode expression,
             STNode closeParen) {
-        super(kind);
+        this(
+                kind,
+                openParen,
+                expression,
+                closeParen,
+                Collections.emptyList());
+    }
+
+    STBracedExpressionNode(
+            SyntaxKind kind,
+            STNode openParen,
+            STNode expression,
+            STNode closeParen,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.openParen = openParen;
         this.expression = expression;
         this.closeParen = closeParen;
@@ -48,7 +65,46 @@ public class STBracedExpressionNode extends STExpressionNode {
                 closeParen);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STBracedExpressionNode(
+                this.kind,
+                this.openParen,
+                this.expression,
+                this.closeParen,
+                diagnostics);
+    }
+
+    public STBracedExpressionNode modify(
+            SyntaxKind kind,
+            STNode openParen,
+            STNode expression,
+            STNode closeParen) {
+        if (checkForReferenceEquality(
+                openParen,
+                expression,
+                closeParen)) {
+            return this;
+        }
+
+        return new STBracedExpressionNode(
+                kind,
+                openParen,
+                expression,
+                closeParen,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new BracedExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

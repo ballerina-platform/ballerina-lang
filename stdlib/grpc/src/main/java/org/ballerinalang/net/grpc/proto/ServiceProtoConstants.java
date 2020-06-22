@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+
 /**
  * Protobuf definition related constants.
  * @since 1.0.0
@@ -47,15 +49,7 @@ public class ServiceProtoConstants {
     public static final String TMP_DIRECTORY_PATH = System.getProperty("java.io.tmpdir");
 
     public static final String ANN_SERVICE_CONFIG = "ServiceConfig";
-    public static final String ANN_RESOURCE_CONFIG = "ResourceConfig";
-
-    public static final String SERVICE_CONFIG_RPC_ENDPOINT = "name";
-    public static final String SERVICE_CONFIG_CLIENT_STREAMING = "clientStreaming";
-    public static final String SERVICE_CONFIG_SERVER_STREAMING = "serverStreaming";
-
-    public static final String RESOURCE_CONFIG_STREAMING = "streaming";
-    public static final String RESOURCE_CONFIG_REQUEST_TYPE = "requestType";
-    public static final String RESOURCE_CONFIG_RESPONSE_TYPE = "responseType";
+    public static final String ANN_SERVICE_CONFIG_FQN = PROTOCOL_STRUCT_PACKAGE_GRPC + ":ServiceConfig";
 
     public static final Map<Integer, String> FIELD_TYPE_MAP;
     static {

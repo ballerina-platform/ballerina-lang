@@ -19,6 +19,9 @@ package io.ballerinalang.compiler.internal.parser.tree;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents a literal value in the Ballerina internal syntax tree.
  *
@@ -28,7 +31,15 @@ public class STLiteralValueToken extends STToken {
     private final String text;
 
     STLiteralValueToken(SyntaxKind kind, String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(kind, text.length(), leadingTrivia, trailingTrivia);
+        this(kind, text, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STLiteralValueToken(SyntaxKind kind,
+                        String text,
+                        STNode leadingTrivia,
+                        STNode trailingTrivia,
+                        Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 
@@ -36,8 +47,28 @@ public class STLiteralValueToken extends STToken {
         return text;
     }
 
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLiteralValueToken(this.kind, this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STLiteralValueToken(this.kind, this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
     @Override
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
+    }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        builder.append(text);
+        trailingMinutiae.writeTo(builder);
     }
 }

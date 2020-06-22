@@ -18,7 +18,6 @@
 package io.ballerinalang.compiler.internal.parser;
 
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
@@ -34,17 +33,25 @@ import java.util.List;
 public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
-    protected final BallerinaParserErrorListener errorListener;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
+    private int previousTokenIndex;
+    private int itterCount;
 
     /**
      * Limit for the distance to travel, to determine a successful lookahead.
      */
-    protected int lookaheadLimit = 5;
+    protected static final int LOOKAHEAD_LIMIT = 5;
+
+    /**
+     * Limit for the number of times parser tries to recover staying on the same token index.
+     * This will prevent parser going to infinite loops.
+     */
+    private static final int ITTER_LIMIT = 7;
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
-        this.errorListener = new BallerinaParserErrorListener();
+        this.previousTokenIndex = -1;
+        this.itterCount = 0;
     }
 
     /*
@@ -83,42 +90,54 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
-        Result bestMatch = seekMatch(currentCtx);
-        if (bestMatch.matches > 0) {
-            Solution sol = bestMatch.solution;
-            applyFix(currentCtx, sol, args);
-            return sol;
+        int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
+        if (currentTokenIndex == this.previousTokenIndex) {
+            itterCount++;
         } else {
-            // Fail safe. This means we can't find a path to recover.
-            removeInvalidToken();
-            Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
-            return sol;
+            itterCount = 0;
+            previousTokenIndex = currentTokenIndex;
         }
+
+        if (itterCount < ITTER_LIMIT) {
+            Result bestMatch = seekMatch(currentCtx);
+            if (bestMatch.matches > 0) {
+                Solution sol = bestMatch.solution;
+                if (sol != null) {
+                    applyFix(currentCtx, sol, args);
+                    return sol;
+                }
+
+                // else fall through
+            }
+
+        }
+
+        // Fail safe. This means we can't find a path to recover.
+        Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
+        sol.removedToken = consumeInvalidToken();
+        return sol;
     }
 
     /**
      * Remove the invalid token. This method assumes that the next immediate token
      * of the token input stream is the culprit.
+     *
+     * @return the invalid token
      */
-    public void removeInvalidToken() {
-        STToken invalidToken = this.tokenReader.read();
-        // This means no match is found for the current token.
-        // Then consume it and return an error node
-        this.errorListener.reportInvalidToken(invalidToken);
-
-        // TODO: add this error node to the tree
+    public STToken consumeInvalidToken() {
+        return this.tokenReader.read();
     }
 
     /**
      * Apply the fix to the current context.
      *
      * @param currentCtx Current context
-     * @param fix Fix to apply
-     * @param args Arguments that requires to continue parsing from the given parser context
+     * @param fix        Fix to apply
+     * @param args       Arguments that requires to continue parsing from the given parser context
      */
     private void applyFix(ParserRuleContext currentCtx, Solution fix, Object... args) {
         if (fix.action == Action.REMOVE) {
-            removeInvalidToken();
+            fix.removedToken = consumeInvalidToken();
         } else {
             fix.recoveredNode = handleMissingToken(currentCtx, fix);
         }
@@ -126,24 +145,17 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Handle a missing token scenario.
-     * 
+     *
      * @param currentCtx Current context
      * @param fix Solution to recover from the missing token
      */
     private STNode handleMissingToken(ParserRuleContext currentCtx, Solution fix) {
-        // If the original issues was at a production where there are alternatives,
-        // then do not report any errors. Parser will try to re-parse the best-matching
-        // alternative again. Errors will be reported at the next try.
-        if (!isProductionWithAlternatives(currentCtx)) {
-            reportMissingTokenError("missing " + fix.ctx);
-        }
-
-        return STNodeFactory.createMissingToken(fix.tokenKind);
+        return SyntaxErrors.createMissingTokenWithDiagnostics(fix.tokenKind);
     }
 
     /**
      * Get a snapshot of the current context stack.
-     * 
+     *
      * @return Snapshot of the current context stack
      */
     private ArrayDeque<ParserRuleContext> getCtxStackSnapshot() {
@@ -160,7 +172,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Start a fresh search for a way to recover with the next immediate token (peek(1), and the current context).
-     * 
+     *
      * @param currentCtx Current parser context
      * @return Recovery result
      */
@@ -172,7 +184,7 @@ public abstract class AbstractParserErrorHandler {
      * Search for a solution in a sub-tree/sub-path. This will take a snapshot of the current context stack
      * and will operate on top of it, so that the original state of the parser will not be disturbed. On return
      * the previous state of the parser contexts will be restored.
-     * 
+     *
      * @param currentCtx Current context
      * @param lookahead Position of the next token to consider, from the position of the original error.
      * @param currentDepth Amount of distance traveled so far.
@@ -201,19 +213,10 @@ public abstract class AbstractParserErrorHandler {
         this.ctxStack.push(context);
     }
 
-    public void reportInvalidNode(STToken startingToken, String message) {
-        this.errorListener.reportInvalidNodeError(startingToken, message);
-    }
-
-    public void reportMissingTokenError(String message) {
-        STToken currentToken = this.tokenReader.head();
-        this.errorListener.reportMissingTokenError(currentToken, message);
-    }
-
     protected ParserRuleContext getParentContext() {
         return this.ctxStack.peek();
     }
-    
+
     protected ParserRuleContext getGrandParentContext() {
         ParserRuleContext parent = this.ctxStack.pop();
         ParserRuleContext grandParent = this.ctxStack.peek();
@@ -223,7 +226,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Search for matching token sequences within the given alternative paths, and find the most optimal solution.
-     * 
+     *
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
      * @param currentMatches Matching tokens found so far
@@ -234,7 +237,7 @@ public abstract class AbstractParserErrorHandler {
     protected Result seekInAlternativesPaths(int lookahead, int currentDepth, int currentMatches,
                                              ParserRuleContext[] alternativeRules, boolean isEntryPoint) {
         @SuppressWarnings("unchecked")
-        List<Result>[] results = new List[lookaheadLimit];
+        List<Result>[] results = new List[LOOKAHEAD_LIMIT];
         int bestMatchIndex = 0;
 
         // Visit all the alternative rules and get their results. Arrange them in way
@@ -242,9 +245,13 @@ public abstract class AbstractParserErrorHandler {
         // done so that we can easily pick the best, without iterating through them.
         for (ParserRuleContext rule : alternativeRules) {
             Result result = seekMatchInSubTree(rule, lookahead, currentDepth, isEntryPoint);
+            if (result.matches >= LOOKAHEAD_LIMIT - 1) {
+                return getFinalResult(currentMatches, result);
+            }
+
             List<Result> similarResutls = results[result.matches];
             if (similarResutls == null) {
-                similarResutls = new ArrayList<>(lookaheadLimit);
+                similarResutls = new ArrayList<>(LOOKAHEAD_LIMIT);
                 results[result.matches] = similarResutls;
                 if (bestMatchIndex < result.matches) {
                     bestMatchIndex = result.matches;
@@ -295,7 +302,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Combine a given result with the current results, and get the final result.
-     * 
+     *
      * @param currentMatches Matches found so far
      * @param bestMatch Result found in the sub-tree, that requires to be merged with the current results
      * @return Final result
@@ -307,7 +314,7 @@ public abstract class AbstractParserErrorHandler {
 
     /**
      * Fix the current error and continue. Returns the best path after fixing.
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -342,7 +349,7 @@ public abstract class AbstractParserErrorHandler {
      * Delete a token and see how far the parser can proceed.
      * </li>
      * </ol>
-     * 
+     *
      * Then decides the best action to perform (whether to insert or remove a token), using the result
      * of the above two steps, based on the following criteria:
      * <ol>
@@ -357,7 +364,7 @@ public abstract class AbstractParserErrorHandler {
      * an input a user has given.
      * </li>
      * </ol>
-     * 
+     *
      * @param currentCtx Current parser context
      * @param lookahead Position of the next token to consider, relative to the position of the original error
      * @param currentDepth Amount of distance traveled so far
@@ -411,7 +418,7 @@ public abstract class AbstractParserErrorHandler {
      * Represents a solution/fix for a parser error. A {@link Solution} consists of the parser context where the error
      * was encountered, the enclosing parser context at the same point, the token with the error, and the {@link Action}
      * required to recover from the error.
-     * 
+     *
      * @since 1.2.0
      */
     public static class Solution {
@@ -421,6 +428,7 @@ public abstract class AbstractParserErrorHandler {
         public String tokenText;
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
+        public STToken removedToken;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;

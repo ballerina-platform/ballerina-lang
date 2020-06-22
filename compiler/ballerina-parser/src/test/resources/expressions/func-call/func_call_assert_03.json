@@ -1,40 +1,61 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "5"
-                        }
-                    ]
-                },
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "TRUE_KEYWORD"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "TRUE_KEYWORD",
+              "children": [
+                {
+                  "kind": "TRUE_KEYWORD"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

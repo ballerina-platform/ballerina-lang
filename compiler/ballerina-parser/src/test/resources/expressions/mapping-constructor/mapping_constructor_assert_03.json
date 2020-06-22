@@ -1,63 +1,95 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "COMPUTED_NAME_FIELD",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                    "kind": "COMPUTED_NAME_FIELD",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "key1"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "value1"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMPUTED_NAME_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "key2"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "value2"
-                        }
-                    ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "key1"
                 }
-            ]
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "value1"
+                }
+              ]
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "COMPUTED_NAME_FIELD",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "key2"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "value2"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

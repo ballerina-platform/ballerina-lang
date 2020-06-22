@@ -31,7 +31,9 @@ public class TaskConstants {
 
     // Package related constants
     public static final String PACKAGE_NAME = "task";
-    public static final BPackage TASK_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+    public static final String PACKAGE_VERSION = "1.1.0";
+    public static final BPackage TASK_PACKAGE_ID =
+            new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
     // Record types used
     public static final String RECORD_TIMER_CONFIGURATION = "TimerConfiguration";
@@ -61,8 +63,8 @@ public class TaskConstants {
     static final BString FIELD_YEAR = StringUtils.fromString("year");
 
     // Fields related to TaskError record
-    public static final String SCHEDULER_ERROR_REASON = "{ballerina/task}SchedulerError";
-    static final String LISTENER_ERROR_REASON = "{ballerina/task}ListenerError";
+    public static final String SCHEDULER_ERROR = "SchedulerError";
+    static final String LISTENER_ERROR = "ListenerError";
     static final String DETAIL_RECORD_NAME = "Detail";
 
     // Fields used in Appointment job map

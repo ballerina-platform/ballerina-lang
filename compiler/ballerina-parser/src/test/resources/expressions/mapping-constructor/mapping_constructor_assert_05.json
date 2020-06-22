@@ -1,103 +1,158 @@
 {
-    "kind": "MAPPING_CONSTRUCTOR",
-    "children": [
+  "kind": "MAPPING_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "OPEN_BRACE_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
         {
-            "kind": "OPEN_BRACE_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "age"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "children": [
                 {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "age"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "DECIMAL_INTEGER_LITERAL",
-                            "value": "20"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPREAD_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "ELLIPSIS_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "marks"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "name"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "Supun"
-                        }
-                    ]
-                },
-                {
-                    "kind": "SPECIFIC_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "address"
-                        }
-                    ]
-                },
-                {
-                    "kind": "COMPUTED_NAME_FIELD",
-                    "children": [
-                        {
-                            "kind": "COMMA_TOKEN"
-                        },
-                        {
-                            "kind": "OPEN_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "expr"
-                        },
-                        {
-                            "kind": "CLOSE_BRACKET_TOKEN"
-                        },
-                        {
-                            "kind": "COLON_TOKEN"
-                        },
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "value"
-                        }
-                    ]
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "20"
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "CLOSE_BRACE_TOKEN"
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPREAD_FIELD",
+          "children": [
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "marks"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "value": "name"
+            },
+            {
+              "kind": "COLON_TOKEN"
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "Supun"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SPECIFIC_FIELD",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "address"
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "COMPUTED_NAME_FIELD",
+          "children": [
+            {
+              "kind": "OPEN_BRACKET_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "expr"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACKET_TOKEN"
+            },
+            {
+              "kind": "COLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "value"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN"
+    }
+  ]
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * Represents documentation line in the internal syntax tree.
  * <p>
@@ -34,12 +37,27 @@ public class STDocumentationLineToken extends STToken {
     private final String text;
 
     STDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
-        super(SyntaxKind.DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia);
+        this(text, leadingTrivia, trailingTrivia, Collections.emptyList());
+    }
+
+    STDocumentationLineToken(String text,
+                             STNode leadingTrivia,
+                             STNode trailingTrivia,
+                             Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 
     public String text() {
         return text;
+    }
+
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STDocumentationLineToken(this.text, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STDocumentationLineToken(this.text, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
@@ -48,7 +66,19 @@ public class STDocumentationLineToken extends STToken {
     }
 
     @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + text + trailingMinutiae;
+    }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        builder.append(text);
+        trailingMinutiae.writeTo(builder);
     }
 }

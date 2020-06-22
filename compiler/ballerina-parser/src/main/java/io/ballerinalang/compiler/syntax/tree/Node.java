@@ -17,7 +17,10 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerinalang.compiler.internal.diagnostics.SyntaxDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
@@ -82,6 +85,16 @@ public abstract class Node {
         return new NodeLocation(this);
     }
 
+    public abstract Iterable<Diagnostic> diagnostics();
+
+    public boolean hasDiagnostics() {
+        return internalNode.hasDiagnostics();
+    }
+
+    public boolean isMissing() {
+        return internalNode.isMissing();
+    }
+
     public SyntaxTree syntaxTree() {
         return populateSyntaxTree();
     }
@@ -93,7 +106,8 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(),
+                textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }
@@ -129,6 +143,15 @@ public abstract class Node {
         return internalNode.toString();
     }
 
+    /**
+     * Converts the syntax tree into source code and returns it as a string.
+     *
+     * @return source code as a string
+     */
+    public String toSourceCode() {
+        return internalNode.toSourceCode();
+    }
+
     private SyntaxTree populateSyntaxTree() {
         if (syntaxTree != null) {
             return syntaxTree;
@@ -136,13 +159,19 @@ public abstract class Node {
 
         Node parent = this.parent;
         if (parent == null) {
-            throw new IllegalStateException("SyntaxTree instance cannot be null");
+            // This is a detached node. Therefore we need to create a new SyntaxTree with this node being the root.
+            setSyntaxTree(SyntaxTree.from(this, false));
+        } else {
+            setSyntaxTree(parent.populateSyntaxTree());
         }
-        setSyntaxTree(parent.populateSyntaxTree());
         return syntaxTree;
     }
 
     void setSyntaxTree(SyntaxTree syntaxTree) {
         this.syntaxTree = syntaxTree;
+    }
+
+    protected Diagnostic createSyntaxDiagnostic(STNodeDiagnostic nodeDiagnostic) {
+        return SyntaxDiagnostic.from(nodeDiagnostic, this.location());
     }
 }

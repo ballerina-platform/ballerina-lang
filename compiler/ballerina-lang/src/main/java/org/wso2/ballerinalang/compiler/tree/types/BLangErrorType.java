@@ -29,8 +29,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 0.983.0
  */
 public class BLangErrorType extends BLangType implements ErrorTypeNode {
-    public BLangType reasonType;
     public BLangType detailType;
+    public boolean inferErrorType;
 
     public BLangErrorType() {
     }
@@ -43,27 +43,15 @@ public class BLangErrorType extends BLangType implements ErrorTypeNode {
     @Override
     public String toString() {
         StringBuilder val = new StringBuilder(this.type.toString());
-        val.append("<");
-        
-        if (this.reasonType != null) {
-            val.append(this.reasonType.toString());
+        if (this.inferErrorType) {
+            val.append("<*>");
         }
-        if (this.detailType != null) {
-            val.append(",");
-            val.append(detailType.toString());
-        }
-        val.append(">");
         return val.toString();
     }
 
     @Override
     public NodeKind getKind() {
         return NodeKind.ERROR_TYPE;
-    }
-
-    @Override
-    public TypeNode getReasonTypeNode() {
-        return reasonType;
     }
 
     @Override

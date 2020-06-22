@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STIfElseStatementNode extends STStatementNode {
             STNode condition,
             STNode ifBody,
             STNode elseBody) {
-        super(SyntaxKind.IF_ELSE_STATEMENT);
+        this(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody,
+                Collections.emptyList());
+    }
+
+    STIfElseStatementNode(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.IF_ELSE_STATEMENT, diagnostics);
         this.ifKeyword = ifKeyword;
         this.condition = condition;
         this.ifBody = ifBody;
@@ -51,7 +68,47 @@ public class STIfElseStatementNode extends STStatementNode {
                 elseBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STIfElseStatementNode(
+                this.ifKeyword,
+                this.condition,
+                this.ifBody,
+                this.elseBody,
+                diagnostics);
+    }
+
+    public STIfElseStatementNode modify(
+            STNode ifKeyword,
+            STNode condition,
+            STNode ifBody,
+            STNode elseBody) {
+        if (checkForReferenceEquality(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody)) {
+            return this;
+        }
+
+        return new STIfElseStatementNode(
+                ifKeyword,
+                condition,
+                ifBody,
+                elseBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IfElseStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -57,7 +57,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -73,7 +73,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -81,7 +81,7 @@ service dataService on dataServiceListener {
         var selectRet = testDB->select("SELECT * FROM Data", ());
         if (selectRet is table<record {}>) {
             var jsonConversionRet = jsonutils:fromTable(selectRet);
-            json|error j = json.constructFrom(jsonConversionRet);
+            json|error j = jsonConversionRet.cloneWithType(json);
             http:Response resp= new;
             if (j is json) {
                 resp.setJsonPayload(j, contentType = "application/json");
@@ -94,7 +94,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 
@@ -110,7 +110,7 @@ service dataService on dataServiceListener {
             }
         } else {
             error e = selectRet;
-            log:printError("Select data from Data table failed: " + e.reason());
+            log:printError("Select data from Data table failed: " + e.message());
         }
     }
 }

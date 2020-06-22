@@ -20,6 +20,15 @@ package {{packageName}};
 {{#imports}}
 import {{name}};
 {{/imports}}
+{{#isAbstract}}
+
+import java.util.Collection;
+{{/isAbstract}}
+{{^isAbstract}}
+
+import java.util.Collection;
+import java.util.Collections;
+{{/isAbstract}}
 
 /**
  * This is a generated internal syntax tree node.
@@ -35,11 +44,23 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
     {{internalClassName}}(SyntaxKind kind) {
         super(kind);
     }
+
+    {{internalClassName}}(SyntaxKind kind, Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
+    }
     {{/isAbstract}}
     {{^isAbstract}}
     {{internalClassName}}(
             {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}STNode {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
-        super({{#syntaxKind}}SyntaxKind.{{syntaxKind}}{{/syntaxKind}}{{^syntaxKind}}kind{{/syntaxKind}});
+        this(
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}},
+                Collections.emptyList());
+    }
+
+    {{internalClassName}}(
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}STNode {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}},
+            Collection<STNodeDiagnostic> diagnostics) {
+        super({{#syntaxKind}}SyntaxKind.{{syntaxKind}}{{/syntaxKind}}{{^syntaxKind}}kind{{/syntaxKind}}, diagnostics);
         {{#fields}}
         this.{{fieldName}} = {{fieldName}};
         {{/fields}}
@@ -48,8 +69,35 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
                 {{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}});
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new {{internalClassName}}(
+                {{^syntaxKind}}this.kind, &#10;                {{/syntaxKind}}{{#fields}}this.{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}},
+                diagnostics);
+    }
+
+    public {{internalClassName}} modify(
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}STNode {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+        if (checkForReferenceEquality(
+                {{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}})) {
+            return this;
+        }
+
+        return new {{internalClassName}}(
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}, &#10;                {{/fields}}diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new {{externalClassName}}(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
     {{/isAbstract}}
 }

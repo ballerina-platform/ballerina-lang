@@ -1,0 +1,41 @@
+{
+  "kind": "XML_FILTER_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "XML_NAME_PATTERN_CHAIN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "DOT_LT_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_XML_ATOMIC_NAME_PATTERN"
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "GT_TOKEN"
+        }
+      ]
+    }
+  ]
+}

@@ -1,28 +1,46 @@
 {
-    "kind": "FUNCTION_CALL",
-    "children": [
+  "kind": "FUNCTION_CALL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "ERROR_KEYWORD"
+    },
+    {
+      "kind": "OPEN_PAREN_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_TOKEN"
+      ],
+      "leadingMinutiae": [
         {
-            "kind": "ERROR_KEYWORD"
-        },
-        {
-            "kind": "OPEN_PAREN_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "POSITIONAL_ARG",
-                    "children": [
-                        {
-                            "kind": "STRING_LITERAL",
-                            "value": "message"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "BITWISE_AND_TOKEN"
+          }
         }
-    ]
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "POSITIONAL_ARG",
+          "children": [
+            {
+              "kind": "STRING_LITERAL",
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "message"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_PAREN_TOKEN"
+    }
+  ]
 }

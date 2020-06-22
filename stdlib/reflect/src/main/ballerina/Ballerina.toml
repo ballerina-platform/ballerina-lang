@@ -7,7 +7,7 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "reflect"
-    version = "@project.version@"
-    path = "./lib/ballerina-reflect-@project.version@.jar"
+    version = "0.5.0"
+    path = "./lib/ballerina-reflect-0.5.0-java.jar"
     groupId = "ballerina"
     modules = ["reflect"]

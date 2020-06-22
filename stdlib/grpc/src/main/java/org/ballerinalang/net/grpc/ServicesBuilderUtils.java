@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
+import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
@@ -40,11 +41,8 @@ import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
 import org.ballerinalang.net.grpc.proto.definition.StandardDescriptorBuilder;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
@@ -56,6 +54,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
+import static org.ballerinalang.net.grpc.proto.ServiceProtoConstants.ANN_SERVICE_CONFIG_FQN;
 
 /**
  * This is the gRPC server implementation for registering service and start/stop server.
@@ -80,8 +79,7 @@ public class ServicesBuilderUtils {
     }
 
     private static String getServiceName(ObjectValue service) {
-        Object serviceConfigData = service.getType().getAnnotation(
-                StringUtils.fromString("ballerina/grpc:ServiceConfig"));
+        Object serviceConfigData = service.getType().getAnnotation(StringUtils.fromString(ANN_SERVICE_CONFIG_FQN));
         if (serviceConfigData != null) {
             MapValue configMap = (MapValue) serviceConfigData;
             BString providedName = configMap.getStringValue(StringUtils.fromString("name"));
@@ -119,7 +117,6 @@ public class ServicesBuilderUtils {
             MethodDescriptor.MethodType methodType;
             ServerCallHandler serverCallHandler;
             MethodDescriptor.Marshaller reqMarshaller = null;
-            Map<String, ServiceResource> resourceMap = new HashMap<>();
             ServiceResource mappedResource = null;
 
             for (AttachedFunction function : service.getType().getAttachedFunctions()) {
@@ -127,19 +124,16 @@ public class ServicesBuilderUtils {
                     mappedResource = new ServiceResource(runtime, service, function);
                     reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor.getName(),
                             getResourceInputParameterType(function)));
-                } else if (ON_MESSAGE_RESOURCE.equals(function.getName())) {
-                    reqMarshaller = ProtoUtils.marshaller(new MessageParser(requestDescriptor.getName(),
-                            getResourceInputParameterType(function)));
                 }
-                resourceMap.put(function.getName(), new ServiceResource(runtime, service, function));
             }
-
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
-                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
+                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, mappedResource,
+                        getBallerinaValueType(service.getType().getPackage(), requestDescriptor.getName()));
             } else if (methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.CLIENT_STREAMING;
-                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
+                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, mappedResource,
+                        getBallerinaValueType(service.getType().getPackage(), requestDescriptor.getName()));
             } else if (methodDescriptor.toProto().getServerStreaming()) {
                 methodType = MethodDescriptor.MethodType.SERVER_STREAMING;
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
@@ -286,6 +280,8 @@ public class ServicesBuilderUtils {
             if (inputType != null && "Headers".equals(inputType.getName()) &&
                     inputType.getPackage() != null && PROTOCOL_PACKAGE_GRPC.equals(inputType.getPackage().getName())) {
                 return BTypes.typeNull;
+            } else if (inputType instanceof BStreamType) {
+                return ((BStreamType) inputType).getConstrainedType();
             } else {
                 return inputParams[1];
             }

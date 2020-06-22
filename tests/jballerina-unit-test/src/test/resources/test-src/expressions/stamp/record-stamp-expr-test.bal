@@ -98,19 +98,22 @@ type ExtendedEmployeeWithUnionRest record {|
     map<anydata>|string...;
 |};
 
+type AnydataMap map<anydata>;
+type StringMap map<string>;
+
 //-----------------------Record Stamp -------------------------------------------------------------------
 
 function stampWithOpenRecords() returns Employee|error {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee|error e = Employee.constructFrom(t1);
+    Employee|error e = t1.cloneWithType(Employee);
     return e;
 }
 
 function stampWithOpenRecordsNonAssignable() returns Teacher|Employee {
     Employee e1 = { name: "Raja", "age": 25, status: "single", batch: "LK2014", "school": "Hindu College" };
 
-    Teacher|error t = Teacher.constructFrom(e1);
+    Teacher|error t = e1.cloneWithType(Teacher);
     if (t is Teacher) {
         return t;
     }
@@ -121,35 +124,35 @@ function stampWithOpenRecordsNonAssignable() returns Teacher|Employee {
 function stampClosedRecordWithOpenRecord() returns Employee|error {
     Person p1 = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee|error e = Employee.constructFrom(p1);
+    Employee|error e = p1.cloneWithType(Employee);
     return e;
 }
 
 function stampClosedRecordWithClosedRecord() returns Student|error {
     Person p1 = { name: "Raja", status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Student|error e = Student.constructFrom(p1);
+    Student|error e = p1.cloneWithType(Student);
     return e;
 }
 
 function stampRecordToJSON() returns json|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
 
-    json|error jsonValue = json.constructFrom(employee);
+    json|error jsonValue = employee.cloneWithType(json);
 
     return jsonValue;
 }
 
 function stampRecordToMap() returns map<anydata>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
-    map<anydata>|error mapValue = map<anydata>.constructFrom(employee);
+    map<anydata>|error mapValue = employee.cloneWithType(AnydataMap);
 
     return mapValue;
 }
 
 function stampRecordToMapV2() returns map<string>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
-    map<string>|error mapValue = map<string>.constructFrom(employee);
+    map<string>|error mapValue = employee.cloneWithType(StringMap);
 
     return mapValue;
 }
@@ -158,20 +161,20 @@ function stampRecordToMapV3() returns map<anydata>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014" };
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
                             "emp": employee };
-    map<anydata>|error mapValue = map<anydata>.constructFrom(teacher);
+    map<anydata>|error mapValue = teacher.cloneWithType(AnydataMap);
 
     return mapValue;
 }
 
 function stampRecordToAnydata() returns anydata|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    anydata|error anydataValue = anydata.constructFrom(teacher);
+    anydata|error anydataValue = teacher.cloneWithType(anydata);
 
     return anydataValue;
 }
 
 function stampFunctionReferenceWithOpenRecords() returns Employee|error {
-    Employee|error e = Employee.constructFrom(getTeacherRecord());
+    Employee|error e = getTeacherRecord().cloneWithType(Employee);
     return e;
 }
 
@@ -181,7 +184,7 @@ function getTeacherRecord() returns Teacher {
 }
 
 function stampFunctionReferenceWithArgs() returns Employee|error {
-    Employee|error e = Employee.constructFrom(getTeacherRecordWithArgs(23));
+    Employee|error e = getTeacherRecordWithArgs(23).cloneWithType(Employee);
     return e;
 }
 
@@ -192,7 +195,7 @@ function getTeacherRecordWithArgs(int i) returns Teacher {
 
 function stampOpenRecordToTypeClosedRecord() returns NonAcademicStaff|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    NonAcademicStaff|error returnValue = NonAcademicStaff.constructFrom(teacher);
+    NonAcademicStaff|error returnValue = teacher.cloneWithType(NonAcademicStaff);
 
     return returnValue;
 }
@@ -201,7 +204,7 @@ function stampExtendedRecordToOpenRecord() returns Employee|error {
     Address addressValue = { no: 23, streetName: "Palm Grove", city: "Colombo" };
     ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address: addressValue };
 
-    Employee|error employee = Employee.constructFrom(extendedEmployee);
+    Employee|error employee = extendedEmployee.cloneWithType(Employee);
 
     return employee;
 }
@@ -210,7 +213,7 @@ function stampExtendedRecordToOpenRecordV2() returns ExtendedEmployeeWithMap|err
     Address addressValue = { no: 23, streetName: "Palm Grove", city: "Colombo" };
     ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address: addressValue };
 
-    ExtendedEmployeeWithMap|error employee = ExtendedEmployeeWithMap.constructFrom(extendedEmployee);
+    ExtendedEmployeeWithMap|error employee = extendedEmployee.cloneWithType(ExtendedEmployeeWithMap);
 
     return employee;
 }
@@ -219,7 +222,7 @@ function stampExtendedRecordToOpenRecordV3() returns ExtendedEmployeeWithRecord|
     Address addressValue = { no: 23, streetName: "Palm Grove", city: "Colombo" };
     ExtendedEmployee extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address: addressValue };
 
-    ExtendedEmployeeWithRecord|error employee = ExtendedEmployeeWithRecord.constructFrom(extendedEmployee);
+    ExtendedEmployeeWithRecord|error employee = extendedEmployee.cloneWithType(ExtendedEmployeeWithRecord);
 
     return employee;
 }
@@ -229,7 +232,7 @@ function stampExtendedRecordToOpenRecordV4() returns ExtendedEmployee|error {
     ExtendedEmployeeWithMap extendedWithMap = { name: "Raja", status: "single", batch: "LK2014", address: addressValue }
     ;
 
-    ExtendedEmployee|error employee = ExtendedEmployee.constructFrom(extendedWithMap);
+    ExtendedEmployee|error employee = extendedWithMap.cloneWithType(ExtendedEmployee);
 
     return employee;
 }
@@ -239,7 +242,7 @@ function stampExtendedRecordToOpenRecordV5() returns ExtendedEmployee|error {
     ExtendedEmployeeWithUnion extendedEmployee = { name: "Raja", status: "single", batch: "LK2014", address:
     addressValue };
 
-    ExtendedEmployee|error employee = ExtendedEmployee.constructFrom(extendedEmployee);
+    ExtendedEmployee|error employee = extendedEmployee.cloneWithType(ExtendedEmployee);
 
     return employee;
 }
@@ -248,7 +251,7 @@ function stampExtendedRecordToOpenRecordV6() returns ExtendedEmployeeWithUnionRe
     map<anydata> addressValue = { no: 23, streetName: "Palm Grove", city: "Colombo" };
     Employee employee = { name: "Raja", status: "single", batch: "LK2014", "address": addressValue };
 
-    ExtendedEmployeeWithUnionRest|error outputValue = ExtendedEmployeeWithUnionRest.constructFrom(employee);
+    ExtendedEmployeeWithUnionRest|error outputValue = employee.cloneWithType(ExtendedEmployeeWithUnionRest);
 
     return outputValue;
 }
@@ -258,7 +261,7 @@ function stampExtendedRecordToRecordWithUnionV7() returns ExtendedEmployeeWithRe
     ExtendedEmployeeWithMap extendedWithMap =
     { name: "Raja", status: "single", batch: "LK2014", address: addressValue };
 
-    ExtendedEmployeeWithRecord|error employee = ExtendedEmployeeWithRecord.constructFrom(extendedWithMap);
+    ExtendedEmployeeWithRecord|error employee = extendedWithMap.cloneWithType(ExtendedEmployeeWithRecord);
 
     return employee;
 }
@@ -281,7 +284,7 @@ type TeacherWithAnyRestType record {|
 function stampAnyRecordToRecord() returns OpenEmployee|error {
 
     TeacherWithAnyRestType p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    OpenEmployee|error e1 = OpenEmployee.constructFrom(p1);
+    OpenEmployee|error e1 = p1.cloneWithType(OpenEmployee);
 
     return e1;
 }
@@ -305,7 +308,7 @@ type ExtendedEmployeeWithNilRecord record {
 function stampRecordToRecordWithNilValues() returns ExtendedEmployeeWithNilRecord|error {
     ExtendedEmployeeWithNilMap extendedWithMap = { name: "Raja", status: "single", batch: "LK2014", address: () };
 
-    ExtendedEmployeeWithNilRecord|error employee = ExtendedEmployeeWithNilRecord.constructFrom(extendedWithMap);
+    ExtendedEmployeeWithNilRecord|error employee = extendedWithMap.cloneWithType(ExtendedEmployeeWithNilRecord);
 
     return employee;
 }
@@ -313,7 +316,7 @@ function stampRecordToRecordWithNilValues() returns ExtendedEmployeeWithNilRecor
 function stampNilTypeToOpenRecord() returns Employee|error {
     Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    Employee|error e = Employee.constructFrom(t1);
+    Employee|error e = t1.cloneWithType(Employee);
     return e;
 }
 
@@ -334,14 +337,14 @@ type TeacherWithNil record {
 function stampRecordWithNilValues() returns Employee|error {
     TeacherWithNil t1 = { name: "Raja", status: "single", batch: "LK2014", school: () };
 
-    Employee|error e = Employee.constructFrom(t1);
+    Employee|error e = t1.cloneWithType(Employee);
     return e;
 }
 
 function stampRecordWithNilValuesV2() returns Employee|error {
     TeacherWithNil t1 = { name: "Raja", status: "single", batch: "LK2014", school: () };
 
-    EmployeeWithNil|error e = EmployeeWithNil.constructFrom(t1);
+    EmployeeWithNil|error e = t1.cloneWithType(EmployeeWithNil);
     return e;
 }
 
@@ -371,7 +374,7 @@ function stampComplexRecordToJSON() returns map<anydata>|error {
         marks: [value, value2]
     };
 
-    map<anydata>|error m = map<anydata>.constructFrom(p);
+    map<anydata>|error m = p.cloneWithType(AnydataMap);
     return m;
 }
 
@@ -388,7 +391,7 @@ type TeacherWithOptionalField record {
 function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalField|error {
     Employee emp = { name: "Raja", status: "single", batch: "LK2014" };
 
-    TeacherWithOptionalField|error teacher = TeacherWithOptionalField.constructFrom(emp);
+    TeacherWithOptionalField|error teacher = emp.cloneWithType(TeacherWithOptionalField);
     return teacher;
 }
 
@@ -396,7 +399,7 @@ function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalFiel
 
 function stampOpenRecordToMap() returns map<string>|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = map<string>.constructFrom(teacher);
+    map<string>|error mapValue = teacher.cloneWithType(StringMap);
 
     return mapValue;
 }
@@ -404,7 +407,7 @@ function stampOpenRecordToMap() returns map<string>|error {
 function stampOpenRecordToTypeClosedRecordNegative() returns NonAcademicStaff|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College", "postalCode":
     600 };
-    NonAcademicStaff|error returnValue = NonAcademicStaff.constructFrom(teacher);
+    NonAcademicStaff|error returnValue = teacher.cloneWithType(NonAcademicStaff);
 
     return returnValue;
 }
@@ -412,14 +415,14 @@ function stampOpenRecordToTypeClosedRecordNegative() returns NonAcademicStaff|er
 function stampWithOpenRecordsNonAssignableNegative() returns Teacher|error {
     Employee e1 = { name: "Raja", status: "single", batch: "LK2014" };
 
-    Teacher|error t = Teacher.constructFrom(e1);
+    Teacher|error t = e1.cloneWithType(Teacher);
     return t;
 }
 
 function stampOpenRecordWithInvalidValues() returns Teacher|error {
     Employee e1 = { name: "Raja", "age": 25, status: "single", batch: "LK2014", "school": 789 };
 
-    Teacher|error t = Teacher.constructFrom(e1);
+    Teacher|error t = e1.cloneWithType(Teacher);
 
     return t;
 }

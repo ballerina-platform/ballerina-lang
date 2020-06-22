@@ -1,26 +1,65 @@
 {
-    "kind": "TYPE_TEST_EXPRESSION",
-    "children": [
+  "kind": "TYPE_TEST_EXPRESSION",
+  "children": [
+    {
+      "kind": "TYPE_TEST_EXPRESSION",
+      "children": [
         {
-            "kind": "TYPE_TEST_EXPRESSION",
-            "children": [
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "3",
+              "trailingMinutiae": [
                 {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": 3
-                },
-                {
-                    "kind": "IS_KEYWORD"
-                },
-                {
-                    "kind": "INT_KEYWORD"
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "IS_KEYWORD"
+          "kind": "IS_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
-            "kind": "DECIMAL_KEYWORD"
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "IS_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "DECIMAL_TYPE_DESC",
+      "children": [
+        {
+          "kind": "DECIMAL_KEYWORD"
+        }
+      ]
+    }
+  ]
 }

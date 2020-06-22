@@ -1,112 +1,196 @@
 {
-    "kind": "MODULE_PART",
-    "children": [
+  "kind": "MODULE_PART",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-        {
-            "kind": "LIST",
-            "children": [
+          "kind": "ENUM_DECLARATION",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
                 {
-                    "kind": "ENUM_DECLARATION",
-                    "children": [
+                  "kind": "DOCUMENTATION_STRING",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
                         {
-                            "kind": "METADATA",
-                            "children": [
-                                {
-                                    "kind": "DOCUMENTATION_STRING",
-                                    "children": [
-                                        {
-                                            "kind": "LIST",
-                                            "children": [
-                                                {
-                                                    "kind": "DOCUMENTATION_LINE",
-                                                    "value": "#this is doc comment"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "LIST",
-                                    "children": [
-                                        {
-                                            "kind": "ANNOTATION",
-                                            "children": [
-                                                {
-                                                    "kind": "AT_TOKEN"
-                                                },
-                                                {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "annots"
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "PUBLIC_KEYWORD"
-                        },
-                        {
-                            "kind": "ENUM_KEYWORD"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "isMissing": true
-                        },
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "A"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "B"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "COMMA_TOKEN"
-                                },
-                                {
-                                    "kind": "ENUM_MEMBER",
-                                    "children": [
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "C"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
+                          "kind": "DOCUMENTATION_LINE",
+                          "value": "#this is doc comment",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
-                    ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN"
+                        },
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "annots",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
-            ]
-        },
-        {
-            "kind": "EOF_TOKEN"
+              ]
+            },
+            {
+              "kind": "PUBLIC_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "ENUM_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            },
+            {
+              "kind": "OPEN_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "A",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "B",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                },
+                {
+                  "kind": "ENUM_MEMBER",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "C",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "EOF_TOKEN"
+    }
+  ]
 }

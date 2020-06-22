@@ -1,3 +1,19 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 function testBasicTypes() {
     future<int> f1 = start add(5, 2);
     future<boolean> f2 = start status();
@@ -8,6 +24,8 @@ function testBasicTypes() {
     string result3 = wait f3;
 
     assertEquality(7, result1);
+    assertEquality(true, result2);
+    assertEquality("hello foo", result3);
 }
 
 function testBasicTypesWithoutFutureConstraint() {
@@ -19,27 +37,31 @@ function testBasicTypesWithoutFutureConstraint() {
     any|error result2 = wait f2;
     any|error result3 = wait f3;
 
-    assertEquality(7, result1); 
+    assertEquality(7, result1);
+    assertEquality(true, result2);
+    assertEquality("hello foo", result3);
 }
 
 function testRefTypes() {
     future<xml> a = start xmlFile();
-    future<json> b = start jsonObject();
+    future<json> b = start getJson();
 
     xml x = wait a;
     json y = wait b;
-    
-    assertEquality("5", y.toString());
+
+    assertEquality(xml `aaa`, x);
+    assertEquality(5, y);
 }
 
 function testRefTypesWithoutFutureConstraint() {
     future a = start xmlFile();
-    future b = start jsonObject();
+    future b = start getJson();
 
     any|error x = wait a;
     any|error y = wait b;
-    
-    assertEquality("5", y.toString());
+
+    assertEquality(xml `aaa`, x);
+    assertEquality(5, y);
 }
 
 function testArrayTypes() {
@@ -96,7 +118,7 @@ function testCustomErrorFuture() {
 
     error x = wait te;
 
-    assertEquality("SimpleErrorType", x.reason());
+    assertEquality("SimpleErrorType", x.message());
 }
 
 function testCustomErrorFutureWithoutConstraint() {
@@ -125,7 +147,7 @@ function xmlFile() returns xml {
     return x1;
 }
 
-function jsonObject() returns (json) {
+function getJson() returns json {
     json j = 5;
     return j;
 }
@@ -159,7 +181,7 @@ function getNewPerson() returns Person {
 	return p;
 }
 
-function getError() returns error{
+function getError() returns error {
     error simpleError = error("SimpleErrorType", message = "Simple error occurred");
     return simpleError;
 }

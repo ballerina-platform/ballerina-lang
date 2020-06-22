@@ -33,7 +33,7 @@ function stringTemplateWithText14 () returns (string) {
 }
 
 type TestObject1 object {
-    public function __init(int arg1, int arg2 = 12, string... restArg) {
+    public function init(int arg1, int arg2 = 12, string... restArg) {
         
     }
 };
@@ -92,7 +92,7 @@ function testAnonFunctionExpression() {
         return testObj;
     };
 
-    var y = function(int, TestObject1) returns TestObject1;
+    //var y = function(int, TestObject1) returns TestObject1;
     function(int, int) returns int z = (param1, param2) => param1 + param2;
 }
 

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -31,23 +34,91 @@ public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryConstructType;
     public final STNode queryPipeline;
     public final STNode selectClause;
+    public final STNode onConflictClause;
+    public final STNode limitClause;
 
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause) {
-        super(SyntaxKind.QUERY_EXPRESSION);
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
+        this(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                onConflictClause,
+                limitClause,
+                Collections.emptyList());
+    }
+
+    STQueryExpressionNode(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
         this.selectClause = selectClause;
+        this.onConflictClause = onConflictClause;
+        this.limitClause = limitClause;
 
         addChildren(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
+    }
+
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STQueryExpressionNode(
+                this.queryConstructType,
+                this.queryPipeline,
+                this.selectClause,
+                this.onConflictClause,
+                this.limitClause,
+                diagnostics);
+    }
+
+    public STQueryExpressionNode modify(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
+        if (checkForReferenceEquality(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                onConflictClause,
+                limitClause)) {
+            return this;
+        }
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                onConflictClause,
+                limitClause,
+                diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

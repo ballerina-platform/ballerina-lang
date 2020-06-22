@@ -181,11 +181,11 @@ service productmgt on serviceEndpoint5 {
     }
     resource function product(http:Caller caller, http:Request req, string prodId) {
         http:Response res = new;
-        var result = json.constructFrom(productsMap[prodId]);
+        var result = productsMap[prodId].cloneWithType(json);
         if (result is json) {
             res.setPayload(<@untainted> result);
         } else {
-            res.setPayload(<@untainted> result.reason());
+            res.setPayload(<@untainted> result.message());
         }
         checkpanic caller->respond(res);
     }

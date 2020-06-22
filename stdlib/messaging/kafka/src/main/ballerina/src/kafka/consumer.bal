@@ -167,7 +167,7 @@ public type Consumer client object {
     # Creates a new Kafka `Consumer`.
     #
     # + config - Configurations related to consumer endpoint
-    public function __init (ConsumerConfiguration config) {
+    public function init (ConsumerConfiguration config) {
         self.consumerConfig = config;
         self.keyDeserializerType = config.keyDeserializerType;
         self.valueDeserializerType = config.valueDeserializerType;
@@ -175,7 +175,7 @@ public type Consumer client object {
         if (self.keyDeserializerType == DES_CUSTOM) {
             var keyDeserializerObject = config?.keyDeserializer;
             if (keyDeserializerObject is ()) {
-                panic error(CONSUMER_ERROR, message = "Invalid keyDeserializer config: Please Provide a " +
+                panic createConsumerError("Invalid keyDeserializer config: Please Provide a " +
                                         "valid custom deserializer for the keyDeserializer");
             } else {
                 self.keyDeserializer = keyDeserializerObject;
@@ -184,7 +184,7 @@ public type Consumer client object {
         if (self.keyDeserializerType == DES_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(PRODUCER_ERROR, message = "Missing schema registry URL for the Avro serializer. Please " +
+                panic createConsumerError("Missing schema registry URL for the Avro serializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ProducerConfiguration'.");
             }
         }
@@ -192,7 +192,7 @@ public type Consumer client object {
         if (self.valueDeserializerType == DES_CUSTOM) {
             var valueDeserializerObject = config?.valueDeserializer;
             if (valueDeserializerObject is ()) {
-                panic error(CONSUMER_ERROR, message = "Invalid valueDeserializer config: Please Provide a" +
+                panic createConsumerError("Invalid valueDeserializer config: Please Provide a" +
                                         " valid custom deserializer for the valueDeserializer");
             } else {
                 self.valueDeserializer = valueDeserializerObject;
@@ -201,19 +201,23 @@ public type Consumer client object {
         if (self.valueDeserializerType == DES_AVRO) {
             var schemaRegistryUrl = config?.schemaRegistryUrl;
             if (schemaRegistryUrl is ()) {
-                panic error(CONSUMER_ERROR, message = "Missing schema registry URL for the Avro deserializer. Please " +
+                panic createConsumerError("Missing schema registry URL for the Avro deserializer. Please " +
                             "provide 'schemaRegistryUrl' configuration in 'kafka:ConsumerConfiguration'.");
             }
         }
+        checkpanic self->connect();
 
-        checkpanic self.init(config);
+        string[]? topics = config?.topics;
+        if (topics is string[]){
+            checkpanic self->subscribe(topics);
+        }
     }
 
     # Starts the registered services.
     #
     # + return - An `kafka:ConsumerError` if an error is encountered while starting the server or else nil
     public function __start() returns error? {
-        return start(self);
+        return 'start(self);
     }
 
     # Stops the kafka listener.
@@ -246,16 +250,6 @@ public type Consumer client object {
     public function __detach(service s) returns error? {
     }
 
-    function init(ConsumerConfiguration config) returns ConsumerError? {
-        checkpanic self->connect();
-
-        string[]? topics = config?.topics;
-        if (topics is string[]){
-            checkpanic self->subscribe(topics);
-        }
-        return;
-    }
-
     # Assigns consumer to a set of topic partitions.
     #
     # + partitions - Topic partitions to be assigned
@@ -281,7 +275,7 @@ public type Consumer client object {
     # ```
     #
     # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
-    public remote function commit() returns ConsumerError? {
+    public remote function 'commit() returns ConsumerError? {
         return consumerCommit(self);
     }
 
@@ -399,7 +393,7 @@ public type Consumer client object {
     # + return - Array of partitions for the given topic if executes successfully or else a `kafka:ConsumerError`
     public remote function getTopicPartitions(string topic, public int duration = -1)
     returns TopicPartition[]|ConsumerError {
-        return consumerGetTopicPartitions(self, java:fromString(topic), duration);
+        return consumerGetTopicPartitions(self, topic, duration);
     }
 
     # Pauses retrieving messages from a set of partitions.
@@ -464,7 +458,7 @@ public type Consumer client object {
         if (self.consumerConfig?.groupId is string) {
             return consumerSubscribe(self, topics);
         } else {
-            panic error(CONSUMER_ERROR, message = "The groupId of the consumer must be set to subscribe to the topics");
+            panic createConsumerError("The groupId of the consumer must be set to subscribe to the topics");
         }
     }
 
@@ -476,7 +470,7 @@ public type Consumer client object {
     # + regex - Pattern, which should be matched with the topics to be subscribed to
     # + return - A `kafka:ConsumerError` if an error is encountered or else '()'
     public remote function subscribeToPattern(string regex) returns ConsumerError? {
-        return consumerSubscribeToPattern(self, java:fromString(regex));
+        return consumerSubscribeToPattern(self, regex);
     }
 
     # Subscribes to the provided set of topics with rebalance listening enabled.
@@ -566,7 +560,7 @@ function consumerGetPausedPartitions(Consumer consumer) returns TopicPartition[]
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.ConsumerInformationHandler"
 } external;
 
-function consumerGetTopicPartitions(Consumer consumer, handle topic, public int duration = -1)
+function consumerGetTopicPartitions(Consumer consumer, string topic, public int duration = -1)
 returns TopicPartition[]|ConsumerError =
 @java:Method {
     name: "getTopicPartitions",
@@ -637,7 +631,7 @@ function consumerSubscribe(Consumer consumer, string[] topics) returns ConsumerE
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
 } external;
 
-function consumerSubscribeToPattern(Consumer consumer, handle regex) returns ConsumerError? =
+function consumerSubscribeToPattern(Consumer consumer, string regex) returns ConsumerError? =
 @java:Method {
     name: "subscribeToPattern",
     class: "org.ballerinalang.messaging.kafka.nativeimpl.consumer.SubscriptionHandler"
@@ -663,7 +657,7 @@ function register(Consumer consumer, service serviceType, string? name) returns 
     class: "org.ballerinalang.messaging.kafka.service.Register"
 } external;
 
-function start(Consumer consumer) returns ConsumerError? =
+function 'start(Consumer consumer) returns ConsumerError? =
 @java:Method {
     class: "org.ballerinalang.messaging.kafka.service.Start"
 } external;

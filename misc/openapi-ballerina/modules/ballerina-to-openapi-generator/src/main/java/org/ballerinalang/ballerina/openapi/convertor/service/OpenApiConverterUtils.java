@@ -314,8 +314,9 @@ public class OpenApiConverterUtils {
             final BLangErrorType fieldTypeNode = (BLangErrorType) node;
             final BType bErrorType = fieldTypeNode.type;
             if (bErrorType instanceof BErrorType) {
-                property = mapBallerinaTypes(((BErrorType) bErrorType)
-                        .getReasonType().getKind().typeName(), false);
+                assert false;
+//                property = mapBallerinaTypes(((BErrorType) bErrorType)
+//                        .getReasonType().getKind().typeName(), false);
             }
         } else if (node instanceof BLangFiniteTypeNode) {
             //TODO handle finite types

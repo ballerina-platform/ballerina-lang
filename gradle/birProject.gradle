@@ -11,12 +11,13 @@ configurations {
 }
 
 project.ext.orgName = file('src/main/ballerina/Ballerina.toml').text.split("\n")[1].split("=")[1].split("\"")[1]
-
+project.ext.version = file('src/main/ballerina/Ballerina.toml').text.split("\n")[2].split("=")[1].split("\"")[1]
 project.ext.moduleName = files(file('src/main/ballerina/src').listFiles()).filter { File f ->
     f.isDirectory() && f.name != 'target' && f.name != '.ballerina'
 }.singleFile.name
 
-def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/"
+def generatedBirDir = "$buildDir/generated-bir/" + project.ext.orgName + "/" + project.ext.moduleName + "/" + project
+        .ext.version +"/"
 
 task copyTomlFiles(type: Copy) {
     dependsOn compileJava
@@ -32,7 +33,8 @@ task createBir {
 
     doLast {
         copy {
-            def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip").matching {
+            def zipFile = zipTree("$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext
+                    .moduleName + "/" + project.ext.version + "/" + project.ext.moduleName + ".zip").matching {
                 include "**/*.bir"
             }.files
             from zipFile
@@ -40,7 +42,8 @@ task createBir {
         }
     }
 
-    inputs.file "$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/0.0.0/" + project.ext.moduleName + ".zip"
+    inputs.file "$buildDir/generated-balo/repo/" + project.ext.orgName + "/" + project.ext.moduleName + "/"+ project
+            .ext.version +"/" + project.ext.moduleName + ".zip"
     outputs.dir "$buildDir/generated-bir"
 }
 
@@ -126,10 +129,12 @@ publishing {
             if (file("$buildDir/generated-bir-jar/" + moduleName + ".jar").exists()) {
                 artifact source: file("$buildDir/generated-bir-jar/" + moduleName + ".jar"), classifier: "bir-jar"
             }
-            if (file("$buildDir/generated-bir/ballerina/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+            if (file("$buildDir/generated-bir/ballerina/" + moduleName + "/" + project.ext.version + "/" + moduleName 
+                    + ".bir").exists()) {
                 artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
             }
-            if (file("$buildDir/generated-bir/ballerinax/" + moduleName + "/0.0.0/" + moduleName + ".bir").exists()) {
+            if (file("$buildDir/generated-bir/ballerinax/" + moduleName + "/" + project.ext.version + "/" + moduleName
+                    + ".bir").exists()) {
                 artifact source: createBirZipArtifact, classifier: "bir", extension: 'zip'
             }
         }
@@ -140,12 +145,14 @@ test {
     dependsOn copySelfToBirCache
     dependsOn createBalo
 
-    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar")
+    classpath += files("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext
+            .version + ".jar")
 }
 
 artifacts {
     bir file("$buildDir/generated-bir/"), { builtBy(createCacheEntries) }
-    birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '.' + moduleName + ".jar"), { builtBy(createBalo) }
+    birJar file("$buildDir/generated-bir-jar/" + project.ext.orgName + '-' + moduleName + "-" + project.ext.version +
+            ".jar"), { builtBy(createBalo) }
 }
 
 def getJarCreationCommand(it, generatedBirDir, mapPath, jarsToBeLoaded) {

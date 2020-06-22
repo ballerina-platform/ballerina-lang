@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STMetadataNode extends STNode {
     STMetadataNode(
             STNode documentationString,
             STNode annotations) {
-        super(SyntaxKind.METADATA);
+        this(
+                documentationString,
+                annotations,
+                Collections.emptyList());
+    }
+
+    STMetadataNode(
+            STNode documentationString,
+            STNode annotations,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.METADATA, diagnostics);
         this.documentationString = documentationString;
         this.annotations = annotations;
 
@@ -43,7 +56,39 @@ public class STMetadataNode extends STNode {
                 annotations);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STMetadataNode(
+                this.documentationString,
+                this.annotations,
+                diagnostics);
+    }
+
+    public STMetadataNode modify(
+            STNode documentationString,
+            STNode annotations) {
+        if (checkForReferenceEquality(
+                documentationString,
+                annotations)) {
+            return this;
+        }
+
+        return new STMetadataNode(
+                documentationString,
+                annotations,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MetadataNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

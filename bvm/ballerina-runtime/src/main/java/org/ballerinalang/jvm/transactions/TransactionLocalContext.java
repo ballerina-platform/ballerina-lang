@@ -43,8 +43,10 @@ public class TransactionLocalContext {
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
+    private Object infoRecord;
+    private Object rollbackOnlyError;
 
-    private TransactionLocalContext(String globalTransactionId, String url, String protocol) {
+    private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
@@ -52,19 +54,22 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        transactionBlockIdStack = new Stack<>();
-        transactionFailure = new Stack<>();
+        this.infoRecord = infoRecord;
+        this.transactionBlockIdStack = new Stack<>();
+        this.transactionFailure = new Stack<>();
+        this.rollbackOnlyError = null;
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
-                                                                               String url, String protocol) {
-        TransactionLocalContext localContext = new TransactionLocalContext(globalTransactionId, url, protocol);
+            String url, String protocol, Object infoRecord) {
+        TransactionLocalContext localContext =
+                new TransactionLocalContext(globalTransactionId, url, protocol, infoRecord);
         localContext.setResourceParticipant(true);
         return localContext;
     }
 
     public static TransactionLocalContext create(String globalTransactionId, String url, String protocol) {
-        return new TransactionLocalContext(globalTransactionId, url, protocol);
+        return new TransactionLocalContext(globalTransactionId, url, protocol, null);
     }
 
     public String getGlobalTransactionId() {
@@ -130,9 +135,17 @@ public class TransactionLocalContext {
     }
 
 
-    public void rollbackTransaction(String transactionBlockId) {
+    public void rollbackTransaction(Strand strand, String transactionBlockId, Object error) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+        transactionResourceManager.rollbackTransaction(strand, globalTransactionId, transactionBlockId, error);
+    }
+
+    public void setRollbackOnlyError(Object error) {
+        rollbackOnlyError = error;
+    }
+
+    public Object getRollbackOnly() {
+        return rollbackOnlyError;
     }
 
     public void notifyLocalParticipantFailure() {
@@ -196,6 +209,10 @@ public class TransactionLocalContext {
 
     public void setResourceParticipant(boolean resourceParticipant) {
         isResourceParticipant = resourceParticipant;
+    }
+
+    public Object getInfoRecord() {
+        return infoRecord;
     }
 
     /**

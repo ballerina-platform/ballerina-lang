@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -34,11 +34,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -73,6 +75,17 @@ public class TypeDefBuilderHelper {
         return createRecordTypeNode(fieldList, recordType, pos);
     }
 
+    public static BLangObjectTypeNode createObjectTypeNode(BObjectType objectType, DiagnosticPos pos) {
+        List<BLangSimpleVariable> fieldList = new ArrayList<>();
+        for (BField field : objectType.fields.values()) {
+            BVarSymbol symbol = field.symbol;
+            BLangSimpleVariable fieldVar = ASTBuilderUtil.createVariable(field.pos, symbol.name.value, field.type,
+                                                                         null, symbol);
+            fieldList.add(fieldVar);
+        }
+        return createObjectTypeNode(fieldList, objectType, pos);
+    }
+
     public static BLangRecordTypeNode createRecordTypeNode(List<BLangSimpleVariable> typeDefFields,
                                                            BRecordType recordType, DiagnosticPos pos) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) TreeBuilder.createRecordTypeNode();
@@ -84,15 +97,27 @@ public class TypeDefBuilderHelper {
         return recordTypeNode;
     }
 
+    public static BLangObjectTypeNode createObjectTypeNode(List<BLangSimpleVariable> typeDefFields,
+                                                           BObjectType objectType, DiagnosticPos pos) {
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) TreeBuilder.createObjectTypeNode();
+        objectTypeNode.type = objectType;
+        objectTypeNode.fields = typeDefFields;
+        objectTypeNode.symbol = objectType.tsymbol;
+        objectTypeNode.pos = pos;
+
+        return objectTypeNode;
+    }
+
     public static BLangFunction createInitFunctionForRecordType(BLangRecordTypeNode recordTypeNode, SymbolEnv env,
                                                                 Names names, SymbolTable symTable) {
         BLangFunction initFunction = createInitFunctionForStructureType(recordTypeNode, env,
                                                                         Names.INIT_FUNCTION_SUFFIX, names, symTable);
-        BRecordTypeSymbol recordSymbol = ((BRecordTypeSymbol) recordTypeNode.type.tsymbol);
-        recordSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
+        BStructureTypeSymbol structureSymbol = ((BStructureTypeSymbol) recordTypeNode.type.tsymbol);
+        structureSymbol.initializerFunc = new BAttachedFunction(initFunction.symbol.name, initFunction.symbol,
                                                              (BInvokableType) initFunction.type);
         recordTypeNode.initFunction = initFunction;
-        recordSymbol.scope.define(recordSymbol.initializerFunc.symbol.name, recordSymbol.initializerFunc.symbol);
+        structureSymbol.scope.define(structureSymbol.initializerFunc.symbol.name,
+                                     structureSymbol.initializerFunc.symbol);
         return initFunction;
     }
 
@@ -148,11 +173,13 @@ public class TypeDefBuilderHelper {
         return initFunction;
     }
 
-    public static void addTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode, SymbolEnv env) {
+    public static BLangTypeDefinition addTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode,
+                                                        SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
         env.enclPkg.addTypeDefinition(typeDefinition);
         typeDefinition.typeNode = typeNode;
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
+        return typeDefinition;
     }
 }

@@ -23,13 +23,15 @@ import ballerina/grpc;
 //    io:println(response);
 //}
 
+type ByteArrayTypedesc typedesc<byte[]>;
+
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");
     string statement = "Lion in Town.";
     byte[] bytes = statement.toBytes();
     var addResponse = blockingEp->checkBytes(bytes);
     if (addResponse is grpc:Error) {
-        return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+        return io:sprintf("Error from Connector: %s", addResponse.message());
     } else {
         byte[] result = [];
         grpc:Headers resHeaders = new;
@@ -48,7 +50,7 @@ function testLargeByteArray(string filePath) returns (string) {
         if (resultBytes is byte[]) {
             var addResponse = blockingEp->checkBytes(resultBytes);
             if (addResponse is grpc:Error) {
-                return io:sprintf("Error from Connector: %s - %s", addResponse.reason(), <string> addResponse.detail()["message"]);
+                return io:sprintf("Error from Connector: %s", addResponse.message());
             } else {
                 byte[] result = [];
                 [result, _] = addResponse;
@@ -60,7 +62,7 @@ function testLargeByteArray(string filePath) returns (string) {
             }
         } else {
             error err = resultBytes;
-            return io:sprintf("File read error: %s - %s", err.reason(), <string> err.detail()["message"]);
+            return io:sprintf("File read error: %s", err.message());
         }
 
     }
@@ -72,7 +74,7 @@ public type byteServiceBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -83,11 +85,11 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
-        var value = typedesc<byte[]>.constructFrom(result);
+        var value = result.cloneWithType(ByteArrayTypedesc);
         if (value is byte[]) {
             return [value, resHeaders];
         } else {
-            return grpc:prepareError(grpc:INTERNAL_ERROR, "Error while constructing the message", value);
+            return grpc:InternalError("Error while constructing the message", value);
         }
     }
 };
@@ -98,7 +100,7 @@ public type byteServiceClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

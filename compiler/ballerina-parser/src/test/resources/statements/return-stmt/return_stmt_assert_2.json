@@ -1,15 +1,26 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
+  "kind": "RETURN_STATEMENT",
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
         {
-            "kind": "RETURN_KEYWORD"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 6
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
-    ]
+      ]
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

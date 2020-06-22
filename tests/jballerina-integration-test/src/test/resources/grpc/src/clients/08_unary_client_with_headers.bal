@@ -18,7 +18,7 @@ import ballerina/io;
 
 // Client endpoint configuration
 HelloWorldBlockingClient helloWorldBlockingEp = new ("http://localhost:9098");
-const string ERROR_MSG_FORMAT = "Error from Connector: %s - %s";
+const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
 // Enable when you need to test locally.
 //public function main() {
@@ -37,7 +37,7 @@ function testUnaryBlockingClient(string name) returns (string) {
     // Executing unary blocking call
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
@@ -58,7 +58,7 @@ function testBlockingHeader(string name) returns (string) {
     // Executing unary blocking call
     [string, grpc:Headers]|grpc:Error unionResp = helloWorldBlockingEp->hello("WSO2", headers);
     if (unionResp is grpc:Error) {
-        return io:sprintf(ERROR_MSG_FORMAT, unionResp.reason(), <string> unionResp.detail()["message"]);
+        return io:sprintf(ERROR_MSG_FORMAT, unionResp.message());
     } else {
         string result = "";
         grpc:Headers resHeaders = new;
@@ -77,7 +77,7 @@ public type HelloWorldBlockingClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "blocking", ROOT_DESCRIPTOR, getDescriptorMap());
@@ -99,7 +99,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

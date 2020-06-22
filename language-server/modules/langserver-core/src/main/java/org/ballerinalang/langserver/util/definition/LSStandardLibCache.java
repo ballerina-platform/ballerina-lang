@@ -18,20 +18,13 @@ package org.ballerinalang.langserver.util.definition;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import org.ballerinalang.compiler.CompilerOptionName;
-import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
-import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
-import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
-import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -39,14 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,11 +45,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
-
-import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
-import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
-import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
-import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Standard Library Cache Implementation for the Language Server.
@@ -86,7 +71,12 @@ public class LSStandardLibCache {
                     public List<TopLevelNode> load(@Nonnull String module) throws UnsupportedEncodingException,
                             LSStdlibCacheException {
                         // If the content is not in the cache then we need to extract the source content and compile
-                        LSStdLibCacheUtil.extractSourceForCacheableKey(module);
+                        int versionSeparator = module.lastIndexOf("_");
+                        int modNameSeparator = module.indexOf("_");
+                        String version = module.substring(versionSeparator + 1);
+                        String moduleName = module.substring(modNameSeparator + 1, versionSeparator);
+                        String orgName = module.substring(0, modNameSeparator);
+                        LSStdLibCacheUtil.extractSourceForModule(orgName, moduleName, version);
                         return getNodesForModule(module);
                     }
                 });
@@ -171,7 +161,7 @@ public class LSStandardLibCache {
         }
         return CommonUtil.LS_STDLIB_CACHE_DIR.resolve(pkgName);
     }
-    
+
     private void populateLangLibs() {
         List<String> langLibs = Arrays.asList("array", "decimal", "error", "float", "future", "int", "map", "object",
                 "stream", "string", "table", "typedesc", "value", "xml");
@@ -182,8 +172,12 @@ public class LSStandardLibCache {
         new Thread(() -> {
             try {
                 for (String langLib : langLibs) {
-                    String cacheableKey = "ballerina_lang." + langLib + "_0.0.0";
-                    LSStdLibCacheUtil.extractSourceForCacheableKey(cacheableKey);
+                    String orgName = "ballerina";
+                    String moduleName = "lang." + langLib;
+                    Path modulePath = LSStdLibCacheUtil.STD_LIB_SOURCE_ROOT.resolve(orgName).resolve(moduleName);
+                    String version = LSStdLibCacheUtil.readModuleVersionFromDir(modulePath);
+                    String cacheableKey = orgName + "_" + moduleName + "_" + version;
+                    LSStdLibCacheUtil.extractSourceForModule(orgName, moduleName, version);
                     topLevelNodeCache.put(cacheableKey, getNodesForModule(cacheableKey));
                 }
             } catch (LSStdlibCacheException | UnsupportedEncodingException e) {
@@ -195,7 +189,8 @@ public class LSStandardLibCache {
     }
 
     private List<TopLevelNode> getNodesForModule(String moduleName) throws UnsupportedEncodingException {
-        Compiler compiler = getCompiler(CommonUtil.LS_STDLIB_CACHE_DIR.resolve(moduleName).toString());
+        Compiler compiler = LSStdLibCacheUtil.getCompiler(CommonUtil.LS_STDLIB_CACHE_DIR.
+                resolve(moduleName).toString());
         BLangPackage bLangPackage = compiler.compile(moduleName);
         List<TopLevelNode> nodes = new ArrayList<>();
         bLangPackage.getCompilationUnits().forEach(compilationUnit -> {
@@ -228,23 +223,5 @@ public class LSStandardLibCache {
         return nodes;
     }
 
-    private CompilerContext createNewCompilerContext(String projectDir) {
-        CompilerContext context = new CompilerContext();
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, projectDir);
-        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
-        options.put(PRESERVE_WHITESPACE, Boolean.toString(false));
-        options.put(OFFLINE, Boolean.toString(true));
-        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
-        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
-        context.put(DiagnosticListener.class, new CollectDiagnosticListener());
-        return context;
-    }
 
-    private Compiler getCompiler(String projectDir) throws UnsupportedEncodingException {
-        Compiler compiler = Compiler.getInstance(createNewCompilerContext(projectDir));
-        compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
-
-        return compiler;
-    }
 }

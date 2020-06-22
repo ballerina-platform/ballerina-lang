@@ -1,15 +1,26 @@
 {
-    "kind": "PANIC_STATEMENT",
-    "children": [
+  "kind": "PANIC_STATEMENT",
+  "children": [
+    {
+      "kind": "PANIC_KEYWORD",
+      "trailingMinutiae": [
         {
-            "kind": "PANIC_KEYWORD"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 5
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
-    ]
+      ]
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

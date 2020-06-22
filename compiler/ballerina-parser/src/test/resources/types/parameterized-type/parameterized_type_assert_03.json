@@ -1,41 +1,60 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": [
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "PARAMETERIZED_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "FUTURE_KEYWORD"
-                },
-                {
-                    "kind": "LT_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "T"
-                },
-
-                {
-                    "kind": "GT_TOKEN"
-                }
-            ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "children": [
+        {
+          "kind": "PARAMETERIZED_TYPE_DESC",
+          "children": [
+            {
+              "kind": "FUTURE_KEYWORD"
+            },
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "T"
+                }
+              ]
+            },
+            {
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

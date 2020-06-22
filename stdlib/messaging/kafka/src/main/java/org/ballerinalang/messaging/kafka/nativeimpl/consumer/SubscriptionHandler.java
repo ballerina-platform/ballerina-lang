@@ -87,11 +87,11 @@ public class SubscriptionHandler {
      * @param topicRegex     Regex to match topics to subscribe.
      * @return {@code ErrorValue}, if there's any error, null otherwise.
      */
-    public static Object subscribeToPattern(ObjectValue consumerObject, String topicRegex) {
+    public static Object subscribeToPattern(ObjectValue consumerObject, BString topicRegex) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         try {
-            kafkaConsumer.subscribe(Pattern.compile(topicRegex));
+            kafkaConsumer.subscribe(Pattern.compile(topicRegex.getValue()));
             Set<String> topicsList = kafkaConsumer.subscription();
             KafkaMetricsUtil.reportBulkSubscription(consumerObject, topicsList);
         } catch (IllegalArgumentException | IllegalStateException | KafkaException e) {

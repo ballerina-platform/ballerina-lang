@@ -17,8 +17,11 @@
  */
 package io.ballerinalang.compiler.syntax.tree;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+
+import java.util.Collections;
 
 /**
  * Represents a terminal node in the Ballerina syntax tree.
@@ -63,6 +66,17 @@ public class Token extends Node {
         } else {
             return NodeFactory.createToken(this.kind(), leadingMinutiae, trailingMinutiae);
         }
+    }
+
+    @Override
+    public Iterable<Diagnostic> diagnostics() {
+        if (!internalNode.hasDiagnostics()) {
+            return Collections::emptyIterator;
+        }
+
+        return () -> internalNode.diagnostics().stream()
+                .map(this::createSyntaxDiagnostic)
+                .iterator();
     }
 
     @Override

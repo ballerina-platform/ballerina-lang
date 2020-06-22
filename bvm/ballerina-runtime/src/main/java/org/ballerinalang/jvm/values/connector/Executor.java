@@ -107,16 +107,18 @@ public class Executor {
      * @param classLoader normal classLoader
      * @param orgName     org which the package belongs to
      * @param packageName package which the class belongs to
+     * @param version     version which the class belongs to
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
     public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, final String orgName,
-                                         String packageName, String className, String methodName,
+                                         String packageName, String version, String className, String methodName,
                                          Object... paramValues) {
         try {
-            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + className);
+            Class<?> clazz = classLoader.loadClass(orgName + "." + packageName + "." + version.replace(".", "_") +
+                                                           "." + className);
             int paramCount = paramValues.length * 2 + 1;
             Class<?>[] jvmParamTypes = new Class[paramCount];
             Object[] jvmArgs = new Object[paramCount];
@@ -164,8 +166,14 @@ public class Executor {
             return boolean.class;
         } else if (paramValue instanceof BString) {
             return BString.class;
+        } else if (paramValue instanceof String) {
+            return String.class;
         } else if (paramValue instanceof Integer) {
             return int.class;
+        } else if (paramValue instanceof Long) {
+            return long.class;
+        } else if (paramValue instanceof Double) {
+            return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
         } else {

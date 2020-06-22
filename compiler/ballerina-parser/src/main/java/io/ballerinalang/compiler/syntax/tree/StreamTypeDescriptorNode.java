@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,8 +37,8 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Node streamTypeParamsNode() {
-        return childInBucket(1);
+    public Optional<Node> streamTypeParamsNode() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -88,7 +89,7 @@ public class StreamTypeDescriptorNode extends TypeDescriptorNode {
         public StreamTypeDescriptorNodeModifier(StreamTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
             this.streamKeywordToken = oldNode.streamKeywordToken();
-            this.streamTypeParamsNode = oldNode.streamTypeParamsNode();
+            this.streamTypeParamsNode = oldNode.streamTypeParamsNode().orElse(null);
         }
 
         public StreamTypeDescriptorNodeModifier withStreamKeywordToken(

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -38,7 +41,21 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(SyntaxKind.FUNCTION_CALL);
+        this(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STFunctionCallExpressionNode(
+            STNode functionName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_CALL, diagnostics);
         this.functionName = functionName;
         this.openParenToken = openParenToken;
         this.arguments = arguments;
@@ -51,7 +68,47 @@ public class STFunctionCallExpressionNode extends STExpressionNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionCallExpressionNode(
+                this.functionName,
+                this.openParenToken,
+                this.arguments,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STFunctionCallExpressionNode modify(
+            STNode functionName,
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STFunctionCallExpressionNode(
+                functionName,
+                openParenToken,
+                arguments,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionCallExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

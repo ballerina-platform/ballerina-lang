@@ -30,18 +30,16 @@ import ballerina/stringutils;
 # password="<password>"
 # scopes="<comma_separated_scopes>"
 # ```
-#
-# + basicAuthConfig - The Basic Auth provider configurations
 public type InboundBasicAuthProvider object {
 
     *InboundAuthProvider;
 
-    public BasicAuthConfig basicAuthConfig;
+    BasicAuthConfig basicAuthConfig;
 
     # Provides authentication based on the provided configurations.
     #
     # + basicAuthConfig - Basic Auth provider configurations
-    public function __init(BasicAuthConfig? basicAuthConfig = ()) {
+    public function init(BasicAuthConfig? basicAuthConfig = ()) {
         if (basicAuthConfig is BasicAuthConfig) {
             self.basicAuthConfig = basicAuthConfig;
         } else {
@@ -62,7 +60,7 @@ public type InboundBasicAuthProvider object {
             return false;
         }
         [string, string] [username, password] = check extractUsernameAndPassword(credential);
-        string passwordFromConfig = readPassword(username);
+        string passwordFromConfig = readPassword(username, self.basicAuthConfig.tableName);
         boolean authenticated = false;
         // This check is added to avoid having to go through multiple condition evaluations, when value is plain text.
         if (passwordFromConfig.startsWith(CONFIG_PREFIX)) {
@@ -123,10 +121,10 @@ function extractHash(string configValue) returns string {
 #
 # + username - Username of the user
 # + return - Password hash read from the userstore or else `()` if not found
-function readPassword(string username) returns string {
+function readPassword(string username, string tableName) returns string {
     // First, reads the user ID from the user->id mapping.
     // Then, reads the hashed password from the user-store file using the user ID.
-    return getConfigAuthValue(CONFIG_USER_SECTION + "." + username, "password");
+    return getConfigAuthValue(tableName + "." + username, "password");
 }
 
 function getConfigAuthValue(string instanceId, string property) returns string {

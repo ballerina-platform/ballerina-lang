@@ -7,15 +7,15 @@ target = "java8"
 
     [[platform.libraries]]
     artifactId = "web-sub"
-    version = "@project.version@"
-    path = "./lib/ballerina-websub-@project.version@.jar"
+    version = "1.0.0"
+    path = "./lib/ballerina-websub-1.0.0-java.jar"
     groupId = "ballerina"
     modules = ["web-sub"]
 
     [[platform.libraries]]
     artifactId = "org.wso2.transport.http.netty"
-    version = "6.3.8"
-    path = "./lib/org.wso2.transport.http.netty-6.3.8.jar"
+    version = "6.3.9"
+    path = "./lib/org.wso2.transport.http.netty-6.3.9.jar"
     groupId = "org.wso2.transport.http"
     modules = ["web-sub"]
 

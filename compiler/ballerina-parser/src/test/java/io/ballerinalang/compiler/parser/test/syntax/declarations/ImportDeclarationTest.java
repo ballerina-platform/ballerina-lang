@@ -139,4 +139,9 @@ public class ImportDeclarationTest extends AbstractDeclarationTest {
     public void testOutOfOrderImport() {
         testFile("import-decl/import_decl_source_22.bal", "import-decl/import_decl_assert_22.json");
     }
+
+    @Test
+    public void testOutOfOrderImports() {
+        testFile("import-decl/import_decl_source_23.bal", "import-decl/import_decl_assert_23.json");
+    }
 }

@@ -1,16 +1,31 @@
 {
-    "kind": "RETURN_STATEMENT",
-    "children": [
+  "kind": "RETURN_STATEMENT",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "RETURN_KEYWORD"
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
         {
-            "kind": "RETURN_KEYWORD"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "SEMICOLON_TOKEN",
-            "isMissing": true
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_SEMICOLON_TOKEN"
+      ]
+    }
+  ]
 }

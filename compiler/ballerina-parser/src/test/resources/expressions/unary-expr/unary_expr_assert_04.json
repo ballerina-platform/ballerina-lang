@@ -1,12 +1,23 @@
 {
-    "kind": "UNARY_EXPRESSION",
-    "children": [
+  "kind": "UNARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "EXCLAMATION_MARK_TOKEN",
+      "trailingMinutiae": [
         {
-            "kind": "EXCLAMATION_MARK_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 3
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
-    ]
+      ]
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "3"
+        }
+      ]
+    }
+  ]
 }

@@ -53,11 +53,12 @@ public class Constants {
 
     public static final String NATS = "nats";
     public static final String ORG_NAME = "ballerina";
+    public static final String VERSION = "1.0.0";
 
     // Represents nats package.
-    public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS;
+    public static final String NATS_PACKAGE = ORG_NAME + ORG_NAME_SEPARATOR + NATS + ":" + VERSION;
 
-    public static final BPackage NATS_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "nats");
+    public static final BPackage NATS_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "nats", VERSION);
 
     // Represents the message which will be consumed from NATS.
     public static final String NATS_MESSAGE_OBJ_NAME = "Message";
@@ -66,7 +67,7 @@ public class Constants {
     public static final String NATS_MSG = "NATSMSG";
 
     // Error code for i/o.
-    public static final String NATS_ERROR_CODE = "{ballerina/nats}Error";
+    static final String NATS_ERROR = "NatsError";
 
     // Represents the NATS error detail record.
     static final String NATS_ERROR_DETAIL_RECORD = "Detail";

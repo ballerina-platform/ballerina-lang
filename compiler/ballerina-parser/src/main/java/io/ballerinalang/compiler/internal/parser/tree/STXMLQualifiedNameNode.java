@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
             STNode prefix,
             STNode colon,
             STNode name) {
-        super(SyntaxKind.XML_QUALIFIED_NAME);
+        this(
+                prefix,
+                colon,
+                name,
+                Collections.emptyList());
+    }
+
+    STXMLQualifiedNameNode(
+            STNode prefix,
+            STNode colon,
+            STNode name,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.XML_QUALIFIED_NAME, diagnostics);
         this.prefix = prefix;
         this.colon = colon;
         this.name = name;
@@ -47,7 +62,43 @@ public class STXMLQualifiedNameNode extends STXMLNameNode {
                 name);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STXMLQualifiedNameNode(
+                this.prefix,
+                this.colon,
+                this.name,
+                diagnostics);
+    }
+
+    public STXMLQualifiedNameNode modify(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+        if (checkForReferenceEquality(
+                prefix,
+                colon,
+                name)) {
+            return this;
+        }
+
+        return new STXMLQualifiedNameNode(
+                prefix,
+                colon,
+                name,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLQualifiedNameNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

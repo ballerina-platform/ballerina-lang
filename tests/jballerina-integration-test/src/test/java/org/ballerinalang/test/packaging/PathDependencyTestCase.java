@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
@@ -66,7 +65,7 @@ public class PathDependencyTestCase extends BaseTest {
         
         // copy resources to a temp
         Path testResources = Paths.get("src", "test", "resources", "packaging", "balopath").toAbsolutePath();
-        copyFolder(testResources, this.tempTestResources);
+        PackerinaTestUtils.copyFolder(testResources, this.tempTestResources);
         
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
@@ -199,14 +198,15 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(enabled = false)
+    @Test()
     public void testBaloPathCase4() throws BallerinaTestException, IOException, InterruptedException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
         //// change module name
         Path testProjBeeModulePath = caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject1").resolve("src").resolve(beeModuleName));
-        copyFolder(caseResources.resolve("TestProject1").resolve("src").resolve("bee"), testProjBeeModulePath);
+        PackerinaTestUtils.copyFolder(caseResources.resolve("TestProject1").resolve("src").resolve("bee"),
+                                      testProjBeeModulePath);
         deleteFiles(caseResources.resolve("TestProject1").resolve("src").resolve("bee"));
         
         String beeModuleBaloFileName = beeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-java8-1" +
@@ -238,7 +238,8 @@ public class PathDependencyTestCase extends BaseTest {
         //// change module name
         Path testProjFeeModulePath = caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName);
         Files.createDirectories(caseResources.resolve("TestProject2").resolve("src").resolve(feeModuleName));
-        copyFolder(caseResources.resolve("TestProject2").resolve("src").resolve("fee"), testProjFeeModulePath);
+        PackerinaTestUtils.copyFolder(caseResources.resolve("TestProject2").resolve("src").resolve("fee"),
+                                      testProjFeeModulePath);
         deleteFiles(caseResources.resolve("TestProject2").resolve("src").resolve("fee"));
     
         String feeModuleBaloFileName = feeModuleName + "-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-2.0.0"
@@ -454,7 +455,7 @@ public class PathDependencyTestCase extends BaseTest {
      * @throws BallerinaTestException Error when executing the commands.
      */
     @Test(description = "Case8: Test single bal file using external module with interop dependency",
-    dependsOnMethods = "testBaloPathCase7")
+    dependsOnMethods = "testBaloPathCase4")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
         Path caseResources = tempTestResources.resolve("case8");
@@ -562,7 +563,8 @@ public class PathDependencyTestCase extends BaseTest {
     @Test(description = "Test platform library dependency valid path")
     public void testValidatePlatformLibraryPath() throws BallerinaTestException {
         Path caseResources = tempTestResources.resolve("platform-dependency");
-        String msg = "error: path is not specified for given platform library dependency.";
+        String msg = "error: path or maven dependency properties are not specified for given platform library " +
+                "dependency.";
         LogLeecher bazRunLeecher = new LogLeecher(msg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{}, new LogLeecher[]{bazRunLeecher},
                 caseResources.resolve("TestProject1").toString());
@@ -609,20 +611,8 @@ public class PathDependencyTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
-    }
-    
-    public  void copyFolder(Path src, Path dest) throws IOException {
-        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
-    }
-    
-    private void copy(Path source, Path dest) {
-        try {
-            Files.copy(source, dest, REPLACE_EXISTING);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
     }
     
     @AfterClass

@@ -1,36 +1,69 @@
 {
-    "kind": "CONDITIONAL_EXPRESSION",
-    "children": [
+  "kind": "CONDITIONAL_EXPRESSION",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "QUESTION_MARK_TOKEN",
-            "isMissing": true
-        },
-        {
-            "kind": "QUALIFIED_NAME_REFERENCE",
-            "children": [
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "b"
-                },
-                {
-                    "kind": "COLON_TOKEN"
-                },
-                {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "d"
-                }
-            ]
-        },
-        {
-            "kind": "COLON_TOKEN"
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "d"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": "  "
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "QUESTION_MARK_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_QUESTION_MARK_TOKEN"
+      ]
+    },
+    {
+      "kind": "QUALIFIED_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        },
+        {
+          "kind": "COLON_TOKEN"
+        },
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "d"
+        }
+      ]
+    }
+  ]
 }

@@ -258,7 +258,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test ballerina version")
     public void testBallerinaVersion() throws Exception {
-        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
+        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersionDisplayName());
         balClient.runMain("version", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }
@@ -303,7 +303,7 @@ public class PackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
     }
 

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -35,7 +38,19 @@ public class STCheckExpressionNode extends STExpressionNode {
             SyntaxKind kind,
             STNode checkKeyword,
             STNode expression) {
-        super(kind);
+        this(
+                kind,
+                checkKeyword,
+                expression,
+                Collections.emptyList());
+    }
+
+    STCheckExpressionNode(
+            SyntaxKind kind,
+            STNode checkKeyword,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(kind, diagnostics);
         this.checkKeyword = checkKeyword;
         this.expression = expression;
 
@@ -44,7 +59,42 @@ public class STCheckExpressionNode extends STExpressionNode {
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STCheckExpressionNode(
+                this.kind,
+                this.checkKeyword,
+                this.expression,
+                diagnostics);
+    }
+
+    public STCheckExpressionNode modify(
+            SyntaxKind kind,
+            STNode checkKeyword,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                checkKeyword,
+                expression)) {
+            return this;
+        }
+
+        return new STCheckExpressionNode(
+                kind,
+                checkKeyword,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CheckExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -1,70 +1,92 @@
 {
-    "kind": "TABLE_CONSTRUCTOR",
-    "children": [
+  "kind": "TABLE_CONSTRUCTOR",
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
         {
-            "kind": "TABLE_KEYWORD"
-        },
-        {
-            "kind": "OPEN_BRACKET_TOKEN"
-        },
-        {
-            "kind": "LIST",
-            "children": [
-                {
-                    "kind": "MAPPING_CONSTRUCTOR",
-                    "children": [
-                        {
-                            "kind": "OPEN_BRACE_TOKEN"
-                        },
-                        {
-                            "kind": "LIST",
-                            "children": [
-                                {
-                                    "kind": "SPECIFIC_FIELD",
-                                    "children": [
-                                        {
-                                            "kind": "STRING_LITERAL",
-                                            "value": "name"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "STRING_LITERAL",
-                                            "value": "Lochana"
-                                        }
-                                    ]
-                                },
-                                {
-                                    "kind": "SPECIFIC_FIELD",
-                                    "children": [
-                                        {
-                                            "kind": "COMMA_TOKEN"
-                                        },
-                                        {
-                                            "kind": "IDENTIFIER_TOKEN",
-                                            "value": "age"
-                                        },
-                                        {
-                                            "kind": "COLON_TOKEN"
-                                        },
-                                        {
-                                            "kind": "DECIMAL_INTEGER_LITERAL",
-                                            "value": "24"
-                                        }
-                                    ]
-                                }
-                            ]
-                        },
-                        {
-                            "kind": "CLOSE_BRACE_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "CLOSE_BRACKET_TOKEN"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
-    ]
+      ]
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN"
+    },
+    {
+      "kind": "LIST",
+      "children": [
+        {
+          "kind": "MAPPING_CONSTRUCTOR",
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": [
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "name"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "STRING_LITERAL",
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "Lochana"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SPECIFIC_FIELD",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "age"
+                    },
+                    {
+                      "kind": "COLON_TOKEN"
+                    },
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "24"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN"
+    }
+  ]
 }

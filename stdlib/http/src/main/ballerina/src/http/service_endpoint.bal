@@ -38,7 +38,7 @@ public type Listener object {
     #
     # + return - An `error` if an error occurred during the listener starting process
     public function __start() returns error? {
-        return self.start();
+        return self.startEndpoint();
     }
 
     # Stops the service listener gracefully. Already-accepted requests will be served before connection closure.
@@ -77,25 +77,17 @@ public type Listener object {
     # Gets invoked during module initialization to initialize the listener.
     #
     # + port - Listening port of the HTTP service listener
-    # + c - Configurations for HTTP service listener
-    public function __init(int port, public ListenerConfiguration? config = ()) {
+    # + config - Configurations for the HTTP service listener
+    public function init(int port, public ListenerConfiguration? config = ()) {
         self.instanceId = system:uuid();
         self.config = config ?: {};
         self.port = port;
-        self.init(self.config);
-    }
-
-    # Gets invoked during module initialization to initialize the endpoint.
-    #
-    # + c - Configurations for HTTP service endpoints
-    public function init(ListenerConfiguration c) {
-        self.config = c;
         ListenerAuth? auth = self.config["auth"];
         if (auth is ListenerAuth) {
             if (auth.mandateSecureSocket) {
                 ListenerSecureSocket? secureSocket = self.config.secureSocket;
                 if (secureSocket is ()) {
-                    error err = error("Secure sockets have not been cofigured in order to enable auth providers.");
+                    error err = error("Secure sockets have not been configured in order to enable auth providers.");
                     panic err;
                 }
             }
@@ -107,7 +99,7 @@ public type Listener object {
             panic err;
         }
     }
-
+    
     public function initEndpoint() returns error? {
         return externInitEndpoint(self);
     }
@@ -124,7 +116,7 @@ public type Listener object {
     # Starts the registered service.
     #
     # + return - An `error` if an error occurred during the listener start process
-    function start() returns error? {
+    function startEndpoint() returns error? {
         return externStart(self);
     }
 

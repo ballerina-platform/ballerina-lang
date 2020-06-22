@@ -1,24 +1,52 @@
 {
-    "kind": "BINARY_EXPRESSION",
-    "children": [
+  "kind": "BINARY_EXPRESSION",
+  "children": [
+    {
+      "kind": "UNARY_EXPRESSION",
+      "children": [
         {
-            "kind": "UNARY_EXPRESSION",
-            "children": [
+          "kind": "PLUS_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "8",
+              "trailingMinutiae": [
                 {
-                    "kind": "PLUS_TOKEN"
-                },
-                {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": 8
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
-            ]
-        },
-        {
-            "kind": "PLUS_TOKEN"
-        },
-        {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": 3
+              ]
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "DECIMAL_INTEGER_LITERAL",
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "3"
+        }
+      ]
+    }
+  ]
 }

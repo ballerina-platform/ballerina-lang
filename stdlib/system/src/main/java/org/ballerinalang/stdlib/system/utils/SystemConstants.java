@@ -40,11 +40,16 @@ public class SystemConstants {
     public static final String PACKAGE_NAME = "system";
 
     /**
+     * Package version.
+     */
+    public static final String PACKAGE_VERSION = "0.6.0";
+
+    /**
      * Package path.
      */
     static final String SYSTEM_PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
 
-    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME);
+    static final BPackage SYSTEM_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, PACKAGE_VERSION);
 
     static final String ERROR_REASON_PREFIX = "{ballerina/system}";
 
@@ -54,10 +59,8 @@ public class SystemConstants {
 
     static final String PROCESS_FIELD = "ProcessField";
 
-    // System error codes
-    public static final String PROCESS_EXEC_ERROR = "{ballerina/system}ProcessExecError";
-    static final String ERROR_DETAILS = "Detail";
-    static final String ERROR_MESSAGE = "message";
+    // System error type names
+    public static final String PROCESS_EXEC_ERROR = "ProcessExecError";
 
     // System constant fields
     public static final int DEFAULT_MAX_DEPTH = -1;

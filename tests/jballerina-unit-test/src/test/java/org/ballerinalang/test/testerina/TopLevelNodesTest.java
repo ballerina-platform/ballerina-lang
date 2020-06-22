@@ -27,6 +27,7 @@ import org.testng.annotations.Test;
 /**
  * Test cases for duplicate definitions in tests vs src.
  */
+@Test
 public class TopLevelNodesTest {
     private CompileResult compileResult;
 

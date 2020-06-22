@@ -91,7 +91,7 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("expected 'int', found '(error|int)'"), message);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void invalidReceiveWithErrorReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid-receive-with-error-return.bal");
@@ -100,7 +100,7 @@ public class WorkerFailTest {
         Assert.assertTrue(message.contains("incompatible types"), message);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void invalidReceiveWithErrorUnionReturnTest() {
         CompileResult result =
                 BCompileUtil.compile("test-src/workers/invalid_receive_with_union_error_return_negative.bal");
@@ -252,7 +252,7 @@ public class WorkerFailTest {
                                                    "in a worker"), message);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void invalidUsagesOfDefault() {
         CompileResult result = BCompileUtil.compile("test-src/workers/invalid-usage-of-default.bal");
         Assert.assertEquals(result.getErrorCount(), 6);

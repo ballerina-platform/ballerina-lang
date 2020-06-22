@@ -19,7 +19,6 @@
 package org.ballerinalang.xslt;
 
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXMLSequence;
@@ -93,8 +92,8 @@ public class XSLTTest {
     public void directInvoke() throws URISyntaxException {
         BValue[] returns = BRunUtil.invoke(compileResult, "transform");
         Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(((BError) returns[0]).getReason(), "{ballerina/xslt}XSLTError");
-        Assert.assertTrue(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue()
+        Assert.assertTrue(returns[0] instanceof BError);
+        Assert.assertTrue(((BError) returns[0]).getMessage()
                                   .contains("Unexpected character 'H' (code 72) in prolog; expected '<'"));
     }
 }

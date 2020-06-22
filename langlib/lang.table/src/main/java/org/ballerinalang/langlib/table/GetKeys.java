@@ -31,6 +31,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
+
 /**
  * Extern function to get key arrays from the table.
  * ballerina.model.table:keys()
@@ -38,7 +40,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  * @since 1.3.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.table",
+        orgName = "ballerina", packageName = "lang.table", version = TABLE_VERSION,
         functionName = "keys",
         args = {@Argument(name = "tbl", type = TypeKind.TABLE)},
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.ANYDATA)},

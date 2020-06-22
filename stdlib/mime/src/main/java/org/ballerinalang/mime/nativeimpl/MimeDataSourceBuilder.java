@@ -30,6 +30,7 @@ import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -143,11 +144,11 @@ public class MimeDataSourceBuilder extends AbstractGetPayloadHandler {
 
     public static Object getText(ObjectValue entityObj) {
         NonBlockingCallback callback = null;
-        String result = null;
+        BString result = null;
         try {
             Object dataSource = EntityBodyHandler.getMessageDataSource(entityObj);
             if (dataSource != null) {
-                return MimeUtil.getMessageAsString(dataSource);
+                return org.ballerinalang.jvm.StringUtils.fromString(MimeUtil.getMessageAsString(dataSource));
             }
 
             if (isStreamingRequired(entityObj)) {

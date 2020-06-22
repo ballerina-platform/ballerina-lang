@@ -37,7 +37,7 @@ import java.util.List;
  * @since 0.92
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.__internal",
+        orgName = "ballerina", packageName = "lang.__internal", version = "0.1.0",
         functionName = "selectDescendants",
         args = {@Argument(name = "qname", type = TypeKind.ARRAY)},
         returnType = {@ReturnType(type = TypeKind.XML)},

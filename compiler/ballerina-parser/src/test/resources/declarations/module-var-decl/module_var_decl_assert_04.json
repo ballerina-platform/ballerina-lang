@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,9 +8,11 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "LISTENER_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -21,30 +24,75 @@
               ]
             },
             {
-              "kind": "LISTENER_KEYWORD"
+              "kind": "LISTENER_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "s1"
+              "value": "s1",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello1.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello1.com",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -56,27 +104,82 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "s2",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "s2"
-            },
-            {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello2.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello2.com",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "CONST_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -88,30 +191,81 @@
               ]
             },
             {
-              "kind": "CONST_KEYWORD"
+              "kind": "CONST_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "s2"
+              "value": "s2",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello3.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello3.com",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         },
         {
           "kind": "MODULE_VAR_DECL",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
@@ -123,15 +277,52 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "s2"
+              "kind": "TYPED_BINDING_PATTERN",
+              "children": [
+                {
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "s2",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
-              "isMissing": true
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
+              ]
             }
           ]
         }

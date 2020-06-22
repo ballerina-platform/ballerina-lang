@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticErrorCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -42,25 +43,32 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Next lexical token.
      */
     public STToken nextToken() {
+        STToken token;
         switch (this.mode) {
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
-                return readTemplateToken();
+                token = readTemplateToken();
+                break;
             case INTERPOLATION:
                 processLeadingTrivia();
-                return readTokenInInterpolation();
+                token = readTokenInInterpolation();
+                break;
             case INTERPOLATION_BRACED_CONTENT:
                 processLeadingTrivia();
-                return readTokenInBracedContentInInterpolation();
+                token = readTokenInBracedContentInInterpolation();
+                break;
             case DEFAULT:
             case IMPORT:
             default:
                 processLeadingTrivia();
-                return readToken();
+                token = readToken();
         }
+
+        // Can we improve this logic by creating the token with diagnostics then and there?
+        return cloneWithDiagnostics(token);
     }
 
-    public STToken nextTokenInternal() {
+    private STToken nextTokenInternal() {
         switch (this.mode) {
             case TEMPLATE:
                 return readTemplateToken();
@@ -173,7 +181,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = getSyntaxToken(SyntaxKind.ASTERISK_TOKEN);
                 break;
             case LexerTerminals.SLASH:
-                token = getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+                token = processSlashToken();
                 break;
             case LexerTerminals.PERCENT:
                 token = getSyntaxToken(SyntaxKind.PERCENT_TOKEN);
@@ -194,12 +202,7 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 break;
             case LexerTerminals.GT:
-                if (peek() == LexerTerminals.EQUAL) {
-                    reader.advance();
-                    token = getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
-                } else {
-                    token = getSyntaxToken(SyntaxKind.GT_TOKEN);
-                }
+                token = processTokenStartWithGt();
                 break;
             case LexerTerminals.EXCLAMATION_MARK:
                 token = processExclamationMarkOperator();
@@ -220,7 +223,7 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.BACKTICK:
                 startMode(ParserMode.TEMPLATE);
-                token = getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+                token = getBacktickToken();
                 break;
             case LexerTerminals.SINGLE_QUOTE:
                 token = processQuotedIdentifier();
@@ -439,7 +442,7 @@ public class BallerinaLexer extends AbstractLexer {
                 // This implementation does not replace any characters to maintain
                 // the exact source text as it is, but it does not count \r\n as two characters.
                 // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
-                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme(), 1);
+                return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             default:
                 throw new IllegalStateException();
         }
@@ -451,8 +454,8 @@ public class BallerinaLexer extends AbstractLexer {
      * @return Dot, ellipsis or decimal floating point token
      */
     private STToken processDot() {
-        int nexChar = reader.peek();
-        if (nexChar == LexerTerminals.DOT) {
+        int nextChar = reader.peek();
+        if (nextChar == LexerTerminals.DOT) {
             int nextNextChar = reader.peek(1);
             if (nextNextChar == LexerTerminals.DOT) {
                 reader.advance(2);
@@ -461,12 +464,15 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance(2);
                 return getSyntaxToken(SyntaxKind.DOUBLE_DOT_LT_TOKEN);
             }
-        } else if (nexChar == LexerTerminals.AT) {
+        } else if (nextChar == LexerTerminals.AT) {
             reader.advance();
             return getSyntaxToken(SyntaxKind.ANNOT_CHAINING_TOKEN);
+        } else if (nextChar == LexerTerminals.LT) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.DOT_LT_TOKEN);
         }
 
-        if (this.mode != ParserMode.IMPORT && isDigit(nexChar)) {
+        if (this.mode != ParserMode.IMPORT && isDigit(nextChar)) {
             return processDecimalFloatLiteral();
         }
         return getSyntaxToken(SyntaxKind.DOT_TOKEN);
@@ -519,7 +525,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.GT:
                 // this is '=>'
                 reader.advance();
-                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW);
+                return getSyntaxToken(SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN);
             default:
                 // this is '='
                 return getSyntaxToken(SyntaxKind.EQUAL_TOKEN);
@@ -562,6 +568,11 @@ public class BallerinaLexer extends AbstractLexer {
                 case 'F':
                 case 'd':
                 case 'D':
+                    // If there's more than one dot, only capture the integer
+                    if (reader.peek(1) == LexerTerminals.DOT) {
+                        break;
+                    }
+
                     // In sem-var mode, only decimal integer literals are supported
                     if (this.mode == ParserMode.IMPORT) {
                         break;
@@ -569,7 +580,7 @@ public class BallerinaLexer extends AbstractLexer {
 
                     // Integer part of the float cannot have a leading zero
                     if (startChar == '0' && len > 1) {
-                        break;
+                        reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
                     }
 
                     // Code would not reach here if the floating point starts with a dot
@@ -586,11 +597,9 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        // Integer or integer part of the float cannot have a leading zero
+        // Integer cannot have a leading zero
         if (startChar == '0' && len > 1) {
-            reportLexerError("extra leading zero");
-            processInvalidToken();
-            return readToken();
+            reportLexerError(DiagnosticErrorCode.ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS);
         }
 
         return getLiteral(SyntaxKind.DECIMAL_INTEGER_LITERAL);
@@ -682,9 +691,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one digit is present after the indicator
         if (!isDigit(nextChar)) {
-            reportLexerError("missing digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DIGIT_AFTER_EXPONENT_INDICATOR);
         }
 
         while (isDigit(nextChar)) {
@@ -755,10 +762,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Make sure at least one hex-digit present if processing started from a dot
         if (peek() == LexerTerminals.DOT && !isHexDigit(reader.peek(1))) {
-            reader.advance();
-            reportLexerError("missing hex-digit");
-            processInvalidToken();
-            return readToken();
+            reportLexerError(DiagnosticErrorCode.ERROR_MISSING_HEX_DIGIT_AFTER_DOT);
         }
 
         int nextChar;
@@ -930,8 +934,6 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FOREACH_KEYWORD);
             case LexerTerminals.TABLE:
                 return getSyntaxToken(SyntaxKind.TABLE_KEYWORD);
-            case LexerTerminals.KEY:
-                return getSyntaxToken(SyntaxKind.KEY_KEYWORD);
             case LexerTerminals.ERROR:
                 return getSyntaxToken(SyntaxKind.ERROR_KEYWORD);
             case LexerTerminals.LET:
@@ -972,6 +974,22 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.TRANSACTIONAL_KEYWORD);
             case LexerTerminals.ENUM:
                 return getSyntaxToken(SyntaxKind.ENUM_KEYWORD);
+            case LexerTerminals.BASE16:
+                return getSyntaxToken(SyntaxKind.BASE16_KEYWORD);
+            case LexerTerminals.BASE64:
+                return getSyntaxToken(SyntaxKind.BASE64_KEYWORD);
+            case LexerTerminals.MATCH:
+                return getSyntaxToken(SyntaxKind.MATCH_KEYWORD);
+            case LexerTerminals.CONFLICT:
+                return getSyntaxToken(SyntaxKind.CONFLICT_KEYWORD);
+            case LexerTerminals.LIMIT:
+                return getSyntaxToken(SyntaxKind.LIMIT_KEYWORD);
+            case LexerTerminals.JOIN:
+                return getSyntaxToken(SyntaxKind.JOIN_KEYWORD);
+            case LexerTerminals.OUTER:
+                return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
+            case LexerTerminals.EQUALS:
+                return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
             default:
                 return getIdentifierToken(tokenText);
         }
@@ -980,8 +998,6 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an invalid token. Consumes the input until {@link #isEndOfInvalidToken()}
      * is reached.
-     *
-     * @return The invalid token.
      */
     private void processInvalidToken() {
         while (!isEndOfInvalidToken()) {
@@ -989,9 +1005,9 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        reportLexerError("invalid token '" + tokenText + "'");
-        STNode trivia = STNodeFactory.createMinutiae(SyntaxKind.INVALID, tokenText);
-        this.leadingTriviaList.add(trivia);
+        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
+        this.leadingTriviaList.add(invalidNodeMinutiae);
     }
 
     /**
@@ -1080,7 +1096,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param c character to check
      * @return <code>true</code>, if the character represents a digit. <code>false</code> otherwise.
      */
-    private boolean isDigit(int c) {
+    static boolean isDigit(int c) {
         return ('0' <= c && c <= '9');
     }
 
@@ -1093,7 +1109,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @param c character to check
      * @return <code>true</code>, if the character represents a hex digit. <code>false</code> otherwise.
      */
-    private boolean isHexDigit(int c) {
+    static boolean isHexDigit(int c) {
         if ('a' <= c && c <= 'f') {
             return true;
         }
@@ -1163,7 +1179,7 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-                    reportLexerError("missing double-quote");
+                    reportLexerError(DiagnosticErrorCode.ERROR_MISSING_DOUBLE_QUOTE);
                     break;
                 case LexerTerminals.DOUBLE_QUOTE:
                     this.reader.advance();
@@ -1181,12 +1197,12 @@ public class BallerinaLexer extends AbstractLexer {
                             if (this.reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                                 processStringNumericEscape();
                             } else {
-                                reportLexerError("invalid string numeric escape sequence");
+                                reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
                                 this.reader.advance(2);
                             }
                             continue;
                         default:
-                            reportLexerError("invalid escape sequence");
+                            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_ESCAPE_SEQUENCE);
                             this.reader.advance();
                             continue;
                     }
@@ -1211,7 +1227,7 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process code-point
         if (!isHexDigit(peek())) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
@@ -1222,15 +1238,11 @@ public class BallerinaLexer extends AbstractLexer {
 
         // Process close brace
         if (peek() != LexerTerminals.CLOSE_BRACE) {
-            reportLexerError("invalid string numeric escape sequence");
+            reportLexerError(DiagnosticErrorCode.ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE);
             return;
         }
 
         this.reader.advance();
-    }
-
-    private void reportLexerError(String message) {
-        this.errorListener.reportInvalidNodeError(null, message);
     }
 
     /**
@@ -1275,6 +1287,31 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
+     * Process any token that starts with '/'.
+     *
+     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     */
+    private STToken processSlashToken() {
+        switch (peek()) { // check for the second char
+            case LexerTerminals.LT:
+                reader.advance();
+                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
+            case LexerTerminals.ASTERISK:
+                reader.advance();
+                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+                    reader.advance(3);
+                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+                } else {
+                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+                }
+            default:
+                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+    }
+
+    /**
      * Process and return documentation line.
      * <p>
      * <code>
@@ -1293,7 +1330,6 @@ public class BallerinaLexer extends AbstractLexer {
      */
     private STToken processDocumentationLine() {
         // TODO: validate the markdown syntax.
-        reader.advance();
         int nextToken = peek();
         while (!reader.isEOF()) {
             switch (nextToken) {
@@ -1312,6 +1348,15 @@ public class BallerinaLexer extends AbstractLexer {
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken getBacktickToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // Trivia after the back-tick including whitespace belongs to the content of the back-tick.
+        // Therefore do not process trailing trivia for starting back-tick. We reach here only for
+        // starting back-tick. Ending back-tick is processed by the template mode.
+        STNode trailingTrivia = STNodeFactory.createEmptyNodeList();
+        return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
     private STToken readTemplateToken() {
@@ -1420,6 +1465,34 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getIdentifierToken(getLexeme());
+    }
+
+    private STToken processTokenStartWithGt() {
+        if (peek() == LexerTerminals.EQUAL) {
+            reader.advance();
+            return getSyntaxToken(SyntaxKind.GT_EQUAL_TOKEN);
+        }
+
+        if (reader.peek() != LexerTerminals.GT) {
+            return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
+
+        char nextChar = reader.peek(1);
+        switch (nextChar) {
+            case LexerTerminals.GT:
+                if (reader.peek(2) == LexerTerminals.EQUAL) {
+                    // ">>>="
+                    reader.advance(2);
+                    return getSyntaxToken(SyntaxKind.TRIPPLE_GT_TOKEN);
+                }
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+            case LexerTerminals.EQUAL:
+                // ">>="
+                reader.advance(1);
+                return getSyntaxToken(SyntaxKind.DOUBLE_GT_TOKEN);
+            default:
+                return getSyntaxToken(SyntaxKind.GT_TOKEN);
+        }
     }
 
     /*

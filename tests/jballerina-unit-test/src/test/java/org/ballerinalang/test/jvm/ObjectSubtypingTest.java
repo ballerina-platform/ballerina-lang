@@ -82,6 +82,11 @@ public class ObjectSubtypingTest {
         assertEquals(result[0].stringValue(), "Rocky walked 50 meters");
     }
 
+    @Test(description = "Test object subtyping")
+    public void testObjectAssignabilityBetweenNonClientAndClientObject() {
+        BRunUtil.invoke(compileResult, "testObjectAssignabilityBetweenNonClientAndClientObject");
+    }
+
     @Test
     public void testNegatives() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object_negatives.bal");
@@ -100,7 +105,7 @@ public class ObjectSubtypingTest {
         assertEquals(result.getErrorCount(), i);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testObjSubtypingSemanticsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-semantics-negative.bal");
         int i = 0;

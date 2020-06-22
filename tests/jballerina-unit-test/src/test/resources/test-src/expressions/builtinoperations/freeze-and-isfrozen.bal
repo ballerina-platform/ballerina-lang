@@ -375,34 +375,24 @@ function testFrozenInnerRecordUpdate() {
     d2.code = "fe12";
 }
 
-//TODO Table remove - Fix
+function testFrozenTableAddition() {
+    table<Employee1> key(id) empTable = table [
+            { id: 1, name: "Mary" },
+            { id: 2, name: "John" },
+            { id: 3, name: "Jim" }
+        ];
+    Employee1 e = { id: 5, name: "Anne" };
+    empTable.add(e);
+}
 
-//function testFrozenTableAddition() {
-//    table<Employee> empTable = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    Employee e = { id: 5, name: "Anne" };
-//    table<Employee> empTable2  = empTable.cloneReadOnly();
-//    checkpanic empTable2.add(e);
-//}
-//
-//function testFrozenTableRemoval() {
-//    table<Employee> empTable = table {
-//        { key id, name },
-//        [
-//            { 1, "Mary" },
-//            { 2, "John" },
-//            { 3, "Jim" }
-//        ]
-//    };
-//    table<Employee> empTable2 = empTable.cloneReadOnly();
-//    _ = checkpanic empTable2.remove(isIdTwo);
-//}
+function testFrozenTableRemoval() {
+    table<Employee1> key(id) empTable = table [
+            { id: 1, name: "Mary" },
+            { id: 2, name: "John" },
+            { id: 3, name: "Jim" }
+        ];
+    var rm = empTable.remove(2);
+}
 
 function testSimpleUnionFreeze() returns boolean {
     int|string u1 = "hello world";
@@ -494,6 +484,11 @@ type Employee record {|
     int id;
     string name;
 |};
+
+type Employee1 record {
+    readonly int id;
+    string name;
+};
 
 type DeptEmployee record {|
     int id;

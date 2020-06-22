@@ -35,18 +35,16 @@ import ballerina/time;
 #     }
 # });
 # ```
-#
-# + jwtIssuerConfig - JWT issuer configurations
 public type OutboundJwtAuthProvider object {
 
     *auth:OutboundAuthProvider;
 
-    public JwtIssuerConfig? jwtIssuerConfig;
+    JwtIssuerConfig? jwtIssuerConfig;
 
     # Provides authentication based on the provided JWT configuration.
     #
     # + jwtIssuerConfig - JWT issuer configurations
-    public function __init(JwtIssuerConfig? jwtIssuerConfig = ()) {
+    public function init(JwtIssuerConfig? jwtIssuerConfig = ()) {
         self.jwtIssuerConfig = jwtIssuerConfig;
     }
 
@@ -62,7 +60,7 @@ public type OutboundJwtAuthProvider object {
         if (jwtIssuerConfig is JwtIssuerConfig) {
             string|Error result = getJwtAuthToken(jwtIssuerConfig);
             if (result is error) {
-                return prepareAuthError(result.reason(), result);
+                return prepareAuthError(result.message(), result);
             }
             authToken = <string>result;
         } else {

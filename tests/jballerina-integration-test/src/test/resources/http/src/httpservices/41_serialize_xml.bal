@@ -73,12 +73,12 @@ service serializer on listenerEP {
                 if (payload is xml) {
                     response.setPayload(<@untainted> payload);
                 } else {
-                    response.setPayload(<@untainted> <string> payload.detail().message);
+                    response.setPayload(<@untainted> payload.message());
                 }
                 break; //Accepts only one part
             }
         } else {
-            log:printError(<string> bodyParts.reason());
+            log:printError(bodyParts.message());
             response.setPayload("Error in decoding multiparts!");
             response.statusCode = 500;
         }

@@ -219,6 +219,16 @@ public class TypesTest {
     }
 
     @Test
+    public void testRestType() {
+        BRunUtil.invoke(compileResult, "testRestType");
+    }
+
+    @Test
+    public void testEmptyArrayType() {
+        BRunUtil.invoke(compileResult, "testEmptyArrayType");
+    }
+
+    @Test
     public void testRecords() {
         BValue[] result = BRunUtil.invoke(compileResult, "recordsTest");
         Assert.assertEquals((result[0]).stringValue(), "JBallerina");
@@ -532,11 +542,11 @@ public class TypesTest {
         Assert.assertNotNull(returns[1]);
         Assert.assertNotNull(returns[2]);
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{message:\"JSON value is not a mapping\"}");
+                            "{\"message\":\"JSON value is not a mapping\"}");
         Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
-                            "{message:\"JSON value is not a mapping\"}");
+                            "{\"message\":\"JSON value is not a mapping\"}");
         Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(),
-                            "{message:\"JSON value is not a mapping\"}");
+                            "{\"message\":\"JSON value is not a mapping\"}");
     }
 
     @Test
@@ -557,7 +567,7 @@ public class TypesTest {
     public void testGetElementFromPrimitive() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
         Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{message:\"JSON value is not a mapping\"}");
+                            "{\"message\":\"JSON value is not a mapping\"}");
     }
 
     @Test

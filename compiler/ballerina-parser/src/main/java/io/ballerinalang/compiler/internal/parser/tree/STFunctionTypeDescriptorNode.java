@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
     STFunctionTypeDescriptorNode(
             STNode functionKeyword,
             STNode functionSignature) {
-        super(SyntaxKind.FUNCTION_TYPE_DESC);
+        this(
+                functionKeyword,
+                functionSignature,
+                Collections.emptyList());
+    }
+
+    STFunctionTypeDescriptorNode(
+            STNode functionKeyword,
+            STNode functionSignature,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_TYPE_DESC, diagnostics);
         this.functionKeyword = functionKeyword;
         this.functionSignature = functionSignature;
 
@@ -43,7 +56,39 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
                 functionSignature);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionTypeDescriptorNode(
+                this.functionKeyword,
+                this.functionSignature,
+                diagnostics);
+    }
+
+    public STFunctionTypeDescriptorNode modify(
+            STNode functionKeyword,
+            STNode functionSignature) {
+        if (checkForReferenceEquality(
+                functionKeyword,
+                functionSignature)) {
+            return this;
+        }
+
+        return new STFunctionTypeDescriptorNode(
+                functionKeyword,
+                functionSignature,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

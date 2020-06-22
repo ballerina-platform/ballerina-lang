@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -34,7 +37,17 @@ public class STReceiveActionNode extends STActionNode {
     STReceiveActionNode(
             STNode leftArrow,
             STNode receiveWorkers) {
-        super(SyntaxKind.RECEIVE_ACTION);
+        this(
+                leftArrow,
+                receiveWorkers,
+                Collections.emptyList());
+    }
+
+    STReceiveActionNode(
+            STNode leftArrow,
+            STNode receiveWorkers,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.RECEIVE_ACTION, diagnostics);
         this.leftArrow = leftArrow;
         this.receiveWorkers = receiveWorkers;
 
@@ -43,7 +56,39 @@ public class STReceiveActionNode extends STActionNode {
                 receiveWorkers);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STReceiveActionNode(
+                this.leftArrow,
+                this.receiveWorkers,
+                diagnostics);
+    }
+
+    public STReceiveActionNode modify(
+            STNode leftArrow,
+            STNode receiveWorkers) {
+        if (checkForReferenceEquality(
+                leftArrow,
+                receiveWorkers)) {
+            return this;
+        }
+
+        return new STReceiveActionNode(
+                leftArrow,
+                receiveWorkers,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ReceiveActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

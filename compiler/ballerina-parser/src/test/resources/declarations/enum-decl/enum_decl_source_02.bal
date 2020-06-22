@@ -1,5 +1,5 @@
 #this is doc comment
-SyntaxKind {
+& enum SyntaxKind {
     A,
     B,
     C

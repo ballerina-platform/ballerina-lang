@@ -1,44 +1,67 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
-                {
-                    "kind": "LIST",
-                    "children": []
-                }
-            ]
-        },
-        {
-            "kind": "TABLE_TYPE_DESC",
-            "children": [
-                {
-                    "kind": "TABLE_KEYWORD",
-                    "isMissing": true
-                },
-                {
-                    "kind": "TYPE_PARAMETER",
-                    "children": [
-                        {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "INT_KEYWORD"
-                        },
-                        {
-                            "kind": "GT_TOKEN"
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "LIST",
+          "children": []
         }
-    ]
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "PARAMETERIZED_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "MAP_KEYWORD",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_MAP_KEYWORD"
+              ]
+            },
+            {
+              "kind": "LT_TOKEN"
+            },
+            {
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD"
+                }
+              ]
+            },
+            {
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

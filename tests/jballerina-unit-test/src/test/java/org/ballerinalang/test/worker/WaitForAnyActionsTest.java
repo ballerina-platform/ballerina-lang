@@ -128,7 +128,7 @@ public class WaitForAnyActionsTest {
     }
 
     @Test (expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: err from panic .*")
+            expectedExceptionsMessageRegExp = "error: err from panic.*")
     public void waitTest12() {
         BRunUtil.invoke(result, "waitTest12", new BValue[0]);
     }
@@ -191,7 +191,7 @@ public class WaitForAnyActionsTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: A hazardous error occurred!!! Panic!! .*")
+            expectedExceptionsMessageRegExp = "error: A hazardous error occurred!!! Panic!!.*")
     public void waitTest21() {
         BRunUtil.invoke(result, "waitTest21", new BValue[0]);
     }

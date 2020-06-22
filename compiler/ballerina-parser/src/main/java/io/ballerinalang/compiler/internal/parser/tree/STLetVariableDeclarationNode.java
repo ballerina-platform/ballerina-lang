@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -29,33 +32,83 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
  */
 public class STLetVariableDeclarationNode extends STNode {
     public final STNode annotations;
-    public final STNode typeName;
-    public final STNode variableName;
+    public final STNode typedBindingPattern;
     public final STNode equalsToken;
     public final STNode expression;
 
     STLetVariableDeclarationNode(
             STNode annotations,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode equalsToken,
             STNode expression) {
-        super(SyntaxKind.LET_VAR_DECL);
+        this(
+                annotations,
+                typedBindingPattern,
+                equalsToken,
+                expression,
+                Collections.emptyList());
+    }
+
+    STLetVariableDeclarationNode(
+            STNode annotations,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode expression,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.LET_VAR_DECL, diagnostics);
         this.annotations = annotations;
-        this.typeName = typeName;
-        this.variableName = variableName;
+        this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
         addChildren(
                 annotations,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 equalsToken,
                 expression);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STLetVariableDeclarationNode(
+                this.annotations,
+                this.typedBindingPattern,
+                this.equalsToken,
+                this.expression,
+                diagnostics);
+    }
+
+    public STLetVariableDeclarationNode modify(
+            STNode annotations,
+            STNode typedBindingPattern,
+            STNode equalsToken,
+            STNode expression) {
+        if (checkForReferenceEquality(
+                annotations,
+                typedBindingPattern,
+                equalsToken,
+                expression)) {
+            return this;
+        }
+
+        return new STLetVariableDeclarationNode(
+                annotations,
+                typedBindingPattern,
+                equalsToken,
+                expression,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new LetVariableDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

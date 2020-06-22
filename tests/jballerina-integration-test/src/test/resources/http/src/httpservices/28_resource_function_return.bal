@@ -27,7 +27,7 @@ service resourceReturnService on new http:Listener(9228, {server: "Mysql"}) {
 
         // Manually return error.
         if (1 == 1) {
-            error e = error("{ballerina}SimulatedError", message = "Some random error");
+            error e = error("Some random error");
             return e;
         }
         checkpanic caller->respond(response);

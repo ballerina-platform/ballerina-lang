@@ -29,11 +29,13 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PR
 public class Constants {
     private Constants() {}
 
-    public static final BPackage TIME_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "time");
+    public static final String TIME_PACKAGE_VERSION = "1.0.0";
+    public static final BPackage TIME_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "time",
+                                                                TIME_PACKAGE_VERSION);
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "TimeZone";
 
-    public static final String TIME_ERROR_CODE = "{ballerina/time}TimeError";
+    public static final String TIME_ERROR = "TimeError";
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
     public static final String TIME_FIELD = "time";
     public static final String ZONE_FIELD = "zone";

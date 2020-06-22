@@ -1,45 +1,80 @@
 {
-    "kind": "MODULE_VAR_DECL",
-    "children": [
+  "kind": "MODULE_VAR_DECL",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "METADATA",
+      "children": [
         {
-            "kind": "METADATA",
-            "children": [
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "ERROR_TYPE_DESC",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ERROR_KEYWORD",
+              "trailingMinutiae": [
                 {
-                    "kind": "LIST",
-                    "children": []
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
-            ]
-        },
-        {
-            "kind": "ERROR_TYPE_DESC",
-            "children": [
+              ]
+            },
+            {
+              "kind": "ERROR_TYPE_PARAMS",
+              "hasDiagnostics": true,
+              "children": [
                 {
-                    "kind": "ERROR_KEYWORD"
+                  "kind": "LT_TOKEN"
                 },
                 {
-                    "kind": "ERROR_TYPE_PARAMS",
-                    "children": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "NO_MATCHING_OBJECT",
+                      "trailingMinutiae": [
                         {
-                            "kind": "LT_TOKEN"
-                        },
-                        {
-                            "kind": "IDENTIFIER_TOKEN",
-                            "value": "NO_MATCHING_OBJECT"
-                        },
-                        {
-                            "kind": "GT_TOKEN",
-                            "isMissing": true
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
-                    ]
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "GT_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_GT_TOKEN"
+                  ]
                 }
-            ]
+              ]
+            }
+          ]
         },
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SEMICOLON_TOKEN"
+          "kind": "CAPTURE_BINDING_PATTERN",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            }
+          ]
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SEMICOLON_TOKEN"
+    }
+  ]
 }

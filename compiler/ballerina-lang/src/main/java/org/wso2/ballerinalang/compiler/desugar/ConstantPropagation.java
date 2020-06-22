@@ -45,6 +45,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -54,6 +55,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
@@ -72,6 +74,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -82,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -103,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -121,7 +124,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
@@ -450,11 +455,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
-        transactionNode.onRetryBody = rewrite(transactionNode.onRetryBody);
-        transactionNode.committedBody = rewrite(transactionNode.committedBody);
-        transactionNode.abortedBody = rewrite(transactionNode.abortedBody);
-        transactionNode.retryCount = rewrite(transactionNode.retryCount);
         result = transactionNode;
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        rollbackNode.expr = rewrite(rollbackNode.expr);
+        result = rollbackNode;
     }
 
     @Override
@@ -586,6 +593,13 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         rewrite(stringTemplateLiteral.exprs);
         result = stringTemplateLiteral;
+    }
+
+    @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        rewrite(rawTemplateLiteral.strings);
+        rewrite(rawTemplateLiteral.insertions);
+        result = rawTemplateLiteral;
     }
 
     @Override
@@ -756,6 +770,16 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        result = transactionalExpr;
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        result = commitExpr;
+    }
+
+    @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
         result = bLangRecordVariableDef;
     }
@@ -771,13 +795,14 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
-        result = abortNode;
+    public void visit(BLangRetry retryNode) {
+        //TODO Transaction
+        result = retryNode;
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
-        result = retryNode;
+    public void visit(BLangRetryTransaction retryTransaction) {
+        result = retryTransaction;
     }
 
     @Override
@@ -841,6 +866,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangOnConflictClause onConflictClause) {
         onConflictClause.expression = rewrite(onConflictClause.expression);
         result = onConflictClause;
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        limitClause.expression = rewrite(limitClause.expression);
+        result = limitClause;
     }
 
     @Override

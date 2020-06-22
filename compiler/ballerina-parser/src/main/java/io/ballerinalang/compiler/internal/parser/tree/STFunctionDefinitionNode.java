@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -30,6 +33,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
+    public final STNode transactionalKeyword;
     public final STNode functionKeyword;
     public final STNode functionName;
     public final STNode functionSignature;
@@ -38,13 +42,35 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     STFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
             STNode functionBody) {
-        super(SyntaxKind.FUNCTION_DEFINITION);
+        this(
+                metadata,
+                visibilityQualifier,
+                transactionalKeyword,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody,
+                Collections.emptyList());
+    }
+
+    STFunctionDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode transactionalKeyword,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
+        this.transactionalKeyword = transactionalKeyword;
         this.functionKeyword = functionKeyword;
         this.functionName = functionName;
         this.functionSignature = functionSignature;
@@ -53,13 +79,66 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         addChildren(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
                 functionBody);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STFunctionDefinitionNode(
+                this.metadata,
+                this.visibilityQualifier,
+                this.transactionalKeyword,
+                this.functionKeyword,
+                this.functionName,
+                this.functionSignature,
+                this.functionBody,
+                diagnostics);
+    }
+
+    public STFunctionDefinitionNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode transactionalKeyword,
+            STNode functionKeyword,
+            STNode functionName,
+            STNode functionSignature,
+            STNode functionBody) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                transactionalKeyword,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody)) {
+            return this;
+        }
+
+        return new STFunctionDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                transactionalKeyword,
+                functionKeyword,
+                functionName,
+                functionSignature,
+                functionBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionDefinitionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

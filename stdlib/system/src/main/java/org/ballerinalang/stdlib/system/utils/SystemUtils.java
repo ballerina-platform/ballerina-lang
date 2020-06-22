@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.FILE_INFO_TYPE;
 import static org.ballerinalang.stdlib.system.utils.SystemConstants.PROCESS_FIELD;
@@ -49,41 +47,30 @@ public class SystemUtils {
     private static final String UNKNOWN_MESSAGE = "Unknown Error";
 
     /**
-     * Returns error object for input reason.
-     * Error type is generic ballerina error type. This utility to construct error object from message.
+     * Returns error object  with message. Error type is generic ballerina error type. This utility to construct
+     * error object from message.
      *
-     * @param error Reason for creating the error object. If the reason is null, "UNKNOWN" sets by
-     *              default.
+     * @param typeId The string type ID of the particular error object.
      * @param ex    Java throwable object to capture description of error struct. If throwable object is null,
      *              "Unknown Error" sets to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String error, Throwable ex) {
-        String errorMsg = error != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
-        return getBallerinaError(error, errorMsg);
+    public static ErrorValue getBallerinaError(String typeId, Throwable ex) {
+        String errorMsg = ex != null && ex.getMessage() != null ? ex.getMessage() : UNKNOWN_MESSAGE;
+        return getBallerinaError(typeId, errorMsg);
     }
 
     /**
-     * Returns error object for input reason and details.
-     * Error type is generic ballerina error type. This utility to construct error object from message.
+     * Returns error object with message. Error type is generic ballerina error type. This utility to construct error
+     * object from message.
      *
-     * @param error   The specific error type.
-     * @param details Java throwable object to capture description of error struct. If throwable object is null,
+     * @param typeId  The specific error type ID.
+     * @param message Java throwable object to capture description of error struct. If throwable object is null,
      *                "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String error, String details) {
-        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
-    }
-
-    private static MapValue populateSystemErrorRecord(String message) {
-        Map<String, Object> valueMap = new HashMap<>();
-        if (message != null) {
-            valueMap.put(SystemConstants.ERROR_MESSAGE, message);
-        } else {
-            valueMap.put(SystemConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
-        }
-        return BallerinaValues.createRecordValue(SYSTEM_PACKAGE_ID, SystemConstants.ERROR_DETAILS, valueMap);
+    public static ErrorValue getBallerinaError(String typeId, String message) {
+        return BallerinaErrors.createDistinctError(typeId, SYSTEM_PACKAGE_ID, message);
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {

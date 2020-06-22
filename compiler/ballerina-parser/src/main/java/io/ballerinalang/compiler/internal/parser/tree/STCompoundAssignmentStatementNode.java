@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -40,7 +43,23 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
             STNode equalsToken,
             STNode rhsExpression,
             STNode semicolonToken) {
-        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT);
+        this(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken,
+                Collections.emptyList());
+    }
+
+    STCompoundAssignmentStatementNode(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.COMPOUND_ASSIGNMENT_STATEMENT, diagnostics);
         this.lhsExpression = lhsExpression;
         this.binaryOperator = binaryOperator;
         this.equalsToken = equalsToken;
@@ -55,7 +74,51 @@ public class STCompoundAssignmentStatementNode extends STStatementNode {
                 semicolonToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STCompoundAssignmentStatementNode(
+                this.lhsExpression,
+                this.binaryOperator,
+                this.equalsToken,
+                this.rhsExpression,
+                this.semicolonToken,
+                diagnostics);
+    }
+
+    public STCompoundAssignmentStatementNode modify(
+            STNode lhsExpression,
+            STNode binaryOperator,
+            STNode equalsToken,
+            STNode rhsExpression,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STCompoundAssignmentStatementNode(
+                lhsExpression,
+                binaryOperator,
+                equalsToken,
+                rhsExpression,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CompoundAssignmentStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

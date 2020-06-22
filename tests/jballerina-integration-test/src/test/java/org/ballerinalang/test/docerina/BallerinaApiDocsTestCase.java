@@ -89,6 +89,5 @@ public class BallerinaApiDocsTestCase extends BaseTest {
         Assert.assertTrue(Files.exists(recordsDir));
         Assert.assertTrue(Files.exists(Paths.get(String.valueOf(recordsDir), "BasicAuthConfig.html")));
         Assert.assertTrue(Files.exists(Paths.get(String.valueOf(recordsDir), "Credential.html")));
-        Assert.assertTrue(Files.exists(Paths.get(String.valueOf(recordsDir), "Detail.html")));
     }
 }

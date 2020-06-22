@@ -21,18 +21,21 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.BIRGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.ConstantPropagation;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DataflowAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.DocumentationAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.ObserverbilitySymbolCollectorRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.spi.ObservabilitySymbolCollector;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -59,6 +62,7 @@ import static org.ballerinalang.model.elements.PackageID.QUERY;
 import static org.ballerinalang.model.elements.PackageID.STREAM;
 import static org.ballerinalang.model.elements.PackageID.STRING;
 import static org.ballerinalang.model.elements.PackageID.TABLE;
+import static org.ballerinalang.model.elements.PackageID.TRANSACTION;
 import static org.ballerinalang.model.elements.PackageID.TYPEDESC;
 import static org.ballerinalang.model.elements.PackageID.VALUE;
 import static org.ballerinalang.model.elements.PackageID.XML;
@@ -89,8 +93,10 @@ public class CompilerDriver {
     private final ConstantPropagation constantPropagation;
     private final DocumentationAnalyzer documentationAnalyzer;
     private final CompilerPluginRunner compilerPluginRunner;
+    private final ObservabilitySymbolCollector observabilitySymbolCollector;
     private final Desugar desugar;
     private final BIRGen birGenerator;
+    private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
     private final DataflowAnalyzer dataflowAnalyzer;
     private boolean isToolingCompilation;
@@ -120,8 +126,10 @@ public class CompilerDriver {
         this.taintAnalyzer = TaintAnalyzer.getInstance(context);
         this.constantPropagation = ConstantPropagation.getInstance(context);
         this.compilerPluginRunner = CompilerPluginRunner.getInstance(context);
+        this.observabilitySymbolCollector = ObserverbilitySymbolCollectorRunner.getInstance(context);
         this.desugar = Desugar.getInstance(context);
         this.birGenerator = BIRGen.getInstance(context);
+        this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = this.options.getCompilerPhase();
         this.dataflowAnalyzer = DataflowAnalyzer.getInstance(context);
         this.isToolingCompilation = this.options.isSet(TOOLING_COMPILATION)
@@ -148,6 +156,7 @@ public class CompilerDriver {
             symbolTable.langIntModuleSymbol = pkgLoader.loadPackageSymbol(INT, null, null);
             symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
             symbolTable.langObjectModuleSymbol = pkgLoader.loadPackageSymbol(OBJECT, null, null);
+            symResolver.loadRawTemplateType();
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
@@ -156,6 +165,8 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
+            symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
+            symbolTable.loadPredeclaredModules();
             symResolver.loadFunctionalConstructors();
             return;
         }
@@ -193,6 +204,15 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+        }
+
+        if (langLib.equals(TRANSACTION)) {
+            // Transaction module requires  array, map, string, value modules. Hence loading them.
+            symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
+            symbolTable.langMapModuleSymbol = pkgLoader.loadPackageSymbol(MAP, null, null);
+            symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
+            symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
+            symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
         }
 
         symResolver.reloadIntRangeType();
@@ -264,6 +284,11 @@ public class CompilerDriver {
         }
 
         annotationProcess(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.OBSERVABILITY_DATA_GEN)) {
+            return;
+        }
+
+        generateObservabilityData(pkgNode);
         if (this.stopCompilation(pkgNode, CompilerPhase.DESUGAR)) {
             return;
         }
@@ -274,6 +299,19 @@ public class CompilerDriver {
         }
 
         birGen(pkgNode);
+        if (this.stopCompilation(pkgNode, CompilerPhase.CODE_GEN)) {
+            return;
+        }
+
+        codeGen(pkgNode);
+    }
+
+    private BLangPackage codeGen(BLangPackage pkgNode) {
+        return this.codeGenerator.generate(pkgNode);
+    }
+
+    private void generateObservabilityData(BLangPackage pkgNode) {
+        this.observabilitySymbolCollector.process(pkgNode);
     }
 
     public BLangPackage define(BLangPackage pkgNode) {
@@ -338,7 +376,7 @@ public class CompilerDriver {
             return null;
         }
 
-        return birGen(desugar(pkg)).symbol;
+        return codeGen(birGen(desugar(pkg))).symbol;
     }
 
 }

@@ -22,6 +22,9 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * This is a generated internal syntax tree node.
  *
@@ -36,7 +39,19 @@ public class STParenthesizedArgList extends STNode {
             STNode openParenToken,
             STNode arguments,
             STNode closeParenToken) {
-        super(SyntaxKind.PARENTHESIZED_ARG_LIST);
+        this(
+                openParenToken,
+                arguments,
+                closeParenToken,
+                Collections.emptyList());
+    }
+
+    STParenthesizedArgList(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken,
+            Collection<STNodeDiagnostic> diagnostics) {
+        super(SyntaxKind.PARENTHESIZED_ARG_LIST, diagnostics);
         this.openParenToken = openParenToken;
         this.arguments = arguments;
         this.closeParenToken = closeParenToken;
@@ -47,7 +62,43 @@ public class STParenthesizedArgList extends STNode {
                 closeParenToken);
     }
 
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STParenthesizedArgList(
+                this.openParenToken,
+                this.arguments,
+                this.closeParenToken,
+                diagnostics);
+    }
+
+    public STParenthesizedArgList modify(
+            STNode openParenToken,
+            STNode arguments,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                arguments,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STParenthesizedArgList(
+                openParenToken,
+                arguments,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesizedArgList(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

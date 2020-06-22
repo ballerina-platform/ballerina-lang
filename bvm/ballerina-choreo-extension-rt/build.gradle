@@ -1,0 +1,51 @@
+/*
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+
+apply plugin: 'java'
+apply plugin: 'checkstyle'
+apply plugin: "com.github.spotbugs"
+
+apply from: "$rootDir/gradle/repositories.gradle"
+
+configurations {
+    dist {
+        transitive false
+    }
+}
+
+dependencies {
+    dist project(':tracing-extensions:ballerina-choreo-extension')
+    dist 'io.grpc:grpc-api:1.27.2'
+    dist 'io.grpc:grpc-core:1.27.2'
+    dist 'io.grpc:grpc-protobuf:1.27.2'
+    dist 'io.grpc:grpc-stub:1.27.2'
+    dist 'io.grpc:grpc-protobuf-lite:1.27.2'
+    dist 'io.grpc:grpc-context:1.27.2'
+    dist 'io.grpc:grpc-netty-shaded:1.27.2'
+    dist 'io.perfmark:perfmark-api:0.19.0'
+    dist 'com.google.guava:guava:23.0'
+    dist 'com.google.protobuf:protobuf-java:3.11.0'
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    dependsOn configurations.dist
+    from { configurations.dist.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+description = 'Ballerina - Choreo Extension'
