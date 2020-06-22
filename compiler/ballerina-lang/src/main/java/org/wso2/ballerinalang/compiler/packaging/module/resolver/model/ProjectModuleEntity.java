@@ -16,12 +16,12 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOU
 /**
  * Concrete package entry for project module.
  */
-public class PackageFileSystem implements PackageSource {
+public class ProjectModuleEntity implements PackageSource {
     private final PackageID moduleId;
     private final List<CompilerInput> sourceFiles;
     private final Path sourcePath;
 
-    public PackageFileSystem(PackageID moduleId, Path sourcePath) {
+    public ProjectModuleEntity(PackageID moduleId, Path sourcePath) {
         this.moduleId = moduleId;
         this.sourcePath = sourcePath;
         this.sourceFiles = getSourceFiles();

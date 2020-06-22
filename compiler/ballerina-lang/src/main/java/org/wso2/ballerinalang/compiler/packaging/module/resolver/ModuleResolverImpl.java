@@ -23,10 +23,14 @@ import org.ballerinalang.repository.PackageEntity;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFileImport;
 import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ModuleResolveException;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageBalo;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ProjectModuleEntity;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.SingleBalEntity;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
@@ -48,16 +52,19 @@ public class ModuleResolverImpl implements ModuleResolver {
     private Project project;
     private RepoHierarchy repoHierarchy;
     private boolean isLockEnabled;
+    private SourceDirectory sourceDirectory;
 
     // store moduleId and Repo which module exists
     public Map<PackageID, Cache> resolvedModules = new HashMap<>();
 
     private static final String DEFAULT_VERSION = "0.0.0";
 
-    public ModuleResolverImpl(Project project, RepoHierarchy repoHierarchy, boolean isLockEnabled) {
+    public ModuleResolverImpl(Project project, RepoHierarchy repoHierarchy, boolean isLockEnabled,
+            SourceDirectory sourceDirectory) {
         this.project = project;
         this.repoHierarchy = repoHierarchy;
         this.isLockEnabled = isLockEnabled;
+        this.sourceDirectory = sourceDirectory;
     }
 
     @Override
@@ -111,6 +118,15 @@ public class ModuleResolverImpl implements ModuleResolver {
                 return resolvedModuleId;
             }
         }
+        // if a single bal file import
+        if (enclPackageID != null && enclPackageID.toString().equals(".")) {
+            // set newest version from repos
+            PackageID resolvedModuleId = resolveModuleVersionFromRepos(this.repoHierarchy.getRepoList(), packageID,
+                    "*");
+            if (isVersionExists(resolvedModuleId)) {
+                return resolvedModuleId;
+            }
+        }
 
         // if enclosing module is not a project module, module is transitive
         // if it is a transitive we need to check the toml file of the dependent module
@@ -134,6 +150,29 @@ public class ModuleResolverImpl implements ModuleResolver {
         }
 
         return packageID;
+    }
+
+    @Override
+    public PackageEntity resolveModule(PackageID moduleId) {
+        // if moduleId exists in `resolvedModules` map
+        if (resolvedModules.containsKey(moduleId)) {
+            Cache cache = resolvedModules.get(moduleId);
+            return cache.getModule(moduleId);
+        }
+        return null;
+    }
+
+    @Override
+    public PackageEntity loadModule(PackageID moduleId) {
+        Path srcPath = this.sourceDirectory.getPath();
+        if (".".equals(moduleId.toString())) {
+            // load single bal file
+            return new SingleBalEntity(moduleId, srcPath); // resolve(moduleId.sourceFileName.getValue())
+        } else {
+            // load module
+            return new ProjectModuleEntity(moduleId,
+                    srcPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleId.getName().getValue()));
+        }
     }
 
     private Path getBaloPath(Path srcPath) {
@@ -162,16 +201,6 @@ public class ModuleResolverImpl implements ModuleResolver {
             if (isVersionExists(resolvedModuleId)) {
                 return resolvedModuleId;
             }
-        }
-        return null;
-    }
-
-    @Override
-    public PackageEntity resolveModule(PackageID moduleId) {
-        // if moduleId exists in `resolvedModules` map
-        if (resolvedModules.containsKey(moduleId)) {
-            Cache cache = resolvedModules.get(moduleId);
-            return cache.getModule(moduleId);
         }
         return null;
     }

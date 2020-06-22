@@ -30,14 +30,15 @@ import org.powermock.modules.testng.PowerMockTestCase;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.Central;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.ModuleResolverImpl;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.ProjectBuildRepo;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.ProjectModules;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.Repo;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy;
-import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageFileSystem;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.Project;
+import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.ProjectModuleEntity;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -80,8 +81,10 @@ public class ModuleResolverTest extends PowerMockTestCase {
         // create repo hierarchy
         repoHierarchy = mock(RepoHierarchy.class);
 
+        SourceDirectory sourceDirectory = mock(SourceDirectory.class);
+
         // create module loader
-        moduleLoader = new ModuleResolverImpl(project, repoHierarchy, true);
+        moduleLoader = new ModuleResolverImpl(project, repoHierarchy, true, sourceDirectory);
     }
 
     @Test(description = "Get module version from ModuleId if module version exists in ModuleId")
@@ -248,7 +251,7 @@ public class ModuleResolverTest extends PowerMockTestCase {
 
         // Set `resolvedModules` map
         ProjectModules projectModules = mock(ProjectModules.class);
-        PackageEntity pkgEntity = new PackageFileSystem(moduleId, Paths.get("test/path/src" + moduleId.getName()));
+        PackageEntity pkgEntity = new ProjectModuleEntity(moduleId, Paths.get("test/path/src" + moduleId.getName()));
         when(projectModules.getModule(moduleId)).thenReturn(pkgEntity);
         moduleLoader.resolvedModules.put(moduleId, projectModules);
 

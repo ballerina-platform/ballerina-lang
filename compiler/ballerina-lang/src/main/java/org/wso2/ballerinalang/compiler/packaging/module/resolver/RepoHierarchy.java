@@ -22,9 +22,12 @@ import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.wso2.ballerinalang.util.RepoUtils.getLibDir;
 
 /**
  * Repo hierarchy which resolves modules.
@@ -49,9 +52,11 @@ public class RepoHierarchy {
         repos.add(projectModules);
 
         // 2. Project build repo
-        ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(
-                Paths.get(System.getProperty(USER_DIR)).resolve("build").resolve("ballerina-home").resolve("main")
-                        .resolve("lib").resolve("repo"));
+        Path systemZipRepo = getLibDir().resolve("repo");
+//        ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(
+//                Paths.get(System.getProperty(USER_DIR)).resolve("build").resolve("ballerina-home").resolve("main")
+//                        .resolve("lib").resolve("repo"));
+        ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(systemZipRepo);
         repos.add(projectBuildRepo);
 
         // 3. project bir cache

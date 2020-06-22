@@ -161,7 +161,8 @@ public class PackageLoader {
         this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
                 this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline,
                 this.sourceDirectory);
-        this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled);
+        this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled,
+                this.sourceDirectory);
     }
     
     /**
@@ -251,14 +252,17 @@ public class PackageLoader {
             return bLangPackage;
         }
 
-        // resolve the module version
-        pkgId = moduleResolver.resolveVersion(pkgId, enclPackageId);
-        // if module resolve version fails return null
-        if (pkgId == null || pkgId.version.getValue() == null || "".equals(pkgId.version.getValue())) {
-            return null;
-        }
-        // resolve module
-        PackageEntity pkgEntity = moduleResolver.resolveModule(pkgId);
+//        // resolve the module version
+//        pkgId = moduleResolver.resolveVersion(pkgId, enclPackageId);
+//        // if module resolve version fails return null
+//        if (pkgId == null || pkgId.version.getValue() == null || "".equals(pkgId.version.getValue())) {
+//            return null;
+//        }
+//        // resolve module
+//        PackageEntity pkgEntity = moduleResolver.resolveModule(pkgId);
+
+        // load entry module
+        PackageEntity pkgEntity = moduleResolver.loadModule(pkgId);
 
         if (pkgEntity == null) {
             // Do not throw an error here. Otherwise package build will terminate immediately if

@@ -29,4 +29,6 @@ public interface ModuleResolver {
     PackageID resolveVersion(PackageID moduleId, PackageID enclModuleId);
 
     PackageEntity resolveModule(PackageID moduleId);
+
+    PackageEntity loadModule(PackageID moduleId);
 }
