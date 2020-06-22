@@ -117,8 +117,8 @@ public class TokenReader extends AbstractTokenReader {
      *
      * @return current token index
      */
-    public int getCurrentIndex() {
-        return tokensAhead.getCurrentIndex();
+    public int getCurrentTokenIndex() {
+        return tokensAhead.getCurrentTokenIndex();
     }
 
     /**
@@ -212,7 +212,7 @@ public class TokenReader extends AbstractTokenReader {
          *
          * @return current token index
          */
-        public int getCurrentIndex() {
+        public int getCurrentTokenIndex() {
             return this.startIndex;
         }
     }
