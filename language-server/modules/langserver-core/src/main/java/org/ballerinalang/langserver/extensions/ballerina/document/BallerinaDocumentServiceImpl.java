@@ -278,7 +278,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
                     false, false, true);
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(true);
+            reply.setParseSuccess(reply.getAst() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
@@ -305,7 +305,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
-            reply.setParseSuccess(true);
+            reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
@@ -333,7 +333,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             ModulePartNode modulePartNode = astContext.get(UPDATED_SYNTAX_TREE).rootNode();
             reply.setSyntaxTree(mapGenerator.transform(modulePartNode));
-            reply.setParseSuccess(true);
+            reply.setParseSuccess(reply.getSyntaxTree() != null);
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
@@ -363,7 +363,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     true);
             reply.setSource(astContext.get(UPDATED_SYNTAX_TREE).toString());
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(true);
+            reply.setParseSuccess(reply.getAst() != null);
         } catch (Throwable e) {
 //            logger.error(e.getMessage(), e);
             reply.setParseSuccess(false);
