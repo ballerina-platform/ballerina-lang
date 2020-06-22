@@ -50,6 +50,7 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? ~b :\"c\"", "conditional-expr/conditional_expr_assert_22.json");
         test("a ? check b :\"c\"", "conditional-expr/conditional_expr_assert_23.json");
         test("a ? <string> b :\"c\"", "conditional-expr/conditional_expr_assert_24.json");
+        test("a ? b is c :\"d\"", "conditional-expr/conditional_expr_assert_25.json");
     }
 
     // Recovery tests
