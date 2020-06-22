@@ -541,14 +541,14 @@ function 'testSigned32LeftShift() {
 }
 
 function testIntLeftShift() {
-    int i1 = 9223372036854775807;
+    int i1 = 2147483647;
     int j = 2;
     int k = i1 << j;
-    test:assertValueEqual(-4, k);
+    test:assertValueEqual(8589934588, k);
 
-    int i2 = -9223372036854775808;
+    int i2 = -2147483648;
     k = i2 << j;
-    test:assertValueEqual(0, k);
+    test:assertValueEqual(-8589934592, k);
 
     int i3 = 0;
     k = i3 << j;
@@ -688,14 +688,14 @@ function 'testSigned32RightShift() {
 }
 
 function testIntRightShift() {
-    int i1 = 9223372036854775807;
+    int i1 = 2147483647;
     int j = 3;
     int k = i1 >> j;
-    test:assertValueEqual(1152921504606846975, k);
+    test:assertValueEqual(268435455, k);
 
-    int i2 = -9223372036854775808;
+    int i2 = -2147483648;
     k = i2 >> j;
-    test:assertValueEqual(-1152921504606846976, k);
+    test:assertValueEqual(-268435456, k);
 
     int i3 = 0;
     k = i3 >> j;
@@ -835,14 +835,14 @@ function 'testSigned32UnsignedRightShift() {
 }
 
 function testIntUnsignedRightShift() {
-    int i1 = 9223372036854775807;
+    int i1 = 2147483647;
     int j = 3;
     int k = i1 >>> j;
-    test:assertValueEqual(1152921504606846975, k);
+    test:assertValueEqual(268435455, k);
 
-    int i2 = -9223372036854775808;
+    int i2 = -2147483648;
     k = i2 >>> j;
-    test:assertValueEqual(1152921504606846976, k);
+    test:assertValueEqual(2305843008945258496, k);
 
     int i3 = 0;
     k = i3 >>> j;
@@ -927,7 +927,7 @@ function testBitwiseAnd() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
+    int l = -2147483648;
 
     ints:Signed8 s81 = -1;
     int res = s81 & s81;
@@ -948,7 +948,7 @@ function testBitwiseAnd() {
     test:assertValueEqual(1, p);
 
     int q = b & l;
-    test:assertValueEqual(-9223372036854775808, q);
+    test:assertValueEqual(-2147483648, q);
 
     int r = a & 1;
     test:assertValueEqual(1, r);
@@ -992,7 +992,7 @@ function testBitwiseOr() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
+    int l = -2147483648;
 
     ints:Signed8 s81 = -1;
     int res = s81 | s81;
@@ -1060,7 +1060,7 @@ function testBitwiseXor() {
     ints:Signed8 i = -100;
     ints:Signed16 j = 31267;
     ints:Signed32 k = -2137483647;
-    int l = -9223372036854775808;
+    int l = -2147483648;
 
     ints:Signed8 s81 = -1;
     int res = s81 ^ s81;
@@ -1084,7 +1084,7 @@ function testBitwiseXor() {
     test:assertValueEqual(-2137483648, p);
 
     int q = b ^ l;
-    test:assertValueEqual(9223372036854774241, q);
+    test:assertValueEqual(2147482081, q);
 
     int r = a ^ 1;
     test:assertValueEqual(0, r);
