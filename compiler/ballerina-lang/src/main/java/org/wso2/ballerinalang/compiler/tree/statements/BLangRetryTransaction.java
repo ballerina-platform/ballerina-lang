@@ -31,7 +31,6 @@ public class BLangRetryTransaction extends BLangStatement implements RetryTransa
 
     public BLangRetrySpec retrySpec;
     public BLangTransaction transaction;
-    public boolean transactionReturns;
 
     public BLangRetrySpec getRetrySpec() {
         return retrySpec;
