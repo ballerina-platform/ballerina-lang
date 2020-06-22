@@ -181,9 +181,9 @@ public class XmlToJsonConverter {
             Object elemAsJson = convertElement((XMLItem) bxml, attributePrefix, preserveNamespaces);
             if (elemAsJson instanceof MapValueImpl) {
                 @SuppressWarnings("unchecked")
-                MapValueImpl<String, Object> mapVal = (MapValueImpl<String, Object>) elemAsJson;
+                MapValueImpl<BString, Object> mapVal = (MapValueImpl<BString, Object>) elemAsJson;
                 if (mapVal.size() == 1) {
-                    Object val = mapVal.get(elementName);
+                    Object val = mapVal.get(fromString(elementName));
                     if (val != null) {
                         putAsBStrings(elementObj, elementName, val);
                         continue;

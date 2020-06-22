@@ -173,16 +173,23 @@ public class JsonUtilsTest {
                         "            <Country>LK</Country>\n" +
                         "        </Address>\n" +
                         "    </Invoice>",
-                "{\"Invoice\":{\"Invoice\":[\"\\n        \", {\"PurchesedItems\":[\"\\n            \", " +
-                        "{\"PLine\":{\"ItemCode\":\"223345\", \"Count\":\"10\"}}, \"\\n            \", " +
-                        "{\"PLine\":{\"ItemCode\":\"223300\", \"Count\":\"7\"}}, \"\\n            \", " +
-                        "{\"PLine\":{\"ItemCode\":{\"ItemCode\":\"200777\", \"@discount\":\"22%\"}, " +
-                        "\"Count\":\"7\"}}, \"\\n        \"]}, \"\\n        \", {\"Address\":[\"\\n            \", " +
-                        "{\"StreetAddress\":\"20, Palm grove, Colombo 3\"}, \"\\n            \", " +
-                        "{\"City\":\"Colombo\"}, \"\\n            \", {\"Zip\":\"00300\"}, \"\\n            \", " +
-                        "{\"Country\":\"LK\"}, \"\\n        \"], \"@xmlns:\":\"\", \"@\":\"\"}, \"\\n    \"], " +
-                        "\"@xmlns:ns\":\"ns.com\", \"@xmlns:\":\"example.com\", \"@attr\":\"attr-val\", " +
-                        "\"@ns:attr\":\"ns-attr-val\", \"@ns\":\"ns.com\", \"@\":\"example.com\"}}");
+                "{\"Invoice\":{\"Invoice\":" +
+                        "[\"\\n        \", " +
+                        "{\"PurchesedItems\":[\"\\n            \", {\"PLine\":{\"ItemCode\":{\"ItemCode\":\"223345\"," +
+                        " \"@xmlns\":\"example.com\"}, \"Count\":{\"Count\":\"10\", \"@xmlns\":\"example.com\"}}, " +
+                        "\"@xmlns\":\"example.com\"}, \"\\n            \", " +
+                        "{\"PLine\":{\"ItemCode\":{\"ItemCode\":\"223300\", \"@xmlns\":\"example.com\"}, " +
+                        "\"Count\":{\"Count\":\"7\", \"@xmlns\":\"example.com\"}}, \"@xmlns\":\"example.com\"}, " +
+                        "\"\\n            \", " +
+                        "{\"PLine\":{\"ItemCode\":{\"ItemCode\":\"200777\", \"@xmlns\":\"example.com\", " +
+                        "\"@discount\":\"22%\"}, \"Count\":{\"Count\":\"7\", \"@xmlns\":\"example.com\"}}, " +
+                        "\"@xmlns\":\"example.com\"}, \"\\n        \"], \"@xmlns\":\"example.com\"}, \"\\n        \"," +
+                        " {\"Address\":[\"\\n            \", {\"StreetAddress\":\"20, Palm grove, Colombo 3\"}, " +
+                        "\"\\n            \", {\"City\":\"Colombo\"}, \"\\n            \", " +
+                        "{\"Zip\":\"00300\"}, \"\\n            \", {\"Country\":\"LK\"}, \"\\n        \"], " +
+                        "\"@xmlns\":\"\"}, \"\\n    \"]," +
+                        " \"@xmlns\":\"example.com\", \"@xmlns:ns\":\"ns.com\", " +
+                        "\"@attr\":\"attr-val\", \"@ns:attr\":\"ns-attr-val\", \"@ns\":\"ns.com\"}}");
     }
 
     private void convertToJsonAndAssert(String xmlStr, String jsonStr) {
