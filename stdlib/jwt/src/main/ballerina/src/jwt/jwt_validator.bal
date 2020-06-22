@@ -30,13 +30,15 @@ import ballerina/time;
 # + issuer - Expected issuer
 # + audience - Expected audience
 # + clockSkewInSeconds - Clock skew in seconds
-# + signatureConfig - JWT signature configurations
+# + trustStoreConfig - JWT trust store configurations
+# + jwksConfig - JWKs configurations
 # + jwtCache - Cache used to store parsed JWT information
 public type JwtValidatorConfig record {|
     string issuer?;
     string|string[] audience?;
     int clockSkewInSeconds = 0;
-    JwtTrustStoreConfig|JwksConfig signatureConfig?;
+    JwtTrustStoreConfig trustStoreConfig?;
+    JwksConfig jwksConfig?;
     cache:Cache jwtCache = new;
 |};
 
@@ -259,7 +261,9 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
             }
         }
     }
-    jwtPayload.customClaims = customClaims;
+    if (customClaims.length() > 0) {
+        jwtPayload.customClaims = customClaims;
+    }
     return jwtPayload;
 }
 
@@ -268,18 +272,21 @@ function validateJwtRecords(string jwt, JwtHeader jwtHeader, JwtPayload jwtPaylo
     if (!validateMandatoryJwtHeaderFields(jwtHeader)) {
         return prepareError("Mandatory field signing algorithm (alg) is not provided in JOSE header.");
     }
-    JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
 
-    JwtTrustStoreConfig|JwksConfig? signatureConfig = config?.signatureConfig;
-    if (signatureConfig is JwtTrustStoreConfig) {
-        _ = check validateSignatureByTrustStore(jwt, alg, signatureConfig);
-    } else if (signatureConfig is JwksConfig) {
+    JwtSigningAlgorithm alg = <JwtSigningAlgorithm>jwtHeader?.alg;  // The `()` value is already validated.
+    JwksConfig? jwksConfig = config?.jwksConfig;
+    JwtTrustStoreConfig? trustStoreConfig = config?.trustStoreConfig;
+    if (jwksConfig is JwksConfig) {
         string? kid = jwtHeader?.kid;
         if (kid is string) {
-            _ = check validateSignatureByJwks(jwt, kid, alg, signatureConfig);
+            _ = check validateSignatureByJwks(jwt, kid, alg, jwksConfig);
+        } else if (trustStoreConfig is JwtTrustStoreConfig) {
+            _ = check validateSignatureByTrustStore(jwt, alg, trustStoreConfig);
         } else {
             return prepareError("Key ID (kid) is not provided in JOSE header.");
         }
+    } else if (trustStoreConfig is JwtTrustStoreConfig) {
+        _ = check validateSignatureByTrustStore(jwt, alg, trustStoreConfig);
     }
 
     string? iss = config?.issuer;
@@ -392,13 +399,13 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
         }
         json payload = <json>result;
         json[] jwks = <json[]>payload.keys;
-        foreach (json jwk in jwks) {
+        foreach json jwk in jwks {
             if (jwk.kid == kid) {
                 return jwk;
             }
         }
     } else {
-        return prepareError("JWK retrieval failed", response);
+        return prepareError("Failed to call JWKs endpoint.", response);
     }
 }
 

@@ -213,21 +213,21 @@ function testLetExpressionRecordBindingComplexVar() {
     assertTrue(city == "Colombo, Sri Lanka", "city == \"Colombo, Sri Lanka\"");
 }
 
-function testLetExpressionErrorBindingSimple() {
-    int k = let SampleError error(reason, info = info, fatal = fatal) = getSampleError(), int x = 1
-        in reason.length() + x;
-    assertTrue(k == 13, "k == 13");
-}
+//function testLetExpressionErrorBindingSimple() {
+//    int k = let SampleError error(reason, info = info, fatal = fatal) = getSampleError(), int x = 1
+//        in reason.length() + x;
+//    assertTrue(k == 13, "k == 13");
+//}
 
-function testLetExpressionErrorBindingVar() {
-    boolean k = <boolean>let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
-    assertTrue(k, "k == true");
-}
+//function testLetExpressionErrorBindingVar() {
+//    boolean k = <boolean>let var error(reasonTwo, ...params) = getSampleError() in params["fatal"];
+//    assertTrue(k, "k == true");
+//}
 
-function testLetExpressionRecordConstrainedErrorBinding() {
-     string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
-     assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
-}
+//function testLetExpressionRecordConstrainedErrorBinding() {
+//     string msg = let var error(_, detailMsg = detailMsg, isFatal = isFatal) = getRecordConstrainedError() in detailMsg;
+//     assertTrue(msg == "Failed Message", "msg == \"Failed Message\"");
+//}
 
 //type Student record {
 //    int marks = let int x = 3, int z = 5 in z*x;

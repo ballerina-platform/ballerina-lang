@@ -191,7 +191,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_TYPE_DESCRIPTOR_START =
-            { ParserRuleContext.OBJECT_TYPE_FIRST_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
+            { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
 
     private static final ParserRuleContext[] ELSE_BODY = { ParserRuleContext.IF_BLOCK, ParserRuleContext.OPEN_BRACE };
 
@@ -528,8 +528,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_FIELD_RHS:
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
             case OBJECT_MEMBER:
-            case OBJECT_TYPE_FIRST_QUALIFIER:
-            case OBJECT_TYPE_SECOND_QUALIFIER:
+            case OBJECT_TYPE_QUALIFIER:
             case ELSE_BODY:
             case IMPORT_DECL_RHS:
             case IMPORT_SUB_VERSION:
@@ -717,18 +716,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case ARG_LIST_END:
                     hasMatch = nextToken.kind == SyntaxKind.CLOSE_PAREN_TOKEN;
                     break;
-                case OBJECT_TYPE_FIRST_QUALIFIER:
-                case OBJECT_TYPE_SECOND_QUALIFIER:
-                    // If currentDepth == 0 means its the very next token after the error. If that erroneous
-                    // token is a correct match, then that means we have reached here because of a duplicate
-                    // modifier. Therefore treat it as a mismatch.
-                    if (currentDepth == 0) {
-                        hasMatch = false;
-                        break;
-                    }
-
+                case OBJECT_TYPE_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.ABSTRACT_KEYWORD ||
-                            nextToken.kind == SyntaxKind.CLIENT_KEYWORD;
+                            nextToken.kind == SyntaxKind.CLIENT_KEYWORD ||
+                            nextToken.kind == SyntaxKind.READONLY_KEYWORD;
                     break;
                 case OPEN_BRACKET:
                 case TUPLE_TYPE_DESC_START:
@@ -1715,11 +1706,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_CONSTRUCTOR:
             case MULTI_WAIT_FIELDS:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.CLOSE_BRACE, ParserRuleContext.COMMA,
                         ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
                         ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
                         ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA };
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case COMPUTED_FIELD_NAME:
                 // Here we give high priority to the comma. Therefore order of the below array matters.
@@ -1956,8 +1947,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.TYPE_DESC_IN_TYPE_DEF;
             case OBJECT_TYPE_DESCRIPTOR:
                 return ParserRuleContext.OBJECT_TYPE_DESCRIPTOR_START;
-            case OBJECT_TYPE_FIRST_QUALIFIER:
-            case OBJECT_TYPE_SECOND_QUALIFIER:
+            case OBJECT_TYPE_QUALIFIER:
                 return ParserRuleContext.OBJECT_KEYWORD;
             case OPEN_BRACKET:
                 return getNextRuleForOpenBracket();
@@ -2913,9 +2903,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case TYPE_DESC_IN_ANGLE_BRACKETS:
                 endContext();
-                if (isInTypeDescContext()) {
-                    return ParserRuleContext.TYPEDESC_RHS;
-                }
                 return ParserRuleContext.GT;
             case TYPE_DESC_IN_RETURN_TYPE_DESC:
                 endContext();
@@ -4108,8 +4095,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
                 return SyntaxKind.CLIENT_KEYWORD;
-            case OBJECT_TYPE_FIRST_QUALIFIER:
-            case OBJECT_TYPE_SECOND_QUALIFIER:
+            case OBJECT_TYPE_QUALIFIER:
                 return SyntaxKind.OBJECT_KEYWORD;
             case IF_KEYWORD:
                 return SyntaxKind.IF_KEYWORD;

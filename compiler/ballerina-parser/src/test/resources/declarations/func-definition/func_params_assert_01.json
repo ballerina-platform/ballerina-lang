@@ -55,11 +55,16 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -86,11 +91,16 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -117,11 +127,16 @@
                   "children": []
                 },
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -146,7 +161,12 @@
                 },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "7"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "7"
+                    }
+                  ]
                 }
               ]
             },
@@ -167,7 +187,12 @@
                   "children": []
                 },
                 {
-                  "kind": "STRING_KEYWORD"
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    }
+                  ]
                 },
                 {
                   "kind": "ELLIPSIS_TOKEN",

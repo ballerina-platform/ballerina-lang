@@ -5,7 +5,7 @@ type TestDetail record {|
     error cause?;
 |};
 
-public type ErrorTypeDesc1 error<TestReason, TestDetail>;
+public type ErrorTypeDesc1 error<TestDetail>;
 
 public function helloFunction() {
     var testVar = E

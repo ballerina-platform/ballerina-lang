@@ -95,7 +95,10 @@ public class Subscribe {
         assertNull(annotation, "Streaming configuration annotation not present.");
         String subject = annotation.getStringValue(SUBJECT_ANNOTATION_FIELD).getValue();
         assertNull(subject, "`Subject` annotation field is mandatory");
-        String queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD).getValue();
+        String queueName = null;
+        if (annotation.containsKey(QUEUE_NAME_ANNOTATION_FIELD)) {
+            queueName = annotation.getStringValue(QUEUE_NAME_ANNOTATION_FIELD).getValue();
+        }
         SubscriptionOptions subscriptionOptions = buildSubscriptionOptions(annotation);
         String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");
         try {
@@ -115,7 +118,10 @@ public class Subscribe {
 
     private static SubscriptionOptions buildSubscriptionOptions(MapValue<BString, Object> annotation) {
         SubscriptionOptions.Builder builder = new SubscriptionOptions.Builder();
-        String durableName = annotation.getStringValue(DURABLE_NAME_ANNOTATION_FIELD).getValue();
+        String durableName = null;
+        if (annotation.containsKey(DURABLE_NAME_ANNOTATION_FIELD)) {
+            durableName = annotation.getStringValue(DURABLE_NAME_ANNOTATION_FIELD).getValue();
+        }
         int maxInFlight = annotation.getIntValue(MAX_IN_FLIGHT_ANNOTATION_FIELD).intValue();
         int ackWait = annotation.getIntValue(ACK_WAIT_ANNOTATION_FIELD).intValue();
         int subscriptionTimeout = annotation.getIntValue(SUBSCRIPTION_TIMEOUT_ANNOTATION_FIELD).intValue();
@@ -136,7 +142,7 @@ public class Subscribe {
         int startPositionType = type.getTag();
         switch (startPositionType) {
             case TypeTags.STRING_TAG:
-                BallerinaStartPosition startPositionValue = BallerinaStartPosition.valueOf((String) startPosition);
+                BallerinaStartPosition startPositionValue = BallerinaStartPosition.valueOf(startPosition.toString());
                 if (startPositionValue.equals(BallerinaStartPosition.LAST_RECEIVED)) {
                     builder.startWithLastReceived();
                 } else if (startPositionValue.equals(BallerinaStartPosition.FIRST)) {
@@ -147,7 +153,7 @@ public class Subscribe {
                 break;
             case TypeTags.TUPLE_TAG:
                 ArrayValue tupleValue = (ArrayValue) startPosition;
-                String startPositionKind = (String) tupleValue.getRefValue(0);
+                String startPositionKind = tupleValue.getRefValue(0).toString();
                 long timeOrSequenceNo = (Long) tupleValue.getRefValue(1);
                 if (startPositionKind.equals(BallerinaStartPosition.TIME_DELTA_START.name())) {
                     builder.startAtTimeDelta(Duration.ofSeconds(timeOrSequenceNo));

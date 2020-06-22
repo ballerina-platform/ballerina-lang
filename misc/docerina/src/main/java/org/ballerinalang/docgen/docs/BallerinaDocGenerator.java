@@ -130,7 +130,8 @@ public class BallerinaDocGenerator {
         project.modules = moduleList;
         String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
         String indexHtmlPath = apiDocsRoot + File.separator  + projectTemplateName + HTML;
-        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
+        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "",
+                false);
         // Generate index.html for the project
         try {
             Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexHtmlPath);
@@ -223,7 +224,7 @@ public class BallerinaDocGenerator {
                 ModulePageContext modulePageContext = new ModulePageContext(module, project,
                         rootPathModuleLevel,
                         "API Docs - " + (project.isSingleFile ? project.sourceFileName
-                                : module.orgName + "/" + module.id));
+                                : module.orgName + "/" + module.id), excludeIndex);
                 String modIndexPath = modDir + File.separator + "index" + HTML;
                 Writer.writeHtmlDocument(modulePageContext, moduleTemplateName, modIndexPath);
 
@@ -233,7 +234,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(recordsDir));
                     for (Record record : module.records) {
                         RecordPageContext recordPageContext = new RecordPageContext(record, module, project,
-                                rootPathConstructLevel, "API Docs - Record : " + record.name);
+                                rootPathConstructLevel, "API Docs - Record : " + record.name, excludeIndex);
                         String recordFilePath = recordsDir + File.separator + record.name + HTML;
                         Writer.writeHtmlDocument(recordPageContext, recordTemplateName, recordFilePath);
                     }
@@ -245,7 +246,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(objectsDir));
                     for (Object object : module.objects) {
                         ObjectPageContext objectPageContext = new ObjectPageContext(object, module, project,
-                                rootPathConstructLevel, "API Docs - Object : " + object.name);
+                                rootPathConstructLevel, "API Docs - Object : " + object.name, excludeIndex);
                         String objectFilePath = objectsDir + File.separator + object.name + HTML;
                         Writer.writeHtmlDocument(objectPageContext, objectTemplateName, objectFilePath);
                     }
@@ -257,7 +258,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(clientsDir));
                     for (Client client : module.clients) {
                         ClientPageContext clientPageContext = new ClientPageContext(client, module, project,
-                                rootPathConstructLevel, "API Docs - Client : " + client.name);
+                                rootPathConstructLevel, "API Docs - Client : " + client.name, excludeIndex);
                         String clientFilePath = clientsDir + File.separator + client.name + HTML;
                         Writer.writeHtmlDocument(clientPageContext, clientTemplateName, clientFilePath);
                     }
@@ -269,7 +270,7 @@ public class BallerinaDocGenerator {
                     Files.createDirectories(Paths.get(listenersDir));
                     for (Listener listener : module.listeners) {
                         ListenerPageContext listenerPageContext = new ListenerPageContext(listener, module, project,
-                                rootPathConstructLevel, "API Docs - Listener : " + listener.name);
+                                rootPathConstructLevel, "API Docs - Listener : " + listener.name, excludeIndex);
                         String listenerFilePath = listenersDir + File.separator + listener.name + HTML;
                         Writer.writeHtmlDocument(listenerPageContext, listenerTemplateName, listenerFilePath);
                     }
@@ -279,7 +280,8 @@ public class BallerinaDocGenerator {
                 if (!module.functions.isEmpty()) {
                     String functionsFile = modDir + File.separator + "functions" + HTML;
                     FunctionsPageContext functionsPageContext = new FunctionsPageContext(module.functions,
-                            module, project, rootPathModuleLevel, "API Docs - Functions : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Functions : " + module.id,
+                            excludeIndex);
                     Writer.writeHtmlDocument(functionsPageContext, functionsTemplateName, functionsFile);
                 }
 
@@ -287,7 +289,8 @@ public class BallerinaDocGenerator {
                 if (!module.constants.isEmpty()) {
                     String constantsFile = modDir + File.separator + "constants" + HTML;
                     ConstantsPageContext constantsPageContext = new ConstantsPageContext(module.constants,
-                            module, project, rootPathModuleLevel, "API Docs - Constants : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Constants : " + module.id,
+                            excludeIndex);
                     Writer.writeHtmlDocument(constantsPageContext, constantsTemplateName, constantsFile);
                 }
 
@@ -295,7 +298,7 @@ public class BallerinaDocGenerator {
                 if (!(module.unionTypes.isEmpty() && module.finiteTypes.isEmpty())) {
                     String typesFile = modDir + File.separator + "types" + HTML;
                     TypesPageContext typesPageContext = new TypesPageContext(module.unionTypes, module, project,
-                            rootPathModuleLevel, "API Docs - Types : " + module.id);
+                            rootPathModuleLevel, "API Docs - Types : " + module.id, excludeIndex);
                     Writer.writeHtmlDocument(typesPageContext, typesTemplateName, typesFile);
                 }
 
@@ -303,7 +306,8 @@ public class BallerinaDocGenerator {
                 if (!module.annotations.isEmpty()) {
                     String annotationsFile = modDir + File.separator + "annotations" + HTML;
                     AnnotationsPageContext annotationsPageContext = new AnnotationsPageContext(module.annotations,
-                            module, project, rootPathModuleLevel, "API Docs - Annotations : " + module.id);
+                            module, project, rootPathModuleLevel, "API Docs - Annotations : " + module.id,
+                            excludeIndex);
                     Writer.writeHtmlDocument(annotationsPageContext, annotationsTemplateName, annotationsFile);
                 }
 
@@ -311,7 +315,7 @@ public class BallerinaDocGenerator {
                 if (!module.errors.isEmpty()) {
                     String errorsFile = modDir + File.separator + "errors" + HTML;
                     ErrorsPageContext errorsPageContext = new ErrorsPageContext(module.errors, module, project,
-                            rootPathModuleLevel, "API Docs - Errors : " + module.id);
+                            rootPathModuleLevel, "API Docs - Errors : " + module.id, excludeIndex);
                     Writer.writeHtmlDocument(errorsPageContext, errorsTemplateName, errorsFile);
                 }
                 // Create module json
@@ -396,7 +400,8 @@ public class BallerinaDocGenerator {
     private static void genIndexHtml(String output, Project project) {
         String projectTemplateName = System.getProperty(BallerinaDocConstants.PROJECT_TEMPLATE_NAME_KEY, "index");
         String indexHtmlPath = output + File.separator  + projectTemplateName + HTML;
-        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "");
+        ProjectPageContext projectPageContext = new ProjectPageContext(project, "API Documentation", "",
+                false);
         // Generate index.html for the project
         try {
             Writer.writeHtmlDocument(projectPageContext, projectTemplateName, indexHtmlPath);

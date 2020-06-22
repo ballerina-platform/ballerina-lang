@@ -141,17 +141,22 @@
                                           "kind": "TYPED_BINDING_PATTERN",
                                           "children": [
                                             {
-                                              "kind": "INT_KEYWORD",
-                                              "leadingMinutiae": [
+                                              "kind": "INT_TYPE_DESC",
+                                              "children": [
                                                 {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": "        "
-                                                }
-                                              ],
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "WHITESPACE_MINUTIAE",
-                                                  "value": " "
+                                                  "kind": "INT_KEYWORD",
+                                                  "leadingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": "        "
+                                                    }
+                                                  ],
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -183,7 +188,12 @@
                                         },
                                         {
                                           "kind": "DECIMAL_INTEGER_LITERAL",
-                                          "value": "2"
+                                          "children": [
+                                            {
+                                              "kind": "DECIMAL_INTEGER_LITERAL",
+                                              "value": "2"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "SEMICOLON_TOKEN",
@@ -200,6 +210,94 @@
                                 },
                                 {
                                   "kind": "CLOSE_BRACE_TOKEN",
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_NAMED_WORKER_NOT_ALLOWED_HERE"
+                                  ],
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "NAMED_WORKER_DECLARATION",
+                                        "children": [
+                                          {
+                                            "kind": "LIST",
+                                            "children": []
+                                          },
+                                          {
+                                            "kind": "WORKER_KEYWORD",
+                                            "leadingMinutiae": [
+                                              {
+                                                "kind": "END_OF_LINE_MINUTIAE",
+                                                "value": "\n"
+                                              },
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": "    "
+                                              }
+                                            ],
+                                            "trailingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": " "
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "w2",
+                                            "trailingMinutiae": [
+                                              {
+                                                "kind": "WHITESPACE_MINUTIAE",
+                                                "value": " "
+                                              }
+                                            ]
+                                          },
+                                          {
+                                            "kind": "BLOCK_STATEMENT",
+                                            "children": [
+                                              {
+                                                "kind": "OPEN_BRACE_TOKEN",
+                                                "trailingMinutiae": [
+                                                  {
+                                                    "kind": "END_OF_LINE_MINUTIAE",
+                                                    "value": "\n"
+                                                  }
+                                                ]
+                                              },
+                                              {
+                                                "kind": "LIST",
+                                                "children": []
+                                              },
+                                              {
+                                                "kind": "CLOSE_BRACE_TOKEN",
+                                                "leadingMinutiae": [
+                                                  {
+                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                    "value": "    "
+                                                  },
+                                                  {
+                                                    "kind": "END_OF_LINE_MINUTIAE",
+                                                    "value": "\n"
+                                                  },
+                                                  {
+                                                    "kind": "WHITESPACE_MINUTIAE",
+                                                    "value": "    "
+                                                  }
+                                                ],
+                                                "trailingMinutiae": [
+                                                  {
+                                                    "kind": "END_OF_LINE_MINUTIAE",
+                                                    "value": "\n"
+                                                  }
+                                                ]
+                                              }
+                                            ]
+                                          }
+                                        ]
+                                      }
+                                    }
+                                  ],
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

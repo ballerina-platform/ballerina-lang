@@ -48,6 +48,7 @@ import java.util.StringJoiner;
 import static org.ballerinalang.compiler.CompilerOptionName.BALO_GENERATION;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -72,6 +73,7 @@ public class GenerateBalo {
         boolean skipReportingWarnings = args.length > 4 && Boolean.parseBoolean(args[4]);
         String jvmTarget = args[5]; //TODO temp fix, remove this - rajith
         String moduleFilter = args[6];
+        String newParser = args[7];
 
         String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
         String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
@@ -85,7 +87,7 @@ public class GenerateBalo {
             boolean reportWarnings = !skipReportingWarnings;
 
             genBalo(targetDir, sourceDir, reportWarnings, Boolean.parseBoolean(jvmTarget),
-                    new HashSet<>(Arrays.asList(moduleFilter.split(","))));
+                    new HashSet<>(Arrays.asList(moduleFilter.split(","))), Boolean.parseBoolean(newParser));
         } finally {
             unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
             unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
@@ -102,7 +104,7 @@ public class GenerateBalo {
     }
 
     private static void genBalo(String targetDir, String sourceRootDir, boolean reportWarnings, boolean jvmTarget,
-                                Set<String> docModuleFilter) throws IOException {
+                                Set<String> docModuleFilter, boolean newParser) throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
@@ -120,6 +122,7 @@ public class GenerateBalo {
         options.put(BALO_GENERATION, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, compilerPhase.toString());
         options.put(SKIP_TESTS, Boolean.TRUE.toString());
+        options.put(NEW_PARSER_ENABLED, String.valueOf(newParser));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.TRUE.toString());
 
 

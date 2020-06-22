@@ -86,11 +86,16 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "BYTE_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "BYTE_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "BYTE_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -181,8 +186,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "aeeecdefabcd12345567888822"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "aeeecdefabcd12345567888822"
+                        }
+                      ]
                     }
                   ]
                 },

@@ -2,8 +2,13 @@
   "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "errorr"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "errorr"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -16,7 +21,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "message"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "message"
+                }
+              ]
             }
           ]
         }

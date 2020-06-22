@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -663,7 +664,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     .stream().filter(m -> m.tag == TypeTags.TABLE)
                     .findFirst().orElse(symTable.tableType);
         }
-        final List<BLangIdentifier> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
+        final List<IdentifierNode> keyFieldIdentifiers = queryExpr.fieldNameIdentifierList;
         BLangTableConstructorExpr tableConstructorExpr = (BLangTableConstructorExpr)
                 TreeBuilder.createTableConstructorExpressionNode();
         tableConstructorExpr.pos = pos;
@@ -672,7 +673,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             BLangTableKeySpecifier keySpecifier = (BLangTableKeySpecifier)
                     TreeBuilder.createTableKeySpecifierNode();
             keySpecifier.pos = pos;
-            for (BLangIdentifier identifier : keyFieldIdentifiers) {
+            for (IdentifierNode identifier : keyFieldIdentifiers) {
                 keySpecifier.addFieldNameIdentifier(identifier);
             }
             tableConstructorExpr.tableKeySpecifier = keySpecifier;

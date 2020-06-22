@@ -26,8 +26,13 @@
                       "kind": "AT_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "C"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "C"
+                        }
+                      ]
                     },
                     {
                       "kind": "MAPPING_CONSTRUCTOR",
@@ -58,11 +63,16 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "INT_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "INT_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -93,12 +103,17 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "E1",
-              "trailingMinutiae": [
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "E1",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             }
@@ -116,8 +131,13 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "E2"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "E2"
+        }
+      ]
     }
   ]
 }

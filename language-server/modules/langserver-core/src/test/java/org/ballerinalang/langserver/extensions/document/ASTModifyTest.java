@@ -89,6 +89,18 @@ public class ASTModifyTest {
             .resolve("modify")
             .resolve("serviceNats.bal");
 
+    private Path mainNatsModifiedFile = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("mainNatsModified.bal");
+
+    private Path serviceHttpCallModifiedFile = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("serviceHttpCallModified.bal");
+
     public static void skipOnWindows() {
         if (OS.contains("win")) {
             throw new SkipException("Skipping the test case on Windows");
@@ -129,7 +141,13 @@ public class ASTModifyTest {
             Assert.assertTrue(actual.isJsonNull());
         } else if (expected.isJsonPrimitive()) {
             if (!expected.getAsString().contains(".bal")) {
-                Assert.assertEquals(expected.getAsString(), actual.getAsString());
+                if (expected.getAsString().lastIndexOf("$") >= 0) {
+                    Assert.assertEquals(expected.getAsString().substring(0,
+                            expected.getAsString().lastIndexOf("$")),
+                            actual.getAsString().substring(0, expected.getAsString().lastIndexOf("$")));
+                } else {
+                    Assert.assertEquals(expected.getAsString(), actual.getAsString());
+                }
             }
         }
     }
@@ -171,6 +189,9 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, tempFile);
 
         Gson gson = new Gson();
+        //Adding ballerina/io to check how it duplicate import definitions are handled.
+        ASTModification modification0 = new ASTModification(1, 1, 1, 1, "IMPORT",
+                gson.fromJson("{\"TYPE\":\"ballerina/io\"}", JsonObject.class));
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(4, 1, 4, 1, "DECLARATION",
@@ -183,7 +204,8 @@ public class ASTModifyTest {
                         "\"PARAMS\": [\"\\\"/get?test=123\\\"\"]}", JsonObject.class));
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaAST(tempFile.toString(),
-                        new ASTModification[]{modification1, modification2, modification3}, this.serviceEndpoint);
+                        new ASTModification[]{modification0, modification1, modification2, modification3},
+                        this.serviceEndpoint);
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
                 mainHttpCallWithPrintFile.toString(), this.serviceEndpoint);
         String expectedFileContent = new String(Files.readAllBytes(mainHttpCallWithPrintFile));
@@ -350,6 +372,33 @@ public class ASTModifyTest {
         assertTree(astModifyResponse.getAst(), astResponse.getAst());
         TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
+
+//        @Test
+//    public void test() {
+////        String input = "import ballerina/http;\n" +
+////                "public function main() {\n" +
+////                "}";
+//        String input = "import ballerina/http;\n" +
+//                "public function main() {\n" +
+//                "http:Client clientEndpoint = new (\"http://postman-echo.com\");\n" +
+//                "http:Response response = check clientEndpoint->get(\"/get?test=123\");\n" +
+//                "}";
+//        TextDocument textDocument = TextDocuments.from(input);
+//        SyntaxTree oldTree = SyntaxTree.from(textDocument);
+////        TextEdit[] edits = new TextEdit[]{
+////                TextEdit.from(TextRange.from(0, 22),
+////                        ""),
+////        };
+//        TextEdit[] edits = new TextEdit[]{
+//                TextEdit.from(TextRange.from(23, 47 - 23),
+//                        "service hello on new http:Listener(9090) {\n" +
+//                                "    resource function sayHello(http:Caller caller, http:Request req) {"),
+//                TextEdit.from(TextRange.from(79, 1), "    }\n" +
+//                        "}")
+//        };
+//        TextDocumentChange textDocumentChange = TextDocumentChange.from(edits);
+//        SyntaxTree newTree = SyntaxTree.from(oldTree, textDocumentChange);
+//    }
 
     @AfterClass
     public void stopLangServer() {

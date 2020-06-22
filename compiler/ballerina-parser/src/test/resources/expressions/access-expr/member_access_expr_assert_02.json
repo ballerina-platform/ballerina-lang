@@ -8,15 +8,25 @@
           "kind": "FIELD_ACCESS",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "x"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "x"
+                }
+              ]
             },
             {
               "kind": "DOT_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "y"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "y"
+                }
+              ]
             }
           ]
         },
@@ -24,8 +34,13 @@
           "kind": "DOT_TOKEN"
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "z"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "z"
+            }
+          ]
         }
       ]
     },
@@ -42,15 +57,25 @@
               "kind": "FIELD_ACCESS",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 },
                 {
                   "kind": "DOT_TOKEN"
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "b"
+                    }
+                  ]
                 }
               ]
             },
@@ -58,8 +83,13 @@
               "kind": "DOT_TOKEN"
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "c"
+                }
+              ]
             }
           ]
         }

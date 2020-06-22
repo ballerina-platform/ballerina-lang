@@ -88,7 +88,7 @@ public class CodeActionUtil {
 
         try {
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                                                                         LSCustomErrorStrategy.class, false, false);
+                    LSCustomErrorStrategy.class, false, false, true);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 

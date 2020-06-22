@@ -556,6 +556,8 @@ public enum DiagnosticCode {
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),
     INVALID_NUM_FIELDS("invalid.number.of.fields"),
     METHODS_NOT_ALLOWED("methods.not.allowed"),
+
+    COMPILER_PLUGIN_ERROR("compiler.plugin.crashed"),
     ;
     private String value;
 

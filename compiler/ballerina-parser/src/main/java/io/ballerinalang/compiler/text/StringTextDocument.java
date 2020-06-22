@@ -19,6 +19,9 @@ package io.ballerinalang.compiler.text;
 
 import io.ballerinalang.compiler.internal.parser.CharReader;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * The {@code StringTextDocument} represents a {@code TextDocument} created with a string.
  *
@@ -67,24 +70,36 @@ class StringTextDocument extends TextDocument {
     }
 
     private TextLine[] calculateTextLines() {
-        // TODO Can we find a better alternative? This is the first approach that occurred to me ;-)
-        // TODO Here we are considering both \r and \n characters, but for now lengthOfNewLineChars=1
-        int lengthOfNewLineChars;
         int startOffset = 0;
-        String[] strLines = text.split("\\r?\\n", -1);
-        int noOfLines = strLines.length;
-        TextLine[] textLines = new TextLine[noOfLines];
-        for (int index = 0; index < noOfLines; index++) {
-            lengthOfNewLineChars = isLastLine(index, noOfLines) ? 0 : 1;
-            String strLine = strLines[index];
-            int endOffset = startOffset + strLine.length();
-            textLines[index] = new TextLine(index, strLine, startOffset, endOffset, lengthOfNewLineChars);
-            startOffset = endOffset + lengthOfNewLineChars;
+        List<TextLine> textLines = new ArrayList<>();
+        StringBuilder lineBuilder = new StringBuilder();
+        int index = 0;
+        int line = 0;
+        int textLength = text.length();
+        int lengthOfNewLineChars;
+        while (index < textLength) {
+            char c = text.charAt(index);
+            if (c == '\r' || c == '\n') {
+                int nextCharIndex = index + 1;
+                if (c == '\r' && textLength != nextCharIndex && text.charAt(nextCharIndex) == '\n') {
+                    lengthOfNewLineChars = 2;
+                } else {
+                    lengthOfNewLineChars = 1;
+                }
+                String strLine = lineBuilder.toString();
+                int endOffset = startOffset + strLine.length();
+                textLines.add(new TextLine(line++, strLine, startOffset, endOffset, lengthOfNewLineChars));
+                startOffset = endOffset + lengthOfNewLineChars;
+                lineBuilder = new StringBuilder();
+                index += lengthOfNewLineChars;
+            } else {
+                lineBuilder.append(c);
+                index++;
+            }
         }
-        return textLines;
-    }
 
-    private boolean isLastLine(int index, int noOfLines) {
-        return index == (noOfLines - 1);
+        String strLine = lineBuilder.toString();
+        textLines.add(new TextLine(line, strLine, startOffset, startOffset + strLine.length(), 0));
+        return textLines.toArray(new TextLine[0]);
     }
 }

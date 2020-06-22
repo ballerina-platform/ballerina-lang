@@ -88,7 +88,12 @@
                                     },
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "foo"
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "foo"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -129,7 +134,12 @@
                                     },
                                     {
                                       "kind": "STRING_LITERAL",
-                                      "value": "some function"
+                                      "children": [
+                                        {
+                                          "kind": "STRING_LITERAL",
+                                          "value": "some function"
+                                        }
+                                      ]
                                     }
                                   ]
                                 },
@@ -197,7 +207,12 @@
                                                 },
                                                 {
                                                   "kind": "STRING_LITERAL",
-                                                  "value": "none"
+                                                  "children": [
+                                                    {
+                                                      "kind": "STRING_LITERAL",
+                                                      "value": "none"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             },
@@ -227,8 +242,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "code"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "code"
+                                                    }
+                                                  ]
                                                 }
                                               ]
                                             }

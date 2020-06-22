@@ -68,7 +68,12 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        }
+                      ]
                     },
                     {
                       "kind": "COMMA_TOKEN",
@@ -83,7 +88,12 @@
                       "kind": "REST_TYPE",
                       "children": [
                         {
-                          "kind": "STRING_KEYWORD"
+                          "kind": "STRING_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "STRING_KEYWORD"
+                            }
+                          ]
                         },
                         {
                           "kind": "ELLIPSIS_TOKEN"
@@ -148,7 +158,12 @@
                           "kind": "LIST",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD"
+                              "kind": "INT_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "INT_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "COMMA_TOKEN",
@@ -160,7 +175,12 @@
                               ]
                             },
                             {
-                              "kind": "STRING_KEYWORD"
+                              "kind": "STRING_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "STRING_KEYWORD"
+                                }
+                              ]
                             }
                           ]
                         },
@@ -212,7 +232,12 @@
                       "children": [
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "4"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "4"
+                            }
+                          ]
                         },
                         {
                           "kind": "COMMA_TOKEN",
@@ -225,7 +250,12 @@
                         },
                         {
                           "kind": "STRING_LITERAL",
-                          "value": "hello"
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "value": "hello"
+                            }
+                          ]
                         }
                       ]
                     },
@@ -264,8 +294,13 @@
                   ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",

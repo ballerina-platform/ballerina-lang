@@ -94,7 +94,7 @@
                   "kind": "OPEN_BRACE_TOKEN",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_MISSING_NAMED_WORKER_DECLARATION"
+                    "ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT"
                   ],
                   "trailingMinutiae": [
                     {

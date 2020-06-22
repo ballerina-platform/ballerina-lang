@@ -20,7 +20,12 @@
               "kind": "OPTIONAL_TYPE_DESC",
               "children": [
                 {
-                  "kind": "INT_KEYWORD"
+                  "kind": "INT_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "INT_KEYWORD"
+                    }
+                  ]
                 },
                 {
                   "kind": "QUESTION_MARK_TOKEN"
@@ -32,7 +37,12 @@
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5"
+                }
+              ]
             },
             {
               "kind": "CLOSE_BRACKET_TOKEN",

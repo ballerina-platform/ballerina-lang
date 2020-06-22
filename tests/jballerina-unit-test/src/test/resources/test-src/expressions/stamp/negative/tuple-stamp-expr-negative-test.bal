@@ -53,6 +53,8 @@ function stampTupleToXML() returns xml|error {
 function stampTupleToMap() returns map<anydata>|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    map<anydata>|error mapValue = tupleValue.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = tupleValue.cloneWithType(AnydataMap);
     return mapValue;
 }
+
+type AnydataMap map<anydata>;

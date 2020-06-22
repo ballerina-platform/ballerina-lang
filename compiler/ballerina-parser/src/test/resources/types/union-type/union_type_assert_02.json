@@ -79,11 +79,16 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "INT_KEYWORD",
-                          "leadingMinutiae": [
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
+                              "kind": "INT_KEYWORD",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -98,10 +103,16 @@
                         },
                         {
                           "kind": "TYPE_DESC",
-                          "isMissing": true,
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_TYPE_DESC"
+                          "children": [
+                            {
+                              "kind": "TYPE_DESC",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_TYPE_DESC"
+                              ]
+                            }
                           ]
                         }
                       ]

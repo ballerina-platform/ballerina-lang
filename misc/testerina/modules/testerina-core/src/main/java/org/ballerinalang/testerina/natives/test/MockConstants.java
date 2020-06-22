@@ -17,17 +17,24 @@
  */
 package org.ballerinalang.testerina.natives.test;
 
+import org.ballerinalang.jvm.types.BPackage;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+
 /**
  * Constants related to mocking.
  */
 public class MockConstants {
 
     public static final String DEFAULT_MOCK_OBJ_ANON = "$anonType$";
+    public static final String FUNCTION_CALL_PLACEHOLDER = "__CALL__";
 
     // constants to represent error messages
-    public static final String FUNCTION_NOT_FOUND_ERROR = "{ballerina/test}FunctionNotFoundError";
-    public static final String INVALID_MOCK_OBJECT_ERROR = "{ballerina/test}InvalidObjectError";
-    public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "{ballerina/test}FunctionSignatureMismatchError";
-    public static final String INVALID_MEMBER_FIELD_ERROR = "{ballerina/test}InvalidMemberFieldError";
+    public static final BPackage TEST_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "test", "0.0.0");
+    public static final String FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
+    public static final String INVALID_MOCK_OBJECT_ERROR = "InvalidObjectError";
+    public static final String FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
+    public static final String INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
 
+    public static final String FUNCTION_CALL_ERROR = "FunctionCallError";
 }

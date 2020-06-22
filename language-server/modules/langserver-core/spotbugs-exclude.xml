@@ -80,6 +80,12 @@
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl" />
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTreeModifyUtil" />
+    </Match>
+    <Match>
+        <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaTriggerModifyUtil" />
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.extensions.ballerina.document.BallerinaServiceListResponse" />
     </Match>
     <Match>

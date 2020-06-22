@@ -418,15 +418,14 @@ function testTypeGuardsWithError() returns string {
     }
 }
 
-function testTypeGuardsWithErrorInmatch() returns string {
-    error e = error("some error");
-    any|error x = e;
-    match x {
-        var p if p is error => {return string `${p.message()}`;}
-        var p => {return "Internal server error";}
-    }
-}
-
+// function testTypeGuardsWithErrorInmatch() returns string {
+//     error e = error("some error");
+//     any|error x = e;
+//     match x {
+//         var p if p is error => {return string `${p.message()}`;}
+//         var p => {return "Internal server error";}
+//     }
+// }
 
 function testTypeNarrowingWithClosures() returns string {
     int|string x = 8;
@@ -1001,27 +1000,27 @@ function recordReturningFunc(int? i) returns record {string s; int? i;} {
     return {s: "hello", i: i, "f": 1.0};
 }
 
-function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
-    var error(s, message = message, code = code) = errorReturningFunc(1);
-    if (code is int) {
-        int intVal = code;
-        error(s, message = message, code = code) = errorReturningFunc(());
-        return code is ();
-    }
+// function testTypeGuardForErrorDestructuringAssignmentPositive() returns boolean {
+//     var error(s, message = message, code = code) = errorReturningFunc(1);
+//     if (code is int) {
+//         int intVal = code;
+//         error(s, message = message, code = code) = errorReturningFunc(());
+//         return code is ();
+//     }
+// 
+//     return false;
+// }
 
-    return false;
-}
-
-function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
-    error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
-    if (code is int) {
-        int intVal = code;
-        error(s, message = message, code = code) = errorReturningFunc(3);
-        return code is ();
-    }
-
-    return true;
-}
+// function testTypeGuardForErrorDestructuringAssignmentNegative() returns boolean {
+//     error<Detail> error(s, message = message, code = code) = errorReturningFunc(1);
+//     if (code is int) {
+//         int intVal = code;
+//         error(s, message = message, code = code) = errorReturningFunc(3);
+//         return code is ();
+//     }
+// 
+//     return true;
+// }
 
 type Detail record {
     string message?;

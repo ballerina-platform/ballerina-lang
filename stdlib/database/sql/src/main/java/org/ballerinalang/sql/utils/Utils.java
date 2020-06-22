@@ -31,6 +31,7 @@ import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.BXMLType;
 import org.ballerinalang.jvm.types.TypeTags;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.MapValue;
@@ -114,27 +115,21 @@ class Utils {
         }
     }
 
-    static String getSqlQuery(MapValue<BString, Object> paramString) throws ApplicationError {
-        ArrayValue partsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.PARTS);
-        ArrayValue insertionsArray = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
-        if (partsArray.size() - 1 == insertionsArray.size()) {
-            StringBuilder sqlQuery = new StringBuilder();
-            for (int i = 0; i < partsArray.size(); i++) {
-                if (i > 0) {
-                    sqlQuery.append(" ? ");
-                }
-                sqlQuery.append(partsArray.get(i).toString());
+    static String getSqlQuery(AbstractObjectValue paramString) {
+        ArrayValue stringsArray = paramString.getArrayValue(Constants.ParameterizedQueryFields.STRINGS);
+        StringBuilder sqlQuery = new StringBuilder();
+        for (int i = 0; i < stringsArray.size(); i++) {
+            if (i > 0) {
+                sqlQuery.append(" ? ");
             }
-            return sqlQuery.toString();
-        } else {
-            throw new ApplicationError("Parts and insertions count doesn't match in ParametrizedString passed. "
-                    + paramString.toString());
+            sqlQuery.append(stringsArray.get(i).toString());
         }
+        return sqlQuery.toString();
     }
 
-    static void setParams(Connection connection, PreparedStatement preparedStatement, MapValue<BString,
-            Object> paramString) throws SQLException, ApplicationError, IOException {
-        ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedStingFields.INSERTIONS);
+    static void setParams(Connection connection, PreparedStatement preparedStatement, AbstractObjectValue paramString)
+        throws SQLException, ApplicationError, IOException {
+        ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedQueryFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
             int index = i + 1;
@@ -156,7 +151,7 @@ class Utils {
                     preparedStatement.setBytes(index, objectArray.getBytes());
                 } else {
                     throw new ApplicationError("Only byte[] is supported can be set directly into " +
-                            "ParameterizedString, any other array types should be wrapped as sql:Value");
+                            "ParameterizedQuery, any other array types should be wrapped as sql:Value");
                 }
             } else if (object instanceof ObjectValue) {
                 ObjectValue objectValue = (ObjectValue) object;
