@@ -48,10 +48,11 @@ import javax.xml.namespace.QName;
  */
 public class XmlToJsonConverter {
 
-    private static final String XML_NAMESPACE_PREFIX = "xmlns:";
+    private static final String XML_NAMESPACE_PREFIX_FRAGMENT = "xmlns:";
 
     private static final BType jsonMapType =
             new BMapType(TypeConstants.MAP_TNAME, BTypes.typeJSON, new BPackage(null, null, null));
+    private static final String XMLNS = "xmlns";
 
     /**
      * Converts given xml object to the corresponding JSON value.
@@ -87,7 +88,6 @@ public class XmlToJsonConverter {
      * @param preserveNamespaces preserve the namespaces when converting
      * @return ObjectNode Json object node corresponding to the given xml element
      */
-    @SuppressWarnings("unchecked")
     private static Object convertElement(XMLItem xmlItem, String attributePrefix,
                                                                boolean preserveNamespaces) {
         MapValueImpl<String, Object> rootNode = newJsonMap();
@@ -95,22 +95,16 @@ public class XmlToJsonConverter {
         String keyValue = getElementKey(xmlItem, preserveNamespaces);
         Object children = convertXMLSequence(xmlItem.getChildrenSeq(), attributePrefix, preserveNamespaces);
 
-        if (attributeMap.isEmpty()) {
-            if (children == null) {
-                return keyValue;
-            }
-            rootNode.put(keyValue, children);
-            return rootNode;
-        } else {
-           if (children == null) {
-               addAttributes(rootNode, attributePrefix, attributeMap);
-               return rootNode;
-           } else {
-               rootNode.put(keyValue, children);
-               addAttributes(rootNode, attributePrefix, attributeMap);
-               return rootNode;
-           }
+        if (attributeMap.isEmpty() && children == null) {
+            return keyValue;
         }
+        if (children != null) {
+            rootNode.put(keyValue, children);
+        }
+        if (!attributeMap.isEmpty()) {
+            addAttributes(rootNode, attributePrefix, attributeMap);
+        }
+        return rootNode;
     }
 
     private static void addAttributes(MapValueImpl<String, Object> rootNode, String attributePrefix,
@@ -135,8 +129,7 @@ public class XmlToJsonConverter {
             return null;
         }
 
-        SequenceConvertibility seqConvertibility = isElementSequenceConvertibleToList(sequence);
-        switch (seqConvertibility) {
+        switch (calculateMatchingJsonTypeForSequence(sequence)) {
             case SAME_KEY:
                 return convertSequenceWithSameNamedElements(attributePrefix, preserveNamespaces, sequence);
             case ELEMENT_ONLY:
@@ -151,6 +144,7 @@ public class XmlToJsonConverter {
         if (sequence.size() == 1) {
             return convertToJSON((XMLValue) sequence.get(0), attributePrefix, preserveNamespaces);
         }
+
         ArrayList<Object> list = new ArrayList<>();
         for (BXML bxml : sequence) {
             if (isCommentOrPi(bxml)) {
@@ -158,6 +152,7 @@ public class XmlToJsonConverter {
             }
             list.add(convertToJSON((XMLValue) bxml, attributePrefix, preserveNamespaces));
         }
+
         if (list.isEmpty()) {
             return null;
         }
@@ -194,8 +189,7 @@ public class XmlToJsonConverter {
         return bxml.getNodeType() == XMLNodeType.COMMENT || bxml.getNodeType() == XMLNodeType.PI;
     }
 
-    private static Object convertSequenceWithSameNamedElements(String attributePrefix,
-                                                               boolean preserveNamespaces,
+    private static Object convertSequenceWithSameNamedElements(String attributePrefix, boolean preserveNamespaces,
                                                                List<BXML> sequence) {
         String elementName = null;
         for (BXML bxml : sequence) {
@@ -220,18 +214,13 @@ public class XmlToJsonConverter {
             if (child.getAttributesMap().isEmpty()) {
                 list.add(convertToJSON((XMLValue) child.children(), prefix, preserveNamespaces));
             } else {
-                Object jsonChild = convertElement((XMLItem) child, prefix, preserveNamespaces);
-                list.add(jsonChild);
+                list.add(convertElement((XMLItem) child, prefix, preserveNamespaces));
             }
         }
         return newJsonListFrom(list);
     }
 
-    private static MapValueImpl<String, Object> newJsonMap() {
-        return new MapValueImpl<>(jsonMapType);
-    }
-
-    private static SequenceConvertibility isElementSequenceConvertibleToList(List<BXML> sequence) {
+    private static SequenceConvertibility calculateMatchingJsonTypeForSequence(List<BXML> sequence) {
         Iterator<BXML> iterator = sequence.iterator();
         BXML next = iterator.next();
         if (next.getNodeType() == XMLNodeType.TEXT) {
@@ -271,6 +260,10 @@ public class XmlToJsonConverter {
         return new ArrayValueImpl(items.toArray(), new BArrayType(BTypes.typeJSON));
     }
 
+    private static MapValueImpl<String, Object> newJsonMap() {
+        return new MapValueImpl<>(jsonMapType);
+    }
+
     /**
      * Extract attributes and namespaces from the XML element.
      *
@@ -288,10 +281,10 @@ public class XmlToJsonConverter {
                 String ns = entry.getValue();
                 nsPrefixMap.put(ns, prefix);
                 if (preserveNamespaces) {
-                    if (prefix.equals("xmlns")) {
+                    if (prefix.equals(XMLNS)) {
                         attributeMap.put(prefix, ns);
                     } else {
-                        attributeMap.put(XML_NAMESPACE_PREFIX + prefix, ns);
+                        attributeMap.put(XML_NAMESPACE_PREFIX_FRAGMENT + prefix, ns);
                     }
                 }
             }
@@ -305,7 +298,7 @@ public class XmlToJsonConverter {
                     String local = key.substring(nsEndIndex + 1);
                     String nsPrefix = nsPrefixMap.get(ns);
                     // `!nsPrefix.equals("xmlns")` because attributes does not belong to default namespace.
-                    if (nsPrefix != null && !nsPrefix.equals("xmlns")) {
+                    if (nsPrefix != null && !nsPrefix.equals(XMLNS)) {
                         attributeMap.put(nsPrefix + ":" + local, entry.getValue());
                     } else {
                         attributeMap.put(local, entry.getValue());
@@ -318,7 +311,7 @@ public class XmlToJsonConverter {
                 int endOfBrace = attrName.indexOf('}');
                 if (endOfBrace > 0) {
                     String localName = attrName.substring(endOfBrace + 1);
-                    if (localName.equals("xmlns")) {
+                    if (localName.equals(XMLNS)) {
                         continue;
                     }
                     attributeMap.put(localName, entry.getValue());

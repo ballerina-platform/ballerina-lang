@@ -70,15 +70,3 @@ function testComplexXMLElementToJsonNoPreserveNS() returns string {
     json j = checkpanic jsonutils:fromXML(e, { preserveNamespaces: false });
     return j.toJsonString();
 }
-
-function assertValueEquality(json|error expected, json|error actual) {
-    if expected == actual {
-        return;
-    }
-
-    if (expected is json && actual is json) {
-        panic error("Assertion error: expected'" + expected.toJsonString() + "`found `" + actual.toJsonString() + "'");
-    }
-
-    panic error("Assertion error: expected '" + expected.toString() + "', found '" + actual.toString() + "'");
-}
