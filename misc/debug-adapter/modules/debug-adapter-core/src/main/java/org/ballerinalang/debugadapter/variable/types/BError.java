@@ -16,15 +16,15 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
@@ -50,23 +50,15 @@ public class BError extends BCompoundVariable {
     @Override
     public Map<String, Value> computeChildVariables() {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
-            }
             Map<String, Value> childVarMap = new TreeMap<>();
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            Field messageField = jvmValueRef.referenceType().fieldByName(FIELD_MESSAGE);
-            Field causeField = jvmValueRef.referenceType().fieldByName(FIELD_CAUSE);
-            Field detailsField = jvmValueRef.referenceType().fieldByName(FIELD_DETAILS);
-            if (messageField != null) {
-                childVarMap.put(FIELD_MESSAGE, jvmValueRef.getValue(messageField));
-            }
-            if (causeField != null) {
-                childVarMap.put(FIELD_CAUSE, jvmValueRef.getValue(causeField));
-            }
-            if (detailsField != null) {
-                childVarMap.put(FIELD_DETAILS, jvmValueRef.getValue(detailsField));
-            }
+            // Fetches message, cause and details of the error.
+            Optional<Value> message = VariableUtils.getFieldValue(jvmValue, FIELD_MESSAGE);
+            Optional<Value> cause = VariableUtils.getFieldValue(jvmValue, FIELD_CAUSE);
+            Optional<Value> details = VariableUtils.getFieldValue(jvmValue, FIELD_DETAILS);
+            // Adds NotNull information as child attributes.
+            message.ifPresent(value -> childVarMap.put(FIELD_MESSAGE, value));
+            cause.ifPresent(value -> childVarMap.put(FIELD_CAUSE, value));
+            details.ifPresent(value -> childVarMap.put(FIELD_DETAILS, value));
             return childVarMap;
         } catch (Exception ignored) {
             return new HashMap<>();

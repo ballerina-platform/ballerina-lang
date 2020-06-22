@@ -16,12 +16,12 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
@@ -46,10 +46,9 @@ public class BString extends BPrimitiveVariable {
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             if (jvmValueRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
                     || jvmValueRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
-                Optional<Field> valueField = jvmValueRef.referenceType().allFields().stream()
-                        .filter(field -> field.name().equals("value")).findAny();
-                if (valueField.isPresent()) {
-                    return jvmValueRef.getValue(valueField.get()).toString();
+                Optional<Value> stringValue = VariableUtils.getFieldValue(jvmValue, "value");
+                if (stringValue.isPresent()) {
+                    return stringValue.get().toString();
                 }
                 return UNKNOWN_VALUE;
             } else {

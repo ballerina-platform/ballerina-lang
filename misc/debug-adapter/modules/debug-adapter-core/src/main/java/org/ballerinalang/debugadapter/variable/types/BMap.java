@@ -59,22 +59,16 @@ public class BMap extends BCompoundVariable {
             if (!valueField.isPresent()) {
                 return new HashMap<>();
             }
-            Value mapValue = jvmValueRef.getValue(valueField.get());
-            Map<String, Value> values = new HashMap<>();
-            ((ArrayReference) mapValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                List<Field> mapValueFields = ((ObjectReference) jsonMap).referenceType().visibleFields();
-                Optional<Field> mapKeyFields = mapValueFields.stream().filter(field ->
-                        field.name().equals("key")).findFirst();
-                Optional<Field> jsonValueField = mapValueFields.stream().filter(field ->
-                        field.name().equals("value")).findFirst();
-
-                if (mapKeyFields.isPresent() && jsonValueField.isPresent()) {
-                    Value mapKey = ((ObjectReference) jsonMap).getValue(mapKeyFields.get());
-                    Value mapValue1 = ((ObjectReference) jsonMap).getValue(jsonValueField.get());
-                    values.put(VariableUtils.getStringFrom(mapKey), mapValue1);
+            Value values = jvmValueRef.getValue(valueField.get());
+            Map<String, Value> childVarMap = new HashMap<>();
+            ((ArrayReference) values).getValues().stream().filter(Objects::nonNull).forEach(map -> {
+                Optional<Value> mapKey = VariableUtils.getFieldValue(map, "key");
+                Optional<Value> mapValue = VariableUtils.getFieldValue(map, "value");
+                if (mapKey.isPresent() && mapValue.isPresent()) {
+                    childVarMap.put(VariableUtils.getStringFrom(mapKey.get()), mapValue.get());
                 }
             });
-            return values;
+            return childVarMap;
         } catch (Exception ignored) {
             return new HashMap<>();
         }

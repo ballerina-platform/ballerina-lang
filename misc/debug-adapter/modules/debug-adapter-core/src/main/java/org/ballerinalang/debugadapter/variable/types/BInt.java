@@ -16,16 +16,16 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.IntegerValue;
 import com.sun.jdi.LongValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
@@ -43,12 +43,11 @@ public class BInt extends BPrimitiveVariable {
         if (jvmValue instanceof IntegerValue || jvmValue instanceof LongValue) {
             return jvmValue.toString();
         } else if (jvmValue instanceof ObjectReference) {
-            ObjectReference valueObjectRef = ((ObjectReference) jvmValue);
-            Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
-                    field.name().equals("value")).collect(Collectors.toList()).get(0);
-            return valueObjectRef.getValue(valueField).toString();
-        } else {
-            return UNKNOWN_VALUE;
+            Optional<Value> field = VariableUtils.getFieldValue(jvmValue, "value");
+            if (field.isPresent()) {
+                return field.get().toString();
+            }
         }
+        return UNKNOWN_VALUE;
     }
 }

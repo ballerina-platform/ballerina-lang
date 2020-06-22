@@ -58,22 +58,16 @@ public class BJson extends BCompoundVariable {
             if (!valueField.isPresent()) {
                 return new HashMap<>();
             }
-            Value jsonValue = jvmValueRef.getValue(valueField.get());
-            Map<String, Value> values = new HashMap<>();
-            ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                List<Field> jsonValueFields = ((ObjectReference) jsonMap).referenceType().visibleFields();
-                Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("key")).findFirst();
-                Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("value")).findFirst();
-
-                if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
-                    Value jsonKey = ((ObjectReference) jsonMap).getValue(jsonKeyField.get());
-                    Value jsonValue1 = ((ObjectReference) jsonMap).getValue(jsonValueField.get());
-                    values.put(VariableUtils.getStringFrom(jsonKey), jsonValue1);
+            Value values = jvmValueRef.getValue(valueField.get());
+            Map<String, Value> childVarMap = new HashMap<>();
+            ((ArrayReference) values).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
+                Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, "key");
+                Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, "value");
+                if (jsonKey.isPresent() && jsonValue.isPresent()) {
+                    childVarMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
                 }
             });
-            return values;
+            return childVarMap;
         } catch (Exception ignored) {
             return new HashMap<>();
         }

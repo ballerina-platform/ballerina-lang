@@ -20,6 +20,8 @@ import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 
+import java.util.Optional;
+
 /**
  * JDI-based debug variable implementation related utilities.
  */
@@ -28,7 +30,6 @@ public class VariableUtils {
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
     public static final String UNKNOWN_VALUE = "unknown";
-
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -67,13 +68,11 @@ public class VariableUtils {
                 // double quotes.
                 return stringRef.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
             }
-            Field valueField = stringRef.referenceType().fieldByName("value");
-            if (valueField != null) {
-                // Additional filtering is required, as some ballerina variable type names may contain redundant
-                // double quotes.
-                return stringRef.getValue(valueField).toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
-            }
-            return UNKNOWN_VALUE;
+            Optional<Value> valueField = getFieldValue(stringRef, "value");
+            // Additional filtering is required, as some ballerina variable type names may contain redundant
+            // double quotes.
+            return valueField.map(value -> value.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, ""))
+                    .orElse(UNKNOWN_VALUE);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -86,10 +85,8 @@ public class VariableUtils {
      * @return true the given JDI value is a ballerina object instance.
      */
     static boolean isObject(Value value) {
-        ObjectReference valueRef = (ObjectReference) value;
-        Field typeField = valueRef.referenceType().fieldByName("type");
-        String typeName = valueRef.getValue(typeField).type().name();
-        return typeName.endsWith(JVMValueType.BTYPE_OBJECT.getString());
+        Optional<Value> valueType = getFieldValue(value, "type");
+        return valueType.map(type -> type.type().name().endsWith(JVMValueType.BTYPE_OBJECT.getString())).orElse(false);
     }
 
     /**
@@ -99,9 +96,26 @@ public class VariableUtils {
      * @return true the given JDI value is a ballerina record instance.
      */
     static boolean isRecord(Value value) {
-        ObjectReference valueRef = (ObjectReference) value;
-        Field typeField = valueRef.referenceType().fieldByName("type");
-        String typeName = valueRef.getValue(typeField).type().name();
-        return typeName.endsWith(JVMValueType.BTYPE_RECORD.getString());
+        Optional<Value> valueType = getFieldValue(value, "type");
+        return valueType.map(type -> type.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString())).orElse(false);
+    }
+
+    /**
+     * Returns the JDI value of a given field, for a given JDI object reference (class instance).
+     *
+     * @param parent    parent JDI value instance.
+     * @param fieldName field name
+     * @return JDI value of a given field, for a given JDI object reference (class instance).
+     */
+    public static Optional<Value> getFieldValue(Value parent, String fieldName) {
+        if (!(parent instanceof ObjectReference)) {
+            return Optional.empty();
+        }
+        ObjectReference parentRef = (ObjectReference) parent;
+        Field field = parentRef.referenceType().fieldByName(fieldName);
+        if (field == null) {
+            return Optional.empty();
+        }
+        return Optional.of(parentRef.getValue(field));
     }
 }

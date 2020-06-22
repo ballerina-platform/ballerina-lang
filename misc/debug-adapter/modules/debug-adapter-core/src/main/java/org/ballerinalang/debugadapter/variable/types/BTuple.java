@@ -23,11 +23,13 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -82,22 +84,19 @@ public class BTuple extends BCompoundVariable {
      * Returns the tuple type in string form.
      */
     private String getTupleType(Value jvmValue) {
-        if (!(jvmValue instanceof ObjectReference)) {
+        Optional<Value> tupleType = VariableUtils.getFieldValue(jvmValue, "tupleType");
+        if (!tupleType.isPresent()) {
             return UNKNOWN_VALUE;
         }
-        ObjectReference tupleRef = (ObjectReference) jvmValue;
-        Field typeField = tupleRef.referenceType().fieldByName("tupleType");
-        if (typeField == null) {
+        Optional<Value> subTypes = VariableUtils.getFieldValue(tupleType.get(), "tupleTypes");
+        if (!subTypes.isPresent()) {
             return UNKNOWN_VALUE;
         }
-        ObjectReference tupleTypeRef = (ObjectReference) tupleRef.getValue(typeField);
-        Field typesField = tupleTypeRef.referenceType().fieldByName("tupleTypes");
-        if (typesField == null) {
+        Optional<Value> typesArray = VariableUtils.getFieldValue(subTypes.get(), "elementData");
+        if (!typesArray.isPresent()) {
             return UNKNOWN_VALUE;
         }
-        ObjectReference tupleTypesRef = (ObjectReference) tupleTypeRef.getValue(typesField);
-        Value typeArrayRef = tupleTypesRef.getValue(tupleTypesRef.referenceType().fieldByName("elementData"));
-        List<Value> subValues = ((ArrayReference) typeArrayRef).getValues();
+        List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();
         StringJoiner tupleTypes = new StringJoiner(",");
         subValues.forEach(ref -> {
             if (ref instanceof ObjectReference) {
