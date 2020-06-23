@@ -3962,6 +3962,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
+            case MATCH_PATTERN_RHS:
+            case OPTIONAL_MATCH_GUARD:
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }

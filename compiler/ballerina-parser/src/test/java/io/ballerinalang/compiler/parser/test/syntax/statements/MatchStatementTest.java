@@ -59,4 +59,9 @@ public class MatchStatementTest extends AbstractStatementTest {
     public void testMatchStmtRecoveryMissingVarKeyword() {
         testFile("match-stmt/match_stmt_source_06.bal", "match-stmt/match_stmt_assert_06.json");
     }
+
+    @Test
+    public void testMatchStmtRecoveryMissingSymbolsAdditionalSymbols() {
+        testFile("match-stmt/match_stmt_source_07.bal", "match-stmt/match_stmt_assert_07.json");
+    }
 }
