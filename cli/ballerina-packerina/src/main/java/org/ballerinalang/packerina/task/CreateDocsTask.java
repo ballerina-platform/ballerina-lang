@@ -42,10 +42,14 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TARGET_AP
  */
 public class CreateDocsTask implements Task {
 
+    private boolean excludeIndex;
     private Path output;
+    private boolean toJson;
 
-    public CreateDocsTask(Path output) {
+    public CreateDocsTask(Path output, boolean toJson, boolean excludeIndex) {
+        this.excludeIndex = excludeIndex;
         this.output = output;
+        this.toJson = toJson;
     }
 
     @Override
@@ -65,9 +69,14 @@ public class CreateDocsTask implements Task {
             Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator
                     .generateModuleDocsFromBLangPackages(sourceRootPath.toString(), modules);
             Files.createDirectories(outputPath);
-            BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap,
-                    outputPath.toString());
-            buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
+            if (toJson) {
+                BallerinaDocGenerator.writeAPIDocsToJSON(moduleDocMap, outputPath.toString());
+                buildContext.out().println("\t" + "data saved as a JSON in: " +
+                        sourceRootPath.relativize(outputPath).toString());
+            } else {
+                BallerinaDocGenerator.writeAPIDocsForModules(moduleDocMap, outputPath.toString(), excludeIndex);
+                buildContext.out().println("\t" + sourceRootPath.relativize(outputPath).toString());
+            }
         } catch (IOException e) {
             throw createLauncherException("Unable to generate API Documentation.");
         }
