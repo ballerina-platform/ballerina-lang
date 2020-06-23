@@ -149,7 +149,8 @@ public class RawTemplateLiteralTest {
                 {"testUsageWithQueryExpressions2"},
                 {"testUseWithVar"},
                 {"testUseWithAny"},
-                {"testFixedLengthArrayFields"}
+                {"testFixedLengthArrayFields"},
+                {"testAnyInUnion"}
         };
     }
 }

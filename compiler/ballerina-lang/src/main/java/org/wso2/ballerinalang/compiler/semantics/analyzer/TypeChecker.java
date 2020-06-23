@@ -3750,7 +3750,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
         // Contextually expected type is NoType when `var` is used.
         // Therefore consider the literal as of type RawTemplate
-        if (expType == symTable.noType || expType == symTable.anyType) {
+        if (expType == symTable.noType || containsAnyType(expType)) {
             return symTable.rawTemplateType;
         }
 
@@ -3830,6 +3830,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private BType getResolvedIntersectionType(BType type) {
         return type.tag != TypeTags.INTERSECTION ? type : ((BIntersectionType) type).effectiveType;
+    }
+
+    private boolean containsAnyType(BType type) {
+        if (type == symTable.anyType) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().contains(symTable.anyType);
+        }
+
+        return false;
     }
 
     @Override
