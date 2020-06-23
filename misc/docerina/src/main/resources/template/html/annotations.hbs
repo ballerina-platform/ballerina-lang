@@ -13,7 +13,7 @@
                 <ul>
                     {{#each module.annotations}}
                         <li {{#equals annotations.name name}}class="active"{{/equals}}>
-                            <a href="#{{name}}">{{name}}</a>
+                            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
                         </li>
                     {{/each}}
                 </ul>

@@ -11,7 +11,7 @@
                 <h3>Errors</h3>
                 <ul>
                     {{#each module.errors}}
-                        <li {{#equals errors.name name}}class="active"{{/equals}}></li>
+                        <li {{#equals errors.name name}}class="active"{{/equals}} onclick="menuLinkClick()"></li>
                             <a href="#{{name}}">{{name}}</a>
                         </li>
                     {{/each}}

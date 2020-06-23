@@ -13,7 +13,7 @@
                 <ul>
                     {{#each module.records}}
                         <li {{#equals record.name name}}class="active"{{/equals}}>
-                            <a href="{{name}}.html">{{name}}</a>
+                            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
                         </li>
                     {{/each}}
                 </ul>

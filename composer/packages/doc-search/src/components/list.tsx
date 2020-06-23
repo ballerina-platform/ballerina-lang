@@ -195,7 +195,7 @@ export class List extends React.Component<ListProps, ListState> {
     render() {
         return (
             <div>
-                <div className="ui fluid icon input search-bar">
+                <div className="ui fluid icon input">
                     <input type="text" id="searchBox" onKeyUp={this.handleChange} placeholder="Search..." />
                     <i className="search icon"></i>
                 </div>

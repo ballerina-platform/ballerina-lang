@@ -28,10 +28,10 @@ body .attach-icon {
   opacity: 0.3;
 }
 body .content-wrapper {
-  margin-left: 200px;
+  margin-left: 210px;
   height: 100vh;
-  overflow-y: hidden;
-  position: fixed;
+  overflow-y: scroll;
+  position: inherit;
   font-size: 16px;
   padding-top: 1em;
 }
@@ -297,10 +297,6 @@ body .content-wrapper .breadcrumb-home-icon {
 }
 body .content-wrapper .breadcrumb-home-icon:hover {
   opacity: 0.7;
-}
-body .content-wrapper:hover {
-  overflow-y: auto;
-  position: inherit;
 }
 body .content-wrapper p {
   line-height: 24px;
@@ -768,6 +764,7 @@ a.toc.item {
   }
   body .content-wrapper {
     height: auto !important;
+    margin-left: 0;
     overflow-y: visible !important;
   }
   .ui.fixed.menu {
@@ -782,9 +779,9 @@ a.toc.item {
   }
   a.toc.item {
     width: 12px;
-    position: fixed;
-    top: 20px;
-    left: 11px;
+    position: relative;
+    top: 30px;
+    left: 20px;
     opacity: 0.5;
     display: block;
   }
@@ -793,7 +790,7 @@ a.toc.item {
     display: block;
   }
   .navi-wrapper {
-    display: none !important;
+    display: none;
   }
   .navi-wrapper-content {
     width: 250px !important;
