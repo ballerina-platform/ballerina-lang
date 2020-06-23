@@ -2775,7 +2775,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // this could be a bug in the old parser
             xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix());
         }
-
+//        xmlProcessingInstruction = getPosition(xmlProcessingInstruction);
+        xmlProcInsLiteral.pos = getPosition(xmlProcessingInstruction);
         return xmlProcInsLiteral;
     }
 
@@ -2886,7 +2887,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        xmlTextLiteral.pos = getPosition(expressionNode);
+        xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
         for (Node node : expressionNode.content()) {
             xmlTextLiteral.textFragments.add(createExpression(node));
         }
