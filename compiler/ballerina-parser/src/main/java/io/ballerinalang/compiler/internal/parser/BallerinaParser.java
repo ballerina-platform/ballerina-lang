@@ -11287,6 +11287,7 @@ public class BallerinaParser extends AbstractParser {
             STQualifiedNameReferenceNode qualifiedNameRef = (STQualifiedNameReferenceNode) middleExpr;
             middleExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.modulePrefix);
             colon = qualifiedNameRef.colon;
+            endContext();
             endExpr = STNodeFactory.createSimpleNameReferenceNode(qualifiedNameRef.identifier);
         } else {
             colon = parseColon();
