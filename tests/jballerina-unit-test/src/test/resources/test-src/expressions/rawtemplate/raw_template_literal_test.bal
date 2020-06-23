@@ -87,7 +87,7 @@ function testComplexExpressions() {
 }
 
 type Template1 abstract object {
-    public string[] strings;
+    public (readonly & string[]) strings;
     public int[] insertions;
 };
 
@@ -101,7 +101,7 @@ function testSubtyping1() {
 }
 
 type Template2 abstract object {
-    public string[] strings;
+    public (readonly & string[]) strings;
     public [int, string, float] insertions;
 };
 
@@ -117,7 +117,7 @@ function testSubtyping2() {
     assert(f, t.insertions[2]);
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${f}`;
 
@@ -127,7 +127,7 @@ function testSubtyping2() {
     assert(f, temp2.insertions[2]);
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public [anydata...] insertions;
     } temp3 = `Using tuples 3: ${x}, ${s}, ${f}`;
 
@@ -146,7 +146,7 @@ function testSubtyping3() {
     int x = 10;
 
     abstract object {
-        public FooBar[] strings;
+        public (readonly & FooBar[]) strings;
         public int[] insertions;
     } temp1 = `Foo${x}Bar`;
 
@@ -174,7 +174,7 @@ function testUsageWithQueryExpressions() {
 public type Value ()|int|float|decimal|string|xml;
 
 public type ParameterizedQuery abstract object {
-    public string[] strings;
+    public (readonly & string[]) strings;
     public Value[] insertions;
 };
 
@@ -203,7 +203,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$21 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $anonType$21 {\n\tstrings : (string[] & readonly),\n\tinsertions : (any|error)[]\n}", td.toString());
 }
 
 function testUseWithAny() {
@@ -211,11 +211,11 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$22 {\n\tstrings : string[],\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $anonType$22 {\n\tstrings : (string[] & readonly),\n\tinsertions : (any|error)[]\n}", td.toString());
 }
 
 public type Template3 abstract object {
-    public string[2] strings;
+    public (string[2] & readonly) strings;
     public int[1] insertions;
 };
 
@@ -234,13 +234,23 @@ function testIndirectAssignmentToConcreteType() {
         public anydata[] insertions = [];
     } rt2 = rt;
 
-    rt2.strings.push(", ");
     rt2.insertions.push(30);
 
-    assert(<string[]>["Count: ", ", ", "", ", "], rt.strings);
+    assert(<string[]>["Count: ", ", ", ""], rt.strings);
     assert(<int[]>[10, 20, 30], rt.insertions);
 
     rt2.insertions.push(12.34);
+}
+
+type CompatibleObj object {
+   public string[] strings = [];
+   public anydata[] insertions = [];
+};
+
+function testModifyStringsField() {
+    Template1 rt = `Count: ${10}, ${20}`;
+    CompatibleObj rt2 = rt;
+    rt2.strings.push("Invalid");
 }
 
 // Util functions
