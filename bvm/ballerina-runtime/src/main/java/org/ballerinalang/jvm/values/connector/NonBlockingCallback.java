@@ -46,7 +46,7 @@ public class NonBlockingCallback {
     }
 
     public void notifyFailure(BError error) {
-        strand.panic = error;
+        this.strand.returnValue = error;
         this.scheduler.unblockStrand(strand);
     }
 
