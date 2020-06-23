@@ -352,11 +352,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                 vals[0] = value;
                             }
 
-                            // Check if Function name in annotation is empty
-                            if (vals[0].isEmpty()) {
-                                diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
-                                        "Function name cannot be empty");
-                            }
+                            validateFunctionName(vals[0], simpleVariableNode, attachmentNode);
 
                             // Mock Function object name
                             String mockFunctionObject = simpleVariableNode.getName().getValue();
@@ -429,6 +425,51 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                   parent.packageID.version).toString();
         }
         return value;
+    }
+
+    /**
+     * Validates the function name provided in the annotation.
+     * @param functionName Function to mock
+     * @param variableNode  MockFunction object variable node
+     * @param attachmentNode  MockFunction object attachment node
+     */
+    private void validateFunctionName(String functionName, SimpleVariableNode variableNode,
+                                      AnnotationAttachmentNode attachmentNode) {
+        PackageID packageID = ((BLangTestablePackage) ((BLangSimpleVariable) variableNode).parent).packageID;
+
+        if (functionName == null) {
+            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                    "Function name cannot be empty");
+        } else {
+            // Iterate through package map entries
+            for (Map.Entry<BPackageSymbol, SymbolEnv> entry : this.packageEnvironmentMap.entrySet()) {
+
+                // Consider both instances of the current package
+                if (entry.getKey().pkgID.equals(packageID)) {
+                    // Check if the current package has the function name
+                    if (entry.getValue().scope.entries.containsKey(new Name(functionName))) {
+
+                        // Functions within a test package are not allowed to be mocked
+                        if (entry.getValue().scope.entries.containsKey(new Name("test"))) {
+                            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR,
+                                    attachmentNode.getPosition(),
+                                    "Function \'" + functionName +
+                                            "\' defined within the tests folder cannot be mocked");
+                        }
+
+                        //Exit validate function if the function exists in the entry
+                        return;
+                    } else {
+                        // We need to continue to make sure both packages are checked
+                        continue;
+                    }
+                }
+            }
+
+            // If it reaches this part, then the function hasnt been found in both packages
+            diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
+                    "Function \'" + functionName + "\' cannot be found in the current package");
+        }
     }
 
     /**
