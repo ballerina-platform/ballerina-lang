@@ -252,7 +252,7 @@ public class PushUtils {
             if (isDependencyAvailableInRemote(moduleAsDependency)) {
                 throw createLauncherException("module '" + moduleAsDependency.toString() + "' already exists in " +
                                               "remote repository(" + getRemoteRepoURL() + "). build and push after " +
-                                              "update the version in the Ballerina.toml.");
+                                              "updating the version in the Ballerina.toml.");
             }
     
             balos.put(baloFilePath, manifest.getDependencies());
