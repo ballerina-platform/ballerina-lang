@@ -3852,7 +3852,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangLiteral createSimpleLiteral(Node literal, boolean isFiniteType) {
         if (literal.kind() == SyntaxKind.UNARY_EXPRESSION) {
             UnaryExpressionNode unaryExpr = (UnaryExpressionNode) literal;
-            return createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
+            BLangLiteral bLangLiteral =
+                    createSimpleLiteral(unaryExpr.expression(), unaryExpr.unaryOperator().kind(), isFiniteType);
+            bLangLiteral.pos = getPosition(unaryExpr); // setting the proper pos, else only the expr pos is set
+            return bLangLiteral;
         }
 
         return createSimpleLiteral(literal, SyntaxKind.NONE, isFiniteType);
