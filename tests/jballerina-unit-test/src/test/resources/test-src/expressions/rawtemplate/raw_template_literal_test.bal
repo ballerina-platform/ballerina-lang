@@ -254,6 +254,15 @@ function testModifyStringsField() {
     rt2.strings.push("Invalid");
 }
 
+function testAnyInUnion() {
+    any|error ae = `INSERT INTO Details VALUES (${"Foo"}, ${20})`;
+    ob:RawTemplate rt = <ob:RawTemplate>ae;
+
+    assert(<string[]>["INSERT INTO Details VALUES (", ", ", ")"], rt.strings);
+    assert("Foo", <string>rt.insertions[0]);
+    assert(20, <int>rt.insertions[1]);
+}
+
 // Util functions
 
 function assert(anydata expected, anydata actual) {
