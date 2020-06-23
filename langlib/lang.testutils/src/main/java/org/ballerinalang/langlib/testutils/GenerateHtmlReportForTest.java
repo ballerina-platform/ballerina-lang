@@ -18,6 +18,9 @@
 
 package org.ballerinalang.langlib.testutils;
 
+import org.apache.commons.text.diff.CommandVisitor;
+import org.apache.commons.text.diff.StringsComparator;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
@@ -108,7 +111,7 @@ public class GenerateHtmlReportForTest {
                 writer
                         .append("<h3 class=\"failures\">" + reportDetails.getFunctionName() + "</h3>\n")
                         .append("<div style=\"width:100%;overflow:auto;background-color: #f7f7f7\" >\n")
-                        .append("<pre>" + reportDetails.getStackTrace() + "</pre>\n")
+                        .append("<pre>" + getDiff(reportDetails.getStackTrace()) + "</pre>\n")
                         .append("</div>\n");
             }
         }
@@ -119,5 +122,42 @@ public class GenerateHtmlReportForTest {
                 .append("</div>\n")
                 .append("</body>\n</html>");
         return writer.toString();
+    }
+
+    public static String getDiff(String message) {
+        if (message.contains("expected") && message.contains("but found")) {
+            String str1 = message.substring(message.indexOf("[") + 1, message.indexOf("]"));
+            String temp = message.replace("[" + str1 + "]", "");
+            String str2 = temp.substring(temp.indexOf("[") + 1, temp.indexOf("]"));
+            StringsComparator comparator = new StringsComparator(str1, str2);
+            TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
+            comparator.getScript().visit(textDiffHighlighter);
+            message = message.replace(str1, textDiffHighlighter.leftStr);
+            message = message.replace(str2, textDiffHighlighter.rightStr);
+        }
+        return message;
+    }
+}
+
+class TextDiffHighlighter implements CommandVisitor<Character> {
+
+    String leftStr = "";
+    String rightStr = "";
+
+    @Override
+    public void visitKeepCommand(Character c) {
+        // Character is present in both files.
+        leftStr = leftStr + c;
+        rightStr = rightStr + c;
+    }
+
+    @Override
+    public void visitInsertCommand(Character c) {
+        rightStr = rightStr + "<span style = \"background-color: #7CFC00;\" >" + c + "</span>";
+    }
+
+    @Override
+    public void visitDeleteCommand(Character c) {
+        leftStr = leftStr + "<span style = \"background-color: #FA8072;\" >" + c + "</span>";
     }
 }
