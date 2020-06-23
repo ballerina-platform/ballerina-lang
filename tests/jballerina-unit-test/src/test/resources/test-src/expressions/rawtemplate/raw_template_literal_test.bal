@@ -203,7 +203,8 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$21 {\n\tstrings : (string[] & readonly),\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$12",
+            td.toString());
 }
 
 function testUseWithAny() {
@@ -211,7 +212,7 @@ function testUseWithAny() {
     any rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $anonType$22 {\n\tstrings : (string[] & readonly),\n\tinsertions : (any|error)[]\n}", td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$13", td.toString());
 }
 
 public type Template3 abstract object {

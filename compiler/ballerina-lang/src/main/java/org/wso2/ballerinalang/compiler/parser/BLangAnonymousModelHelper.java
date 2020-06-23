@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> anonFunctionCount;
     private Map<PackageID, Integer> anonForkCount;
     private Map<PackageID, Integer> errorTypeIdCount;
+    private Map<PackageID, Integer> rawTemplateTypeCount;
 
     private static final String ANON_TYPE = "$anonType$";
     private static final String LAMBDA = "$lambda$";
@@ -46,6 +48,7 @@ public class BLangAnonymousModelHelper {
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
     private static final String FORK = "$fork$";
     private static final String ANON_TYPE_ID = "$anonTypeid$";
+    private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
 
     private static final CompilerContext.Key<BLangAnonymousModelHelper> ANONYMOUS_MODEL_HELPER_KEY =
             new CompilerContext.Key<>();
@@ -57,6 +60,7 @@ public class BLangAnonymousModelHelper {
         anonFunctionCount = new HashMap<>();
         anonForkCount = new HashMap<>();
         errorTypeIdCount = new HashMap<>();
+        rawTemplateTypeCount = new HashMap<>();
     }
 
     public static BLangAnonymousModelHelper getInstance(CompilerContext context) {
@@ -104,6 +108,12 @@ public class BLangAnonymousModelHelper {
         Integer nextValue = Optional.ofNullable(errorTypeIdCount.get(packageID)).orElse(0);
         anonFunctionCount.put(packageID, nextValue + 1);
         return ANON_TYPE_ID + String.valueOf(nextValue);
+    }
+
+    public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {
+        Integer nextValue = Optional.ofNullable(rawTemplateTypeCount.get(packageID)).orElse(0);
+        rawTemplateTypeCount.put(packageID, nextValue + 1);
+        return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + nextValue;
     }
 
     public boolean isAnonymousType(BSymbol symbol) {
