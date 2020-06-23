@@ -2327,7 +2327,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseTypeDescriptorInternal(solution.tokenKind, context, false);
+                return parseTypeDescriptorInternal(solution.tokenKind, context, isInConditionalExpr);
         }
     }
 
