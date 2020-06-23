@@ -2775,7 +2775,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // this could be a bug in the old parser
             xmlProcInsLiteral.target = createSimpleLiteral(((XMLQualifiedNameNode) target).prefix());
         }
-//        xmlProcessingInstruction = getPosition(xmlProcessingInstruction);
+
         xmlProcInsLiteral.pos = getPosition(xmlProcessingInstruction);
         return xmlProcInsLiteral;
     }
