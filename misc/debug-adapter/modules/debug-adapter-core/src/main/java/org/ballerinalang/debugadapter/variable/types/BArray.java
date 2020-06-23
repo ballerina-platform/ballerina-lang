@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -40,8 +41,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BArray extends BCompoundVariable {
 
-    public BArray(Value value, Variable dapVariable) {
-        super(BVariableType.ARRAY, value, dapVariable);
+    public BArray(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.ARRAY, value, dapVariable);
     }
 
     @Override

@@ -24,6 +24,13 @@ import org.eclipse.lsp4j.debug.Variable;
 public interface BVariable {
 
     /**
+     * Returns debug context information (i.e. owning stack frame and thread) of this variable instance.
+     *
+     * @return context information (i.e. owning stack frame and thread).
+     */
+    VariableContext getContext();
+
+    /**
      * Returns the value of the variable instance in string form. Each variable type implementation can have their
      * own implementation to compute/fetch its value.
      *

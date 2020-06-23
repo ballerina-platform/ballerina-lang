@@ -35,7 +35,7 @@ import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
-import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -98,6 +98,7 @@ import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
+import static org.ballerinalang.debugadapter.variable.VariableFactory.getVariable;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
@@ -116,16 +117,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private BufferedReader launchedErrorStream;
     private String orgName = "";
     private Path projectRoot;
+    private ThreadReference activeThread;
 
     private final Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private final AtomicInteger nextVarReference = new AtomicInteger();
-    private final Map<Long, com.sun.jdi.StackFrame> stackframesMap = new HashMap<>();
+    private final Map<Long, com.sun.jdi.StackFrame> stackFramesMap = new HashMap<>();
     private final Map<Long, Map<String, Value>> childVariables = new HashMap<>();
+    private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
     private static int systemExit = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String DEBUGGER_TERMINATED = "Debugger terminated";
-    private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
+    private static final String DEBUGGER_TERMINATED = "Debugger is terminated";
+    private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger is failed to attach";
     static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
 
     public JBallerinaDebugServer() {
@@ -296,6 +299,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
+        activeThread = eventBus.getThreadsMap().get(args.getThreadId());
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         try {
             StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId()).frames().stream()
@@ -315,7 +319,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Nullable
     private StackFrame toDapStackFrame(com.sun.jdi.StackFrame stackFrame) {
         long variableReference = nextVarReference.getAndIncrement();
-        stackframesMap.put(variableReference, stackFrame);
+        stackFramesMap.put(variableReference, stackFrame);
 
         try {
             String sourcePath = getRectifiedPath(stackFrame.location());
@@ -338,18 +342,23 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<VariablesResponse> variables(VariablesArguments args) {
         VariablesResponse variablesResponse = new VariablesResponse();
-        com.sun.jdi.StackFrame stackFrame = stackframesMap.get(args.getVariablesReference());
-
-        Variable[] dapVariables = new Variable[0];
-
+        com.sun.jdi.StackFrame stackFrame = stackFramesMap.get(args.getVariablesReference());
+        Variable[] dapVariables;
         if (stackFrame == null) {
             Map<String, Value> values = childVariables.get(args.getVariablesReference());
+            Long stackFrameId = variableToStackFrameMap.get(args.getVariablesReference());
+            if (stackFrameId == null) {
+                return null;
+            }
+            // A single VariableContext instance should be created in order to avoid InvalidStackFrameExceptions,
+            // as we may use(resume) the suspended thread to invoke methods during variable computations.
+            com.sun.jdi.StackFrame frame = stackFramesMap.get(stackFrameId);
+            VariableContext context = new VariableContext(frame, activeThread);
             dapVariables = values.entrySet().stream().map(entry -> {
                 Value value = entry.getValue();
-                String varTypeStr = (value == null) ? "null" : value.type().name();
+                String varTypeStr = Optional.ofNullable(value).map(val -> val.type().name()).orElse("null");
                 String name = entry.getKey();
-
-                BVariable variable = VariableFactory.getVariable(value, varTypeStr, name);
+                BVariable variable = getVariable(context, value, varTypeStr, name);
                 if (variable == null) {
                     return null;
                 } else if (variable instanceof BPrimitiveVariable) {
@@ -358,11 +367,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     long variableReference = nextVarReference.getAndIncrement();
                     variable.getDapVariable().setVariablesReference(variableReference);
                     this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
+                    updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
                 }
                 return variable.getDapVariable();
             }).filter(Objects::nonNull).toArray(Variable[]::new);
         } else {
             try {
+                // A single VariableContext instance should be created in order to avoid InvalidStackFrameExceptions,
+                // as we may use(resume) the suspended thread to invoke methods during variable computations.
+                VariableContext context = new VariableContext(stackFrame, activeThread);
                 dapVariables = stackFrame.getValues(stackFrame.visibleVariables()).entrySet().stream()
                         .map(varValueEntry -> {
                             String varType;
@@ -376,7 +389,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                                 return null;
                             }
 
-                            BVariable variable = VariableFactory.getVariable(varValueEntry.getValue(), varType, name);
+                            BVariable variable = getVariable(context, varValueEntry.getValue(), varType, name);
                             if (variable == null) {
                                 return null;
                             } else if (variable instanceof BPrimitiveVariable) {
@@ -386,13 +399,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                                 variable.getDapVariable().setVariablesReference(variableReference);
                                 this.childVariables.put(variableReference, ((BCompoundVariable) variable)
                                         .getChildVariables());
+                                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
                             }
                             return variable.getDapVariable();
                         }).filter(Objects::nonNull).toArray(Variable[]::new);
-            } catch (AbsentInformationException ignored) {
+            } catch (Exception e) {
+                LOGGER.error(e.getMessage(), e);
+                return CompletableFuture.completedFuture(variablesResponse);
             }
         }
-
         variablesResponse.setVariables(dapVariables);
         return CompletableFuture.completedFuture(variablesResponse);
     }
@@ -423,6 +438,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
+        clearState();
         eventBus.resetBreakpoints();
         debuggeeVM.resume();
         ContinueResponse continueResponse = new ContinueResponse();
@@ -432,12 +448,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> next(NextArguments args) {
+        clearState();
         eventBus.createStepOverRequest(args.getThreadId());
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<Void> stepIn(StepInArguments args) {
+        clearState();
         eventBus.resetBreakpoints();
         eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
         return CompletableFuture.completedFuture(null);
@@ -445,6 +463,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> stepOut(StepOutArguments args) {
+        clearState();
         eventBus.resetBreakpoints();
         eventBus.createStepRequest(args.getThreadId(), StepRequest.STEP_OUT);
         return CompletableFuture.completedFuture(null);
@@ -476,12 +495,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return CompletableFuture.completedFuture(response);
         }
         try {
-            com.sun.jdi.StackFrame frame = stackframesMap.get(args.getFrameId());
+            com.sun.jdi.StackFrame frame = stackFramesMap.get(args.getFrameId());
             Optional<Value> result = executionManager.evaluate(frame, args.getExpression());
             if (result.isPresent()) {
                 Value value = result.get();
                 String valueTypeName = value.type().name();
-                BVariable variable = VariableFactory.getVariable(value, valueTypeName, "Evaluation Result");
+                VariableContext context = new VariableContext(frame, activeThread);
+                BVariable variable = getVariable(context, value, valueTypeName, "Evaluation Result");
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
                 } else if (variable instanceof BPrimitiveVariable) {
@@ -490,6 +510,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     long variableReference = nextVarReference.getAndIncrement();
                     variable.getDapVariable().setVariablesReference(variableReference);
                     this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
+                    updateVariableToStackFrameMap(args.getFrameId(), variableReference);
                 }
                 Variable dapVariable = variable.getDapVariable();
                 response.setResult(dapVariable.getValue());
@@ -589,5 +610,29 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         // Removes module version part from the JDI reference source path.
         relativePath = relativePath.replaceFirst(fileSeparatorRegex + MODULE_VERSION_REGEX, "");
         return relativePath;
+    }
+
+    private synchronized void updateVariableToStackFrameMap(Long parent, long child) {
+        if (variableToStackFrameMap.get(parent) == null) {
+            variableToStackFrameMap.put(child, parent);
+            return;
+        }
+        Long rootNode;
+        do {
+            rootNode = variableToStackFrameMap.get(parent);
+        } while (variableToStackFrameMap.get(rootNode) != null);
+        variableToStackFrameMap.put(child, rootNode);
+    }
+
+    /**
+     * Clears all the debug hit context information once the debuggee program is resumed
+     */
+    private void clearState() {
+        activeThread = null;
+        threadsMap.clear();
+        nextVarReference.set(1);
+        stackFramesMap.clear();
+        childVariables.clear();
+        variableToStackFrameMap.clear();
     }
 }

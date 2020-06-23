@@ -23,6 +23,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -43,8 +44,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
  */
 public class BTuple extends BCompoundVariable {
 
-    public BTuple(Value value, Variable dapVariable) {
-        super(BVariableType.TUPLE, value, dapVariable);
+    public BTuple(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.TUPLE, value, dapVariable);
     }
 
     @Override
@@ -84,28 +85,32 @@ public class BTuple extends BCompoundVariable {
      * Returns the tuple type in string form.
      */
     private String getTupleType(Value jvmValue) {
-        Optional<Value> tupleType = VariableUtils.getFieldValue(jvmValue, "tupleType");
-        if (!tupleType.isPresent()) {
-            return UNKNOWN_VALUE;
-        }
-        Optional<Value> subTypes = VariableUtils.getFieldValue(tupleType.get(), "tupleTypes");
-        if (!subTypes.isPresent()) {
-            return UNKNOWN_VALUE;
-        }
-        Optional<Value> typesArray = VariableUtils.getFieldValue(subTypes.get(), "elementData");
-        if (!typesArray.isPresent()) {
-            return UNKNOWN_VALUE;
-        }
-        List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();
-        StringJoiner tupleTypes = new StringJoiner(",");
-        subValues.forEach(ref -> {
-            if (ref instanceof ObjectReference) {
-                Field typeNameField = ((ObjectReference) ref).referenceType().fieldByName("typeName");
-                Value typeNameRef = ((ObjectReference) ref).getValue(typeNameField);
-                tupleTypes.add(getStringFrom(typeNameRef));
+        try {
+            Optional<Value> tupleType = VariableUtils.getFieldValue(jvmValue, "tupleType");
+            if (!tupleType.isPresent()) {
+                return UNKNOWN_VALUE;
             }
-        });
-        return String.format("tuple[%s]", tupleTypes.toString());
+            Optional<Value> subTypes = VariableUtils.getFieldValue(tupleType.get(), "tupleTypes");
+            if (!subTypes.isPresent()) {
+                return UNKNOWN_VALUE;
+            }
+            Optional<Value> typesArray = VariableUtils.getFieldValue(subTypes.get(), "elementData");
+            if (!typesArray.isPresent()) {
+                return UNKNOWN_VALUE;
+            }
+            List<Value> subValues = ((ArrayReference) typesArray.get()).getValues();
+            StringJoiner tupleTypes = new StringJoiner(",");
+            subValues.forEach(ref -> {
+                if (ref instanceof ObjectReference) {
+                    Field typeNameField = ((ObjectReference) ref).referenceType().fieldByName("typeName");
+                    Value typeNameRef = ((ObjectReference) ref).getValue(typeNameField);
+                    tupleTypes.add(getStringFrom(typeNameRef));
+                }
+            });
+            return String.format("tuple[%s]", tupleTypes.toString());
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 
     /**
@@ -117,7 +122,8 @@ public class BTuple extends BCompoundVariable {
     private int getTupleSize(ObjectReference arrayRef) {
         List<Field> fields = arrayRef.referenceType().allFields();
         Field arraySizeField = arrayRef.getValues(fields).entrySet().stream().filter(fieldValueEntry ->
-                fieldValueEntry.getValue() != null && fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
+                fieldValueEntry.getValue() != null &&
+                        fieldValueEntry.getKey().toString().endsWith("ArrayValue.size"))
                 .map(Map.Entry::getKey).collect(Collectors.toList()).get(0);
         return ((IntegerValue) arrayRef.getValue(arraySizeField)).value();
     }

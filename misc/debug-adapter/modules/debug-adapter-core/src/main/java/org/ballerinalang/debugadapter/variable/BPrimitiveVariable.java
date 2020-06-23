@@ -24,14 +24,21 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public abstract class BPrimitiveVariable implements BVariable {
 
+    private final VariableContext context;
     protected final Value jvmValue;
     private final Variable dapVariable;
 
-    public BPrimitiveVariable(BVariableType bVariableType, Value jvmValue, Variable dapVariable) {
+    public BPrimitiveVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+        this.context = context;
         this.jvmValue = jvmValue;
-        dapVariable.setType(bVariableType.getString());
-        dapVariable.setValue(computeValue());
-        this.dapVariable = dapVariable;
+        dapVar.setType(bVariableType.getString());
+        dapVar.setValue(computeValue());
+        this.dapVariable = dapVar;
+    }
+
+    @Override
+    public VariableContext getContext() {
+        return context;
     }
 
     @Override

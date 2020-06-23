@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -38,8 +39,8 @@ public class BError extends BCompoundVariable {
     private static final String FIELD_CAUSE = "cause";
     private static final String FIELD_DETAILS = "details";
 
-    public BError(Value value, Variable dapVariable) {
-        super(BVariableType.ERROR, value, dapVariable);
+    public BError(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.ERROR, value, dapVariable);
     }
 
     @Override

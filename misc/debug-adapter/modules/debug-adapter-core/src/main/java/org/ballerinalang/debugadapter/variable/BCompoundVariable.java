@@ -26,16 +26,23 @@ import java.util.Map;
  */
 public abstract class BCompoundVariable implements BVariable {
 
+    private final VariableContext context;
     protected Value jvmValue;
     private final Variable dapVariable;
     private final Map<String, Value> childVariables;
 
-    public BCompoundVariable(BVariableType bVariableType, Value jvmValue, Variable dapVariable) {
+    public BCompoundVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+        this.context = context;
         this.jvmValue = jvmValue;
-        dapVariable.setType(bVariableType.getString());
-        dapVariable.setValue(computeValue());
-        this.dapVariable = dapVariable;
+        dapVar.setType(bVariableType.getString());
+        dapVar.setValue(computeValue());
+        this.dapVariable = dapVar;
         this.childVariables = computeChildVariables();
+    }
+
+    @Override
+    public VariableContext getContext() {
+        return context;
     }
 
     /**

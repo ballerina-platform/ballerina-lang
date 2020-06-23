@@ -22,13 +22,13 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -36,8 +36,8 @@ import java.util.Optional;
  */
 public class BJson extends BCompoundVariable {
 
-    public BJson(Value value, Variable dapVariable) {
-        super(BVariableType.JSON, value, dapVariable);
+    public BJson(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.JSON, value, dapVariable);
     }
 
     @Override
@@ -60,13 +60,15 @@ public class BJson extends BCompoundVariable {
             }
             Value values = jvmValueRef.getValue(valueField.get());
             Map<String, Value> childVarMap = new HashMap<>();
-            ((ArrayReference) values).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, "key");
-                Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, "value");
-                if (jsonKey.isPresent() && jsonValue.isPresent()) {
-                    childVarMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
+            for (Value jsonMap : ((ArrayReference) values).getValues()) {
+                if (jsonMap != null) {
+                    Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, "key");
+                    Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, "value");
+                    if (jsonKey.isPresent() && jsonValue.isPresent()) {
+                        childVarMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
+                    }
                 }
-            });
+            }
             return childVarMap;
         } catch (Exception ignored) {
             return new HashMap<>();

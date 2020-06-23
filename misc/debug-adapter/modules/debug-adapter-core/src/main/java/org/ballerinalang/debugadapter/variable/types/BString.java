@@ -21,6 +21,7 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -33,8 +34,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BString extends BPrimitiveVariable {
 
-    public BString(Value value, Variable dapVariable) {
-        super(BVariableType.STRING, value, dapVariable);
+    public BString(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.STRING, value, dapVariable);
     }
 
     @Override

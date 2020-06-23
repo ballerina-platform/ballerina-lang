@@ -17,9 +17,11 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Field;
+import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -85,8 +87,12 @@ public class VariableUtils {
      * @return true the given JDI value is a ballerina object instance.
      */
     static boolean isObject(Value value) {
-        Optional<Value> valueType = getFieldValue(value, "type");
-        return valueType.map(type -> type.type().name().endsWith(JVMValueType.BTYPE_OBJECT.getString())).orElse(false);
+        try {
+            return getFieldValue(value, "type").map(type -> type.type().name().endsWith
+                    (JVMValueType.BTYPE_OBJECT.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
     }
 
     /**
@@ -96,8 +102,12 @@ public class VariableUtils {
      * @return true the given JDI value is a ballerina record instance.
      */
     static boolean isRecord(Value value) {
-        Optional<Value> valueType = getFieldValue(value, "type");
-        return valueType.map(type -> type.type().name().endsWith(JVMValueType.BTYPE_RECORD.getString())).orElse(false);
+        try {
+            return getFieldValue(value, "type").map(type -> type.type().name().endsWith
+                    (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
+        } catch (DebugVariableException e) {
+            return false;
+        }
     }
 
     /**
@@ -107,15 +117,39 @@ public class VariableUtils {
      * @param fieldName field name
      * @return JDI value of a given field, for a given JDI object reference (class instance).
      */
-    public static Optional<Value> getFieldValue(Value parent, String fieldName) {
+    public static Optional<Value> getFieldValue(Value parent, String fieldName) throws DebugVariableException {
         if (!(parent instanceof ObjectReference)) {
             return Optional.empty();
         }
         ObjectReference parentRef = (ObjectReference) parent;
         Field field = parentRef.referenceType().fieldByName(fieldName);
         if (field == null) {
-            return Optional.empty();
+            throw new DebugVariableException(
+                    String.format("No fields found with name: \"%s\", in %s", fieldName, parent.toString()));
         }
         return Optional.of(parentRef.getValue(field));
+    }
+
+    /**
+     * Returns a JDI method instance of a any given method which exists in the given JDI object reference.
+     *
+     * @param parent     parent JDI value instance.
+     * @param methodName method name.
+     * @return the JDI method instance of a any given method which exists in the given JDI object reference.
+     */
+    public static Optional<Method> getMethod(Value parent, String methodName) throws DebugVariableException {
+        if (!(parent instanceof ObjectReference)) {
+            return Optional.empty();
+        }
+        ObjectReference parentRef = (ObjectReference) parent;
+        List<Method> methods = parentRef.referenceType().methodsByName(methodName);
+        if (methods.isEmpty()) {
+            throw new DebugVariableException(String.format("No methods found for name: \"%s\", in %s",
+                    methodName, parent.toString()));
+        } else if (methods.size() > 1) {
+            throw new DebugVariableException(String.format("Overloaded methods found for name: \"%s\", in %s",
+                    methodName, parent.toString()));
+        }
+        return Optional.of(methods.get(0));
     }
 }

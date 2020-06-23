@@ -21,6 +21,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -33,20 +34,24 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BBoolean extends BPrimitiveVariable {
 
-    public BBoolean(Value value, Variable dapVariable) {
-        super(BVariableType.BOOLEAN, value, dapVariable);
+    public BBoolean(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.BOOLEAN, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        if (jvmValue instanceof BooleanValue) {
-            return jvmValue.toString();
-        } else if (jvmValue instanceof ObjectReference) {
-            Optional<Value> field = VariableUtils.getFieldValue(jvmValue, "value");
-            if (field.isPresent()) {
-                return field.get().toString();
+        try {
+            if (jvmValue instanceof BooleanValue) {
+                return jvmValue.toString();
+            } else if (jvmValue instanceof ObjectReference) {
+                Optional<Value> field = VariableUtils.getFieldValue(jvmValue, "value");
+                if (field.isPresent()) {
+                    return field.get().toString();
+                }
             }
+            return UNKNOWN_VALUE;
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
         }
-        return UNKNOWN_VALUE;
     }
 }

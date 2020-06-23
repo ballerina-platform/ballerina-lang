@@ -20,6 +20,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
@@ -32,8 +33,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
  */
 public class BXmlItem extends BCompoundVariable {
 
-    public BXmlItem(Value value, Variable dapVariable) {
-        super(BVariableType.XML, value, dapVariable);
+    public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.XML, value, dapVariable);
     }
 
     @Override
