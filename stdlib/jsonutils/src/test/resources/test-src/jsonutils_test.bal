@@ -109,3 +109,23 @@ function testComplexXMLElementToJsonNoPreserveNS() returns string {
     json j = checkpanic jsonutils:fromXML(e, { preserveNamespaces: false });
     return j.toJsonString();
 }
+
+function testUsingConvertedJsonValue() returns string {
+    json j = checkpanic jsonutils:fromXML(xml `<Element><A>BCD</A><A>ZZZ</A></Element>`);
+    json[] ar = <json[]>(checkpanic j.Element.A);
+    return (<string> ar[0]) + ":" + (<string> ar[1]);
+}
+
+type PInfo record {
+    string name;
+    string age;
+    string gender;
+};
+
+function testXmlToJsonToPInfo() returns PInfo {
+    json j = checkpanic jsonutils:fromXML(
+        xml `<PInfo><name>Jane</name><age>33</age><gender>not-specified</gender></PInfo>`);
+    json k = checkpanic j.PInfo;
+    PInfo p = checkpanic k.cloneWithType(PInfo);
+    return p;
+}

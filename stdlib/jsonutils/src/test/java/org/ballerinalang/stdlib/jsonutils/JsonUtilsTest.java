@@ -192,6 +192,18 @@ public class JsonUtilsTest {
                         "\"@attr\":\"attr-val\", \"@ns:attr\":\"ns-attr-val\", \"@ns\":\"ns.com\"}}");
     }
 
+    @Test
+    public void testUsingConvertedJsonValue() {
+        BValue[] res = BRunUtil.invoke(result, "testUsingConvertedJsonValue");
+        Assert.assertEquals(res[0].stringValue(), "BCD:ZZZ");
+    }
+
+    @Test
+    public void testXmlToJsonToPInfo() {
+        BValue[] res = BRunUtil.invoke(result, "testXmlToJsonToPInfo");
+        Assert.assertEquals(res[0].stringValue(), "{name:\"Jane\", age:\"33\", gender:\"not-specified\"}");
+    }
+
     private void convertToJsonAndAssert(String xmlStr, String jsonStr) {
         XMLValue parse = XMLFactory.parse(xmlStr);
         Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
