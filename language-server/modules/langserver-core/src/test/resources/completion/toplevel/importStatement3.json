@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "jwt",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.boolean",
       "kind": "Module",
       "detail": "Module",
