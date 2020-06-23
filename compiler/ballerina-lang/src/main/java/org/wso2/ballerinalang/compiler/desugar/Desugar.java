@@ -291,7 +291,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CLONE_WITH_TYPE = "cloneWithType";
-    private static final String SLICE_LANGLIB_METHOD = "slice";
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
 
@@ -5442,13 +5441,14 @@ public class Desugar extends BLangNodeVisitor {
             stmtExpression.type = firstNonRestArg.type;
             iExpr.requiredArgs.add(0, stmtExpression);
 
-            // The original value passed as the vararg has to now be sliced to pass only the args for the rest param,
-            // if there is a rest param.
+            // If there's no rest param, the vararg only provided for required/defaultable params.
             if (invokableSymbol.restParam == null) {
                 restArgs.remove(0);
                 return;
             }
 
+            // If there is a rest param, the vararg could provide for the rest param too.
+            // Create a new array with just the members of the original vararg specified for the rest param.
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
             DiagnosticPos pos = restArgsExpression.pos;
