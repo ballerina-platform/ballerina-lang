@@ -32,6 +32,7 @@ import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
 import org.ballerinalang.debugadapter.variable.types.BString;
 import org.ballerinalang.debugadapter.variable.types.BTuple;
+import org.ballerinalang.debugadapter.variable.types.BTypeDesc;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
 import org.eclipse.lsp4j.debug.Variable;
@@ -64,10 +65,12 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> json - the union of (), int, float, decimal, string, and maps and arrays whose values are, recursively, json
  * <li> error - an indication that there has been an error, with a string identifying the reason for the error, and a
  * mapping giving additional details about the error
- * <li> any - any value other than an error         // Todo - show runtime type or "any"?
- * <li> union - the union of the component types    // Todo - show runtime type or union type?
- * <li> optional - the underlying type and ()       // Todo - show runtime type or optional type?
- * <li> byte - int in the range 0 to 255 inclusive  // Todo - show runtime type(int) or "byte"?
+ * <li> typedesc - a type descriptor
+ * <li> any - any value other than an error // Todo - runtime type or "any"?
+ * <li> anydata	- not an error and does not contain behavioral members at any depth // Todo - runtime type or "anydata"?
+ * <li> union - the union of the component types // Todo - runtime type or union type?
+ * <li> optional - the underlying type and () // Todo - runtime type or optional type?
+ * <li> byte - int in the range 0 to 255 inclusive // Todo - runtime type(int) or "byte"?
  * </ul>
  * <br>
  * To be implemented
@@ -77,11 +80,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> function - a function with 0 or more specified parameter types and a single return type
  * <li> future - a value to be returned by a function execution
  * <li> service	- a collection of named methods, including resource methods
- * <li> typedesc - a type descriptor
  * <li> handle - reference to externally managed storage
  * <li> stream - a sequence of values that can be generated lazily
  * <li> singleton - a single value described by a literal
- * <li> anydata	- not an error and does not contain behavioral members at any depth
  * <li> never - no value
  * </ul>
  */
@@ -131,6 +132,8 @@ public class VariableFactory {
             return new BTuple(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
             return new BError(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
+            return new BTypeDesc(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.XML_ITEM.getString())) {
             return new BXmlItem(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {

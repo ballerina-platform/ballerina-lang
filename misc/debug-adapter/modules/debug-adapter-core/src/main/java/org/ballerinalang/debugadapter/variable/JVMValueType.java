@@ -39,6 +39,7 @@ public enum JVMValueType {
     TUPLE_VALUE("org.ballerinalang.jvm.values.TupleValue"),
     MAP_VALUE("org.ballerinalang.jvm.values.MapValue"),
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
+    TYPEDESC_VALUE("org.ballerinalang.jvm.values.TypedescValue"),
     XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
     BTYPE_OBJECT("BObjectType"),
     BTYPE_RECORD("BRecordType");

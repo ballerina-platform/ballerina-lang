@@ -127,7 +127,7 @@ public class VariableUtils {
             throw new DebugVariableException(
                     String.format("No fields found with name: \"%s\", in %s", fieldName, parent.toString()));
         }
-        return Optional.of(parentRef.getValue(field));
+        return Optional.ofNullable(parentRef.getValue(field));
     }
 
     /**
