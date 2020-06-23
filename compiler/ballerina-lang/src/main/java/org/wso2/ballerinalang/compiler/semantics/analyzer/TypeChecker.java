@@ -192,7 +192,6 @@ import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.INVALID_NUM_INSERTIONS;
@@ -585,14 +584,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.isCharLiteralValue((String) literalValue)) {
             return symTable.charStringType;
         } else {
-            if (this.expType.tag == TypeTags.FINITE) {
-                boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
+            BType expected = getResolvedIntersectionType(this.expType);
+            if (expected.tag == TypeTags.FINITE) {
+                boolean foundMember = types.isAssignableToFiniteType(expected, literalExpr);
                 if (foundMember) {
                     setLiteralValueForFiniteType(literalExpr, literalType);
                     return literalType;
                 }
-            } else if (this.expType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) this.expType;
+            } else if (expected.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) expected;
                 boolean foundMember = unionType.getMemberTypes()
                         .stream()
                         .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
@@ -3784,8 +3784,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return type;
     }
 
-    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticCode code,
-                                             DiagnosticPos pos) {
+    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType fieldType,
+                                             DiagnosticCode code, DiagnosticPos pos) {
+        BType listType = getResolvedIntersectionType(fieldType);
         boolean errored = false;
 
         if (listType.tag == TypeTags.ARRAY) {
@@ -3825,6 +3826,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return errored;
+    }
+
+    private BType getResolvedIntersectionType(BType type) {
+        return type.tag != TypeTags.INTERSECTION ? type : ((BIntersectionType) type).effectiveType;
     }
 
     @Override
