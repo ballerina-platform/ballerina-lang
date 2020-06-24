@@ -878,7 +878,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         if (source instanceof BLangRecordVarNameField) {
             BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
-            clonedVarNameField.isReadonly = ((BLangRecordVarNameField) source).isReadonly;
+            clonedVarNameField.readonly = ((BLangRecordVarNameField) source).readonly;
             clone = clonedVarNameField;
         } else {
             clone = new BLangSimpleVarRef();
@@ -1919,7 +1919,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangRecordKeyValueField clone = new BLangRecordKeyValueField();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.isReadonly = source.isReadonly;
+        clone.readonly = source.readonly;
         clone.addWS(source.getWS());
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));
