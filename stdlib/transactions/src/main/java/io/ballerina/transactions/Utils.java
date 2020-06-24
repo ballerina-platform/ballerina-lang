@@ -37,6 +37,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -159,8 +160,8 @@ public class Utils {
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 STRUCT_TYPE_TRANSACTION_INFO);
         Object[] trxContextData = new Object[]{
-                BValueCreator.createArrayValue(globalTransactionId.getBytes()), retryNmbr, System.currentTimeMillis(),
-                prevAttemptInfo
+                BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
+                System.currentTimeMillis(), prevAttemptInfo
         };
         MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext
