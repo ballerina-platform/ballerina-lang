@@ -221,3 +221,43 @@ function assertEquality(any|error expected, any|error actual) {
 
     panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+function testWithinTrxMode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
+
+    transaction {
+        ss = "trxStarted";
+        transactions:onCommit(onCommitFunc);
+        if (transactional) {
+            ss = ss + " -> strand in transactional mode";
+        }
+        var commitRes = commit;
+        if (!transactional) {
+            ss = ss + " -> strand in non-transactional mode";
+        }
+        ss += " -> trxEnded.";
+    }
+    return ss;
+}
+
+function testUnreachableCode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
+
+    transaction {
+        ss = "trxStarted";
+        transactions:onCommit(onCommitFunc);
+        var commitRes = commit;
+        if (transactional) {
+            //never reached
+            ss = ss + " -> strand in transactional mode";
+        }
+        ss += " -> trxEnded.";
+    }
+    return ss;
+}
