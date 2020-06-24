@@ -5161,7 +5161,10 @@ public class TypeChecker extends BLangNodeVisitor {
         BType fieldType = symTable.semanticError;
         boolean keyValueField = field.isKeyValueField();
         boolean spreadOpField = field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP;
+
         boolean readOnlyConstructorField = false;
+        String fieldName = null;
+        DiagnosticPos pos = null;
 
         BLangExpression valueExpr = null;
 
@@ -5178,6 +5181,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     BLangRecordKey key = keyValField.key;
                     fieldType = checkRecordLiteralKeyExpr(key.expr, key.computedKey, (BRecordType) mappingType);
                     readOnlyConstructorField = keyValField.readonly;
+                    pos = key.expr.pos;
+                    fieldName = getKeyValueFieldName(keyValField);
                 } else if (spreadOpField) {
                     BLangExpression spreadExpr = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
                     checkExpr(spreadExpr, this.env);
@@ -5214,6 +5219,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     BLangRecordVarNameField varNameField = (BLangRecordVarNameField) field;
                     fieldType = checkRecordLiteralKeyExpr(varNameField, false, (BRecordType) mappingType);
                     readOnlyConstructorField = varNameField.readonly;
+                    pos = varNameField.pos;
+                    fieldName = getVarNameFieldName(varNameField);
                 }
                 break;
             case TypeTags.MAP:
@@ -5256,10 +5263,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     BLangRecordKey key = keyValField.key;
                     validMapKey = checkValidJsonOrMapLiteralKeyExpr(key.expr, key.computedKey);
                     readOnlyConstructorField = keyValField.readonly;
+                    pos = key.pos;
+                    fieldName = getKeyValueFieldName(keyValField);
                 } else {
                     BLangRecordVarNameField varNameField = (BLangRecordVarNameField) field;
                     validMapKey = checkValidJsonOrMapLiteralKeyExpr(varNameField, false);
                     readOnlyConstructorField = varNameField.readonly;
+                    pos = varNameField.pos;
+                    fieldName = getVarNameFieldName(varNameField);
                 }
 
                 fieldType = validMapKey ? ((BMapType) mappingType).constraint : symTable.semanticError;
@@ -5274,7 +5285,7 @@ public class TypeChecker extends BLangNodeVisitor {
                                                                          (SelectivelyImmutableReferenceType) fieldType,
                                                                          env, symTable, anonymousModelHelper, names);
             } else if (!types.isInherentlyImmutableType(fieldType)) {
-                dlog.error(((BLangNode) field).pos, DiagnosticCode.INVALID_READONLY_MAPPING_FIELD, fieldType);
+                dlog.error(pos, DiagnosticCode.INVALID_READONLY_MAPPING_FIELD, fieldName, fieldType);
                 fieldType = symTable.semanticError;
             }
         }
