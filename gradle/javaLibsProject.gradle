@@ -131,7 +131,6 @@ dependencies {
     dist project(':ballerina-nats')
     dist project(':ballerina-rabbitmq')
     dist project(':ballerina-stringutils')
-    dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
