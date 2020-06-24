@@ -502,6 +502,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_MATCH_GUARD =
             { ParserRuleContext.IF_KEYWORD, ParserRuleContext.RIGHT_DOUBLE_ARROW };
 
+    private static final ParserRuleContext[] MATCH_PATTERN_START =
+            { ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.VAR_KEYWORD };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -594,6 +597,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
             case OPTIONAL_MATCH_GUARD:
             case MATCH_PATTERN_RHS:
+            case MATCH_PATTERN_START:
                 return true;
             default:
                 return false;
@@ -869,6 +873,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case KEY_KEYWORD:
                     hasMatch = BallerinaParser.isKeyKeyword(nextToken);
+                    break;
+                case VAR_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.VAR_KEYWORD;
                     break;
 
                 // start a context, so that we know where to fall back, and continue
@@ -1149,6 +1156,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
             case OPTIONAL_MATCH_GUARD:
             case MATCH_PATTERN_RHS:
+            case MATCH_PATTERN_START:
                 return true;
             default:
                 return false;
@@ -1472,6 +1480,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case MATCH_PATTERN_RHS:
                 alternativeRules = MATCH_PATTERN_RHS;
+                break;
+            case MATCH_PATTERN_START:
+                alternativeRules = MATCH_PATTERN_START;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2339,8 +2350,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACE;
             case MATCH_PATTERN:
                 return ParserRuleContext.MATCH_PATTERN_START;
-            case MATCH_PATTERN_START:
-                return ParserRuleContext.CONSTANT_EXPRESSION;
             case MATCH_PATTERN_END:
                 endContext();
                 return ParserRuleContext.OPTIONAL_MATCH_GUARD;
@@ -2552,6 +2561,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
             case DISTINCT_KEYWORD:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
+            case VAR_KEYWORD:
+                return ParserRuleContext.BINDING_PATTERN;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -3565,6 +3576,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_EXPR_LET_VAR_DECL:
             case ASSIGNMENT_STMT:
                 return ParserRuleContext.ASSIGN_OP;
+            case MATCH_PATTERN:
+                return ParserRuleContext.MATCH_PATTERN_RHS;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -3949,6 +3962,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
+            case MATCH_PATTERN_RHS:
+            case OPTIONAL_MATCH_GUARD:
+                return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }
@@ -4242,6 +4258,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.DO_KEYWORD;
             case DISTINCT_KEYWORD:
                 return SyntaxKind.DISTINCT_KEYWORD;
+            case VAR_KEYWORD:
+                return SyntaxKind.VAR_KEYWORD;
             default:
                 return SyntaxKind.NONE;
         }

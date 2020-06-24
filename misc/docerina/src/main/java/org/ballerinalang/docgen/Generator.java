@@ -321,12 +321,12 @@ public class Generator {
         // Get field documentation from field decl documentation (priority)
         BLangMarkdownDocumentation paramDocAttach = param.getMarkdownDocumentationAttachment();
         if (paramDocAttach != null) {
-            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation());
+            return BallerinaDocUtils.mdToHtml(paramDocAttach.getDocumentation(), false);
         } else {
             // Get field documentation from object/record def documentation
             BLangMarkdownParameterDocumentation parameter = parameterDocumentations.get(name);
             if (parameter != null) {
-                return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation());
+                return BallerinaDocUtils.mdToHtml(parameter.getParameterDocumentation(), false);
             } else {
                 return EMPTY_STRING;
             }
@@ -428,7 +428,7 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationAttachment =
                 ((DocumentableNode) node).getMarkdownDocumentationAttachment();
-        return BallerinaDocUtils.mdToHtml(documentationAttachment.getReturnParameterDocumentation());
+        return BallerinaDocUtils.mdToHtml(documentationAttachment.getReturnParameterDocumentation(), false);
     }
 
     /**
@@ -460,9 +460,10 @@ public class Generator {
             BLangMarkdownDocumentation documentationAttachment = ((DocumentableNode) node)
                     .getMarkdownDocumentationAttachment();
             if (((DocumentableNode) node).getMarkdownDocumentationAttachment().deprecationDocumentation != null) {
-                return replaceParagraphTag(BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation()));
+                return replaceParagraphTag(BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation(),
+                        false));
             } else {
-                return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation());
+                return BallerinaDocUtils.mdToHtml(documentationAttachment.getDocumentation(), false);
             }
         }
         return EMPTY_STRING;
@@ -481,7 +482,7 @@ public class Generator {
         }
         BLangMarkdownParameterDocumentation documentation = parameterDocumentations.get(subName);
         if (documentation != null) {
-            return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation());
+            return BallerinaDocUtils.mdToHtml(documentation.getParameterDocumentation(), false);
         }
         return EMPTY_STRING;
     }
