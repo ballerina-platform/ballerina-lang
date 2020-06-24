@@ -95,7 +95,7 @@ function testStreamConstruct() returns boolean {
 function testStreamConstructWithFilter() returns boolean {
     boolean testPassed = true;
     NumberGenerator numGen = new NumberGenerator();
-    var intStream = new stream<int,error>(numGen);
+    var intStream = new stream<int>(numGen);
 
     stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
         return intVal % 2 == 1;
