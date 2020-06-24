@@ -230,6 +230,8 @@ function testWithinTrxMode() returns string {
 
     transaction {
         ss = "trxStarted";
+        string invoRes = testFuncInvocation();
+        ss = ss + invoRes + " -> invoked function returned";
         transactions:onCommit(onCommitFunc);
         if (transactional) {
             ss = ss + " -> strand in transactional mode";
@@ -239,6 +241,14 @@ function testWithinTrxMode() returns string {
             ss = ss + " -> strand in non-transactional mode";
         }
         ss += " -> trxEnded.";
+    }
+    return ss;
+}
+
+function testFuncInvocation() returns string {
+    string ss = " -> within invoked function";
+    if (transactional) {
+        ss = ss + " -> strand in transactional mode";
     }
     return ss;
 }

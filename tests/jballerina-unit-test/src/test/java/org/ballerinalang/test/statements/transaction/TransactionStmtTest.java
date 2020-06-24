@@ -110,8 +110,9 @@ public class TransactionStmtTest {
     @Test
     public void testWithinTrxMode() {
         BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
-        Assert.assertEquals(result[0].stringValue(), "trxStarted -> strand in transactional mode -> " +
-                "trxCommited -> strand in non-transactional mode -> trxEnded.");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
+                + "-> strand in transactional mode -> invoked function returned -> strand in transactional mode "
+                + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
     }
 
     @Test
