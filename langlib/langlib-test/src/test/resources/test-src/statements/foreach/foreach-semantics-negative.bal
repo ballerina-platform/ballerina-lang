@@ -144,11 +144,11 @@ function test12() {
     Error[3] errorArray = [err1, err2, err3];
 
     string result1 = "";
-    foreach var error(reason, message = message, fatal = fatal) in errorArray {
-        reason = "updated reason";
-        fatal = false;
-        message = "msgNew";
-    }
+//    foreach var error(reason, message = message, fatal = fatal) in errorArray {
+//        reason = "updated reason";
+//        fatal = false;
+//        message = "msgNew";
+//    }
 }
 
 //function test13() {
