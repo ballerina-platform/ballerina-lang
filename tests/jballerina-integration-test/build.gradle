@@ -58,7 +58,6 @@ dependencies {
     implementation project(':protobuf-ballerina')
     implementation project(':ballerina-packerina')
     implementation project(':ballerina-transactions')
-    implementation project(':ballerina-websub')
     implementation project(':ballerina-crypto')
     implementation project(':ballerina-time')
     implementation project(':ballerina-filepath')
@@ -83,7 +82,6 @@ dependencies {
 
     baloTestImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-transactions', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-observability', configuration: 'baloImplementation')
