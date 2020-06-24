@@ -41,7 +41,7 @@ import static org.testng.Assert.assertNull;
  *
  * @since 1.0
  */
-@Test(enabled = false)
+@Test(enabled = true)
 public class LangLibValueTest {
 
     private CompileResult compileResult;
@@ -56,7 +56,7 @@ public class LangLibValueTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testToJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToJsonString");
@@ -84,12 +84,12 @@ public class LangLibValueTest {
         assertEquals(arr.size(), 10);
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testToJsonForNonJsonTypes() {
         BRunUtil.invokeFunction(compileResult, "testToJsonStringForNonJsonTypes");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -108,7 +108,7 @@ public class LangLibValueTest {
         assertEquals(arr.size(), 7);
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testToString() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToStringMethod");
         BValueArray array = (BValueArray) returns[0];
@@ -161,18 +161,18 @@ public class LangLibValueTest {
                             "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testToStringForTable() {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
-    @Test(dataProvider = "mergeJsonFunctions", enabled = false)
+    @Test(dataProvider = "mergeJsonFunctions", enabled = true)
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void xmlSequenceFragmentToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
@@ -194,7 +194,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions", enabled = false)
+    @Test(dataProvider = "cloneWithTypeFunctions", enabled = true)
     public void testCloneWithType(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
     }
@@ -219,7 +219,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "fromJsonWithTypeFunctions", enabled = false)
+    @Test(dataProvider = "fromJsonWithTypeFunctions", enabled = true)
     public void testFromJsonWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -227,19 +227,23 @@ public class LangLibValueTest {
     @DataProvider(name = "fromJsonWithTypeFunctions")
     public Object[][] fromJsonWithTypeFunctions() {
         return new Object[][] {
+                { "testFromJsonWIthTypeNegative" },
                 { "testFromJsonWithTypeRecord1" },
                 { "testFromJsonWithTypeRecord2" },
+                { "testFromJsonWithTypeRecord3" },
                 { "testFromJsonWithTypeAmbiguousTargetType" },
                 { "testFromJsonWithTypeXML" },
                 { "testFromJsonWithTypeRecordWithXMLField" },
                 { "testFromJsonWithTypeMap" },
                 { "testFromJsonWithTypeStringArray" },
                 { "testFromJsonWithTypeArrayNegative" },
-                { "testFromJsonWithTypeIntArray" }
+                { "testFromJsonWithTypeIntArray" },
+                { "testFromJsonWithTypeArrayNegative" },
+                { "testFromJsonWithTypeTable" }
         };
     }
 
-    @Test(dataProvider = "fromJsonStringWithTypeFunctions", enabled = false)
+    @Test(dataProvider = "fromJsonStringWithTypeFunctions", enabled = true)
     public void testFromJsonStringWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -257,7 +261,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "toJsonFunctions", enabled = false)
+    @Test(dataProvider = "toJsonFunctions", enabled = true)
     public void testToJson(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -270,6 +274,7 @@ public class LangLibValueTest {
                 { "testToJsonWithArray" },
                 { "testToJsonWithXML" },
                 { "testToJsonWithMap" },
+                { "testToJsonWithMapInt" },
                 { "testToJsonWithStringArray" },
                 { "testToJsonWithIntArray" },
                 { "testToJsonWithTable" }

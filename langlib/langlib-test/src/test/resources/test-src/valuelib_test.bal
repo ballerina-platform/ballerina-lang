@@ -571,6 +571,12 @@ type Student2 record {
     int age;
 };
 
+function testFromJsonWIthTypeNegative() {
+    string s = "foobar";
+    int|error zz = s.fromJsonWithType(int);
+    assert(zz is error, true);
+}
+
 function testFromJsonWithTypeRecord1() {
     string str = "{\"name\":\"Name\", \"age\":35}";
     json j = <json> str.fromJsonString();
@@ -585,6 +591,30 @@ type Student3 record {
     int age?;
 };
 
+type Foo2 record {|
+    int x2 = 1;
+    int y3 = 2;
+|};
+
+type Foo3 record {
+    string x3;
+    int y3;
+};
+
+type Foo4 record {
+    string x3;
+    int y3 = 1;
+};
+
+type Foo5 record {
+    string x3;
+    int y3?;
+};
+
+type Foo6 record {
+    string x3;
+};
+
 function testFromJsonWithTypeRecord2() {
     string str = "{\"name\":\"Name\", \"age\":35}";
     json j = <json> str.fromJsonString();
@@ -592,6 +622,22 @@ function testFromJsonWithTypeRecord2() {
 
     assert(p is Student3, true);
     assert(p.toString(), "name=Name age=35");
+}
+
+function testFromJsonWithTypeRecord3() {
+    json j = {x3: "Chat"};
+
+    Foo2|error f2 = j.fromJsonWithType(Foo2);
+    assert(f2 is error, true);
+
+    Foo3|error f3 = j.fromJsonWithType(Foo3);
+    assert(f2 is error, true);
+
+    Foo4|error f4 = j.fromJsonWithType(Foo4);
+    assert(f4 is Foo4, true);
+
+    Foo5|error f5 = j.fromJsonWithType(Foo5);
+    assert(f5 is Foo5, true);
 }
 
 type Student2Or3 Student2|Student3;
@@ -661,6 +707,46 @@ function testFromJsonWithTypeIntArray() {
     int[] intArr = <int[]> arr;
     assert(intArr[0], 1);
     assert(intArr[1], 2);
+}
+
+type TableString table<string>;
+
+type TableFoo2 table<Foo2>;
+type TableFoo3 table<Foo3>;
+type TableFoo4 table<Foo4>;
+type TableFoo5 table<Foo5>;
+type TableFoo6 table<Foo6>;
+
+function testFromJsonWithTypeTable() {
+
+    json j = [
+        "cake",
+        "buscuit"
+    ];
+
+    table<string>|error tabString = j.fromJsonWithType(TableString);
+    assert(tabString is error, true);
+
+    json jj = [
+        {x3: "abc"},
+        {x3: "abc"}
+    ];
+
+    table<Foo2>|error tabJ2 = jj.fromJsonWithType(TableFoo2);
+    assert(tabJ2 is error, true);
+
+    table<Foo3>|error tabJ3 = jj.fromJsonWithType(TableFoo3);
+    assert(tabJ3 is error, true);
+
+    table<Foo4>|error tabJ4 = jj.fromJsonWithType(TableFoo4);
+    assert(tabJ4 is table<Foo4>, true);
+
+    table<Foo5>|error tabJ5 = jj.fromJsonWithType(TableFoo5);
+    assert(tabJ5 is table<Foo5>, true);
+
+    table<Foo6>|error tabJ6 = jj.fromJsonWithType(TableFoo6);
+    assert(tabJ6 is table<Foo6>, true);
+
 }
 
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
@@ -781,6 +867,9 @@ function testToJsonWithXML() {
     json j = x1.toJson();
     xml|error x2 = j.fromJsonWithType(xml);
     assert(<xml> x2, x1);
+
+    map<anydata> m2 = {a: 1, b: x1};
+    json j3 = m2.toJson();
 }
 
 type MapOfString map<string>;
@@ -794,6 +883,12 @@ function testToJsonWithMap() {
     assert(j.toJsonString(),"{\"line1\":\"Line1\", \"line2\":\"Line2\"}");
     map<string>|error m2 = j.fromJsonWithType(MapOfString);
     assert(<map<string>> m2, m);
+}
+
+function testToJsonWithMapInt() {
+    map<int> m = {a: 1, b: 2};
+    map<json> mj = <map<json>> m.toJson();
+    mj["c"] = "non-int json";
 }
 
 function testToJsonWithStringArray() {
