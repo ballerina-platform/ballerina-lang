@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +45,9 @@ public class TransactionLocalContext {
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
-    private Object infoRecord;
     private Object rollbackOnlyError;
+    private Object transactionData;
+    private BArray transactionId;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
@@ -54,10 +57,11 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        this.infoRecord = infoRecord;
         this.transactionBlockIdStack = new Stack<>();
         this.transactionFailure = new Stack<>();
         this.rollbackOnlyError = null;
+        this.transactionId = BValueCreator.createArrayValue(globalTransactionId.getBytes());
+        transactionResourceManager.transactionInfoMap.put(transactionId, infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
@@ -148,6 +152,18 @@ public class TransactionLocalContext {
         return rollbackOnlyError;
     }
 
+    public void setTransactionData(Object data) {
+        transactionData = data;
+    }
+
+    public Object getTransactionData() {
+        return transactionData;
+    }
+
+    public void removeTransactionInfo() {
+        transactionResourceManager.transactionInfoMap.remove(transactionId);
+    }
+
     public void notifyLocalParticipantFailure() {
         String blockId = transactionBlockIdStack.peek();
         transactionResourceManager.notifyLocalParticipantFailure(globalTransactionId, blockId);
@@ -212,7 +228,7 @@ public class TransactionLocalContext {
     }
 
     public Object getInfoRecord() {
-        return infoRecord;
+        return transactionResourceManager.transactionInfoMap.get(transactionId);
     }
 
     /**

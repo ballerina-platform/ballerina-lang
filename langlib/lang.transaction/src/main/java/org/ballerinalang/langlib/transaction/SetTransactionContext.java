@@ -61,7 +61,7 @@ public class SetTransactionContext {
         long retryNmbr = getRetryNumber(prevAttemptInfo);
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 "Info");
-        Object[] trxContextData = new Object[] {
+        Object[] trxContextData = new Object[]{
                 BValueCreator.createArrayValue(globalTransactionId.getBytes()), retryNmbr, System.currentTimeMillis(),
                 prevAttemptInfo
         };
