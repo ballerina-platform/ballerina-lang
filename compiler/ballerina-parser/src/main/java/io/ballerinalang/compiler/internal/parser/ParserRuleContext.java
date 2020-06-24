@@ -219,7 +219,10 @@ public enum ParserRuleContext {
     MATCH_PATTERN_RHS("match-pattern-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
     JOIN_CLAUSE("join-clause"),
-    MATCH_PATTERN_MEMBER_RHS("match-pattern-member-rhs"),
+    LIST_MATCH_PATTERN("list-match-pattern"),
+    LIST_MATCH_PATTERN_MEMBER("list-match-pattern-member"),
+    LIST_MATCH_PATTERN_MEMBER_RHS("list-match-pattern-member-rhs"),
+    REST_MATCH_PATTERN("rest-match-pattern"),
 
     // Statements
     STATEMENT("statement"),
