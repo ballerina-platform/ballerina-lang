@@ -16,32 +16,41 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
- * Ballerina variable implementation for unknown types.
+ * Ballerina xml variable type.
  */
-public class BUnknown extends BSimpleVariable {
+public class BXmlComment extends BSimpleVariable {
 
-    public BUnknown(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.UNKNOWN, value, dapVariable);
+    public BXmlComment(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.XML, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        if (!(jvmValue instanceof ObjectReference)) {
+        try {
+            Optional<Method> method = VariableUtils.getMethod(jvmValue, "stringValue");
+            if (method.isPresent()) {
+                Value decimalValue = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread(),
+                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                return VariableUtils.getStringFrom(decimalValue);
+            }
+            return UNKNOWN_VALUE;
+        } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }
-        ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-        return Optional.of(jvmValueRef).map(ObjectReference::toString).orElse(UNKNOWN_VALUE);
     }
 }

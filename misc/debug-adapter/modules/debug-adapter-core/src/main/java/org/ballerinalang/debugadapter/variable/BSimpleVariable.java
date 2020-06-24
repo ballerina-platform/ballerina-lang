@@ -20,15 +20,15 @@ import com.sun.jdi.Value;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
- * Base implementation for ballerina primitive variable types.
+ * Base implementation for ballerina variable types with no child variables.
  */
-public abstract class BPrimitiveVariable implements BVariable {
+public abstract class BSimpleVariable implements BVariable {
 
     private final VariableContext context;
     protected final Value jvmValue;
     private final Variable dapVariable;
 
-    public BPrimitiveVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+    public BSimpleVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
         this.context = context;
         this.jvmValue = jvmValue;
         dapVar.setType(bVariableType.getString());

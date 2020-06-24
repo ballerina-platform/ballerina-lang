@@ -22,7 +22,7 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.Map;
 
 /**
- * Base implementation for ballerina compound variable types.
+ * Base implementation for ballerina variable types with child variables.
  */
 public abstract class BCompoundVariable implements BVariable {
 

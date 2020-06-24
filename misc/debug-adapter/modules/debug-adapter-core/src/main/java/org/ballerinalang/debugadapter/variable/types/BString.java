@@ -18,7 +18,7 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
@@ -32,7 +32,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 /**
  * Ballerina string variable type.
  */
-public class BString extends BPrimitiveVariable {
+public class BString extends BSimpleVariable {
 
     public BString(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.STRING, value, dapVariable);

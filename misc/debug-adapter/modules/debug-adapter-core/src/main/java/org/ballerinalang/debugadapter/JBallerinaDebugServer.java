@@ -33,7 +33,7 @@ import org.ballerinalang.debugadapter.launchrequest.LaunchFactory;
 import org.ballerinalang.debugadapter.terminator.OSUtils;
 import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.toml.model.Manifest;
@@ -361,7 +361,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 BVariable variable = getVariable(context, value, varTypeStr, name);
                 if (variable == null) {
                     return null;
-                } else if (variable instanceof BPrimitiveVariable) {
+                } else if (variable instanceof BSimpleVariable) {
                     variable.getDapVariable().setVariablesReference(0L);
                 } else if (variable instanceof BCompoundVariable) {
                     long variableReference = nextVarReference.getAndIncrement();
@@ -392,7 +392,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             BVariable variable = getVariable(context, varValueEntry.getValue(), varType, name);
                             if (variable == null) {
                                 return null;
-                            } else if (variable instanceof BPrimitiveVariable) {
+                            } else if (variable instanceof BSimpleVariable) {
                                 variable.getDapVariable().setVariablesReference(0L);
                             } else if (variable instanceof BCompoundVariable) {
                                 long variableReference = nextVarReference.getAndIncrement();
@@ -504,7 +504,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 BVariable variable = getVariable(context, value, valueTypeName, "Evaluation Result");
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
-                } else if (variable instanceof BPrimitiveVariable) {
+                } else if (variable instanceof BSimpleVariable) {
                     variable.getDapVariable().setVariablesReference(0L);
                 } else if (variable instanceof BCompoundVariable) {
                     long variableReference = nextVarReference.getAndIncrement();

@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
@@ -32,7 +32,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 /**
  * Ballerina boolean variable type.
  */
-public class BBoolean extends BPrimitiveVariable {
+public class BBoolean extends BSimpleVariable {
 
     public BBoolean(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.BOOLEAN, value, dapVariable);

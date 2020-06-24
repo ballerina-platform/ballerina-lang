@@ -20,7 +20,7 @@ import com.sun.jdi.IntegerValue;
 import com.sun.jdi.LongValue;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
@@ -33,7 +33,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALU
 /**
  * Ballerina integer type.
  */
-public class BInt extends BPrimitiveVariable {
+public class BInt extends BSimpleVariable {
 
     public BInt(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.INT, value, dapVariable);

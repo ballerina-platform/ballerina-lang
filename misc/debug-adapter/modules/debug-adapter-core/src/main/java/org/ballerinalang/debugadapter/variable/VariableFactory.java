@@ -34,7 +34,11 @@ import org.ballerinalang.debugadapter.variable.types.BString;
 import org.ballerinalang.debugadapter.variable.types.BTuple;
 import org.ballerinalang.debugadapter.variable.types.BTypeDesc;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
+import org.ballerinalang.debugadapter.variable.types.BXmlComment;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
+import org.ballerinalang.debugadapter.variable.types.BXmlPi;
+import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
+import org.ballerinalang.debugadapter.variable.types.BXmlText;
 import org.eclipse.lsp4j.debug.Variable;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
@@ -134,7 +138,15 @@ public class VariableFactory {
             return new BError(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
             return new BTypeDesc(context, value, dapVariable);
-        } else if (valueTypeName.contains(JVMValueType.XML_ITEM.getString())) {
+        } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
+            return new BXmlText(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {
+            return new BXmlComment(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_PI.getString())) {
+            return new BXmlPi(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_SEQUENCE.getString())) {
+            return new BXmlSequence(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_ITEM.getString())) {
             return new BXmlItem(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON

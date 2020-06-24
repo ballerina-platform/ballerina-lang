@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
@@ -27,8 +28,10 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
@@ -36,9 +39,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValu
 /**
  * Ballerina xml variable type.
  */
-public class BXmlItem extends BCompoundVariable {
+public class BXmlSequence extends BCompoundVariable {
 
-    public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
+    public BXmlSequence(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.XML, value, dapVariable);
     }
 
@@ -64,11 +67,20 @@ public class BXmlItem extends BCompoundVariable {
             if (!children.isPresent()) {
                 return new HashMap<>();
             }
+            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), "elementData");
+            if (!childArray.isPresent()) {
+                return new HashMap<>();
+            }
+            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
             Map<String, Value> childMap = new HashMap<>();
-            childMap.put("children", children.get());
+            AtomicInteger index = new AtomicInteger();
+            childrenValues.forEach(ref -> {
+                if (ref != null) {
+                    childMap.put(Integer.toString(index.getAndIncrement()), ref);
+                }
+            });
             return childMap;
-        } catch (
-                Exception e) {
+        } catch (Exception e) {
             return new HashMap<>();
         }
     }

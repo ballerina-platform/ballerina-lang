@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
@@ -30,7 +30,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFro
 /**
  * Ballerina typedesc variable type.
  */
-public class BTypeDesc extends BPrimitiveVariable {
+public class BTypeDesc extends BSimpleVariable {
 
     public BTypeDesc(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.TYPE_DESC, value, dapVariable);
