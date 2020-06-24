@@ -45,8 +45,7 @@ public class FunctionPointersWithOptionalArgsTest {
     public void testFunctionPointersWithNamedArgs() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-named-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int[]', found 'int'", 2, 19);
-        BAssertUtil.validateError(result, 1, "invalid token 'c'", 6, 29);
+        BAssertUtil.validateError(result, 0, "invalid token 'c'", 6, 29);
     }
 
     @Test

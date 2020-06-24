@@ -4021,7 +4021,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else if (simpleNameRef.name().isMissing()) {
                 String name = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
                 BLangIdentifier identifier = createIdentifier(getPosition(simpleNameRef.name()), name);
-                BLangIdentifier pkgAlias = createIdentifier(null, "");
+                BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
                 return createUserDefinedType(getPosition(type), pkgAlias, identifier);
             }
             typeText = simpleNameRef.name().text();

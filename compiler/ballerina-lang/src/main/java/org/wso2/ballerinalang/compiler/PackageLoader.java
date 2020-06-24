@@ -378,6 +378,9 @@ public class PackageLoader {
         }
 
         BLangPackage packageNode = parse(pkgId, (PackageSource) pkgEntity);
+        if (!newParserEnabled && packageNode.diagCollector.hasErrors()) {
+            return packageNode;
+        }
 
         define(packageNode);
         return packageNode;
