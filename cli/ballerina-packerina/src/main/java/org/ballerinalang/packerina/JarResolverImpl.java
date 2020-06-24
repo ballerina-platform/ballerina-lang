@@ -73,24 +73,28 @@ public class JarResolverImpl implements JarResolver {
     private final String balHomePath;
     private final Manifest manifest;
     private boolean skipCopyLibsFromDist;
+    private boolean isChoreoExtensionSkipped;
 
-    public static JarResolver getInstance(BuildContext buildContext, boolean skipCopyLibsFromDist) {
+    public static JarResolver getInstance(BuildContext buildContext, boolean skipCopyLibsFromDist, boolean
+            observabilityIncluded) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         JarResolver jarResolver = context.get(JAR_RESOLVER_KEY);
         if (jarResolver == null) {
-            jarResolver = new JarResolverImpl(buildContext, skipCopyLibsFromDist);
+            jarResolver = new JarResolverImpl(buildContext, skipCopyLibsFromDist, observabilityIncluded);
         }
         context.put(JAR_RESOLVER_KEY, jarResolver);
         return jarResolver;
     }
 
-    private JarResolverImpl(BuildContext buildContext, boolean skipCopyLibsFromDist) {
+    private JarResolverImpl(BuildContext buildContext, boolean skipCopyLibsFromDist, boolean observabilityIncluded) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         this.buildContext = buildContext;
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
         this.sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.isChoreoExtensionSkipped = !(observabilityIncluded ||
+                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
         this.balHomePath = buildContext.get(BuildContextField.HOME_REPO).toString();
         supportedPlatforms.add(ProgramFileConstants.ANY_PLATFORM);
     }
@@ -124,6 +128,10 @@ public class JarResolverImpl implements JarResolver {
         List<Path> modulePlatformLibs = new ArrayList<>();
         // copy platform libs for all modules(imported modules as well)
         addPlatformLibs(packageID, modulePlatformLibs);
+        // copy choreo extension if --observability-included flag is added
+        if (!isChoreoExtensionSkipped) {
+            modulePlatformLibs.add(getChoreoRuntimeJar());
+        }
 
         if (isProjectModule(packageID)) {
             return modulePlatformLibs;
@@ -363,5 +371,11 @@ public class JarResolverImpl implements JarResolver {
             return null;
         }
         return Paths.get(balHomePath, "bre", "lib", moduleJarName);
+    }
+
+    private Path getChoreoRuntimeJar() {
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
     }
 }
