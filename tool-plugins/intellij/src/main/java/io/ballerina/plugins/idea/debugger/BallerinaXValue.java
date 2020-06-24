@@ -134,9 +134,29 @@ public class BallerinaXValue extends XNamedValue {
         } else if (type.equalsIgnoreCase(BallerinaValueType.XML.getValue())) {
             String finalValue = value;
             return new XValuePresentation() {
+                @Nullable
+                @Override
+                public String getType() {
+                    return type;
+                }
+
                 @Override
                 public void renderValue(@NotNull XValueTextRenderer renderer) {
                     renderer.renderValue(finalValue, BallerinaSyntaxHighlightingColors.STRING);
+                }
+            };
+        } else if (type.equalsIgnoreCase(BallerinaValueType.ERROR.getValue())) {
+            String finalValue = value;
+            return new XValuePresentation() {
+                @Nullable
+                @Override
+                public String getType() {
+                    return type;
+                }
+
+                @Override
+                public void renderValue(@NotNull XValueTextRenderer renderer) {
+                    renderer.renderError(finalValue);
                 }
             };
         } else {

@@ -67,6 +67,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * (required keys) and value for each field
  * <li> object - a combination of named fields and named methods
  * <li> json - the union of (), int, float, decimal, string, and maps and arrays whose values are, recursively, json
+ * <li> XML - a sequence of zero or more elements, processing instructions, comments or text items
  * <li> error - an indication that there has been an error, with a string identifying the reason for the error, and a
  * mapping giving additional details about the error
  * <li> typedesc - a type descriptor
@@ -79,7 +80,6 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <br>
  * To be implemented
  * <ul>
- * <li> XML - a sequence of zero or more elements, processing instructions, comments or text items
  * <li> table - a two-dimensional collection of immutable values
  * <li> function - a function with 0 or more specified parameter types and a single return type
  * <li> future - a value to be returned by a function execution

@@ -32,9 +32,13 @@ public abstract class BCompoundVariable implements BVariable {
     private final Map<String, Value> childVariables;
 
     public BCompoundVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+        this(context, bVariableType.getString(), jvmValue, dapVar);
+    }
+
+    public BCompoundVariable(VariableContext context, String bVariableType, Value jvmValue, Variable dapVar) {
         this.context = context;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType.getString());
+        dapVar.setType(bVariableType);
         dapVar.setValue(computeValue());
         this.dapVariable = dapVar;
         this.childVariables = computeChildVariables();

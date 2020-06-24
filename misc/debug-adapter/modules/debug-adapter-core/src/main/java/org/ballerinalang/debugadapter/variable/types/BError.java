@@ -18,7 +18,6 @@ package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
@@ -28,7 +27,9 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
  * Ballerina error variable type.
@@ -40,12 +41,17 @@ public class BError extends BCompoundVariable {
     private static final String FIELD_DETAILS = "details";
 
     public BError(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.ERROR, value, dapVariable);
+        super(context, getBType(value), value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        try {
+            Optional<Value> message = VariableUtils.getFieldValue(jvmValue, FIELD_MESSAGE);
+            return message.isPresent() ? getStringFrom(message.get()) : UNKNOWN_VALUE;
+        } catch (Exception ignored) {
+            return UNKNOWN_VALUE;
+        }
     }
 
     @Override
