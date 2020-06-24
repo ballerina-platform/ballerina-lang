@@ -577,6 +577,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchKeyword();
             case RECORD_KEYWORD:
                 return parseRecordKeyword();
+            case MATCH_PATTERN_MEMBER_RHS:
+                return parseMatchPatternMemberRhs();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -12422,6 +12424,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseSimpleConstExpr();
             case VAR_KEYWORD:
                 return parseVarTypedBindingPattern();
+            case OPEN_BRACKET_TOKEN:
+                return parseListMatchPattern();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
@@ -12489,6 +12493,96 @@ public class BallerinaParser extends AbstractParser {
         } else {
             Solution sol = recover(nextToken, ParserRuleContext.VAR_KEYWORD);
             return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse list match pattern.
+     * <p>
+     *     <code>
+     *         list-match-pattern := [ list-member-match-patterns ]
+     *         list-member-match-patterns :=
+     *          match-pattern (, match-pattern)* [, rest-match-pattern]
+     *          | [ rest-match-pattern ]
+     *     </code>
+     * </p>
+     *
+     * @return Parsed list match pattern node
+     */
+    private STNode parseListMatchPattern() {
+        STNode openBracketToken = parseOpenBracket();
+        List<STNode> matchPatternList= new ArrayList<>();
+        STNode restMatchPattern = null;
+        STNode matchPatternMemberRhs;
+
+        do {
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                restMatchPattern = parseRestMatchPattern();
+                break;
+            }
+            STNode matchPatternListMember = parseMatchPattern();
+            matchPatternList.add(matchPatternListMember);
+            matchPatternMemberRhs = parseMatchPatternMemberRhs();
+
+            if (matchPatternMemberRhs != null) {
+                matchPatternList.add(matchPatternMemberRhs);
+            }
+        } while (matchPatternMemberRhs != null);
+
+        if (restMatchPattern == null) {
+            restMatchPattern = STNodeFactory.createEmptyNode();
+        }
+
+        STNode matchPatternListNode =  STNodeFactory.createNodeList(matchPatternList);
+        STNode closeBracketToken = parseCloseBracket();
+
+        return STNodeFactory.createListMatchPatternNode(openBracketToken, matchPatternListNode, restMatchPattern,
+                closeBracketToken);
+    }
+
+    /** Parse rest match pattern.
+     *<p>
+     *     <code>
+     *         rest-match-pattern := ... var variable-name
+     *     </code>
+     *</p>
+     *
+     * @return Parsed rest match pattern node
+     */
+    private STNode parseRestMatchPattern() {
+        //We approach here only after seeing ellipsis token hence consume.
+        STNode ellipsisToken = consume();
+        STNode varKeywordToken = parseVarKeyword();
+        STNode variableName = parseVariableName();
+
+        STSimpleNameReferenceNode simpleNameReferenceNode =
+                (STSimpleNameReferenceNode) STNodeFactory.createSimpleNameReferenceNode(variableName);
+        return STNodeFactory.createRestMatchPatternNode(ellipsisToken, varKeywordToken, simpleNameReferenceNode);
+    }
+
+    private STNode parseMatchPatternMemberRhs() {
+        return parseMatchPatternMemberRhs(peek().kind);
+    }
+
+    private STNode parseMatchPatternMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+            case EOF_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMatchPatternMemberRhs(solution.tokenKind);
         }
     }
 
