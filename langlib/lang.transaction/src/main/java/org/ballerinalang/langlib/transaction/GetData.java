@@ -19,34 +19,28 @@
 package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
- * Extern function transaction:cleanupTransactionContext.
+ * Extern function transaction:getData.
  *
  * @since 2.0.0-preview1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "cleanupTransactionContext",
-        args = {
-                @Argument(name = "transactionBlockId", type = TypeKind.STRING)
-        },
-        returnType = {@ReturnType(type = TypeKind.NIL)},
+        functionName = "getData",
+        args = {},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
-public class CleanUpTransactionContext {
+public class GetData {
 
-    public static void cleanupTransactionContext(Strand strand, BString transactionBlockId) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        transactionLocalContext.removeTransactionInfo();
-        strand.removeLocalTransactionContext();
+    public static Object getData(Strand strand) {
+
+        return strand.transactionLocalContext.getTransactionData();
     }
 }

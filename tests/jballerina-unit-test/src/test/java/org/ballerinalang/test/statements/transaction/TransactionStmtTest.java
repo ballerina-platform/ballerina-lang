@@ -102,6 +102,11 @@ public class TransactionStmtTest {
         Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
     }
 
+    @Test
+    public void testTransactionLangLibFunction() {
+        BRunUtil.invoke(programFile, "testTransactionLangLib");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 26);
