@@ -2355,12 +2355,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TypeKind.XML;
+        refType.pos = getPosition(xmlTypeDescriptorNode);
 
         Optional<TypeParameterNode> node = xmlTypeDescriptorNode.xmlTypeParamsNode();
         if (node.isPresent()) {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;
             constrainedType.constraint = createTypeNode(node.get().typeNode());
+            constrainedType.pos = getPosition(xmlTypeDescriptorNode);
             return constrainedType;
         }
 

@@ -80,7 +80,7 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index, "continue cannot be used outside of a loop", 15, 5);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testForeachVarTypeNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-var-type-negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 6);
