@@ -379,10 +379,9 @@ function testCloneWithTypeJsonRec1() {
     assert(j.toJsonString(), "{\"name\":\"N\", \"age\":3}");
 }
 
-type typeDesc typedesc<Person2>;
 function testCloneWithTypeJsonRec2() {
    json pj = { name : "tom", age: 2};
-   Person2|error pe = pj.cloneWithType(typeDesc);
+   Person2|error pe = pj.cloneWithType(Person2);
    assert(pe is Person2, true);
 
    Person2 p = <Person2> pe;
@@ -595,10 +594,12 @@ function testFromJsonWithTypeRecord2() {
     assert(p.toString(), "name=Name age=35");
 }
 
+type Student2Or3 Student2|Student3;
+
 function testFromJsonWithTypeAmbiguousTargetType() {
     string str = "{\"name\":\"Name\", \"age\":35}";
     json j = <json> str.fromJsonString();
-    Student3|error p = j.fromJsonWithType(typedesc<Student2|Student3>);
+    Student3|error p = j.fromJsonWithType(Student2Or3);
     assert(p is error, true);
 }
 
@@ -623,20 +624,24 @@ function testFromJsonWithTypeRecordWithXMLField() {
     assert(ss is Student4, true);
 }
 
+type MapOfAnyData map<anydata>;
+
 function testFromJsonWithTypeMap() {
     json movie = {
         title: "Some",
         year: 2010
     };
-    map<anydata>|error movieMap = movie.fromJsonWithType(map<anydata>);
+    map<anydata>|error movieMap = movie.fromJsonWithType(MapOfAnyData);
     map<anydata> movieMap2 = <map<anydata>> movieMap;
     assert(movieMap2["title"], "Some");
     assert(movieMap2["year"], 2010);
 }
 
+type StringArray string[];
+
 function testFromJsonWithTypeStringArray() {
     json j = ["Hello", "World"];
-    string[]|error a = j.fromJsonWithType(string[]);
+    string[]|error a = j.fromJsonWithType(StringArray);
     string[] a2 = <string[]> a;
     assert(a2.length(), 2);
     assert(a2[0], "Hello");
@@ -644,13 +649,15 @@ function testFromJsonWithTypeStringArray() {
 
 function testFromJsonWithTypeArrayNegative() {
     json j = [1, 2];
-    string[]|error s = j.fromJsonWithType(string[]);
+    string[]|error s = j.fromJsonWithType(StringArray);
     assert(s is error, true);
 }
 
+type IntArray int[];
+
 function testFromJsonWithTypeIntArray() {
     json j = [1, 2];
-    int[]|error arr = j.fromJsonWithType(int[]);
+    int[]|error arr = j.fromJsonWithType(IntArray);
     int[] intArr = <int[]> arr;
     assert(intArr[0], 1);
     assert(intArr[1], 2);
@@ -702,13 +709,13 @@ function testFromJsonStringWithTypeRecord() {
 
 function testFromJsonStringWithAmbiguousType() {
     string str = "{\"name\":\"Name\", \"age\":35}";
-    Student3|error p = str.fromJsonStringWithType(typedesc<Student2|Student3>);
+    Student3|error p = str.fromJsonStringWithType(Student2Or3);
     assert(p is error, true);
 }
 
 function testFromJsonStringWithTypeMap() {
     string s = "{\"title\":\"Some\", \"year\":2010}";
-    map<anydata>|error movieMap = s.fromJsonStringWithType(map<anydata>);
+    map<anydata>|error movieMap = s.fromJsonStringWithType(MapOfAnyData);
     map<anydata> movieMap2 = <map<anydata>> movieMap;
     assert(movieMap2["title"], "Some");
     assert(movieMap2["year"], 2010);
@@ -716,7 +723,7 @@ function testFromJsonStringWithTypeMap() {
 
 function testFromJsonStringWithTypeStringArray() {
     string s = "[\"Hello\", \"World\"]";
-    string[]|error a = s.fromJsonStringWithType(string[]);
+    string[]|error a = s.fromJsonStringWithType(StringArray);
     string[] a2 = <string[]> a;
     assert(a2.length(), 2);
     assert(a2[0], "Hello");
@@ -724,13 +731,13 @@ function testFromJsonStringWithTypeStringArray() {
 
 function testFromJsonStringWithTypeArrayNegative() {
     string s = "[1, 2]";
-    string[]|error a = s.fromJsonStringWithType(string[]);
+    string[]|error a = s.fromJsonStringWithType(StringArray);
     assert(a is error, true);
 }
 
 function testFromJsonStringWithTypeIntArray() {
     string s = "[1, 2]";
-    int[]|error arr = s.fromJsonStringWithType(int[]);
+    int[]|error arr = s.fromJsonStringWithType(IntArray);
     int[] intArr = <int[]> arr;
     assert(intArr[0], 1);
     assert(intArr[1], 2);
@@ -776,6 +783,8 @@ function testToJsonWithXML() {
     assert(<xml> x2, x1);
 }
 
+type MapOfString map<string>;
+
 function testToJsonWithMap() {
     map<string> m = {
         line1: "Line1",
@@ -783,7 +792,7 @@ function testToJsonWithMap() {
     };
     json j = m.toJson();
     assert(j.toJsonString(),"{\"line1\":\"Line1\", \"line2\":\"Line2\"}");
-    map<string>|error m2 = j.fromJsonWithType(map<string>);
+    map<string>|error m2 = j.fromJsonWithType(MapOfString);
     assert(<map<string>> m2, m);
 }
 
