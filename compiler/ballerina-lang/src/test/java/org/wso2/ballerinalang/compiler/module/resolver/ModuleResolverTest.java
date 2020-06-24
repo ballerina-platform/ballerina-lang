@@ -84,7 +84,7 @@ public class ModuleResolverTest extends PowerMockTestCase {
         SourceDirectory sourceDirectory = mock(SourceDirectory.class);
 
         // create module loader
-        moduleLoader = new ModuleResolverImpl(project, repoHierarchy, true, sourceDirectory);
+        moduleLoader = new ModuleResolverImpl(project, repoHierarchy, true, true, sourceDirectory);
     }
 
     @Test(description = "Get module version from ModuleId if module version exists in ModuleId")
@@ -251,7 +251,8 @@ public class ModuleResolverTest extends PowerMockTestCase {
 
         // Set `resolvedModules` map
         ProjectModules projectModules = mock(ProjectModules.class);
-        PackageEntity pkgEntity = new ProjectModuleEntity(moduleId, Paths.get("test/path/src" + moduleId.getName()));
+        PackageEntity pkgEntity = new ProjectModuleEntity(moduleId, Paths.get("test/path/src" + moduleId.getName()),
+                true);
         when(projectModules.getModule(moduleId)).thenReturn(pkgEntity);
         moduleLoader.resolvedModules.put(moduleId, projectModules);
 

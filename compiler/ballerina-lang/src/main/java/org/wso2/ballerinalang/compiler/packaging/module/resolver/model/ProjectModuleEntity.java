@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_SOURCE_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.RESOURCE_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.TEST_DIR_NAME;
 
 /**
  * Concrete package entry for project module.
@@ -20,10 +22,12 @@ public class ProjectModuleEntity implements PackageSource {
     private final PackageID moduleId;
     private final List<CompilerInput> sourceFiles;
     private final Path sourcePath;
+    private final boolean testsEnabled;
 
-    public ProjectModuleEntity(PackageID moduleId, Path sourcePath) {
+    public ProjectModuleEntity(PackageID moduleId, Path sourcePath, boolean testsEnabled) {
         this.moduleId = moduleId;
         this.sourcePath = sourcePath;
+        this.testsEnabled = testsEnabled;
         this.sourceFiles = getSourceFiles();
     }
 
@@ -38,10 +42,13 @@ public class ProjectModuleEntity implements PackageSource {
 
     private void traverseDirectory(File[] files, List<CompilerInput> compilerInputs) {
         for (File file : files) {
-            if (file.isDirectory()) {
-                File[] listOfFiles = file.listFiles();
-                if (listOfFiles != null && listOfFiles.length > 0) {
-                    traverseDirectory(listOfFiles, compilerInputs);
+            // exclude bal files inside `resources` directory
+            if (file.isDirectory() && !file.getName().equals(RESOURCE_DIR_NAME)) {
+                if (!(!this.testsEnabled && file.getName().equals(TEST_DIR_NAME))) {
+                    File[] listOfFiles = file.listFiles();
+                    if (listOfFiles != null && listOfFiles.length > 0) {
+                        traverseDirectory(listOfFiles, compilerInputs);
+                    }
                 }
             } else if (file.getPath().endsWith(BLANG_SOURCE_EXT)) {
                 try {

@@ -52,6 +52,7 @@ public class ModuleResolverImpl implements ModuleResolver {
     private Project project;
     private RepoHierarchy repoHierarchy;
     private boolean isLockEnabled;
+    private boolean testsEnabled;
     private SourceDirectory sourceDirectory;
 
     // store moduleId and Repo which module exists
@@ -59,11 +60,12 @@ public class ModuleResolverImpl implements ModuleResolver {
 
     private static final String DEFAULT_VERSION = "0.0.0";
 
-    public ModuleResolverImpl(Project project, RepoHierarchy repoHierarchy, boolean isLockEnabled,
+    public ModuleResolverImpl(Project project, RepoHierarchy repoHierarchy, boolean isLockEnabled, boolean testsEnabled,
             SourceDirectory sourceDirectory) {
         this.project = project;
         this.repoHierarchy = repoHierarchy;
         this.isLockEnabled = isLockEnabled;
+        this.testsEnabled = testsEnabled;
         this.sourceDirectory = sourceDirectory;
     }
 
@@ -111,6 +113,19 @@ public class ModuleResolverImpl implements ModuleResolver {
         // if it is an immediate import check the Ballerina.toml
         // Set version from the Ballerina.toml of the current project
         if (enclPackageID != null && this.project.getManifest() != null && this.project.isModuleExists(enclPackageID)) {
+            // If path balo dependency
+            String pathBaloPath = resolvePathBaloFromManifest(packageID, this.project.getManifest());
+            if (pathBaloPath != null) {
+                // get version from balo path. This is always an absolute version
+                String versionFromBaloPath = getVersionFromPathBalo(pathBaloPath);
+                packageID.version = new Name(versionFromBaloPath);
+                // add path balo to `resolvedModules` map
+                PathBalo pathBalo = new PathBalo(Paths.get(pathBaloPath));
+                resolvedModules.put(packageID, pathBalo);
+                // return path balo version
+                return packageID;
+            }
+
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(packageID, this.project.getManifest());
             PackageID resolvedModuleId = getPackageIDFromRepos(packageID, versionFromManifest);
@@ -171,7 +186,8 @@ public class ModuleResolverImpl implements ModuleResolver {
         } else {
             // load module
             return new ProjectModuleEntity(moduleId,
-                    srcPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleId.getName().getValue()));
+                    srcPath.resolve(ProjectDirConstants.SOURCE_DIR_NAME).resolve(moduleId.getName().getValue()),
+                    this.testsEnabled);
         }
     }
 
@@ -214,6 +230,17 @@ public class ModuleResolverImpl implements ModuleResolver {
                         && moduleId.getName().getValue().equals(nestedImport.getName())) {
                     return nestedImport.getVersion();
                 }
+            }
+        }
+        return null;
+    }
+
+    private String resolvePathBaloFromManifest(PackageID moduleId, Manifest manifest) {
+        for (Dependency dependency : manifest.getDependencies()) {
+            if (dependency.getModuleName().equals(moduleId.getName().getValue())
+            && dependency.getOrgName().equals(moduleId.getOrgName().getValue())
+            && dependency.getMetadata().getPath() != null) {
+                return String.valueOf(dependency.getMetadata().getPath());
             }
         }
         return null;
@@ -263,10 +290,10 @@ public class ModuleResolverImpl implements ModuleResolver {
                     resolvedModules.put(moduleId, this.repoHierarchy.getHomeBaloCache());
                 }
             } else { // if not Central, repo is a cache
-                if (!moduleVersions.lastEntry().getKey().equals(DEFAULT_VERSION)) {
+//                if (!moduleVersions.lastEntry().getKey().equals(DEFAULT_VERSION)) {
                     moduleId.version = new Name(moduleVersions.lastEntry().getKey());
                     resolvedModules.put(moduleId, (Cache) moduleVersions.lastEntry().getValue());
-                }
+//                }
             }
         }
         return moduleId;
@@ -275,5 +302,14 @@ public class ModuleResolverImpl implements ModuleResolver {
     private boolean isVersionExists(PackageID packageID) {
         return packageID.version != null && !"".equals(packageID.version.getValue());
 //       && packageID.version != Names.DEFAULT_VERSION && !packageID.version.getValue().equals(DEFAULT_VERSION);
+    }
+
+    private String getVersionFromPathBalo(String baloPath) {
+        String version = baloPath.substring(baloPath.lastIndexOf('.') - 5, baloPath.lastIndexOf('.'));
+        if (!isAbsoluteVersion(version)) {
+            throw new ModuleResolveException(
+                    "retrieving version from balo path failed, balo path: " + baloPath + ", version: " + version);
+        }
+        return version;
     }
 }

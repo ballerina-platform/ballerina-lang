@@ -24,10 +24,10 @@ import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 
 import java.io.InputStream;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Represents Ballerina project in module resolver.
@@ -37,11 +37,13 @@ public class Project {
     private org.ballerinalang.toml.model.Project project;
     private Manifest manifest;
     public LockFile lockFile;
+    public SourceDirectory sourceDirectory;
 
-    public Project(Manifest manifest, LockFile lockFile) {
+    public Project(Manifest manifest, LockFile lockFile, SourceDirectory sourceDirectory) {
         this.manifest = manifest;
         this.project = manifest.getProject();
         this.lockFile = lockFile;
+        this.sourceDirectory = sourceDirectory;
     }
 
     org.ballerinalang.toml.model.Project getBallerinaToml() {
@@ -65,7 +67,7 @@ public class Project {
     }
 
     public boolean isModuleExists(PackageID moduleId) {
-        Path modulePath = Paths.get(this.project.getRepository(), "src", moduleId.getName().getValue());
+        Path modulePath = this.sourceDirectory.getPath().resolve("src").resolve(moduleId.getName().getValue());
         return modulePath.toFile().exists();
     }
 

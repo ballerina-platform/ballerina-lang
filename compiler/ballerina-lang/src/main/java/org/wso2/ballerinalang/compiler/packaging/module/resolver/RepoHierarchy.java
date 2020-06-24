@@ -38,24 +38,22 @@ public class RepoHierarchy {
     private static final String USER_DIR = "user.dir";
     private static final String BIR_CACHE = "bir-cache";
 
-    public RepoHierarchy(String projectOrgName, String projectVersion, boolean offline,
+    public RepoHierarchy(String projectOrgName, String projectVersion, boolean offline, boolean testsEnabled,
             SourceDirectory sourceDirectory) {
-        generateRepoHierarchy(this.repoList, projectOrgName, projectVersion, offline, sourceDirectory);
+        generateRepoHierarchy(this.repoList, projectOrgName, projectVersion, offline, testsEnabled, sourceDirectory);
     }
 
     // if online -> no central repo in the hierarchy
     private void generateRepoHierarchy(List<Repo> repos, String projectOrgName, String projectVersion, boolean offline,
-            SourceDirectory sourceDirectory) {
+            boolean testsEnabled, SourceDirectory sourceDirectory) {
         // 1. product modules
         ProjectModules projectModules = new ProjectModules(
-                sourceDirectory.getPath().resolve(ProjectDirConstants.SOURCE_DIR_NAME), projectOrgName, projectVersion);
+                sourceDirectory.getPath().resolve(ProjectDirConstants.SOURCE_DIR_NAME), projectOrgName, projectVersion,
+                testsEnabled);
         repos.add(projectModules);
 
         // 2. Project build repo
         Path systemZipRepo = getLibDir().resolve("repo");
-//        ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(
-//                Paths.get(System.getProperty(USER_DIR)).resolve("build").resolve("ballerina-home").resolve("main")
-//                        .resolve("lib").resolve("repo"));
         ProjectBuildRepo projectBuildRepo = new ProjectBuildRepo(systemZipRepo);
         repos.add(projectBuildRepo);
 

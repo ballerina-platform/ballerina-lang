@@ -4,6 +4,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageEntity;
 import org.wso2.ballerinalang.compiler.packaging.module.resolver.model.PackageBalo;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -21,9 +22,15 @@ public class BaloCache extends FileSystemCache {
         Path srcPath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
                 moduleId.getName().getValue(), moduleId.version.getValue());
         if (srcPath.toFile().exists()) {
-            return new PackageBalo(moduleId, srcPath);
-        } else {
-            return null;
+            File[] files = new File(String.valueOf(srcPath)).listFiles();
+            if (files != null && files.length > 0) {
+                for (File file : files) {
+                    if (file.getPath().endsWith(".balo")) {
+                        return new PackageBalo(moduleId, Paths.get(file.getPath()));
+                    }
+                }
+            }
         }
+        return null;
     }
 }

@@ -157,12 +157,12 @@ public class PackageLoader {
         this.repos = genRepoHierarchy();
         this.lockFile = LockFileProcessor.getInstance(context, this.lockEnabled).getLockFile();
 
-        this.project = new Project(this.manifest, this.lockFile);
+        this.project = new Project(this.manifest, this.lockFile, this.sourceDirectory);
         this.repoHierarchy = new org.wso2.ballerinalang.compiler.packaging.module.resolver.RepoHierarchy(
                 this.project.getProject().getOrgName(), this.project.getProject().getVersion(), this.offline,
-                this.sourceDirectory);
+                this.testEnabled, this.sourceDirectory);
         this.moduleResolver = new ModuleResolverImpl(this.project, this.repoHierarchy, this.lockEnabled,
-                this.sourceDirectory);
+                this.testEnabled, this.sourceDirectory);
     }
     
     /**

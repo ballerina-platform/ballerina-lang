@@ -36,34 +36,27 @@ public class PackageBalo implements PackageSource {
     private List<CompilerInput> getSourceFiles() {
         List<CompilerInput> compilerInputs = new ArrayList<>();
 
-        File[] files = new File(String.valueOf(this.sourcePath)).listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                if (file.getPath().endsWith(".balo")) {
-                    URI balo = URI.create("jar:file:" + file.getPath());
-                    Map<String, Object> env = new HashMap<>();
-                    env.put("create", "true");
+        URI balo = URI.create("jar:file:" + new File(String.valueOf(this.sourcePath)).getAbsolutePath());
+        Map<String, Object> env = new HashMap<>();
+        env.put("create", "true");
 
-                    try (FileSystem zipFileSystem = FileSystems
-                            .newFileSystem(balo, env)) {
-                        for (Path rootDirectory : zipFileSystem.getRootDirectories()) {
-                            Files.walk(rootDirectory).forEach(path -> {
-                                if (Files.isRegularFile(path) && path.toString().endsWith(BLANG_SOURCE_EXT)) {
-                                    try {
-                                        byte[] code = Files.readAllBytes(path);
-                                        CompilerInput compilerInput = new CompilerInputImpl(code, path);
-                                        compilerInputs.add(compilerInput);
-                                    } catch (IOException e) {
-                                        throw new ModuleResolveException("reading balo source files failed");
-                                    }
-                                }
-                            });
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(balo, env)) {
+            for (Path rootDirectory : zipFileSystem.getRootDirectories()) {
+                Files.walk(rootDirectory).forEach(path -> {
+                    if (Files.isRegularFile(path) && path.toString().endsWith(BLANG_SOURCE_EXT)) {
+                        try {
+                            byte[] code = Files.readAllBytes(path);
+                            CompilerInput compilerInput = new CompilerInputImpl(code, path);
+                            compilerInputs.add(compilerInput);
+                        } catch (IOException e) {
+                            throw new ModuleResolveException("reading balo source files failed");
                         }
-                    } catch (IOException e) {
-                        throw new ModuleResolveException("reading balo failed");
                     }
-                }
+                });
             }
+        } catch (IOException e) {
+            throw new ModuleResolveException("reading balo failed");
+
         }
         return compilerInputs;
     }

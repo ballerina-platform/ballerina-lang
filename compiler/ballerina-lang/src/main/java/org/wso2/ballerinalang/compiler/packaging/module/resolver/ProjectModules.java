@@ -36,11 +36,13 @@ public class ProjectModules extends Cache {
     private Path projectPath;
     private String orgName;
     private String version;
+    private boolean testsEnabled;
 
-    ProjectModules(Path projectPath, String orgName, String version) {
+    ProjectModules(Path projectPath, String orgName, String version, boolean testsEnabled) {
         this.projectPath = projectPath;
         this.orgName = orgName;
         this.version = version;
+        this.testsEnabled = testsEnabled;
     }
 
     @Override
@@ -71,6 +73,6 @@ public class ProjectModules extends Cache {
     @Override
     public PackageEntity getModule(PackageID moduleId) {
         Path srcPath = Paths.get(String.valueOf(this.projectPath), moduleId.getName().getValue());
-        return new ProjectModuleEntity(moduleId, srcPath);
+        return new ProjectModuleEntity(moduleId, srcPath, testsEnabled);
     }
 }
