@@ -36,6 +36,7 @@ public class MappingConstructorExprTest {
     private CompileResult varNameFieldResult;
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
+    private CompileResult readOnlyFieldResult;
 
     @BeforeClass
     public void setup() {
@@ -44,6 +45,7 @@ public class MappingConstructorExprTest {
                                                          "/mapping_constructor_infer_record.bal");
         varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+        readOnlyFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field.bal");
     }
 
     @Test(dataProvider = "mappingConstructorTests")
@@ -256,5 +258,63 @@ public class MappingConstructorExprTest {
                 { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" },
                 { "testInferenceWithMappingConstrExprAsSpreadExpr" }
         };
+    }
+
+    @Test(dataProvider = "readOnlyFieldTests", groups = "disableOnOldParser")
+    public void testReadOnlyFields(String test) {
+        BRunUtil.invoke(readOnlyFieldResult, test);
+    }
+
+    @DataProvider(name = "readOnlyFieldTests")
+    public Object[][] readOnlyFieldTests() {
+        return new Object[][] {
+                { "testBasicReadOnlyField1" },
+                { "testBasicReadOnlyField2" },
+                { "testComplexReadOnlyField" },
+                { "testInferredTypeReadOnlynessWithReadOnlyFields" },
+                { "testReadOnlyBehaviourWithRecordACETInUnionCET" },
+                { "testReadOnlyFieldsWithSimpleMapCET" },
+                { "testReadOnlyBehaviourWithMapACETInUnionCET" },
+                { "testReadOnlyFieldForAlreadyReadOnlyField" }
+        };
+    }
+
+    @Test(groups = "disableOnOldParser")
+    public void testReadOnlyFieldsNegative() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field_negative.bal");
+        int index = 0;
+
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      33, 35);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(Employee|Details)'", 34, 27);
+        validateError(compileResult, index++, "incompatible types: expected '(Employee & readonly)', found 'Employee'",
+                      40, 18);
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      42, 22);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((Details|string) & readonly)', found 'Details'", 54, 49);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
+                      55, 42);
+        validateError(compileResult, index++, "incompatible types: expected '(map<(Details|string)> & readonly)', " +
+                "found 'map<(Details|string)>'", 61, 18);
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      63, 13);
+        validateError(compileResult, index++,
+                      "invalid 'readonly' mapping field 'x': 'future<int>' can never be 'readonly'", 77, 40);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '(any & readonly)', found 'stream<boolean>'", 77, 57);
+        validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
+                "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 45);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 64);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
+                      82, 43);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }
