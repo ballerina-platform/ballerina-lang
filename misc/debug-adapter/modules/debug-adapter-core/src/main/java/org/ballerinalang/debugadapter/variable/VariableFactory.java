@@ -25,6 +25,7 @@ import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
 import org.ballerinalang.debugadapter.variable.types.BFuture;
+import org.ballerinalang.debugadapter.variable.types.BHandle;
 import org.ballerinalang.debugadapter.variable.types.BInt;
 import org.ballerinalang.debugadapter.variable.types.BJson;
 import org.ballerinalang.debugadapter.variable.types.BMap;
@@ -72,6 +73,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> XML - a sequence of zero or more elements, processing instructions, comments or text items
  * <li> error - an indication that there has been an error, with a string identifying the reason for the error, and a
  * mapping giving additional details about the error
+ * <li> future - a value to be returned by a function execution
+ * <li> handle - reference to externally managed storage
  * <li> typedesc - a type descriptor
  * <li> any - any value other than an error // Todo - runtime type or "any"?
  * <li> anydata	- not an error and does not contain behavioral members at any depth // Todo - runtime type or "anydata"?
@@ -84,9 +87,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <ul>
  * <li> table - a two-dimensional collection of immutable values
  * <li> function - a function with 0 or more specified parameter types and a single return type
- * <li> future - a value to be returned by a function execution
  * <li> service	- a collection of named methods, including resource methods
- * <li> handle - reference to externally managed storage
  * <li> stream - a sequence of values that can be generated lazily
  * <li> singleton - a single value described by a literal
  * <li> never - no value
@@ -142,6 +143,8 @@ public class VariableFactory {
             return new BTypeDesc(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
             return new BFuture(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.HANDLE_VALUE.getString())) {
+            return new BHandle(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
             return new BXmlText(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {

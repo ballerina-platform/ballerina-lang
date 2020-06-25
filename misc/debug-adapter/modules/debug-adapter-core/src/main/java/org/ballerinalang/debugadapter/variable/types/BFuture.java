@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,13 +26,12 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
 
 /**
- * Ballerina error variable type.
+ * Ballerina future variable type.
  */
 public class BFuture extends BCompoundVariable {
 
@@ -52,8 +51,8 @@ public class BFuture extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childVarMap = new TreeMap<>();
         try {
-            Map<String, Value> childVarMap = new TreeMap<>();
             Optional<Value> isDone = VariableUtils.getFieldValue(jvmValue, FIELD_IS_DONE);
             Optional<Value> result = VariableUtils.getFieldValue(jvmValue, FIELD_RESULT);
             Optional<Value> panic = VariableUtils.getFieldValue(jvmValue, FIELD_PANIC);
@@ -71,7 +70,7 @@ public class BFuture extends BCompoundVariable {
             }
             return childVarMap;
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return childVarMap;
         }
     }
 }
