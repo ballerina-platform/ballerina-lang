@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -29,24 +28,22 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
- * Extern function transaction:cleanupTransactionContext.
+ * Extern function transaction:setData.
  *
  * @since 2.0.0-preview1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "cleanupTransactionContext",
-        args = {
-                @Argument(name = "transactionBlockId", type = TypeKind.STRING)
-        },
+        functionName = "setData",
+        args = {@Argument(name = "data", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.NIL)},
         isPublic = true
 )
-public class CleanUpTransactionContext {
+public class SetData {
 
-    public static void cleanupTransactionContext(Strand strand, BString transactionBlockId) {
+    public static void setData(Strand strand, Object data) {
+
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
-        transactionLocalContext.removeTransactionInfo();
-        strand.removeLocalTransactionContext();
+        transactionLocalContext.setTransactionData(data);
     }
 }

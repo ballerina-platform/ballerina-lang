@@ -65,7 +65,7 @@ public class ConnectorTest {
                 .getConnector("ballerina", "http", "1.0.0", "Client",
                         "http:Client", this.serviceEndpoint);
         Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("records")).entrySet().size(),
-                15);
+                16);
         Assert.assertEquals(((JsonObject) ((JsonObject) connectorsResponse.getAst()).get("name")).
                 get("value").getAsString(), "Client");
     }
