@@ -80,6 +80,7 @@ import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
 import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
 import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.InferDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
 import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
@@ -273,6 +274,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -3256,6 +3258,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         intersectionType.pos = getPosition(intersectionTypeDescriptorNode);
         return intersectionType;
+    }
+
+    @Override
+    public BLangNode transform(InferDefaultValueNode inferDefaultValueNode) {
+        BLangInferTypedescExpr inferTypedescExpr =
+                (BLangInferTypedescExpr) TreeBuilder.createInferTypedescExpressionNode();
+        inferTypedescExpr.pos = getPosition(inferDefaultValueNode);
+        return inferTypedescExpr;
     }
 
     @Override

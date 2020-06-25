@@ -58,6 +58,7 @@ import org.ballerinalang.model.tree.expressions.ErrorVariableReferenceNode;
 import org.ballerinalang.model.tree.expressions.FieldBasedAccessNode;
 import org.ballerinalang.model.tree.expressions.GroupExpressionNode;
 import org.ballerinalang.model.tree.expressions.IndexBasedAccessNode;
+import org.ballerinalang.model.tree.expressions.InferTypedescExpressionNode;
 import org.ballerinalang.model.tree.expressions.IntRangeExpression;
 import org.ballerinalang.model.tree.expressions.InvocationNode;
 import org.ballerinalang.model.tree.expressions.IsLikeExpressionNode;
@@ -192,6 +193,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -910,6 +912,10 @@ public class TreeBuilder {
 
     public static IsLikeExpressionNode createIsLikeExpressionNode() {
         return new BLangIsLikeExpr();
+    }
+
+    public static InferTypedescExpressionNode createInferTypedescExpressionNode() {
+        return new BLangInferTypedescExpr();
     }
 
 }
