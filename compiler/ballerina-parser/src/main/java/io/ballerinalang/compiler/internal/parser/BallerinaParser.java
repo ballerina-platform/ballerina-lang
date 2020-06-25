@@ -3477,6 +3477,10 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseListConstructorExpr();
             case LT_TOKEN:
+                STToken nextToken = getNextNextToken(kind);
+                if (nextToken.kind == SyntaxKind.GT_TOKEN) {
+                    return parseInferDefaultValueTypeExpr();
+                }
                 return parseTypeCastExpr(isRhsExpr, allowActions, isInConditionalExpr);
             case TABLE_KEYWORD:
             case STREAM_KEYWORD:
@@ -8021,6 +8025,12 @@ public class BallerinaParser extends AbstractParser {
         STNode expression =
                 parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         return STNodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
+    }
+
+    private STNode parseInferDefaultValueTypeExpr() {
+        STNode ltToken = parseLTToken();
+        STNode gtToken = parseGTToken();
+        return STNodeFactory.createInferDefaultValueNode(ltToken, gtToken);
     }
 
     private STNode parseTypeCastParam() {
