@@ -221,6 +221,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restArgumentNode);
     }
 
+    public void visit(STInferDefaultValueNode inferDefaultValueNode) {
+        visitSyntaxNode(inferDefaultValueNode);
+    }
+
     public void visit(STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
     }

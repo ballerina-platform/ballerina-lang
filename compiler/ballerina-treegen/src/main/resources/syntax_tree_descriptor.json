@@ -1146,6 +1146,21 @@
             ]
         },
         {
+            "name": "InferDefaultValueNode",
+            "base": "ExpressionNode",
+            "kind": "REST_ARG",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ObjectTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "OBJECT_TYPE_DESC",
