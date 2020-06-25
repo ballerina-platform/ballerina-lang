@@ -3,6 +3,19 @@ import ballerina / io;
 type MyString string;
 type MyUnion int|boolean;
 type MyUnion2 string|byte;
+type RecursiveObj object{RecursiveObj me;};
+type RecursiveL2Obj object{RecursiveObj that;};
+type RecursiveL3Obj object{RecursiveL2Obj other;};
+
+
+type RecursiveDeepL0Obj object{RecursiveDeepL2Obj? a;};
+type RecursiveDeepL1Obj object{RecursiveDeepL0Obj b;};
+type RecursiveDeepL2Obj object{RecursiveDeepL1Obj c;};
+
+type Employee record {
+    int id;
+    string name;
+};
 
 // expected: ()
 () nilType = ();
@@ -15,6 +28,9 @@ byte byteType = 43;
 
 // expected: float
 float floatType = 1.2;
+
+// expected: decimal
+decimal decimalType = 10.2;
 
 // expected: boolean
 boolean booleanType = false;
@@ -54,3 +70,25 @@ object {int age;} myPerson = new;
 
 // expected: object {int age; function () returns string getFullName; }
 object {int age;  function getFullName() returns string { return ""; }} myPerson2 = new;
+
+// expected: object {... me; }
+RecursiveObj myRecObj = new;
+
+// expected: object {object {object {... me; } that; } other; }
+RecursiveL3Obj myRecL2Obj = new;
+
+// expected: object {object {object {...|() a; } b; } c; }
+RecursiveDeepL2Obj deepRec = new;
+
+// expected: error (string, map<anydata|...>)
+error e = error("not good");
+
+// expected: record {int id; string name; }
+Employee teacher = {id : 2345343, name: "Marco Polo"};
+
+// expected: table<record {int id; string name; }>
+type employeeTable table<Employee> employeeTable key(id);
+
+
+
+

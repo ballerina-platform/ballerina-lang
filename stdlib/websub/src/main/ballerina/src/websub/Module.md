@@ -383,10 +383,10 @@ service specificSubscriber on new WebhookListener(8080) {
 }
 ```
 
-For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
+For a step-by-step guide on introducing custom subscriber services, see the ["Create Webhook Callback Services"](https://ballerina.io/swan-lake/learn/how-to-extend-ballerina/#create-webhook-callback-services) section of "How to Extend Ballerina". 
  
 For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operations, see the following.
- * [Internal Hub Sample Example](https://ballerina.io/learn/by-example/websub-internal-hub-sample.html)
- * [Remote Hub Sample Example](https://ballerina.io/learn/by-example/websub-remote-hub-sample.html)
- * [Hub Client Sample Example](https://ballerina.io/learn/by-example/websub-hub-client-sample.html)
- * [Service Integration Sample Example](https://ballerina.io/learn/by-example/websub-service-integration-sample.html)
+ * [Internal Hub Sample Example](https://ballerina.io/swan-lake/learn/by-example/websub-internal-hub-sample.html)
+ * [Remote Hub Sample Example](https://ballerina.io/swan-lake/learn/by-example/websub-remote-hub-sample.html)
+ * [Hub Client Sample Example](https://ballerina.io/swan-lake/learn/by-example/websub-hub-client-sample.html)
+ * [Service Integration Sample Example](https://ballerina.io/swan-lake/learn/by-example/websub-service-integration-sample.html)
