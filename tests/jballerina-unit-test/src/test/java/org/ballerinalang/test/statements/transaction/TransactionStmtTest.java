@@ -107,6 +107,20 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testTransactionLangLib");
     }
 
+    @Test
+    public void testWithinTrxMode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
+                + "-> strand in transactional mode -> invoked function returned -> strand in transactional mode "
+                + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
+    }
+
+    @Test
+    public void testUnreachableCode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 26);
