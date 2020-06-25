@@ -322,6 +322,28 @@ public class PackagingNegativeTestCase extends BaseTest {
     }
 
     /**
+     * Build TestProject3. TestProject has utils module which has an interop error.
+     * When there is an interop error, tests should not be executed.
+     *
+     * @throws BallerinaTestException Error when executing the commands.
+     */
+    @Test(description = "Test whether execution of tests are broken when interop failure exists",
+            expectedExceptions = {BallerinaTestException.class},
+            expectedExceptionsMessageRegExp = "cannot run tests due to interop failures")
+    public void testInteropFailureBreakRunningTests() throws BallerinaTestException {
+        try {
+            String errorMsg = "Running Tests";
+            LogLeecher utilsCompileLeecher = new LogLeecher(errorMsg);
+            balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
+                    new LogLeecher[]{utilsCompileLeecher}, tempProjectDirectory.resolve("TestProject3").toString());
+            utilsCompileLeecher.waitForText(5000);
+
+        } catch (BallerinaTestException e) {
+            throw new BallerinaTestException("cannot run tests due to interop failures", e);
+        }
+    }
+
+    /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
      * @return env directory variable array
