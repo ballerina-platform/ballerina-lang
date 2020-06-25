@@ -56,6 +56,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
@@ -720,6 +721,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangInferTypedescExpr inferTypedescExpr) {
         throw new AssertionError();
     }
 
