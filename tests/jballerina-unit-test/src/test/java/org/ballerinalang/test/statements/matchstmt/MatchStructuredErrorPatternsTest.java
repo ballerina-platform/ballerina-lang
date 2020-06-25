@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.990.4
  */
-@Test(groups = "brokenOnErrorChange")
+@Test(groups = {"disableOnOldParser", "brokenOnNewParser"})
 public class MatchStructuredErrorPatternsTest {
     private CompileResult result, resultNegative;
 

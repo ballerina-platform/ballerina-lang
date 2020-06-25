@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
 public class ForwardReferencingGlobalDefinitionTest {
 
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions",
-            groups = "brokenOnErrorChange")
+            groups = {"disableOnOldParser", "brokenOnNewParser"})
     public void globalDefinitionsWithCyclicReferences() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                 "simple");
@@ -96,7 +96,7 @@ public class ForwardReferencingGlobalDefinitionTest {
     }
 
     @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def",
-            groups = "brokenOnErrorChange")
+            groups = {"disableOnOldParser", "brokenOnNewParser"})
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
                 "test-src/statements/variabledef/globalcycle/", "viaservice");
