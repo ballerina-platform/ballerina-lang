@@ -16,18 +16,14 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Optional;
-
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
  * Ballerina string variable type.
@@ -41,20 +37,7 @@ public class BString extends BSimpleVariable {
     @Override
     public String computeValue() {
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return UNKNOWN_VALUE;
-            }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            if (jvmValueRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
-                    || jvmValueRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
-                Optional<Value> stringValue = VariableUtils.getFieldValue(jvmValue, "value");
-                if (stringValue.isPresent()) {
-                    return stringValue.get().toString();
-                }
-                return UNKNOWN_VALUE;
-            } else {
-                return jvmValueRef.toString();
-            }
+            return getStringFrom(jvmValue);
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }

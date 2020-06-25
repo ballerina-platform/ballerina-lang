@@ -40,6 +40,7 @@ public enum JVMValueType {
     MAP_VALUE("org.ballerinalang.jvm.values.MapValue"),
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
     TYPEDESC_VALUE("org.ballerinalang.jvm.values.TypedescValue"),
+    FUTURE_VALUE("org.ballerinalang.jvm.values.FutureValue"),
     XML_COMMENT("org.ballerinalang.jvm.values.XMLComment"),
     XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
     XML_PI("org.ballerinalang.jvm.values.XMLPi"),

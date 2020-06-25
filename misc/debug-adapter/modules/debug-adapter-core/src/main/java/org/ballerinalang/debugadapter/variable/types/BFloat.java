@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
@@ -44,7 +45,7 @@ public class BFloat extends BSimpleVariable {
             if (jvmValue instanceof DoubleValue) {
                 return jvmValue.toString();
             } else if (jvmValue instanceof ObjectReference) {
-                Optional<Value> field = VariableUtils.getFieldValue(jvmValue, "value");
+                Optional<Value> field = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
                 if (field.isPresent()) {
                     return field.get().toString();
                 }

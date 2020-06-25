@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
+import org.ballerinalang.debugadapter.variable.types.BFuture;
 import org.ballerinalang.debugadapter.variable.types.BInt;
 import org.ballerinalang.debugadapter.variable.types.BJson;
 import org.ballerinalang.debugadapter.variable.types.BMap;
@@ -139,6 +140,8 @@ public class VariableFactory {
             return new BError(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
             return new BTypeDesc(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
+            return new BFuture(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
             return new BXmlText(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {

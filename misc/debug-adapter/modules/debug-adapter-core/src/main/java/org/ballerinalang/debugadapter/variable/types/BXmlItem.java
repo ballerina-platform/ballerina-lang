@@ -16,22 +16,19 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Method;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina xml variable type.
@@ -48,13 +45,7 @@ public class BXmlItem extends BCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            Optional<Method> method = VariableUtils.getMethod(jvmValue, "stringValue");
-            if (method.isPresent()) {
-                Value decimalValue = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread(),
-                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
-                return VariableUtils.getStringFrom(decimalValue);
-            }
-            return UNKNOWN_VALUE;
+            return getStringValue(context, jvmValue);
         } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }

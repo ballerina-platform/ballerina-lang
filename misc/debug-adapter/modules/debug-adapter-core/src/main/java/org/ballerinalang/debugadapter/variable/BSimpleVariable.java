@@ -24,7 +24,7 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public abstract class BSimpleVariable implements BVariable {
 
-    private final VariableContext context;
+    protected final VariableContext context;
     protected final Value jvmValue;
     private final Variable dapVariable;
 

@@ -26,7 +26,7 @@ import java.util.Map;
  */
 public abstract class BCompoundVariable implements BVariable {
 
-    private final VariableContext context;
+    protected final VariableContext context;
     protected Value jvmValue;
     private final Variable dapVariable;
     private final Map<String, Value> childVariables;

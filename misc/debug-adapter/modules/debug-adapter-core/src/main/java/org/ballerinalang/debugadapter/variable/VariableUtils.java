@@ -21,6 +21,7 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,9 +30,13 @@ import java.util.Optional;
  */
 public class VariableUtils {
 
+    public static final String FIELD_TYPE = "type";
+    public static final String FIELD_TYPENAME = "typeName";
+    public static final String FIELD_VALUE = "value";
+    public static final String METHOD_STRINGVALUE = "stringValue";
+    public static final String UNKNOWN_VALUE = "unknown";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
-    public static final String UNKNOWN_VALUE = "unknown";
 
     /**
      * Returns the corresponding ballerina variable type of a given ballerina backend jvm variable instance.
@@ -42,9 +47,9 @@ public class VariableUtils {
     public static String getBType(Value value) {
         try {
             ObjectReference valueRef = (ObjectReference) value;
-            Field bTypeField = valueRef.referenceType().fieldByName("type");
+            Field bTypeField = valueRef.referenceType().fieldByName(FIELD_TYPE);
             Value bTypeRef = valueRef.getValue(bTypeField);
-            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
+            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName(FIELD_TYPENAME);
             Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
             return getStringFrom(typeNameRef);
         } catch (Exception e) {
@@ -70,12 +75,33 @@ public class VariableUtils {
                 // double quotes.
                 return stringRef.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, "");
             }
-            Optional<Value> valueField = getFieldValue(stringRef, "value");
+            Optional<Value> valueField = getFieldValue(stringRef, FIELD_VALUE);
             // Additional filtering is required, as some ballerina variable type names may contain redundant
             // double quotes.
             return valueField.map(value -> value.toString().replaceAll(ADDITIONAL_QUOTES_REMOVE_REGEX, ""))
                     .orElse(UNKNOWN_VALUE);
         } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
+    }
+
+    /**
+     * Invokes "stringValue()" method of the given ballerina jvm variable instance and returns the result as a string.
+     *
+     * @param context   variable debug context.
+     * @param jvmObject ballerina jvm variable instance.
+     * @return result of the method invocation as a string.
+     */
+    public static String getStringValue(VariableContext context, Value jvmObject) {
+        try {
+            Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
+            if (method.isPresent()) {
+                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread(),
+                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                return VariableUtils.getStringFrom(stringValue);
+            }
+            return UNKNOWN_VALUE;
+        } catch (Exception ignored) {
             return UNKNOWN_VALUE;
         }
     }
@@ -88,7 +114,7 @@ public class VariableUtils {
      */
     static boolean isObject(Value value) {
         try {
-            return getFieldValue(value, "type").map(type -> type.type().name().endsWith
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                     (JVMValueType.BTYPE_OBJECT.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
@@ -103,7 +129,7 @@ public class VariableUtils {
      */
     static boolean isRecord(Value value) {
         try {
-            return getFieldValue(value, "type").map(type -> type.type().name().endsWith
+            return getFieldValue(value, FIELD_TYPE).map(type -> type.type().name().endsWith
                     (JVMValueType.BTYPE_RECORD.getString())).orElse(false);
         } catch (DebugVariableException e) {
             return false;
