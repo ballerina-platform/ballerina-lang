@@ -17,8 +17,6 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -27,7 +25,6 @@ import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,6 +32,10 @@ import java.util.Optional;
  * Ballerina json variable type.
  */
 public class BJson extends BCompoundVariable {
+
+    private static final String FIELD_JSON_DATA = "table";
+    private static final String FIELD_JSON_KEY = "key";
+    private static final String FIELD_JSON_VALUE = "value";
 
     public BJson(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.JSON, value, dapVariable);
@@ -47,31 +48,24 @@ public class BJson extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childMap = new HashMap<>();
         try {
-            if (!(jvmValue instanceof ObjectReference)) {
-                return new HashMap<>();
+            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
+            if (!jsonValues.isPresent()) {
+                return childMap;
             }
-            ObjectReference jvmValueRef = (ObjectReference) jvmValue;
-            List<Field> fields = jvmValueRef.referenceType().allFields();
-            Optional<Field> valueField = fields.stream().filter(field -> field.typeName()
-                    .equals("java.util.HashMap$Node[]")).findFirst();
-            if (!valueField.isPresent()) {
-                return new HashMap<>();
-            }
-            Value values = jvmValueRef.getValue(valueField.get());
-            Map<String, Value> childVarMap = new HashMap<>();
-            for (Value jsonMap : ((ArrayReference) values).getValues()) {
+            for (Value jsonMap : ((ArrayReference) jsonValues.get()).getValues()) {
                 if (jsonMap != null) {
-                    Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, "key");
-                    Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, "value");
+                    Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_KEY);
+                    Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_VALUE);
                     if (jsonKey.isPresent() && jsonValue.isPresent()) {
-                        childVarMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
+                        childMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
                     }
                 }
             }
-            return childVarMap;
+            return childMap;
         } catch (Exception ignored) {
-            return new HashMap<>();
+            return childMap;
         }
     }
 }

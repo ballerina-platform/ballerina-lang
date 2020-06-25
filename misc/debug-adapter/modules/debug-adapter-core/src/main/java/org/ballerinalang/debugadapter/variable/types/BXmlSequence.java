@@ -41,6 +41,10 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValu
  */
 public class BXmlSequence extends BCompoundVariable {
 
+    private static final String FIELD_CHILDREN = "children";
+    private static final String FIELD_ELEMENT_DATA = "elementData";
+    private static final String METHOD_STRING_VALUE = "stringValue";
+
     public BXmlSequence(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.XML, value, dapVariable);
     }
@@ -48,7 +52,7 @@ public class BXmlSequence extends BCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            Optional<Method> method = VariableUtils.getMethod(jvmValue, "stringValue");
+            Optional<Method> method = VariableUtils.getMethod(jvmValue, METHOD_STRING_VALUE);
             if (method.isPresent()) {
                 Value decimalValue = ((ObjectReference) jvmValue).invokeMethod(getContext().getOwningThread(),
                         method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
@@ -62,17 +66,17 @@ public class BXmlSequence extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childMap = new HashMap<>();
         try {
-            Optional<Value> children = getFieldValue(jvmValue, "children");
+            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
             if (!children.isPresent()) {
-                return new HashMap<>();
+                return childMap;
             }
-            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), "elementData");
+            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
             if (!childArray.isPresent()) {
-                return new HashMap<>();
+                return childMap;
             }
             List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
-            Map<String, Value> childMap = new HashMap<>();
             AtomicInteger index = new AtomicInteger();
             childrenValues.forEach(ref -> {
                 if (ref != null) {
@@ -81,7 +85,7 @@ public class BXmlSequence extends BCompoundVariable {
             });
             return childMap;
         } catch (Exception e) {
-            return new HashMap<>();
+            return childMap;
         }
     }
 }

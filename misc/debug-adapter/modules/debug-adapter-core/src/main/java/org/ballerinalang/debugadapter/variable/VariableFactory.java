@@ -36,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.types.BTypeDesc;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
 import org.ballerinalang.debugadapter.variable.types.BXmlComment;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
+import org.ballerinalang.debugadapter.variable.types.BXmlItemAttributeMap;
 import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
@@ -148,6 +149,8 @@ public class VariableFactory {
             return new BXmlSequence(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_ITEM.getString())) {
             return new BXmlItem(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
+            return new BXmlItemAttributeMap(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
             //  variables.

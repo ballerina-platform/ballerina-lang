@@ -45,6 +45,7 @@ public enum JVMValueType {
     XML_PI("org.ballerinalang.jvm.values.XMLPi"),
     XML_SEQUENCE("org.ballerinalang.jvm.values.XMLSequence"),
     XML_TEXT("org.ballerinalang.jvm.values.XMLText"),
+    XML_ATTRIB_MAP("org.ballerinalang.jvm.values.AttributeMapValueImpl"),
     BTYPE_OBJECT("BObjectType"),
     BTYPE_RECORD("BRecordType");
 

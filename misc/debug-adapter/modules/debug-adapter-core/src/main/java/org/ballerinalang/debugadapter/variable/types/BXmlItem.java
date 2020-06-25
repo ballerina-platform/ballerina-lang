@@ -38,6 +38,9 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValu
  */
 public class BXmlItem extends BCompoundVariable {
 
+    private static final String FIELD_CHILDREN = "children";
+    private static final String FIELD_ATTRIBUTES = "attributes";
+
     public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.XML, value, dapVariable);
     }
@@ -59,17 +62,15 @@ public class BXmlItem extends BCompoundVariable {
 
     @Override
     public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childMap = new HashMap<>();
         try {
-            Optional<Value> children = getFieldValue(jvmValue, "children");
-            if (!children.isPresent()) {
-                return new HashMap<>();
-            }
-            Map<String, Value> childMap = new HashMap<>();
-            childMap.put("children", children.get());
+            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
+            Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);
+            children.ifPresent(value -> childMap.put(FIELD_CHILDREN, value));
+            attributes.ifPresent(value -> childMap.put(FIELD_ATTRIBUTES, value));
             return childMap;
-        } catch (
-                Exception e) {
-            return new HashMap<>();
+        } catch (Exception e) {
+            return childMap;
         }
     }
 }
