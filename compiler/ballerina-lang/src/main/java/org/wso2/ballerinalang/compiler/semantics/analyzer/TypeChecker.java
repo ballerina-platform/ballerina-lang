@@ -1594,6 +1594,7 @@ public class TypeChecker extends BLangNodeVisitor {
             recordType.restFieldType = ((BMapType) applicableMappingType).constraint;
         } else {
             BRecordType applicableRecordType = (BRecordType) applicableMappingType;
+            boolean allReadOnlyFields = true;
 
             for (Map.Entry<String, BField> origEntry : applicableRecordType.fields.entrySet()) {
                 String fieldName = origEntry.getKey();
@@ -1605,7 +1606,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BVarSymbol origFieldSymbol = field.symbol;
-                BVarSymbol fieldSymbol = new BVarSymbol(origFieldSymbol.flags, field.name, pkgID,
+                int origFieldFlags = origFieldSymbol.flags;
+
+                if (allReadOnlyFields && !Symbols.isFlagOn(origFieldFlags, Flags.READONLY)) {
+                    allReadOnlyFields = false;
+                }
+
+                BVarSymbol fieldSymbol = new BVarSymbol(origFieldFlags, field.name, pkgID,
                                                         origFieldSymbol.type, recordSymbol);
                 newFields.put(fieldName, new BField(field.name, null, fieldSymbol));
                 recordSymbol.scope.define(field.name, fieldSymbol);
@@ -1613,6 +1620,12 @@ public class TypeChecker extends BLangNodeVisitor {
 
             recordType.sealed = applicableRecordType.sealed;
             recordType.restFieldType = applicableRecordType.restFieldType;
+
+            if (recordType.sealed && allReadOnlyFields) {
+                recordType.flags |= Flags.READONLY;
+                recordType.tsymbol.flags |= Flags.READONLY;
+            }
+
         }
 
         recordType.fields = newFields;
@@ -5281,7 +5294,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (readOnlyConstructorField) {
             if (types.isSelectivelyImmutableType(fieldType)) {
                 fieldType =
-                        ImmutableTypeCloner.getImmutableIntersectionType(null, ((BLangNode) field).pos, types,
+                        ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
                                                                          (SelectivelyImmutableReferenceType) fieldType,
                                                                          env, symTable, anonymousModelHelper, names);
             } else if (!types.isInherentlyImmutableType(fieldType)) {
