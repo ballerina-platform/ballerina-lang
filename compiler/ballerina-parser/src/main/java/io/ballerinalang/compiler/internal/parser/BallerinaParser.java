@@ -500,7 +500,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchGuard();
             case MATCH_PATTERN_START:
                 return parseMatchPattern();
-            case MATCH_PATTERN_RHS:
+            case MATCH_PATTERN_OUTER_RHS:
                 return parseMatchPatternEnd();
             case ENUM_MEMBER_RHS:
                 return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
@@ -12454,7 +12454,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null indicates the end of the match-patterns list
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_OUTER_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12512,7 +12512,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseListMatchPattern() {
         startContext(ParserRuleContext.LIST_MATCH_PATTERN);
         STNode openBracketToken = parseOpenBracket();
-        List<STNode> matchPatternList= new ArrayList<>();
+        List<STNode> matchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
         STNode matchPatternMemberRhs;
 
