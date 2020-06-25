@@ -264,7 +264,7 @@ function testUnreachableCode() returns string {
         transactions:onCommit(onCommitFunc);
         var commitRes = commit;
         if (transactional) {
-            //never reached
+            //only reached when commit fails
             ss = ss + " -> strand in transactional mode";
         }
         ss += " -> trxEnded.";
