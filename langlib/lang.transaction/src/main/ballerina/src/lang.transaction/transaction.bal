@@ -64,3 +64,9 @@ public transactional function info() returns Info = external;
 public transactional function setRollbackOnly(error? e) = external;
 
 public transactional function getRollbackOnly() returns boolean = external;
+
+public transactional function setData(readonly e) = external;
+
+public transactional function getData() returns readonly = external;
+
+public function getInfo(byte[] xid) returns Info? = external;

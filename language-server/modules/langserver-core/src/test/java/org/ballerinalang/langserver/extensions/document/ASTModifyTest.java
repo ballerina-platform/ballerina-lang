@@ -297,14 +297,9 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, tempFile);
 
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_END",
-                gson.fromJson("{}", JsonObject.class));
-
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaAST(tempFile.toString(),
-                        new ASTModification[]{modification1, modification2}, this.serviceEndpoint);
+                .modifyTriggerAndGetBallerinaAST(tempFile.toString(),
+                        "main", gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "IMPORT",
@@ -338,40 +333,81 @@ public class ASTModifyTest {
         TestUtil.openDocument(serviceEndpoint, tempFile);
 
         Gson gson = new Gson();
-        ASTModification modification0 = new ASTModification(1, 1, 1, 1, "IMPORT",
-                gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
-        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
+        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+                .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "service",
+                        gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\"," +
+                                " \"PORT\":\"9090\"}", JsonObject.class), this.serviceEndpoint);
+        Assert.assertTrue(astModifyResponse.isParseSuccess());
+
+        ASTModification modification2 = new ASTModification(2, 1, 2, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(1, 1, 1, 1, "SERVICE_START",
-                gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\", \"PORT\":\"9090\"}",
-                        JsonObject.class));
-        ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
+        ASTModification modification3 = new ASTModification(4, 1, 4, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
                         "\"PARAMS\": []}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(1, 1, 1, 1, "DECLARATION",
+        ASTModification modification4 = new ASTModification(4, 1, 4, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Producer\", \"VARIABLE\":\"producer\"," +
                         "\"PARAMS\": [\"connection\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(1, 1, 1, 1,
+        ASTModification modification5 = new ASTModification(4, 1, 4, 1,
                 "REMOTE_SERVICE_CALL",
                 gson.fromJson("{\"TYPE\":\"nats:Error?\", \"VARIABLE\":\"result\"," +
                         "\"CALLER\":\"producer\", \"FUNCTION\":\"publish\"," +
                         "\"PARAMS\": [\"\\\"Foo\\\"\", \"\\\"Test Message\\\"\"]}", JsonObject.class));
-        ASTModification modification6 = new ASTModification(1, 1, 1, 1, "SERVICE_END",
-                gson.fromJson("{}", JsonObject.class));
 
-        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+        BallerinaASTResponse astModifyResponse2 = LSExtensionTestUtil
                 .modifyAndGetBallerinaAST(tempFile.toString(),
-                        new ASTModification[]{modification0, modification1, modification2, modification3,
-                                modification4, modification5, modification6}, this.serviceEndpoint);
-        Assert.assertTrue(astModifyResponse.isParseSuccess());
+                        new ASTModification[]{modification2, modification3, modification4, modification5},
+                        this.serviceEndpoint);
+        Assert.assertTrue(astModifyResponse2.isParseSuccess());
 
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
                 serviceNatsFile.toString(), this.serviceEndpoint);
         String expectedFileContent = new String(Files.readAllBytes(serviceNatsFile));
-        assertSource(astModifyResponse.getSource(), expectedFileContent);
-        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+        assertSource(astModifyResponse2.getSource(), expectedFileContent);
+        assertTree(astModifyResponse2.getAst(), astResponse.getAst());
         TestUtil.closeDocument(this.serviceEndpoint, tempFile);
     }
+
+//    @Test(description = "Service to main")
+//    public void testMoveServiceToMain() throws IOException {
+//        skipOnWindows();
+//        Path tempFile = createTempFile(serviceNatsFile);
+//        TestUtil.openDocument(serviceEndpoint, tempFile);
+//
+//        Gson gson = new Gson();
+//        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+//                .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "main",
+//                        gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
+//        Assert.assertTrue(astModifyResponse.isParseSuccess());
+//        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+//                mainNatsModifiedFile.toString(), this.serviceEndpoint);
+//        String expectedFileContent = new String(Files.readAllBytes(mainNatsModifiedFile));
+//        assertSource(astModifyResponse.getSource(), expectedFileContent);
+//        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+//        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+//    }
+
+    //Todo: Bug in compiler need to be fixed
+    //@Test(description = "Main to service")
+//    public void testMoveMainToService() throws IOException {
+//        skipOnWindows();
+//        Path tempFile = createTempFile(mainHttpCallFile);
+//        TestUtil.openDocument(serviceEndpoint, tempFile);
+//
+//        Gson gson = new Gson();
+//        BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
+//                .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "service",
+//                        gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\"," +
+//                                " \"PORT\":\"9090\"}", JsonObject.class), this.serviceEndpoint);
+//        Assert.assertTrue(astModifyResponse.isParseSuccess());
+//        BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
+//                serviceHttpCallModifiedFile.toString(), this.serviceEndpoint);
+//
+//        String expectedFileContent = new String(Files.readAllBytes(serviceHttpCallModifiedFile));
+//        assertSource(astModifyResponse.getSource(), expectedFileContent);
+//        assertTree(astModifyResponse.getAst(), astResponse.getAst());
+//        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+//    }
+
 
 //        @Test
 //    public void test() {

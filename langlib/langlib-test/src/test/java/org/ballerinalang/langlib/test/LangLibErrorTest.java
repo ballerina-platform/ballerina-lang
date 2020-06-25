@@ -55,7 +55,7 @@ public class LangLibErrorTest {
         assertEquals(returns[1].stringValue(), "{message:\"Test union of errors with type test\"}");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorCause() {
         CompileResult errorCtor = BCompileUtil.compile("test-src/errorlib_error_ctor_test.bal");
         BValue[] returns = BRunUtil.invoke(errorCtor, "testErrorCause");

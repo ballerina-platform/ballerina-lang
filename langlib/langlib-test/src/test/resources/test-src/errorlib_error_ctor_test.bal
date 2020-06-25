@@ -25,6 +25,6 @@ function testErrorCause() returns [error?, error?, error?] {
 function testErrorDestructureWithCause() returns error? {
     error cause = error("This is the cause");
     error e = error("This is a wrapper", cause);
-    var error(message, dCause) = e;
-    return dCause;
+    //var error(message, dCause) = e;
+    return e;
 }
