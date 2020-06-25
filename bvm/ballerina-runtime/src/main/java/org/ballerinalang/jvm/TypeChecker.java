@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BAnydataType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BField;
@@ -2150,6 +2151,18 @@ public class TypeChecker {
 
         if (lhsTable.size() != rhsTable.size()) {
             return false;
+        }
+
+        if (((BTableType) lhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) lhsTable.getType()).getFieldNames().length > 0) {
+            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
+                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
+                if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         return lhsTable.entrySet().equals(rhsTable.entrySet());
