@@ -28,14 +28,17 @@ import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
+import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.PageContext;
+import org.ballerinalang.docgen.generator.model.Record;
 import org.ballerinalang.docgen.generator.model.Type;
 import org.ballerinalang.docgen.generator.model.Variable;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.Object;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -110,6 +113,23 @@ public class Writer {
                 } else {
                     return splits[0] + ".";
                 }
+            });
+
+            handlebars.registerHelper("areAllAnonymous", (Helper<List<Construct>>) (consList, options) -> {
+                if (consList.get(0) instanceof Record) {
+                    for (Construct construct: consList) {
+                        if (!((Record) construct).isAnonymous) {
+                            return false;
+                        }
+                    }
+                } else if (consList.get(0) instanceof org.ballerinalang.docgen.generator.model.Object) {
+                    for (Construct construct: consList) {
+                        if (!((org.ballerinalang.docgen.generator.model.Object) construct).isAnonymous) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
             });
 
             handlebars.registerHelper("setStyles", (Helper<String>) (description, options) -> {
@@ -189,6 +209,12 @@ public class Writer {
         } else if ("map".equals(type.category) && type.constraint != null) {
             label = "<span class=\"builtin-type\">" + type.name + "</span> <" +
                     getTypeLabel(type.constraint, context) + ">";
+        } else if ("stream".equals(type.category)) {
+            label = "<span class=\"builtin-type\">" + type.name + "<";
+            label += type.memberTypes.stream()
+                    .map(type1 -> getTypeLabel(type1, context))
+                    .collect(Collectors.joining(" ,"));
+            label += "></span>";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
