@@ -227,3 +227,15 @@ function testIteratorWithMismatchedError() {
     var streamE = new stream<string, CustomError1>(itr);
     stream<string, CustomError1> streamF = new(itr);
 }
+
+function testInvalidStreamConstructor() {
+    IteratorWithOutError itr = new();
+
+    // correct
+    var streamA = new stream<int>(itr);
+    stream<int> streamB = new(itr);
+
+    // incorrect (`IteratorWithOutError` does not return an error from next() method)
+    var streamC = new stream<int, CustomError>(itr);
+    stream<int, CustomError> streamD = new(itr);
+}

@@ -182,7 +182,6 @@ dependencies {
     balDoc project(path: ':ballerina-nats', configuration: 'balDoc')
     balDoc project(path: ':ballerina-rabbitmq', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-jwt', configuration: 'balDoc')
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
     balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')
     balDoc project(path: ':ballerina-xmlutils', configuration: 'balDoc')

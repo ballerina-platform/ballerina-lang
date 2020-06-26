@@ -332,23 +332,11 @@ public class JvmInstructionGen {
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
             int[] highSurrogates = listHighSurrogates(val);
-
-            mv.visitTypeInsn(NEW, JvmConstants.NON_BMP_STRING_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitLdcInsn(val);
-            mv.visitIntInsn(BIPUSH, highSurrogates.length);
-            mv.visitIntInsn(NEWARRAY, T_INT);
-
-            int i = 0;
-            for (int ch : highSurrogates) {
-                mv.visitInsn(DUP);
-                mv.visitIntInsn(BIPUSH, i);
-                mv.visitIntInsn(BIPUSH, ch);
-                i = i + 1;
-                mv.visitInsn(IASTORE);
+            if (highSurrogates.length > 0) {
+                createNonBmpString(mv, val, highSurrogates);
+            } else {
+                createBmpString(mv, val);
             }
-            mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.NON_BMP_STRING_VALUE, "<init>",
-                               String.format("(L%s;[I)V", STRING_VALUE), false);
         } else if (bType.tag == TypeTags.DECIMAL) {
             mv.visitTypeInsn(NEW, DECIMAL_VALUE);
             mv.visitInsn(DUP);
@@ -358,8 +346,35 @@ public class JvmInstructionGen {
             mv.visitInsn(ACONST_NULL);
         } else {
             throw new BLangCompilerException("JVM generation is not supported for type : " +
-                    String.format("%s", bType));
+                                                     String.format("%s", bType));
         }
+    }
+
+    private static void createBmpString(MethodVisitor mv, String val) {
+        mv.visitTypeInsn(NEW, JvmConstants.BMP_STRING_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(val);
+        mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.BMP_STRING_VALUE, "<init>",
+                           String.format("(L%s;)V", STRING_VALUE), false);
+    }
+
+    private static void createNonBmpString(MethodVisitor mv, String val, int[] highSurrogates) {
+        mv.visitTypeInsn(NEW, JvmConstants.NON_BMP_STRING_VALUE);
+        mv.visitInsn(DUP);
+        mv.visitLdcInsn(val);
+        mv.visitIntInsn(BIPUSH, highSurrogates.length);
+        mv.visitIntInsn(NEWARRAY, T_INT);
+
+        int i = 0;
+        for (int ch : highSurrogates) {
+            mv.visitInsn(DUP);
+            mv.visitIntInsn(BIPUSH, i);
+            mv.visitIntInsn(BIPUSH, ch);
+            i = i + 1;
+            mv.visitInsn(IASTORE);
+        }
+        mv.visitMethodInsn(INVOKESPECIAL, JvmConstants.NON_BMP_STRING_VALUE, "<init>",
+                           String.format("(L%s;[I)V", STRING_VALUE), false);
     }
 
     private static void generateIntToUnsignedIntConversion(MethodVisitor mv, BType targetType) {

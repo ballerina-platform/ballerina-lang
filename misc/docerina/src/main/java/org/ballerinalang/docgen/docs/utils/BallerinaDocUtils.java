@@ -74,14 +74,17 @@ public class BallerinaDocUtils {
      * Convert a given md to a html.
      *
      * @param mdContent content
+     * @param pureMdFile is the mdContent read from a .md file(true) or a bal file(false).
      * @return html representation
      */
-    public static String mdToHtml(String mdContent) {
+    public static String mdToHtml(String mdContent, boolean pureMdFile) {
         // TODO: Handle this properly at grammar level
         // TODO: ```ballerina ``` sections in markdown shouldn't contain '#' at the beginning of each line
-        mdContent = mdContent != null
-               ? mdContent.replaceAll("\n[\\s]*#", "\n")
-               : null;
+        if (mdContent != null) {
+            mdContent = !pureMdFile
+                    ? mdContent.replaceAll("\n[\\s]*#", "\n")
+                    : mdContent;
+        }
         List<Extension> extensions = Arrays.asList(TablesExtension.create());
         Parser parser = Parser.builder().extensions(extensions).enabledBlockTypes(new HashSet<>(Arrays.asList(Heading
                 .class, HtmlBlock.class, ThematicBreak.class, FencedCodeBlock.class, BlockQuote.class, ListBlock
