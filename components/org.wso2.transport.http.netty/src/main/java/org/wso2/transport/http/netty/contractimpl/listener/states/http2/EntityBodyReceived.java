@@ -27,6 +27,7 @@ import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contract.exceptions.ClientClosedConnectionException;
 import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutException;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
@@ -127,7 +128,7 @@ public class EntityBodyReceived implements ListenerState {
                 new IOException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         try {
             serverConnectorFuture.notifyErrorListener(
-                    new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
+                    new ClientClosedConnectionException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
         } catch (ServerConnectorException e) {
             LOG.error(CONNECTOR_NOTIFYING_ERROR, e);
         }
