@@ -302,13 +302,19 @@ public class TypeExtractorUtil {
             } else if ((schema.getType() != null && schema.getType().equals("object")) ||
                     schema.getProperties() != null) {
                 if (schema.getProperties() != null) {
+                    List<String> required_block = new ArrayList<>();
+                    required_block = schema.getRequired();
                     final Iterator<Map.Entry<String, Schema>> propertyIterator = schema.getProperties()
                             .entrySet().iterator();
                     List<BallerinaOpenApiSchema> propertyList = new ArrayList<>();
 
                     while (propertyIterator.hasNext()) {
                         final Map.Entry<String, Schema> nextProp = propertyIterator.next();
-                        final String propName = nextProp.getKey();
+                        String propName = nextProp.getKey();
+                        if (required_block == null || (!required_block.isEmpty() &&
+                                !required_block.contains(propName))) {
+                            propName += "?";
+                        }
                         final Schema propValue = nextProp.getValue();
                         BallerinaOpenApiSchema propertySchema = new BallerinaOpenApiSchema();
 
@@ -380,8 +386,12 @@ public class TypeExtractorUtil {
      */
     public static String escapeIdentifier(String identifier) {
         if (!identifier.matches("[a-zA-Z0-9]+") || BAL_KEYWORDS.stream().anyMatch(identifier::equals)) {
-            identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
-            identifier = "'" + identifier;
+            identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "$1");
+            if (identifier.endsWith("?")) {
+                return identifier;
+            } else {
+                identifier = "'" + identifier;
+            }
         }
         return identifier;
     }
