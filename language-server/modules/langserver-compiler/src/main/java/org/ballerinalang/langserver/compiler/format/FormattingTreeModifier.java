@@ -117,8 +117,6 @@ public class FormattingTreeModifier extends TreeModifier {
         Token functionName = getToken(functionDefinitionNode.functionName());
 
         FunctionSignatureNode functionSignatureNode = this.modifyNode(functionDefinitionNode.functionSignature());
-        Token functionSignatureOpenPara = getToken(functionSignatureNode.openParenToken());
-        Token functionSignatureClosePara = getToken(functionSignatureNode.closeParenToken());
 
         if (visibilityQualifier != null) {
             functionDefinitionNode = functionDefinitionNode.modify()
@@ -129,9 +127,7 @@ public class FormattingTreeModifier extends TreeModifier {
         functionDefinitionNode = functionDefinitionNode.modify()
                 .withFunctionKeyword(formatToken(functionKeyword, 0, 0, 0, 0))
                 .withFunctionName((IdentifierToken) formatToken(functionName, 1, 0, 0, 0))
-                .withFunctionSignature(functionSignatureNode
-                        .modify(functionSignatureOpenPara, functionSignatureNode.parameters(),
-                                functionSignatureClosePara, null))
+                .withFunctionSignature(functionSignatureNode)
                 .apply();
 
         FunctionBodyNode functionBodyNode = this.modifyNode(functionDefinitionNode.functionBody());
@@ -159,6 +155,30 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withOpenParenToken(formatToken(openPara, 0, 0, 0, 0))
                 .withCloseParenToken(formatToken(closePara, 0, 0, 0, 0))
                 .withParameters(parameters)
+                .apply();
+    }
+
+    @Override
+    public ReturnTypeDescriptorNode transform(ReturnTypeDescriptorNode returnTypeDescriptorNode) {
+        Token returnsKeyword = getToken(returnTypeDescriptorNode.returnsKeyword());
+        NodeList<AnnotationNode> annotations = this.modifyNodeList(returnTypeDescriptorNode.annotations());
+        Node type = this.modifyNode(returnTypeDescriptorNode.type());
+
+        return returnTypeDescriptorNode.modify()
+                .withAnnotations(annotations)
+                .withReturnsKeyword(formatToken(returnsKeyword, 1, 1, 0, 0))
+                .withType(type)
+                .apply();
+    }
+
+    @Override
+    public OptionalTypeDescriptorNode transform(OptionalTypeDescriptorNode optionalTypeDescriptorNode) {
+        Node typeDescriptor = this.modifyNode(optionalTypeDescriptorNode.typeDescriptor());
+        Token questionMarkToken = getToken(optionalTypeDescriptorNode.questionMarkToken());
+
+        return optionalTypeDescriptorNode.modify()
+                .withTypeDescriptor(typeDescriptor)
+                .withQuestionMarkToken(formatToken(questionMarkToken, 0, 0, 0, 0))
                 .apply();
     }
 
@@ -546,11 +566,11 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ElseBlockNode transform(ElseBlockNode elseBlockNode) {
         Token elseKeyword = getToken(elseBlockNode.elseKeyword());
+        StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
         elseBlockNode = elseBlockNode.modify()
                 .withElseKeyword(formatToken(elseKeyword, 1, 0, 0, 0))
                 .apply();
 
-        StatementNode elseBody = this.modifyNode(elseBlockNode.elseBody());
 
         return elseBlockNode.modify()
                 .withElseBody(elseBody)
@@ -820,6 +840,85 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public CheckExpressionNode transform(CheckExpressionNode checkExpressionNode) {
+        int startColumn = getStartColumn(checkExpressionNode, checkExpressionNode.kind(), true);
+        Token checkKeyword = getToken(checkExpressionNode.checkKeyword());
+        ExpressionNode expressionNode = this.modifyNode(checkExpressionNode.expression());
+
+        return checkExpressionNode.modify()
+                .withCheckKeyword(formatToken(checkKeyword, startColumn, 1, 0, 0))
+                .withExpression(expressionNode)
+                .apply();
+    }
+
+    @Override
+    public WhileStatementNode transform(WhileStatementNode whileStatementNode) {
+        int startColumn = getStartColumn(whileStatementNode, whileStatementNode.kind(), true);
+        Token whileKeyword = getToken(whileStatementNode.whileKeyword());
+
+        whileStatementNode = whileStatementNode.modify()
+                .withWhileKeyword(formatToken(whileKeyword, startColumn, 0, 0, 0))
+                .apply();
+
+        ExpressionNode condition = this.modifyNode(whileStatementNode.condition());
+        BlockStatementNode whileBody = this.modifyNode(whileStatementNode.whileBody());
+
+        return whileStatementNode.modify()
+                .withCondition(condition)
+                .withWhileBody(whileBody)
+                .apply();
+    }
+
+    @Override
+    public ReturnStatementNode transform(ReturnStatementNode returnStatementNode) {
+        int startColumn = getStartColumn(returnStatementNode, returnStatementNode.kind(), true);
+        Token returnKeyword = getToken(returnStatementNode.returnKeyword());
+        ExpressionNode expressionNode = returnStatementNode.expression().orElse(null);
+        Token semicolonToken = getToken(returnStatementNode.semicolonToken());
+
+        returnStatementNode = returnStatementNode.modify()
+                .withReturnKeyword(formatToken(returnKeyword, startColumn, 1, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 1))
+                .apply();
+
+        if (expressionNode != null) {
+            returnStatementNode = returnStatementNode.modify()
+                    .withExpression(this.modifyNode(expressionNode))
+                    .apply();
+        }
+        return returnStatementNode;
+    }
+
+    @Override
+    public MethodCallExpressionNode transform(MethodCallExpressionNode methodCallExpressionNode) {
+        NodeList<FunctionArgumentNode> arguments = this.modifyNodeList(methodCallExpressionNode.arguments());
+        Token openParenToken = getToken(methodCallExpressionNode.openParenToken());
+        Token closeParenToken = getToken(methodCallExpressionNode.closeParenToken());
+        Token dotToken = getToken(methodCallExpressionNode.dotToken());
+        ExpressionNode expression = this.modifyNode(methodCallExpressionNode.expression());
+        NameReferenceNode methodName = this.modifyNode(methodCallExpressionNode.methodName());
+
+        return methodCallExpressionNode.modify()
+                .withArguments(arguments)
+                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
+                .withDotToken(formatToken(dotToken, 0, 0, 0, 0))
+                .withExpression(expression)
+                .withMethodName(methodName)
+                .apply();
+    }
+
+    /**
+     * Update the minutiae and return the token
+     *
+     * @param token            token
+     * @param leadingSpaces    leading spaces
+     * @param trailingSpaces   trailing spaces
+     * @param leadingNewLines  leading new lines
+     * @param trailingNewLines trailing new lines
+     * @return updated token
+     */
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
@@ -849,12 +948,19 @@ public class FormattingTreeModifier extends TreeModifier {
         return whiteSpaces.toString();
     }
 
+    /**
+     * Initialize the token with empty minutiae lists
+     *
+     * @param node node
+     * @return token with empty minutiae
+     */
     private <T extends Token> Token getToken(T node) {
         if (node == null) return node;
         return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
                 AbstractNodeFactory.createEmptyMinutiaeList());
     }
 
+    // TODO: Use a generic way to get the parent node using querying.
     private <T extends Node> Node getParent(T node, SyntaxKind syntaxKind) {
         Node parent = node.parent();
         if (parent == null) {
@@ -870,20 +976,29 @@ public class FormattingTreeModifier extends TreeModifier {
         } else if (parentKind == SyntaxKind.FUNCTION_DEFINITION ||
                 parentKind == SyntaxKind.IF_ELSE_STATEMENT ||
                 parentKind == SyntaxKind.ELSE_BLOCK ||
-                parentKind == SyntaxKind.SPECIFIC_FIELD) {
+                parentKind == SyntaxKind.SPECIFIC_FIELD ||
+                parentKind == SyntaxKind.WHILE_STATEMENT) {
             return parent;
         } else if (syntaxKind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            if (parent.parent().kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
-                return getParent(parent, syntaxKind);
+            if (parentKind == SyntaxKind.REQUIRED_PARAM ||
+                    parentKind == SyntaxKind.POSITIONAL_ARG ||
+                    parentKind == SyntaxKind.BINARY_EXPRESSION ||
+                    parentKind == SyntaxKind.RETURN_STATEMENT ||
+                    parentKind == SyntaxKind.LOCAL_VAR_DECL ||
+                    (parentKind == SyntaxKind.FUNCTION_CALL && parent.parent() != null &&
+                            parent.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT)) {
+                return null;
             }
-            return null;
+            return getParent(parent, syntaxKind);
+
         } else if (parentKind == SyntaxKind.SERVICE_DECLARATION ||
                 parentKind == SyntaxKind.BINARY_EXPRESSION) {
             if (syntaxKind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
                 return null;
             }
             return parent;
-        } else if (parentKind == SyntaxKind.REQUIRED_PARAM) {
+        } else if (parentKind == SyntaxKind.REQUIRED_PARAM ||
+                parentKind == SyntaxKind.RETURN_TYPE_DESCRIPTOR) {
             return null;
         } else if (parent.parent() != null) {
             return getParent(parent, syntaxKind);
@@ -892,6 +1007,12 @@ public class FormattingTreeModifier extends TreeModifier {
         }
     }
 
+    /**
+     * Get the node position
+     *
+     * @param node node
+     * @return node position
+     */
     private DiagnosticPos getPosition(Node node) {
         if (node == null) {
             return null;
@@ -903,6 +1024,14 @@ public class FormattingTreeModifier extends TreeModifier {
                 startPos.offset(), endPos.offset());
     }
 
+    /**
+     * return the indented start column
+     *
+     * @param node       node
+     * @param syntaxKind node kind
+     * @param addSpaces  add spaces or not
+     * @return start position
+     */
     private int getStartColumn(Node node, SyntaxKind syntaxKind, boolean addSpaces) {
         Node parent = getParent(node, syntaxKind);
         if (parent != null) {
