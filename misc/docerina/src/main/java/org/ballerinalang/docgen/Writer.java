@@ -114,7 +114,7 @@ public class Writer {
                     return splits[0] + ".";
                 }
             });
-
+            // used to check if all constructs in the list are anonymous
             handlebars.registerHelper("areAllAnonymous", (Helper<List<Construct>>) (consList, options) -> {
                 if (consList.get(0) instanceof Record) {
                     for (Construct construct: consList) {
