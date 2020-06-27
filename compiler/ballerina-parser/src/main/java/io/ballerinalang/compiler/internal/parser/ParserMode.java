@@ -25,6 +25,14 @@ package io.ballerinalang.compiler.internal.parser;
 public enum ParserMode {
     DEFAULT,
     IMPORT,
+    // Doc change ------------
+    DOCUMENTATION,
+    PARA_DOCUMENTATION,
+    PARA,
+    BACKTICK_CONTENT,
+    DOUBLE_BACKTICK_CONTENT,
+    TRIPPLE_BACKTICK_CONTENT,
+    // Doc change end --------
     TEMPLATE,
     INTERPOLATION,
     INTERPOLATION_BRACED_CONTENT,

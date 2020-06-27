@@ -45,6 +45,32 @@ public class BallerinaLexer extends AbstractLexer {
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {
+            // Doc change begin
+            case DOCUMENTATION:
+                processLeadingTrivia();
+                token = readDocumentationToken();
+                break;
+            case PARA_DOCUMENTATION:
+                processLeadingTrivia();
+                token = readParaDocumentationToken();
+                break;
+            case PARA:
+                processLeadingTrivia();
+                token = readParaDocToken();
+                break;
+            case BACKTICK_CONTENT:
+                processLeadingTrivia();
+                token = readBacktickContentToken();
+                break;
+            case DOUBLE_BACKTICK_CONTENT:
+                processLeadingTrivia();
+                token = readDoubleBacktickContentToken();
+                break;
+            case TRIPPLE_BACKTICK_CONTENT:
+                processLeadingTrivia();
+                token = readTrippleBacktickContentToken();
+                break;
+                // Doc change end
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
                 token = readTemplateToken();
@@ -67,6 +93,228 @@ public class BallerinaLexer extends AbstractLexer {
         // Can we improve this logic by creating the token with diagnostics then and there?
         return cloneWithDiagnostics(token);
     }
+
+    // Doc change begin --------------
+    private STToken readDocumentationToken() {
+        reader.mark();
+        int nextChar = peek();
+        switch (nextChar) {
+            case LexerTerminals.PLUS:
+                reader.advance();
+//                startMode(ParserMode.PARA_DOCUMENTATION);
+                switchMode(ParserMode.PARA_DOCUMENTATION);
+                return getDocSyntaxToken(SyntaxKind.PLUS_TOKEN);
+            case LexerTerminals.HASH: // Deprecated Documentation
+                // check for the word deprecated
+                //create deprecatedDocToken
+            case LexerTerminals.BACKTICK:
+                reader.advance();
+                if (peek() == LexerTerminals.BACKTICK) {
+                    reader.advance();
+                    if (peek() == LexerTerminals.BACKTICK) {
+                        reader.advance();
+//                        startMode(ParserMode.TRIPPLE_BACKTICK_CONTENT);
+                        switchMode(ParserMode.TRIPPLE_BACKTICK_CONTENT);
+                        return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
+                    }
+//                    startMode(ParserMode.DOUBLE_BACKTICK_CONTENT);
+                    switchMode(ParserMode.DOUBLE_BACKTICK_CONTENT);
+                    return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+                }
+//                startMode(ParserMode.BACKTICK_CONTENT);
+                switchMode(ParserMode.BACKTICK_CONTENT);
+                return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            default:
+                A:
+                while (!reader.isEOF()) {
+                    switch (nextChar) {
+                        case LexerTerminals.NEWLINE:
+                        case LexerTerminals.CARRIAGE_RETURN:
+                            endMode();
+                            break;
+                        case LexerTerminals.BACKTICK:
+                            break;
+                        default:
+                            // ident begin
+                            String identifier = "";
+                            if (isIdentifierInitialChar(nextChar)) {
+                                identifier = identifier.concat(String.valueOf((char)nextChar));
+//                                reader.advance();
+                                int count = 1;
+                                int nextNextChar = reader.peek(count);
+                                while (isIdentifierInitialChar(nextNextChar)) {
+                                    identifier = identifier.concat(String.valueOf((char)nextNextChar));
+                                    count++;
+                                    nextNextChar = reader.peek(count);
+                                }
+                            } else {
+                                reader.advance();
+                                nextChar = peek();
+                                continue;
+                            }
+
+                            switch (identifier) {
+                                case "type":
+                                case "service":
+                                case "variable":
+                                case "var":
+                                case "annotation":
+                                case "module":
+                                case "function":
+                                case "parameter":
+                                    int cnt = identifier.length();
+                                    int nchar = reader.peek(cnt);
+                                    while (true) {
+                                        switch (nchar){
+                                            case LexerTerminals.SPACE:
+                                                cnt++;
+                                                nchar = reader.peek(cnt);
+                                                continue;
+                                            case LexerTerminals.BACKTICK:
+                                                // Make sure this is a single backtick
+//                                                startMode(ParserMode.PARA);
+                                                switchMode(ParserMode.PARA);
+                                                break A;
+                                            default:
+                                                break;
+                                        }
+                                        break;
+                                    }
+                                    // fall through
+                                default:
+                                    reader.advance(identifier.length());
+                                    break;
+                            }
+                            // ident end
+                            nextChar = peek();
+                            continue;
+                    }
+                    break;
+                }
+        }
+
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    private STToken readParaDocToken() {
+//        endMode();
+        switchMode(ParserMode.DOCUMENTATION);
+        return readToken();
+    }
+
+    private STToken readBacktickContentToken() {
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.BACKTICK) {
+            reader.advance();
+//            endMode();
+            switchMode(ParserMode.DOCUMENTATION);
+            return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+        }
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+//                    endMode();
+                    switchMode(ParserMode.DOCUMENTATION);
+                    // fall through
+                case LexerTerminals.BACKTICK:
+                    break;
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
+        }
+        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
+    }
+
+    private STToken readDoubleBacktickContentToken() {
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK) {
+            reader.advance(2);
+//            endMode();
+            switchMode(ParserMode.DOCUMENTATION);
+            return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
+        }
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+//                    endMode();
+                    switchMode(ParserMode.DOCUMENTATION);
+                    // fall through
+                case LexerTerminals.BACKTICK:
+                    if (reader.peek(1) == LexerTerminals.BACKTICK){
+                        break;
+                    }
+                    // fall through
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
+        }
+        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
+    }
+
+    private STToken readTrippleBacktickContentToken() {
+        int nextToken = peek();
+        if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK
+                && reader.peek(2) == LexerTerminals.BACKTICK) {
+            reader.advance(3);
+//            endMode();
+            switchMode(ParserMode.DOCUMENTATION);
+            return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
+        }
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+//                    endMode();
+                    switchMode(ParserMode.DOCUMENTATION);
+                    // fall through
+                case LexerTerminals.BACKTICK:
+                    if (reader.peek(1) == LexerTerminals.BACKTICK && reader.peek(2) == LexerTerminals.BACKTICK){
+                        break;
+                    }
+                    // fall through
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
+            }
+            break;
+        }
+        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
+    }
+
+    private STToken readParaDocumentationToken() {
+        reader.mark();
+        int nextChar = peek();
+        if (isIdentifierInitialChar(nextChar)) {
+            reader.advance();
+            while (isIdentifierInitialChar(peek())) {
+                reader.advance();
+            }
+            String tokenText = getLexeme();
+            return getIdentifierToken(tokenText);
+        } else if (nextChar == LexerTerminals.MINUS) {
+            reader.advance();
+//            endMode();
+            switchMode(ParserMode.DOCUMENTATION);
+            return getDocSyntaxToken(SyntaxKind.MINUS_TOKEN);
+        } else {
+//            endMode();
+            switchMode(ParserMode.DOCUMENTATION);
+            return readDocumentationToken();
+        }
+    }
+    // Doc chang end --------------------------------
 
     private STToken nextTokenInternal() {
         switch (this.mode) {
@@ -152,6 +400,8 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.HASH:
                 token = processDocumentationLine();
+//                startMode(ParserMode.DOCUMENTATION);
+//                token = getSyntaxToken(SyntaxKind.HASH_TOKEN);
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);
@@ -310,6 +560,18 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return token;
+    }
+
+    // TODO: refactor
+    private STToken getDocSyntaxToken(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        STNode trailingTrivia = processTrailingTrivia();
+        for (int i=0; i< trailingTrivia.bucketCount(); i++) {
+            if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                endMode();
+            }
+        }
+        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
     private STToken getSyntaxToken(SyntaxKind kind) {
@@ -1408,6 +1670,19 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    // TODO: refactor
+    private STToken getDocTemplateString(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        for (int i = 0; i < trailingTrivia.bucketCount(); i++) {
+            if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                endMode();
+            }
+        }
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 

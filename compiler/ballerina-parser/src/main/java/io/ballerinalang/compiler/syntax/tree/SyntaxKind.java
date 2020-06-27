@@ -140,6 +140,8 @@ public enum SyntaxKind {
     BACKTICK_TOKEN(515, "`"),
     DOUBLE_QUOTE_TOKEN(516, "\""),
     SINGLE_QUOTE_TOKEN(517, "'"),
+    DOUBLE_BACKTICK_TOKEN(518, "``"),
+    TRIPPLE_BACKTICK_TOKEN(519, "```"),
 
     // Operators
     EQUAL_TOKEN(550, "="),
@@ -407,6 +409,7 @@ public enum SyntaxKind {
     LIMIT_CLAUSE(3072),
     JOIN_CLAUSE(3073),
     ON_CLAUSE(3074),
+    BACKTICK_CONTENT(3075),
 
     // XML
     XML_ELEMENT(4000),
