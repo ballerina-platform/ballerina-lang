@@ -27,6 +27,7 @@ import org.eclipse.lsp4j.debug.Variable;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
@@ -40,7 +41,11 @@ public class BRecord extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        try {
+            return isAnonymous() ? "anonymous" : getBType(jvmValue);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 
     @Override
@@ -51,17 +56,29 @@ public class BRecord extends BCompoundVariable {
             }
             ObjectReference jvmValueRef = (ObjectReference) jvmValue;
             Map<Field, Value> fieldValueMap = jvmValueRef.getValues(jvmValueRef.referenceType().allFields());
-            Map<String, Value> values = new HashMap<>();
-            // Uses ballerina record type name to filter record fields from the jvm reference.
-            String balRecordFiledIdentifier = this.computeValue() + ".";
+
+            // Uses ballerina record type name/anonymous record identifier to filter ballerina record fields from its
+            // jvm reference.
+            String balRecordFiledIdentifier = isAnonymous() ? "$value$" : this.computeValue() + ".";
+            Map<String, Value> recordFields = new HashMap<>();
             fieldValueMap.forEach((field, value) -> {
                 if (field.toString().contains(balRecordFiledIdentifier)) {
-                    values.put(field.name(), value);
+                    recordFields.put(field.name(), value);
                 }
             });
-            return values;
+            return recordFields;
         } catch (Exception ignored) {
             return new HashMap<>();
         }
+    }
+
+    /**
+     * Returns whether this record instance is anonymous.
+     *
+     * @return whether the given record instance is anonymous.
+     */
+    private boolean isAnonymous() {
+        String bType = getBType(jvmValue);
+        return bType.startsWith("$");
     }
 }
