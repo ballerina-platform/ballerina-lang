@@ -1061,10 +1061,11 @@ public class BIRPackageSymbolEnter {
                     BUnionType unionType = BUnionType.create(unionTypeSymbol,
                             new LinkedHashSet<>()); //TODO improve(useless second param)
                     int unionMemberCount = inputStream.readInt();
+                    unionType.flags = flags;
+                    addShapeCP(unionType, cpI);
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
-                    unionType.flags = flags;
                     return unionType;
                 case TypeTags.INTERSECTION:
                     BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
