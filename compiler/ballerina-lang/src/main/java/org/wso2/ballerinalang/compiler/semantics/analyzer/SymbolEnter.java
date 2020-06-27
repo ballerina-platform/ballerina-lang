@@ -876,13 +876,13 @@ public class SymbolEnter extends BLangNodeVisitor {
         definedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
-        boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
-        if (isLanglibModule) {
-            handleLangLibTypes(typeDefinition);
-            return;
-        }
 
         if (!typeDefinition.hasCyclicReference) {
+            boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
+            if (isLanglibModule) {
+                handleLangLibTypes(typeDefinition);
+                return;
+            }
             defineSymbol(typeDefinition.name.pos, typeDefSymbol);
         }
 
@@ -896,15 +896,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
                 names.fromIdNode(typeDef.name), env.enclPkg.symbol.pkgID, unionType, env.scope.owner);
-
-        // Define symbol
-        defineSymbol(typeDef.name.pos, typeDefSymbol);
+        typeDef.symbol = typeDefSymbol;
+        if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
+            handleLangLibTypes(typeDef);
+        } else {
+            defineSymbol(typeDef.name.pos, typeDefSymbol);
+        }
         BType definedType = symResolver.resolveTypeNode(typeDef.typeNode, env);
         if (definedType.tag == TypeTags.UNION) {
             BUnionType definedUnionType = (BUnionType) definedType;
             unionType.tsymbol = definedUnionType.tsymbol;
             unionType.tsymbol.name = names.fromIdNode(typeDef.name);
             unionType.flags |= Flags.asMask(EnumSet.of(Flag.ANONYMOUS));
+            unionType.flags |= typeDefSymbol.flags;
             for (BType memberType : definedUnionType.getMemberTypes()) {
                 unionType.add(memberType);
             }
