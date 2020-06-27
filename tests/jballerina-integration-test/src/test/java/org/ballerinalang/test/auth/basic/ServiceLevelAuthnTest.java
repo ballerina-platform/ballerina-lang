@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Test cases for service level authentication/authorization.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
  */
 @Test(groups = "auth-test")
 public class ServiceLevelAuthnTest extends AuthBaseTest {

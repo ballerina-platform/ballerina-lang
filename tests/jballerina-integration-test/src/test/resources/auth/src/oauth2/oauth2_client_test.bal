@@ -18,6 +18,8 @@ import ballerina/http;
 import ballerina/config;
 import ballerina/oauth2;
 
+// NOTE: All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
+
 // Test the client credentials grant type with valid credentials
 oauth2:OutboundOAuth2Provider oauth2Provider1 = new({
     tokenUrl: "https://localhost:20299/oauth2/token/authorize/header",

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// NOTE: All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
+
 import ballerina/crypto;
 import ballerina/config;
 import ballerina/http;
