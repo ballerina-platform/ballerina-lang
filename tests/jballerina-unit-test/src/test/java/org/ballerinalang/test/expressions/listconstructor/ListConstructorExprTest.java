@@ -73,6 +73,7 @@ public class ListConstructorExprTest {
                                   57, 28);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '(readonly|int[])', " +
                                           "found '[int,map<(boolean|int)>]'", 66, 25);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(boolean[][]|readonly)'", 70, 31);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -86,6 +87,11 @@ public class ListConstructorExprTest {
         BRunUtil.invoke(result, "testListConstructorWithAnyACET");
         BRunUtil.invoke(result, "testListConstructorWithAnydataACET");
         BRunUtil.invoke(result, "testListConstructorWithJsonACET");
+    }
+
+    @Test
+    public void testTypeWithReadOnlyInUnionCET() {
+        BRunUtil.invoke(result, "testTypeWithReadOnlyInUnionCET");
     }
 
     @Test

@@ -64,4 +64,8 @@ function testInferringForReadOnlyNegativeInUnion() {
     };
 
     readonly|int[] rd = [1, mp];
+
+    boolean[] & readonly arr = [];
+
+    boolean[][]|readonly br = [arr];
 }
