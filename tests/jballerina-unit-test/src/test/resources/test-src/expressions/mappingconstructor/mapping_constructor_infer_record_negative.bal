@@ -151,4 +151,10 @@ function testInferringForReadOnlyNegativeInUnion() {
         a: 1,
         r1
     };
+
+    map<string> & readonly m = {};
+
+    map<map<json>>|readonly fr = {
+        a: m
+    };
 }

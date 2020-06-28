@@ -59,7 +59,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnyACET" },
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
-                { "testNonAmbiguousMapUnionTarget" }
+                { "testNonAmbiguousMapUnionTarget" },
+                { "testTypeWithReadOnlyInUnionCET" }
         };
     }
 
@@ -217,7 +218,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 15);
+        Assert.assertEquals(compileResult.getErrorCount(), 16);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -244,8 +245,9 @@ public class MappingConstructorExprTest {
                       "a type compatible with mapping constructor expressions not found in type 'other'", 137, 19);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Rec1'", 139, 9);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'future'", 140, 12);
-        validateError(compileResult, index, "a type compatible with mapping constructor expressions not found in type" +
-                " '(readonly|int[])'", 150, 25);
+        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
+                "type '(readonly|int[])'", 150, 25);
+        validateError(compileResult, index, "ambiguous type '(map<map<json>>|readonly)'", 157, 34);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
