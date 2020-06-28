@@ -30,12 +30,14 @@ import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.util.Enumeration;
 import java.util.Map;
 
@@ -157,8 +159,9 @@ public class Utils {
         long retryNmbr = getRetryNumber(prevAttemptInfo);
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 STRUCT_TYPE_TRANSACTION_INFO);
-        Object[] trxContextData = new Object[] {
-                globalTransactionId, retryNmbr, System.currentTimeMillis(), prevAttemptInfo
+        Object[] trxContextData = new Object[]{
+                BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
+                System.currentTimeMillis(), prevAttemptInfo
         };
         MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext

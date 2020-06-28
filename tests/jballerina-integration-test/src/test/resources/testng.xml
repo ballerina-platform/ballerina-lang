@@ -127,11 +127,6 @@
             <class name="org.ballerinalang.test.auth.basic.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthnWithMultipleHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthzCacheTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthnWithExpiredCertificateTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.TokenPropagationTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.SignatureValidationTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
             <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
