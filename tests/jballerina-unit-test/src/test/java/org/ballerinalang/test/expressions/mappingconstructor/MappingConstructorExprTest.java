@@ -267,7 +267,9 @@ public class MappingConstructorExprTest {
                 { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" },
                 { "testInferenceWithMappingConstrExprAsSpreadExpr" },
                 { "testInferringForReadOnly" },
-                { "testInferringForReadOnlyInUnion" }
+                { "testInferringForReadOnlyInUnion" },
+                { "testValidReadOnlyWithDifferentFieldKinds" },
+                { "testValidReadOnlyInUnionWithDifferentFieldKinds" }
         };
     }
 
