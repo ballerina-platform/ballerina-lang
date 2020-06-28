@@ -61,10 +61,10 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(Student & readonly)', found 'Student'", 57, 30);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
-        validateError(result, index++, "incompatible types: expected '((A|B|any) & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected '(anydata & readonly)', found 'string[]'", 81, 28);
-        validateError(result, index++, "incompatible types: expected '(any & readonly)', found 'future'", 83, 30);
-        validateError(result, index++, "incompatible types: expected '((Obj|int[]) & readonly)', found 'string[]'",
+        validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 78, 26);
+        validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
+        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 30);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'string[]'",
                       85, 32);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 112, 18);

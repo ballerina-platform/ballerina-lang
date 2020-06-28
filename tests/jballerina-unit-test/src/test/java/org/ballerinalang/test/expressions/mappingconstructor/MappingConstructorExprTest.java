@@ -41,8 +41,8 @@ public class MappingConstructorExprTest {
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
-        inferRecordResult = BCompileUtil.compile("test-src/expressions/mappingconstructor" +
-                                                         "/mapping_constructor_infer_record.bal");
+        inferRecordResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
         varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
         readOnlyFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field.bal");
@@ -307,24 +307,25 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       42, 22);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((Details|string) & readonly)', found 'Details'", 54, 49);
+                      "incompatible types: expected '((Details & readonly)|string)', found 'Details'", 54, 49);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
                       55, 42);
-        validateError(compileResult, index++, "incompatible types: expected '(map<(Details|string)> & readonly)', " +
-                "found 'map<(Details|string)>'", 61, 18);
+        validateError(compileResult, index++,
+                      "incompatible types: expected 'map<((Details|string) & readonly)> & readonly', " +
+                              "found 'map<(Details|string)>'", 61, 18);
         validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
                       63, 13);
         validateError(compileResult, index++,
                       "invalid 'readonly' mapping field 'x': 'future<int>' can never be 'readonly'", 77, 40);
         validateError(compileResult, index++,
-                      "incompatible types: expected '(any & readonly)', found 'stream<boolean>'", 77, 57);
+                      "incompatible types: expected 'any & readonly', found 'stream<boolean>'", 77, 57);
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any|error) & readonly)', found 'future<int>'", 81, 45);
+                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 45);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any|error) & readonly)', found 'stream<boolean>'", 81, 64);
+                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 64);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);
