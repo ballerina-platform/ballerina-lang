@@ -179,7 +179,6 @@ import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -757,9 +756,8 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangListConstructorExpr listConstructor) {
         if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.READONLY) {
             BType inferredType = getInferredTupleType(listConstructor, expType);
-            if (inferredType != symTable.semanticError) {
-                resultType = types.checkType(listConstructor, inferredType, expType);
-            }
+            resultType = inferredType == symTable.semanticError ?
+                    symTable.semanticError : types.checkType(listConstructor, inferredType, expType);
             return;
         }
 
@@ -1310,7 +1308,7 @@ public class TypeChecker extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 return checkTupleType(listConstructor, (BTupleType) possibleType);
             case TypeTags.READONLY:
-                return getInferredTupleType(listConstructor, possibleType);
+                return checkReadOnlyListType(listConstructor);
             case TypeTags.TYPEDESC:
                 // i.e typedesc t = [int, string]
                 List<BType> results = new ArrayList<>();
@@ -1441,6 +1439,25 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         return errored ? symTable.semanticError : tupleType;
+    }
+
+    private BType checkReadOnlyListType(BLangListConstructorExpr listConstructor) {
+        if (!this.nonErrorLoggingCheck) {
+            BType inferredType = getInferredTupleType(listConstructor, symTable.readonlyType);
+
+            if (inferredType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            return types.checkType(listConstructor, inferredType, symTable.readonlyType);
+        }
+
+        for (BLangExpression expr : listConstructor.exprs) {
+            if (exprIncompatible(symTable.readonlyType, expr)) {
+                return symTable.semanticError;
+            }
+        }
+
+        return symTable.readonlyType;
     }
 
     private boolean exprIncompatible(BType eType, BLangExpression expr) {
@@ -1696,12 +1713,40 @@ public class TypeChecker extends BLangNodeVisitor {
 
                 return isSpecifiedFieldsValid && hasAllRequiredFields ? possibleType : symTable.semanticError;
             case TypeTags.READONLY:
-                return checkMappingConstructorCompatibility(defineInferredRecordType(mappingConstructor, possibleType),
-                                                            mappingConstructor);
+                return checkReadOnlyMappingType(mappingConstructor);
         }
         reportIncompatibleMappingConstructorError(mappingConstructor, bType);
         validateSpecifiedFields(mappingConstructor, symTable.semanticError);
         return symTable.semanticError;
+    }
+
+    private BType checkReadOnlyMappingType(BLangRecordLiteral mappingConstructor) {
+        if (!this.nonErrorLoggingCheck) {
+            BType inferredType = defineInferredRecordType(mappingConstructor, symTable.readonlyType);
+
+            if (inferredType == symTable.semanticError) {
+                return symTable.semanticError;
+            }
+            return checkMappingConstructorCompatibility(inferredType, mappingConstructor);
+        }
+
+        for (RecordLiteralNode.RecordField field : mappingConstructor.fields) {
+            BLangExpression exprToCheck;
+
+            if (field.isKeyValueField()) {
+                exprToCheck = ((BLangRecordKeyValueField) field).valueExpr;
+            } else if (field.getKind() == NodeKind.RECORD_LITERAL_SPREAD_OP) {
+                exprToCheck = ((BLangRecordLiteral.BLangRecordSpreadOperatorField) field).expr;
+            } else {
+                exprToCheck = (BLangRecordVarNameField) field;
+            }
+
+            if (exprIncompatible(symTable.readonlyType, exprToCheck)) {
+                return symTable.semanticError;
+            }
+        }
+
+        return symTable.readonlyType;
     }
 
     private BType getMappingConstructorCompatibleNonUnionType(BType type) {

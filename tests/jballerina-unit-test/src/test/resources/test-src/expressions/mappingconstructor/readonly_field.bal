@@ -307,6 +307,78 @@ function testReadOnlyFieldForAlreadyReadOnlyField() {
     assertTrue(p.details.isReadOnly());
 }
 
+function testReadOnlyFieldWithInferredType() {
+    Details & readonly d1 = {
+        name: "May",
+        id: 1234
+    };
+    int i = 1;
+    string s = "d5";
+
+    var val = {
+        readonly d1,
+        readonly d2: d1,
+        d3: {
+            str: "hello"
+        },
+        readonly d4: {
+            "str": "world",
+            readonly count: 1234
+        },
+        [s]: i
+    };
+
+    record {|any|error...;|} rec = val;
+    assertTrue(rec is record {|
+        readonly Details d1;
+        readonly readonly & Details d2; // same as `readonly Details`
+        record {|string str;|} d3;
+        record {|string str; readonly int count;|} d4;
+        int...;
+    |});
+
+    // Invalid updates since `d1` is readonly.
+    var fn = function() {
+        rec["d1"] = 1;
+    };
+    error? res = trap fn();
+    assertTrue(res is error);
+
+    error err = <error> res;
+    assertTrue((<string> err.detail()["message"]).startsWith(
+                    "cannot update 'readonly' field 'd1' in record of type '$anonType$"));
+    assertEquality(d1, rec["d1"]);
+}
+
+function testInferredTypeWithAllReadOnlyFields() {
+    Details & readonly d1 = {
+        name: "May",
+        id: 1234
+    };
+    int i = 1;
+    string s = "d5";
+
+    var val = {
+        readonly d1,
+        readonly d2: d1,
+        readonly d3: {
+            str: "hello"
+        },
+        readonly "d4": {
+            "str": "world",
+            readonly count: 1234
+        }
+    };
+
+    readonly rd = val; // Allowed since all the fields are readonly.
+    assertTrue(rd is readonly & record {|
+        readonly Details d1;
+        readonly readonly & Details d2; // same as `readonly Details`
+        readonly record {|string str;|} d3;
+        readonly record {|string str; readonly int count;|} d4;
+    |});
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

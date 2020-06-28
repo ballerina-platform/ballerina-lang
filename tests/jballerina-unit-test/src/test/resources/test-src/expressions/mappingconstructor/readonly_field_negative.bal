@@ -83,3 +83,42 @@ function testReadOnlyWithNeverReadOnlyFields() {
 }
 
 function getInt() returns int => 1;
+
+function testReadOnlyFieldWithInferredTypeNegative() {
+    Details & readonly d1 = {
+        name: "May",
+        id: 1234
+    };
+    int i = 1;
+    string s = "d5";
+
+    var val = {
+        readonly d1,
+        readonly d2: d1,
+        d3: {
+            str: "hello"
+        },
+        readonly d4: {
+            str: "world",
+            readonly count: 1234
+        },
+        [s]: i
+    };
+
+    record {int i;} rec = val; //  Incompatible types.
+    val.d1 = { // Cannot update readonly field.
+        name: "Jo",
+        id: 4567
+    };
+    val.d1.id = 23456; // Cannot update readonly value.
+
+    Details d2 = {
+        name: "May",
+        id: 1234
+    };
+    var val2 = {
+        readonly d2, // Cannot use mutable value with readonly field.
+        st: "str",
+        readonly d3: [d2, 1] // Cannot use mutable value with readonly field.
+    };
+}

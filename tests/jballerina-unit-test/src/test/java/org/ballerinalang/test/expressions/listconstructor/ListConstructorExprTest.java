@@ -67,6 +67,12 @@ public class ListConstructorExprTest {
                                   48, 13);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'float', found 'int'",
                                   49, 16);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'readonly', found 'int[]'", 57,
+                                  23);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'readonly', found 'future'",
+                                  57, 28);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '(readonly|int[])', " +
+                                          "found '[int,map<(boolean|int)>]'", 66, 25);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -89,5 +95,7 @@ public class ListConstructorExprTest {
         BRunUtil.invoke(resultInferType, "inferNestedTuple");
         BRunUtil.invoke(resultInferType, "testInferSameRecordsInTuple");
         BRunUtil.invoke(resultInferType, "testInferDifferentRecordsInTuple");
+        BRunUtil.invoke(resultInferType, "testInferringForReadOnly");
+        BRunUtil.invoke(resultInferType, "testInferringForReadOnlyInUnion");
     }
 }

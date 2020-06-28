@@ -125,3 +125,30 @@ function testInferredRecordTypeWithOptionalTypeFieldViaSpreadOpNegative() {
         float f;
     } r2 = r1;
 }
+
+function testInferringForReadOnlyNonReadOnlyMemberNegative() {
+    Rec1 r1 = {
+        i: 1,
+        b: true
+    };
+
+    future<()> ft = start testInferringForReadOnlyNonReadOnlyMemberNegative();
+
+    readonly rd = {
+        a: 1,
+        r1,
+        f: ft
+    };
+}
+
+function testInferringForReadOnlyNegativeInUnion() {
+    Rec1 r1 = {
+        i: 1,
+        b: true
+    };
+
+    readonly|int[] rd = {
+        a: 1,
+        r1
+    };
+}
