@@ -405,6 +405,106 @@ function testInferringForReadOnlyInUnion() {
                    err.detail()["message"]);
 }
 
+function testValidReadOnlyWithDifferentFieldKinds() {
+    map<int[]> & readonly a = {
+        "x": [1, 2],
+        "y": [3]
+    };
+
+    boolean[] & readonly b = [true, false];
+
+    readonly x = {
+        ...a,
+        b,
+        c: {
+            d: a
+        }
+    };
+
+    // This should represent the inferred type.
+    assertEquality(true, <any> x is record {|
+                                        boolean[] b;
+                                        record {| map<int[]> & readonly d; |} c;
+                                        int[] & readonly...;
+                                    |});
+
+    var y = <readonly & record {|
+                boolean[] b;
+                record {| map<int[]> d; |} c;
+                int[] & readonly...;
+            |}> x;
+
+    assertEquality(true, y.b.isReadOnly());
+    assertEquality(<boolean[2]> [true, false], y.b);
+
+    assertEquality(true, y.c.isReadOnly());
+    assertEquality(2, y.c.d.length());
+    assertEquality(<int[]> [1, 2], y.c.d["x"]);
+    assertEquality(<int[]> [3], y.c.d["y"]);
+    assertEquality((), y.c.d["z"]);
+
+    assertEquality(<int[]> [1, 2], y["x"]);
+    assertEquality(<int[]> [3], y["y"]);
+    assertEquality((), y["z"]);
+}
+
+function testValidReadOnlyInUnionWithDifferentFieldKinds() {
+    map<int[]> & readonly a = {
+        "x": [1, 2],
+        "y": [3]
+    };
+
+    boolean[] & readonly b = [true, false];
+
+    readonly|record {|boolean[] b; int[]...;|} x = {
+        b,
+        ...a,
+        c: "foo"
+    };
+
+    // This should represent the inferred type.
+    assertEquality(true, x is record {|
+                                  boolean[] b;
+                                  string c;
+                                  int[]...;
+                              |} & readonly);
+
+    var y = <readonly & record {|
+                boolean[] b;
+                string c;
+                int[] & readonly...;
+            |}> x;
+
+    assertEquality(true, y.b.isReadOnly());
+    assertEquality(<boolean[2]> [true, false], y.b);
+
+    assertEquality("foo", y.c);
+
+    assertEquality(true, y["x"].isReadOnly());
+    assertEquality(<int[]> [1, 2], y["x"]);
+    assertEquality(<int[]> [3], y["y"]);
+    assertEquality((), y["z"]);
+
+    int[] arr = [12, 12];
+
+    readonly|record {|boolean[] b; int[]...;|} x2 = {
+        b,
+        ...a,
+        "c": arr
+    };
+
+    assertEquality(true, x2 is record {|boolean[] b; int[]...;|});
+
+    var y2 = <record {|boolean[] b; int[]...;|}> x2;
+
+    assertEquality(false, y2["c"].isReadOnly());
+
+    assertEquality(<int[]> [12, 12], y2["c"]);
+    assertEquality(<int[]> [1, 2], y2["x"]);
+    assertEquality(<int[]> [3], y2["y"]);
+    assertEquality((), y2["z"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;
