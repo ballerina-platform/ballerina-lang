@@ -814,6 +814,8 @@ public class Desugar extends BLangNodeVisitor {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
 
+        recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
+
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
             recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
