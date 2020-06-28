@@ -333,6 +333,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return expr.type;
         }
 
+        if (expType.tag == TypeTags.INTERSECTION) {
+            expType = ((BIntersectionType) expType).effectiveType;
+        }
+
         SymbolEnv prevEnv = this.env;
         BType preExpType = this.expType;
         DiagnosticCode preDiagCode = this.diagCode;
@@ -344,8 +348,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         expr.accept(this);
 
-        expr.type = resultType.tag != TypeTags.INTERSECTION ? resultType :
-                ((BIntersectionType) resultType).effectiveType;
+        if (resultType.tag == TypeTags.INTERSECTION) {
+            resultType = ((BIntersectionType) resultType).effectiveType;
+        }
+
+        expr.type = resultType;
         expr.typeChecked = isTypeChecked;
         this.env = prevEnv;
         this.expType = preExpType;
