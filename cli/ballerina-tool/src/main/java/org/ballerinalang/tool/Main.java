@@ -158,8 +158,7 @@ public class Main {
             Properties properties = new Properties();
             properties.load(inputStream);
 
-            String output = "Ballerina" +
-                    " (" + properties.getProperty("ballerina.channel") + ") " +
+            String output = "Ballerina " + properties.getProperty("ballerina.channel") + " " +
                     properties.getProperty("ballerina.versionDisplayName") + "\n";
             output += "Language specification " + properties.getProperty("spec.version") + "\n";
             outStream.print(output);

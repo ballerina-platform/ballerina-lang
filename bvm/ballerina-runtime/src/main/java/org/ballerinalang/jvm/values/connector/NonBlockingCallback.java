@@ -38,7 +38,7 @@ public class NonBlockingCallback {
         strand.setState(State.BLOCK_AND_YIELD);
         this.strand = strand;
         this.scheduler = strand.scheduler;
-        this.strand.setReturnValues(null);
+        this.strand.returnValue = null;
     }
 
     public void notifySuccess() {
@@ -46,11 +46,11 @@ public class NonBlockingCallback {
     }
 
     public void notifyFailure(BError error) {
-        this.strand.setReturnValues(error);
+        this.strand.returnValue = error;
         this.scheduler.unblockStrand(strand);
     }
 
     public void setReturnValues(Object returnValue) {
-        this.strand.setReturnValues(returnValue);
+        this.strand.returnValue = returnValue;
     }
 }

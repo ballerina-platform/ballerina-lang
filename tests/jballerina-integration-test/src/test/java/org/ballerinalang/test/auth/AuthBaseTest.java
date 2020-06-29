@@ -37,7 +37,6 @@ import java.nio.file.Paths;
 public class AuthBaseTest extends BaseTest {
 
     protected static BServerInstance basicAuthServerInstance;
-    protected static BServerInstance jwtAuthServerInstance;
     protected static BServerInstance oauth2ServerInstance;
     protected static BServerInstance ldapAuthServerInstance;
     private static EmbeddedDirectoryServer embeddedDirectoryServer;
@@ -72,12 +71,10 @@ public class AuthBaseTest extends BaseTest {
                 "--truststore=" + trustStore};
 
         basicAuthServerInstance = new BServerInstance(balServer);
-        jwtAuthServerInstance = new BServerInstance(balServer);
         oauth2ServerInstance = new BServerInstance(balServer);
         ldapAuthServerInstance = new BServerInstance(balServer);
 
         basicAuthServerInstance.startServer(basePath, "basic", null, args, basicAuthRequiredPorts);
-        jwtAuthServerInstance.startServer(basePath, "jwt", null, args, jwtAuthRequiredPorts);
         oauth2ServerInstance.startServer(basePath, "oauth2", null, args, oauth2RequiredPorts);
         ldapAuthServerInstance.startServer(basePath, "ldap", null, args, ldapAuthRequiredPorts);
     }
@@ -87,8 +84,6 @@ public class AuthBaseTest extends BaseTest {
         embeddedDirectoryServer.stopLdapService();
         basicAuthServerInstance.removeAllLeechers();
         basicAuthServerInstance.shutdownServer();
-        jwtAuthServerInstance.removeAllLeechers();
-        jwtAuthServerInstance.shutdownServer();
         oauth2ServerInstance.removeAllLeechers();
         oauth2ServerInstance.shutdownServer();
         ldapAuthServerInstance.removeAllLeechers();
