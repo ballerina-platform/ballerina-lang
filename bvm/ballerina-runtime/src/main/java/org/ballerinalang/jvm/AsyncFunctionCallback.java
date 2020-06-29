@@ -19,9 +19,8 @@
 package org.ballerinalang.jvm;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
+import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.connector.CallableUnitCallback;
 
 /**
@@ -36,13 +35,12 @@ public abstract class AsyncFunctionCallback implements CallableUnitCallback {
     private Strand strand;
 
     public void setReturnValues(Object returnValue) {
-        strand.setReturnValues(returnValue);
+        strand.returnValue = returnValue;
         strand.scheduler.unblockStrand(strand);
     }
 
-    public void handleRuntimeErrors(ErrorValue error) {
-        RuntimeUtils.handleRuntimeErrors(error);
-        strand.setReturnValues(error);
+    public void handleRuntimeErrors(BError error) {
+        strand.panic = error;
         strand.scheduler.unblockStrand(strand);
     }
 
