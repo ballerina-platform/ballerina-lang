@@ -35,7 +35,7 @@ import java.util.Map;
  * Pattern 4 - authHandlers: [[basicAuthHandler1], [basicAuthHandler3]]
  * Pattern 5 - authHandlers: [[basicAuthHandler1, basicAuthHandler2], [basicAuthHandler3, basicAuthHandler4]]
  *
- * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  */
 @Test(groups = "auth-test")
 public class AuthnConfigPatternTest extends AuthBaseTest {
