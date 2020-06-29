@@ -4,6 +4,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageBinary;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -11,6 +12,8 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BIR_EXT;
 
 /**
  * Concrete package entry for BIR file.
@@ -28,8 +31,9 @@ public class PackageBuildRepoBir implements PackageBinary {
 
     private CompilerInput getBirContent() {
         try (FileSystem zipFileSystem = FileSystems
-                .newFileSystem(URI.create("jar:file:" + this.sourcePath), new HashMap<>())) {
-            Path birPath = zipFileSystem.getPath("bir", moduleId.getName().getValue() + ".bir");
+                .newFileSystem(URI.create("jar:file:" + new File(String.valueOf(this.sourcePath)).getAbsolutePath()),
+                        new HashMap<>())) {
+            Path birPath = zipFileSystem.getPath("bir", moduleId.getName().getValue() + BLANG_COMPILED_PKG_BIR_EXT);
             byte[] code = Files.readAllBytes(birPath);
             return new CompilerInputImpl(code, birPath);
         } catch (IOException e) {
