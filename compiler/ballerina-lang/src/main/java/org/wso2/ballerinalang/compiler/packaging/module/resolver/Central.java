@@ -46,13 +46,12 @@ import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isValidVersion;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
+import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
  * Repo for Central.
  */
 public class Central implements Repo {
-
-    private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
 
     @Override
     public List<String> resolveVersions(PackageID moduleId, String filter) throws ModuleResolveException {
@@ -72,7 +71,7 @@ public class Central implements Repo {
 
     public void pullModule(PackageID moduleId) {
         String remoteUri =
-                PRODUCTION_URL + "/modules/" + moduleId.getOrgName() + "/" + moduleId.getName().getValue() + "/*/";
+                getRemoteRepoURL() + "/modules/" + moduleId.getOrgName() + "/" + moduleId.getName().getValue() + "/*/";
         Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
                 .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME).resolve(moduleId.getOrgName().getValue())
                 .resolve(moduleId.getName().getValue());
@@ -85,7 +84,7 @@ public class Central implements Repo {
     public static List<String> getCentralVersions(String orgName, String moduleName, String filter) throws IOException {
         List<String> versions = new ArrayList<>();
         initializeSsl();
-        String url = RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
+        String url = getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
         org.ballerinalang.toml.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
         HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), proxy.getHost(), proxy.getPort(),
                 proxy.getUserName(), proxy.getPassword());

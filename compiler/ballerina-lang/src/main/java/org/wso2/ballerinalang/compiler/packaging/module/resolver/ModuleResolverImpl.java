@@ -43,6 +43,7 @@ import java.util.TreeMap;
 
 import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isAbsoluteVersion;
 import static org.wso2.ballerinalang.compiler.packaging.module.resolver.Util.isGreaterVersion;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
 /**
  * Module resolver implementation.
@@ -95,6 +96,23 @@ public class ModuleResolverImpl implements ModuleResolver {
             return packageID;
         }
 
+        // if it is an immediate import and path balo in the Ballerina.toml
+        // Set version from the path balo
+        if (enclPackageID != null && this.project.getManifest() != null) { // this.project.isModuleExists(enclPackageID)
+            // If path balo dependency
+            String pathBaloPath = resolvePathBaloFromManifest(packageID, this.project.getManifest());
+            if (pathBaloPath != null) {
+                // get version from balo path. This is always an absolute version
+                String versionFromBaloPath = getVersionFromPathBalo(pathBaloPath);
+                packageID.version = new Name(versionFromBaloPath);
+                // add path balo to `resolvedModules` map
+                PathBalo pathBalo = new PathBalo(Paths.get(pathBaloPath));
+                resolvedModules.put(packageID, pathBalo);
+                // return path balo version
+                return packageID;
+            }
+        }
+
         // if lock file exists
         if (enclPackageID != null && this.project.hasLockFile() && this.isLockEnabled) {
             // not a top level module or bal
@@ -113,19 +131,6 @@ public class ModuleResolverImpl implements ModuleResolver {
         // if it is an immediate import check the Ballerina.toml
         // Set version from the Ballerina.toml of the current project
         if (enclPackageID != null && this.project.getManifest() != null && this.project.isModuleExists(enclPackageID)) {
-            // If path balo dependency
-            String pathBaloPath = resolvePathBaloFromManifest(packageID, this.project.getManifest());
-            if (pathBaloPath != null) {
-                // get version from balo path. This is always an absolute version
-                String versionFromBaloPath = getVersionFromPathBalo(pathBaloPath);
-                packageID.version = new Name(versionFromBaloPath);
-                // add path balo to `resolvedModules` map
-                PathBalo pathBalo = new PathBalo(Paths.get(pathBaloPath));
-                resolvedModules.put(packageID, pathBalo);
-                // return path balo version
-                return packageID;
-            }
-
             // If exact version return
             versionFromManifest = resolveVersionFromManifest(packageID, this.project.getManifest());
             PackageID resolvedModuleId = getPackageIDFromRepos(packageID, versionFromManifest);
@@ -192,11 +197,15 @@ public class ModuleResolverImpl implements ModuleResolver {
     }
 
     private Path getBaloPath(Path srcPath) {
-        File[] files = new File(String.valueOf(srcPath)).listFiles();
-        if (files != null && files.length > 0) {
-            for (File file : files) {
-                if (file.getPath().endsWith(".balo")) {
-                    return Paths.get(file.getPath());
+        if (srcPath.toString().endsWith(BLANG_COMPILED_PKG_BINARY_EXT)) {
+            return srcPath;
+        } else {
+            File[] files = new File(String.valueOf(srcPath)).listFiles();
+            if (files != null && files.length > 0) {
+                for (File file : files) {
+                    if (file.getPath().endsWith(BLANG_COMPILED_PKG_BINARY_EXT)) {
+                        return Paths.get(file.getPath());
+                    }
                 }
             }
         }
