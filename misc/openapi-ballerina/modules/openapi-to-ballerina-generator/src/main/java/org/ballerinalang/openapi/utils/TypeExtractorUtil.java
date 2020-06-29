@@ -302,8 +302,7 @@ public class TypeExtractorUtil {
             } else if ((schema.getType() != null && schema.getType().equals("object")) ||
                     schema.getProperties() != null) {
                 if (schema.getProperties() != null) {
-                    List<String> requiredBlock = new ArrayList<>();
-                    requiredBlock = schema.getRequired();
+                    List<String> requiredBlock = schema.getRequired();
                     final Iterator<Map.Entry<String, Schema>> propertyIterator = schema.getProperties()
                             .entrySet().iterator();
                     List<BallerinaOpenApiSchema> propertyList = new ArrayList<>();
