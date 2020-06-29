@@ -625,7 +625,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     }
 
     /**
-     * Clears all the debug hit context information once the debuggee program is resumed
+     * Clears all the debug hit context information once the debuggee program is resumed.
      */
     private void clearState() {
         activeThread = null;

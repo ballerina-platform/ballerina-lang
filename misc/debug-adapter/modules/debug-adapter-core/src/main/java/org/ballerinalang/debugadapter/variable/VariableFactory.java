@@ -59,14 +59,14 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <ul>
  * <li> nil
  * <li> boolean - true, false
- * <li> int	- 64-bit signed integers
+ * <li> int - 64-bit signed integers
  * <li> float - 64-bit IEEE 754-2008 binary floating point numbers
  * <li> decimal - decimal floating point numbers
  * <li> string - a sequence of Unicode scalar values
  * <li> array - an ordered list of values, optionally with a specific length, where a single type is specified for all
  * members of the list
  * <li> tuple - an ordered list of values, where a type is specified separately for each member of the list
- * <li> map	- a mapping from keys, which are strings, to values; specifies mappings in terms of a single type to which
+ * <li> map - a mapping from keys, which are strings, to values; specifies mappings in terms of a single type to which
  * all keys are mapped
  * <li> record - a mapping from keys, which are strings, to values; specifies maps in terms of names of fields
  * (required keys) and value for each field
@@ -79,7 +79,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> handle - reference to externally managed storage
  * <li> typedesc - a type descriptor
  * <li> any - any value other than an error // Todo - show runtime type or "any"?
- * <li> anydata	- not an error and does not contain behavioral members // Todo - show runtime type or "anydata"?
+ * <li> anydata - not an error and does not contain behavioral members // Todo - show runtime type or "anydata"?
  * <li> union - the union of the component types // Todo - show runtime type or union type?
  * <li> optional - the underlying type and () // Todo - show runtime type or optional type?
  * <li> byte - int in the range 0 to 255 inclusive // Todo - show runtime type(int) or "byte"?
@@ -91,7 +91,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * To be implemented
  * <ul>
  * <li> function - a function with 0 or more specified parameter types and a single return type
- * <li> service	- a collection of named methods, including resource methods
+ * <li> service - a collection of named methods, including resource methods
  * <li> never - no value
  * </ul>
  */
