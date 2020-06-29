@@ -275,18 +275,18 @@ public class KafkaConstants {
 
 
     // Strand meta data
-    public static final StrandMetadata METADATA_ON_MESSAGE =
+    public static final StrandMetadata ON_MESSAGE_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, KAFKA_RESOURCE_ON_MESSAGE);
-    public static final StrandMetadata METADATA_ON_SERIALIZE =
+    public static final StrandMetadata ON_SERIALIZE_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_SERIALIZE);
-    public static final StrandMetadata METADATA_ON_DESERIALIZE =
+    public static final StrandMetadata ON_DESERIALIZE_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_DESERIALIZE);
-    public static final StrandMetadata METADATA_ON_CLOSE =
+    public static final StrandMetadata ON_CLOSE_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_CLOSE);
-    public static final StrandMetadata METADATA_ON_PARTITION_REVOKED =
+    public static final StrandMetadata ON_PARTITION_REVOKED_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
                                FUNCTION_ON_PARTITION_REVOKED);
-    public static final StrandMetadata METADATA_ON_PARTITION_ASSIGNED =
+    public static final StrandMetadata ON_PARTITION_ASSIGNED_METADATA =
             new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
                                FUNCTION_ON_PARTITION_ASSIGNED);
 

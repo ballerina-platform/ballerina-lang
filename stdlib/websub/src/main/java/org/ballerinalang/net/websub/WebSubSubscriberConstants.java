@@ -136,10 +136,10 @@ public class WebSubSubscriberConstants {
     // WebSub error types related constants
     public static final String WEBSUB_LISTENER_STARTUP_FAILURE = "ListenerStartupError";
     // Strand meta data
-    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
+    public static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
                                                                                 RESOURCE_NAME_ON_MESSAGE);
-    public static final StrandMetadata METADATA_ON_SEND = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
+    public static final StrandMetadata ON_SEND_METADATA = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
                                                                              ON_SEND);
-    public static final StrandMetadata METADATA_ON_START_UP_HUB = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
+    public static final StrandMetadata ON_START_UP_HUB_METADATA = new StrandMetadata(BALLERINA, WEBSUB, MODULE_VERSION,
                                                                                      "startUpHubService");
 }

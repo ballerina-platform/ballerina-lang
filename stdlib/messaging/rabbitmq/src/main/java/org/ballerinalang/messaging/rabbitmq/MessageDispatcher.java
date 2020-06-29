@@ -79,9 +79,9 @@ public class MessageDispatcher {
     private ObjectValue channelObj;
     private String queueName;
     private BRuntime runtime;
-    private static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(ORG_NAME, RABBITMQ,
+    private static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(ORG_NAME, RABBITMQ,
                                                                                  RABBITMQ_VERSION, FUNC_ON_MESSAGE);
-    private static final StrandMetadata METADATA_ON_ERROR = new StrandMetadata(ORG_NAME, RABBITMQ, RABBITMQ_VERSION,
+    private static final StrandMetadata ON_ERROR_METADATA = new StrandMetadata(ORG_NAME, RABBITMQ, RABBITMQ_VERSION,
                                                                                FUNC_ON_ERROR);
 
     public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime,
@@ -272,11 +272,11 @@ public class MessageDispatcher {
     }
 
     private void executeResourceOnMessage(CallableUnitCallback callback, Object... args) {
-        executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, METADATA_ON_MESSAGE, args);
+        executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, ON_MESSAGE_METADATA, args);
     }
 
     private void executeResourceOnError(CallableUnitCallback callback, Object... args) {
-       executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, METADATA_ON_ERROR, args);
+       executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, ON_ERROR_METADATA, args);
     }
 
     private void executeResource(String function, CallableUnitCallback callback, StrandMetadata metaData,

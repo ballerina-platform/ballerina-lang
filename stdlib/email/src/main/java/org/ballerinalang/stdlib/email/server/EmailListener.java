@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.stdlib.email.util.EmailConstants.METADATA_ON_ERROR;
-import static org.ballerinalang.stdlib.email.util.EmailConstants.METADATA_ON_MESSAGE;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.ON_ERROR_METADATA;
 import static org.ballerinalang.stdlib.email.util.EmailConstants.ON_MESSAGE;
+import static org.ballerinalang.stdlib.email.util.EmailConstants.ON_MESSAGE_METADATA;
 
 /**
  * Email connector listener for Ballerina.
@@ -64,7 +64,7 @@ public class EmailListener {
         if (runtime != null) {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
-                runtime.invokeMethodSync(service.getValue(), ON_MESSAGE, null, METADATA_ON_MESSAGE, email, true);
+                runtime.invokeMethodSync(service.getValue(), ON_MESSAGE, null, ON_MESSAGE_METADATA, email, true);
             }
         } else {
             log.error("Runtime should not be null.");
@@ -82,7 +82,7 @@ public class EmailListener {
             Set<Map.Entry<String, ObjectValue>> services = registeredServices.entrySet();
             for (Map.Entry<String, ObjectValue> service : services) {
                 runtime.invokeMethodSync(service.getValue(), EmailConstants.ON_ERROR, null,
-                                         METADATA_ON_ERROR, error, true);
+                                         ON_ERROR_METADATA, error, true);
             }
         } else {
             log.error("Runtime should not be null.");

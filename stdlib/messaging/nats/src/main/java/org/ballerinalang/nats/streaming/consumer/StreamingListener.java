@@ -40,10 +40,10 @@ import org.ballerinalang.nats.observability.NatsObserverContext;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.ballerinalang.nats.Constants.METADATA_ON_ERROR;
-import static org.ballerinalang.nats.Constants.METADATA_ON_MESSAGE;
 import static org.ballerinalang.nats.Constants.NATS_STREAMING_MESSAGE_OBJ_NAME;
+import static org.ballerinalang.nats.Constants.ON_ERROR_METADATA;
 import static org.ballerinalang.nats.Constants.ON_ERROR_RESOURCE;
+import static org.ballerinalang.nats.Constants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.nats.Constants.ON_MESSAGE_RESOURCE;
 import static org.ballerinalang.nats.Utils.getAttachedFunction;
 
@@ -113,11 +113,11 @@ public class StreamingListener implements MessageHandler {
                                                                           connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(service, ON_MESSAGE_RESOURCE,
-                                      null, METADATA_ON_MESSAGE, new DispatcherCallback(subject, natsMetricsReporter),
+                                      null, ON_MESSAGE_METADATA, new DispatcherCallback(subject, natsMetricsReporter),
                                       properties, ballerinaNatsMessage, true);
         } else {
             runtime.invokeMethodAsync(service, ON_MESSAGE_RESOURCE,
-                                      null, METADATA_ON_MESSAGE, new DispatcherCallback(subject, natsMetricsReporter),
+                                      null, ON_MESSAGE_METADATA, new DispatcherCallback(subject, natsMetricsReporter),
                                       null, ballerinaNatsMessage, true);
         }
     }
@@ -129,11 +129,11 @@ public class StreamingListener implements MessageHandler {
                                                                           connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
             runtime.invokeMethodAsync(service, ON_MESSAGE_RESOURCE,
-                                      null, METADATA_ON_MESSAGE, new DispatcherCallback(subject, natsMetricsReporter),
+                                      null, ON_MESSAGE_METADATA, new DispatcherCallback(subject, natsMetricsReporter),
                                       properties, ballerinaNatsMessage, true, typeBoundData, true);
         } else {
             runtime.invokeMethodAsync(service, ON_MESSAGE_RESOURCE,
-                                      null, METADATA_ON_MESSAGE, new DispatcherCallback(subject, natsMetricsReporter),
+                                      null, ON_MESSAGE_METADATA, new DispatcherCallback(subject, natsMetricsReporter),
                                       null, ballerinaNatsMessage, true, typeBoundData, true);
         }
     }
@@ -144,11 +144,11 @@ public class StreamingListener implements MessageHandler {
             NatsObserverContext observerContext = new NatsObserverContext(NatsObservabilityConstants.CONTEXT_CONSUMER,
                                                                           connectedUrl, subject);
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
-            runtime.invokeMethodAsync(service, ON_ERROR_RESOURCE, null, METADATA_ON_ERROR,
+            runtime.invokeMethodAsync(service, ON_ERROR_RESOURCE, null, ON_ERROR_METADATA,
                                       new DispatcherCallback(subject, natsMetricsReporter),
                                       properties, ballerinaNatsMessage, true, error, true);
         } else {
-            runtime.invokeMethodAsync(service, ON_ERROR_RESOURCE, null, METADATA_ON_ERROR,
+            runtime.invokeMethodAsync(service, ON_ERROR_RESOURCE, null, ON_ERROR_METADATA,
                                       new DispatcherCallback(subject, natsMetricsReporter),
                                       null, ballerinaNatsMessage, true, error, true);
         }

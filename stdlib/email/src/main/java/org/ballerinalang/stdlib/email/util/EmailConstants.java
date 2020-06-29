@@ -111,11 +111,11 @@ public class EmailConstants {
     public static final String HEADER = "Header";
 
     // Strand meta data
-    public static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+    public static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                                 MODULE_NAME, MODULE_VERSION,
                                                                                 ON_MESSAGE);
 
-    public static final StrandMetadata METADATA_ON_ERROR = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+    public static final StrandMetadata ON_ERROR_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                               MODULE_NAME, MODULE_VERSION, ON_ERROR);
 
     private EmailConstants() {

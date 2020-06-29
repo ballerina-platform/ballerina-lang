@@ -51,7 +51,7 @@ public class FSListener implements LocalFileSystemListener {
     private BRuntime runtime;
     private ObjectValue service;
     private Map<String, AttachedFunction> attachedFunctionRegistry;
-    private static final StrandMetadata METADATA_ON_MESSAGE = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+    private static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                                  MODULE_NAME, MODULE_VERSION,
                                                                                  RESOURCE_NAME_ON_MESSAGE);
 
@@ -66,7 +66,7 @@ public class FSListener implements LocalFileSystemListener {
         Object[] parameters = getJvmSignatureParameters(fileEvent);
         AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
         if (resource != null) {
-            runtime.invokeMethodAsync(service, resource.getName(), null, METADATA_ON_MESSAGE, new DirectoryCallback(),
+            runtime.invokeMethodAsync(service, resource.getName(), null, ON_MESSAGE_METADATA, new DirectoryCallback(),
                                       parameters);
         } else {
             log.warn(String.format("FileEvent received for unregistered resource: [%s] %s", fileEvent.getEvent(),

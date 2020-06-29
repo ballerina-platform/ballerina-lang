@@ -45,7 +45,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.COMPLETED_MESSAGE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ITERATOR_OBJECT_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_QUEUE;
-import static org.ballerinalang.net.grpc.GrpcConstants.METADATA_ON_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_METADATA;
 
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
@@ -164,6 +164,6 @@ public class StreamingServerCallHandler extends ServerCallHandler {
         }
         StreamingCallableUnitCallBack callback = new StreamingCallableUnitCallBack(responseObserver, context);
         resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
-                                                METADATA_ON_MESSAGE, callback, properties, requestParams);
+                                                ON_MESSAGE_METADATA, callback, properties, requestParams);
     }
 }

@@ -53,7 +53,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 public class Reduce {
 
     private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
-                                                                      ARRAY_VERSION, "filter");
+                                                                      ARRAY_VERSION, "reduce");
 
     public static Object reduce(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func, Object initial) {
         BType arrType = arr.getType();

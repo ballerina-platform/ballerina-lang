@@ -127,21 +127,21 @@ public class WebSocketConstants {
             "The WebSocket connection has not been made";
 
     // Strand meta data
-    public static final StrandMetadata METADATA_ON_OPEN =
+    public static final StrandMetadata ON_OPEN_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_OPEN);
-    public static final StrandMetadata METADATA_ON_TEXT =
+    public static final StrandMetadata ON_TEXT_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_TEXT);
-    public static final StrandMetadata METADATA_ON_BINARY =
+    public static final StrandMetadata ON_BINARY_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_BINARY);
-    public static final StrandMetadata METADATA_ON_PING =
+    public static final StrandMetadata ON_PING_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_PING);
-    public static final StrandMetadata METADATA_ON_PONG =
+    public static final StrandMetadata ON_PONG_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_PONG);
-    public static final StrandMetadata METADATA_ON_CLOSE =
+    public static final StrandMetadata ON_CLOSE_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_CLOSE);
-    public static final StrandMetadata METADATA_ON_ERROR =
+    public static final StrandMetadata ON_ERROR_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_ERROR);
-    public static final StrandMetadata METADATA_ON_TIMEOUT =
+    public static final StrandMetadata ON_TIMEOUT_METADATA =
             new StrandMetadata(BALLERINA_ORG, PACKAGE_HTTP, HTTP_MODULE_VERSION, RESOURCE_NAME_ON_IDLE_TIMEOUT);
 
     public WebSocketConstants() {
