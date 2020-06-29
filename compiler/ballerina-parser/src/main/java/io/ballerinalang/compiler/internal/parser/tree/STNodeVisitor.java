@@ -741,6 +741,22 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(onClauseNode);
     }
 
+    public void visit(STDocumentationLineNode documentationLineNode) {
+        visitSyntaxNode(documentationLineNode);
+    }
+
+    public void visit(STParameterDocumentationLineNode parameterDocumentationLineNode) {
+        visitSyntaxNode(parameterDocumentationLineNode);
+    }
+
+    public void visit(STDocumentationReferenceNode documentationReferenceNode) {
+        visitSyntaxNode(documentationReferenceNode);
+    }
+
+    public void visit(STReferenceDocumentationLineNode referenceDocumentationLineNode) {
+        visitSyntaxNode(referenceDocumentationLineNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

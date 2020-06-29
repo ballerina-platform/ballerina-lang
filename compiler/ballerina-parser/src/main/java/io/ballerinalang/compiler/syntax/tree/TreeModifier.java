@@ -2886,6 +2886,70 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression);
     }
 
+    @Override
+    public DocumentationLineNode transform(
+            DocumentationLineNode documentationLineNode) {
+        Token hashToken =
+                modifyToken(documentationLineNode.hashToken());
+        Token description =
+                modifyToken(documentationLineNode.description());
+        return documentationLineNode.modify(
+                hashToken,
+                description);
+    }
+
+    @Override
+    public ParameterDocumentationLineNode transform(
+            ParameterDocumentationLineNode parameterDocumentationLineNode) {
+        Token hashToken =
+                modifyToken(parameterDocumentationLineNode.hashToken());
+        Token plusToken =
+                modifyToken(parameterDocumentationLineNode.plusToken());
+        Token parameterName =
+                modifyToken(parameterDocumentationLineNode.parameterName());
+        Token minusToken =
+                modifyToken(parameterDocumentationLineNode.minusToken());
+        Token description =
+                modifyToken(parameterDocumentationLineNode.description());
+        return parameterDocumentationLineNode.modify(
+                parameterDocumentationLineNode.kind(),
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                description);
+    }
+
+    @Override
+    public DocumentationReferenceNode transform(
+            DocumentationReferenceNode documentationReferenceNode) {
+        Token referenceType =
+                modifyToken(documentationReferenceNode.referenceType());
+        Token startBacktick =
+                modifyToken(documentationReferenceNode.startBacktick());
+        Token content =
+                modifyToken(documentationReferenceNode.content());
+        Token endBacktick =
+                modifyToken(documentationReferenceNode.endBacktick());
+        return documentationReferenceNode.modify(
+                referenceType,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    @Override
+    public ReferenceDocumentationLineNode transform(
+            ReferenceDocumentationLineNode referenceDocumentationLineNode) {
+        Token hashToken =
+                modifyToken(referenceDocumentationLineNode.hashToken());
+        NodeList<Node> referenceOrDescription =
+                modifyNodeList(referenceDocumentationLineNode.referenceOrDescription());
+        return referenceDocumentationLineNode.modify(
+                hashToken,
+                referenceOrDescription);
+    }
+
     // Tokens
 
     @Override

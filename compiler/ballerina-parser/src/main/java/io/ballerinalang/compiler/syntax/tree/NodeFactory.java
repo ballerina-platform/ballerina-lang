@@ -2833,5 +2833,70 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode());
         return stOnClauseNode.createUnlinkedFacade();
     }
+
+    public static DocumentationLineNode createDocumentationLineNode(
+            Token hashToken,
+            Token description) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(description, "description must not be null");
+
+        STNode stDocumentationLineNode = STNodeFactory.createDocumentationLineNode(
+                hashToken.internalNode(),
+                description.internalNode());
+        return stDocumentationLineNode.createUnlinkedFacade();
+    }
+
+    public static ParameterDocumentationLineNode createParameterDocumentationLineNode(
+            SyntaxKind kind,
+            Token hashToken,
+            Token plusToken,
+            Token parameterName,
+            Token minusToken,
+            Token description) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(plusToken, "plusToken must not be null");
+        Objects.requireNonNull(parameterName, "parameterName must not be null");
+        Objects.requireNonNull(minusToken, "minusToken must not be null");
+        Objects.requireNonNull(description, "description must not be null");
+
+        STNode stParameterDocumentationLineNode = STNodeFactory.createParameterDocumentationLineNode(
+                kind,
+                hashToken.internalNode(),
+                plusToken.internalNode(),
+                parameterName.internalNode(),
+                minusToken.internalNode(),
+                description.internalNode());
+        return stParameterDocumentationLineNode.createUnlinkedFacade();
+    }
+
+    public static DocumentationReferenceNode createDocumentationReferenceNode(
+            Token referenceType,
+            Token startBacktick,
+            Token content,
+            Token endBacktick) {
+        Objects.requireNonNull(referenceType, "referenceType must not be null");
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
+                referenceType.internalNode(),
+                startBacktick.internalNode(),
+                content.internalNode(),
+                endBacktick.internalNode());
+        return stDocumentationReferenceNode.createUnlinkedFacade();
+    }
+
+    public static ReferenceDocumentationLineNode createReferenceDocumentationLineNode(
+            Token hashToken,
+            NodeList<Node> referenceOrDescription) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(referenceOrDescription, "referenceOrDescription must not be null");
+
+        STNode stReferenceDocumentationLineNode = STNodeFactory.createReferenceDocumentationLineNode(
+                hashToken.internalNode(),
+                referenceOrDescription.underlyingListNode().internalNode());
+        return stReferenceDocumentationLineNode.createUnlinkedFacade();
+    }
 }
 

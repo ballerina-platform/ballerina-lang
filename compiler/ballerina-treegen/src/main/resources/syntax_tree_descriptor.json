@@ -3844,6 +3844,86 @@
                     "type": "ExpressionNode"
                 }
             ]
+        },
+        {
+            "name": "DocumentationLineNode",
+            "base": "Node",
+            "kind": "DOCUMENTATION_LINE",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "description",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ParameterDocumentationLineNode",
+            "base": "Node",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "plusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameterName",
+                    "type": "Token"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "description",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationReferenceNode",
+            "base": "Node",
+            "kind": "DOCUMENTATION_REFERENCE",
+            "attributes": [
+                {
+                    "name": "referenceType",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "content",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ReferenceDocumentationLineNode",
+            "base": "Node",
+            "kind": "REFERENCE_DOCUMENTATION_LINE",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "referenceOrDescription",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
         }
     ]
 }

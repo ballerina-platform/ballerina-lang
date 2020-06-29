@@ -2289,6 +2289,57 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expression);
     }
 
+    @Override
+    public STDocumentationLineNode transform(
+            STDocumentationLineNode documentationLineNode) {
+        STNode hashToken = modifyNode(documentationLineNode.hashToken);
+        STNode description = modifyNode(documentationLineNode.description);
+        return documentationLineNode.modify(
+                hashToken,
+                description);
+    }
+
+    @Override
+    public STParameterDocumentationLineNode transform(
+            STParameterDocumentationLineNode parameterDocumentationLineNode) {
+        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
+        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
+        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
+        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
+        STNode description = modifyNode(parameterDocumentationLineNode.description);
+        return parameterDocumentationLineNode.modify(
+                parameterDocumentationLineNode.kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                description);
+    }
+
+    @Override
+    public STDocumentationReferenceNode transform(
+            STDocumentationReferenceNode documentationReferenceNode) {
+        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
+        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
+        STNode content = modifyNode(documentationReferenceNode.content);
+        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
+        return documentationReferenceNode.modify(
+                referenceType,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    @Override
+    public STReferenceDocumentationLineNode transform(
+            STReferenceDocumentationLineNode referenceDocumentationLineNode) {
+        STNode hashToken = modifyNode(referenceDocumentationLineNode.hashToken);
+        STNode referenceOrDescription = modifyNode(referenceDocumentationLineNode.referenceOrDescription);
+        return referenceDocumentationLineNode.modify(
+                hashToken,
+                referenceOrDescription);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

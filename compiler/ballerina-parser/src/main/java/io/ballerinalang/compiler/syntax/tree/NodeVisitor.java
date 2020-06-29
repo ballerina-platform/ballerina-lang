@@ -751,6 +751,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(onClauseNode);
     }
 
+    public void visit(DocumentationLineNode documentationLineNode) {
+        visitSyntaxNode(documentationLineNode);
+    }
+
+    public void visit(ParameterDocumentationLineNode parameterDocumentationLineNode) {
+        visitSyntaxNode(parameterDocumentationLineNode);
+    }
+
+    public void visit(DocumentationReferenceNode documentationReferenceNode) {
+        visitSyntaxNode(documentationReferenceNode);
+    }
+
+    public void visit(ReferenceDocumentationLineNode referenceDocumentationLineNode) {
+        visitSyntaxNode(referenceDocumentationLineNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

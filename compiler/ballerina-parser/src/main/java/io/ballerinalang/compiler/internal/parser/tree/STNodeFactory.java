@@ -2127,5 +2127,53 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 onKeyword,
                 expression);
     }
+
+    public static STNode createDocumentationLineNode(
+            STNode hashToken,
+            STNode description) {
+
+        return new STDocumentationLineNode(
+                hashToken,
+                description);
+    }
+
+    public static STNode createParameterDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode plusToken,
+            STNode parameterName,
+            STNode minusToken,
+            STNode description) {
+
+        return new STParameterDocumentationLineNode(
+                kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                description);
+    }
+
+    public static STNode createDocumentationReferenceNode(
+            STNode referenceType,
+            STNode startBacktick,
+            STNode content,
+            STNode endBacktick) {
+
+        return new STDocumentationReferenceNode(
+                referenceType,
+                startBacktick,
+                content,
+                endBacktick);
+    }
+
+    public static STNode createReferenceDocumentationLineNode(
+            STNode hashToken,
+            STNode referenceOrDescription) {
+
+        return new STReferenceDocumentationLineNode(
+                hashToken,
+                referenceOrDescription);
+    }
 }
 
