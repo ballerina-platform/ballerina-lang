@@ -29,8 +29,8 @@ public class Client extends Object {
     public List<Function> remoteMethods = new ArrayList<>();
 
     public Client(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods) {
-        super(name, description, isDeprecated, fields, methods);
+            List<Function> methods, boolean isAnonymous) {
+        super(name, description, isDeprecated, fields, methods, isAnonymous);
         this.remoteMethods = getRemoteMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }

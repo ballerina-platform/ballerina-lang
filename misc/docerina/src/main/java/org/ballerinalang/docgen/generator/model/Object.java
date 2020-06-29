@@ -34,15 +34,18 @@ public class Object extends Construct {
     public Function initMethod;
     @Expose
     public List<Function> otherMethods = new ArrayList<>();
+    @Expose
+    public boolean isAnonymous;
 
     public Object(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods) {
+            List<Function> methods, boolean isAnonymous) {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
         Optional<Function> initMethod = getInitMethod(methods);
         this.initMethod = initMethod.isPresent() ? getInitMethod(methods).get() : null;
         this.otherMethods = getOtherMethods(methods);
+        this.isAnonymous = isAnonymous;
     }
 
     public Optional<Function> getInitMethod(List<Function> methods) {
