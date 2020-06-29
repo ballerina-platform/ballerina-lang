@@ -104,25 +104,30 @@ import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
  */
 public class JBallerinaDebugServer implements IDebugProtocolServer {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    public static final String DEBUGGER_TERMINATED = "Debugger terminated";
-    public static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
     private IDebugProtocolClient client;
-    private VirtualMachine debuggee;
-    private int systemExit = 1;
-
+    private VirtualMachine debuggeeVM;
     private EventBus eventBus;
-    private Map<Long, ThreadReference> threadsMap = new HashMap<>();
-    Context context;
+    private final Context context;
     private Process launchedProcess;
     private BufferedReader launchedStdoutStream;
     private BufferedReader launchedErrorStream;
     private String orgName = "";
     private Path projectRoot;
 
-    AtomicInteger nextVarReference = new AtomicInteger();
-    private Map<Long, com.sun.jdi.StackFrame> stackframesMap = new HashMap<Long, com.sun.jdi.StackFrame>();
-    private Map<Long, Map<String, Value>> childVariables = new HashMap<>();
+    private final Map<Long, ThreadReference> threadsMap = new HashMap<>();
+    private final AtomicInteger nextVarReference = new AtomicInteger();
+    private final Map<Long, com.sun.jdi.StackFrame> stackframesMap = new HashMap<>();
+    private final Map<Long, Map<String, Value>> childVariables = new HashMap<>();
+
+    private static int systemExit = 1;
+    static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
+    private static final String DEBUGGER_TERMINATED = "Debugger terminated";
+    private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger failed to attach";
+    private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
+
+    public JBallerinaDebugServer() {
+        context = new Context();
+    }
 
     private IDebugProtocolClient getClient() {
         return client;
@@ -130,7 +135,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Capabilities> initialize(InitializeRequestArguments args) {
-        context = new Context();
         Capabilities capabilities = new Capabilities();
         capabilities.setSupportsConfigurationDoneRequest(true);
         capabilities.setSupportsTerminateRequest(true);
@@ -198,7 +202,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     while ((line = launchedErrorStream.readLine()) != null) {
                         sendOutput(line, STDERR);
                     }
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 } finally {
                     this.exit(false);
                 }
@@ -214,14 +218,14 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     sendOutput("Waiting for debug process to start...", STDOUT);
                     while ((line = launchedStdoutStream.readLine()) != null) {
                         if (line.contains("Listening for transport dt_socket")) {
-                            debuggee = launcher.attachToLaunchedProcess();
-                            context.setDebuggee(debuggee);
+                            debuggeeVM = launcher.attachToLaunchedProcess();
+                            context.setDebuggee(debuggeeVM);
                             sendOutput("Compiling...", STDOUT);
                             this.eventBus.startListening();
                         }
                         sendOutput(line, STDOUT);
                     }
-                } catch (IOException e) {
+                } catch (IOException ignored) {
                 } finally {
                     this.exit(false);
                 }
@@ -236,18 +240,15 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         try {
             int debuggeePort = Integer.parseInt(args.get("debuggeePort").toString());
             String debuggeeHost = args.get("debuggeeHost") == null ? "" : args.get("debuggeeHost").toString();
-
             String balFile = args.get("script").toString();
             updateProjectRoot(balFile);
 
-            debuggee = new DebuggerAttachingVM(debuggeePort, debuggeeHost).initialize();
-
-            EventRequestManager erm = debuggee.eventRequestManager();
+            debuggeeVM = new DebuggerAttachingVM(debuggeePort, debuggeeHost).initialize();
+            EventRequestManager erm = debuggeeVM.eventRequestManager();
             ClassPrepareRequest classPrepareRequest = erm.createClassPrepareRequest();
             classPrepareRequest.enable();
-            context.setDebuggee(debuggee);
+            context.setDebuggee(debuggeeVM);
             this.eventBus.startListening();
-
         } catch (IOException | IllegalConnectorArgumentsException e) {
             this.sendOutput(DEBUGGER_FAILED_TO_ATTACH, STDERR);
             LOGGER.error(DEBUGGER_FAILED_TO_ATTACH);
@@ -278,34 +279,25 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<Void> pause(PauseArguments args) {
-
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
-        stackTraceResponse.setStackFrames(new StackFrame[0]);
-
         try {
-            StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId())
-                    .frames().stream()
+            StackFrame[] stackFrames = eventBus.getThreadsMap().get(args.getThreadId()).frames().stream()
                     .map(this::toDapStackFrame).toArray(StackFrame[]::new);
-
-            StackFrame[] filteredStackFrames = Arrays.stream(stackFrames)
-                    .filter(stackFrame -> {
-                        if (stackFrame == null || stackFrame.getSource() == null
-                                || stackFrame.getSource().getPath() == null) {
-                            return false;
-                        } else {
-                            return stackFrame.getSource().getName().endsWith(".bal");
-                        }
-                    }).toArray(StackFrame[]::new);
+            StackFrame[] filteredStackFrames = Arrays.stream(stackFrames).filter(stackFrame ->
+                    stackFrame != null && stackFrame.getSource() != null && stackFrame.getSource().getPath() != null
+                            && stackFrame.getSource().getName().endsWith(".bal")).toArray(StackFrame[]::new);
             stackTraceResponse.setStackFrames(filteredStackFrames);
+            return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (IncompatibleThreadStateException e) {
             LOGGER.error(e.getMessage(), e);
+            stackTraceResponse.setStackFrames(new StackFrame[0]);
+            return CompletableFuture.completedFuture(stackTraceResponse);
         }
-        return CompletableFuture.completedFuture(stackTraceResponse);
     }
 
     @Nullable
@@ -420,7 +412,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<ContinueResponse> continue_(ContinueArguments args) {
         eventBus.resetBreakpoints();
-        debuggee.resume();
+        debuggeeVM.resume();
         ContinueResponse continueResponse = new ContinueResponse();
         continueResponse.setAllThreadsContinued(true);
         return CompletableFuture.completedFuture(continueResponse);
@@ -507,7 +499,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         new java.lang.Thread(() -> {
             try {
                 java.lang.Thread.sleep(100);
-            } catch (InterruptedException e) {
+            } catch (InterruptedException ignored) {
             }
             System.exit(systemExit);
         }).start();
@@ -541,13 +533,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         String sourceName = location.sourceName();
 
         // Note: directly using file separator as a regex will fail on windows.
-        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
+        String[] srcNames = sourceName.split(fileSeparatorRegex);
         String fileName = srcNames[srcNames.length - 1];
         String relativePath = sourcePath.replace(sourceName, fileName);
 
         if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
             relativePath = relativePath.replaceFirst(orgName, "src");
         }
+        // Removes module version part from the JDI reference source path.
+        relativePath = relativePath.replaceFirst(fileSeparatorRegex + MODULE_VERSION_REGEX, "");
         return relativePath;
     }
 }
