@@ -23,29 +23,18 @@ public type CacheError distinct error;
 # Represents Cache related errors.
 public type Error CacheError;
 
-# Prepare the `error` as a `cache:Error` after printing an error log.
+# Prepare the `error` as a `cache:Error` after printing an log with provided log level.
 #
 # + message - Error message
 # + err - `error` instance
+# + logLevel - Log level of the error message
 # + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err);
-    Error cacheError;
-    if (err is error) {
-        cacheError = CacheError(message, err);
-    } else {
-        cacheError = CacheError(message);
+function prepareError(string message, error? err = (), public string logLevel = "ERROR") returns Error {
+    if (logLevel == "ERROR") {
+        log:printError(message, err);
+    } else if (logLevel == "DEBUG") {
+        log:printDebug(message);
     }
-    return cacheError;
-}
-
-# Prepare the `error` as a `cache:Error` after printing a debug log.
-#
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `Error` instance
-function prepareErrorWithDebugLog(string message, error? err = ()) returns Error {
-    log:printDebug(message);
     Error cacheError;
     if (err is error) {
         cacheError = CacheError(message, err);
