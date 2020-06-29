@@ -288,7 +288,7 @@ function externGet(Cache cache, string key) returns Node = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
-function externRemove(Cache cache, string key) returns Node = @java:Method {
+function externRemove(Cache cache, string key) = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 

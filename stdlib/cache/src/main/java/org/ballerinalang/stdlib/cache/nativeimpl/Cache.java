@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.cache.nativeimpl;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ballerina function to cache with java.util.concurrent.ConcurrentHashMap.
@@ -51,10 +51,10 @@ public class Cache {
         return map.get(key);
     }
 
-    public static MapValue<BString, Object> externRemove(ObjectValue cache, BString key) {
+    public static void externRemove(ObjectValue cache, BString key) {
         ConcurrentHashMap<BString, MapValue<BString, Object>> map =
                 (ConcurrentHashMap<BString, MapValue<BString, Object>>) cache.getNativeData(CACHE_MAP);
-        return map.remove(key);
+        map.remove(key);
     }
 
     public static void externRemoveAll(ObjectValue cache) {
