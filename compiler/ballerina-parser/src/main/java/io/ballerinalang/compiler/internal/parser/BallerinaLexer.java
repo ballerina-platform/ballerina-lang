@@ -101,7 +101,6 @@ public class BallerinaLexer extends AbstractLexer {
         switch (nextChar) {
             case LexerTerminals.PLUS:
                 reader.advance();
-//                startMode(ParserMode.PARA_DOCUMENTATION);
                 switchMode(ParserMode.PARA_DOCUMENTATION);
                 return getDocSyntaxToken(SyntaxKind.PLUS_TOKEN);
             case LexerTerminals.HASH: // Deprecated Documentation
@@ -113,15 +112,12 @@ public class BallerinaLexer extends AbstractLexer {
                     reader.advance();
                     if (peek() == LexerTerminals.BACKTICK) {
                         reader.advance();
-//                        startMode(ParserMode.TRIPPLE_BACKTICK_CONTENT);
                         switchMode(ParserMode.TRIPPLE_BACKTICK_CONTENT);
                         return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
                     }
-//                    startMode(ParserMode.DOUBLE_BACKTICK_CONTENT);
                     switchMode(ParserMode.DOUBLE_BACKTICK_CONTENT);
                     return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
                 }
-//                startMode(ParserMode.BACKTICK_CONTENT);
                 switchMode(ParserMode.BACKTICK_CONTENT);
                 return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             default:
@@ -154,14 +150,14 @@ public class BallerinaLexer extends AbstractLexer {
                             }
 
                             switch (identifier) {
-                                case "type":
-                                case "service":
-                                case "variable":
-                                case "var":
-                                case "annotation":
-                                case "module":
-                                case "function":
-                                case "parameter":
+                                case LexerTerminals.TYPE:
+                                case LexerTerminals.SERVICE:
+                                case LexerTerminals.VARIABLE:
+                                case LexerTerminals.VAR:
+                                case LexerTerminals.ANNOTATION:
+                                case LexerTerminals.MODULE:
+                                case LexerTerminals.FUNCTION:
+                                case LexerTerminals.PARAMETER:
                                     int cnt = identifier.length();
                                     int nchar = reader.peek(cnt);
                                     while (true) {
@@ -193,23 +189,46 @@ public class BallerinaLexer extends AbstractLexer {
                 }
         }
 
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+        return getTemplateString(SyntaxKind.DOCUMENTATION_DESCRIPTION);
     }
 
     private STToken readParaDocToken() {
-//        endMode();
         switchMode(ParserMode.DOCUMENTATION);
-        return readToken();
+        reader.advance();
+        while (isIdentifierInitialChar(peek())) {
+            reader.advance();
+        }
+        // add end of line check. not necessary though.
+        return processReferenceType();
+    }
+
+    private STToken processReferenceType() {
+        String tokenText = getLexeme();
+        switch (tokenText) {
+            case LexerTerminals.TYPE:
+                return getSyntaxToken(SyntaxKind.TYPE_REFERENCE_TYPE);
+            case LexerTerminals.SERVICE:
+                return getSyntaxToken(SyntaxKind.SERVICE_REFERENCE_TYPE);
+            case LexerTerminals.VARIABLE:
+                return getSyntaxToken(SyntaxKind.VARIABLE_REFERENCE_TYPE);
+            case LexerTerminals.VAR:
+                return getSyntaxToken(SyntaxKind.VAR_REFERENCE_TYPE);
+            case LexerTerminals.ANNOTATION:
+                return getSyntaxToken(SyntaxKind.ANNOTATION_REFERENCE_TYPE);
+            case LexerTerminals.MODULE:
+                return getSyntaxToken(SyntaxKind.MODULE_REFERENCE_TYPE);
+            case LexerTerminals.FUNCTION:
+                return getSyntaxToken(SyntaxKind.FUNCTION_REFERENCE_TYPE);
+            case LexerTerminals.PARAMETER:
+            default:
+                return getSyntaxToken(SyntaxKind.PARAMETER_REFERENCE_TYPE);
+        }
     }
 
     private STToken readBacktickContentToken() {
         int nextToken = peek();
         if (nextToken == LexerTerminals.BACKTICK) {
             reader.advance();
-//            endMode();
             switchMode(ParserMode.DOCUMENTATION);
             return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         }
@@ -217,7 +236,6 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextToken) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-//                    endMode();
                     switchMode(ParserMode.DOCUMENTATION);
                     // fall through
                 case LexerTerminals.BACKTICK:
@@ -236,7 +254,6 @@ public class BallerinaLexer extends AbstractLexer {
         int nextToken = peek();
         if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK) {
             reader.advance(2);
-//            endMode();
             switchMode(ParserMode.DOCUMENTATION);
             return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
         }
@@ -244,7 +261,6 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextToken) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-//                    endMode();
                     switchMode(ParserMode.DOCUMENTATION);
                     // fall through
                 case LexerTerminals.BACKTICK:
@@ -267,7 +283,6 @@ public class BallerinaLexer extends AbstractLexer {
         if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK
                 && reader.peek(2) == LexerTerminals.BACKTICK) {
             reader.advance(3);
-//            endMode();
             switchMode(ParserMode.DOCUMENTATION);
             return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
         }
@@ -275,7 +290,6 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextToken) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
-//                    endMode();
                     switchMode(ParserMode.DOCUMENTATION);
                     // fall through
                 case LexerTerminals.BACKTICK:
@@ -301,15 +315,12 @@ public class BallerinaLexer extends AbstractLexer {
             while (isIdentifierInitialChar(peek())) {
                 reader.advance();
             }
-            String tokenText = getLexeme();
-            return getIdentifierToken(tokenText);
+            return getDocLiteral(SyntaxKind.PARAMETER_NAME);
         } else if (nextChar == LexerTerminals.MINUS) {
             reader.advance();
-//            endMode();
             switchMode(ParserMode.DOCUMENTATION);
             return getDocSyntaxToken(SyntaxKind.MINUS_TOKEN);
         } else {
-//            endMode();
             switchMode(ParserMode.DOCUMENTATION);
             return readDocumentationToken();
         }
@@ -591,6 +602,19 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+    }
+
+    // TODO: refactor
+    private STToken getDocLiteral(SyntaxKind kind) {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        for (int i=0; i< trailingTrivia.bucketCount(); i++) {
+            if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                endMode();
+            }
+        }
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
