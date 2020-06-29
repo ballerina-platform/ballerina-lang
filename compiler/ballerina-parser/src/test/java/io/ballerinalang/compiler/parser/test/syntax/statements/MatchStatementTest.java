@@ -38,6 +38,11 @@ public class MatchStatementTest extends AbstractStatementTest {
         testFile("match-stmt/match_stmt_source_02.bal", "match-stmt/match_stmt_assert_02.json");
     }
 
+    @Test
+    public void testSimpleMatchStatementWithVar() {
+        testFile("match-stmt/match_stmt_source_05.bal", "match-stmt/match_stmt_assert_05.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -48,5 +53,15 @@ public class MatchStatementTest extends AbstractStatementTest {
     @Test
     public void testMatchStmtRecovery() {
         testFile("match-stmt/match_stmt_source_04.bal", "match-stmt/match_stmt_assert_04.json");
+    }
+
+    @Test
+    public void testMatchStmtRecoveryMissingVarKeyword() {
+        testFile("match-stmt/match_stmt_source_06.bal", "match-stmt/match_stmt_assert_06.json");
+    }
+
+    @Test
+    public void testMatchStmtRecoveryMissingSymbolsAdditionalSymbols() {
+        testFile("match-stmt/match_stmt_source_07.bal", "match-stmt/match_stmt_assert_07.json");
     }
 }

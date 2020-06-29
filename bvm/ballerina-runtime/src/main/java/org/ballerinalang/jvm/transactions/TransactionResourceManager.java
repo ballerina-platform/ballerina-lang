@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.transactions;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +57,14 @@ public class TransactionResourceManager {
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
 
+    public Map<BArray, Object> transactionInfoMap;
+
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
         xidRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
+        transactionInfoMap = new HashMap<>();
     }
 
     public static TransactionResourceManager getInstance() {

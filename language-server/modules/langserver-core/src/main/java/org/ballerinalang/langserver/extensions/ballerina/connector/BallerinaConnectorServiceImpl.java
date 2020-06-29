@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -242,6 +243,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 connectorRecords.put(recordName, jsonRecords.get(recordName));
                 ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
                             populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
+                        }
+                );
+
+                ((RecordTypeNode) recordNode.getTypeNode()).getTypeReferences().forEach(r -> {
+                            populateConnectorRecords(((BLangUserDefinedType) r).type, records,
+                                    jsonRecords, connectorRecords);
                         }
                 );
             }

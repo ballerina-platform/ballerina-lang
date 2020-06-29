@@ -31,6 +31,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
@@ -61,9 +62,9 @@ public class SetTransactionContext {
         long retryNmbr = getRetryNumber(prevAttemptInfo);
         MapValue<BString, Object> trxContext = BallerinaValues.createRecordValue(TRANSACTION_PACKAGE_ID,
                 "Info");
-        Object[] trxContextData = new Object[] {
-                BValueCreator.createArrayValue(globalTransactionId.getBytes()), retryNmbr, System.currentTimeMillis(),
-                prevAttemptInfo
+        Object[] trxContextData = new Object[]{
+                BValueCreator.createArrayValue(globalTransactionId.getBytes(Charset.defaultCharset())), retryNmbr,
+                System.currentTimeMillis(), prevAttemptInfo
         };
         MapValue<BString, Object> infoRecord = BallerinaValues.createRecord(trxContext, trxContextData);
         TransactionLocalContext trxCtx = TransactionLocalContext

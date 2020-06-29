@@ -37,7 +37,10 @@ public class JvmConstants {
     public static final String ABSTRACT_OBJECT_VALUE = "org/ballerinalang/jvm/values/AbstractObjectValue";
     public static final String REF_VALUE = "org/ballerinalang/jvm/values/RefValue";
     public static final String ERROR_VALUE = "org/ballerinalang/jvm/values/ErrorValue";
+    public static final String B_ERROR = "org/ballerinalang/jvm/values/api/BError";
     public static final String STRING_VALUE = "java/lang/String";
+    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
+    public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
     public static final String BMP_STRING_VALUE = "org/ballerinalang/jvm/values/BmpStringValue";
     public static final String LONG_VALUE = "java/lang/Long";
     public static final String BYTE_VALUE = "java/lang/Byte";
@@ -165,6 +168,8 @@ public class JvmConstants {
     public static final String ERROR_REASON_METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String ERROR_REASON_CLASS_TOO_LARGE = "ClassTooLarge";
     public static final String TRAP_ERROR_METHOD = "trapError";
+    public static final String BLOCKED_ON_EXTERN_FIELD = "blockedOnExtern";
+    public static final String IS_BLOCKED_ON_EXTERN_FIELD = "isBlockedOnExtern";
 
     // Immutable type related constants.
     public static final String SET_IMMUTABLE_TYPE_METHOD = "setImmutableType";
@@ -238,7 +243,4 @@ public class JvmConstants {
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
     public static final String GLOBAL_LOCK_NAME = "lock";
-    public static final String I_STRING_VALUE = "org/ballerinalang/jvm/values/StringValue";
-    public static final String B_STRING_VALUE = "org/ballerinalang/jvm/values/api/BString";
-    public static final String NON_BMP_STRING_VALUE = "org/ballerinalang/jvm/values/NonBmpStringValue";
 }
