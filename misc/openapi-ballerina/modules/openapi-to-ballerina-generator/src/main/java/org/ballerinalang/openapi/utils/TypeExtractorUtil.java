@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.BAL_KEYWORDS;
 import static org.ballerinalang.openapi.OpenApiMesseges.BAL_TYPES;
@@ -397,7 +398,14 @@ public class TypeExtractorUtil {
             } else {
                 identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "$1");
                 if (identifier.endsWith("?")) {
-                    return identifier;
+                    if (BAL_KEYWORDS.stream().anyMatch(Optional.ofNullable(identifier)
+                            .filter(sStr -> sStr.length() != 0)
+                            .map(sStr -> sStr.substring(0, sStr.length() - 1))
+                            .orElse(identifier)::equals)) {
+                        identifier = "'" + identifier;
+                    } else {
+                        return identifier;
+                    }
                 } else {
                     identifier = "'" + identifier;
                 }
