@@ -32,7 +32,9 @@ import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
+import org.ballerinalang.debugadapter.variable.types.BStream;
 import org.ballerinalang.debugadapter.variable.types.BString;
+import org.ballerinalang.debugadapter.variable.types.BTable;
 import org.ballerinalang.debugadapter.variable.types.BTuple;
 import org.ballerinalang.debugadapter.variable.types.BTypeDesc;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
@@ -56,7 +58,7 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * Supported Types
  * <ul>
  * <li> nil
- * <li> boolean -	true, false
+ * <li> boolean - true, false
  * <li> int	- 64-bit signed integers
  * <li> float - 64-bit IEEE 754-2008 binary floating point numbers
  * <li> decimal - decimal floating point numbers
@@ -76,20 +78,20 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> future - a value to be returned by a function execution
  * <li> handle - reference to externally managed storage
  * <li> typedesc - a type descriptor
- * <li> any - any value other than an error // Todo - runtime type or "any"?
- * <li> anydata	- not an error and does not contain behavioral members at any depth // Todo - runtime type or "anydata"?
- * <li> union - the union of the component types // Todo - runtime type or union type?
- * <li> optional - the underlying type and () // Todo - runtime type or optional type?
- * <li> byte - int in the range 0 to 255 inclusive // Todo - runtime type(int) or "byte"?
+ * <li> any - any value other than an error // Todo - show runtime type or "any"?
+ * <li> anydata	- not an error and does not contain behavioral members // Todo - show runtime type or "anydata"?
+ * <li> union - the union of the component types // Todo - show runtime type or union type?
+ * <li> optional - the underlying type and () // Todo - show runtime type or optional type?
+ * <li> byte - int in the range 0 to 255 inclusive // Todo - show runtime type(int) or "byte"?
+ * <li> singleton - a single value described by a literal. // Todo - show runtime type?
+ * <li> table(Preview) - a two-dimensional collection of immutable values // Todo - show entries
+ * <li> stream(Preview) - a sequence of values that can be generated lazily // Todo - show values
  * </ul>
  * <br>
  * To be implemented
  * <ul>
- * <li> table - a two-dimensional collection of immutable values
  * <li> function - a function with 0 or more specified parameter types and a single return type
  * <li> service	- a collection of named methods, including resource methods
- * <li> stream - a sequence of values that can be generated lazily
- * <li> singleton - a single value described by a literal
  * <li> never - no value
  * </ul>
  */
@@ -141,10 +143,14 @@ public class VariableFactory {
             return new BError(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
             return new BTypeDesc(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
+            return new BTable(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
             return new BFuture(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.HANDLE_VALUE.getString())) {
             return new BHandle(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.STREAM_VALUE.getString())) {
+            return new BStream(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
             return new BXmlText(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {

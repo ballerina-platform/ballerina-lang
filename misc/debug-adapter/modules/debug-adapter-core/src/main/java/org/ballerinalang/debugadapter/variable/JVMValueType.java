@@ -42,6 +42,8 @@ public enum JVMValueType {
     TYPEDESC_VALUE("org.ballerinalang.jvm.values.TypedescValue"),
     FUTURE_VALUE("org.ballerinalang.jvm.values.FutureValue"),
     HANDLE_VALUE("org.ballerinalang.jvm.values.HandleValue"),
+    STREAM_VALUE("org.ballerinalang.jvm.values.StreamValue"),
+    TABLE_VALUE("org.ballerinalang.jvm.values.TableValue"),
     XML_COMMENT("org.ballerinalang.jvm.values.XMLComment"),
     XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
     XML_PI("org.ballerinalang.jvm.values.XMLPi"),
