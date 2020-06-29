@@ -319,3 +319,37 @@ function testIteratorWithErrorUnion() returns boolean {
 
     return testPassed;
 }
+
+type NeverNumberGenerator object {
+    int i = 0;
+    public function next() returns record {| int value; |}?|never {
+        self.i += 1;
+        if (self.i < 3) {
+            return { value: self.i };
+        }
+    }
+};
+
+function testStreamConstructWithNever() returns boolean {
+    boolean testPassed = true;
+
+    NumberGenerator numGen = new();
+    stream<int> numberStream1 = new stream<int,never>(numGen);
+    stream<int, never> numberStream2 = new(numGen);
+
+    record {| int value; |}? number1 = getRecordValue(numberStream1.next());
+    testPassed = testPassed && (number1?.value == 1);
+
+    record {| int value; |}? number2 = getRecordValue(numberStream2.next());
+    testPassed = testPassed && (number2?.value == 2);
+
+    NeverNumberGenerator neverNumGen = new();
+    stream<int|never> neverNumStream = new(neverNumGen);
+
+    record {| int value; |}? neverNum1 = neverNumStream.next();
+    record {| int value; |}? neverNum2 = neverNumStream.next();
+    record {| int value; |}? neverNum3 = neverNumStream.next();
+    testPassed = testPassed && (neverNum3 == ());
+
+    return testPassed;
+}
