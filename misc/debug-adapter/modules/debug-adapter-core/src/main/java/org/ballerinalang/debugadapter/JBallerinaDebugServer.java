@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
+import com.sun.jdi.InvalidStackFrameException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
@@ -496,6 +497,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }
         try {
             com.sun.jdi.StackFrame frame = stackFramesMap.get(args.getFrameId());
+            // The above frame may become invalid as the owning thread is resumed to invoke methods during the variable
+            // computation phase. Therefore we need to use the new(updated) instance of the particular frame for
+            // the evaluation.
+            // Todo - Refactor implementation to keep the frame depth and reuse it to retrieve the new frame instance,
+            //  instead of always using the top stack frame.
+            try {
+                ThreadReference thread = frame.thread();
+            } catch (InvalidStackFrameException e) {
+                frame = activeThread.frames().get(0);
+            }
             Optional<Value> result = executionManager.evaluate(frame, args.getExpression());
             if (result.isPresent()) {
                 Value value = result.get();
