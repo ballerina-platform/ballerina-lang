@@ -51,6 +51,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.objectweb.asm.Opcodes.AASTORE;
+import static org.objectweb.asm.Opcodes.ACONST_NULL;
 import static org.objectweb.asm.Opcodes.ALOAD;
 import static org.objectweb.asm.Opcodes.ANEWARRAY;
 import static org.objectweb.asm.Opcodes.ARETURN;
@@ -89,8 +90,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
@@ -99,6 +102,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
@@ -107,6 +111,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PANIC_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.REF_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SCHEDULER;
@@ -399,23 +404,14 @@ public class JvmTerminatorGen {
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
 
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-        this.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitInsn(ICONST_0);
-        this.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
+        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
 
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
-                    "Ljava/lang/Object;");
-            BIRNode.BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
-            if (lhsOpVarDcl != null) {
-                JvmInstructionGen.addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
-                this.storeToVar(lhsOpVarDcl);
-            }
+                                   "Ljava/lang/Object;");
+            JvmInstructionGen.addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
+            this.storeToVar(callIns.lhsOp.variableDcl);
         }
 
         this.mv.visitJumpInsn(GOTO, notBlockedOnExternLabel);
@@ -457,14 +453,7 @@ public class JvmTerminatorGen {
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
 
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-        this.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitInsn(ICONST_0);
-        this.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
+        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
@@ -539,14 +528,7 @@ public class JvmTerminatorGen {
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
 
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, "isBlockedOnExtern", "()Z", false);
-        this.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-        this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitInsn(ICONST_0);
-        this.mv.visitFieldInsn(PUTFIELD, "org/ballerinalang/jvm/scheduling/Strand", "blockedOnExtern", "Z");
-
+        genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp.variableDcl != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
@@ -585,6 +567,30 @@ public class JvmTerminatorGen {
         }
 
         this.mv.visitLabel(notBlockedOnExternLabel);
+    }
+
+    private void genHandlingBlockedOnExternal(int localVarOffset, Label blockedOnExternLabel) {
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
+        this.mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        this.mv.visitInsn(ICONST_0);
+        this.mv.visitFieldInsn(PUTFIELD, STRAND, BLOCKED_ON_EXTERN_FIELD, "Z");
+
+        // Throw error if strand has panic
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        Label panicLabel = new Label();
+        mv.visitJumpInsn(IFNULL, panicLabel);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitInsn(DUP);
+        this.mv.visitVarInsn(ALOAD, localVarOffset);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitFieldInsn(PUTFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitInsn(ATHROW);
+        mv.visitLabel(panicLabel);
     }
 
     private void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
