@@ -131,12 +131,12 @@ public class BallerinaLexer extends AbstractLexer {
                             // ident begin
                             String identifier = "";
                             if (isIdentifierInitialChar(nextChar)) {
-                                identifier = identifier.concat(String.valueOf((char)nextChar));
+                                identifier = identifier.concat(String.valueOf((char) nextChar));
 //                                reader.advance();
                                 int count = 1;
                                 int nextNextChar = reader.peek(count);
                                 while (isIdentifierInitialChar(nextNextChar)) {
-                                    identifier = identifier.concat(String.valueOf((char)nextNextChar));
+                                    identifier = identifier.concat(String.valueOf((char) nextNextChar));
                                     count++;
                                     nextNextChar = reader.peek(count);
                                 }
@@ -158,7 +158,7 @@ public class BallerinaLexer extends AbstractLexer {
                                     int cnt = identifier.length();
                                     int nchar = reader.peek(cnt);
                                     while (true) {
-                                        switch (nchar){
+                                        switch (nchar) {
                                             case LexerTerminals.SPACE:
                                                 cnt++;
                                                 nchar = reader.peek(cnt);
@@ -203,22 +203,22 @@ public class BallerinaLexer extends AbstractLexer {
         String tokenText = getLexeme();
         switch (tokenText) {
             case LexerTerminals.TYPE:
-                return getSyntaxToken(SyntaxKind.TYPE_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.TYPE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.SERVICE:
-                return getSyntaxToken(SyntaxKind.SERVICE_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.VARIABLE:
-                return getSyntaxToken(SyntaxKind.VARIABLE_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.VAR:
-                return getSyntaxToken(SyntaxKind.VAR_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.VAR_DOC_REFERENCE_TOKEN);
             case LexerTerminals.ANNOTATION:
-                return getSyntaxToken(SyntaxKind.ANNOTATION_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.MODULE:
-                return getSyntaxToken(SyntaxKind.MODULE_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.FUNCTION:
-                return getSyntaxToken(SyntaxKind.FUNCTION_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.PARAMETER:
             default:
-                return getSyntaxToken(SyntaxKind.PARAMETER_REFERENCE_TYPE);
+                return getSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
         }
     }
 
@@ -234,7 +234,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                     switchMode(ParserMode.DOCUMENTATION);
-                    // fall through
+                    break;
                 case LexerTerminals.BACKTICK:
                     break;
                 default:
@@ -261,7 +261,7 @@ public class BallerinaLexer extends AbstractLexer {
                     switchMode(ParserMode.DOCUMENTATION);
                     // fall through
                 case LexerTerminals.BACKTICK:
-                    if (reader.peek(1) == LexerTerminals.BACKTICK){
+                    if (reader.peek(1) == LexerTerminals.BACKTICK) {
                         break;
                     }
                     // fall through
@@ -290,7 +290,7 @@ public class BallerinaLexer extends AbstractLexer {
                     switchMode(ParserMode.DOCUMENTATION);
                     // fall through
                 case LexerTerminals.BACKTICK:
-                    if (reader.peek(1) == LexerTerminals.BACKTICK && reader.peek(2) == LexerTerminals.BACKTICK){
+                    if (reader.peek(1) == LexerTerminals.BACKTICK && reader.peek(2) == LexerTerminals.BACKTICK) {
                         break;
                     }
                     // fall through
@@ -574,7 +574,7 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken getDocSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         STNode trailingTrivia = processTrailingTrivia();
-        for (int i=0; i< trailingTrivia.bucketCount(); i++) {
+        for (int i = 0; i < trailingTrivia.bucketCount(); i++) {
             if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
                 endMode();
             }
@@ -607,7 +607,7 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        for (int i=0; i< trailingTrivia.bucketCount(); i++) {
+        for (int i = 0; i < trailingTrivia.bucketCount(); i++) {
             if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
                 endMode();
             }

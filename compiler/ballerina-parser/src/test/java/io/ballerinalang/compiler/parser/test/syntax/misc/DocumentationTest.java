@@ -27,14 +27,39 @@ import org.testng.annotations.Test;
 public class DocumentationTest extends AbstractMiscTest {
 
     @Test
+    public void testSimpleDocumentationLine() {
+        testFile("documentation/doc_source_03.bal", "documentation/doc_assert_03.json");
+    }
+
+    @Test
+    public void testSimpleParameterDocumentationLine() {
+        testFile("documentation/doc_source_04.bal", "documentation/doc_assert_04.json");
+    }
+
+    @Test
+    public void testSimpleReturnParameterDocumentationLine() {
+        testFile("documentation/doc_source_05.bal", "documentation/doc_assert_05.json");
+    }
+
+    @Test
+    public void testSimpleDeprecationDocumentationLine() {
+        testFile("documentation/doc_source_06.bal", "documentation/doc_assert_06.json");
+    }
+
+    @Test
+    public void testSimpleReferenceDocumentationLine() {
+        testFile("documentation/doc_source_07.bal", "documentation/doc_assert_07.json");
+    }
+
+    @Test
     public void testBasicDocumentation() {
         testFile("documentation/doc_source_01.bal", "documentation/doc_assert_01.json");
     }
 
-    @Test
-    public void testRecordFieldDocumentation() {
-        testFile("documentation/doc_source_02.bal", "documentation/doc_assert_02.json");
-    }
+//    @Test
+//    public void testRecordFieldDocumentation() {
+//        testFile("documentation/doc_source_02.bal", "documentation/doc_assert_02.json");
+//    }
 
     // Recovery tests
 
