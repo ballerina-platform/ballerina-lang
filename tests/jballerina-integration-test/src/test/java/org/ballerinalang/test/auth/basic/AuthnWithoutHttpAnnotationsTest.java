@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * Test cases for service level authentication and authorization when service and resource do not have config
  * annotations attached.
- * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  *
  * @since 0.982.1
  */

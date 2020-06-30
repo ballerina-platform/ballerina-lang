@@ -35,7 +35,7 @@ import java.util.Map;
  * Pattern 4 - scopes: [["scope1"], ["scope3"]]
  * Pattern 5 - scopes: [["scope1", "scope2"], ["scope3", "scope4"]]
  *
- * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes only.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  */
 @Test(groups = "auth-test")
 public class AuthzConfigPatternTest extends AuthBaseTest {
