@@ -518,9 +518,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.doneWithintransactionCheckStack.push(false);
         this.returnWithinLambdaWrappingCheckStack.push(false);
         this.transactionCount++;
-        if (this.transactionCount > 1) {
-            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
-        }
+//        if (this.transactionCount > 1) {
+//            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
+//        }
         analyzeNode(transactionNode.transactionBody, env);
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
