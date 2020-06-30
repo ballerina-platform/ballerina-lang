@@ -49,6 +49,7 @@
             <class name="org.ballerinalang.langlib.test.LangLibSubTypeTest" />
 
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorBindingPatternsTests"/>
+            <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachErrorHandlingTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachNegativeTests"/>
             <class name="org.ballerinalang.langlib.test.statements.foreach.ForeachJSONTypedBindingPatternsTests"/>
