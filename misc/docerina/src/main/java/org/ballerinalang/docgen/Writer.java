@@ -120,7 +120,7 @@ public class Writer {
             });
 
             handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
-                //remove paragraph tags
+                //remove html tags
                 if (string != null) {
                     return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
