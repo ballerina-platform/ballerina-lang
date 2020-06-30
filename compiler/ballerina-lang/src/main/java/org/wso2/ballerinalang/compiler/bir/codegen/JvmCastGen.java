@@ -115,166 +115,228 @@ public class JvmCastGen {
 
     public static void generateBToJCheckCast(MethodVisitor mv, BType sourceType, JType targetType) {
 
-        if (targetType.jTag == JTypeTags.JBYTE) {
-            generateCheckCastBToJByte(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JCHAR) {
-            generateCheckCastBToJChar(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JSHORT) {
-            generateCheckCastBToJShort(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JINT) {
-            generateCheckCastBToJInt(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JLONG) {
-            generateCheckCastBToJLong(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JFLOAT) {
-            generateCheckCastBToJFloat(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JDOUBLE) {
-            generateCheckCastBToJDouble(mv, sourceType);
-        } else if (targetType.jTag == JTypeTags.JREF) {
-            generateCheckCastBToJRef(mv, sourceType, targetType);
-        } else if (targetType.jTag == JTypeTags.JARRAY) {
-            generateCheckCastBToJRef(mv, sourceType, targetType);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
-                    sourceType, targetType));
+        switch (targetType.jTag) {
+            case JTypeTags.JBYTE:
+                generateCheckCastBToJByte(mv, sourceType);
+                break;
+            case JTypeTags.JCHAR:
+                generateCheckCastBToJChar(mv, sourceType);
+                break;
+            case JTypeTags.JSHORT:
+                generateCheckCastBToJShort(mv, sourceType);
+                break;
+            case JTypeTags.JINT:
+                generateCheckCastBToJInt(mv, sourceType);
+                break;
+            case JTypeTags.JLONG:
+                generateCheckCastBToJLong(mv, sourceType);
+                break;
+            case JTypeTags.JFLOAT:
+                generateCheckCastBToJFloat(mv, sourceType);
+                break;
+            case JTypeTags.JDOUBLE:
+                generateCheckCastBToJDouble(mv, sourceType);
+                break;
+            case JTypeTags.JREF:
+                generateCheckCastBToJRef(mv, sourceType, targetType);
+                break;
+            case JTypeTags.JARRAY:
+                generateCheckCastBToJRef(mv, sourceType, targetType);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java %s'",
+                        sourceType, targetType));
         }
     }
 
     private static void generateCheckCastBToJByte(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            // do nothing
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2B);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2I);
-            mv.visitInsn(I2B);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT), false);
-            mv.visitInsn(I2B);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    // do nothing
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2I);
+                    mv.visitInsn(I2B);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT),
+                            false);
+                    mv.visitInsn(I2B);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java byte'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJChar(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2C);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
-            mv.visitInsn(L2I);
-            mv.visitInsn(I2C);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2I);
-            mv.visitInsn(I2C);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2C);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java char'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2C);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2I);
+                    mv.visitInsn(I2C);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(I2C);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java char'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJShort(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2S);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
-            mv.visitInsn(L2I);
-            mv.visitInsn(I2S);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2I);
-            mv.visitInsn(I2S);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
             mv.visitInsn(I2S);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java short'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2S);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2I);
+                    mv.visitInsn(I2S);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    mv.visitInsn(L2I);
+                    mv.visitInsn(I2S);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java short'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJInt(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            // do nothing
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
-            mv.visitInsn(L2I);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2I);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java int'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    // do nothing
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2I);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    mv.visitInsn(L2I);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java int'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJLong(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2L);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2L);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java long'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2L);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java long'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJFloat(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2F);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2F);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2F);
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT), false);
-            mv.visitInsn(D2F);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java float'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2F);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2F);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                            false);
+                    mv.visitInsn(D2F);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java float'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastBToJDouble(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2D);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            // do nothing
-        } else if (sourceType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
-        } else if (sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java double'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2D);
+                    break;
+                case TypeTags.FLOAT:
+                    // do nothing
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+                    break;
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
+                            "to 'java double'", sourceType));
+            }
         }
     }
 
@@ -310,122 +372,166 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCheckCastJToBInt(mv, sourceType);
-        } else if (targetType.tag == TypeTags.FLOAT) {
-            generateCheckCastJToBFloat(mv, sourceType);
-        } else if (targetType.tag == TypeTags.DECIMAL) {
-            generateCheckCastJToBDecimal(mv, sourceType);
-        } else if (targetType.tag == TypeTags.BOOLEAN) {
-            generateCheckCastJToBBoolean(mv, sourceType);
-        } else if (targetType.tag == TypeTags.BYTE) {
-            generateCheckCastJToBByte(mv, sourceType);
-        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
-            // Do nothing
         } else {
-            if (targetType.tag == TypeTags.UNION) {
-                generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
-            } else if (targetType.tag == TypeTags.ANYDATA) {
-                generateCheckCastJToBAnyData(mv, indexMap, sourceType);
-            } else if (targetType.tag == TypeTags.HANDLE) {
-                generateJCastToBHandle(mv, sourceType);
-            } else if (targetType.tag == TypeTags.ANY) {
-                generateJCastToBAny(mv, indexMap, sourceType, targetType);
-            } else if (targetType.tag == TypeTags.JSON) {
-                generateCheckCastJToBJSON(mv, indexMap, sourceType);
-            } else if (targetType.tag == TypeTags.FINITE) {
-                generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
-                // TODO fix below properly - rajith
-                //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
-                //    generateXMLToAttributesMap(mv, sourceType);
-                //    return;
-                //} else if (targetType is bir:BFiniteType) {
-                //    generateCheckCastToFiniteType(mv, sourceType, targetType);
-                //    return;
-                //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType && targetType.constraint
-                // is bir:BTypeAny)) {
-                //    // do nothing
-            }
+            switch (targetType.tag) {
+                case TypeTags.FLOAT:
+                    generateCheckCastJToBFloat(mv, sourceType);
+                    break;
+                case TypeTags.DECIMAL:
+                    generateCheckCastJToBDecimal(mv, sourceType);
+                    break;
+                case TypeTags.BOOLEAN:
+                    generateCheckCastJToBBoolean(mv, sourceType);
+                    break;
+                case TypeTags.BYTE:
+                    generateCheckCastJToBByte(mv, sourceType);
+                    break;
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    // Do nothing
+                    break;
+                default:
+                    if (targetType.tag == TypeTags.UNION) {
+                        generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
+                    } else if (targetType.tag == TypeTags.ANYDATA) {
+                        generateCheckCastJToBAnyData(mv, indexMap, sourceType);
+                    } else if (targetType.tag == TypeTags.HANDLE) {
+                        generateJCastToBHandle(mv, sourceType);
+                    } else if (targetType.tag == TypeTags.ANY) {
+                        generateJCastToBAny(mv, indexMap, sourceType, targetType);
+                    } else if (targetType.tag == TypeTags.JSON) {
+                        generateCheckCastJToBJSON(mv, indexMap, sourceType);
+                    } else if (targetType.tag == TypeTags.FINITE) {
+                        generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
+                        // TODO fix below properly - rajith
+                        //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+                        //    generateXMLToAttributesMap(mv, sourceType);
+                        //    return;
+                        //} else if (targetType is bir:BFiniteType) {
+                        //    generateCheckCastToFiniteType(mv, sourceType, targetType);
+                        //    return;
+                        //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType &&
+                        // targetType.constraint
+                        // is bir:BTypeAny)) {
+                        //    // do nothing
+                    }
 
-            checkCast(mv, targetType);
-            String targetTypeClass = getTargetClass(targetType);
-            if (targetTypeClass != null) {
-                mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+                    checkCast(mv, targetType);
+                    String targetTypeClass = getTargetClass(targetType);
+                    if (targetTypeClass != null) {
+                        mv.visitTypeInsn(CHECKCAST, targetTypeClass);
+                    }
+                    break;
             }
         }
     }
 
     private static void generateCheckCastJToBInt(MethodVisitor mv, JType sourceType) {
 
-        if (sourceType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(I2L);
-        } else if (sourceType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(I2L);
-        } else if (sourceType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(I2L);
-        } else if (sourceType.jTag == JTypeTags.JLONG) {
-            // do nothing
-            // According to the spec doc, below two are not needed
-            // } else if (sourceType is jvm:JFloat) {
-            //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jFloatToBInt", "(F)J", false);
-            // } else if (sourceType is jvm:JDouble) {
-            //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jDoubleToBInt", "(D)J", false);
-        } else if (sourceType.jTag == JTypeTags.JREF) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", String.format("(L%s;)J", OBJECT), false);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'", sourceType));
+        switch (sourceType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                mv.visitInsn(I2L);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitInsn(I2L);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitInsn(I2L);
+                break;
+            case JTypeTags.JINT:
+                mv.visitInsn(I2L);
+                break;
+            case JTypeTags.JLONG:
+                // do nothing
+                // According to the spec doc, below two are not needed
+                // } else if (sourceType is jvm:JFloat) {
+                //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jFloatToBInt", "(F)J", false);
+                // } else if (sourceType is jvm:JDouble) {
+                //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jDoubleToBInt", "(D)J", false);
+                break;
+            case JTypeTags.JREF:
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", String.format("(L%s;)J", OBJECT), false);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",
+                        sourceType));
         }
     }
 
     private static void generateCheckCastJToBFloat(MethodVisitor mv, JType sourceType) {
 
-        if (sourceType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2D);
-        } else if (sourceType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(I2D);
-        } else if (sourceType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(I2D);
-        } else if (sourceType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(I2D);
-        } else if (sourceType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(L2D);
-        } else if (sourceType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(F2D);
-        } else if (sourceType.jTag == JTypeTags.JDOUBLE) {
-            // do nothing
-        } else if (sourceType.jTag == JTypeTags.JREF) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", String.format("(L%s;)D", OBJECT), false);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
-                    sourceType));
+        switch (sourceType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                mv.visitInsn(I2D);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitInsn(I2D);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitInsn(I2D);
+                break;
+            case JTypeTags.JINT:
+                mv.visitInsn(I2D);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitInsn(L2D);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitInsn(F2D);
+                break;
+            case JTypeTags.JDOUBLE:
+                // do nothing
+                break;
+            case JTypeTags.JREF:
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", String.format("(L%s;)D", OBJECT), false);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
+                        sourceType));
         }
     }
 
     private static void generateCheckCastJToBDecimal(MethodVisitor mv, JType sourceType) {
 
-        if (sourceType.jTag == JTypeTags.JBYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(B)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JCHAR) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(C)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JSHORT) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(S)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JINT) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(I)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JLONG) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(J)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JFLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(F)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(D)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JREF) {
-            mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
-                    sourceType));
+        switch (sourceType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(B)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(C)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(S)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JINT:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(I)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(J)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(F)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOfJ", String.format("(D)L%s;", DECIMAL_VALUE),
+                        false);
+                break;
+            case JTypeTags.JREF:
+                mv.visitTypeInsn(CHECKCAST, DECIMAL_VALUE);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
+                        sourceType));
         }
     }
 
@@ -506,83 +612,100 @@ public class JvmCastGen {
     private static void generateJCastToBAny(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
                                             BType targetType) {
 
-        if (sourceType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JBYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(I2L);
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(I2L);
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(I2L);
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JLONG) {
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(F2D);
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (sourceType.jTag == JTypeTags.JREF) {
-            Label afterHandle = new Label();
-            if (((JType.JRefType) sourceType).typeValue.equals(OBJECT)) {
+        switch (sourceType.jTag) {
+            case JTypeTags.JBOOLEAN:
+                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),
+                        false);
+                break;
+            case JTypeTags.JBYTE:
+                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitInsn(I2L);
+                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitInsn(I2L);
+                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
+                break;
+            case JTypeTags.JINT:
+                mv.visitInsn(I2L);
+                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitInsn(F2D);
+                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE),
+                        false);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE),
+                        false);
+                break;
+            case JTypeTags.JREF:
+                Label afterHandle = new Label();
+                if (((JType.JRefType) sourceType).typeValue.equals(OBJECT)) {
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, NUMBER);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, BOOLEAN_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+
+                    mv.visitInsn(DUP);
+                    mv.visitTypeInsn(INSTANCEOF, SIMPLE_VALUE);
+                    mv.visitJumpInsn(IFNE, afterHandle);
+                }
+
+                if (isNillable(targetType)) {
+                    mv.visitInsn(DUP);
+                    mv.visitJumpInsn(IFNULL, afterHandle);
+                }
+
                 mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, ERROR_VALUE);
+                mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
                 mv.visitJumpInsn(IFNE, afterHandle);
 
+                BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, symbolTable.anyType,
+                        new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
+                int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
+                mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
+                mv.visitTypeInsn(NEW, HANDLE_VALUE);
                 mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, NUMBER);
-                mv.visitJumpInsn(IFNE, afterHandle);
-
-                mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, BOOLEAN_VALUE);
-                mv.visitJumpInsn(IFNE, afterHandle);
-
-                mv.visitInsn(DUP);
-                mv.visitTypeInsn(INSTANCEOF, SIMPLE_VALUE);
-                mv.visitJumpInsn(IFNE, afterHandle);
-            }
-
-            if (isNillable(targetType)) {
-                mv.visitInsn(DUP);
-                mv.visitJumpInsn(IFNULL, afterHandle);
-            }
-
-            mv.visitInsn(DUP);
-            mv.visitTypeInsn(INSTANCEOF, REF_VALUE);
-            mv.visitJumpInsn(IFNE, afterHandle);
-
-            BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(null, symbolTable.anyType,
-                    new Name("$_ret_jobject_val_$"), VarScope.FUNCTION, VarKind.LOCAL, "");
-            int returnJObjectVarRefIndex = indexMap.getIndex(retJObjectVarDcl);
-            mv.visitVarInsn(ASTORE, returnJObjectVarRefIndex);
-            mv.visitTypeInsn(NEW, HANDLE_VALUE);
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
-            mv.visitLabel(afterHandle);
-        } else if (sourceType.jTag == JTypeTags.JARRAY) {
-            // do nothing
-        } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'any'", sourceType));
+                mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
+                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+                mv.visitLabel(afterHandle);
+                break;
+            case JTypeTags.JARRAY:
+                // do nothing
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'any'",
+                        sourceType));
         }
     }
 
     private static boolean isNillable(BType targetType) {
 
-        if (targetType.tag == TypeTags.NIL ||
-                targetType.tag == TypeTags.NEVER ||
-                targetType.tag == TypeTags.JSON ||
-                targetType.tag == TypeTags.ANY ||
-                targetType.tag == TypeTags.ANYDATA) {
-            return true;
-        } else if (targetType.tag == TypeTags.UNION || targetType.tag == TypeTags.INTERSECTION) {
-            return targetType.isNullable();
-        } else if (targetType.tag == TypeTags.FINITE) {
-            return targetType.isNullable();
+        switch (targetType.tag) {
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.JSON:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+                return true;
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+                return targetType.isNullable();
+            case TypeTags.FINITE:
+                return targetType.isNullable();
         }
 
         return false;
@@ -610,78 +733,83 @@ public class JvmCastGen {
 
     static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
 
-        if (targetType.tag == TypeTags.INT) {
-            generateCheckCastToInt(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.SIGNED32_INT) {
-            generateCheckCastToSigned32(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.SIGNED16_INT) {
-            generateCheckCastToSigned16(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.SIGNED8_INT) {
-            generateCheckCastToSigned8(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.UNSIGNED32_INT) {
-            generateCheckCastToUnsigned32(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.UNSIGNED16_INT) {
-            generateCheckCastToUnsigned16(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.UNSIGNED8_INT) {
-            generateCheckCastToUnsigned8(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.FLOAT) {
-            generateCheckCastToFloat(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.STRING) {
-            generateCheckCastToString(mv, sourceType, indexMap);
-            return;
-        } else if (targetType.tag == TypeTags.CHAR_STRING) {
-            generateCheckCastToChar(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.DECIMAL) {
-            generateCheckCastToDecimal(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.BOOLEAN) {
-            generateCheckCastToBoolean(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.BYTE) {
-            generateCheckCastToByte(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
-            checkCast(mv, targetType);
-            return;
-        } else if (targetType.tag == TypeTags.UNION) {
-            generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
-            return;
-        } else if (targetType.tag == TypeTags.INTERSECTION) {
-            generateCheckCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType, indexMap);
-            return;
-        } else if (targetType.tag == TypeTags.ANYDATA) {
-            generateCheckCastToAnyData(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.ANY) {
-            generateCastToAny(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.JSON) {
-            generateCheckCastToJSON(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.READONLY) {
-            generateCheckCastToReadonlyType(mv, sourceType, targetType);
-            return;
-        } else if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
+        if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
             generateXMLToAttributesMap(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.FINITE) {
-            generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
             return;
         } else if (sourceType.tag == TypeTags.RECORD && (targetType.tag == TypeTags.MAP
                 && ((BMapType) targetType).constraint.tag == TypeTags.ANY)) {
             // do nothing
         } else {
-            // do the ballerina checkcast
-            checkCast(mv, targetType);
+            switch (targetType.tag) {
+                case TypeTags.INT:
+                    generateCheckCastToInt(mv, sourceType);
+                    return;
+                case TypeTags.SIGNED32_INT:
+                    generateCheckCastToSigned32(mv, sourceType);
+                    return;
+                case TypeTags.SIGNED16_INT:
+                    generateCheckCastToSigned16(mv, sourceType);
+                    return;
+                case TypeTags.SIGNED8_INT:
+                    generateCheckCastToSigned8(mv, sourceType);
+                    return;
+                case TypeTags.UNSIGNED32_INT:
+                    generateCheckCastToUnsigned32(mv, sourceType);
+                    return;
+                case TypeTags.UNSIGNED16_INT:
+                    generateCheckCastToUnsigned16(mv, sourceType);
+                    return;
+                case TypeTags.UNSIGNED8_INT:
+                    generateCheckCastToUnsigned8(mv, sourceType);
+                    return;
+                case TypeTags.FLOAT:
+                    generateCheckCastToFloat(mv, sourceType);
+                    return;
+                case TypeTags.STRING:
+                    generateCheckCastToString(mv, sourceType, indexMap);
+                    return;
+                case TypeTags.CHAR_STRING:
+                    generateCheckCastToChar(mv, sourceType);
+                    return;
+                case TypeTags.DECIMAL:
+                    generateCheckCastToDecimal(mv, sourceType);
+                    return;
+                case TypeTags.BOOLEAN:
+                    generateCheckCastToBoolean(mv, sourceType);
+                    return;
+                case TypeTags.BYTE:
+                    generateCheckCastToByte(mv, sourceType);
+                    return;
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    checkCast(mv, targetType);
+                    return;
+                case TypeTags.UNION:
+                    generateCheckCastToUnionType(mv, sourceType, (BUnionType) targetType);
+                    return;
+                case TypeTags.INTERSECTION:
+                    generateCheckCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType, indexMap);
+                    return;
+                case TypeTags.ANYDATA:
+                    generateCheckCastToAnyData(mv, sourceType);
+                    return;
+                case TypeTags.ANY:
+                    generateCastToAny(mv, sourceType);
+                    return;
+                case TypeTags.JSON:
+                    generateCheckCastToJSON(mv, sourceType);
+                    return;
+                case TypeTags.READONLY:
+                    generateCheckCastToReadonlyType(mv, sourceType, targetType);
+                    return;
+                case TypeTags.FINITE:
+                    generateCheckCastToFiniteType(mv, sourceType, (BFiniteType) targetType);
+                    return;
+                default:
+                    // do the ballerina checkcast
+                    checkCast(mv, targetType);
+                    break;
+            }
         }
 
         // cast to the specific java class
@@ -695,21 +823,28 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToInt", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'", sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToInt", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",
+                            sourceType));
+            }
         }
     }
 
@@ -717,22 +852,29 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned32", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned32", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned32", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed32'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned32", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned32", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
+                            "to 'int:Signed32'", sourceType));
+            }
         }
     }
 
@@ -740,22 +882,29 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned16", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned16", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned16", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed16'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned16", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned16", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
+                            "to 'int:Signed16'", sourceType));
+            }
         }
     }
 
@@ -763,23 +912,30 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned8", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned8", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Signed8'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToSigned8", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToSigned8", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s'" +
+                            " to 'int:Signed8'", sourceType));
+            }
         }
     }
 
@@ -787,22 +943,29 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned32", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned32", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned32", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned32'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned32", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned32", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to " +
+                            "'int:Unsigned32'", sourceType));
+            }
         }
     }
 
@@ -810,22 +973,29 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned16", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned16", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned16", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned16'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned16", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned16", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
+                                    "to 'int:Unsigned16'", sourceType));
+            }
         }
     }
 
@@ -833,66 +1003,89 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToUnsigned8", "(J)J", false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2B);
-            mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned8", "(D)J", false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned8", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int:Unsigned8'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2B);
+                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToUnsigned8", "(D)J", false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToUnsigned8", String.format("(L%s;)J", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
+                                    "to 'int:Unsigned8'", sourceType));
+            }
         }
     }
 
     private static void generateCheckCastToFloat(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.FLOAT) {
-            // do nothing
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2D);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.DECIMAL ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.FLOAT:
+                    // do nothing
+                    break;
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2D);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.DECIMAL:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToFloat", String.format("(L%s;)D", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'float'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCheckCastToDecimal(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.DECIMAL) {
-            // do nothing
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
-                    String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(J)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(I)L%s;", DECIMAL_VALUE), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.DECIMAL:
+                    // do nothing
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
+                            String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE),
+                            false);
+                    break;
+                case TypeTags.BYTE:
+                    mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(I)L%s;", DECIMAL_VALUE),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
+                            sourceType));
+            }
         }
     }
 
@@ -901,26 +1094,35 @@ public class JvmCastGen {
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             // do nothing
             return;
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON ||
-                sourceType.tag == TypeTags.FINITE) {
-            checkCast(mv, symbolTable.stringType);
-            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.DECIMAL) {
-            mv.visitMethodInsn(INVOKESTATIC, STRING_VALUE, "valueOf", String.format("(L%s;)L%s;", OBJECT, STRING_VALUE),
-                    false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    checkCast(mv, symbolTable.stringType);
+                    mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+                    return;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE),
+                            false);
+                    break;
+                case TypeTags.BOOLEAN:
+                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE),
+                            false);
+                    break;
+                case TypeTags.DECIMAL:
+                    mv.visitMethodInsn(INVOKESTATIC, STRING_VALUE, "valueOf", String.format("(L%s;)L%s;", OBJECT,
+                            STRING_VALUE),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
+                            sourceType));
+            }
         }
 
         generateNonBMPStringValue(mv, indexMap);
@@ -981,20 +1183,30 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToByte", "(J)I", false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToByte", "(D)I", false);
-        } else if (sourceType.tag == TypeTags.DECIMAL) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT), false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            // do nothing
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.FINITE ||
-                sourceType.tag == TypeTags.JSON) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'byte'", sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "floatToByte", "(D)I", false);
+                    break;
+                case TypeTags.DECIMAL:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT),
+                            false);
+                    break;
+                case TypeTags.BYTE:
+                    // do nothing
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.FINITE:
+                case TypeTags.JSON:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT),
+                            false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'byte'",
+                            sourceType));
+            }
         }
     }
 
@@ -1038,32 +1250,48 @@ public class JvmCastGen {
     static String getTargetClass(BType targetType) {
 
         String targetTypeClass;
-        if (targetType.tag == TypeTags.ARRAY || targetType.tag == TypeTags.TUPLE) {
-            targetTypeClass = ARRAY_VALUE;
-        } else if (targetType.tag == TypeTags.MAP) {
-            targetTypeClass = MAP_VALUE;
-        } else if (targetType.tag == TypeTags.TABLE) {
-            targetTypeClass = TABLE_VALUE_IMPL;
-        } else if (targetType.tag == TypeTags.RECORD) {
-            targetTypeClass = MAP_VALUE;
-        } else if (targetType.tag == TypeTags.STREAM) {
-            targetTypeClass = STREAM_VALUE;
-        } else if (targetType.tag == TypeTags.OBJECT) {
-            targetTypeClass = OBJECT_VALUE;
-        } else if (targetType.tag == TypeTags.ERROR) {
-            targetTypeClass = ERROR_VALUE;
-        } else if (TypeTags.isXMLTypeTag(targetType.tag)) {
+
+        if (TypeTags.isXMLTypeTag(targetType.tag)) {
             targetTypeClass = XML_VALUE;
-        } else if (targetType.tag == TypeTags.TYPEDESC) {
-            targetTypeClass = TYPEDESC_VALUE;
-        } else if (targetType.tag == TypeTags.INVOKABLE) {
-            targetTypeClass = FUNCTION_POINTER;
-        } else if (targetType.tag == TypeTags.FUTURE) {
-            targetTypeClass = FUTURE_VALUE;
-        } else if (targetType.tag == TypeTags.HANDLE) {
-            targetTypeClass = HANDLE_VALUE;
         } else {
-            return null;
+            switch (targetType.tag) {
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                    targetTypeClass = ARRAY_VALUE;
+                    break;
+                case TypeTags.MAP:
+                    targetTypeClass = MAP_VALUE;
+                    break;
+                case TypeTags.TABLE:
+                    targetTypeClass = TABLE_VALUE_IMPL;
+                    break;
+                case TypeTags.RECORD:
+                    targetTypeClass = MAP_VALUE;
+                    break;
+                case TypeTags.STREAM:
+                    targetTypeClass = STREAM_VALUE;
+                    break;
+                case TypeTags.OBJECT:
+                    targetTypeClass = OBJECT_VALUE;
+                    break;
+                case TypeTags.ERROR:
+                    targetTypeClass = ERROR_VALUE;
+                    break;
+                case TypeTags.TYPEDESC:
+                    targetTypeClass = TYPEDESC_VALUE;
+                    break;
+                case TypeTags.INVOKABLE:
+                    targetTypeClass = FUNCTION_POINTER;
+                    break;
+                case TypeTags.FUTURE:
+                    targetTypeClass = FUTURE_VALUE;
+                    break;
+                case TypeTags.HANDLE:
+                    targetTypeClass = HANDLE_VALUE;
+                    break;
+                default:
+                    return null;
+            }
         }
 
         return targetTypeClass;
@@ -1090,36 +1318,39 @@ public class JvmCastGen {
         if (TypeTags.isIntegerTypeTag(targetType.tag)) {
             generateCastToInt(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.FLOAT) {
-            generateCastToFloat(mv, sourceType);
-            return;
         } else if (TypeTags.isStringTypeTag(targetType.tag)) {
             generateCastToString(mv, sourceType);
             return;
-        } else if (targetType.tag == TypeTags.BOOLEAN) {
-            generateCastToBoolean(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.BYTE) {
-            generateCastToByte(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.DECIMAL) {
-            generateCastToDecimal(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.NIL || targetType.tag == TypeTags.NEVER) {
-            // do nothing
-            return;
-        } else if (targetType.tag == TypeTags.UNION ||
-                targetType.tag == TypeTags.ANYDATA ||
-                targetType.tag == TypeTags.ANY ||
-                targetType.tag == TypeTags.JSON ||
-                targetType.tag == TypeTags.FINITE) {
-            generateCastToAny(mv, sourceType);
-            return;
-        } else if (targetType.tag == TypeTags.INTERSECTION) {
-            generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
-            return;
+        } else {
+            switch (targetType.tag) {
+                case TypeTags.FLOAT:
+                    generateCastToFloat(mv, sourceType);
+                    return;
+                case TypeTags.BOOLEAN:
+                    generateCastToBoolean(mv, sourceType);
+                    return;
+                case TypeTags.BYTE:
+                    generateCastToByte(mv, sourceType);
+                    return;
+                case TypeTags.DECIMAL:
+                    generateCastToDecimal(mv, sourceType);
+                    return;
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    // do nothing
+                    return;
+                case TypeTags.UNION:
+                case TypeTags.ANYDATA:
+                case TypeTags.ANY:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                    generateCastToAny(mv, sourceType);
+                    return;
+                case TypeTags.INTERSECTION:
+                    generateCast(mv, sourceType, ((BIntersectionType) targetType).effectiveType);
+                    return;
+            }
         }
-
         // cast to the specific java class
         String targetTypeClass = getTargetClass(targetType);
         if (targetTypeClass != null) {
@@ -1131,17 +1362,24 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             // do nothing
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitInsn(I2L);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(D2L);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'", sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(I2L);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(D2L);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.JSON:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToInt", String.format("(L%s;)J", OBJECT), false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'int'",
+                            sourceType));
+            }
         }
     }
 
@@ -1168,38 +1406,53 @@ public class JvmCastGen {
             // do nothing
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE), false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
-            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE),
+                            false);
+                    break;
+                case TypeTags.BOOLEAN:
+                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE),
+                            false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.JSON:
+                    mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'string'",
+                            sourceType));
+            }
         }
     }
 
     private static void generateCastToDecimal(MethodVisitor mv, BType sourceType) {
 
-        if (sourceType.tag == TypeTags.DECIMAL) {
-            // do nothing
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(J)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE), false);
-        } else if (sourceType.tag == TypeTags.ANY ||
-                sourceType.tag == TypeTags.ANYDATA ||
-                sourceType.tag == TypeTags.UNION ||
-                sourceType.tag == TypeTags.JSON) {
-            mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
-                    String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
         } else {
-            throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
-                    sourceType));
+            switch (sourceType.tag) {
+                case TypeTags.DECIMAL:
+                    // do nothing
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, DECIMAL_VALUE, "valueOf", String.format("(D)L%s;", DECIMAL_VALUE),
+                            false);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.JSON:
+                    mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToDecimal",
+                            String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
+                    break;
+                default:
+                    throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'decimal'",
+                            sourceType));
+            }
         }
     }
 
@@ -1239,12 +1492,20 @@ public class JvmCastGen {
 
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
-        } else if (sourceType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE), false);
-        } else if (sourceType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+        } else {
+            switch (sourceType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE),
+                            false);
+                    break;
+                case TypeTags.BOOLEAN:
+                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),
+                            false);
+                    break;
+            }
         }
     }
 

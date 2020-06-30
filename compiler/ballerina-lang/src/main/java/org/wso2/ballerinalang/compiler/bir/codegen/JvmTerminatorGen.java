@@ -1136,56 +1136,71 @@ public class JvmTerminatorGen {
                               int localVarOffset /* = -1 */) {
 
         BType bType = typeBuilder.build(func.type.retType);
-        if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
-            this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            this.mv.visitInsn(ARETURN);
-        } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
+
+        if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
-        } else if (bType.tag == TypeTags.BYTE) {
-            this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-            this.mv.visitInsn(IRETURN);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
-            this.mv.visitInsn(DRETURN);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-            this.mv.visitInsn(IRETURN);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.STREAM ||
-                bType.tag == TypeTags.TABLE ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FUTURE ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
-            this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            this.mv.visitInsn(ARETURN);
-        } else if (bType.tag == TypeTags.UNION) {
-            this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels), (BUnionType) bType);
-            this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-            this.mv.visitInsn(ARETURN);
-        } else if (bType.tag == TypeTags.ERROR) {
-            this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
         } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", func.type.retType));
+            switch (bType.tag) {
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                    this.mv.visitInsn(ARETURN);
+                    break;
+                case TypeTags.BYTE:
+                    this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                    this.mv.visitInsn(IRETURN);
+                    break;
+                case TypeTags.FLOAT:
+                    this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
+                    this.mv.visitInsn(DRETURN);
+                    break;
+                case TypeTags.BOOLEAN:
+                    this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                    this.mv.visitInsn(IRETURN);
+                    break;
+                case TypeTags.MAP:
+                case TypeTags.ARRAY:
+                case TypeTags.ANY:
+                case TypeTags.INTERSECTION:
+                case TypeTags.STREAM:
+                case TypeTags.TABLE:
+                case TypeTags.ANYDATA:
+                case TypeTags.OBJECT:
+                case TypeTags.DECIMAL:
+                case TypeTags.RECORD:
+                case TypeTags.TUPLE:
+                case TypeTags.JSON:
+                case TypeTags.FUTURE:
+                case TypeTags.INVOKABLE:
+                case TypeTags.HANDLE:
+                case TypeTags.FINITE:
+                case TypeTags.TYPEDESC:
+                case TypeTags.READONLY:
+                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                    this.mv.visitInsn(ARETURN);
+                    break;
+                case TypeTags.UNION:
+                    this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),
+                            (BUnionType) bType);
+                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                    this.mv.visitInsn(ARETURN);
+                    break;
+                case TypeTags.ERROR:
+                    this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
+                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                    this.mv.visitInsn(ARETURN);
+                    break;
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for type " +
+                            String.format("%s", func.type.retType));
+            }
         }
     }
 

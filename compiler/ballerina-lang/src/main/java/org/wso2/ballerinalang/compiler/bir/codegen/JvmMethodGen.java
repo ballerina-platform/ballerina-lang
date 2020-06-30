@@ -264,89 +264,105 @@ public class JvmMethodGen {
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
                 mv.visitVarInsn(LSTORE, index);
-            } else if (bType.tag == TypeTags.BYTE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-                mv.visitVarInsn(ISTORE, index);
-            } else if (bType.tag == TypeTags.FLOAT) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-                mv.visitVarInsn(DSTORE, index);
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", JvmConstants.B_STRING_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", DECIMAL_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-                mv.visitVarInsn(ISTORE, index);
-            } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", MAP_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.STREAM) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", STREAM_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.TABLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE_IMPL));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.ARRAY ||
-                    bType.tag == TypeTags.TUPLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ARRAY_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.OBJECT) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.ERROR) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ERROR_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.FUTURE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUTURE_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.TABLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE_IMPL));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.INVOKABLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUNCTION_POINTER));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.TYPEDESC) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TYPEDESC_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.NIL ||
-                    bType.tag == TypeTags.NEVER ||
-                    bType.tag == TypeTags.ANY ||
-                    bType.tag == TypeTags.ANYDATA ||
-                    bType.tag == TypeTags.UNION ||
-                    bType.tag == TypeTags.INTERSECTION ||
-                    bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.READONLY) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT));
+                        String.format("L%s;", JvmConstants.B_STRING_VALUE));
                 mv.visitVarInsn(ASTORE, index);
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", XML_VALUE));
                 mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == TypeTags.HANDLE) {
-                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", HANDLE_VALUE));
-                mv.visitVarInsn(ASTORE, index);
-            } else if (bType.tag == JTypeTags.JTYPE) {
-                generateFrameClassJFieldLoad(localVar, mv, index, frameName);
             } else {
-                throw new BLangCompilerException("JVM generation is not supported for type " +
-                        String.format("%s", bType));
+                switch (bType.tag) {
+                    case TypeTags.BYTE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                        mv.visitVarInsn(ISTORE, index);
+                        break;
+                    case TypeTags.FLOAT:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                        mv.visitVarInsn(DSTORE, index);
+                        break;
+                    case TypeTags.DECIMAL:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", DECIMAL_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.BOOLEAN:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                        mv.visitVarInsn(ISTORE, index);
+                        break;
+                    case TypeTags.MAP:
+                    case TypeTags.RECORD:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", MAP_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.STREAM:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", STREAM_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.TABLE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", TABLE_VALUE_IMPL));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.ARRAY:
+                    case TypeTags.TUPLE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", ARRAY_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.OBJECT:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", OBJECT_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.ERROR:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", ERROR_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.FUTURE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", FUTURE_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.INVOKABLE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", FUNCTION_POINTER));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.TYPEDESC:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", TYPEDESC_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.NIL:
+                    case TypeTags.NEVER:
+                    case TypeTags.ANY:
+                    case TypeTags.ANYDATA:
+                    case TypeTags.UNION:
+                    case TypeTags.INTERSECTION:
+                    case TypeTags.JSON:
+                    case TypeTags.FINITE:
+                    case TypeTags.READONLY:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", OBJECT));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case TypeTags.HANDLE:
+                        mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", HANDLE_VALUE));
+                        mv.visitVarInsn(ASTORE, index);
+                        break;
+                    case JTypeTags.JTYPE:
+                        generateFrameClassJFieldLoad(localVar, mv, index, frameName);
+                        break;
+                    default:
+                        throw new BLangCompilerException("JVM generation is not supported for type " +
+                                String.format("%s", bType));
+                }
             }
             k = k + 1;
         }
@@ -358,36 +374,47 @@ public class JvmMethodGen {
 
         JType jType = (JType) localVar.type;
 
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-            mv.visitVarInsn(LSTORE, index);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
-            mv.visitVarInsn(FSTORE, index);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-            mv.visitVarInsn(DSTORE, index);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
-            mv.visitVarInsn(ASTORE, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JINT:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                mv.visitVarInsn(LSTORE, index);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+                mv.visitVarInsn(FSTORE, index);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                mv.visitVarInsn(DSTORE, index);
+                break;
+            case JTypeTags.JBOOLEAN:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JARRAY:
+            case JTypeTags.JREF:
+                mv.visitFieldInsn(GETFIELD, frameName, localVar.name.value.replace("%", "_"), getJTypeSignature(jType));
+                mv.visitVarInsn(ASTORE, index);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", jType));
         }
     }
 
@@ -404,87 +431,106 @@ public class JvmMethodGen {
             if (TypeTags.isIntegerTypeTag(bType.tag)) {
                 mv.visitVarInsn(LLOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-            } else if (bType.tag == TypeTags.BYTE) {
-                mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-            } else if (bType.tag == TypeTags.FLOAT) {
-                mv.visitVarInsn(DLOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
             } else if (TypeTags.isStringTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                                  String.format("L%s;", JvmConstants.B_STRING_VALUE));
-            } else if (bType.tag == TypeTags.DECIMAL) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", DECIMAL_VALUE));
-            } else if (bType.tag == TypeTags.BOOLEAN) {
-                mv.visitVarInsn(ILOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-            } else if (bType.tag == TypeTags.MAP ||
-                    bType.tag == TypeTags.RECORD) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", MAP_VALUE));
-            } else if (bType.tag == TypeTags.STREAM) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", STREAM_VALUE));
-            } else if (bType.tag == TypeTags.TABLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TABLE_VALUE_IMPL));
-            } else if (bType.tag == TypeTags.ARRAY ||
-                    bType.tag == TypeTags.TUPLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ARRAY_VALUE));
-            } else if (bType.tag == TypeTags.ERROR) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", ERROR_VALUE));
-            } else if (bType.tag == TypeTags.FUTURE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUTURE_VALUE));
-            } else if (bType.tag == TypeTags.TYPEDESC) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", TYPEDESC_VALUE));
-            } else if (bType.tag == TypeTags.OBJECT) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT_VALUE));
-            } else if (bType.tag == TypeTags.INVOKABLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", FUNCTION_POINTER));
-            } else if (bType.tag == TypeTags.NIL ||
-                    bType.tag == TypeTags.NEVER ||
-                    bType.tag == TypeTags.ANY ||
-                    bType.tag == TypeTags.ANYDATA ||
-                    bType.tag == TypeTags.UNION ||
-                    bType.tag == TypeTags.INTERSECTION ||
-                    bType.tag == TypeTags.JSON ||
-                    bType.tag == TypeTags.FINITE ||
-                    bType.tag == TypeTags.READONLY) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", OBJECT));
+                        String.format("L%s;", JvmConstants.B_STRING_VALUE));
             } else if (TypeTags.isXMLTypeTag(bType.tag)) {
                 mv.visitVarInsn(ALOAD, index);
                 mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
                         String.format("L%s;", XML_VALUE));
-            } else if (bType.tag == TypeTags.HANDLE) {
-                mv.visitVarInsn(ALOAD, index);
-                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
-                        String.format("L%s;", HANDLE_VALUE));
-            } else if (bType.tag == JTypeTags.JTYPE) {
-                generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
             } else {
-                throw new BLangCompilerException("JVM generation is not supported for type " +
-                        String.format("%s", bType));
+                switch (bType.tag) {
+                    case TypeTags.BYTE:
+                        mv.visitVarInsn(ILOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                        break;
+                    case TypeTags.FLOAT:
+                        mv.visitVarInsn(DLOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                        break;
+                    case TypeTags.DECIMAL:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", DECIMAL_VALUE));
+                        break;
+                    case TypeTags.BOOLEAN:
+                        mv.visitVarInsn(ILOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                        break;
+                    case TypeTags.MAP:
+                    case TypeTags.RECORD:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", MAP_VALUE));
+                        break;
+                    case TypeTags.STREAM:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", STREAM_VALUE));
+                        break;
+                    case TypeTags.TABLE:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", TABLE_VALUE_IMPL));
+                        break;
+                    case TypeTags.ARRAY:
+                    case TypeTags.TUPLE:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", ARRAY_VALUE));
+                        break;
+                    case TypeTags.ERROR:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", ERROR_VALUE));
+                        break;
+                    case TypeTags.FUTURE:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", FUTURE_VALUE));
+                        break;
+                    case TypeTags.TYPEDESC:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitTypeInsn(CHECKCAST, TYPEDESC_VALUE);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", TYPEDESC_VALUE));
+                        break;
+                    case TypeTags.OBJECT:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", OBJECT_VALUE));
+                        break;
+                    case TypeTags.INVOKABLE:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", FUNCTION_POINTER));
+                        break;
+                    case TypeTags.NIL:
+                    case TypeTags.NEVER:
+                    case TypeTags.ANY:
+                    case TypeTags.ANYDATA:
+                    case TypeTags.UNION:
+                    case TypeTags.INTERSECTION:
+                    case TypeTags.JSON:
+                    case TypeTags.FINITE:
+                    case TypeTags.READONLY:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", OBJECT));
+                        break;
+                    case TypeTags.HANDLE:
+                        mv.visitVarInsn(ALOAD, index);
+                        mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"),
+                                String.format("L%s;", HANDLE_VALUE));
+                        break;
+                    case JTypeTags.JTYPE:
+                        generateFrameClassJFieldUpdate(localVar, mv, index, frameName);
+                        break;
+                    default:
+                        throw new BLangCompilerException("JVM generation is not supported for type " +
+                                String.format("%s", bType));
+                }
             }
             k = k + 1;
         }
@@ -494,38 +540,50 @@ public class JvmMethodGen {
                                                        int index, String frameName) {
 
         JType jType = (JType) localVar.type;
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitVarInsn(LLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitVarInsn(FLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitVarInsn(DLOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitVarInsn(ILOAD, index);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
-        } else if (jType.jTag == JTypeTags.JARRAY || jType.jTag == JTypeTags.JREF) {
-            String classSig = getJTypeSignature(jType);
-            String className = getSignatureForJType(jType);
-            mv.visitVarInsn(ALOAD, index);
-            mv.visitTypeInsn(CHECKCAST, className);
-            mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "B");
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "C");
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "S");
+                break;
+            case JTypeTags.JINT:
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "I");
+                break;
+            case JTypeTags.JLONG:
+                mv.visitVarInsn(LLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "J");
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitVarInsn(FLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "F");
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitVarInsn(DLOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "D");
+                break;
+            case JTypeTags.JBOOLEAN:
+                mv.visitVarInsn(ILOAD, index);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), "Z");
+                break;
+            case JTypeTags.JARRAY:
+            case JTypeTags.JREF:
+                String classSig = getJTypeSignature(jType);
+                String className = getSignatureForJType(jType);
+                mv.visitVarInsn(ALOAD, index);
+                mv.visitTypeInsn(CHECKCAST, className);
+                mv.visitFieldInsn(PUTFIELD, frameName, localVar.name.value.replace("%", "_"), classSig);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", jType));
         }
     }
 
@@ -534,54 +592,75 @@ public class JvmMethodGen {
         String jvmType = "";
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             jvmType = "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            jvmType = "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            jvmType = "D";
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            jvmType = "Z";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             jvmType = String.format("L%s;", STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            jvmType = String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            jvmType = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            jvmType = String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            jvmType = String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            jvmType = String.format("L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            jvmType = String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            jvmType = String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            jvmType = String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            jvmType = String.format("L%s;", HANDLE_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            jvmType = String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.NIL
-                || bType.tag == TypeTags.NEVER
-                || bType.tag == TypeTags.ANY
-                || bType.tag == TypeTags.ANYDATA
-                || bType.tag == TypeTags.UNION
-                || bType.tag == TypeTags.INTERSECTION
-                || bType.tag == TypeTags.JSON
-                || bType.tag == TypeTags.FINITE
-                || bType.tag == TypeTags.READONLY) {
-            jvmType = String.format("L%s;", OBJECT);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            jvmType = getJTypeSignature((JType) bType);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             jvmType = String.format("L%s;", XML_VALUE);
         } else {
-            throw new BLangCompilerException("JVM code generation is not supported for type " +
-                    String.format("%s", bType));
+            switch (bType.tag) {
+                case TypeTags.BYTE:
+                    jvmType = "I";
+                    break;
+                case TypeTags.FLOAT:
+                    jvmType = "D";
+                    break;
+                case TypeTags.BOOLEAN:
+                    jvmType = "Z";
+                    break;
+                case TypeTags.DECIMAL:
+                    jvmType = String.format("L%s;", DECIMAL_VALUE);
+                    break;
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                    jvmType = String.format("L%s;", MAP_VALUE);
+                    break;
+                case TypeTags.STREAM:
+                    jvmType = String.format("L%s;", STREAM_VALUE);
+                    break;
+                case TypeTags.TABLE:
+                    jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
+                    break;
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                    jvmType = String.format("L%s;", ARRAY_VALUE);
+                    break;
+                case TypeTags.OBJECT:
+                    jvmType = String.format("L%s;", OBJECT_VALUE);
+                    break;
+                case TypeTags.ERROR:
+                    jvmType = String.format("L%s;", ERROR_VALUE);
+                    break;
+                case TypeTags.FUTURE:
+                    jvmType = String.format("L%s;", FUTURE_VALUE);
+                    break;
+                case TypeTags.INVOKABLE:
+                    jvmType = String.format("L%s;", FUNCTION_POINTER);
+                    break;
+                case TypeTags.HANDLE:
+                    jvmType = String.format("L%s;", HANDLE_VALUE);
+                    break;
+                case TypeTags.TYPEDESC:
+                    jvmType = String.format("L%s;", TYPEDESC_VALUE);
+                    break;
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.INTERSECTION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                case TypeTags.READONLY:
+                    jvmType = String.format("L%s;", OBJECT);
+                    break;
+                case JTypeTags.JTYPE:
+                    jvmType = getJTypeSignature((JType) bType);
+                    break;
+                default:
+                    throw new BLangCompilerException("JVM code generation is not supported for type " +
+                            String.format("%s", bType));
+            }
+
         }
         return jvmType;
     }
@@ -864,83 +943,105 @@ public class JvmMethodGen {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
-        } else if (bType.tag == TypeTags.BYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.STREAM ||
-                bType.tag == TypeTags.TABLE ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.NEVER ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.CHAR_STRING ||
-                bType.tag == TypeTags.DECIMAL ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
+        } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            genJDefaultValue(mv, (JType) bType, index);
         } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+            switch (bType.tag) {
+                case TypeTags.BYTE:
+                    mv.visitInsn(ICONST_0);
+                    mv.visitVarInsn(ISTORE, index);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitInsn(DCONST_0);
+                    mv.visitVarInsn(DSTORE, index);
+                    break;
+                case TypeTags.BOOLEAN:
+                    mv.visitInsn(ICONST_0);
+                    mv.visitVarInsn(ISTORE, index);
+                    break;
+                case TypeTags.MAP:
+                case TypeTags.ARRAY:
+                case TypeTags.STREAM:
+                case TypeTags.TABLE:
+                case TypeTags.ERROR:
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.OBJECT:
+                case TypeTags.CHAR_STRING:
+                case TypeTags.DECIMAL:
+                case TypeTags.UNION:
+                case TypeTags.INTERSECTION:
+                case TypeTags.RECORD:
+                case TypeTags.TUPLE:
+                case TypeTags.FUTURE:
+                case TypeTags.JSON:
+                case TypeTags.INVOKABLE:
+                case TypeTags.FINITE:
+                case TypeTags.HANDLE:
+                case TypeTags.TYPEDESC:
+                case TypeTags.READONLY:
+                    mv.visitInsn(ACONST_NULL);
+                    mv.visitVarInsn(ASTORE, index);
+                    break;
+                case JTypeTags.JTYPE:
+                    genJDefaultValue(mv, (JType) bType, index);
+                    break;
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for type " +
+                            String.format("%s", bType));
+            }
         }
     }
 
     private static void genJDefaultValue(MethodVisitor mv, JType jType, int index) {
 
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-            mv.visitVarInsn(LSTORE, index);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-            mv.visitVarInsn(FSTORE, index);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-            mv.visitVarInsn(DSTORE, index);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-            mv.visitVarInsn(ISTORE, index);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-            mv.visitVarInsn(ASTORE, index);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JINT:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitInsn(LCONST_0);
+                mv.visitVarInsn(LSTORE, index);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitInsn(FCONST_0);
+                mv.visitVarInsn(FSTORE, index);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitInsn(DCONST_0);
+                mv.visitVarInsn(DSTORE, index);
+                break;
+            case JTypeTags.JBOOLEAN:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case JTypeTags.JARRAY:
+            case JTypeTags.JREF:
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", jType));
         }
     }
 
@@ -983,27 +1084,38 @@ public class JvmMethodGen {
 
     private static void loadDefaultJValue(MethodVisitor mv, JType jType) {
 
-        if (jType.jTag == JTypeTags.JBYTE) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JINT) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            mv.visitInsn(LCONST_0);
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            mv.visitInsn(FCONST_0);
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitInsn(DCONST_0);
-        } else if (jType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (jType.jTag == JTypeTags.JARRAY ||
-                jType.jTag == JTypeTags.JREF) {
-            mv.visitInsn(ACONST_NULL);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", jType));
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
+                mv.visitInsn(ICONST_0);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitInsn(ICONST_0);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitInsn(ICONST_0);
+                break;
+            case JTypeTags.JINT:
+                mv.visitInsn(ICONST_0);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitInsn(LCONST_0);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitInsn(FCONST_0);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitInsn(DCONST_0);
+                break;
+            case JTypeTags.JBOOLEAN:
+                mv.visitInsn(ICONST_0);
+                break;
+            case JTypeTags.JARRAY:
+            case JTypeTags.JREF:
+                mv.visitInsn(ACONST_NULL);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", jType));
         }
     }
 
@@ -1052,50 +1164,57 @@ public class JvmMethodGen {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format("L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return "Z";
-        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
-            return String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            return String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE_IMPL);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format("L%s;", OBJECT_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format("L%s;", HANDLE_VALUE);
         } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+            switch (bType.tag) {
+                case TypeTags.BYTE:
+                    return "I";
+                case TypeTags.FLOAT:
+                    return "D";
+                case TypeTags.DECIMAL:
+                    return String.format("L%s;", DECIMAL_VALUE);
+                case TypeTags.BOOLEAN:
+                    return "Z";
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    return String.format("L%s;", OBJECT);
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                    return String.format("L%s;", ARRAY_VALUE);
+                case TypeTags.ERROR:
+                    return String.format("L%s;", ERROR_VALUE);
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.INTERSECTION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                case TypeTags.ANY:
+                case TypeTags.READONLY:
+                    return String.format("L%s;", OBJECT);
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                    return String.format("L%s;", MAP_VALUE);
+                case TypeTags.FUTURE:
+                    return String.format("L%s;", FUTURE_VALUE);
+                case TypeTags.STREAM:
+                    return String.format("L%s;", STREAM_VALUE);
+                case TypeTags.TABLE:
+                    return String.format("L%s;", TABLE_VALUE_IMPL);
+                case TypeTags.INVOKABLE:
+                    return String.format("L%s;", FUNCTION_POINTER);
+                case TypeTags.TYPEDESC:
+                    return String.format("L%s;", TYPEDESC_VALUE);
+                case TypeTags.OBJECT:
+                    return String.format("L%s;", OBJECT_VALUE);
+                case TypeTags.HANDLE:
+                    return String.format("L%s;", HANDLE_VALUE);
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for type " +
+                            String.format("%s", bType));
+            }
         }
     }
 
@@ -1109,51 +1228,54 @@ public class JvmMethodGen {
             return String.format(")L%s;", OBJECT);
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return ")J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return ")I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return ")D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format(")L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format(")L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return ")Z";
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            return String.format(")L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.RECORD) {
-            return String.format(")L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format(")L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format(")L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format(")L%s;", TABLE_VALUE_IMPL);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format(")L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format(")L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format(")L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format(")L%s;", OBJECT_VALUE);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format(")L%s;", FUNCTION_POINTER);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format(")L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format(")L%s;", HANDLE_VALUE);
         } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " +
-                    String.format("%s", bType));
+            switch (bType.tag) {
+                case TypeTags.BYTE:
+                    return ")I";
+                case TypeTags.FLOAT:
+                    return ")D";
+                case TypeTags.DECIMAL:
+                    return String.format(")L%s;", DECIMAL_VALUE);
+                case TypeTags.BOOLEAN:
+                    return ")Z";
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                    return String.format(")L%s;", ARRAY_VALUE);
+                case TypeTags.MAP:
+                case TypeTags.RECORD:
+                    return String.format(")L%s;", MAP_VALUE);
+                case TypeTags.ERROR:
+                    return String.format(")L%s;", ERROR_VALUE);
+                case TypeTags.STREAM:
+                    return String.format(")L%s;", STREAM_VALUE);
+                case TypeTags.TABLE:
+                    return String.format(")L%s;", TABLE_VALUE_IMPL);
+                case TypeTags.FUTURE:
+                    return String.format(")L%s;", FUTURE_VALUE);
+                case TypeTags.TYPEDESC:
+                    return String.format(")L%s;", TYPEDESC_VALUE);
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.INTERSECTION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                case TypeTags.READONLY:
+                    return String.format(")L%s;", OBJECT);
+                case TypeTags.OBJECT:
+                    return String.format(")L%s;", OBJECT_VALUE);
+                case TypeTags.INVOKABLE:
+                    return String.format(")L%s;", FUNCTION_POINTER);
+                case TypeTags.HANDLE:
+                    return String.format(")L%s;", HANDLE_VALUE);
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for type " +
+                            String.format("%s", bType));
+            }
         }
     }
 
@@ -1226,55 +1348,78 @@ public class JvmMethodGen {
         String typeSig;
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             typeSig = "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            typeSig = "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            typeSig = "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             typeSig = String.format("L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            typeSig = String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            typeSig = "Z";
-        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
-            typeSig = String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.MAP) {
-            typeSig = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            typeSig = String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            typeSig = String.format("L%s;", TABLE_VALUE_IMPL);
-        } else if (bType.tag == TypeTags.RECORD) {
-            typeSig = String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.TUPLE) {
-            typeSig = String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            typeSig = String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            typeSig = String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            typeSig = String.format("L%s;", OBJECT_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             typeSig = String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            typeSig = String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            typeSig = String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            typeSig = String.format("L%s;", FUNCTION_POINTER);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            typeSig = String.format("L%s;", HANDLE_VALUE);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            typeSig = getJTypeSignature((JType) bType);
         } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+            switch (bType.tag) {
+                case TypeTags.BYTE:
+                    typeSig = "I";
+                    break;
+                case TypeTags.FLOAT:
+                    typeSig = "D";
+                    break;
+                case TypeTags.DECIMAL:
+                    typeSig = String.format("L%s;", DECIMAL_VALUE);
+                    break;
+                case TypeTags.BOOLEAN:
+                    typeSig = "Z";
+                    break;
+                case TypeTags.NIL:
+                case TypeTags.NEVER:
+                    typeSig = String.format("L%s;", OBJECT);
+                    break;
+                case TypeTags.MAP:
+                    typeSig = String.format("L%s;", MAP_VALUE);
+                    break;
+                case TypeTags.STREAM:
+                    typeSig = String.format("L%s;", STREAM_VALUE);
+                    break;
+                case TypeTags.TABLE:
+                    typeSig = String.format("L%s;", TABLE_VALUE_IMPL);
+                    break;
+                case TypeTags.RECORD:
+                    typeSig = String.format("L%s;", MAP_VALUE);
+                    break;
+                case TypeTags.ARRAY:
+                case TypeTags.TUPLE:
+                    typeSig = String.format("L%s;", ARRAY_VALUE);
+                    break;
+                case TypeTags.ERROR:
+                    typeSig = String.format("L%s;", ERROR_VALUE);
+                    break;
+                case TypeTags.FUTURE:
+                    typeSig = String.format("L%s;", FUTURE_VALUE);
+                    break;
+                case TypeTags.OBJECT:
+                    typeSig = String.format("L%s;", OBJECT_VALUE);
+                    break;
+                case TypeTags.TYPEDESC:
+                    typeSig = String.format("L%s;", TYPEDESC_VALUE);
+                    break;
+                case TypeTags.ANY:
+                case TypeTags.ANYDATA:
+                case TypeTags.UNION:
+                case TypeTags.INTERSECTION:
+                case TypeTags.JSON:
+                case TypeTags.FINITE:
+                case TypeTags.READONLY:
+                    typeSig = String.format("L%s;", OBJECT);
+                    break;
+                case TypeTags.INVOKABLE:
+                    typeSig = String.format("L%s;", FUNCTION_POINTER);
+                    break;
+                case TypeTags.HANDLE:
+                    typeSig = String.format("L%s;", HANDLE_VALUE);
+                    break;
+                case JTypeTags.JTYPE:
+                    typeSig = getJTypeSignature((JType) bType);
+                    break;
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for type " +
+                            String.format("%s", bType));
+            }
         }
 
         FieldVisitor fv;

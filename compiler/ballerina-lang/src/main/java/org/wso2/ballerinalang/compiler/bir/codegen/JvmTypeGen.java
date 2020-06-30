@@ -1049,113 +1049,143 @@ class JvmTypeGen {
         String typeFieldName = "";
         if (bType == null || bType.tag == TypeTags.NIL) {
             typeFieldName = "typeNull";
-        } else if (bType.tag == TypeTags.NEVER) {
-            typeFieldName = "typeNever";
-        } else if (bType.tag == TypeTags.INT) {
-            typeFieldName = "typeInt";
-        } else if (bType.tag == TypeTags.SIGNED32_INT) {
-            typeFieldName = "typeIntSigned32";
-        } else if (bType.tag == TypeTags.SIGNED16_INT) {
-            typeFieldName = "typeIntSigned16";
-        } else if (bType.tag == TypeTags.SIGNED8_INT) {
-            typeFieldName = "typeIntSigned8";
-        } else if (bType.tag == TypeTags.UNSIGNED32_INT) {
-            typeFieldName = "typeIntUnsigned32";
-        } else if (bType.tag == TypeTags.UNSIGNED16_INT) {
-            typeFieldName = "typeIntUnsigned16";
-        } else if (bType.tag == TypeTags.UNSIGNED8_INT) {
-            typeFieldName = "typeIntUnsigned8";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            typeFieldName = "typeFloat";
-        } else if (bType.tag == TypeTags.STRING) {
-            typeFieldName = "typeString";
-        } else if (bType.tag == TypeTags.CHAR_STRING) {
-            typeFieldName = "typeStringChar";
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            typeFieldName = "typeDecimal";
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            typeFieldName = "typeBoolean";
-        } else if (bType.tag == TypeTags.BYTE) {
-            typeFieldName = "typeByte";
-        } else if (bType.tag == TypeTags.ANY) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAny" : "typeAny";
-        } else if (bType.tag == TypeTags.ANYDATA) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAnydata" : "typeAnydata";
-        } else if (bType.tag == TypeTags.JSON) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyJSON" : "typeJSON";
-        } else if (bType.tag == TypeTags.XML) {
-            loadXmlType(mv, (BXMLType) bType);
-            return;
-        } else if (bType.tag == TypeTags.XML_ELEMENT) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyElement" : "typeElement";
-        } else if (bType.tag == TypeTags.XML_PI) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyProcessingInstruction" :
-                    "typeProcessingInstruction";
-        } else if (bType.tag == TypeTags.XML_COMMENT) {
-            typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyComment" : "typeComment";
-        } else if (bType.tag == TypeTags.XML_TEXT) {
-            typeFieldName = "typeText";
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            loadTypedescType(mv, (BTypedescType) bType);
-            return;
-        } else if (bType.tag == TypeTags.OBJECT) {
-            if (bType instanceof BServiceType) {
-                if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+        } else {
+            switch (bType.tag) {
+                case TypeTags.NEVER:
+                    typeFieldName = "typeNever";
+                    break;
+                case TypeTags.INT:
+                    typeFieldName = "typeInt";
+                    break;
+                case TypeTags.SIGNED32_INT:
+                    typeFieldName = "typeIntSigned32";
+                    break;
+                case TypeTags.SIGNED16_INT:
+                    typeFieldName = "typeIntSigned16";
+                    break;
+                case TypeTags.SIGNED8_INT:
+                    typeFieldName = "typeIntSigned8";
+                    break;
+                case TypeTags.UNSIGNED32_INT:
+                    typeFieldName = "typeIntUnsigned32";
+                    break;
+                case TypeTags.UNSIGNED16_INT:
+                    typeFieldName = "typeIntUnsigned16";
+                    break;
+                case TypeTags.UNSIGNED8_INT:
+                    typeFieldName = "typeIntUnsigned8";
+                    break;
+                case TypeTags.FLOAT:
+                    typeFieldName = "typeFloat";
+                    break;
+                case TypeTags.STRING:
+                    typeFieldName = "typeString";
+                    break;
+                case TypeTags.CHAR_STRING:
+                    typeFieldName = "typeStringChar";
+                    break;
+                case TypeTags.DECIMAL:
+                    typeFieldName = "typeDecimal";
+                    break;
+                case TypeTags.BOOLEAN:
+                    typeFieldName = "typeBoolean";
+                    break;
+                case TypeTags.BYTE:
+                    typeFieldName = "typeByte";
+                    break;
+                case TypeTags.ANY:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAny" : "typeAny";
+                    break;
+                case TypeTags.ANYDATA:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyAnydata" :
+                            "typeAnydata";
+                    break;
+                case TypeTags.JSON:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyJSON" : "typeJSON";
+                    break;
+                case TypeTags.XML:
+                    loadXmlType(mv, (BXMLType) bType);
+                    return;
+                case TypeTags.XML_ELEMENT:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyElement" :
+                            "typeElement";
+                    break;
+                case TypeTags.XML_PI:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ?
+                            "typeReadonlyProcessingInstruction" : "typeProcessingInstruction";
+                    break;
+                case TypeTags.XML_COMMENT:
+                    typeFieldName = Symbols.isFlagOn(bType.flags, Flags.READONLY) ? "typeReadonlyComment" :
+                            "typeComment";
+                    break;
+                case TypeTags.XML_TEXT:
+                    typeFieldName = "typeText";
+                    break;
+                case TypeTags.TYPEDESC:
+                    loadTypedescType(mv, (BTypedescType) bType);
+                    return;
+                case TypeTags.OBJECT:
+                    if (bType instanceof BServiceType) {
+                        if (!Objects.equals(getTypeFieldName(toNameString(bType)), "$type$service")) {
+                            loadUserDefinedType(mv, bType);
+                            return;
+                        } else {
+                            typeFieldName = "typeAnyService";
+                        }
+                    } else if (bType instanceof BObjectType) {
+                        loadUserDefinedType(mv, bType);
+                        return;
+                    }
+                    break;
+                case TypeTags.HANDLE:
+                    typeFieldName = "typeHandle";
+                    break;
+                case TypeTags.ARRAY:
+                    loadArrayType(mv, (BArrayType) bType);
+                    return;
+                case TypeTags.MAP:
+                    loadMapType(mv, (BMapType) bType);
+                    return;
+                case TypeTags.STREAM:
+                    loadStreamType(mv, (BStreamType) bType);
+                    return;
+                case TypeTags.TABLE:
+                    loadTableType(mv, (BTableType) bType);
+                    return;
+                case TypeTags.ERROR:
+                    loadErrorType(mv, (BErrorType) bType);
+                    return;
+                case TypeTags.UNION:
+                    loadUnionType(mv, (BUnionType) bType);
+                    return;
+                case TypeTags.INTERSECTION:
+                    loadIntersectionType(mv, (BIntersectionType) bType);
+                    return;
+                case TypeTags.RECORD:
                     loadUserDefinedType(mv, bType);
                     return;
-                } else {
-                    typeFieldName = "typeAnyService";
-                }
-            } else if (bType instanceof BObjectType) {
-                loadUserDefinedType(mv, bType);
-                return;
+                case TypeTags.INVOKABLE:
+                    loadInvokableType(mv, (BInvokableType) bType);
+                    return;
+                case TypeTags.NONE:
+                    mv.visitInsn(ACONST_NULL);
+                    return;
+                case TypeTags.TUPLE:
+                    loadTupleType(mv, (BTupleType) bType);
+                    return;
+                case TypeTags.FINITE:
+                    loadFiniteType(mv, (BFiniteType) bType);
+                    return;
+                case TypeTags.FUTURE:
+                    loadFutureType(mv, (BFutureType) bType);
+                    return;
+                case TypeTags.READONLY:
+                    typeFieldName = "typeReadonly";
+                    break;
+                default:
+                    // TODO Fix properly - rajith
+                    return;
             }
-        } else if (bType.tag == TypeTags.HANDLE) {
-            typeFieldName = "typeHandle";
-        } else if (bType.tag == TypeTags.ARRAY) {
-            loadArrayType(mv, (BArrayType) bType);
-            return;
-        } else if (bType.tag == TypeTags.MAP) {
-            loadMapType(mv, (BMapType) bType);
-            return;
-        } else if (bType.tag == TypeTags.STREAM) {
-            loadStreamType(mv, (BStreamType) bType);
-            return;
-        } else if (bType.tag == TypeTags.TABLE) {
-            loadTableType(mv, (BTableType) bType);
-            return;
-        } else if (bType.tag == TypeTags.ERROR) {
-            loadErrorType(mv, (BErrorType) bType);
-            return;
-        } else if (bType.tag == TypeTags.UNION) {
-            loadUnionType(mv, (BUnionType) bType);
-            return;
-        } else if (bType.tag == TypeTags.INTERSECTION) {
-            loadIntersectionType(mv, (BIntersectionType) bType);
-            return;
-        } else if (bType.tag == TypeTags.RECORD) {
-            loadUserDefinedType(mv, bType);
-            return;
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            loadInvokableType(mv, (BInvokableType) bType);
-            return;
-        } else if (bType.tag == TypeTags.NONE) {
-            mv.visitInsn(ACONST_NULL);
-            return;
-        } else if (bType.tag == TypeTags.TUPLE) {
-            loadTupleType(mv, (BTupleType) bType);
-            return;
-        } else if (bType.tag == TypeTags.FINITE) {
-            loadFiniteType(mv, (BFiniteType) bType);
-            return;
-        } else if (bType.tag == TypeTags.FUTURE) {
-            loadFutureType(mv, (BFutureType) bType);
-            return;
-        } else if (bType.tag == TypeTags.READONLY) {
-            typeFieldName = "typeReadonly";
-        } else {
-            // TODO Fix properly - rajith
-            return;
         }
 
         mv.visitFieldInsn(GETSTATIC, BTYPES, typeFieldName, String.format("L%s;", BTYPE));
@@ -1552,50 +1582,57 @@ class JvmTypeGen {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             return "J";
-        } else if (bType.tag == TypeTags.BYTE) {
-            return "I";
-        } else if (bType.tag == TypeTags.FLOAT) {
-            return "D";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             return String.format("L%s;", B_STRING_VALUE);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            return "Z";
-        } else if (bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.ARRAY || bType.tag == TypeTags.TUPLE) {
-            return String.format("L%s;", ARRAY_VALUE);
-        } else if (bType.tag == TypeTags.ERROR) {
-            return String.format("L%s;", ERROR_VALUE);
-        } else if (bType.tag == TypeTags.FUTURE) {
-            return String.format("L%s;", FUTURE_VALUE);
-        } else if (bType.tag == TypeTags.MAP || bType.tag == TypeTags.RECORD) {
-            return String.format("L%s;", MAP_VALUE);
-        } else if (bType.tag == TypeTags.TYPEDESC) {
-            return String.format("L%s;", TYPEDESC_VALUE);
-        } else if (bType.tag == TypeTags.STREAM) {
-            return String.format("L%s;", STREAM_VALUE);
-        } else if (bType.tag == TypeTags.TABLE) {
-            return String.format("L%s;", TABLE_VALUE_IMPL);
-        } else if (bType.tag == TypeTags.DECIMAL) {
-            return String.format("L%s;", DECIMAL_VALUE);
-        } else if (bType.tag == TypeTags.OBJECT) {
-            return String.format("L%s;", OBJECT_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
-        } else if (bType.tag == TypeTags.HANDLE) {
-            return String.format("L%s;", HANDLE_VALUE);
-        } else if (bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.JSON ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.READONLY) {
-            return String.format("L%s;", OBJECT);
-        } else if (bType.tag == TypeTags.INVOKABLE) {
-            return String.format("L%s;", FUNCTION_POINTER);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                return "I";
+            case TypeTags.FLOAT:
+                return "D";
+            case TypeTags.BOOLEAN:
+                return "Z";
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                return String.format("L%s;", OBJECT);
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                return String.format("L%s;", ARRAY_VALUE);
+            case TypeTags.ERROR:
+                return String.format("L%s;", ERROR_VALUE);
+            case TypeTags.FUTURE:
+                return String.format("L%s;", FUTURE_VALUE);
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return String.format("L%s;", MAP_VALUE);
+            case TypeTags.TYPEDESC:
+                return String.format("L%s;", TYPEDESC_VALUE);
+            case TypeTags.STREAM:
+                return String.format("L%s;", STREAM_VALUE);
+            case TypeTags.TABLE:
+                return String.format("L%s;", TABLE_VALUE_IMPL);
+            case TypeTags.DECIMAL:
+                return String.format("L%s;", DECIMAL_VALUE);
+            case TypeTags.OBJECT:
+                return String.format("L%s;", OBJECT_VALUE);
+            case TypeTags.HANDLE:
+                return String.format("L%s;", HANDLE_VALUE);
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.JSON:
+            case TypeTags.FINITE:
+            case TypeTags.READONLY:
+                return String.format("L%s;", OBJECT);
+            case TypeTags.INVOKABLE:
+                return String.format("L%s;", FUNCTION_POINTER);
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
