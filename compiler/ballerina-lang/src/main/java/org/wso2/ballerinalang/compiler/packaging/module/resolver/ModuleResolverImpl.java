@@ -165,8 +165,9 @@ public class ModuleResolverImpl implements ModuleResolver {
 
         // version is not resolved
         if (packageID.version.getValue() == null || "".equals(packageID.version.getValue().trim())) {
-            throw new ModuleResolveException(
-                    "module not found: " + packageID.getOrgName().getValue() + "/" + packageID.getName().getValue());
+//            throw new ModuleResolveException(
+//                    "module not found: " + packageID.getOrgName().getValue() + "/" + packageID.getName().getValue());
+            return null;
         }
 
         return packageID;

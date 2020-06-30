@@ -71,7 +71,8 @@ public class Central implements Repo {
 
     public void pullModule(PackageID moduleId) {
         String remoteUri =
-                getRemoteRepoURL() + "/modules/" + moduleId.getOrgName() + "/" + moduleId.getName().getValue() + "/*/";
+                getRemoteRepoURL() + "/modules/" + moduleId.getOrgName() + "/" + moduleId.getName().getValue() + "/"
+                        + moduleId.version.getValue() + "/";
         Path modulePathInBaloCache = RepoUtils.createAndGetHomeReposPath()
                 .resolve(ProjectDirConstants.BALO_CACHE_DIR_NAME).resolve(moduleId.getOrgName().getValue())
                 .resolve(moduleId.getName().getValue());

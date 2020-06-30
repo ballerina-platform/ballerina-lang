@@ -58,7 +58,7 @@ public abstract class FileSystemCache extends Cache {
     @Override
     public boolean isModuleExists(PackageID moduleId) {
         Path modulePath = Paths.get(String.valueOf(this.fileSystemCachePath), moduleId.getOrgName().getValue(),
-                moduleId.getName().getValue(), moduleId.version.getValue(), moduleId.getName().getValue() + ".zip");
+                moduleId.getName().getValue(), moduleId.version.getValue()); // moduleId.getName().getValue() + ".zip"
         return modulePath.toFile().exists();
     }
 }
