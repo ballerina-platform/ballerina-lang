@@ -20,8 +20,13 @@
               "kind": "ARRAY_TYPE_DESC",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "T"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "T"
+                    }
+                  ]
                 },
                 {
                   "kind": "OPEN_BRACKET_TOKEN"
@@ -35,7 +40,13 @@
               "kind": "OPEN_BRACKET_TOKEN"
             },
             {
-              "kind": "CLOSE_BRACKET_TOKEN"
+              "kind": "CLOSE_BRACKET_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

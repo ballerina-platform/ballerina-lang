@@ -26,7 +26,7 @@ public type Connection object {
     #
     # + url - The NATS Broker URL. For a clustered use case, pass the URLs as a string array
     # + config - Configurations associated with the NATS client to establish a connection with the server
-    public function __init(public string[] url = [DEFAULT_URL], public ConnectionConfig? config = ()) {
+    public function init(public string[] url = [DEFAULT_URL], public ConnectionConfig? config = ()) {
         self.config = config ?: {};
         self.url = url;
         externInit(self, self.url, self.config);

@@ -34,15 +34,21 @@ public class STQueryExpressionNode extends STExpressionNode {
     public final STNode queryConstructType;
     public final STNode queryPipeline;
     public final STNode selectClause;
+    public final STNode onConflictClause;
+    public final STNode limitClause;
 
     STQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause) {
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
         this(
                 queryConstructType,
                 queryPipeline,
                 selectClause,
+                onConflictClause,
+                limitClause,
                 Collections.emptyList());
     }
 
@@ -50,16 +56,22 @@ public class STQueryExpressionNode extends STExpressionNode {
             STNode queryConstructType,
             STNode queryPipeline,
             STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.QUERY_EXPRESSION, diagnostics);
         this.queryConstructType = queryConstructType;
         this.queryPipeline = queryPipeline;
         this.selectClause = selectClause;
+        this.onConflictClause = onConflictClause;
+        this.limitClause = limitClause;
 
         addChildren(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -67,10 +79,46 @@ public class STQueryExpressionNode extends STExpressionNode {
                 this.queryConstructType,
                 this.queryPipeline,
                 this.selectClause,
+                this.onConflictClause,
+                this.limitClause,
+                diagnostics);
+    }
+
+    public STQueryExpressionNode modify(
+            STNode queryConstructType,
+            STNode queryPipeline,
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
+        if (checkForReferenceEquality(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                onConflictClause,
+                limitClause)) {
+            return this;
+        }
+
+        return new STQueryExpressionNode(
+                queryConstructType,
+                queryPipeline,
+                selectClause,
+                onConflictClause,
+                limitClause,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QueryExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

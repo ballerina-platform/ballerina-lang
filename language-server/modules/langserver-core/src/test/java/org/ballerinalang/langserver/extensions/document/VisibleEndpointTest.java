@@ -63,7 +63,7 @@ public class VisibleEndpointTest {
         assertVisibleEndpoints(astResponse.getAst());
     }
 
-    @Test(description = "Test visible endpoints in transactions.")
+    @Test(description = "Test visible endpoints in transactions.", enabled = false)
     public void testVisibleEndpointsInTransactions() {
         BallerinaASTResponse astResponse = LSExtensionTestUtil
                 .getBallerinaDocumentAST(transactionVisibleEPsFile.toString(), this.serviceEndpoint);

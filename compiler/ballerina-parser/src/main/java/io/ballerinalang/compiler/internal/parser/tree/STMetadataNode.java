@@ -63,7 +63,32 @@ public class STMetadataNode extends STNode {
                 diagnostics);
     }
 
+    public STMetadataNode modify(
+            STNode documentationString,
+            STNode annotations) {
+        if (checkForReferenceEquality(
+                documentationString,
+                annotations)) {
+            return this;
+        }
+
+        return new STMetadataNode(
+                documentationString,
+                annotations,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new MetadataNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

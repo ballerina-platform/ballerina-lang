@@ -45,6 +45,17 @@ type Engineer record {
     Engineer? parent = ();
 };
 
+type AnydataMap map<anydata>;
+type StringMap map<string>;
+type IntMap map<int>;
+type EmployeeMap map<Employee>;
+type TeacherMap map<Teacher>;
+type JsonMap map<json>;
+type EmployeeDoubleMap map<map<Employee>>;
+type IntTrippleMap map<map<map<int>>>;
+type AnydataTrippleMap map<map<map<anydata>>>;
+type MapOrXMLTypeDesc typedesc<map<Teacher>|xml>;
+
 //----------------------------Map Stamp -------------------------------------------------------------
 
 function stampIntMapToRecord() returns IntRecord|error {
@@ -70,14 +81,14 @@ function stampIntMapToAnydata() returns anydata|error {
 
 function stampIntMapToIntMap() returns map<int>|error {
     map<int> m = { "a": 1, "b": 2 };
-    map<int>|error mapValue = m.cloneWithType(map<int>);
+    map<int>|error mapValue = m.cloneWithType(IntMap);
 
     return mapValue;
 }
 
 function stampIntMapToAnydataMap() returns map<anydata>|error {
     map<int> m = { "a": 1, "b": 2 };
-    map<anydata>|error mapValue = m.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = m.cloneWithType(AnydataMap);
 
     return mapValue;
 }
@@ -85,7 +96,7 @@ function stampIntMapToAnydataMap() returns map<anydata>|error {
 
 function stampAnydataMapToIntMap() returns map<int>|error {
     map<anydata> m = { "a": 1, "b": 2 };
-    map<int>|error mapValue = m.cloneWithType(map<int>);
+    map<int>|error mapValue = m.cloneWithType(IntMap);
 
     return mapValue;
 }
@@ -93,7 +104,7 @@ function stampAnydataMapToIntMap() returns map<int>|error {
 
 function stampAnydataMapToStringMap() returns map<string>|error {
     map<anydata> m = { firstName: "mohan", lastName: "raj" };
-    map<string>|error mapValue = m.cloneWithType(map<string>);
+    map<string>|error mapValue = m.cloneWithType(StringMap);
 
     return mapValue;
 }
@@ -101,7 +112,7 @@ function stampAnydataMapToStringMap() returns map<string>|error {
 
 function stampAnydataMapToStringMapWithoutExplicitConstraintType() returns map<string>|error {
     map<anydata> m = { firstName: "mohan", lastName: "raj" };
-    map<string>|error mapValue = m.cloneWithType(map<string>);
+    map<string>|error mapValue = m.cloneWithType(StringMap);
 
     return mapValue;
 }
@@ -135,7 +146,7 @@ function stampAnydataMapToSimilarOpenRecordMap() returns map<Employee>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<Employee>|error mapValue = teacherMap.cloneWithType(map<Employee>);
+    map<Employee>|error mapValue = teacherMap.cloneWithType(EmployeeMap);
 
     return mapValue;
 }
@@ -146,7 +157,7 @@ function stampAnydataMapToRecordMap() returns map<Teacher>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<Teacher>|error mapValue = teacherMap.cloneWithType(map<Teacher>);
+    map<Teacher>|error mapValue = teacherMap.cloneWithType(TeacherMap);
 
     return mapValue;
 }
@@ -156,7 +167,7 @@ function stampAnydataMapToJSONMap() returns map<json>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<anydata> teacherMap = { "a": p1, "b": p2 };
-    map<json>|error jsonValue = teacherMap.cloneWithType(map<json>);
+    map<json>|error jsonValue = teacherMap.cloneWithType(JsonMap);
 
     return jsonValue;
 }
@@ -167,7 +178,7 @@ function stampRecordMapToAnydataMap() returns map<anydata>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
-    map<anydata>|error mapValue = teacherMap.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = teacherMap.cloneWithType(AnydataMap);
 
     return mapValue;
 }
@@ -177,7 +188,7 @@ function stampRecordMapToSimilarOpenRecordMap() returns map<Employee>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
-    map<Employee>|error mapValue = teacherMap.cloneWithType(map<Employee>);
+    map<Employee>|error mapValue = teacherMap.cloneWithType(EmployeeMap);
 
     return mapValue;
 }
@@ -187,7 +198,7 @@ function stampRecordMapToJSONMap() returns map<json>|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
-    map<json>|error mapValue = teacherMap.cloneWithType(map<json>);
+    map<json>|error mapValue = teacherMap.cloneWithType(JsonMap);
 
     return mapValue;
 
@@ -196,7 +207,7 @@ function stampRecordMapToJSONMap() returns map<json>|error {
 function stampJSONMapToRecordMap() returns map<Employee>|error {
     map<json> teacherMap = { "a": { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" },
         "b": { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" } };
-    map<Employee>|error mapValue = teacherMap.cloneWithType(map<Employee>);
+    map<Employee>|error mapValue = teacherMap.cloneWithType(EmployeeMap);
 
     return mapValue;
 }
@@ -208,7 +219,7 @@ function stampRecordTypeMultiDimensionMap() returns map<map<Employee>>|error {
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
     map<map<Teacher>> multiMap = { "aa": teacherMap, "bb": teacherMap };
 
-    map<map<Employee>>|error mapValue = multiMap.cloneWithType(map<map<Employee>>);
+    map<map<Employee>>|error mapValue = multiMap.cloneWithType(EmployeeDoubleMap);
 
     return mapValue;
 }
@@ -216,7 +227,7 @@ function stampRecordTypeMultiDimensionMap() returns map<map<Employee>>|error {
 function stampAnydataToIntMultiDimensionMap() returns map<map<map<int>>>|error {
     map<map<map<anydata>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
     11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
-    map<map<map<int>>>|error mapValue = m.cloneWithType(map<map<map<int>>>);
+    map<map<map<int>>>|error mapValue = m.cloneWithType(IntTrippleMap);
 
     return mapValue;
 }
@@ -224,7 +235,7 @@ function stampAnydataToIntMultiDimensionMap() returns map<map<map<int>>>|error {
 function stampIntToAnydataMultiDimensionMap() returns map<map<map<anydata>>>|error {
     map<map<map<int>>> m = { "a": { "aa": { "aa": 11, "bb": 22 }, "bb": { "aa": 11, "bb": 22 } }, "b": { "aaa": { "aa":
     11, "bb": 22 }, "bbb": { "aa": 11, "bb": 22 } } };
-    map<map<map<anydata>>>|error mapValue = m.cloneWithType(map<map<map<anydata>>>);
+    map<map<map<anydata>>>|error mapValue = m.cloneWithType(AnydataTrippleMap);
 
     return mapValue;
 }
@@ -244,7 +255,7 @@ function stampConstraintMapToUnion() returns map<Teacher>|xml|error {
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
-   map<Teacher>|xml|error anydataValue = teacherMap.cloneWithType(typedesc<map<Teacher>|xml>);
+    map<Teacher>|xml|error anydataValue = teacherMap.cloneWithType(MapOrXMLTypeDesc);
 
     return anydataValue;
 }
@@ -284,6 +295,6 @@ function testStampRecordToMapWithCyclicValueReferences() returns map<anydata>|er
     Person p = { name: "Waruna", age: 25, parent: () };
     Person p2 = { name: "Milinda", age: 25, parent:p };
     p.parent = p2;
-    map<anydata>|error m =  trap p.clone().cloneWithType(map<anydata>); // Cyclic value will be check when stamping the value.
+    map<anydata>|error m =  trap p.clone().cloneWithType(AnydataMap); // Cyclic value will be check when stamping the value.
     return m;
 }

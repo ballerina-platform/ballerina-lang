@@ -21,7 +21,6 @@ under the License.
 
 <suite name="ballerina-sql-test-suite">
     <test name="ballerina-sql-test" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
         <classes>
             <class name="org.ballerinalang.sql.connection.ConnectorInitTest"/>
             <class name="org.ballerinalang.sql.execute.ExecuteTest"/>
@@ -30,6 +29,8 @@ under the License.
             <class name="org.ballerinalang.sql.query.NumericTypesQueryTest"/>
             <class name="org.ballerinalang.sql.query.ComplexTypesQueryTest"/>
             <class name="org.ballerinalang.sql.query.ParamsQueryTest"/>
+            <class name="org.ballerinalang.sql.transaction.LocalTransactionsTest"/>
+            <class name="org.ballerinalang.sql.batchexecute.BatchExecuteTest"/>
         </classes>
     </test>
 </suite>

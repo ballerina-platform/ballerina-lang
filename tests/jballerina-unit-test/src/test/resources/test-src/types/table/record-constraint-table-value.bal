@@ -249,7 +249,155 @@ function testVarTypeTableInvalidMemberAccess() {
     Customer customer = customerTable[18, "Mohan"];
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type Details record {|
+    string name;
+    string id;
+|};
+
+type TableRec record {|
+    table<Details> detTable;
+|};
+
+function testTableAsRecordField()  {
+    TableRec tableRecord1 = {
+            detTable: table [
+                {name: "Jo", id: "azqw"},
+                {name: "Amy", id: "ldhe"}
+            ]
+    };
+
+    table<Details> tb = table [
+            {name: "Jo", id: "azqw"},
+            {name: "Amy", id: "ldhe"}
+        ];
+
+     TableRec tableRecord2 = {detTable: tb};
+
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord1.toString());
+    assertEquality("detTable=name=Jo id=azqw\nname=Amy id=ldhe", tableRecord2.toString());
+}
+
+type Bar record {|
+    string x;
+    string y;
+|};
+
+function testTableEquality() {
+    testSameTable();
+    testIdenticalTable();
+    testUnidenticalTable();
+    testInEqualityTableV1();
+    testTableEqualityWithKey();
+    testTableEqualityWithKeyV2();
+}
+
+function testSameTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    assertEquality(true, t1 == t1);
+}
+
+function testIdenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 == t2);
+}
+
+function testUnidenticalTable() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 == t2);
+}
+
+function testInEqualityTableV1() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x56", y: "y2"}
+                            ];
+
+    assertEquality(true, t1 != t2);
+}
+
+function testInEqualityTableV2() {
+    table<Bar> t1 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x2", y: "y2"}
+                        ];
+
+    table<Bar> t2 = table [
+                            {x: "x1", y: "y1"},
+                            {x: "x1", y: "y2"}
+                            ];
+
+    assertEquality(false, t1 != t2);
+}
+
+type Employee record {
+    readonly int id;
+    readonly string name;
+    float salary;
+};
+type EmployeeTable table<Employee> key(id);
+
+function testTableEqualityWithKey() {
+
+    EmployeeTable employeeTab1 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    EmployeeTable employeeTab2 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    assertEquality(true, employeeTab1 == employeeTab2);
+}
+
+function testTableEqualityWithKeyV2() {
+
+    table<Employee> key(id) employeeTab1 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    table<Employee> key(id) employeeTab2 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Ethen", salary: 750.0}
+    ];
+
+    assertEquality(true, employeeTab1 != employeeTab2);
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -270,5 +418,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

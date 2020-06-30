@@ -9,27 +9,12 @@
         <div class="navi-wrapper-content">
             {{> logo }}
             {{> currentModule }}
-            {{> allModules }}
         </div>
     </div>
-
-    <div class="ui vertical sidebar menu">
-        <div class="navi-wrapper-sidebar">
-            <div class="navi-wrapper-content">
-                {{> logo }}
-                
-                {{> currentModule }}
-                {{> allModules }}
-            </div>
-        </div>
-    </div>
-
-
-
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper module-wrapper">
-            <div id="search-impl"></div>
+            <div id="search-impl" class="search-bar"></div>
             <div id="main">
                 <h1>
                     {{> breadcrumb }}
@@ -39,6 +24,9 @@
                         Module : <span class="modules">{{ module.id }}</span>
                     {{/if}}
                 </h1>
+                {{#if module.version}}
+                    <div>Version : {{ module.version }}</div>
+                {{/if}}
                     {{{ module.description }}}
 
             {{#if module.records}}

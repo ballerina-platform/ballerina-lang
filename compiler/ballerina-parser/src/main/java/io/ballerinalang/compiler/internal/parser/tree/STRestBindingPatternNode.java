@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STRestBindingPatternNode extends STNode {
+public class STRestBindingPatternNode extends STBindingPatternNode {
     public final STNode ellipsisToken;
     public final STNode variableName;
 
@@ -63,7 +63,32 @@ public class STRestBindingPatternNode extends STNode {
                 diagnostics);
     }
 
+    public STRestBindingPatternNode modify(
+            STNode ellipsisToken,
+            STNode variableName) {
+        if (checkForReferenceEquality(
+                ellipsisToken,
+                variableName)) {
+            return this;
+        }
+
+        return new STRestBindingPatternNode(
+                ellipsisToken,
+                variableName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

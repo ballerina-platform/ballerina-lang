@@ -363,7 +363,7 @@ public class BuildCommandTest extends CommandTest {
                                       "\tbar/foo:1.2.0\n" +
                                       "\nCreating balos\n" +
                                       "\ttarget" + File.separator + "balo" + File.separator +
-                                      "foo-2020r1-any-1.2.0.balo\n" +
+                                      "foo-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-1.2.0.balo\n" +
                                       "\n" +
                                       "Generating executables\n" +
                                       "\ttarget" + File.separator + "bin" + File.separator + "foo.jar\n");
@@ -724,7 +724,7 @@ public class BuildCommandTest extends CommandTest {
 
     @Test(description = "Test the cleaning of target resources in the build command.",
             dependsOnMethods = {"testBuildCommand"})
-    public void testTargetClean() {
+    public void testTargetClean() throws IOException {
         // If a single module is built only the relevant module's resources should be cleaned,
         // else the entire target will be deleted.
         String[] compileArgs = {"mymodule", "--skip-tests"};
@@ -741,42 +741,41 @@ public class BuildCommandTest extends CommandTest {
                 "Check if executables of other modules are not deleted during a single module build");
     }
 
-    @Test(description = "Test Build Command for a single file.",
-            dependsOnMethods = "testBuildCommandWithoutArgs",
-            enabled = false)
+    @Test(description = "Test Build Command for a single file.")
     public void testBuildCommandSingleFile() throws IOException {
         // Build the project
-        String[] compileArgs = {"main.bal"};
-        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-project"), printStream,
+        String[] compileArgs = {"hello_world.bal"};
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-bal-file"), printStream,
                 printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
-
+        readOutput();
         Assert.assertFalse(Files.exists(tmpDir.resolve(ProjectDirConstants.TARGET_DIR_NAME)),
                 "Check if target directory is not created");
         Path lockFile = tmpDir.resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertFalse(Files.exists(lockFile), "Check if lock file is created");
         //Check if executable jar gets created
-        Path execJar = tmpDir.resolve("main.jar");
+        Path execJar = Paths.get("hello_world.jar");
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
+        Files.delete(execJar);
     }
 
-    @Test(description = "Test Build Command for a single file with output flag.",
-            dependsOnMethods = "testBuildCommandWithoutArgs",
-            enabled = false)
+    @Test(description = "Test Build Command for a single file with output flag.")
     public void testBuildCommandSingleFileWithOutput() throws IOException {
         // Build the project
-        String[] compileArgs = {"main.bal"};
-        BuildCommand buildCommand = new BuildCommand(tmpDir, printStream, printStream, false, true);
+        String[] compileArgs = {"-osample.jar", "hello_world.bal"};
+        BuildCommand buildCommand = new BuildCommand(this.testResources.resolve("valid-bal-file"), printStream,
+                printStream, false, true);
         new CommandLine(buildCommand).parse(compileArgs);
         buildCommand.execute();
+        readOutput();
 
         Assert.assertFalse(Files.exists(tmpDir.resolve(ProjectDirConstants.TARGET_DIR_NAME)),
                 "Check if target directory is not created");
         Path lockFile = tmpDir.resolve(ProjectDirConstants.LOCK_FILE_NAME);
         Assert.assertFalse(Files.exists(lockFile), "Check if lock file is created");
         //Check if executable jar gets created
-        Path execJar = tmpDir.resolve("sample.jar");
+        Path execJar = this.testResources.resolve("valid-bal-file").resolve("sample.jar");
         Assert.assertTrue(Files.exists(execJar), "Check if jar gets created");
     }
 
@@ -784,7 +783,8 @@ public class BuildCommandTest extends CommandTest {
     public void testBuildWithSkipTests() throws IOException {
         // valid source root path where the project contains test bal files with compilation errors
         Path projectWithTestErrors = this.testResources.resolve("project-with-test-errors");
-        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectWithTestErrors, printStream, printStream,
+                false, true);
         new CommandLine(buildCommand).parse("--skip-tests", "-a");
         buildCommand.execute();
 
@@ -792,7 +792,7 @@ public class BuildCommandTest extends CommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "Compiling source\n" +
                 "\ttestOrg/module1:0.1.0\n" +
                 "\nCreating balos\n" +
-                "\ttarget/balo/module1-2020r1-any-0.1.0.balo\n" +
+                "\ttarget/balo/module1-" + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.1.0.balo\n" +
                 "\nGenerating executables\n" +
                 "\ttarget/bin/module1.jar\n");
     }

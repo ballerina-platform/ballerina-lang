@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_INFO_TYPE;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_ID;
@@ -66,22 +64,11 @@ public class FileUtils {
      * Error type is generic ballerina error type. This utility to construct error object from message.
      *
      * @param error   The specific error type.
-     * @param details Java throwable object to capture description of error struct. If throwable object is null,
-     *                "Unknown Error" is set to message by default.
+     * @param message Error message. "Unknown Error" is set to message by default.
      * @return Ballerina error object.
      */
-    public static ErrorValue getBallerinaError(String error, String details) {
-        return BallerinaErrors.createError(error, populateSystemErrorRecord(details));
-    }
-
-    private static MapValue populateSystemErrorRecord(String message) {
-        Map<String, Object> valueMap = new HashMap<>();
-        if (message != null) {
-            valueMap.put(FileConstants.ERROR_MESSAGE, message);
-        } else {
-            valueMap.put(FileConstants.ERROR_MESSAGE, UNKNOWN_MESSAGE);
-        }
-        return BallerinaValues.createRecordValue(FILE_PACKAGE_ID, FileConstants.ERROR_DETAILS, valueMap);
+    public static ErrorValue getBallerinaError(String error, String message) {
+        return BallerinaErrors.createDistinctError(error, FILE_PACKAGE_ID, message != null ? message : UNKNOWN_MESSAGE);
     }
 
     public static ObjectValue getFileInfo(File inputFile) throws IOException {

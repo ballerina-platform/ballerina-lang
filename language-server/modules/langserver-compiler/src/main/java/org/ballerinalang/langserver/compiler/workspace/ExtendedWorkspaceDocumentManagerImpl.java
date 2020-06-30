@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.eclipse.lsp4j.CodeLens;
 
@@ -28,7 +29,7 @@ import java.util.concurrent.locks.Lock;
 /**
  * This class provides an abstraction layer for a given filePath. All other changes are reflected to the underline
  * WorkspaceDocumentManagerImpl except given filePath.
- *
+ * <p>
  * This class is being used by the composer to provide a flexible Workspace DocumentManager. Operations such as
  * openFile() are aware of the browser refreshes that may cause file already opened exceptions.
  */
@@ -143,6 +144,23 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
         return super.getFileContent(filePath);
     }
 
+    @Override
+    public SyntaxTree getTree(Path filePath) throws WorkspaceDocumentException {
+        if (this.isExplicitMode) {
+            return this.tempDocument.getTree();
+        }
+        return super.getTree(filePath);
+    }
+
+    @Override
+    public void setTree(Path filePath, SyntaxTree newTree) throws WorkspaceDocumentException {
+        if (this.isExplicitMode) {
+            this.tempDocument.setTree(newTree);
+            return;
+        }
+        super.setTree(filePath, newTree);
+    }
+
     private boolean isTempFile(Path filePath) {
         try {
             return tempDocument != null && Files.isSameFile(tempDocument.getPath(), filePath);
@@ -154,7 +172,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
     /**
      * Enables explicit mode. When explicit mode is enabled; changes for the temp file will not be reflected to the
      * WorkspaceDocument Manager and kept in an abstraction layer. Changes for the other files will be served as usual.
-     *
+     * <p>
      * Usage example:
      * <pre>
      * Optional&lt;Lock&gt; lock = documentManager.enableExplicitMode(tempFile);
@@ -167,7 +185,6 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
      *
      * @param tempFile temp file path
      * @return file lock
-     *
      * @see ExtendedWorkspaceDocumentManagerImpl#disableExplicitMode(Lock)
      */
     public Optional<Lock> enableExplicitMode(Path tempFile) {
@@ -184,7 +201,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
 
     /**
      * Disables explicit mode. When explicit mode is disabled; All changes for the files will be served as usual.
-     *
+     * <p>
      * Usage example:
      * <pre>
      * Optional&lt;Lock&gt; lock = documentManager.enableExplicitMode(tempFile);
@@ -196,7 +213,6 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
      * </pre>
      *
      * @param lock that returned from enableExplicitMode
-     *
      * @see ExtendedWorkspaceDocumentManagerImpl#enableExplicitMode
      */
     public void disableExplicitMode(Lock lock) {

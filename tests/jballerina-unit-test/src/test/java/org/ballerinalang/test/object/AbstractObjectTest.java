@@ -75,7 +75,7 @@ public class AbstractObjectTest {
         int index = 0;
         BAssertUtil.validateError(compileResult, index++,
                                   "abstract object '$anonType$0' cannot have a constructor method", 2, 54);
-        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$0'", 2, 101);
+        BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$0'", 2, 99);
         BAssertUtil.validateError(compileResult, index++, "cannot initialize abstract object '$anonType$1'", 3, 77);
         BAssertUtil.validateError(compileResult, index++,
                 "abstract object '$anonType$2' cannot have a constructor method", 6, 58);

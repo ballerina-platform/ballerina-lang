@@ -70,7 +70,35 @@ public class STAnnotationAttachPointNode extends STNode {
                 diagnostics);
     }
 
+    public STAnnotationAttachPointNode modify(
+            STNode sourceKeyword,
+            STNode firstIdent,
+            STNode secondIdent) {
+        if (checkForReferenceEquality(
+                sourceKeyword,
+                firstIdent,
+                secondIdent)) {
+            return this;
+        }
+
+        return new STAnnotationAttachPointNode(
+                sourceKeyword,
+                firstIdent,
+                secondIdent,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new AnnotationAttachPointNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

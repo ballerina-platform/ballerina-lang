@@ -49,6 +49,7 @@ configurations {
 
 dependencies {
     dist project(':ballerina-rt')
+    dist project(':ballerina-choreo-extension-rt')
 
     distBal project(path: ':ballerina-auth', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-cache', configuration: 'baloImplementation')
@@ -77,13 +78,11 @@ dependencies {
     distBal project(path: ':ballerina-transactions', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-java', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-java-arrays', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-websub', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xslt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-kafka', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-nats', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-rabbitmq', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-stringutils', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-oauth2', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-xmlutils', configuration: 'baloImplementation')
@@ -108,6 +107,7 @@ dependencies {
     distBal project(path: ':ballerina-lang:xml', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:bool', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-lang:query', configuration: 'baloImplementation')
+    distBal project(path: ':ballerina-lang:transaction', configuration: 'baloImplementation')
 
     balSource project(path: ':ballerina-auth', configuration: 'balSource')
     balSource project(path: ':ballerina-cache', configuration: 'balSource')
@@ -128,7 +128,6 @@ dependencies {
     balSource project(path: ':ballerina-runtime-api', configuration: 'balSource')
     balSource project(path: ':ballerina-openapi', configuration: 'balSource')
     balSource project(path: ':ballerina-system', configuration: 'balSource')
-    balSource project(path: ':ballerina-websub', configuration: 'balSource')
     balSource project(path: ':ballerina-task', configuration: 'balSource')
     balSource project(path: ':ballerina-time', configuration: 'balSource')
     balSource project(path: ':ballerina-transactions', configuration: 'balSource')
@@ -137,7 +136,6 @@ dependencies {
     balSource project(path: ':ballerina-nats', configuration: 'balSource')
     balSource project(path: ':ballerina-rabbitmq', configuration: 'balSource')
     balSource project(path: ':ballerina-stringutils', configuration: 'balSource')
-    balSource project(path: ':ballerina-jwt', configuration: 'balSource')
     balSource project(path: ':ballerina-ldap', configuration: 'balSource')
     balSource project(path: ':ballerina-oauth2', configuration: 'balSource')
     balSource project(path: ':ballerina-xmlutils', configuration: 'balSource')
@@ -162,6 +160,7 @@ dependencies {
     balSource project(path: ':ballerina-lang:xml', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:bool', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:query', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:transaction', configuration: 'balSource')
 
     // ballerinax modules
     balSource project(path: ':ballerina-java', configuration: 'balSource')

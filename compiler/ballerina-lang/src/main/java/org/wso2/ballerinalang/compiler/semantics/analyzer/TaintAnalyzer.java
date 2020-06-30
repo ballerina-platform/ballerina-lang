@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -84,6 +85,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
@@ -93,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -116,7 +119,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -135,7 +137,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -727,12 +731,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
+    public void visit(BLangRetry retryNode) {
         /* ignore */
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
+    public void visit(BLangRetryTransaction retryTransaction) {
         /* ignore */
     }
 
@@ -839,16 +843,14 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
         overridingAnalysis = false;
-        if (transactionNode.onRetryBody != null) {
-            transactionNode.onRetryBody.accept(this);
-        }
-        if (transactionNode.committedBody != null) {
-            transactionNode.committedBody.accept(this);
-        }
-        if (transactionNode.abortedBody != null) {
-            transactionNode.abortedBody.accept(this);
-        }
         overridingAnalysis = true;
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        if (rollbackNode.expr != null) {
+            rollbackNode.expr.accept(this);
+        }
     }
 
     @Override
@@ -1209,6 +1211,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
     }
 
+    @Override
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        getCurrentAnalysisState().taintedStatus = TaintedStatus.UNTAINTED;
+    }
 
     @Override
     public void visit(BLangTrapExpr trapExpr) {
@@ -1262,7 +1273,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
         // If @untainted annotation is attached, we consider resulting value after conversion is untainted
         if (!conversionExpr.annAttachments.isEmpty()) {
-            getCurrentAnalysisState().taintedStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            TaintedStatus annotStatus = getTaintedStatusBasedOnAnnotations(conversionExpr.annAttachments);
+            if (annotStatus != TaintedStatus.IGNORED) {
+                getCurrentAnalysisState().taintedStatus = annotStatus;
+            }
         }
     }
 
@@ -1374,6 +1388,12 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
         analyzeExprList(stringTemplateLiteral.exprs);
+    }
+
+    @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        analyzeExprList(rawTemplateLiteral.strings);
+        analyzeExprList(rawTemplateLiteral.insertions);
     }
 
     @Override
@@ -1662,7 +1682,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
      *
      * @param exprs List of expressions to analyze.
      */
-    private void analyzeExprList(List<BLangExpression> exprs) {
+    private void analyzeExprList(List<? extends BLangExpression> exprs) {
         for (BLangExpression expr : exprs) {
             expr.accept(this);
             if (getCurrentAnalysisState().taintedStatus == TaintedStatus.TAINTED) {

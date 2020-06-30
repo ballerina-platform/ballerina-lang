@@ -91,8 +91,7 @@ public function add(table<Type> t, Type val) = external;
 # + func - a function to apply to each member
 # + return - new table containing result of applying `func` to each member
 public function 'map(table<Type> t, function(Type val) returns Type1 func)
-   returns table<Type1> = external;
-//todo returns table<Type1> key<never> = external;
+   returns table<Type1> key<never> = external;
 
 # Applies a function to each member of a table.
 # The `func` is applied to each member of `t`.

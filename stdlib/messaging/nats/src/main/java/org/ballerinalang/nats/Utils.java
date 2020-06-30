@@ -46,19 +46,9 @@ import java.nio.charset.StandardCharsets;
  */
 public class Utils {
 
-    public static ErrorValue createNatsError(String nuid, String detailedErrorMessage) {
-        MapValue<BString, Object> errorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.NATS_PACKAGE_ID, Constants.NATS_ERROR_DETAIL_RECORD);
-        MapValue<BString, Object> populatedDetailRecord = BallerinaValues
-                .createRecord(errorDetailRecord, nuid, detailedErrorMessage);
-        return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, populatedDetailRecord);
-    }
-
     public static ErrorValue createNatsError(String detailedErrorMessage) {
-        MapValue<BString, Object> errorDetailRecord = BallerinaValues
-                .createRecordValue(Constants.NATS_PACKAGE_ID, Constants.NATS_ERROR_DETAIL_RECORD);
-        errorDetailRecord.put(StringUtils.fromString("message"), StringUtils.fromString(detailedErrorMessage));
-        return BallerinaErrors.createError(Constants.NATS_ERROR_CODE, errorDetailRecord);
+        return BallerinaErrors.createDistinctError(Constants.NATS_ERROR, Constants.NATS_PACKAGE_ID,
+                                                   detailedErrorMessage);
     }
 
     public static Object bindDataToIntendedType(byte[] data, BType intendedType) {
@@ -66,7 +56,7 @@ public class Utils {
         Object dispatchedData;
         switch (dataParamTypeTag) {
             case TypeTags.STRING_TAG:
-                dispatchedData = new String(data, StandardCharsets.UTF_8);
+                dispatchedData = StringUtils.fromString(new String(data, StandardCharsets.UTF_8));
                 break;
             case TypeTags.JSON_TAG:
                 try {

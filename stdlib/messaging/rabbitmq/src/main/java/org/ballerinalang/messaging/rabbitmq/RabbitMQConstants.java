@@ -62,7 +62,7 @@ public class RabbitMQConstants {
     public static final String UNCHECKED = "unchecked";
 
     // Error constant fields
-    static final String RABBITMQ_ERROR_CODE = "{ballerina/rabbitmq}Error";
+    static final String RABBITMQ_ERROR = "RabbitMqError";
     static final String RABBITMQ_ERROR_DETAILS = "Detail";
     static final String RABBITMQ_ERROR_MESSAGE = "message";
 
@@ -143,6 +143,7 @@ public class RabbitMQConstants {
 
     // Transaction constant fields
     public static final String RABBITMQ_TRANSACTION_CONTEXT = "rabbitmq_transactional_context";
+    public static final BString CONNECTOR_ID = StringUtils.fromString("connectorId");
     static final String COMMIT_FAILED = "Transaction commit failed: ";
     static final String ROLLBACK_FAILED = "Transaction rollback failed: ";
 

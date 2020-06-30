@@ -17,6 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -105,10 +106,69 @@ public abstract class STNode {
         return this instanceof STMissingToken;
     }
 
+    public STToken firstToken() {
+        return (STToken) firstTokenInternal();
+    }
+
+    protected STNode firstTokenInternal() {
+        for (STNode child : childBuckets) {
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode firstToken = child.firstTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(firstToken)) {
+                return firstToken;
+            }
+        }
+        return null;
+    }
+
+    public STToken lastToken() {
+        return (STToken) lastTokenInternal();
+    }
+
+    protected STNode lastTokenInternal() {
+        for (int bucket = childBuckets.length - 1; bucket >= 0; bucket--) {
+            STNode child = childInBucket(bucket);
+            if (SyntaxUtils.isToken(child)) {
+                return child;
+            }
+
+            if (!SyntaxUtils.isSTNodePresent(child) ||
+                    NodeListUtils.isSTNodeList(child) && child.bucketCount == 0) {
+                continue;
+            }
+
+            // Some nodes have non-empty child nodes that contain empty STNodeList child. e.g. STMetadata
+            STNode lastToken = child.lastTokenInternal();
+            if (SyntaxUtils.isSTNodePresent(lastToken)) {
+                return lastToken;
+            }
+        }
+        return null;
+    }
+
     // Modification methods
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return null;
+    public abstract STNode modifyWith(Collection<STNodeDiagnostic> diagnostics);
+
+    /**
+     * Replaces the given target node with the replacement.
+     *
+     * @param target      the node to be replaced
+     * @param replacement the replacement node
+     * @param <T>         the type of the root node
+     * @return return the new root node after replacing the target with the replacement
+     */
+    public <T extends STNode> T replace(STNode target, STNode replacement) {
+        return STTreeModifiers.replace((T) this, target, replacement);
     }
 
     @SuppressWarnings("unchecked")
@@ -118,12 +178,44 @@ public abstract class STNode {
 
     public abstract Node createFacade(int position, NonTerminalNode parent);
 
+    /**
+     * Accepts an instance of the {@code STNodeVisitor}, which can be used to
+     * traverse the syntax tree.
+     *
+     * @param visitor an instance of the {@code STNodeVisitor}
+     */
+    public abstract void accept(STNodeVisitor visitor);
+
+    /**
+     * Applies the given {@code STNodeTransformer} to this node and returns
+     * the transformed object.
+     *
+     * @param transformer an instance of the {@code STNodeTransformer}
+     * @param <T>         the type of transformed object
+     * @return the transformed object
+     */
+    public abstract <T> T apply(STNodeTransformer<T> transformer);
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         for (STNode child : this.childBuckets) {
             sb.append(child != null ? child.toString() : "");
         }
         return sb.toString();
+    }
+
+    public void writeTo(StringBuilder builder) {
+        for (STNode child : this.childBuckets) {
+            if (SyntaxUtils.isSTNodePresent(child)) {
+                child.writeTo(builder);
+            }
+        }
+    }
+
+    public String toSourceCode() {
+        StringBuilder builder = new StringBuilder();
+        writeTo(builder);
+        return builder.toString();
     }
 
     protected void addChildren(STNode... children) {
@@ -134,6 +226,15 @@ public abstract class STNode {
         }
         updateDiagnostics(children);
         updateWidth(children);
+    }
+
+    protected boolean checkForReferenceEquality(STNode... children) {
+        for (int index = 0; index < children.length; index++) {
+            if (childBuckets[index] != children[index]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

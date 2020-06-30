@@ -52,3 +52,13 @@ function testNegatives() {
     json j4 = r3;
 }
 
+type Bar record {|
+    int i;
+    Bar? b = ();
+    anydata x;
+|};
+
+function testNegativeWithRecursiveCheckAgainstJson() {
+    Bar b = {i: 1, x: 2};
+    json j = b;
+}

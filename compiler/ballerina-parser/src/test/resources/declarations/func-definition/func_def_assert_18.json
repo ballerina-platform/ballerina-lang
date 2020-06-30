@@ -1,155 +1,111 @@
 {
-  "kind": "MODULE_PART",
+  "kind": "FUNCTION_DEFINITION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "LIST",
+      "kind": "METADATA",
       "children": [
         {
-          "kind": "IMPORT_DECLARATION",
-          "children": [
+          "kind": "LIST",
+          "children": []
+        }
+      ]
+    },
+    {
+      "kind": "PUBLIC_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "IDENTIFIER_TOKEN",
+      "value": "foo",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "FUNCTION_SIGNATURE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "OPEN_PAREN_TOKEN",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_INVALID_TOKEN"
+          ],
+          "leadingMinutiae": [
             {
-              "kind": "IMPORT_KEYWORD"
-            },
+              "kind": "INVALID_NODE_MINUTIAE",
+              "invalidNode": {
+                "kind": "IDENTIFIER_TOKEN",
+                "value": "hello",
+                "trailingMinutiae": [
+                  {
+                    "kind": "WHITESPACE_MINUTIAE",
+                    "value": " "
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
             {
-              "kind": "IMPORT_ORG_NAME",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "ballerina"
-                },
-                {
-                  "kind": "SLASH_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "io"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ]
         }
       ]
     },
     {
-      "kind": "LIST",
+      "kind": "FUNCTION_BODY_BLOCK",
       "children": [
         {
-          "kind": "FUNCTION_DEFINITION",
-          "children": [
+          "kind": "OPEN_BRACE_TOKEN",
+          "trailingMinutiae": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
+        },
+        {
+          "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "CLOSE_BRACE_TOKEN",
+          "trailingMinutiae": [
             {
-              "kind": "PUBLIC_KEYWORD"
-            },
-            {
-              "kind": "FUNCTION_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "main"
-            },
-            {
-              "kind": "FUNCTION_SIGNATURE",
-              "children": [
-                {
-                  "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_PAREN_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "FUNCTION_BODY_BLOCK",
-              "children": [
-                {
-                  "kind": "OPEN_BRACE_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": [
-                    {
-                      "kind": "CALL_STATEMENT",
-                      "children": [
-                        {
-                          "kind": "FUNCTION_CALL",
-                          "children": [
-                            {
-                              "kind": "QUALIFIED_NAME_REFERENCE",
-                              "children": [
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "io"
-                                },
-                                {
-                                  "kind": "COLON_TOKEN"
-                                },
-                                {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "println"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "OPEN_PAREN_TOKEN"
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "POSITIONAL_ARG",
-                                  "children": [
-                                    {
-                                      "kind": "STRING_LITERAL",
-                                      "value": "Hello World!"
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "CLOSE_PAREN_TOKEN"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "CLOSE_BRACE_TOKEN"
-                }
-              ]
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
             }
           ]
         }
       ]
-    },
-    {
-      "kind": "EOF_TOKEN"
     }
   ]
 }
-

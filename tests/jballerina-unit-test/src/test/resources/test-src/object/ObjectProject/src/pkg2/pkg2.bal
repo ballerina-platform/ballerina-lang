@@ -45,14 +45,14 @@ function testObjectInitFunctionWithDefaultableParams() returns [int, int, int, i
 type InitObjOne object {
     float f;
 
-    public function __init(float i) {
+    public function init(float i) {
         self.f = i;
     }
 };
 
 type InitObjTwo object {
     int f;
-    public function __init(int i) {
+    public function init(int i) {
         self.f = i;
     }
 };

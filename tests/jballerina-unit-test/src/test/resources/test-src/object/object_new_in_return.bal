@@ -9,7 +9,7 @@ function testCreateObjectInReturnDifferentType () returns int {
 type Person object {
     public int age = 0;
 
-    function __init (int age) {
+    function init (int age) {
         self.age = age;
     }
 };
@@ -17,7 +17,7 @@ type Person object {
 type Employee object {
     public int age = 0;
 
-    function __init (int age, int addVal) {
+    function init (int age, int addVal) {
         self.age = age + addVal;
     }
 };

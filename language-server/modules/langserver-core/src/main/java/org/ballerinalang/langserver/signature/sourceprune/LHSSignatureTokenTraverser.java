@@ -183,7 +183,12 @@ class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
             this.pendingLeftBrace++;
             this.processToken(token);
             this.forcedProcessedToken = true;
-            return false;
+            return capturedFirstLeftParenthesis; // terminate, if first left-parenthesis captured
+        } else if (type == BallerinaParser.StringTemplateExpressionStart && "${".equals(text)) {
+            this.pendingLeftBrace++;
+            this.processToken(token);
+            this.forcedProcessedToken = true;
+            return capturedFirstLeftParenthesis; // terminate, if first left-parenthesis captured
         } else if (type == BallerinaParser.RIGHT_BRACKET) {
             this.pendingLeftBracket++;
             this.processToken(token);
@@ -230,6 +235,7 @@ class LHSSignatureTokenTraverser extends AbstractTokenTraverser {
         if (this.isCapturingEnabled) {
             return super.processToken(token);
         } else {
+            // Not added to processed tokens
             if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
                     token.getChannel() != Token.DEFAULT_CHANNEL || token.getType() == BallerinaParser.WS) {
                 return false;

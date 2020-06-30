@@ -29,7 +29,7 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidLocalLevelParameterizedType() {
-        testTopLevelNode("parameterized-type/parameterized_type_assert_01.bal",
+        testTopLevelNode("parameterized-type/parameterized_type_source_01.bal",
                 "parameterized-type/parameterized_type_assert_01.json");
     }
 
@@ -55,7 +55,7 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidMapTypeDescAsReturnType() {
-        testTopLevelNode("parameterized-type/parameterized_type_assert_02.bal",
+        testTopLevelNode("parameterized-type/parameterized_type_source_11.bal",
                 "parameterized-type/parameterized_type_assert_11.json");
     }
 
@@ -88,11 +88,17 @@ public class ParameterizedTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidModuleLevelMapTypeWithInvalidTokenInside() {
-        test("map<%> a;", "parameterized-type/parameterized_type_assert_10.json");
+        test("map<%> a;", "parameterized-type/parameterized_type_assert_13.json");
     }
 
     @Test
     public void testInValidModuleLevelParameterizedTypeMissingType() {
         test("<int> a;", "parameterized-type/parameterized_type_assert_12.json");
+    }
+
+    @Test
+    public void testMissingParamTypeInMapType() {
+        testTopLevelNode("parameterized-type/parameterized_type_source_14.bal",
+                "parameterized-type/parameterized_type_assert_14.json");
     }
 }

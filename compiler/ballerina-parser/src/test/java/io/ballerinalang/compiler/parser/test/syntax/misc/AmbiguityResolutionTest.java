@@ -101,6 +101,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
         testFile("ambiguity/ambiguity_source_21.bal", "ambiguity/ambiguity_assert_21.json");
     }
 
+    @Test
+    public void testStmtStartsStringAndXMLKeywords() {
+        testFile("ambiguity/ambiguity_source_22.bal", "ambiguity/ambiguity_assert_22.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -126,5 +131,10 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     @Test
     public void testStatementStartWithParenthesisRecovery() {
         testFile("ambiguity/ambiguity_source_18.bal", "ambiguity/ambiguity_assert_18.json");
+    }
+
+    @Test
+    public void testStatementConsistOFOnlyBasicLiterals() {
+        testFile("ambiguity/ambiguity_source_23.bal", "ambiguity/ambiguity_assert_23.json");
     }
 }

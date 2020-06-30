@@ -68,6 +68,7 @@ import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_S
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.DEFAULT_SKELETON_DIR;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.EMPTY_DATA_TYPE;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.FILE_SEPARATOR;
+import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_API_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GOOGLE_STANDARD_LIB;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.builder.utils.BalGenConstants.GRPC_PROXY;
@@ -123,7 +124,8 @@ public class BallerinaFileBuilder {
             DescriptorProtos.FileDescriptorProto fileDescriptorSet = DescriptorProtos.FileDescriptorProto
                     .parseFrom(targetStream, extensionRegistry);
 
-            if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB)) {
+            if (fileDescriptorSet.getPackage().contains(GOOGLE_STANDARD_LIB) ||
+                    fileDescriptorSet.getPackage().contains(GOOGLE_API_LIB)) {
                 return;
             }
             List<DescriptorProtos.ServiceDescriptorProto> serviceDescriptotList = fileDescriptorSet.getServiceList();
@@ -206,6 +208,7 @@ public class BallerinaFileBuilder {
                         Message message = Message.newBuilder(EmptyMessage.newBuilder().getDescriptor().toProto())
                                 .build();
                         messageList.add(message);
+                        stubFileObject.addMessage(message);
                         hasEmptyMessage = true;
                     }
                 }
@@ -241,10 +244,6 @@ public class BallerinaFileBuilder {
                     writeOutputFile(new ClientFile(serviceDescriptor.getName(), isUnaryContains),
                             DEFAULT_SAMPLE_DIR,
                             SAMPLE_CLIENT_TEMPLATE_NAME, clientFilePath);
-                } else if (GRPC_PROXY.equals(mode)) {
-                    String proxyPath = generateOutputFile(this.balOutPath, filename +
-                            SAMPLE_PROXY_FILE_PREFIX);
-                    writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
                 }
             }
             stubFileObject.setEnumList(enumList);
@@ -258,6 +257,11 @@ public class BallerinaFileBuilder {
             } else if (needStubFile) {
                 String stubFilePath = generateOutputFile(this.balOutPath, filename + STUB_FILE_PREFIX);
                 writeOutputFile(stubFileObject, DEFAULT_SKELETON_DIR, SERVICE_SKELETON_TEMPLATE_NAME, stubFilePath);
+            }
+            if (GRPC_PROXY.equals(mode)) {
+                String proxyPath = generateOutputFile(this.balOutPath, filename +
+                        SAMPLE_PROXY_FILE_PREFIX);
+                writeOutputFile(stubFileObject, DEFAULT_SAMPLE_DIR, SAMPLE_PROXY_TEMPLATE_NAME, proxyPath);
             }
         } catch (GrpcServerException e) {
             throw new CodeBuilderException("Message descriptor error. " + e.getMessage());
@@ -341,6 +345,15 @@ public class BallerinaFileBuilder {
                 return BalGenerationUtils.toCamelCase((String) object);
             }
             return "";
+        });
+        handlebars.registerHelper("ignoreQuote", (object, options) -> {
+            if (object instanceof String) {
+                String word = (String) object;
+                if (word.startsWith("'")) {
+                    return word.substring(1);
+                }
+            }
+            return object;
         });
         handlebars.registerHelper("uppercase", (object, options) -> {
             if (object instanceof String) {

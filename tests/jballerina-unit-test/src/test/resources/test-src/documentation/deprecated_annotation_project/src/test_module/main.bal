@@ -105,10 +105,10 @@ type InvalidAccountTypeErrorData record {
 # Invalid account error
 # # Deprecated
 @deprecated
-public type InvalidAccountTypeError error<INVALID_ACC_TYPE, InvalidAccountTypeErrorData>;
+public type InvalidAccountTypeError error<InvalidAccountTypeErrorData>;
 
 # Invalid bank error
-public type InvalidBankTypeError error<INVALID_ACC_TYPE, InvalidAccountTypeErrorData>;
+public type InvalidBankTypeError error<InvalidAccountTypeErrorData>;
 
 //========= MODULE_LEVEL ANNOTATION DECL ====================
 

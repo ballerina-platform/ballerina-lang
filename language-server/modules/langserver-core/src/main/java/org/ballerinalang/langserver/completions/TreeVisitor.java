@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Recor
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.RecordScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ServiceScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.TopLevelNodeScopeResolver;
-import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
@@ -76,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -85,12 +85,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -152,7 +153,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     private Deque<BLangForkJoin> forkJoinStack;
 
-    private Class cursorPositionResolver;
+    private Class<?> cursorPositionResolver;
 
     private LSContext lsContext;
 
@@ -242,26 +243,17 @@ public class TreeVisitor extends LSNodeVisitor {
             // Set the current symbol environment instead of the function environment since the annotation is not
             // within the function
             funcNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, symbolEnv));
-            if (!funcNode.annAttachments.isEmpty()) {
-                BLangAnnotationAttachment lastItem = CommonUtil.getLastItem(funcNode.annAttachments);
-                if (lastItem == null) {
-                    return;
-                }
-                List<Whitespace> wsList = new ArrayList<>(funcNode.getWS());
-                String[] firstWSItem = wsList.get(0).getWs().split(CommonUtil.LINE_SEPARATOR_SPLIT, -1);
-                int precedingNewLines = firstWSItem.length - 1;
-                functionPos.sLine = lastItem.pos.eLine + precedingNewLines;
-                functionPos.sCol = firstWSItem[firstWSItem.length - 1].length() + 1;
-            }
-        } else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
-                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
-            return;
         }
-        
+// TODO: Find a better approach along with the new parser implementation
+//        else if (funcNode.flagSet.contains(Flag.WORKER) && CompletionVisitorUtil
+//                .isWithinWorkerReturnContext(this.symbolEnv, this.lsContext, this, funcNode)) {
+//            return;
+//        }
+
         if (terminateVisitor || cpr.isCursorBeforeNode(functionPos, this, this.lsContext, funcNode, funcNode.symbol)) {
             return;
         }
-        
+
         // Visit the function parameter annotation attachments
         List<BLangNode> functionParamsOrdered = CompletionVisitorUtil.getFunctionParamsOrdered(funcNode);
         functionParamsOrdered.forEach(param -> this.acceptNode(param, symbolEnv));
@@ -485,14 +477,14 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangInvocation invocationNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        
+
         if (cpr.isCursorBeforeNode(invocationNode.getPosition(), this, this.lsContext, invocationNode,
                 invocationNode.symbol)) {
             return;
         }
 
         final TreeVisitor visitor = this;
-        Class fallbackCursorPositionResolver = this.cursorPositionResolver;
+        Class<?> fallbackCursorPositionResolver = this.cursorPositionResolver;
         this.cursorPositionResolver = InvocationParameterScopeResolver.class;
         this.blockOwnerStack.push(invocationNode);
         // Visit all arguments
@@ -537,7 +529,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangWhile whileNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
-        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, whileNode) || 
+        if (CompletionVisitorUtil.isWithinConditionContext(this.symbolEnv, this.lsContext, this, whileNode) ||
                 cpr.isCursorBeforeNode(whileNode.getPosition(), this, this.lsContext, whileNode, null)) {
             return;
         }
@@ -602,28 +594,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
         this.isCurrentNodeTransactionStack.pop();
         this.transactionCount--;
-
-        if (transactionNode.onRetryBody != null) {
-            this.blockOwnerStack.push(transactionNode.onRetryBody);
-            this.acceptNode(transactionNode.onRetryBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-        if (transactionNode.committedBody != null) {
-            this.blockOwnerStack.push(transactionNode.committedBody);
-            this.acceptNode(transactionNode.committedBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-        if (transactionNode.abortedBody != null) {
-            this.blockOwnerStack.push(transactionNode.abortedBody);
-            this.acceptNode(transactionNode.abortedBody, transactionEnv);
-            this.blockOwnerStack.pop();
-        }
-    }
-
-    @Override
-    public void visit(BLangAbort abortNode) {
-        CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(abortNode.getPosition(), this, this.lsContext, abortNode, null);
     }
 
     @Override
@@ -759,6 +729,18 @@ public class TreeVisitor extends LSNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRollback rollbackNode) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(rollbackNode.getPosition(), this, this.lsContext, rollbackNode);
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+        CursorPositionResolvers.getResolverByClass(this.cursorPositionResolver)
+                .isCursorBeforeNode(commitExpr.getPosition(), this, this.lsContext, commitExpr);
+    }
+
+    @Override
     public void visit(BLangMatchExpression bLangMatchExpression) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangMatchExpression.getPosition(), this, this.lsContext, bLangMatchExpression,
@@ -889,7 +871,7 @@ public class TreeVisitor extends LSNodeVisitor {
         int eLine = pos.eLine;
         int sCol = pos.sCol;
         int eCol = pos.eCol;
-        
+
         if ((sLine < cLine && eLine > cLine) || (sLine == cLine && eLine == cLine && cCol >= sCol && cCol <= eCol)) {
             throw new CompletionContextNotSupportedException("Completion within Literals are not Supported");
         }
@@ -921,13 +903,22 @@ public class TreeVisitor extends LSNodeVisitor {
         this.acceptNode(doClause.body, symbolEnv);
     }
 
+    @Override
+    public void visit(BLangQueryExpr queryExpr) {
+        CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
+        if (cpr.isCursorBeforeNode(queryExpr.getPosition(), this, this.lsContext, queryExpr)) {
+            return;
+        }
+        queryExpr.queryClauseList.forEach(node -> this.acceptNode(node, this.symbolEnv));
+    }
+
     ///////////////////////////////////
     /////   Other Public Methods  /////
     ///////////////////////////////////
 
     /**
      * Resolve all visible symbols.
-     * 
+     *
      * @param symbolEnv symbol environment
      * @return all visible symbols for current scope
      */
@@ -937,7 +928,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     /**
      * Populate the symbols.
-     * 
+     *
      * @param symbolEntries     symbol entries
      * @param symbolEnv         Symbol environment
      */
@@ -1028,7 +1019,7 @@ public class TreeVisitor extends LSNodeVisitor {
     private void populateSymbolEnvNode(BLangNode node) {
         lsContext.put(CompletionKeys.SCOPE_NODE_KEY, node);
     }
-    
+
     private void visitMatchPatternClause(BLangNode patternNode, BLangBlockStmt body) {
         if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(patternNode.getPosition(), this, this.lsContext, patternNode, null)) {

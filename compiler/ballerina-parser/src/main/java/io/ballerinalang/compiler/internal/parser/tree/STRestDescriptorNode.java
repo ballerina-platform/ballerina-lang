@@ -63,7 +63,32 @@ public class STRestDescriptorNode extends STNode {
                 diagnostics);
     }
 
+    public STRestDescriptorNode modify(
+            STNode typeDescriptor,
+            STNode ellipsisToken) {
+        if (checkForReferenceEquality(
+                typeDescriptor,
+                ellipsisToken)) {
+            return this;
+        }
+
+        return new STRestDescriptorNode(
+                typeDescriptor,
+                ellipsisToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

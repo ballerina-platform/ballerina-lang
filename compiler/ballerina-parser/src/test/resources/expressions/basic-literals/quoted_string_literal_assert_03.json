@@ -1,4 +1,15 @@
 {
   "kind": "STRING_LITERAL",
-  "value": "hello \\u{K} world \\h how are you?"
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "STRING_LITERAL",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_STRING_NUMERIC_ESCAPE_SEQUENCE",
+        "ERROR_INVALID_ESCAPE_SEQUENCE"
+      ],
+      "value": "hello \\u{K} world \\h how are you?"
+    }
+  ]
 }

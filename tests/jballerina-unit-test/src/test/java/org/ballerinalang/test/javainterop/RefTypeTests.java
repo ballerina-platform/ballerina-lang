@@ -316,7 +316,7 @@ public class RefTypeTests {
         Object returns = BRunUtil.invokeAndGetJVMResult(result, "testThrowJavaException2");
         Assert.assertTrue(returns instanceof ErrorValue);
         ErrorValue error = (ErrorValue) returns;
-        Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException \n" +
+        Assert.assertEquals(error.getPrintableStackTrace(), "java.util.EmptyStackException\n" +
                 "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
                 "392)");

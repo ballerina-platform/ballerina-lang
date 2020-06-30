@@ -41,22 +41,31 @@ import ballerina/lang.'xml;
 // - mapping
 // - table
 
-function testReadonlyType() {
-    testSimpleAssignmentForSelectivelyImmutableTypes();
+function testImmutableTypes() {
+    testSimpleInitializationForSelectivelyImmutableTypes();
     testRuntimeIsTypeForSelectivelyImmutableBasicTypes();
     testRuntimeIsTypeNegativeForSelectivelyImmutableTypes();
     testImmutabilityOfNestedXmlWithAttributes();
     testImmutableTypedRecordFields();
+    testImmutabilityForSelfReferencingType();
+    testImmutableRecordWithDefaultValues();
+    testImmutableObjects();
+    testImmutableJson();
+    testImmutableAnydata();
+    testImmutableAny();
+    testImmutableUnion();
+    testDefaultValuesOfFields();
+    testUnionReadOnlyFields();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableTypes() {
-    testSimpleAssignmentForSelectivelyImmutableXmlTypes();
-    testSimpleAssignmentForSelectivelyImmutableListTypes();
-    testSimpleAssignmentForSelectivelyImmutableMappingTypes();
-    testSimpleAssignmentForSelectivelyImmutableTableTypes();
+function testSimpleInitializationForSelectivelyImmutableTypes() {
+    testSimpleInitializationForSelectivelyImmutableXmlTypes();
+    testSimpleInitializationForSelectivelyImmutableListTypes();
+    testSimpleInitializationForSelectivelyImmutableMappingTypes();
+    testSimpleInitializationForSelectivelyImmutableTableTypes();
 }
 
-function testSimpleAssignmentForSelectivelyImmutableXmlTypes() {
+function testSimpleInitializationForSelectivelyImmutableXmlTypes() {
     'xml:Comment & readonly a = xml `<!--I'm a comment-->`;
     readonly r1 = a;
     assertTrue(r1 is 'xml:Comment & readonly);
@@ -89,7 +98,7 @@ type Details record {|
     int id;
 |};
 
-function testSimpleAssignmentForSelectivelyImmutableListTypes() {
+function testSimpleInitializationForSelectivelyImmutableListTypes() {
     int[] & readonly a = [1, 2];
     readonly r1 = a;
     assertTrue(r1 is int[] & readonly);
@@ -149,9 +158,20 @@ function testSimpleAssignmentForSelectivelyImmutableListTypes() {
     assertEquality(<Employee> {details, department: "finance"}, e);
     assertTrue(e.isReadOnly());
     assertTrue(e.details.isReadOnly());
+
+    (int[] & readonly)|string[] arr = [1, 2];
+    assertEquality(<int[]> [1, 2], arr);
+    assertTrue(arr is int[] & readonly);
+    assertTrue(arr.isReadOnly());
+
+    arr = ["hello"];
+    assertEquality(<string[]> ["hello"], arr);
+    assertTrue(arr is string[]);
+    assertFalse(arr is string[] & readonly);
+    assertFalse(arr.isReadOnly());
 }
 
-function testSimpleAssignmentForSelectivelyImmutableMappingTypes() {
+function testSimpleInitializationForSelectivelyImmutableMappingTypes() {
     boolean bool = false;
 
     map<boolean> & readonly a = {
@@ -215,7 +235,7 @@ type Identifier record {|
     int id;
 |};
 
-function testSimpleAssignmentForSelectivelyImmutableTableTypes() {
+function testSimpleInitializationForSelectivelyImmutableTableTypes() {
     table<map<string>> & readonly a = table [
         {x: "x", y: "y"},
         {z: "z"}
@@ -422,7 +442,33 @@ function testRuntimeIsTypeNegativeForSelectivelyImmutableTypes() {
     assertFalse(an9 is table<Identifier> & readonly);
     assertFalse(an9 is readonly);
     assertFalse(a9.isReadOnly());
+
+    MyMutableController mmc = new (new MyOwner(), new MyMutablePrinter());
+    Controller k = mmc;
+    any an10 = k;
+    assertTrue(an10 is Controller);
+    assertFalse(an10 is Controller & readonly);
+    assertTrue(k.owner is Owner & readonly);
+    assertFalse(k.printer is Printer & readonly);
 }
+
+type MyMutableController object {
+    Owner owner;
+    Printer printer;
+
+    function init(Owner & readonly owner, Printer printer) {
+        self.owner = owner;
+        self.printer = printer;
+    }
+};
+
+type MyMutablePrinter object {
+    int id = 1234;
+
+    function getPrintString(string s) returns string {
+        return string `ID[${self.id}]: ${s}`;
+    }
+};
 
 function testImmutabilityOfNestedXmlWithAttributes() {
     xml x1 = xml `<book status="available" count="5">Book One<name lang="english">Great Expectations</name><!-- This is a classic--><author gender="male"><?action concat?><firstName index="C">Charles</firstName><lastName>Dickens</lastName></author></book>`;
@@ -568,7 +614,321 @@ function testImmutableTypedRecordFields() {
     assertEquality(immBaz, val);
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type Qux record {|
+    Qux a?;
+    Qux? b;
+    int c;
+    Qux|boolean...;
+|};
+
+function testImmutabilityForSelfReferencingType() {
+    Qux & readonly q1 = {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Qux & readonly);
+    assertTrue(ad1.isReadOnly());
+    Qux qVal = <Qux & readonly> a1;
+    assertEquality(<Qux> {b: {c: 2, "f": true, b: ()}, c: 1, "d": true, "e": {c: 3, b: ()}}, qVal);
+    assertTrue(qVal?.a is ());
+    assertTrue(qVal.b is Qux & readonly);
+    assertTrue(qVal["d"] is boolean & readonly);
+    assertTrue(qVal["e"] is Qux & readonly);
+
+    Qux q2 = {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Qux);
+    assertFalse(a2 is Qux & readonly);
+    assertFalse(ad2.isReadOnly());
+    qVal = <Qux> a2;
+    assertEquality(<Qux> {a: q1, b: (), c: 23, "d": true, "e": {c: 4, b: ()}}, qVal);
+    assertTrue(qVal?.a is Qux & readonly);
+
+    Qux aQux =  <Qux> qVal?.a;
+    assertTrue(aQux.isReadOnly());
+
+    assertTrue(qVal.b is ());
+    assertTrue(qVal["e"] is Qux);
+    assertFalse(qVal["e"] is Qux & readonly);
+    Qux eQux =  <Qux> qVal["e"];
+    assertFalse(eQux.isReadOnly());
+}
+
+type Quux record {|
+    string name = "xyz";
+    int id;
+|};
+
+function testImmutableRecordWithDefaultValues() {
+    Quux & readonly q1 = {id: 1};
+    any a1 = q1;
+    anydata ad1 = q1;
+
+    assertTrue(a1 is Quux);
+    assertTrue(a1 is Quux & readonly);
+    assertTrue(ad1.isReadOnly());
+    assertEquality(q1.name, "xyz");
+    assertEquality(q1.id, 1);
+
+    Quux & readonly q2 = {id: 2, name: "abc"};
+    any a2 = q2;
+    anydata ad2 = q2;
+
+    assertTrue(a2 is Quux);
+    assertTrue(a2 is Quux & readonly);
+    assertTrue(ad2.isReadOnly());
+    assertEquality(q2.name, "abc");
+    assertEquality(q2.id, 2);
+}
+
+type MyOwner object {
+    readonly int id = 238475;
+
+    function getId() returns int {
+        return self.id;
+    }
+};
+
+type MyController object {
+    readonly Owner owner;
+    readonly Printer printer;
+
+    function init(Owner & readonly ow, Printer pr) {
+        self.owner = ow;
+        self.printer = <Printer & readonly> pr;
+    }
+};
+
+type Printer abstract object {
+    function getPrintString(string s) returns string;
+};
+
+type Controller abstract object {
+    Owner owner;
+    Printer printer;
+};
+
+type Owner abstract object {
+    function getId() returns int;
+};
+
+type MyPrinter object {
+    readonly int id;
+
+    function init(int id) {
+        self.id = id;
+    }
+
+    function getPrintString(string s) returns string {
+        return string `ID[${self.id}]: ${s}`;
+    }
+};
+
+function testImmutableObjects() {
+    Controller & readonly cr = new MyController(new MyOwner(), new MyPrinter(1234));
+
+    any x = cr;
+    assertTrue(x is Controller);
+    assertTrue(x is MyController);
+    assertTrue(x is Controller & readonly);
+
+    Controller cr2 = cr;
+    assertTrue(cr2.owner is Owner & readonly);
+    assertTrue(cr2.owner is MyOwner);
+    assertTrue(cr2.printer is Printer & readonly);
+    assertTrue(cr2.printer is MyPrinter);
+    assertEquality(238475, cr.owner.getId());
+    assertEquality("ID[1234]: str to print", cr.printer.getPrintString("str to print"));
+}
+
+function testImmutableJson() {
+    json & readonly j = {a: 1, b: "hello"};
+    anydata a = j;
+    any an = j;
+    assertTrue(an is json & readonly);
+    assertTrue(an is map<json> & readonly);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(<map<json>> {a: 1, b: "hello"}, a);
+
+    json & readonly k = 1;
+    a = k;
+    an = k;
+    assertTrue(an is json & readonly);
+    assertTrue(an is int);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(1, a);
+}
+
+function testImmutableAnydata() {
+    anydata & readonly j = {a: 1, b: "hello"};
+    anydata a = j;
+    any an = j;
+    assertTrue(an is anydata & readonly);
+    assertTrue(an is map<anydata> & readonly);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(<map<anydata>> {a: 1, b: "hello"}, a);
+
+    anydata & readonly k = 12.0d;
+    a = k;
+    an = k;
+    assertTrue(an is anydata & readonly);
+    assertTrue(an is decimal);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(12.0d, a);
+}
+
+function testImmutableAny() {
+    any & readonly j = {a: 1, b: "hello"};
+    any an = j;
+    assertTrue(an is any & readonly);
+    assertTrue(an is map<any> & readonly);
+    assertTrue(an is readonly);
+    map<any> anyMap = <map<any>> an;
+    assertEquality(anyMap["a"], 1);
+    assertEquality(anyMap["b"], "hello");
+
+    any & readonly k = "string value";
+    an = k;
+    assertTrue(an is any & readonly);
+    assertTrue(an is string);
+    assertTrue(an is readonly);
+    assertEquality("string value", an);
+}
+
+function testImmutableUnion() {
+    (json|xml|future<int>) & readonly j = {a: 1, b: "hello"};
+    any an = j;
+    assertTrue(an is json & readonly);
+    assertTrue(an is map<json> & readonly);
+    assertTrue(an is readonly);
+    anydata a = <anydata> j;
+    assertTrue(a.isReadOnly());
+    assertEquality(<map<json>> {a: 1, b: "hello"}, a);
+
+    (float|string[]) & readonly k = 12.0;
+    a = k;
+    an = k;
+    assertTrue(an is float);
+    assertTrue(an is readonly);
+    assertTrue(a.isReadOnly());
+    assertEquality(12.0f, an);
+}
+
+type Versioning record {|
+    string pattern = "v{major}.{minor}";
+    boolean allow = true;
+    boolean matchMajor = false;
+|};
+
+type Quota record {
+    int initial = 10;
+    float factor = 2.0;
+};
+
+type IdentifierRec record {
+    string id = "record";
+};
+
+type IdentifierAbstractObj abstract object {
+    function getId() returns string;
+};
+
+type IdentifierObj object {
+    readonly string id;
+
+    function init() {
+        self.id = "object";
+    }
+
+    function getId() returns string {
+        return self.id;
+    }
+};
+
+type ConfigRec record {
+    Versioning versioning;
+    Quota quota;
+    IdentifierRec rec?;
+    IdentifierAbstractObj obj;
+};
+
+function testDefaultValuesOfFields() {
+    ConfigRec & readonly cr = {versioning: {}, quota: {initial: 5}, rec: {}, obj: new IdentifierObj()};
+
+    any a = cr;
+    assertTrue(a is ConfigRec);
+    assertTrue(a is ConfigRec & readonly);
+
+    ConfigRec cr2 = cr;
+
+    assertTrue(cr2.versioning is Versioning & readonly);
+    assertTrue(cr2.versioning.isReadOnly());
+    assertEquality(<Versioning> {pattern: "v{major}.{minor}", allow: true, matchMajor: false}, cr2.versioning);
+
+    assertTrue(cr2.quota is Quota & readonly);
+    assertTrue(cr2.quota.isReadOnly());
+    assertEquality(<Quota> {initial: 5, factor: 2.0}, cr2.quota);
+
+    assertTrue(cr2?.rec is IdentifierRec & readonly);
+    assertTrue(cr2?.rec.isReadOnly());
+    assertEquality(<IdentifierRec> {id: "record"}, cr2?.rec);
+
+    assertTrue(cr2.obj is IdentifierAbstractObj & readonly);
+    assertTrue(cr2.obj is IdentifierObj);
+    IdentifierObj obj = <IdentifierObj> cr2.obj;
+    assertEquality("object", obj.getId());
+}
+
+public type ConfigArray record {|
+    string identifier;
+    (Array & readonly)? config = ();
+    Array? keys = ();
+|};
+
+public type Array record {|
+    int count;
+    readonly string[] values;
+|};
+
+function testUnionReadOnlyFields() {
+    ConfigArray cArr = {
+        identifier: "MyConfig",
+        config: {
+            count: 2,
+            values: ["foo", "bar"]
+        },
+        keys: {
+            count: 1,
+            values: ["baz"]
+        }
+    };
+
+    record {
+        string identifier;
+        Array? config;
+        Array? keys;
+    } rec = cArr;
+
+    assertTrue(rec.config is readonly);
+    assertTrue(rec.config is Array & readonly);
+    assertEquality(<Array> {count: 2, values: ["foo", "bar"]}, rec.config);
+
+    assertFalse(rec.keys is readonly);
+    assertTrue(rec.keys is Array);
+    assertFalse(rec.keys is Array & readonly);
+    assertEquality(<Array> {count: 1, values: ["baz"]}, rec.keys);
+
+    Array arr = <Array> rec.keys;
+    assertTrue(arr.values.isReadOnly());
+}
+
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -589,5 +949,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

@@ -17,12 +17,12 @@
 type Foo1 client object {
     string name;
 
-    function __init(string name) {
+    function init(string name) {
         self.name = name;
     }
 
     remote function getName(string s = "") returns string {
-        return s == "" ? self.name : self.name + "->" + s;
+        return s == "" ? (self.name) : self.name + "->" + s;
     }
 };
 

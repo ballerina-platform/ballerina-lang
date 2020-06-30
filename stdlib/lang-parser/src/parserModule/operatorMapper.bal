@@ -17,7 +17,7 @@
 type OperatorMapper object {
     map<OperatorKind> operatorTypeMap = {};
 
-    public function __init() {
+    public function init() {
         self.fillOperatorMapper();
     }
 

@@ -56,7 +56,29 @@ public class STTypeReferenceTypeDescNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTypeReferenceTypeDescNode modify(
+            STNode typeRef) {
+        if (checkForReferenceEquality(
+                typeRef)) {
+            return this;
+        }
+
+        return new STTypeReferenceTypeDescNode(
+                typeRef,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeReferenceTypeDescNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

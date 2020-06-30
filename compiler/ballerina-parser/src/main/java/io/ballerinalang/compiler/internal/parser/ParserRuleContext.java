@@ -78,8 +78,7 @@ public enum ParserRuleContext {
     OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY("object-func-or-field-without-visibility"),
     OBJECT_METHOD_START("object-method-start"),
     OBJECT_FIELD_RHS("object-field-rhs"),
-    OBJECT_TYPE_FIRST_QUALIFIER("object-type-qualifier"),
-    OBJECT_TYPE_SECOND_QUALIFIER("object-type-second-qualifier"),
+    OBJECT_TYPE_QUALIFIER("object-type-qualifier"),
     OBJECT_TYPE_DESCRIPTOR_START("object-type-desc-start"),
     IMPORT_DECL("import-decl"),
     IMPORT_ORG_OR_MODULE_NAME("import-org-or-module-name"),
@@ -213,6 +212,13 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY("func-type-desc-rhs-or-anon-func-body"),
     STMT_LEVEL_AMBIGUOUS_FUNC_TYPE_DESC_RHS("stmt-level-func-type-desc-rhs"),
     RECORD_FIELD_NAME_OR_TYPE_NAME("record-field-name-or-type-name"),
+    MATCH_BODY("match-body"),
+    MATCH_PATTERN("match-pattern"),
+    MATCH_PATTERN_START("match-pattern-start"),
+    MATCH_PATTERN_END("match-pattern-end"),
+    MATCH_PATTERN_RHS("match-pattern-rhs"),
+    OPTIONAL_MATCH_GUARD("optional-match-guard"),
+    JOIN_CLAUSE("join-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -249,6 +255,7 @@ public enum ParserRuleContext {
     RETRY_STMT("retry-stmt"),
     ROLLBACK_STMT("rollback-stmt"),
     AMBIGUOUS_STMT("ambiguous-stmt"),
+    MATCH_STMT("match-stmt"),
 
     // Keywords
     RETURNS_KEYWORD("returns"),
@@ -318,6 +325,13 @@ public enum ParserRuleContext {
     BASE16_KEYWORD("base16"),
     BASE64_KEYWORD("base64"),
     READONLY_KEYWORD("readonly"),
+    MATCH_KEYWORD("match"),
+    DISTINCT_KEYWORD("distinct"),
+    CONFLICT_KEYWORD("conflict"),
+    LIMIT_KEYWORD("limit"),
+    JOIN_KEYWORD("join"),
+    OUTER_KEYWORD("outer"),
+    VAR_KEYWORD("var"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -361,6 +375,7 @@ public enum ParserRuleContext {
     SLASH_LT_TOKEN("/<"),
     DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN("/**/<"),
     SLASH_ASTERISK_TOKEN("/*"),
+    RIGHT_DOUBLE_ARROW("=>"),
 
     // Other terminals
     FUNC_NAME("function-name"),
@@ -444,6 +459,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER("xml-atomic_name-identifier"),
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
+    VARIABLE_REF_RHS("variable-ref-rhs"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

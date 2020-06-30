@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.connector.NonBlockingCallback;
 import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
 import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +42,8 @@ public class CancelWebSocketUpgrade {
             WebSocketHandshaker webSocketHandshaker =
                     (WebSocketHandshaker) connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER);
             if (webSocketHandshaker == null) {
-                callback.notifyFailure(new WebSocketException(WebSocketConstants.ErrorCode.WsInvalidHandshakeError,
-                                              "Not a WebSocket upgrade request. Cannot cancel the request"));
+                WebSocketUtil.setNotifyFailure("Not a WebSocket upgrade request. " +
+                        "Cannot cancel the request", callback);
                 return null;
             }
             ChannelFuture future = webSocketHandshaker.cancelHandshake((int) statusCode, reason.getValue());

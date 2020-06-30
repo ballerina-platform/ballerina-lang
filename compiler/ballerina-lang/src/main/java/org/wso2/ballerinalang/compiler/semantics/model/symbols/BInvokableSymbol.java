@@ -22,9 +22,11 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,8 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public BVarSymbol restParam;
     public BType retType;
     public Map<Integer, TaintRecord> taintTable;
+    public List<BLangAnnotationAttachment> annAttachments;
+    public Map<String, BType> paramDefaultValTypes;
 
     // This field is only applicable for functions at the moment.
     public BVarSymbol receiverSymbol;
@@ -48,6 +52,7 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
     public String enclForkName;
     public String source;
     public SchedulerPolicy schedulerPolicy = SchedulerPolicy.PARENT;
+
 
     public Set<BVarSymbol> dependentGlobalVars;
 
@@ -60,7 +65,9 @@ public class BInvokableSymbol extends BVarSymbol implements InvokableSymbol {
         super(flags, name, pkgID, type, owner);
         this.tag = tag;
         this.params = new ArrayList<>();
+        this.annAttachments = new ArrayList<>();
         this.dependentGlobalVars = new HashSet<>();
+        this.paramDefaultValTypes = new HashMap<>();
     }
 
     @Override

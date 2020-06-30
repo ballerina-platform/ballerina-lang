@@ -18,6 +18,8 @@
 package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.values.api.BArray;
+import org.ballerinalang.jvm.values.api.BValueCreator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,8 +45,11 @@ public class TransactionLocalContext {
     private static final TransactionResourceManager transactionResourceManager =
             TransactionResourceManager.getInstance();
     private boolean isResourceParticipant;
+    private Object rollbackOnlyError;
+    private Object transactionData;
+    private BArray transactionId;
 
-    private TransactionLocalContext(String globalTransactionId, String url, String protocol) {
+    private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
         this.url = url;
         this.protocol = protocol;
@@ -52,19 +57,23 @@ public class TransactionLocalContext {
         this.allowedTransactionRetryCounts = new HashMap<>();
         this.currentTransactionRetryCounts = new HashMap<>();
         this.transactionContextStore = new HashMap<>();
-        transactionBlockIdStack = new Stack<>();
-        transactionFailure = new Stack<>();
+        this.transactionBlockIdStack = new Stack<>();
+        this.transactionFailure = new Stack<>();
+        this.rollbackOnlyError = null;
+        this.transactionId = BValueCreator.createArrayValue(globalTransactionId.getBytes());
+        transactionResourceManager.transactionInfoMap.put(transactionId, infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
-                                                                               String url, String protocol) {
-        TransactionLocalContext localContext = new TransactionLocalContext(globalTransactionId, url, protocol);
+            String url, String protocol, Object infoRecord) {
+        TransactionLocalContext localContext =
+                new TransactionLocalContext(globalTransactionId, url, protocol, infoRecord);
         localContext.setResourceParticipant(true);
         return localContext;
     }
 
     public static TransactionLocalContext create(String globalTransactionId, String url, String protocol) {
-        return new TransactionLocalContext(globalTransactionId, url, protocol);
+        return new TransactionLocalContext(globalTransactionId, url, protocol, null);
     }
 
     public String getGlobalTransactionId() {
@@ -130,9 +139,29 @@ public class TransactionLocalContext {
     }
 
 
-    public void rollbackTransaction(String transactionBlockId) {
+    public void rollbackTransaction(Strand strand, String transactionBlockId, Object error) {
         transactionContextStore.clear();
-        transactionResourceManager.rollbackTransaction(globalTransactionId, transactionBlockId);
+        transactionResourceManager.rollbackTransaction(strand, globalTransactionId, transactionBlockId, error);
+    }
+
+    public void setRollbackOnlyError(Object error) {
+        rollbackOnlyError = error;
+    }
+
+    public Object getRollbackOnly() {
+        return rollbackOnlyError;
+    }
+
+    public void setTransactionData(Object data) {
+        transactionData = data;
+    }
+
+    public Object getTransactionData() {
+        return transactionData;
+    }
+
+    public void removeTransactionInfo() {
+        transactionResourceManager.transactionInfoMap.remove(transactionId);
     }
 
     public void notifyLocalParticipantFailure() {
@@ -196,6 +225,10 @@ public class TransactionLocalContext {
 
     public void setResourceParticipant(boolean resourceParticipant) {
         isResourceParticipant = resourceParticipant;
+    }
+
+    public Object getInfoRecord() {
+        return transactionResourceManager.transactionInfoMap.get(transactionId);
     }
 
     /**

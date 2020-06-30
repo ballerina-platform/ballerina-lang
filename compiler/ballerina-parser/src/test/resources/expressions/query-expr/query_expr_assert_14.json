@@ -1,57 +1,12 @@
 {
-  "kind": "QUERY_EXPRESSION",
+  "kind": "INT_TYPE_DESC",
   "children": [
     {
-      "kind": "QUERY_PIPELINE",
-      "children": [
+      "kind": "INT_KEYWORD",
+      "trailingMinutiae": [
         {
-          "kind": "FROM_CLAUSE",
-          "children": [
-            {
-              "kind": "FROM_KEYWORD",
-              "isMissing": true
-            },
-            {
-              "kind": "TYPED_BINDING_PATTERN",
-              "children": [
-                {
-                  "kind": "INT_KEYWORD"
-                },
-                {
-                  "kind": "CAPTURE_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    }
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "IN_KEYWORD"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
-            }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
-      "kind": "SELECT_CLAUSE",
-      "children": [
-        {
-          "kind": "SELECT_KEYWORD"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     }

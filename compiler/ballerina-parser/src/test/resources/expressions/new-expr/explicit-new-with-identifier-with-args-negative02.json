@@ -1,15 +1,28 @@
 {
   "kind": "EXPLICIT_NEW_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "NEW_KEYWORD"
+      "kind": "NEW_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        }
+      ]
     },
     {
       "kind": "PARENTHESIZED_ARG_LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "OPEN_PAREN_TOKEN"
@@ -22,7 +35,12 @@
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "1"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "1"
+                    }
+                  ]
                 }
               ]
             },
@@ -30,11 +48,22 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "COMMA_TOKEN"
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
                 }
               ]
             }
@@ -42,7 +71,11 @@
         },
         {
           "kind": "CLOSE_PAREN_TOKEN",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_CLOSE_PAREN_TOKEN"
+          ]
         }
       ]
     }

@@ -27,7 +27,7 @@ public type StreamingProducer client object {
     # + clientId - A unique identifier of the client
     # + clusterId - The unique identifier of the cluster configured in the NATS server
     # + streamingConfig - The configuration related to the NATS streaming connectivity
-    public function __init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
+    public function init(Connection connection, public string? clientId = (), public string clusterId = "test-cluster",
     public StreamingConfig? streamingConfig = ()) {
         self.conn = connection;
         streamingProducerInit(self, connection, clusterId, clientId, streamingConfig);
@@ -47,7 +47,7 @@ public type StreamingProducer client object {
     public remote function publish(string subject,@untainted Content data) returns string|Error {
         Connection? natsConnection = self.conn;
         if (natsConnection is ()) {
-            return Error( message = "NATS Streaming Client has been closed.");
+            return NatsError("NATS Streaming Client has been closed.");
         } else {
             string|byte[]|error converted = convertData(data);
             if (converted is error) {

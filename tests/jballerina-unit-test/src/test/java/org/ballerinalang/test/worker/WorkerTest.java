@@ -130,7 +130,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n\tat workers:$lambda$";
+        String expected = "error: error: err from panic\n\tat workers:$lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -143,7 +143,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n" + "\tat " +
+        String expected = "error: error: err from panic\n" + "\tat " +
                                     "workers:sendToDefaultWithPanicBeforeSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
@@ -157,7 +157,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n" + "\tat workers:$lambda$";
+        String expected = "error: error: err from panic\n" + "\tat workers:$lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -170,7 +170,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n" +
+        String expected = "error: error: err from panic\n" +
                                 "\tat workers:sendToDefaultWithPanicAfterSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
@@ -184,7 +184,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expectedResult = "error: error: err from panic \n" +
+        String expectedResult = "error: error: err from panic\n" +
                 "\tat workers:receiveFromDefaultWithPanicAfterSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expectedResult),
                 actualException.getMessage());
@@ -199,7 +199,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n" +
+        String expected = "error: error: err from panic\n" +
                 "\tat workers:receiveFromDefaultWithPanicBeforeSendInDefault(workers.bal:";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
@@ -213,7 +213,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expected = "error: error: err from panic \n" + "\tat workers:$lambda$";
+        String expected = "error: error: err from panic\n" + "\tat workers:$lambda$";
         Assert.assertTrue(actualException.getMessage().contains(expected), actualException.getMessage());
     }
 
@@ -226,7 +226,7 @@ public class WorkerTest {
             actualException = e;
         }
         Assert.assertNotNull(actualException);
-        String expectedMessage = "error: error: err from panic \n\tat";
+        String expectedMessage = "error: error: err from panic\n\tat";
         String actualMessage = actualException.getMessage();
         Assert.assertTrue(actualMessage.contains(expectedMessage), actualMessage);
     }

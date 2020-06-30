@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.QueryExpressionNode;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class BLangQueryExpr extends BLangExpression implements QueryExpressionNode {
     public List<BLangNode> queryClauseList = new ArrayList<>();
-    public List<BLangIdentifier> fieldNameIdentifierList = new ArrayList<>();
+    public List<IdentifierNode> fieldNameIdentifierList = new ArrayList<>();
     public boolean isStream = false;
     public boolean isTable = false;
 
@@ -82,12 +81,12 @@ public class BLangQueryExpr extends BLangExpression implements QueryExpressionNo
 
     @Override
     public void addFieldNameIdentifier(IdentifierNode fieldNameIdentifier) {
-        fieldNameIdentifierList.add((BLangIdentifier) fieldNameIdentifier);
+        fieldNameIdentifierList.add(fieldNameIdentifier);
     }
 
     @Override
     public List<IdentifierNode> getFieldNameIdentifierList() {
-        return getFieldNameIdentifierList();
+        return fieldNameIdentifierList;
     }
 
     @Override

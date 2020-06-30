@@ -33,7 +33,7 @@ public type Listener object {
     # + prefetchCount - Maximum number of messages that the server will deliver. Give the value as 0 if unlimited.
     #                   Unless explicitly given, this value is 10 by default.
     # + prefetchSize - Maximum amount of content (measured in octets) that the server will deliver and 0 if unlimited
-    public function __init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
+    public function init(ConnectionConfiguration|Connection connectionOrConnectionConfig, int? prefetchCount = (),
                                     int? prefetchSize = ()) {
         self.amqpChannel = new Channel(connectionOrConnectionConfig);
         var result = self.setQosSettings(prefetchCount, prefetchSize);
@@ -56,7 +56,7 @@ public type Listener object {
     #
     # + return - `()` or else a `rabbitmq:Error` upon failure to start
     public function __start() returns error? {
-        return start(self);
+        return 'start(self);
     }
 
     # Stops consuming messages and detaches the service from the `rabbitmq:Listener` endpoint.
@@ -122,7 +122,7 @@ function registerListener(Listener lis, service serviceType) returns Error? =
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;
 
-function start(Listener lis) returns Error? =
+function 'start(Listener lis) returns Error? =
 @java:Method {
     class: "org.ballerinalang.messaging.rabbitmq.util.ListenerUtils"
 } external;

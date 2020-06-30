@@ -17,7 +17,18 @@
           "kind": "SINGLETON_TYPE_DESC",
           "children": [
             {
-              "kind": "TRUE_KEYWORD"
+              "kind": "TRUE_KEYWORD",
+              "children": [
+                {
+                  "kind": "TRUE_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },

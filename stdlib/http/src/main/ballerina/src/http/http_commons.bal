@@ -17,6 +17,9 @@
 import ballerina/java;
 import ballerina/mime;
 import ballerina/io;
+import ballerina/observe;
+
+boolean observabilityEnabled = observe:isObservabilityEnabled();
 
 # Represents HTTP/1.0 protocol
 const string HTTP_1_0 = "1.0";
@@ -39,9 +42,6 @@ const string HTTP_SCHEME = "http://";
 
 # Represents https protocol scheme
 const string HTTPS_SCHEME = "https://";
-
-# Constant for the http error code
-public const string HTTP_ERROR_CODE = "{ballerina/http}HTTPError";
 
 # Constant for the default listener endpoint timeout
 const int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
@@ -120,6 +120,21 @@ public const COMPRESSION_ALWAYS = "ALWAYS";
 
 # Never set accept-encoding/content-encoding header in outbound request/response.
 public const COMPRESSION_NEVER = "NEVER";
+
+# Constant for telemetry tag http.url
+const HTTP_URL = "http.url";
+
+# Constant for telemetry tag http.method
+const HTTP_METHOD = "http.method";
+
+# Constant for telemetry tag http.status_code_group
+const HTTP_STATUS_CODE_GROUP = "http.status_code_group";
+
+# Constant for telemetry tag http.base_url
+const HTTP_BASE_URL = "http.base_url";
+
+# Constant for status code range suffix
+const STATUS_CODE_GROUP_SUFFIX = "xx";
 
 # The types of messages that are accepted by HTTP `client` when sending out the outbound request.
 public type RequestMessage Request|string|xml|json|byte[]|io:ReadableByteChannel|mime:Entity[]|();
@@ -359,9 +374,7 @@ function populateErrorCodeIndex (int[] errorCode) returns boolean[] {
 }
 
 function getError() returns UnsupportedActionError {
-    string message = "Unsupported connector action received.";
-    UnsupportedActionError unsupportedActionError = error(UNSUPPORTED_ACTION, message = message);
-    return unsupportedActionError;
+    return UnsupportedActionError("Unsupported connector action received.");
 }
 
 function populateRequestFields (Request originalRequest, Request newRequest)  {
@@ -381,7 +394,7 @@ function populateMultipartRequest(Request inRequest) returns Request|ClientError
                 mime:Entity[]|error result = bodyPart.getBodyParts();
 
                 if (result is error) {
-                    return getGenericClientError(result.reason(), result);
+                    return GenericClientError(result.message(), result);
                 }
 
                 mime:Entity[] childParts = <mime:Entity[]> result;
@@ -423,14 +436,28 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
 }
 
 function getInvalidTypeError() returns ClientError {
-    string message = "Invalid return type found for the HTTP operation";
-    GenericClientError invalidTypeError = error(GENERIC_CLIENT_ERROR, message = message);
-    return invalidTypeError;
+    return GenericClientError("Invalid return type found for the HTTP operation");
 }
 
 function createErrorForNoPayload(mime:Error err) returns GenericClientError {
     string message = "No payload";
-    return getGenericClientError(message, err);
+    return GenericClientError(message, err);
+}
+
+function getStatusCodeRange(int statusCode) returns string {
+    return statusCode.toString().substring(0,1) + STATUS_CODE_GROUP_SUFFIX;
+}
+
+# Add observability information as tags
+#
+# + path - Resource path
+# + method - http method of the request
+# + statusCode - status code of the response
+function addObservabilityInformation(string path, string method, int statusCode, string url) {
+    error? err = observe:addTagToSpan(HTTP_URL, path);
+    err = observe:addTagToSpan(HTTP_METHOD, method);
+    err = observe:addTagToSpan(HTTP_STATUS_CODE_GROUP, getStatusCodeRange(statusCode));
+    err = observe:addTagToSpan(HTTP_BASE_URL, url);
 }
 
 //Resolve a given path against a given URI.

@@ -45,23 +45,23 @@ public class STToken extends STNode {
         this(kind, kind.stringValue().length(), leadingMinutiae, trailingMinutiae);
     }
 
-    STToken(SyntaxKind kind, int width, STNode leadingTrivia, STNode trailingTrivia) {
-        this(kind, width, leadingTrivia, trailingTrivia, Collections.emptyList());
+    STToken(SyntaxKind kind, int width, STNode leadingMinutiae, STNode trailingMinutiae) {
+        this(kind, width, leadingMinutiae, trailingMinutiae, Collections.emptyList());
     }
 
     STToken(SyntaxKind kind,
             int width,
-            STNode leadingTrivia,
-            STNode trailingTrivia,
+            STNode leadingMinutiae,
+            STNode trailingMinutiae,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
-        this.leadingMinutiae = leadingTrivia;
-        this.trailingMinutiae = trailingTrivia;
+        this.leadingMinutiae = leadingMinutiae;
+        this.trailingMinutiae = trailingMinutiae;
 
         this.width = width;
-        this.widthWithLeadingMinutiae = this.width + leadingTrivia.width;
-        this.widthWithTrailingMinutiae = this.width + trailingTrivia.width;
-        this.widthWithMinutiae = this.width + leadingTrivia.width + trailingTrivia.width;
+        this.widthWithLeadingMinutiae = this.width + leadingMinutiae.width;
+        this.widthWithTrailingMinutiae = this.width + trailingMinutiae.width;
+        this.widthWithMinutiae = this.width + leadingMinutiae.width + trailingMinutiae.width;
     }
 
     public String text() {
@@ -80,8 +80,20 @@ public class STToken extends STNode {
         return lookback;
     }
 
-    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STToken(kind, width, leadingMinutiae, trailingMinutiae, diagnostics);
+    public STToken firstToken() {
+        return this;
+    }
+
+    public STToken lastToken() {
+        return this;
+    }
+
+    public STToken modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(this.kind, this.width, this.leadingMinutiae, this.trailingMinutiae, diagnostics);
+    }
+
+    public STToken modifyWith(STNode leadingMinutiae, STNode trailingMinutiae) {
+        return new STToken(this.kind, this.width, leadingMinutiae, trailingMinutiae, this.diagnostics);
     }
 
     @Override
@@ -90,7 +102,24 @@ public class STToken extends STNode {
     }
 
     @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
+    }
+
+    @Override
     public String toString() {
         return leadingMinutiae + kind.stringValue() + trailingMinutiae;
+    }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
+        builder.append(kind.stringValue());
+        trailingMinutiae.writeTo(builder);
     }
 }

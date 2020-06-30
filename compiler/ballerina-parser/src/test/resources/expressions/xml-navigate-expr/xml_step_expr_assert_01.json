@@ -1,12 +1,17 @@
 {
-    "kind": "XML_STEP_EXPRESSION",
-    "children": [
+  "kind": "XML_STEP_EXPRESSION",
+  "children": [
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "a"
-        },
-        {
-            "kind": "SLASH_ASTERISK_TOKEN"
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a"
         }
-    ]
+      ]
+    },
+    {
+      "kind": "SLASH_ASTERISK_TOKEN"
+    }
+  ]
 }

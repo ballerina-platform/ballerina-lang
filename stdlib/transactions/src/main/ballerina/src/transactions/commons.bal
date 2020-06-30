@@ -153,11 +153,13 @@ function protocolCompatible(string coordinationType, UProtocol?[] participantPro
     return participantProtocolIsValid;
 }
 
+type JsonTypedesc typedesc<json>;
+
 function respondToBadRequest(http:Caller ep, string msg) {
     log:printError(msg);
     http:Response res = new;  res.statusCode = http:STATUS_BAD_REQUEST;
     RequestError requestError = {errorMessage:msg};
-    var resPayload = requestError.cloneWithType(typedesc<json>);
+    var resPayload = requestError.cloneWithType(JsonTypedesc);
     if (resPayload is json) {
         res.setJsonPayload(<@untainted json> resPayload);
         var resResult = ep->respond(res);
@@ -167,8 +169,7 @@ function respondToBadRequest(http:Caller ep, string msg) {
             return;
         }
     } else {
-        error payloadError = <error> resPayload;
-        panic payloadError;
+        panic resPayload;
     }
 }
 
@@ -195,8 +196,7 @@ function createTransactionContext(string coordinationType, string transactionBlo
     if (!isValidCoordinationType(coordinationType)) {
         string msg = "Invalid-Coordination-Type:" + coordinationType;
         log:printError(msg);
-        error err = error(msg);
-        return err;
+        return TransactionError(msg);
     } else {
         TwoPhaseCommitTransaction txn = new(system:uuid(), transactionBlockId, coordinationType = coordinationType);
         string txnId = txn.transactionId;
@@ -230,8 +230,7 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
     LocalProtocol participantProtocol = {name:PROTOCOL_DURABLE};
     var initiatedTxn = initiatedTransactions[transactionId];
     if (initiatedTxn is ()) {
-        error err = error("Transaction-Unknown. Invalid TID:" + transactionId);
-        return err;
+        return TransactionError("Transaction-Unknown. Invalid TID:" + transactionId);
     } else {
         if (isRegisteredParticipant(participantId, initiatedTxn.participants)) { // Already-Registered
             log:printDebug("Already-Registered. TID:" + transactionId + ",participant ID:" + participantId);
@@ -241,9 +240,8 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
             };
             return txnCtx;
         } else if (!protocolCompatible(initiatedTxn.coordinationType, [participantProtocol])) { // Invalid-Protocol
-            error err = error("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
+            return TransactionError("Invalid-Protocol in local participant. TID:" + transactionId + ",participant ID:" +
             participantId);
-            return err;
         } else {
             //Set initiator protocols
             TwoPhaseCommitTransaction participatedTxn = new(transactionId, transactionBlockId);
@@ -266,16 +264,14 @@ function registerLocalParticipantWithInitiator(string transactionId, string tran
 function removeParticipatedTransaction(string participatedTxnId) {
     var removed = trap participatedTransactions.remove(participatedTxnId);
     if (removed is error) {
-        error err = error("Removing participated transaction: " + participatedTxnId + " failed");
-        panic err;
+        panic TransactionError("Removing participated transaction: " + participatedTxnId + " failed");
     }
 }
 
 function removeInitiatedTransaction(string transactionId) {
     var removed = trap initiatedTransactions.remove(transactionId);
     if (removed is error) {
-        error err = error("Removing initiated transaction: " + transactionId + " failed");
-        panic err;
+        panic TransactionError("Removing initiated transaction: " + transactionId + " failed");
     }
 }
 
@@ -356,8 +352,7 @@ function registerParticipantWithRemoteInitiator(string transactionId, string tra
         log:printError(msg, result);
         // TODO : Fix me.
         //map data = { cause: err };
-        error err = error(msg);
-        return err;
+        return TransactionError(msg);
     } else {
         RemoteProtocol[] coordinatorProtocols = result.coordinatorProtocols;
         TwoPhaseCommitTransaction twopcTxn = new(transactionId, transactionBlockId);

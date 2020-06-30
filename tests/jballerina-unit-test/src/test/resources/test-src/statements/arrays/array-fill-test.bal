@@ -271,7 +271,7 @@ type Student object {
     public string name;
     public int age;
 
-    public function __init(string name, int age) {
+    public function init(string name, int age) {
         self.name = name;
         self.age = age;
     }
@@ -297,7 +297,7 @@ function testTwoDimensionalArrayFill() returns int[][] {
 type Obj object {
     int i;
 
-    function __init() {
+    function init() {
         self.i = 1;
     }
 };
@@ -323,7 +323,7 @@ function testFiniteTypeArrayFill() returns DEC[] {
     return ar;
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -336,5 +336,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

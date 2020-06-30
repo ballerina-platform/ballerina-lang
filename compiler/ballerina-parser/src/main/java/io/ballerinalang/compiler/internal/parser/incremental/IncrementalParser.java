@@ -63,7 +63,7 @@ public class IncrementalParser extends BallerinaParser {
     }
 
     private Predicate<SyntaxKind> isModelLevelDeclaration = kind -> kind == SyntaxKind.FUNCTION_DEFINITION ||
-            kind == SyntaxKind.TYPE_DEFINITION;
+            kind == SyntaxKind.TYPE_DEFINITION || kind == SyntaxKind.IMPORT_DECLARATION;
 
     private Predicate<SyntaxKind> isFunctionBody = kind ->
             kind == SyntaxKind.FUNCTION_BODY_BLOCK ||

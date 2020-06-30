@@ -41,14 +41,14 @@ function testArray() {
 
 const Foo = "Foo";
 const Bar = "Bar";
-type FooError error<Foo>;
+type FooError error;
 
 function testError1() {
     FooError f = error("Foo");
-    boolean f1 = f.reason();    // incompatible types: expected 'boolean', found 'Foo'
-    string f2 = f.reason(); // No error;
-    Foo x1 = f.reason(); // No error;
-    Bar x2 = f.reason(); // incompatible types: expected 'Bar', found 'Foo'
+    boolean f1 = f.message();    // incompatible types: expected 'boolean', found 'string'
+    string f2 = f.message(); // No error;
+    Foo x1 = f.message(); // incompatible types: expected 'Foo', found 'string'
+    Bar x2 = f.message(); // incompatible types: expected 'Bar', found 'Foo'
 }
 
 type BarDetail record {
@@ -56,12 +56,12 @@ type BarDetail record {
     error cause?;
     int id;
 };
-type BarError error<Bar, BarDetail>;
+type BarError error<BarDetail>;
 
 function testError2(){
-    BarError b = error(Bar, message = "test", id = 10);
+    BarError b = BarError(Bar, message = "test", id = 10);
     BarDetail b1 = b.detail(); // No error;
-    record {| anydata|error...; |} b2 = b.detail(); // No error;
+    record {| anydata|readonly...; |} b2 = b.detail(); // No error;
     boolean b3 = b.detail(); // incompatible types: expected 'boolean', found 'BarDetail'
 }
 

@@ -65,7 +65,6 @@ public class SyntaxDiagnostic extends Diagnostic {
 
     @Override
     public String message() {
-        // TODO Fix this
-        return nodeDiagnostic.diagnosticCode().toString();
+        return DiagnosticMessageHelper.getDiagnosticMessage(nodeDiagnostic.diagnosticCode(), nodeDiagnostic.args());
     }
 }

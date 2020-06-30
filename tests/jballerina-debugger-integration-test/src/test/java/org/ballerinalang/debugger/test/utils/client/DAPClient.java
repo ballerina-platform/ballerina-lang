@@ -37,7 +37,6 @@ public class DAPClient implements IDebugProtocolClient {
 
     @Override
     public void initialized() {
-        requestManager.initialized();
     }
 
     @Override

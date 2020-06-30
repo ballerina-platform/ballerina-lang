@@ -159,7 +159,7 @@ public class ExternMethods {
         try {
             return changeTimezone(timeRecord, zoneId);
         } catch (ErrorValue e) {
-            return e;
+            return TimeUtils.getTimeError(e.getMessage());
         }
     }
 
@@ -175,7 +175,7 @@ public class ExternMethods {
             return createDateTime((int) years, (int) months, (int) dates, (int) hours, (int) minutes, (int) seconds,
                                   (int) milliSeconds, zoneId);
         } catch (ErrorValue e) {
-            return e;
+            return TimeUtils.getTimeError(e.getMessage());
         }
     }
 
@@ -188,7 +188,7 @@ public class ExternMethods {
             }
             return parseTime(dateString, pattern);
         } catch (ErrorValue e) {
-            return e;
+            return TimeUtils.getTimeError(e.getMessage());
         }
     }
 }

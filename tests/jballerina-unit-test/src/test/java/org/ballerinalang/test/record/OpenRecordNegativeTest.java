@@ -67,7 +67,8 @@ public class OpenRecordNegativeTest {
                 " anydata...; |} j; anydata...; |}', found 'int'", 4, 9);
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
+            groups = { "brokenOnNewParser" })
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
 
@@ -106,9 +107,9 @@ public class OpenRecordNegativeTest {
         assertEquals(result.getErrorCount(), 5);
         int index = 0;
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 37,
-                      22);
+                      24);
         validateError(result, index++, "ambiguous type '(InMemoryModeConfig|ServerModeConfig|EmbeddedModeConfig)'", 38,
-                      22);
+                      24);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 72, 25);
         validateError(result, index++, "ambiguous type '(A|B|C)'", 73, 25);
         validateError(result, index, "ambiguous type '(A|B|C)'", 74, 25);

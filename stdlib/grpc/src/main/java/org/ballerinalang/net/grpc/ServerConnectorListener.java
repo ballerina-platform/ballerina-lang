@@ -145,16 +145,16 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     private ObserverContext getObserverContext(String method, InboundMessage inboundMessage) {
         ObserverContext observerContext = new ObserverContext();
-        observerContext.setConnectorName(SERVER_CONNECTOR_GRPC);
+        observerContext.setObjectName(SERVER_CONNECTOR_GRPC);
         observerContext.setResourceName(method);
 
         Map<String, String> httpHeaders = new HashMap<>();
         inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
         observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-        observerContext.addTag(TAG_KEY_HTTP_METHOD,
+        observerContext.addMainTag(TAG_KEY_HTTP_METHOD,
                 (String) inboundMessage.getProperty(HttpConstants.HTTP_REQUEST_METHOD.getValue()));
-        observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-        observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getPath());
+        observerContext.addMainTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+        observerContext.addMainTag(TAG_KEY_HTTP_URL, inboundMessage.getPath());
         return observerContext;
     }
 
@@ -254,9 +254,21 @@ public class ServerConnectorListener implements HttpConnectorListener {
             // Deframe the message. If a failure occurs, deframeFailed will be called.
             deframe(httpContent);
             if (endOfStream) {
+                Status status;
+                Throwable error = httpContent.getDecoderResult().cause();
+                if (error != null) {
+                    status = Status.fromCode(Status.Code.CANCELLED).withDescription(error.getMessage());
+                    listener.closed(status);
+                } else {
+                    LastHttpContent lastHttpContent = (LastHttpContent) httpContent;
+                    HttpHeaders trailingHeaders = lastHttpContent.trailingHeaders();
+                    if (!trailingHeaders.isEmpty()) {
+                        status = MessageUtils.statusFromTrailers(trailingHeaders);
+                        listener.closed(status);
+                    }
+                }
                 closeDeframer(false);
             }
         }
     }
-
 }

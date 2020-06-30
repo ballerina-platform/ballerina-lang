@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client cachingEP3 = new("http://localhost:9248", { cache: { enabled: true, isShared: true } });
+http:Client cachingEP3 = new("http://localhost:9248", { cache: { isShared: true } });
 int numberOfProxyHits = 0;
 
 @http:ServiceConfig {
@@ -36,7 +36,7 @@ service mustRevalidateProxyService on new http:Listener(9247) {
         } else {
             http:Response res = new;
             res.statusCode = 500;
-            res.setPayload(response.reason());
+            res.setPayload(<@untainted> response.message());
             checkpanic caller->respond(res);
         }
     }
