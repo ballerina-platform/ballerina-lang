@@ -412,7 +412,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.HASH:
 //                token = processDocumentationLine();
                 startMode(ParserMode.DOCUMENTATION);
-                token = getSyntaxToken(SyntaxKind.HASH_TOKEN);
+                token = getDocSyntaxToken(SyntaxKind.HASH_TOKEN);
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);

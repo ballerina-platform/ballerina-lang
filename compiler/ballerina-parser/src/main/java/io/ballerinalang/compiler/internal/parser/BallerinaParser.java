@@ -8259,10 +8259,12 @@ public class BallerinaParser extends AbstractParser {
     private boolean isEndOfDocumentation(SyntaxKind kind) {
         switch (kind) {
             case HASH_TOKEN:
-            case BACKTICK_CONTENT:
             case DOCUMENTATION_DESCRIPTION:
             case PARAMETER_NAME:
             case BACKTICK_TOKEN:
+            case DOUBLE_BACKTICK_TOKEN:
+            case TRIPPLE_BACKTICK_TOKEN:
+            case BACKTICK_CONTENT:
                 return false;
             default:
                 if (isDocumentReferenceType(kind)) {
@@ -8285,28 +8287,41 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseDocumentationLine(STNode hashToken) {
-        STNode documentationDescription = parseDocumentationDescription();
-        if (documentationDescription.toString().contains("\n")){
-            return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
-        }
+        STNode documentationElement;
         List<STNode> referenceDocumentationElements = new ArrayList<>();
-        referenceDocumentationElements.add(documentationDescription);
         while (true) {
             SyntaxKind nextTokenKind = peek().kind;
             if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                documentationDescription = parseDocumentationDescription();
-                referenceDocumentationElements.add(documentationDescription);
+                documentationElement = parseDocumentationDescription();
+                referenceDocumentationElements.add(documentationElement);
+                continue;
+            } else if (nextTokenKind == SyntaxKind.DOUBLE_BACKTICK_TOKEN || nextTokenKind == SyntaxKind.TRIPPLE_BACKTICK_TOKEN) {
+                documentationElement = parseDocumentationCodeReference();
+                referenceDocumentationElements.add(documentationElement);
                 continue;
             } else if (isDocumentReferenceType(nextTokenKind)) {
-                STNode documentationReference = parseDocumentationReference();
-                referenceDocumentationElements.add(documentationReference);
+                documentationElement = parseDocumentationReference();
+                referenceDocumentationElements.add(documentationElement);
                 continue;
             }
             break;
         }
 
-        STNode expr= STNodeFactory.createNodeList(referenceDocumentationElements);
-        return STNodeFactory.createReferenceDocumentationLineNode(hashToken, expr);
+        STNode documentationDescription;
+        switch (referenceDocumentationElements.size()) {
+            case 0:
+                documentationDescription = STNodeFactory.createEmptyNode();
+                return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
+            case 1:
+                documentationDescription = referenceDocumentationElements.get(0);
+                if (documentationDescription.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                    return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
+                }
+                // Else fall through
+            default:
+                STNode expr= STNodeFactory.createNodeList(referenceDocumentationElements);
+                return STNodeFactory.createReferenceDocumentationLineNode(hashToken, expr);
+        }
     }
 
     private boolean isDocumentReferenceType(SyntaxKind kind) {
@@ -8331,6 +8346,32 @@ public class BallerinaParser extends AbstractParser {
         STNode backtickContent = parseBacktickContent();
         STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
         return STNodeFactory.createDocumentationReferenceNode(refType, startBacktick, backtickContent, endBacktick);
+    }
+
+    private STNode parseDocumentationCodeReference() {
+        boolean isTrippleBacktick = peek().kind == SyntaxKind.TRIPPLE_BACKTICK_TOKEN;
+        STNode startHigherOrderBacktick = parseHigherOrderBacktickToken(ParserRuleContext.TEMPLATE_START,
+                isTrippleBacktick);
+        STNode backtickContent = parseBacktickContent();
+        STNode endHigherOrderBacktick = parseHigherOrderBacktickToken(ParserRuleContext.TEMPLATE_END,
+                isTrippleBacktick);
+        return STNodeFactory.createDocumentationCodeReferenceNode(startHigherOrderBacktick, backtickContent,
+                endHigherOrderBacktick);
+    }
+
+    private STNode parseHigherOrderBacktickToken(ParserRuleContext ctx, boolean isTrippleBacktick) {
+        SyntaxKind backtickKind = SyntaxKind.DOUBLE_BACKTICK_TOKEN;
+        if (isTrippleBacktick) {
+            backtickKind = SyntaxKind.TRIPPLE_BACKTICK_TOKEN;
+        }
+
+        STToken token = peek();
+        if (token.kind == backtickKind) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ctx);
+            return sol.recoveredNode;
+        }
     }
 
     private STNode parseParameterDocumentationLine(STNode hashToken) {
