@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationCodeReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,76 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationReferenceNode extends STDocumentationNode {
-    public final STNode referenceType;
-    public final STNode startBacktick;
+public class STDocumentationCodeReferenceNode extends STDocumentationNode {
+    public final STNode startHigherOrderBacktick;
     public final STNode backtickContent;
-    public final STNode endBacktick;
+    public final STNode endHigherOrderBacktick;
 
-    STDocumentationReferenceNode(
-            STNode referenceType,
-            STNode startBacktick,
+    STDocumentationCodeReferenceNode(
+            STNode startHigherOrderBacktick,
             STNode backtickContent,
-            STNode endBacktick) {
+            STNode endHigherOrderBacktick) {
         this(
-                referenceType,
-                startBacktick,
+                startHigherOrderBacktick,
                 backtickContent,
-                endBacktick,
+                endHigherOrderBacktick,
                 Collections.emptyList());
     }
 
-    STDocumentationReferenceNode(
-            STNode referenceType,
-            STNode startBacktick,
+    STDocumentationCodeReferenceNode(
+            STNode startHigherOrderBacktick,
             STNode backtickContent,
-            STNode endBacktick,
+            STNode endHigherOrderBacktick,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_REFERENCE, diagnostics);
-        this.referenceType = referenceType;
-        this.startBacktick = startBacktick;
+        super(SyntaxKind.DOCUMENTATION_CODE_REFERENCE, diagnostics);
+        this.startHigherOrderBacktick = startHigherOrderBacktick;
         this.backtickContent = backtickContent;
-        this.endBacktick = endBacktick;
+        this.endHigherOrderBacktick = endHigherOrderBacktick;
 
         addChildren(
-                referenceType,
-                startBacktick,
+                startHigherOrderBacktick,
                 backtickContent,
-                endBacktick);
+                endHigherOrderBacktick);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationReferenceNode(
-                this.referenceType,
-                this.startBacktick,
+        return new STDocumentationCodeReferenceNode(
+                this.startHigherOrderBacktick,
                 this.backtickContent,
-                this.endBacktick,
+                this.endHigherOrderBacktick,
                 diagnostics);
     }
 
-    public STDocumentationReferenceNode modify(
-            STNode referenceType,
-            STNode startBacktick,
+    public STDocumentationCodeReferenceNode modify(
+            STNode startHigherOrderBacktick,
             STNode backtickContent,
-            STNode endBacktick) {
+            STNode endHigherOrderBacktick) {
         if (checkForReferenceEquality(
-                referenceType,
-                startBacktick,
+                startHigherOrderBacktick,
                 backtickContent,
-                endBacktick)) {
+                endHigherOrderBacktick)) {
             return this;
         }
 
-        return new STDocumentationReferenceNode(
-                referenceType,
-                startBacktick,
+        return new STDocumentationCodeReferenceNode(
+                startHigherOrderBacktick,
                 backtickContent,
-                endBacktick,
+                endHigherOrderBacktick,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationReferenceNode(this, position, parent);
+        return new DocumentationCodeReferenceNode(this, position, parent);
     }
 
     @Override

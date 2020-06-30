@@ -3846,8 +3846,13 @@
             ]
         },
         {
-            "name": "DocumentationLineNode",
+            "name": "DocumentationNode",
             "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "DocumentationLineNode",
+            "base": "DocumentationNode",
             "kind": "DOCUMENTATION_LINE",
             "attributes": [
                 {
@@ -3862,7 +3867,7 @@
         },
         {
             "name": "ParameterDocumentationLineNode",
-            "base": "Node",
+            "base": "DocumentationNode",
             "attributes": [
                 {
                     "name": "hashToken",
@@ -3888,7 +3893,7 @@
         },
         {
             "name": "DocumentationReferenceNode",
-            "base": "Node",
+            "base": "DocumentationNode",
             "kind": "DOCUMENTATION_REFERENCE",
             "attributes": [
                 {
@@ -3900,7 +3905,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "content",
+                    "name": "backtickContent",
                     "type": "Token"
                 },
                 {
@@ -3910,8 +3915,27 @@
             ]
         },
         {
+            "name": "DocumentationCodeReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "DOCUMENTATION_CODE_REFERENCE",
+            "attributes": [
+                {
+                    "name": "startHigherOrderBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "backtickContent",
+                    "type": "Token"
+                },
+                {
+                    "name": "endHigherOrderBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ReferenceDocumentationLineNode",
-            "base": "Node",
+            "base": "DocumentationNode",
             "kind": "REFERENCE_DOCUMENTATION_LINE",
             "attributes": [
                 {

@@ -763,6 +763,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(DocumentationCodeReferenceNode documentationCodeReferenceNode) {
+        visitSyntaxNode(documentationCodeReferenceNode);
+    }
+
     public void visit(ReferenceDocumentationLineNode referenceDocumentationLineNode) {
         visitSyntaxNode(referenceDocumentationLineNode);
     }

@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class DocumentationReferenceNode extends NonTerminalNode {
+public class DocumentationReferenceNode extends DocumentationNode {
 
     public DocumentationReferenceNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
@@ -40,7 +40,7 @@ public class DocumentationReferenceNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public Token content() {
+    public Token backtickContent() {
         return childInBucket(2);
     }
 
@@ -63,19 +63,19 @@ public class DocumentationReferenceNode extends NonTerminalNode {
         return new String[]{
                 "referenceType",
                 "startBacktick",
-                "content",
+                "backtickContent",
                 "endBacktick"};
     }
 
     public DocumentationReferenceNode modify(
             Token referenceType,
             Token startBacktick,
-            Token content,
+            Token backtickContent,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 referenceType,
                 startBacktick,
-                content,
+                backtickContent,
                 endBacktick)) {
             return this;
         }
@@ -83,7 +83,7 @@ public class DocumentationReferenceNode extends NonTerminalNode {
         return NodeFactory.createDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                content,
+                backtickContent,
                 endBacktick);
     }
 
@@ -100,14 +100,14 @@ public class DocumentationReferenceNode extends NonTerminalNode {
         private final DocumentationReferenceNode oldNode;
         private Token referenceType;
         private Token startBacktick;
-        private Token content;
+        private Token backtickContent;
         private Token endBacktick;
 
         public DocumentationReferenceNodeModifier(DocumentationReferenceNode oldNode) {
             this.oldNode = oldNode;
             this.referenceType = oldNode.referenceType();
             this.startBacktick = oldNode.startBacktick();
-            this.content = oldNode.content();
+            this.backtickContent = oldNode.backtickContent();
             this.endBacktick = oldNode.endBacktick();
         }
 
@@ -125,10 +125,10 @@ public class DocumentationReferenceNode extends NonTerminalNode {
             return this;
         }
 
-        public DocumentationReferenceNodeModifier withContent(
-                Token content) {
-            Objects.requireNonNull(content, "content must not be null");
-            this.content = content;
+        public DocumentationReferenceNodeModifier withBacktickContent(
+                Token backtickContent) {
+            Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+            this.backtickContent = backtickContent;
             return this;
         }
 
@@ -143,7 +143,7 @@ public class DocumentationReferenceNode extends NonTerminalNode {
             return oldNode.modify(
                     referenceType,
                     startBacktick,
-                    content,
+                    backtickContent,
                     endBacktick);
         }
     }

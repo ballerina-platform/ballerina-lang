@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STReferenceDocumentationLineNode extends STNode {
+public class STReferenceDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
     public final STNode referenceOrDescription;
 

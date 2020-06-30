@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ReferenceDocumentationLineNode extends NonTerminalNode {
+public class ReferenceDocumentationLineNode extends DocumentationNode {
 
     public ReferenceDocumentationLineNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

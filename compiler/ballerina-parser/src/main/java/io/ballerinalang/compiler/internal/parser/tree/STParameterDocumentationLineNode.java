@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STParameterDocumentationLineNode extends STNode {
+public class STParameterDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
     public final STNode plusToken;
     public final STNode parameterName;

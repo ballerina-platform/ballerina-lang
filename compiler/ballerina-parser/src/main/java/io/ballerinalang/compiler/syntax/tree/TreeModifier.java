@@ -2927,15 +2927,30 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(documentationReferenceNode.referenceType());
         Token startBacktick =
                 modifyToken(documentationReferenceNode.startBacktick());
-        Token content =
-                modifyToken(documentationReferenceNode.content());
+        Token backtickContent =
+                modifyToken(documentationReferenceNode.backtickContent());
         Token endBacktick =
                 modifyToken(documentationReferenceNode.endBacktick());
         return documentationReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                content,
+                backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public DocumentationCodeReferenceNode transform(
+            DocumentationCodeReferenceNode documentationCodeReferenceNode) {
+        Token startHigherOrderBacktick =
+                modifyToken(documentationCodeReferenceNode.startHigherOrderBacktick());
+        Token backtickContent =
+                modifyToken(documentationCodeReferenceNode.backtickContent());
+        Token endHigherOrderBacktick =
+                modifyToken(documentationCodeReferenceNode.endHigherOrderBacktick());
+        return documentationCodeReferenceNode.modify(
+                startHigherOrderBacktick,
+                backtickContent,
+                endHigherOrderBacktick);
     }
 
     @Override

@@ -26,7 +26,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ParameterDocumentationLineNode extends NonTerminalNode {
+public class ParameterDocumentationLineNode extends DocumentationNode {
 
     public ParameterDocumentationLineNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);

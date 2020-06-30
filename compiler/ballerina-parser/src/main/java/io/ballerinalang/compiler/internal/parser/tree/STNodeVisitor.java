@@ -753,6 +753,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(STDocumentationCodeReferenceNode documentationCodeReferenceNode) {
+        visitSyntaxNode(documentationCodeReferenceNode);
+    }
+
     public void visit(STReferenceDocumentationLineNode referenceDocumentationLineNode) {
         visitSyntaxNode(referenceDocumentationLineNode);
     }

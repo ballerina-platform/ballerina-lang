@@ -2872,19 +2872,34 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static DocumentationReferenceNode createDocumentationReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Token content,
+            Token backtickContent,
             Token endBacktick) {
         Objects.requireNonNull(referenceType, "referenceType must not be null");
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(content, "content must not be null");
+        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
         STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
                 referenceType.internalNode(),
                 startBacktick.internalNode(),
-                content.internalNode(),
+                backtickContent.internalNode(),
                 endBacktick.internalNode());
         return stDocumentationReferenceNode.createUnlinkedFacade();
+    }
+
+    public static DocumentationCodeReferenceNode createDocumentationCodeReferenceNode(
+            Token startHigherOrderBacktick,
+            Token backtickContent,
+            Token endHigherOrderBacktick) {
+        Objects.requireNonNull(startHigherOrderBacktick, "startHigherOrderBacktick must not be null");
+        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+        Objects.requireNonNull(endHigherOrderBacktick, "endHigherOrderBacktick must not be null");
+
+        STNode stDocumentationCodeReferenceNode = STNodeFactory.createDocumentationCodeReferenceNode(
+                startHigherOrderBacktick.internalNode(),
+                backtickContent.internalNode(),
+                endHigherOrderBacktick.internalNode());
+        return stDocumentationCodeReferenceNode.createUnlinkedFacade();
     }
 
     public static ReferenceDocumentationLineNode createReferenceDocumentationLineNode(

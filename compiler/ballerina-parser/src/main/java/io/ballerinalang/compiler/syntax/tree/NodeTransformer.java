@@ -764,6 +764,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
+    public T transform(DocumentationCodeReferenceNode documentationCodeReferenceNode) {
+        return transformSyntaxNode(documentationCodeReferenceNode);
+    }
+
     public T transform(ReferenceDocumentationLineNode referenceDocumentationLineNode) {
         return transformSyntaxNode(referenceDocumentationLineNode);
     }

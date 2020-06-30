@@ -2321,13 +2321,25 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STDocumentationReferenceNode documentationReferenceNode) {
         STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
         STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
-        STNode content = modifyNode(documentationReferenceNode.content);
+        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
         STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
         return documentationReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                content,
+                backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public STDocumentationCodeReferenceNode transform(
+            STDocumentationCodeReferenceNode documentationCodeReferenceNode) {
+        STNode startHigherOrderBacktick = modifyNode(documentationCodeReferenceNode.startHigherOrderBacktick);
+        STNode backtickContent = modifyNode(documentationCodeReferenceNode.backtickContent);
+        STNode endHigherOrderBacktick = modifyNode(documentationCodeReferenceNode.endHigherOrderBacktick);
+        return documentationCodeReferenceNode.modify(
+                startHigherOrderBacktick,
+                backtickContent,
+                endHigherOrderBacktick);
     }
 
     @Override
