@@ -3363,7 +3363,7 @@ public class BallerinaParser extends AbstractParser {
             typeRefOrPkgRef = sol.recoveredNode;
         }
 
-        return parseQualifiedIdentifier(currentCtx, typeRefOrPkgRef, isInConditionalExpr);
+        return parseQualifiedIdentifier(typeRefOrPkgRef, isInConditionalExpr);
     }
 
     /**
@@ -3372,7 +3372,7 @@ public class BallerinaParser extends AbstractParser {
      * @param identifier Starting identifier
      * @return Parse node
      */
-    private STNode parseQualifiedIdentifier(ParserRuleContext currentCtx, STNode identifier,
+    private STNode parseQualifiedIdentifier(STNode identifier,
                                             boolean isInConditionalExpr) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
@@ -3394,14 +3394,15 @@ public class BallerinaParser extends AbstractParser {
             case COLON_TOKEN:
                 // specially handle cases where there are more than one colon.
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
-                return parseQualifiedIdentifier(currentCtx, identifier, isInConditionalExpr);
+                return parseQualifiedIdentifier(identifier, isInConditionalExpr);
             default:
                 if (isInConditionalExpr) {
                     return STNodeFactory.createSimpleNameReferenceNode(identifier);
                 }
 
                 colon = consume();
-                varOrFuncName = parseIdentifier(currentCtx);
+                varOrFuncName = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
                 return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         }
     }
@@ -4159,8 +4160,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (solution.tokenKind) {
             case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, solution.recoveredNode,
-                        isInConditionalExpr);
+                return parseQualifiedIdentifier(solution.recoveredNode, isInConditionalExpr);
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
             case STRING_LITERAL:
@@ -14775,7 +14775,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 startContext(ParserRuleContext.AMBIGUOUS_STMT);
-                STNode qualifiedIdentifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF, identifier, false);
+                STNode qualifiedIdentifier = parseQualifiedIdentifier(identifier, false);
                 STNode expr = parseTypedBindingPatternOrExprRhs(qualifiedIdentifier, true);
                 STNode annots = STNodeFactory.createEmptyNodeList();
                 return parseStmtStartsWithTypedBPOrExprRhs(annots, expr);
