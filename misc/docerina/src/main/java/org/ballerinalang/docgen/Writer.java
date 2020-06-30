@@ -119,10 +119,10 @@ public class Writer {
                 return newDescription;
             });
 
-            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
+            handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
                 //remove paragraph tags
                 if (string != null) {
-                    return string.replaceAll("<\\/?p>", "");
+                    return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
                     return "";
                 }
