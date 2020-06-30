@@ -134,11 +134,10 @@ public class Writer {
                 return newDescription;
             });
 
-            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
-                //remove paragraph tags
+            handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
+                //remove html tags
                 if (string != null) {
-                    String newString = string.replaceAll("<\\/?p>", "");
-                    return newString;
+                    return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
                     return "";
                 }
