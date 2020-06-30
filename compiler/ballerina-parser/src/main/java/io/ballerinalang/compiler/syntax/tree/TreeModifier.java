@@ -2886,6 +2886,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 expression);
     }
 
+    @Override
+    public ListMatchPatternNode transform(
+            ListMatchPatternNode listMatchPatternNode) {
+        Token openBracket =
+                modifyToken(listMatchPatternNode.openBracket());
+        SeparatedNodeList<Node> matchPatterns =
+                modifySeparatedNodeList(listMatchPatternNode.matchPatterns());
+        RestMatchPatternNode restMatchPattern =
+                modifyNode(listMatchPatternNode.restMatchPattern().orElse(null));
+        Token closeBracket =
+                modifyToken(listMatchPatternNode.closeBracket());
+        return listMatchPatternNode.modify(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    @Override
+    public RestMatchPatternNode transform(
+            RestMatchPatternNode restMatchPatternNode) {
+        Token ellipsisToken =
+                modifyToken(restMatchPatternNode.ellipsisToken());
+        Token varKeywordToken =
+                modifyToken(restMatchPatternNode.varKeywordToken());
+        SimpleNameReferenceNode variableName =
+                modifyNode(restMatchPatternNode.variableName());
+        return restMatchPatternNode.modify(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
+
     // Tokens
 
     @Override

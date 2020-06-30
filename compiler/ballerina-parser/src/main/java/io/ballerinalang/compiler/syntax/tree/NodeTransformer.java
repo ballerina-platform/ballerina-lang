@@ -752,6 +752,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(onClauseNode);
     }
 
+    public T transform(ListMatchPatternNode listMatchPatternNode) {
+        return transformSyntaxNode(listMatchPatternNode);
+    }
+
+    public T transform(RestMatchPatternNode restMatchPatternNode) {
+        return transformSyntaxNode(restMatchPatternNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {
