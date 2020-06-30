@@ -230,12 +230,14 @@ public type IntrospectionServerConfig record {|
     http:ClientConfiguration clientConfig = {};
 |};
 
-// Deprecated: This record was used for OAuth2 caching and with the new cache API v2.0.0 this record no longer used
-// and will be removed in next major version.
 # Represents cached OAuth2 information.
 #
 # + username - Username of the OAuth2 validated user
 # + scopes - Scopes of the OAuth2 validated user
+# # Deprecated
+# This record is deprecated and it was used for OAuth2 caching. With the new cache API v2.0.0 this record no longer
+# used and will be removed in next major version.
+@deprecated
 public type InboundOAuth2CacheEntry record {|
     string username;
     string scopes;
