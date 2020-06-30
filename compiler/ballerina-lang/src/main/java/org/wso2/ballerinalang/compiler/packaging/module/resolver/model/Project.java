@@ -67,8 +67,12 @@ public class Project {
     }
 
     public boolean isModuleExists(PackageID moduleId) {
-        Path modulePath = this.sourceDirectory.getPath().resolve("src").resolve(moduleId.getName().getValue());
-        return modulePath.toFile().exists();
+        String projectOrgName = this.manifest.getProject().getOrgName();
+        if (projectOrgName.equals(moduleId.getOrgName().getValue())) {
+            Path modulePath = this.sourceDirectory.getPath().resolve("src").resolve(moduleId.getName().getValue());
+            return modulePath.toFile().exists();
+        }
+        return false;
     }
 
     public org.ballerinalang.toml.model.Project getProject() {

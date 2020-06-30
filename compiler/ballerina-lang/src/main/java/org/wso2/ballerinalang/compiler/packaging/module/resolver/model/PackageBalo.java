@@ -4,7 +4,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -36,7 +35,7 @@ public class PackageBalo implements PackageSource {
     private List<CompilerInput> getSourceFiles() {
         List<CompilerInput> compilerInputs = new ArrayList<>();
 
-        URI balo = URI.create("jar:file:" + new File(String.valueOf(this.sourcePath)).getAbsolutePath());
+        URI balo = URI.create("jar:" + this.sourcePath.toUri());
         Map<String, Object> env = new HashMap<>();
         env.put("create", "true");
 

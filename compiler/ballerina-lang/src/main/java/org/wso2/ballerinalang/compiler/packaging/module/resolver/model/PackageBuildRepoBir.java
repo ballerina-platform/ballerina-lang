@@ -4,7 +4,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageBinary;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.FileSystem;
@@ -31,8 +30,7 @@ public class PackageBuildRepoBir implements PackageBinary {
 
     private CompilerInput getBirContent() {
         try (FileSystem zipFileSystem = FileSystems
-                .newFileSystem(URI.create("jar:file:" + new File(String.valueOf(this.sourcePath)).getAbsolutePath()),
-                        new HashMap<>())) {
+                .newFileSystem(URI.create("jar:" + this.sourcePath.toUri()), new HashMap<>())) {
             Path birPath = zipFileSystem.getPath("bir", moduleId.getName().getValue() + BLANG_COMPILED_PKG_BIR_EXT);
             byte[] code = Files.readAllBytes(birPath);
             return new CompilerInputImpl(code, birPath);
