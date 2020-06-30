@@ -652,8 +652,9 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return null;
-            case DOCUMENTATION_LINE:
+//            case DOCUMENTATION_LINE:
             case AT_TOKEN:
+            case HASH_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
             case IMPORT_KEYWORD:
@@ -7062,7 +7063,8 @@ public class BallerinaParser extends AbstractParser {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-            case DOCUMENTATION_LINE:
+//            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
                 docString = parseDocumentationString();
                 annotations = parseAnnotations();
                 break;
@@ -8245,13 +8247,177 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseDocumentationString() {
         List<STNode> docLines = new ArrayList<>();
         STToken nextToken = peek();
-        while (nextToken.kind == SyntaxKind.DOCUMENTATION_LINE) {
-            docLines.add(consume());
+        while (!isEndOfDocumentation(nextToken.kind)) {
+            docLines.add(parseSingleDocumentationLine());
             nextToken = peek();
         }
 
         STNode documentationLines = STNodeFactory.createNodeList(docLines);
         return STNodeFactory.createDocumentationStringNode(documentationLines);
+    }
+
+    private boolean isEndOfDocumentation(SyntaxKind kind) {
+        switch (kind) {
+            case HASH_TOKEN:
+            case BACKTICK_CONTENT:
+            case DOCUMENTATION_DESCRIPTION:
+            case PARAMETER_NAME:
+            case BACKTICK_TOKEN:
+                return false;
+            default:
+                if (isDocumentReferenceType(kind)) {
+                    return false;
+                }
+                return true;
+        }
+    }
+
+    private STNode parseSingleDocumentationLine() {
+        STNode hashToken = parseHashToken();
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case PLUS_TOKEN:
+                return parseParameterDocumentationLine(hashToken);
+            case DOCUMENTATION_DESCRIPTION:
+            default:
+                return parseDocumentationLine(hashToken);
+        }
+    }
+
+    private STNode parseDocumentationLine(STNode hashToken) {
+        STNode documentationDescription = parseDocumentationDescription();
+        if (documentationDescription.toString().contains("\n")){
+            return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
+        }
+        List<STNode> referenceDocumentationElements = new ArrayList<>();
+        referenceDocumentationElements.add(documentationDescription);
+        while (true) {
+            SyntaxKind nextTokenKind = peek().kind;
+            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                documentationDescription = parseDocumentationDescription();
+                referenceDocumentationElements.add(documentationDescription);
+                continue;
+            } else if (isDocumentReferenceType(nextTokenKind)) {
+                STNode documentationReference = parseDocumentationReference();
+                referenceDocumentationElements.add(documentationReference);
+                continue;
+            }
+            break;
+        }
+
+        STNode expr= STNodeFactory.createNodeList(referenceDocumentationElements);
+        return STNodeFactory.createReferenceDocumentationLineNode(hashToken, expr);
+    }
+
+    private boolean isDocumentReferenceType(SyntaxKind kind) {
+        switch (kind) {
+            case TYPE_REFERENCE_TYPE:
+            case SERVICE_REFERENCE_TYPE:
+            case VARIABLE_REFERENCE_TYPE:
+            case VAR_REFERENCE_TYPE:
+            case ANNOTATION_REFERENCE_TYPE:
+            case MODULE_REFERENCE_TYPE:
+            case FUNCTION_REFERENCE_TYPE:
+            case PARAMETER_REFERENCE_TYPE:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseDocumentationReference() {
+        STNode refType = parseReferenceType();
+        STNode startBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode backtickContent = parseBacktickContent();
+        STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        return STNodeFactory.createDocumentationReferenceNode(refType, startBacktick, backtickContent, endBacktick);
+    }
+
+    private STNode parseParameterDocumentationLine(STNode hashToken) {
+        STNode plusToken = parsePlusToken();
+        STNode parameterName = parseParameterName();
+        STNode minusToken = parseMinusToken();
+        STNode documentationDescription = parseDocumentationDescription();
+
+        SyntaxKind kind;
+        if (((STToken)parameterName).text().equals("return")) {
+            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
+        } else {
+            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
+        }
+
+        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
+                documentationDescription);
+    }
+
+    private STNode parseHashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HASH_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parsePlusToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PLUS_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseParameterName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PARAMETER_NAME) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseMinusToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MINUS_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseReferenceType() {
+        STToken token = peek();
+        if (isDocumentReferenceType(token.kind)) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseDocumentationDescription() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseBacktickContent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE);// change
+            return sol.recoveredNode;
+        }
     }
 
     /**
