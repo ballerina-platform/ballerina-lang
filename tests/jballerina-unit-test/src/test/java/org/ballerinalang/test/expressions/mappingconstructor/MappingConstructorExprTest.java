@@ -290,12 +290,14 @@ public class MappingConstructorExprTest {
                 { "testReadOnlyBehaviourWithMapACETInUnionCET" },
                 { "testReadOnlyFieldForAlreadyReadOnlyField" },
                 { "testReadOnlyFieldWithInferredType" },
-                { "testInferredTypeWithAllReadOnlyFields" }
+                { "testInferredTypeWithAllReadOnlyFields" },
+                { "testIdentifierKeysInConstructorWithReadOnlyFieldsForMap" },
+                { "testFieldTypeNarrowing" }
         };
     }
 
     @Test(groups = "disableOnOldParser")
-    public void testReadOnlyFieldsNegative() {
+    public void testReadOnlyFieldsSemanticNegative() {
         CompileResult compileResult =
                 BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field_negative.bal");
         int index = 0;
@@ -348,6 +350,20 @@ public class MappingConstructorExprTest {
                 "type 'other'", 119, 16);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 120, 18);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 122, 23);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testReadOnlyFieldsCodeAnalysisNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/readonly_field_code_analysis_negative.bal");
+        int index = 0;
+
+        validateError(compileResult, index++, "invalid key 'math': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 31, 9);
+        validateError(compileResult, index++, "invalid key 'science': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 39, 9);
+
         Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

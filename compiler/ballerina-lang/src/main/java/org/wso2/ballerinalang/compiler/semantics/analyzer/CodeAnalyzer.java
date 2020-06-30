@@ -2046,7 +2046,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                         recordLiteral.expectedType.getKind().typeName(), name);
                     }
 
-                    if (isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
+                    if (recordLiteral.expectedType.tag != TypeTags.MAP && // avoid literal key check for records
+                                                                          // defined due to readonly fields.
+                            isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
@@ -2062,6 +2064,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             }
         }
+
+        recordLiteral.expectedType = type;
     }
 
     public void visit(BLangSimpleVarRef varRefExpr) {

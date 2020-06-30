@@ -379,8 +379,88 @@ function testInferredTypeWithAllReadOnlyFields() {
     |});
 }
 
+function testIdentifierKeysInConstructorWithReadOnlyFieldsForMap() {
+    int k = 3;
+    map<int> mp1 = {
+        readonly i: 1,
+        j: 2,
+        k
+    };
+
+    assertTrue(mp1 is record {|readonly int i; int...;|});
+
+    var rec1 = <record {|readonly int i; int...;|}> mp1;
+    assertEquality(1, rec1.i);
+    assertEquality(2, rec1["j"]);
+    assertEquality(3, rec1["k"]);
+
+    // Valid updates.
+    rec1["k"] = 4;
+    mp1["l"] = 5;
+    assertEquality(4, rec1["k"]);
+    assertEquality(5, rec1["l"]);
+
+    map<string>|map<json> mp2 = {
+        readonly i: "foo",
+        j: 2,
+        k
+    };
+
+    assertTrue(mp2 is record {|readonly string i; json...;|});
+
+    var rec2 = <record {|readonly string i; json...;|}> mp2;
+    assertEquality("foo", rec2.i);
+    assertEquality(2, rec2["j"]);
+    assertEquality(3, rec2["k"]);
+
+    // Valid updates.
+    rec2["k"] = 4.0;
+    rec2["l"] = true;
+    assertEquality(4.0, rec2["k"]);
+    assertTrue(rec2["l"]);
+}
+
+type DetailsTwo record {|
+    string name;
+    string|int id;
+|};
+
+function testFieldTypeNarrowing() {
+    DetailsTwo nonReadOnlyId = {
+        name: "Jo",
+        id: 1234
+    };
+
+    any a = nonReadOnlyId;
+    assertFalse(a is Details);
+    assertTrue(a is DetailsTwo);
+
+    DetailsTwo readOnlyId = {
+        name: "Jo",
+        readonly id: 1234
+    };
+
+    any b = readOnlyId;
+    assertTrue(b is Details);
+    assertTrue(b is DetailsTwo);
+
+    int id = 2345;
+    DetailsTwo readOnlyId2 = {
+        name: "Jo",
+        readonly id
+    };
+
+    any c = readOnlyId2;
+    assertTrue(c is Details);
+    assertTrue(c is DetailsTwo);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(any|error expected, any|error actual) {
