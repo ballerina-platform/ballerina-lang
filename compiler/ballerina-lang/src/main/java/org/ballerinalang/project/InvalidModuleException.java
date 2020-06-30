@@ -18,7 +18,7 @@
 package org.ballerinalang.project;
 
 /**
- * Invalid module is provided as input
+ * Invalid module is provided as input.
  *
  * @since 2.0.0
  */

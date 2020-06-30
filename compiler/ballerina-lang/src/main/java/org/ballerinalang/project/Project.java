@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.project;
 
-import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -33,7 +32,7 @@ public interface Project {
     CompilerContext.Key<Project> PROJECT_KEY = new CompilerContext.Key<>();
 
     /**
-     * Return true is module exists in the project.
+     * Returns true if the module exists in the project.
      *
      * @param moduleId Module Id
      * @return
