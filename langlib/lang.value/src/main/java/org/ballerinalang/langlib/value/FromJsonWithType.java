@@ -32,7 +32,6 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
-import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
@@ -49,10 +48,7 @@ import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,8 +56,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
@@ -74,14 +70,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
         orgName = "ballerina",
         packageName = "lang.value", version = VALUE_VERSION,
         functionName = "fromJsonWithType",
-        args = {
-                @Argument(name = "v", type = TypeKind.ANYDATA),
-                @Argument(name = "t", type = TypeKind.TYPEDESC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ANYDATA),
-                @ReturnType(type = TypeKind.ERROR)
-        },
         isPublic = true
 )
 public class FromJsonWithType {
@@ -89,110 +77,79 @@ public class FromJsonWithType {
 
     public static Object fromJsonWithType(Strand strand, Object v, TypedescValue t) {
         BType describingType = t.getDescribingType();
-        // typedesc<json>.constructFrom like usage
-        if (describingType.getTag() == TypeTags.TYPEDESC_TAG) {
-            return convert(((BTypedescType) t.getDescribingType()).getConstraint(), v, t, strand);
-        }
-        // json.constructFrom like usage
-        return convert(describingType, v, t, strand);
-    }
-
-    public static Object convert(BType convertType, Object inputValue, TypedescValue t, Strand strand) {
         try {
-            return convert(inputValue, convertType, new ArrayList<>(), t, strand);
+            return convert(v, describingType, new ArrayList<>(), t, strand);
         } catch (ErrorValue e) {
             return e;
         } catch (BallerinaException e) {
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR, e.getDetail());
+            return createError(VALUE_LANG_LIB_CONVERSION_ERROR, e.getDetail());
         }
     }
 
     private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
                                   TypedescValue t, Strand strand) {
-        return convert(value, targetType, unresolvedValues, false, t, strand);
-    }
 
-
-    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues,
-                                  boolean allowAmbiguity, TypedescValue t, Strand strand) {
-        if (value == null) {
-            if (targetType.isNilable()) {
-                return null;
-            }
-            return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
-        }
-        List<BType> convertibleTypes;
-        convertibleTypes = getConvertibleTypesFromJson(value, targetType);
-        if (convertibleTypes.isEmpty()) {
-            throw createConversionError(value, targetType);
-        } else if (!allowAmbiguity && convertibleTypes.size() > 1) {
-            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
-        }
-
-        BType sourceType = TypeChecker.getType(value);
-        BType matchingType = convertibleTypes.get(0);
-
-        // handle string (xml as string) to xml conversion
-        if (TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG &&
-                ((matchingType.getTag() >= TypeTags.XML_ELEMENT_TAG && matchingType.getTag() <= TypeTags.XML_TEXT_TAG)
-                        || matchingType.getTag() == TypeTags.XML_TAG)) {
-            try {
-                return XMLFactory.parse(((StringValue) value).getValue());
-            } catch (Throwable e) {
-                return createConversionError(value, targetType, e.getMessage());
-            }
-        }
-
-        // handle primitive values
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            if (TypeChecker.checkIsType(value, matchingType)) {
-                return value;
-            } else {
-                // Has to be a numeric conversion.
-                return TypeConverter.convertValues(matchingType, value);
-            }
-        }
-
-        return convert((RefValue) value, matchingType, unresolvedValues, t, strand);
-    }
-
-    private static Object convert(RefValue value, BType targetType, List<TypeValuePair> unresolvedValues,
-                                  TypedescValue t, Strand strand) {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
+        BType sourceType = TypeChecker.getType(value);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, value.getType()));
+            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType));
         }
 
         unresolvedValues.add(typeValuePair);
 
+        if (value == null) {
+            if (targetType.isNilable()) {
+                return null;
+            }
+            throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
+                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+        }
+
+        List<BType> convertibleTypes = TypeConverter.getConvertibleTypesFromJson(value, targetType, new ArrayList<>());
+        if (convertibleTypes.isEmpty()) {
+            throw createConversionError(value, targetType);
+        } else if (convertibleTypes.size() > 1) {
+            throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
+        }
+
+        BType matchingType = convertibleTypes.get(0);
+
         Object newValue;
-        switch (value.getType().getTag()) {
+        switch (sourceType.getTag()) {
             case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                newValue = convertMap((MapValue<?, ?>) value, targetType, unresolvedValues, t, strand);
+                newValue = convertMap((MapValue<?, ?>) value, matchingType, unresolvedValues, t, strand);
                 break;
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
-                newValue = convertArray((ArrayValue) value, targetType, unresolvedValues, t, strand);
-                break;
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                try {
-                    newValue = XMLFactory.parse(((StringValue) value).getValue());
-                } catch (Throwable e) {
-                    return createConversionError(value, targetType, e.getMessage());
-                }
+                newValue = convertArray((ArrayValue) value, matchingType, unresolvedValues, t, strand);
                 break;
             case TypeTags.ERROR_TAG:
-                newValue = value.copy(new HashMap<>());
+                newValue = ((RefValue) value).copy(new HashMap<>());
                 break;
             default:
+                if (((matchingType.getTag() >= TypeTags.XML_ELEMENT_TAG &&
+                        matchingType.getTag() <= TypeTags.XML_TEXT_TAG) || matchingType.getTag() == TypeTags.XML_TAG)) {
+                    try {
+                        newValue = XMLFactory.parse(((StringValue) value).getValue());
+                        break;
+                    } catch (Throwable e) {
+                        throw createConversionError(value, targetType, e.getMessage());
+                    }
+                }
+
+                // handle primitive values
+                if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+                    if (TypeChecker.checkIsType(value, matchingType)) {
+                        newValue = value;
+                    } else {
+                        // Has to be a numeric conversion.
+                        newValue = TypeConverter.convertValues(matchingType, value);
+                    }
+                    break;
+                }
                 // should never reach here
                 throw BallerinaErrors.createConversionError(value, targetType);
         }
@@ -290,49 +247,20 @@ public class FromJsonWithType {
         throw BallerinaErrors.createConversionError(array, targetType);
     }
 
-    private static List<BType> getConvertibleTypesFromJson(Object value, BType targetType) {
-        List<BType> convertibleTypes = new ArrayList<>();
-
-        int targetTypeTag = targetType.getTag();
-
-        convertibleTypes.addAll(TypeConverter.getConvertibleTypes(value, targetType));
-
-        if (convertibleTypes.size() == 0) {
-            switch (targetTypeTag) {
-                case TypeTags.RECORD_TYPE_TAG:
-                case TypeTags.TABLE_TAG:
-                    convertibleTypes.add(targetType);
-                    break;
-                case TypeTags.XML_TAG:
-                case TypeTags.XML_ELEMENT_TAG:
-                case TypeTags.XML_COMMENT_TAG:
-                case TypeTags.XML_PI_TAG:
-                case TypeTags.XML_TEXT_TAG:
-                    if (TypeChecker.getType(value).getTag() == TypeTags.STRING_TAG) {
-                        convertibleTypes.add(targetType);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-        return convertibleTypes;
-    }
-
     private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
                                  List<TypeValuePair> unresolvedValues, TypedescValue t, Strand strand) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, true, t, strand);
+        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, t, strand);
         map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR), StringUtils.fromString(
+        return createError(StringUtils.fromString(VALUE_LANG_LIB_CONVERSION_ERROR), StringUtils.fromString(
                 BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
                         TypeChecker.getType(inputValue), targetType)));
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType, String detailMessage) {
-        return createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
+        return createError(StringUtils.fromString(VALUE_LANG_LIB_CONVERSION_ERROR),
                 StringUtils.fromString(BLangExceptionHelper.getErrorMessage(
                         INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
                         .concat(": ".concat(detailMessage))));
