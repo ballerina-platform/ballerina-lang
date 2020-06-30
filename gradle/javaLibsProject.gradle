@@ -105,7 +105,6 @@ dependencies {
     dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
-    dist project(':ballerina-encoding')
     dist project(':ballerina-io')
     dist project(':ballerina-lang')
     dist project(':ballerina-log-api')
