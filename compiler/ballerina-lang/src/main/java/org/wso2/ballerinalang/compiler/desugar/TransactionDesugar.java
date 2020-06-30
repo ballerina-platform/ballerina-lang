@@ -195,11 +195,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangType transactionReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
 
         BLangSimpleVariable trxMainFuncParamPrevAttempt = createPrevAttemptVariable(env, pos);
-        List<BLangStatement> stmts = transactionNode.transactionBody.stmts.stream()
-                .map(stmt -> desugar.rewrite(stmt, env)).collect(Collectors.toList());
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
-                Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, stmts, env,
-                env.scope);
+                Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
+                env, transactionNode.transactionBody.scope);
 
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,
                 ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
