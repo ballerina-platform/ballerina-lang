@@ -556,13 +556,11 @@ type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
    json j = <json> anArray.fromJsonString();
-// string[]|error cloned = j.cloneWithType(StringArray);
-// assert(cloned is string[], true);
-
-// string[]  clonedArr= <string[]> a2;
-// assert(clonedArr.length(), anArray.length());
-// assert(clonedArr[0], "Hello");
-// assert(clonedArr[1], "World");
+    string[]|error cloned = j.cloneWithType(StringArray);
+    assert(cloned is string[], true);
+    string[]  clonedArr= <string[]> cloned;
+    assert(clonedArr[0], "hello");
+    assert(clonedArr[1], "world");
 }
 
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
@@ -682,8 +680,6 @@ function testFromJsonWithTypeMap() {
     assert(movieMap2["title"], "Some");
     assert(movieMap2["year"], 2010);
 }
-
-type StringArray string[];
 
 function testFromJsonWithTypeStringArray() {
     json j = ["Hello", "World"];
