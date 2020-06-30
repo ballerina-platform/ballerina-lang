@@ -357,7 +357,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
-        if (resultType.tag != TypeTags.SEMANTIC_ERROR) {
+        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR && resultType.tag != TypeTags.SEMANTIC_ERROR) {
             expr.expectedType = resultType;
         }
         return resultType;
@@ -1598,10 +1598,18 @@ public class TypeChecker extends BLangNodeVisitor {
             String key = readOnlyEntry.getKey();
             Name fieldName = names.fromString(key);
 
+            BType readOnlyFieldType;
+            if (field.isKeyValueField()) {
+                readOnlyFieldType = ((BLangRecordKeyValueField) field).valueExpr.type;
+            } else {
+                // Has to be a varname field.
+                readOnlyFieldType = ((BLangRecordVarNameField) field).type;
+            }
+
             BVarSymbol fieldSymbol = new BVarSymbol(Flags.asMask(new HashSet<Flag>() {{
                                                         add(Flag.REQUIRED);
                                                         add(Flag.READONLY);
-                                                    }}), fieldName, pkgID, ((BLangNode) field).type, recordSymbol);
+                                                    }}), fieldName, pkgID, readOnlyFieldType, recordSymbol);
             newFields.put(key, new BField(fieldName, null, fieldSymbol));
             recordSymbol.scope.define(fieldName, fieldSymbol);
         }
@@ -1655,6 +1663,11 @@ public class TypeChecker extends BLangNodeVisitor {
         recordTypeNode.initFunction = TypeDefBuilderHelper.createInitFunctionForRecordType(recordTypeNode, env,
                                                                                            names, symTable);
         TypeDefBuilderHelper.addTypeDefinition(recordType, recordSymbol, recordTypeNode, env);
+
+        if (applicableMappingType.tag == TypeTags.MAP) {
+            recordLiteral.expectedType = applicableMappingType;
+        }
+
         return recordType;
     }
 
