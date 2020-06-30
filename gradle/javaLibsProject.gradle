@@ -112,7 +112,6 @@ dependencies {
     dist project(':ballerina-logging')
     dist project(':ballerina-math')
     dist project(':ballerina-mime')
-    dist project(':ballerina-websub')
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
