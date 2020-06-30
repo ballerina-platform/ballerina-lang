@@ -500,7 +500,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseMatchGuard();
             case MATCH_PATTERN_START:
                 return parseMatchPattern();
-            case MATCH_PATTERN_OUTER_RHS:
+            case MATCH_PATTERN_RHS:
                 return parseMatchPatternEnd();
             case ENUM_MEMBER_RHS:
                 return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
@@ -12454,7 +12454,7 @@ public class BallerinaParser extends AbstractParser {
                 // Returning null indicates the end of the match-patterns list
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_OUTER_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12514,9 +12514,8 @@ public class BallerinaParser extends AbstractParser {
         STNode openBracketToken = parseOpenBracket();
         List<STNode> matchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
-        STNode matchPatternMemberRhs;
 
-        do {
+        while (!isEndOfMatchPattern()) {
             STToken nextToken = peek();
             if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
                 restMatchPattern = parseRestMatchPattern();
@@ -12524,12 +12523,14 @@ public class BallerinaParser extends AbstractParser {
             }
             STNode matchPatternListMember = parseMatchPattern();
             matchPatternList.add(matchPatternListMember);
-            matchPatternMemberRhs = parseListMatchPatternMemberRhs();
+            STNode matchPatternMemberRhs = parseListMatchPatternMemberRhs();
 
             if (matchPatternMemberRhs != null) {
                 matchPatternList.add(matchPatternMemberRhs);
+            } else {
+                break;
             }
-        } while (matchPatternMemberRhs != null);
+        }
 
         if (restMatchPattern == null) {
             restMatchPattern = STNodeFactory.createEmptyNode();
@@ -12541,6 +12542,16 @@ public class BallerinaParser extends AbstractParser {
 
         return STNodeFactory.createListMatchPatternNode(openBracketToken, matchPatternListNode, restMatchPattern,
                 closeBracketToken);
+    }
+
+    public boolean isEndOfMatchPattern() {
+        switch (peek().kind) {
+            case CLOSE_BRACKET_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return false;
+        }
     }
 
     /** Parse rest match pattern.

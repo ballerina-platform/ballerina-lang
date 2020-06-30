@@ -496,7 +496,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] XML_STEP_START = { ParserRuleContext.SLASH_ASTERISK_TOKEN,
             ParserRuleContext.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN, ParserRuleContext.SLASH_LT_TOKEN };
 
-    private static final ParserRuleContext[] MATCH_PATTERN_OUTER_RHS =
+    private static final ParserRuleContext[] MATCH_PATTERN_RHS =
             { ParserRuleContext.PIPE, ParserRuleContext.MATCH_PATTERN_END };
 
     private static final ParserRuleContext[] OPTIONAL_MATCH_GUARD =
@@ -603,7 +603,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
             case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
             case OPTIONAL_MATCH_GUARD:
-            case MATCH_PATTERN_OUTER_RHS:
+            case MATCH_PATTERN_RHS:
             case MATCH_PATTERN_START:
             case LIST_MATCH_PATTERN_MEMBER_START:
             case LIST_MATCH_PATTERN_MEMBER_RHS:
@@ -1164,7 +1164,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_STEP_START:
             case FUNC_TYPE_DESC_RHS_OR_ANON_FUNC_BODY:
             case OPTIONAL_MATCH_GUARD:
-            case MATCH_PATTERN_OUTER_RHS:
+            case MATCH_PATTERN_RHS:
             case MATCH_PATTERN_START:
             case LIST_MATCH_PATTERN_MEMBER_START:
             case LIST_MATCH_PATTERN_MEMBER_RHS:
@@ -1489,8 +1489,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
                 alternativeRules = LIST_BINDING_MEMBER_OR_ARRAY_LENGTH;
                 break;
-            case MATCH_PATTERN_OUTER_RHS:
-                alternativeRules = MATCH_PATTERN_OUTER_RHS;
+            case MATCH_PATTERN_RHS:
+                alternativeRules = MATCH_PATTERN_RHS;
                 break;
             case MATCH_PATTERN_START:
                 alternativeRules = MATCH_PATTERN_START;
@@ -3485,7 +3485,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BRACKETED_LIST_RHS;
             case LIST_MATCH_PATTERN:
                 endContext();
-                return ParserRuleContext.MATCH_PATTERN_OUTER_RHS;
+                return ParserRuleContext.MATCH_PATTERN_RHS;
             default:
                 return getNextRuleForExpr();
         }
@@ -3534,7 +3534,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XML_NAMESPACE_PREFIX_DECL;
             case MATCH_PATTERN:
-                return ParserRuleContext.MATCH_PATTERN_OUTER_RHS;
+                return ParserRuleContext.MATCH_PATTERN_RHS;
             case LIST_MATCH_PATTERN:
                 return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
             default:
@@ -3625,7 +3625,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ASSIGNMENT_STMT:
                 return ParserRuleContext.ASSIGN_OP;
             case MATCH_PATTERN:
-                return ParserRuleContext.MATCH_PATTERN_OUTER_RHS;
+                return ParserRuleContext.MATCH_PATTERN_RHS;
             case LIST_MATCH_PATTERN:
                 return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
             default:
@@ -4012,7 +4012,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
-            case MATCH_PATTERN_OUTER_RHS:
+            case MATCH_PATTERN_RHS:
             case OPTIONAL_MATCH_GUARD:
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             default:
