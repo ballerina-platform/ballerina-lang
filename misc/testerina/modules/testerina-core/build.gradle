@@ -45,7 +45,6 @@ dependencies {
     implementation project(':ballerina-task')
     implementation project(':ballerina-time')
     implementation project(':ballerina-transactions')
-    // implementation project(':ballerina-websub')
     implementation project(':openapi-ballerina:openapi-to-ballerina-generator')
     implementation project(':ballerina-tool')
     implementation project(':ballerina-cache')

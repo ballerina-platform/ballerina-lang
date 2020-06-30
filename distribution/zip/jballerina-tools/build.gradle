@@ -173,7 +173,6 @@ dependencies {
     balDoc project(path: ':ballerina-runtime-api', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-system', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-websub', configuration: 'balDoc')
     balDoc project(path: ':ballerina-task', configuration: 'balDoc')
     balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
