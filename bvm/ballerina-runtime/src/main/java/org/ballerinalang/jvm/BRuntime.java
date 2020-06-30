@@ -299,7 +299,7 @@ public class BRuntime {
         if (!strand.blockedOnExtern) {
             strand.blockedOnExtern = true;
             strand.setState(State.BLOCK_AND_YIELD);
-            strand.setReturnValues(null);
+            strand.returnValue = null;
         }
     }
 
@@ -314,7 +314,7 @@ public class BRuntime {
         @Override
         public void accept(Object returnValue, Throwable throwable) {
             if (throwable == null) {
-                this.strand.setReturnValues(returnValue);
+                this.strand.returnValue = returnValue;
                 this.strand.scheduler.unblockStrand(strand);
             }
         }
