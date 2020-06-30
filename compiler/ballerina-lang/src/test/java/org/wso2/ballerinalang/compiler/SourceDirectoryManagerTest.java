@@ -54,7 +54,6 @@ public class SourceDirectoryManagerTest {
     public void testListSourceFilesAndPackages() {
         Names names = Names.getInstance(context);
         List<PackageID> expectedPackageIds = new ArrayList<>();
-        // expectedPackageIds.add(new PackageID(names.fromString("abc"), "main.bal", names.fromString("0.0.1")));
         expectedPackageIds.add(new PackageID(names.fromString("abc"),
                                              names.fromString("fruits"),
                                              names.fromString("0.0.1"))
