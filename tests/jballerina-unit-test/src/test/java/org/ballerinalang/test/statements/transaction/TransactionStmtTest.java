@@ -33,13 +33,13 @@ import org.testng.annotations.Test;
 
 public class TransactionStmtTest {
 
-    private CompileResult programFile;
-    private CompileResult resultNegative;
+    private CompileResult programFile, resultNegative, trxHandlersNegative;
 
     @BeforeClass
     public void setup() {
         programFile = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt.bal");
         resultNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_stmt_negative.bal");
+        trxHandlersNegative = BCompileUtil.compile("test-src/statements/transaction/transaction_handlers_negative.bal");
     }
 
     @Test
@@ -85,57 +85,110 @@ public class TransactionStmtTest {
 
     @Test
     public void testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() {
-        BValue[] result = BRunUtil.invoke(programFile, "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
+        BValue[] result = BRunUtil.invoke(programFile,
+                "testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock");
         Assert.assertEquals(result[0].stringValue(), "init-in-transaction-block");
+    }
+
+    @Test
+    public void testTrxReturnVal() {
+        BValue[] result = BRunUtil.invoke(programFile, "testTrxReturnVal");
+        Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
+    }
+
+    @Test
+    public void testInvokingMultipleTrx() {
+        BValue[] result = BRunUtil.invoke(programFile, "testInvokingTrxFunc");
+        Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
+    }
+
+    @Test
+    public void testTransactionLangLibFunction() {
+        BRunUtil.invoke(programFile, "testTransactionLangLib");
+    }
+
+    @Test
+    public void testWithinTrxMode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
+                + "-> strand in transactional mode -> invoked function returned -> strand in transactional mode "
+                + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
+    }
+
+    @Test
+    public void testUnreachableCode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
     }
 
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 22);
+        Assert.assertEquals(resultNegative.getErrorCount(), 26);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
-                5, 5);
+                6, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
-                11, 9);
+                12, 9);
         BAssertUtil.validateError(resultNegative, 2, "transaction statement cannot be used " +
-                        "within a transactional scope", 20, 5);
+                        "within a transactional scope", 21, 5);
         BAssertUtil.validateError(resultNegative, 3, "usage of start within a transactional " +
-                "scope is prohibited", 29, 19);
+                "scope is prohibited", 30, 19);
         BAssertUtil.validateError(resultNegative, 4, "usage of start within a transactional " +
-                "scope is prohibited", 38, 21);
+                "scope is prohibited", 39, 21);
         BAssertUtil.validateError(resultNegative, 5, "invoking transactional function outside " +
-                        "transactional scope is prohibited", 40, 15);
+                        "transactional scope is prohibited", 41, 15);
         BAssertUtil.validateError(resultNegative, 6, "commit not allowed here",
-                59, 17);
+                60, 17);
         BAssertUtil.validateError(resultNegative, 7, "invoking transactional function outside " +
-                        "transactional scope is prohibited", 70, 21);
+                        "transactional scope is prohibited", 71, 21);
         BAssertUtil.validateError(resultNegative, 8, "commit not allowed here",
-                73, 17);
+                74, 17);
         BAssertUtil.validateError(resultNegative, 9, "rollback not allowed here",
-                96, 17);
+                97, 17);
         BAssertUtil.validateError(resultNegative, 10, "rollback not allowed here",
-                100, 9);
+                101, 9);
         BAssertUtil.validateError(resultNegative, 11, "commit not allowed here",
-                102, 17);
+                103, 17);
         BAssertUtil.validateError(resultNegative, 12, "invalid transaction commit count",
-                116, 9);
+                117, 9);
         BAssertUtil.validateError(resultNegative, 13, "break statement cannot be used to " +
                         "exit from a transaction without a commit or a rollback statement",
-                118, 17);
+                119, 17);
         BAssertUtil.validateError(resultNegative, 14, "commit cannot be used outside " +
-                "a transaction statement", 122, 13);
+                "a transaction statement", 123, 13);
         BAssertUtil.validateError(resultNegative, 15, "continue statement cannot be used " +
-                "to exit from a transaction without a commit or a rollback statement", 132, 17);
+                "to exit from a transaction without a commit or a rollback statement", 133, 17);
         BAssertUtil.validateError(resultNegative, 16, "return statement cannot be used to exit " +
-                "from a transaction without a commit or a rollback statement", 147, 17);
+                "from a transaction without a commit or a rollback statement", 148, 17);
         BAssertUtil.validateError(resultNegative, 17, "return statement cannot be used to exit " +
-                "from a transaction without a commit or a rollback statement", 164, 13);
+                "from a transaction without a commit or a rollback statement", 165, 13);
         BAssertUtil.validateError(resultNegative, 18, "return statement cannot be used to exit " +
-                "from a transaction without a commit or a rollback statement", 184, 21);
+                "from a transaction without a commit or a rollback statement", 185, 21);
         BAssertUtil.validateError(resultNegative, 19, "return statement cannot be used to exit " +
-                "from a transaction without a commit or a rollback statement", 188, 21);
+                "from a transaction without a commit or a rollback statement", 189, 21);
         BAssertUtil.validateError(resultNegative, 20, "invoking transactional function outside " +
-                "transactional scope is prohibited", 207, 16);
+                "transactional scope is prohibited", 208, 16);
         BAssertUtil.validateError(resultNegative, 21, "transaction statement cannot be nested " +
-                "within another transaction block", 214, 9);
+                "within another transaction block", 215, 9);
+        BAssertUtil.validateError(resultNegative, 22, "invoking transactional function outside " +
+                "transactional scope is prohibited", 237, 9);
+        BAssertUtil.validateError(resultNegative, 23, "invoking transactional function outside " +
+                "transactional scope is prohibited", 238, 9);
+        BAssertUtil.validateError(resultNegative, 24, "invoking transactional function outside " +
+                "transactional scope is prohibited", 239, 34);
+        BAssertUtil.validateError(resultNegative, 25, "invoking transactional function outside " +
+                "transactional scope is prohibited", 241, 17);
+    }
+
+    @Test(description = "Test incompatible transaction handlers")
+    public void testIncompatibleTrxHandlers() {
+        Assert.assertEquals(trxHandlersNegative.getErrorCount(), 2);
+        BAssertUtil.validateError(trxHandlersNegative, 0, "incompatible types: expected " +
+                        "'function (ballerina/lang.transaction:0.0.1:Info,error?,boolean) returns ()', " +
+                        "found 'function (boolean) returns ()'",
+                16, 33);
+        BAssertUtil.validateError(trxHandlersNegative, 1, "incompatible types: expected " +
+                        "'function (ballerina/lang.transaction:0.0.1:Info) returns ()', found " +
+                        "'function (string) returns ()'",
+                17, 31);
     }
 }

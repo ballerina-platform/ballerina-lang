@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -52,6 +53,7 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
+    public BError panic;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
@@ -101,10 +103,6 @@ public class Strand {
                 channel.setReceiveError(error);
             }
         }
-    }
-
-    public void setReturnValues(Object returnValue) {
-        this.returnValue = returnValue;
     }
 
     public Object getProperty(String key) {

@@ -20,7 +20,6 @@ package org.ballerinalang.observe.trace.extension.choreo.client;
 
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
-import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoClientException;
 import org.ballerinalang.observe.trace.extension.choreo.client.error.ChoreoErrors;
@@ -84,8 +83,11 @@ public class ChoreoClient implements AutoCloseable {
         try {
             registerResponse = registrationClient.register(handshakeRequest);
         } catch (StatusRuntimeException e) {
-            if (e.getStatus().getCode() == Status.UNAVAILABLE.getCode()) {
-                throw ChoreoErrors.getUnavailableError();
+            switch (e.getStatus().getCode()) {
+                case UNAVAILABLE:
+                    throw ChoreoErrors.getUnavailableError();
+                case UNKNOWN:
+                    throw ChoreoErrors.getIncompatibleServiceError();
             }
 
             throw e;

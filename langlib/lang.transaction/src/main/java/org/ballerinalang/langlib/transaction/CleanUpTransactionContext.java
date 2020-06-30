@@ -19,6 +19,7 @@
 package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,6 +45,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class CleanUpTransactionContext {
 
     public static void cleanupTransactionContext(Strand strand, BString transactionBlockId) {
+        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        transactionLocalContext.removeTransactionInfo();
         strand.removeLocalTransactionContext();
     }
 }

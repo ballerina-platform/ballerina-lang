@@ -216,9 +216,13 @@ public enum ParserRuleContext {
     MATCH_PATTERN("match-pattern"),
     MATCH_PATTERN_START("match-pattern-start"),
     MATCH_PATTERN_END("match-pattern-end"),
-    MATCH_PATTERN_RHS("match-pattern-rhs"),
+    MATCH_PATTERN_RHS("match-pattern-outer-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
     JOIN_CLAUSE("join-clause"),
+    LIST_MATCH_PATTERN("list-match-pattern"),
+    LIST_MATCH_PATTERN_MEMBER_START("list-match-pattern-member-start"),
+    LIST_MATCH_PATTERN_MEMBER_RHS("list-match-pattern-member-rhs"),
+    REST_MATCH_PATTERN("rest-match-pattern"),
 
     // Statements
     STATEMENT("statement"),
@@ -331,6 +335,7 @@ public enum ParserRuleContext {
     LIMIT_KEYWORD("limit"),
     JOIN_KEYWORD("join"),
     OUTER_KEYWORD("outer"),
+    VAR_KEYWORD("var"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

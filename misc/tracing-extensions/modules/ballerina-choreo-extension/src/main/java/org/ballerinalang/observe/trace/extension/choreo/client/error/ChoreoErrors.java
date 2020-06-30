@@ -27,7 +27,13 @@ public class ChoreoErrors {
 
     public static ChoreoClientException getUnavailableError() {
         return new ChoreoClientException(
-                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services not available.", null)
+                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo services are not available.", null)
+        );
+    }
+
+    public static ChoreoClientException getIncompatibleServiceError() {
+        return new ChoreoClientException(
+                new ChoreoError(ChoreoError.Code.UNAVAILABLE, "Choreo backend is not compatible.", null)
         );
     }
 
