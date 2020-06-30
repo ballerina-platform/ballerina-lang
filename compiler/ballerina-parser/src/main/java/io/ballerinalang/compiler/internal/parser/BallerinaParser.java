@@ -12515,7 +12515,7 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> matchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
 
-        while (!isEndOfMatchPattern()) {
+        while (!isEndOfListMatchPattern()) {
             STToken nextToken = peek();
             if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
                 restMatchPattern = parseRestMatchPattern();
@@ -12544,7 +12544,7 @@ public class BallerinaParser extends AbstractParser {
                 closeBracketToken);
     }
 
-    public boolean isEndOfMatchPattern() {
+    public boolean isEndOfListMatchPattern() {
         switch (peek().kind) {
             case CLOSE_BRACKET_TOKEN:
             case EOF_TOKEN:
