@@ -2835,12 +2835,14 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static DocumentationLineNode createDocumentationLineNode(
+            SyntaxKind kind,
             Token hashToken,
             Token description) {
         Objects.requireNonNull(hashToken, "hashToken must not be null");
         Objects.requireNonNull(description, "description must not be null");
 
         STNode stDocumentationLineNode = STNodeFactory.createDocumentationLineNode(
+                kind,
                 hashToken.internalNode(),
                 description.internalNode());
         return stDocumentationLineNode.createUnlinkedFacade();

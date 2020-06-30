@@ -58,6 +58,7 @@ public class DocumentationLineNode extends DocumentationNode {
     }
 
     public DocumentationLineNode modify(
+            SyntaxKind kind,
             Token hashToken,
             Token description) {
         if (checkForReferenceEquality(
@@ -67,6 +68,7 @@ public class DocumentationLineNode extends DocumentationNode {
         }
 
         return NodeFactory.createDocumentationLineNode(
+                kind,
                 hashToken,
                 description);
     }
@@ -107,6 +109,7 @@ public class DocumentationLineNode extends DocumentationNode {
 
         public DocumentationLineNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     hashToken,
                     description);
         }

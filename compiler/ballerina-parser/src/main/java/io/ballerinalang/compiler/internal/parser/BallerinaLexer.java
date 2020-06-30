@@ -103,9 +103,6 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance();
                 switchMode(ParserMode.PARA_DOCUMENTATION);
                 return getDocSyntaxToken(SyntaxKind.PLUS_TOKEN);
-            case LexerTerminals.HASH: // Deprecated Documentation
-                // check for the word deprecated
-                //create deprecatedDocToken
             case LexerTerminals.BACKTICK:
                 reader.advance();
                 if (peek() == LexerTerminals.BACKTICK) {

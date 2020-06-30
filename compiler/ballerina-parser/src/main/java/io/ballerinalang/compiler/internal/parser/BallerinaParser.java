@@ -8311,17 +8311,30 @@ public class BallerinaParser extends AbstractParser {
         switch (referenceDocumentationElements.size()) {
             case 0:
                 documentationDescription = STNodeFactory.createEmptyNode();
-                return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
+                return createDocumentationLineNode(hashToken, documentationDescription);
             case 1:
                 documentationDescription = referenceDocumentationElements.get(0);
                 if (documentationDescription.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    return STNodeFactory.createDocumentationLineNode(hashToken, documentationDescription);
+                    if (((STToken)documentationDescription).text().startsWith("# Deprecated")) {
+                        return createDeprecationDocumentationLineNode(hashToken, documentationDescription);
+                    }
+                    return createDocumentationLineNode(hashToken, documentationDescription);
                 }
                 // Else fall through
             default:
                 STNode expr= STNodeFactory.createNodeList(referenceDocumentationElements);
                 return STNodeFactory.createReferenceDocumentationLineNode(hashToken, expr);
         }
+    }
+
+    private STNode createDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
+                documentationDescription);
+    }
+
+    private STNode createDeprecationDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DEPRECATION_DOCUMENTATION_LINE, hashToken,
+                documentationDescription);
     }
 
     private boolean isDocumentReferenceType(SyntaxKind kind) {

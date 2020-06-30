@@ -3853,7 +3853,6 @@
         {
             "name": "DocumentationLineNode",
             "base": "DocumentationNode",
-            "kind": "DOCUMENTATION_LINE",
             "attributes": [
                 {
                     "name": "hashToken",

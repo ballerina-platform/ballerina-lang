@@ -2295,6 +2295,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode hashToken = modifyNode(documentationLineNode.hashToken);
         STNode description = modifyNode(documentationLineNode.description);
         return documentationLineNode.modify(
+                documentationLineNode.kind,
                 hashToken,
                 description);
     }

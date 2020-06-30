@@ -35,19 +35,22 @@ public class STDocumentationLineNode extends STDocumentationNode {
     public final STNode description;
 
     STDocumentationLineNode(
+            SyntaxKind kind,
             STNode hashToken,
             STNode description) {
         this(
+                kind,
                 hashToken,
                 description,
                 Collections.emptyList());
     }
 
     STDocumentationLineNode(
+            SyntaxKind kind,
             STNode hashToken,
             STNode description,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_LINE, diagnostics);
+        super(kind, diagnostics);
         this.hashToken = hashToken;
         this.description = description;
 
@@ -58,12 +61,14 @@ public class STDocumentationLineNode extends STDocumentationNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDocumentationLineNode(
+                this.kind,
                 this.hashToken,
                 this.description,
                 diagnostics);
     }
 
     public STDocumentationLineNode modify(
+            SyntaxKind kind,
             STNode hashToken,
             STNode description) {
         if (checkForReferenceEquality(
@@ -73,6 +78,7 @@ public class STDocumentationLineNode extends STDocumentationNode {
         }
 
         return new STDocumentationLineNode(
+                kind,
                 hashToken,
                 description,
                 diagnostics);

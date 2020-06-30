@@ -2894,6 +2894,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token description =
                 modifyToken(documentationLineNode.description());
         return documentationLineNode.modify(
+                documentationLineNode.kind(),
                 hashToken,
                 description);
     }

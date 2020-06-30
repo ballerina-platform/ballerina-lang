@@ -2129,10 +2129,12 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createDocumentationLineNode(
+            SyntaxKind kind,
             STNode hashToken,
             STNode description) {
 
         return new STDocumentationLineNode(
+                kind,
                 hashToken,
                 description);
     }
