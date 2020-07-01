@@ -357,10 +357,26 @@ public class TypeChecker extends BLangNodeVisitor {
         this.env = prevEnv;
         this.expType = preExpType;
         this.diagCode = preDiagCode;
-        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR && resultType.tag != TypeTags.SEMANTIC_ERROR) {
+
+        validateAndSetExprExpectedType(expr, expType);
+
+        return resultType;
+    }
+
+    private void validateAndSetExprExpectedType(BLangExpression expr, BType origExpType) {
+        if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
+            return;
+        }
+
+        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR ||
+                expr.expectedType == null ||
+                expr.expectedType.tag != TypeTags.MAP ||
+                expr.type.tag != TypeTags.RECORD) {
             expr.expectedType = resultType;
         }
-        return resultType;
+
+        // If the expected type is a map, but a record type is inferred due to the presence of `readonly` fields in
+        // the mapping constructor expression, we don't override the expected type.
     }
 
 
