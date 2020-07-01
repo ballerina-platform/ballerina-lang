@@ -19,14 +19,10 @@ package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Gauge;
 import org.ballerinalang.jvm.observability.metrics.StatisticConfig;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 import java.time.Duration;
 
@@ -35,16 +31,10 @@ import java.time.Duration;
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "initialize",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH)
-)
+
 public class GaugeInitialize {
 
-    public static void initialize(Strand strand, ObjectValue guage) {
+    public static void initialize(ObjectValue guage) {
         ArrayValue summaryConfigs = (ArrayValue) guage.get(ObserveNativeImplConstants.STATISTICS_CONFIG_FIELD);
         Gauge.Builder gaugeBuilder = Gauge.builder(guage.get(ObserveNativeImplConstants.NAME_FIELD).toString())
                 .description(guage.get(ObserveNativeImplConstants.DESCRIPTION_FIELD).toString())

@@ -179,7 +179,7 @@ public function indexOf(PureType[] arr, PureType val, int startIndex = 0) return
 # + startIndex - index to start searching backwards from
 # + return - index of the member if found, else `()`
 public function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.length() - 1) returns int? = @java:Method {
-    class: "org.ballerinalang.langlib.array.lastIndexOf",
+    class: "org.ballerinalang.langlib.array.LastIndexOf",
     name: "lastIndexOf"
 } external;
 
