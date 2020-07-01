@@ -741,10 +741,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(onClauseNode);
     }
 
-    public void visit(STDocumentationLineNode documentationLineNode) {
-        visitSyntaxNode(documentationLineNode);
-    }
-
     public void visit(STParameterDocumentationLineNode parameterDocumentationLineNode) {
         visitSyntaxNode(parameterDocumentationLineNode);
     }
@@ -753,12 +749,8 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
-    public void visit(STDocumentationCodeReferenceNode documentationCodeReferenceNode) {
-        visitSyntaxNode(documentationCodeReferenceNode);
-    }
-
-    public void visit(STReferenceDocumentationLineNode referenceDocumentationLineNode) {
-        visitSyntaxNode(referenceDocumentationLineNode);
+    public void visit(STDocumentationLineNode documentationLineNode) {
+        visitSyntaxNode(documentationLineNode);
     }
 
     // STNodeList

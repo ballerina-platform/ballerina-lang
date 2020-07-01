@@ -32,55 +32,55 @@ import java.util.Collections;
  */
 public class STDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
-    public final STNode description;
+    public final STNode referenceOrDescription;
 
     STDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
-            STNode description) {
+            STNode referenceOrDescription) {
         this(
                 kind,
                 hashToken,
-                description,
+                referenceOrDescription,
                 Collections.emptyList());
     }
 
     STDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
-            STNode description,
+            STNode referenceOrDescription,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.hashToken = hashToken;
-        this.description = description;
+        this.referenceOrDescription = referenceOrDescription;
 
         addChildren(
                 hashToken,
-                description);
+                referenceOrDescription);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDocumentationLineNode(
                 this.kind,
                 this.hashToken,
-                this.description,
+                this.referenceOrDescription,
                 diagnostics);
     }
 
     public STDocumentationLineNode modify(
             SyntaxKind kind,
             STNode hashToken,
-            STNode description) {
+            STNode referenceOrDescription) {
         if (checkForReferenceEquality(
                 hashToken,
-                description)) {
+                referenceOrDescription)) {
             return this;
         }
 
         return new STDocumentationLineNode(
                 kind,
                 hashToken,
-                description,
+                referenceOrDescription,
                 diagnostics);
     }
 

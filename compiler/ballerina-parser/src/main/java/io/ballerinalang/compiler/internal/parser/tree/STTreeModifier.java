@@ -2290,17 +2290,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STDocumentationLineNode transform(
-            STDocumentationLineNode documentationLineNode) {
-        STNode hashToken = modifyNode(documentationLineNode.hashToken);
-        STNode description = modifyNode(documentationLineNode.description);
-        return documentationLineNode.modify(
-                documentationLineNode.kind,
-                hashToken,
-                description);
-    }
-
-    @Override
     public STParameterDocumentationLineNode transform(
             STParameterDocumentationLineNode parameterDocumentationLineNode) {
         STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
@@ -2332,23 +2321,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STDocumentationCodeReferenceNode transform(
-            STDocumentationCodeReferenceNode documentationCodeReferenceNode) {
-        STNode startHigherOrderBacktick = modifyNode(documentationCodeReferenceNode.startHigherOrderBacktick);
-        STNode backtickContent = modifyNode(documentationCodeReferenceNode.backtickContent);
-        STNode endHigherOrderBacktick = modifyNode(documentationCodeReferenceNode.endHigherOrderBacktick);
-        return documentationCodeReferenceNode.modify(
-                startHigherOrderBacktick,
-                backtickContent,
-                endHigherOrderBacktick);
-    }
-
-    @Override
-    public STReferenceDocumentationLineNode transform(
-            STReferenceDocumentationLineNode referenceDocumentationLineNode) {
-        STNode hashToken = modifyNode(referenceDocumentationLineNode.hashToken);
-        STNode referenceOrDescription = modifyNode(referenceDocumentationLineNode.referenceOrDescription);
-        return referenceDocumentationLineNode.modify(
+    public STDocumentationLineNode transform(
+            STDocumentationLineNode documentationLineNode) {
+        STNode hashToken = modifyNode(documentationLineNode.hashToken);
+        STNode referenceOrDescription = modifyNode(documentationLineNode.referenceOrDescription);
+        return documentationLineNode.modify(
+                documentationLineNode.kind,
                 hashToken,
                 referenceOrDescription);
     }

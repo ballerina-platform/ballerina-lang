@@ -36,8 +36,8 @@ public class DocumentationLineNode extends DocumentationNode {
         return childInBucket(0);
     }
 
-    public Token description() {
-        return childInBucket(1);
+    public NodeList<Node> referenceOrDescription() {
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -54,23 +54,23 @@ public class DocumentationLineNode extends DocumentationNode {
     protected String[] childNames() {
         return new String[]{
                 "hashToken",
-                "description"};
+                "referenceOrDescription"};
     }
 
     public DocumentationLineNode modify(
             SyntaxKind kind,
             Token hashToken,
-            Token description) {
+            NodeList<Node> referenceOrDescription) {
         if (checkForReferenceEquality(
                 hashToken,
-                description)) {
+                referenceOrDescription.underlyingListNode())) {
             return this;
         }
 
         return NodeFactory.createDocumentationLineNode(
                 kind,
                 hashToken,
-                description);
+                referenceOrDescription);
     }
 
     public DocumentationLineNodeModifier modify() {
@@ -85,12 +85,12 @@ public class DocumentationLineNode extends DocumentationNode {
     public static class DocumentationLineNodeModifier {
         private final DocumentationLineNode oldNode;
         private Token hashToken;
-        private Token description;
+        private NodeList<Node> referenceOrDescription;
 
         public DocumentationLineNodeModifier(DocumentationLineNode oldNode) {
             this.oldNode = oldNode;
             this.hashToken = oldNode.hashToken();
-            this.description = oldNode.description();
+            this.referenceOrDescription = oldNode.referenceOrDescription();
         }
 
         public DocumentationLineNodeModifier withHashToken(
@@ -100,10 +100,10 @@ public class DocumentationLineNode extends DocumentationNode {
             return this;
         }
 
-        public DocumentationLineNodeModifier withDescription(
-                Token description) {
-            Objects.requireNonNull(description, "description must not be null");
-            this.description = description;
+        public DocumentationLineNodeModifier withReferenceOrDescription(
+                NodeList<Node> referenceOrDescription) {
+            Objects.requireNonNull(referenceOrDescription, "referenceOrDescription must not be null");
+            this.referenceOrDescription = referenceOrDescription;
             return this;
         }
 
@@ -111,7 +111,7 @@ public class DocumentationLineNode extends DocumentationNode {
             return oldNode.modify(
                     oldNode.kind(),
                     hashToken,
-                    description);
+                    referenceOrDescription);
         }
     }
 }

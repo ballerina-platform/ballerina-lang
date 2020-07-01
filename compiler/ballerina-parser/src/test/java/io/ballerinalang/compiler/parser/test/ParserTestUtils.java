@@ -1167,20 +1167,18 @@ public class ParserTestUtils {
             // Documentation
             case "DOCUMENTATION_LINE":
                 return SyntaxKind.DOCUMENTATION_LINE;
+            case "REFERENCE_DOCUMENTATION_LINE":
+                return SyntaxKind.REFERENCE_DOCUMENTATION_LINE;
             case "PARAMETER_DOCUMENTATION_LINE":
                 return SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
             case "RETURN_PARAMETER_DOCUMENTATION_LINE":
                 return SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-            case "REFERENCE_DOCUMENTATION_LINE":
-                return SyntaxKind.REFERENCE_DOCUMENTATION_LINE;
             case "DEPRECATION_DOCUMENTATION_LINE":
                 return SyntaxKind.DEPRECATION_DOCUMENTATION_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
                 return SyntaxKind.DOCUMENTATION_REFERENCE;
-            case "DOCUMENTATION_CODE_REFERENCE":
-                return SyntaxKind.DOCUMENTATION_CODE_REFERENCE;
             case "BACKTICK_CONTENT":
                 return SyntaxKind.BACKTICK_CONTENT;
             case "PARAMETER_NAME":

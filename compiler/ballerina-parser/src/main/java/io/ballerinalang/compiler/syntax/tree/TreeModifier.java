@@ -2887,19 +2887,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public DocumentationLineNode transform(
-            DocumentationLineNode documentationLineNode) {
-        Token hashToken =
-                modifyToken(documentationLineNode.hashToken());
-        Token description =
-                modifyToken(documentationLineNode.description());
-        return documentationLineNode.modify(
-                documentationLineNode.kind(),
-                hashToken,
-                description);
-    }
-
-    @Override
     public ParameterDocumentationLineNode transform(
             ParameterDocumentationLineNode parameterDocumentationLineNode) {
         Token hashToken =
@@ -2940,28 +2927,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public DocumentationCodeReferenceNode transform(
-            DocumentationCodeReferenceNode documentationCodeReferenceNode) {
-        Token startHigherOrderBacktick =
-                modifyToken(documentationCodeReferenceNode.startHigherOrderBacktick());
-        Token backtickContent =
-                modifyToken(documentationCodeReferenceNode.backtickContent());
-        Token endHigherOrderBacktick =
-                modifyToken(documentationCodeReferenceNode.endHigherOrderBacktick());
-        return documentationCodeReferenceNode.modify(
-                startHigherOrderBacktick,
-                backtickContent,
-                endHigherOrderBacktick);
-    }
-
-    @Override
-    public ReferenceDocumentationLineNode transform(
-            ReferenceDocumentationLineNode referenceDocumentationLineNode) {
+    public DocumentationLineNode transform(
+            DocumentationLineNode documentationLineNode) {
         Token hashToken =
-                modifyToken(referenceDocumentationLineNode.hashToken());
+                modifyToken(documentationLineNode.hashToken());
         NodeList<Node> referenceOrDescription =
-                modifyNodeList(referenceDocumentationLineNode.referenceOrDescription());
-        return referenceDocumentationLineNode.modify(
+                modifyNodeList(documentationLineNode.referenceOrDescription());
+        return documentationLineNode.modify(
+                documentationLineNode.kind(),
                 hashToken,
                 referenceOrDescription);
     }

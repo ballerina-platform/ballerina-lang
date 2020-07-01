@@ -2128,17 +2128,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode description) {
-
-        return new STDocumentationLineNode(
-                kind,
-                hashToken,
-                description);
-    }
-
     public static STNode createParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
@@ -2169,22 +2158,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endBacktick);
     }
 
-    public static STNode createDocumentationCodeReferenceNode(
-            STNode startHigherOrderBacktick,
-            STNode backtickContent,
-            STNode endHigherOrderBacktick) {
-
-        return new STDocumentationCodeReferenceNode(
-                startHigherOrderBacktick,
-                backtickContent,
-                endHigherOrderBacktick);
-    }
-
-    public static STNode createReferenceDocumentationLineNode(
+    public static STNode createDocumentationLineNode(
+            SyntaxKind kind,
             STNode hashToken,
             STNode referenceOrDescription) {
 
-        return new STReferenceDocumentationLineNode(
+        return new STDocumentationLineNode(
+                kind,
                 hashToken,
                 referenceOrDescription);
     }

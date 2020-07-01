@@ -741,10 +741,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(onClauseNode);
     }
 
-    public T transform(STDocumentationLineNode documentationLineNode) {
-        return transformSyntaxNode(documentationLineNode);
-    }
-
     public T transform(STParameterDocumentationLineNode parameterDocumentationLineNode) {
         return transformSyntaxNode(parameterDocumentationLineNode);
     }
@@ -753,12 +749,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
-    public T transform(STDocumentationCodeReferenceNode documentationCodeReferenceNode) {
-        return transformSyntaxNode(documentationCodeReferenceNode);
-    }
-
-    public T transform(STReferenceDocumentationLineNode referenceDocumentationLineNode) {
-        return transformSyntaxNode(referenceDocumentationLineNode);
+    public T transform(STDocumentationLineNode documentationLineNode) {
+        return transformSyntaxNode(documentationLineNode);
     }
 
     // Tokens
