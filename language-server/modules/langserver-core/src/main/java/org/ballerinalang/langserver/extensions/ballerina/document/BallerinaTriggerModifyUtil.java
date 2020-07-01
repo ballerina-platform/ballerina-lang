@@ -60,6 +60,7 @@ public class BallerinaTriggerModifyUtil {
 
     private static final String MAIN = "main";
     private static final String SERVICE = "service";
+    public static final String EMPTY_STRING = "";
 
     private BallerinaTriggerModifyUtil() {
     }
@@ -88,10 +89,18 @@ public class BallerinaTriggerModifyUtil {
         //perform edits
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
-        SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-        String updatedSyntaxTreeString = updatedSyntaxTree.toString();
+        String updatedSyntaxTreeString = "";
+        SyntaxTree updatedSyntaxTree = null;
+        // if current file is empty, avoid using incremental parsing
+        if (fileContent.equals(EMPTY_STRING)) {
+            TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
+            updatedSyntaxTreeString = newTextDoc.toString();
+            updatedSyntaxTree = SyntaxTree.from(newTextDoc);
+        } else {
+            updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
+            updatedSyntaxTreeString = updatedSyntaxTree.toString();
+        }
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
-//        logger.info("Updated Tree v1 : " + updatedSyntaxTree);
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
@@ -119,7 +128,6 @@ public class BallerinaTriggerModifyUtil {
         formattingUtil.accept(model);
 
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
-//        logger.info("Updated Tree v2 : " + updatedSyntaxTree);
         File outputFile = compilationPath.toFile();
         try (FileWriter writer = new FileWriter(outputFile)) {
             writer.write(updatedSyntaxTreeString);
