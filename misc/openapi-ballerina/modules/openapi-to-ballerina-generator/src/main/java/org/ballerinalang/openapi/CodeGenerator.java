@@ -104,8 +104,11 @@ public class CodeGenerator {
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
 
         if (type.equals(GEN_CLIENT)) {
-            srcPath = srcPath.resolve("client");
-            implPath = implPath.resolve("client");
+            if (srcPackage.equals("")) {
+                srcPath = srcPath.resolve("client");
+                implPath = implPath.resolve("client");
+            }
+
 
             if (Files.notExists(srcPath)) {
                 Files.createDirectory(srcPath);

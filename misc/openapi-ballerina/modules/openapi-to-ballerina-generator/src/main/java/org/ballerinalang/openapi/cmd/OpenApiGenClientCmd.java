@@ -86,7 +86,7 @@ public class OpenApiGenClientCmd implements BLauncherCmd {
             throw LauncherUtils.createLauncherException(OpenApiMesseges.OPENAPI_FILE_MANDATORY);
         }
 
-        if (moduleArgs.size() > 2) {
+        if (moduleArgs.size() >= 2) {
             generator.setSrcPackage(moduleArgs.get(0));
         }
 
