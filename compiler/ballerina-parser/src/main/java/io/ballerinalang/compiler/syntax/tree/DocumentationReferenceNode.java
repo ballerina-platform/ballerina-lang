@@ -40,7 +40,7 @@ public class DocumentationReferenceNode extends DocumentationNode {
         return childInBucket(1);
     }
 
-    public Token backtickContent() {
+    public Token nameReference() {
         return childInBucket(2);
     }
 
@@ -63,19 +63,19 @@ public class DocumentationReferenceNode extends DocumentationNode {
         return new String[]{
                 "referenceType",
                 "startBacktick",
-                "backtickContent",
+                "nameReference",
                 "endBacktick"};
     }
 
     public DocumentationReferenceNode modify(
             Token referenceType,
             Token startBacktick,
-            Token backtickContent,
+            Token nameReference,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick)) {
             return this;
         }
@@ -83,7 +83,7 @@ public class DocumentationReferenceNode extends DocumentationNode {
         return NodeFactory.createDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick);
     }
 
@@ -100,14 +100,14 @@ public class DocumentationReferenceNode extends DocumentationNode {
         private final DocumentationReferenceNode oldNode;
         private Token referenceType;
         private Token startBacktick;
-        private Token backtickContent;
+        private Token nameReference;
         private Token endBacktick;
 
         public DocumentationReferenceNodeModifier(DocumentationReferenceNode oldNode) {
             this.oldNode = oldNode;
             this.referenceType = oldNode.referenceType();
             this.startBacktick = oldNode.startBacktick();
-            this.backtickContent = oldNode.backtickContent();
+            this.nameReference = oldNode.nameReference();
             this.endBacktick = oldNode.endBacktick();
         }
 
@@ -125,10 +125,10 @@ public class DocumentationReferenceNode extends DocumentationNode {
             return this;
         }
 
-        public DocumentationReferenceNodeModifier withBacktickContent(
-                Token backtickContent) {
-            Objects.requireNonNull(backtickContent, "backtickContent must not be null");
-            this.backtickContent = backtickContent;
+        public DocumentationReferenceNodeModifier withNameReference(
+                Token nameReference) {
+            Objects.requireNonNull(nameReference, "nameReference must not be null");
+            this.nameReference = nameReference;
             return this;
         }
 
@@ -143,7 +143,7 @@ public class DocumentationReferenceNode extends DocumentationNode {
             return oldNode.modify(
                     referenceType,
                     startBacktick,
-                    backtickContent,
+                    nameReference,
                     endBacktick);
         }
     }

@@ -2915,14 +2915,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(documentationReferenceNode.referenceType());
         Token startBacktick =
                 modifyToken(documentationReferenceNode.startBacktick());
-        Token backtickContent =
-                modifyToken(documentationReferenceNode.backtickContent());
+        Token nameReference =
+                modifyToken(documentationReferenceNode.nameReference());
         Token endBacktick =
                 modifyToken(documentationReferenceNode.endBacktick());
         return documentationReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick);
     }
 

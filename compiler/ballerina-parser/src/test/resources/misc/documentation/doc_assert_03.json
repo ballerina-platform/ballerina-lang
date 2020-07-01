@@ -33,12 +33,17 @@
                               ]
                             },
                             {
-                              "kind": "DOCUMENTATION_DESCRIPTION",
-                              "value": "This is sample documentation line",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "This is sample documentation line",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
                                 }
                               ]
                             }

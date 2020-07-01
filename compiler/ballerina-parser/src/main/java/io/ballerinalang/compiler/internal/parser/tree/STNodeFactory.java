@@ -2148,13 +2148,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createDocumentationReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode backtickContent,
+            STNode nameReference,
             STNode endBacktick) {
 
         return new STDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                backtickContent,
+                nameReference,
                 endBacktick);
     }
 

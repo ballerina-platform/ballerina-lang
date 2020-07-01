@@ -30,8 +30,6 @@ public enum ParserMode {
     PARA_DOCUMENTATION,
     PARA,
     BACKTICK_CONTENT,
-    DOUBLE_BACKTICK_CONTENT,
-    TRIPPLE_BACKTICK_CONTENT,
     // Doc change end --------
     TEMPLATE,
     INTERPOLATION,

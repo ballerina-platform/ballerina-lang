@@ -62,14 +62,6 @@ public class BallerinaLexer extends AbstractLexer {
                 processLeadingTrivia();
                 token = readBacktickContentToken();
                 break;
-            case DOUBLE_BACKTICK_CONTENT:
-                processLeadingTrivia();
-                token = readDoubleBacktickContentToken();
-                break;
-            case TRIPPLE_BACKTICK_CONTENT:
-                processLeadingTrivia();
-                token = readTrippleBacktickContentToken();
-                break;
                 // Doc change end
             case TEMPLATE:
                 this.leadingTriviaList = new ArrayList<>(0);
@@ -103,20 +95,6 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance();
                 switchMode(ParserMode.PARA_DOCUMENTATION);
                 return getDocSyntaxToken(SyntaxKind.PLUS_TOKEN);
-            case LexerTerminals.BACKTICK:
-                reader.advance();
-                if (peek() == LexerTerminals.BACKTICK) {
-                    reader.advance();
-                    if (peek() == LexerTerminals.BACKTICK) {
-                        reader.advance();
-                        switchMode(ParserMode.TRIPPLE_BACKTICK_CONTENT);
-                        return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
-                    }
-                    switchMode(ParserMode.DOUBLE_BACKTICK_CONTENT);
-                    return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
-                }
-                switchMode(ParserMode.BACKTICK_CONTENT);
-                return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
             default:
                 A:
                 while (!reader.isEOF()) {
@@ -124,8 +102,6 @@ public class BallerinaLexer extends AbstractLexer {
                         case LexerTerminals.NEWLINE:
                         case LexerTerminals.CARRIAGE_RETURN:
                             endMode();
-                            break;
-                        case LexerTerminals.BACKTICK:
                             break;
                         default:
                             // ident begin
@@ -164,10 +140,11 @@ public class BallerinaLexer extends AbstractLexer {
                                                 nchar = reader.peek(cnt);
                                                 continue;
                                             case LexerTerminals.BACKTICK:
-                                                // Make sure this is a single backtick
-//                                                startMode(ParserMode.PARA);
-                                                switchMode(ParserMode.PARA);
-                                                break A;
+                                                if (reader.peek(cnt+1) != LexerTerminals.BACKTICK ) {
+                                                    switchMode(ParserMode.PARA);
+                                                    break A;
+                                                }
+                                                break;
                                             default:
                                                 break;
                                         }
@@ -190,8 +167,12 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     private STToken readParaDocToken() {
-        switchMode(ParserMode.DOCUMENTATION);
-        reader.advance();
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.BACKTICK) {
+            reader.advance();
+            switchMode(ParserMode.BACKTICK_CONTENT);
+            return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+        }
         while (isIdentifierInitialChar(peek())) {
             reader.advance();
         }
@@ -217,8 +198,9 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.FUNCTION:
                 return getSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.PARAMETER:
-            default:
                 return getSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
+            default:
+                throw new IllegalStateException();
         }
     }
 
@@ -229,79 +211,15 @@ public class BallerinaLexer extends AbstractLexer {
             switchMode(ParserMode.DOCUMENTATION);
             return getDocSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         }
-        while (!reader.isEOF()) {
-            switch (nextToken) {
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                    switchMode(ParserMode.DOCUMENTATION);
-                    break;
-                case LexerTerminals.BACKTICK:
-                    break;
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
-            break;
-        }
-        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
-    }
 
-    private STToken readDoubleBacktickContentToken() {
-        int nextToken = peek();
-        if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK) {
-            reader.advance(2);
-            switchMode(ParserMode.DOCUMENTATION);
-            return getDocSyntaxToken(SyntaxKind.DOUBLE_BACKTICK_TOKEN);
-        }
-        while (!reader.isEOF()) {
-            switch (nextToken) {
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                    switchMode(ParserMode.DOCUMENTATION);
-                    // fall through
-                case LexerTerminals.BACKTICK:
-                    if (reader.peek(1) == LexerTerminals.BACKTICK) {
-                        break;
-                    }
-                    // fall through
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
+        STToken token = readToken();
+        STNode trailingTrivia = token.trailingMinutiae();
+        for (int i = 0; i < trailingTrivia.bucketCount(); i++) {
+            if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                endMode();
             }
-            break;
         }
-        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
-    }
-
-    private STToken readTrippleBacktickContentToken() {
-        int nextToken = peek();
-        if (nextToken == LexerTerminals.BACKTICK && reader.peek(1) == LexerTerminals.BACKTICK
-                && reader.peek(2) == LexerTerminals.BACKTICK) {
-            reader.advance(3);
-            switchMode(ParserMode.DOCUMENTATION);
-            return getDocSyntaxToken(SyntaxKind.TRIPPLE_BACKTICK_TOKEN);
-        }
-        while (!reader.isEOF()) {
-            switch (nextToken) {
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                    switchMode(ParserMode.DOCUMENTATION);
-                    // fall through
-                case LexerTerminals.BACKTICK:
-                    if (reader.peek(1) == LexerTerminals.BACKTICK && reader.peek(2) == LexerTerminals.BACKTICK) {
-                        break;
-                    }
-                    // fall through
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
-            break;
-        }
-        return getDocTemplateString(SyntaxKind.BACKTICK_CONTENT);
+        return token;
     }
 
     private STToken readParaDocumentationToken() {
