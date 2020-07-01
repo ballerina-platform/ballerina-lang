@@ -367,8 +367,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask(skipCopyLibsFromDist)) // compile the modules
-                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the .balo files for modules
-                // (projects only)
+                .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the .balo files for
+                                                                                            // modules(projects only)
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar

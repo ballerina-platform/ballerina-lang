@@ -405,14 +405,14 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new ResolveMavenDependenciesTask(), this.compile)
-                .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the .balo files for modules (projects only)
+                .addTask(new CreateBaloTask(), isSingleFileBuild)  // create the .balo files for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
                 .addTask(new CreateJarTask(skipCopyLibsFromDist))   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, skipTests))
-                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
-                                                                                                // (projects only)
+                .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild)
+                                                                                            // run test (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
                                                                                         // file
                 .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
