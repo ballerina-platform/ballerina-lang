@@ -160,7 +160,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObject
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getModuleLevelClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
@@ -1018,21 +1017,9 @@ class JvmTypeGen {
                 String.format("(L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
-    private static String typeRefToClassName(PackageID typeRef, String className) {
-
-        return getModuleLevelClassName(typeRef.orgName.value, typeRef.name.value, typeRef.version.value, className);
-    }
-
     // -------------------------------------------------------
     //              Type loading methods
     // -------------------------------------------------------
-
-    static void loadExternalType(MethodVisitor mv, PackageID pkgId, String name) {
-
-        String fieldName = getTypeFieldName(name);
-        String externlTypeOwner = typeRefToClassName(pkgId, MODULE_INIT_CLASS_NAME);
-        mv.visitFieldInsn(GETSTATIC, externlTypeOwner, fieldName, String.format("L%s;", BTYPE));
-    }
 
     static void loadLocalType(MethodVisitor mv, BIRTypeDefinition typeDefinition) {
 
@@ -1668,8 +1655,6 @@ class JvmTypeGen {
                         false);
             } else if (valueType.tag == TypeTags.BYTE) {
                 mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
-            } else if (valueType.tag == TypeTags.DECIMAL) {
-                // this is handled within the 'loadConstantValue()' method
             }
 
             // Add the value to the set

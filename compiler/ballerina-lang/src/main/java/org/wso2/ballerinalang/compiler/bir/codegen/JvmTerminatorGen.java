@@ -1151,21 +1151,6 @@ public class JvmTerminatorGen {
         switch (bType.tag) {
             case TypeTags.NIL:
             case TypeTags.NEVER:
-                this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                this.mv.visitInsn(ARETURN);
-                break;
-            case TypeTags.BYTE:
-                this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                this.mv.visitInsn(IRETURN);
-                break;
-            case TypeTags.FLOAT:
-                this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
-                this.mv.visitInsn(DRETURN);
-                break;
-            case TypeTags.BOOLEAN:
-                this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                this.mv.visitInsn(IRETURN);
-                break;
             case TypeTags.MAP:
             case TypeTags.ARRAY:
             case TypeTags.ANY:
@@ -1186,6 +1171,15 @@ public class JvmTerminatorGen {
             case TypeTags.READONLY:
                 this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
                 this.mv.visitInsn(ARETURN);
+                break;
+            case TypeTags.BYTE:
+            case TypeTags.BOOLEAN:
+                this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                this.mv.visitInsn(IRETURN);
+                break;
+            case TypeTags.FLOAT:
+                this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
+                this.mv.visitInsn(DRETURN);
                 break;
             case TypeTags.UNION:
                 this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),

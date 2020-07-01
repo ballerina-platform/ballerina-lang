@@ -332,9 +332,8 @@ class JvmValueGen {
         }
     }
 
-    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
-                                     String typeName, BObjectType currentObjectType,
-                                     LambdaMetadata lambdaGenMetadata) {
+    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
+                                     BObjectType currentObjectType, LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
@@ -1373,7 +1372,7 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, objectType, lambdaGenMetadata);
+            this.createObjectMethods(cw, attachedFuncs, objectType, lambdaGenMetadata);
         }
 
         this.createObjectInit(cw, fields, className);
