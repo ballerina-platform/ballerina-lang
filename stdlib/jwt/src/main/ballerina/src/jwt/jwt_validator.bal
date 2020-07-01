@@ -274,7 +274,9 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
             }
         }
     }
-    jwtPayload.customClaims = customClaims;
+    if (customClaims.length() > 0) {
+        jwtPayload.customClaims = customClaims;
+    }
     return jwtPayload;
 }
 
@@ -416,7 +418,7 @@ function getJwk(string kid, JwksConfig jwksConfig) returns @tainted (json|Error)
             }
         }
     } else {
-        return prepareError("JWK retrieval failed", response);
+        return prepareError("Failed to call JWKs endpoint.", response);
     }
 }
 
