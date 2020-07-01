@@ -137,9 +137,9 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generateClient(String executionPath, String definitionPath, String outPath)
+    public void generateClient(String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, null, outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, serviceName, outPath);
     }
 
     /**
