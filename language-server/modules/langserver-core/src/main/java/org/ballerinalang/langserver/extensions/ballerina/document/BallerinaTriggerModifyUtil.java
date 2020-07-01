@@ -91,15 +91,9 @@ public class BallerinaTriggerModifyUtil {
                 new TextEdit[0]));
         String updatedSyntaxTreeString = "";
         SyntaxTree updatedSyntaxTree = null;
-        // if current file is empty, avoid using incremental parsing
-        if (fileContent.equals(EMPTY_STRING)) {
-            TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
-            updatedSyntaxTreeString = newTextDoc.toString();
-            updatedSyntaxTree = SyntaxTree.from(newTextDoc);
-        } else {
-            updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-            updatedSyntaxTreeString = updatedSyntaxTree.toString();
-        }
+        TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
+        updatedSyntaxTreeString = newTextDoc.toString();
+        updatedSyntaxTree = SyntaxTree.from(newTextDoc);
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
 
         //remove unused imports
@@ -126,6 +120,10 @@ public class BallerinaTriggerModifyUtil {
         FormattingSourceGen.build(model, "CompilationUnit");
         FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
         formattingUtil.accept(model);
+
+        updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
+        updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
+        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
 
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
         File outputFile = compilationPath.toFile();

@@ -203,7 +203,8 @@ public class BallerinaTreeModifyUtil {
 
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
-        SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
+        TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+        SyntaxTree updatedSyntaxTree = SyntaxTree.from(newTextDocument);
         String updatedSyntaxTreeString = updatedSyntaxTree.toString();
         documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
 
