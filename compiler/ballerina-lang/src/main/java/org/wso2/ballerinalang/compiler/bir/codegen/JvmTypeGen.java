@@ -233,12 +233,12 @@ class JvmTypeGen {
             fieldName = getTypeFieldName(typeDef.name.value);
             BType bType = typeDef.type;
             if (bType.tag == TypeTags.RECORD) {
-                createRecordType(mv, (BRecordType) bType, typeDef);
+                createRecordType(mv, (BRecordType) bType);
             } else if (bType.tag == TypeTags.OBJECT) {
                 if (bType instanceof BServiceType) {
-                    createServiceType(mv, (BServiceType) bType, typeDef.type);
+                    createServiceType(mv, (BServiceType) bType);
                 } else {
-                    createObjectType(mv, (BObjectType) bType, typeDef);
+                    createObjectType(mv, (BObjectType) bType);
                 }
             } else if (bType.tag == TypeTags.ERROR) {
                 createErrorType(mv, (BErrorType) bType, bType.tsymbol.name.value);
@@ -347,7 +347,7 @@ class JvmTypeGen {
         // Create TypeIdSet
         mv.visitTypeInsn(NEW, TYPE_ID_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, "<init>", String.format("()V"), false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, "<init>", "()V", false);
 
         for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
             addTypeId(mv, typeId, true);
@@ -595,9 +595,8 @@ class JvmTypeGen {
      *
      * @param mv         method visitor
      * @param recordType record type
-     * @param typeDef    record type definition
      */
-    private static void createRecordType(MethodVisitor mv, BRecordType recordType, BIRTypeDefinition typeDef) {
+    private static void createRecordType(MethodVisitor mv, BRecordType recordType) {
         // Create the record type
         mv.visitTypeInsn(NEW, RECORD_TYPE);
         mv.visitInsn(DUP);
@@ -722,9 +721,8 @@ class JvmTypeGen {
      *
      * @param mv         method visitor
      * @param objectType object type
-     * @param typeDef    object type definition.
      */
-    private static void createObjectType(MethodVisitor mv, BObjectType objectType, BIRTypeDefinition typeDef) {
+    private static void createObjectType(MethodVisitor mv, BObjectType objectType) {
         // Create the object type
         mv.visitTypeInsn(NEW, OBJECT_TYPE);
         mv.visitInsn(DUP);
@@ -759,9 +757,8 @@ class JvmTypeGen {
      *
      * @param mv         method visitor
      * @param objectType object type
-     * @param typeDef    type definition of the service
      */
-    private static void createServiceType(MethodVisitor mv, BObjectType objectType, BType typeDef) {
+    private static void createServiceType(MethodVisitor mv, BObjectType objectType) {
         // Create the object type
         mv.visitTypeInsn(NEW, SERVICE_TYPE);
         mv.visitInsn(DUP);
@@ -793,7 +790,7 @@ class JvmTypeGen {
     static void duplicateServiceTypeWithAnnots(MethodVisitor mv, BObjectType objectType, String pkgClassName,
                                                int strandIndex) {
 
-        createServiceType(mv, objectType, objectType);
+        createServiceType(mv, objectType);
         mv.visitInsn(DUP);
 
         mv.visitFieldInsn(GETSTATIC, pkgClassName, ANNOTATION_MAP_NAME, String.format("L%s;", MAP_VALUE));

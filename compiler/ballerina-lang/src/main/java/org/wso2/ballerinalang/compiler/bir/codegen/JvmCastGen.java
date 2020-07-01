@@ -391,29 +391,36 @@ public class JvmCastGen {
                     // Do nothing
                     break;
                 default:
-                    if (targetType.tag == TypeTags.UNION) {
-                        generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
-                    } else if (targetType.tag == TypeTags.ANYDATA) {
-                        generateCheckCastJToBAnyData(mv, indexMap, sourceType);
-                    } else if (targetType.tag == TypeTags.HANDLE) {
-                        generateJCastToBHandle(mv, sourceType);
-                    } else if (targetType.tag == TypeTags.ANY) {
-                        generateJCastToBAny(mv, indexMap, sourceType, targetType);
-                    } else if (targetType.tag == TypeTags.JSON) {
-                        generateCheckCastJToBJSON(mv, indexMap, sourceType);
-                    } else if (targetType.tag == TypeTags.FINITE) {
-                        generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
-                        // TODO fix below properly - rajith
-                        //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
-                        //    generateXMLToAttributesMap(mv, sourceType);
-                        //    return;
-                        //} else if (targetType is bir:BFiniteType) {
-                        //    generateCheckCastToFiniteType(mv, sourceType, targetType);
-                        //    return;
-                        //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType &&
-                        // targetType.constraint
-                        // is bir:BTypeAny)) {
-                        //    // do nothing
+                    switch (targetType.tag) {
+                        case TypeTags.UNION:
+                            generateCheckCastJToBUnionType(mv, indexMap, sourceType, (BUnionType) targetType);
+                            break;
+                        case TypeTags.ANYDATA:
+                            generateCheckCastJToBAnyData(mv, indexMap, sourceType);
+                            break;
+                        case TypeTags.HANDLE:
+                            generateJCastToBHandle(mv, sourceType);
+                            break;
+                        case TypeTags.ANY:
+                            generateJCastToBAny(mv, indexMap, sourceType, targetType);
+                            break;
+                        case TypeTags.JSON:
+                            generateCheckCastJToBJSON(mv, indexMap, sourceType);
+                            break;
+                        case TypeTags.FINITE:
+                            generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
+                            // TODO fix below properly - rajith
+                            //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
+                            //    generateXMLToAttributesMap(mv, sourceType);
+                            //    return;
+                            //} else if (targetType is bir:BFiniteType) {
+                            //    generateCheckCastToFiniteType(mv, sourceType, targetType);
+                            //    return;
+                            //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType &&
+                            // targetType.constraint
+                            // is bir:BTypeAny)) {
+                            //    // do nothing
+                            break;
                     }
 
                     checkCast(mv, targetType);

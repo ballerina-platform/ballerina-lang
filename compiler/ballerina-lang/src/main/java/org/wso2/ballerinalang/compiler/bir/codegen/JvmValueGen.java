@@ -340,7 +340,7 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, isService, typeName, lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, lambdaGenMetadata);
         }
     }
 
@@ -376,7 +376,7 @@ class JvmValueGen {
     }
 
     private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  String objTypeName, boolean isService) {
+                                  boolean isService) {
 
         List<BIRNode.BIRFunction> funcs = getFunctions(functions);
 
@@ -405,7 +405,7 @@ class JvmValueGen {
             List<BType> paramTypes = func.type.paramTypes;
             BType retType = func.type.retType;
 
-            String methodSig = "";
+            String methodSig;
 
             // use index access, since retType can be nil.
             methodSig = getMethodDesc(paramTypes, retType, null, false);
@@ -558,7 +558,7 @@ class JvmValueGen {
         }
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
-        this.createTypeDescConstructor(cw, className);
+        this.createTypeDescConstructor(cw);
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
@@ -707,11 +707,11 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, false, "", lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, this.module, null, lambdaGenMetadata);
         }
     }
 
-    private void createTypeDescConstructor(ClassWriter cw, String className) {
+    private void createTypeDescConstructor(ClassWriter cw) {
 
         String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
@@ -1082,7 +1082,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
                                           String.format("()L%s<TV;>;", COLLECTION), null);
@@ -1128,7 +1128,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "size", "()I", null, null);
         mv.visitCode();
@@ -1264,7 +1264,7 @@ class JvmValueGen {
         }
     }
 
-    void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", String.format("()[L%s;", OBJECT), "()[TK;", null);
         mv.visitCode();
@@ -1377,7 +1377,7 @@ class JvmValueGen {
         }
 
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
+        this.createCallMethod(cw, attachedFuncs, className, isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);

@@ -235,7 +235,7 @@ public class JvmMethodGen {
     private SymbolTable symbolTable;
     private BUnionType errorOrNilType;
 
-    public JvmMethodGen(JvmPackageGen jvmPackageGen) {
+    JvmMethodGen(JvmPackageGen jvmPackageGen) {
 
         this.jvmPackageGen = jvmPackageGen;
         this.symbolTable = jvmPackageGen.symbolTable;
@@ -589,7 +589,7 @@ public class JvmMethodGen {
 
     private static String getJVMTypeSign(BType bType) {
 
-        String jvmType = "";
+        String jvmType;
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             jvmType = "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
@@ -1588,20 +1588,18 @@ public class JvmMethodGen {
     }
 
     void generateMethod(BIRFunction birFunc, ClassWriter cw, BIRPackage birModule, BType attachedType,
-                        boolean isService, String serviceName, LambdaMetadata lambdaMetadata) {
+                        LambdaMetadata lambdaMetadata) {
 
         if (isExternFunc(birFunc)) {
             genJMethodForBExternalFunc(birFunc, cw, birModule, attachedType, this, jvmPackageGen, lambdaMetadata);
         } else {
-            genJMethodForBFunc(birFunc, cw, birModule, isService, serviceName, attachedType, lambdaMetadata);
+            genJMethodForBFunc(birFunc, cw, birModule, attachedType, lambdaMetadata);
         }
     }
 
     public void genJMethodForBFunc(BIRFunction func,
                                    ClassWriter cw,
                                    BIRPackage module,
-                                   boolean isService,
-                                   String serviceName,
                                    BType attachedType,
                                    LambdaMetadata lambdaMetadata) {
 
@@ -1794,7 +1792,7 @@ public class JvmMethodGen {
 
         Label methodEndLabel = new Label();
         mv.visitLabel(methodEndLabel);
-        termGen.genReturnTerm(new Return(null), returnVarRefIndex, func, -1);
+        termGen.genReturnTerm(new Return(null), returnVarRefIndex, func);
 
         // Create Local Variable Table
         k = localVarOffset;
@@ -2498,12 +2496,9 @@ public class JvmMethodGen {
      *
      * @param userMainFunc ballerina main function
      * @param cw           class visitor
-     * @param pkg          bir package instance
      * @param mainClass    main class that contains the user main
-     * @param initClass    module init class
      */
-    void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, BIRPackage pkg,
-                               String mainClass, String initClass) {
+    void generateLambdaForMain(BIRFunction userMainFunc, ClassWriter cw, String mainClass) {
 
         BType returnType = userMainFunc.type.retType;
 
@@ -2543,20 +2538,18 @@ public class JvmMethodGen {
      *
      * @param cw        class visitor
      * @param pkg       bir package
-     * @param mainClass mains class that conatins the user main
      * @param initClass module init class
      * @param depMods   dependent module list
      */
-    void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String mainClass, String initClass,
-                                       List<PackageID> depMods) {
+    void generateLambdaForPackageInits(ClassWriter cw, BIRPackage pkg, String initClass, List<PackageID> depMods) {
         //need to generate lambda for package Init as well, if exist
         if (!hasInitFunction(pkg)) {
             return;
         }
-        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass, false);
+        generateLambdaForModuleFunction(cw, MODULE_INIT, initClass);
 
         // generate another lambda for start function as well
-        generateLambdaForModuleFunction(cw, MODULE_START, initClass, false);
+        generateLambdaForModuleFunction(cw, MODULE_START, initClass);
 
         PackageID currentModId = packageToModuleId(pkg);
         String fullFuncName = calculateModuleSpecialFuncName(currentModId, STOP_FUNCTION_SUFFIX);
@@ -2573,8 +2566,7 @@ public class JvmMethodGen {
         }
     }
 
-    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass,
-                                                 boolean voidReturn /* = true */) {
+    private void generateLambdaForModuleFunction(ClassWriter cw, String funcName, String initClass) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC,
                 String.format("$lambda$%s$", funcName),
@@ -2757,9 +2749,7 @@ public class JvmMethodGen {
 
     void generateFrameClasses(BIRPackage pkg, Map<String, byte[]> pkgEntries) {
 
-        pkg.functions.parallelStream().forEach(func -> {
-            generateFrameClassForFunction(pkg, func, pkgEntries, null);
-        });
+        pkg.functions.parallelStream().forEach(func -> generateFrameClassForFunction(pkg, func, pkgEntries, null));
 
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
@@ -2772,9 +2762,8 @@ public class JvmMethodGen {
                 } else {
                     attachedType = typeDef.type;
                 }
-                attachedFuncs.parallelStream().forEach(func -> {
-                    generateFrameClassForFunction(pkg, func, pkgEntries, attachedType);
-                });
+                attachedFuncs.parallelStream().forEach(func ->
+                        generateFrameClassForFunction(pkg, func, pkgEntries, attachedType));
             }
         }
     }
@@ -2846,8 +2835,7 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
-    void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods,
-                                     String typeOwnerClass) {
+    void generateExecutionStopMethod(ClassWriter cw, String initClass, BIRPackage module, List<PackageID> imprtMods) {
 
         String orgName = module.org.value;
         String moduleName = module.name.value;

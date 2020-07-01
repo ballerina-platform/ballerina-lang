@@ -286,7 +286,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, -1);
+        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
     }
@@ -642,7 +642,7 @@ public class InteropMethodGen {
         }
 
         // unwrap from handleValue
-        generateBToJCheckCast(mv, bElementType, (JType) jElementType);
+        generateBToJCheckCast(mv, bElementType, jElementType);
 
         // valueArray[index] = varArg[index]
         genArrayStore(mv, jElementType);

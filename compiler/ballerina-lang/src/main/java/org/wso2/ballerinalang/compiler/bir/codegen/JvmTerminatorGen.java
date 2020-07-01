@@ -233,13 +233,13 @@ public class JvmTerminatorGen {
                 this.genLockTerm((BIRTerminator.Lock) terminator, funcName, localVarOffset);
                 return;
             case UNLOCK:
-                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName, attachedType);
+                this.genUnlockTerm((BIRTerminator.Unlock) terminator, funcName);
                 return;
             case GOTO:
                 this.genGoToTerm((BIRTerminator.GOTO) terminator, funcName);
                 return;
             case CALL:
-                this.genCallTerm((BIRTerminator.Call) terminator, funcName, localVarOffset);
+                this.genCallTerm((BIRTerminator.Call) terminator, localVarOffset);
                 return;
             case ASYNC_CALL:
                 this.genAsyncCallTerm((BIRTerminator.AsyncCall) terminator, localVarOffset, lambdaMetadata);
@@ -248,39 +248,38 @@ public class JvmTerminatorGen {
                 this.genBranchTerm((BIRTerminator.Branch) terminator, funcName);
                 return;
             case RETURN:
-                this.genReturnTerm((BIRTerminator.Return) terminator, returnVarRefIndex, func,
-                        localVarOffset);
+                this.genReturnTerm((BIRTerminator.Return) terminator, returnVarRefIndex, func);
                 return;
             case PANIC:
                 this.errorGen.genPanic((BIRTerminator.Panic) terminator);
                 return;
             case WAIT:
-                this.generateWaitIns((BIRTerminator.Wait) terminator, funcName, localVarOffset);
+                this.generateWaitIns((BIRTerminator.Wait) terminator, localVarOffset);
                 return;
             case WAIT_ALL:
-                this.genWaitAllIns((BIRTerminator.WaitAll) terminator, funcName, localVarOffset);
+                this.genWaitAllIns((BIRTerminator.WaitAll) terminator, localVarOffset);
                 return;
             case FP_CALL:
-                this.genFPCallIns((BIRTerminator.FPCall) terminator, funcName, localVarOffset);
+                this.genFPCallIns((BIRTerminator.FPCall) terminator, localVarOffset);
                 return;
             case WK_SEND:
-                this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, funcName, localVarOffset);
+                this.genWorkerSendIns((BIRTerminator.WorkerSend) terminator, localVarOffset);
                 return;
             case WK_RECEIVE:
-                this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, funcName, localVarOffset);
+                this.genWorkerReceiveIns((BIRTerminator.WorkerReceive) terminator, localVarOffset);
                 return;
             case FLUSH:
-                this.genFlushIns((BIRTerminator.Flush) terminator, funcName, localVarOffset);
+                this.genFlushIns((BIRTerminator.Flush) terminator, localVarOffset);
                 return;
             case PLATFORM:
                 if (terminator instanceof JavaMethodCall) {
-                    this.genJCallTerm((JavaMethodCall) terminator, funcName, attachedType, localVarOffset);
+                    this.genJCallTerm((JavaMethodCall) terminator, attachedType, localVarOffset);
                     return;
                 } else if (terminator instanceof JIMethodCall) {
-                    this.genJICallTerm((JIMethodCall) terminator, funcName, attachedType, localVarOffset);
+                    this.genJICallTerm((JIMethodCall) terminator, localVarOffset);
                     return;
                 } else if (terminator instanceof JIConstructorCall) {
-                    this.genJIConstructorTerm((JIConstructorCall) terminator, funcName, attachedType,
+                    this.genJIConstructorTerm((JIConstructorCall) terminator,
                             localVarOffset);
                     return;
                 }
@@ -313,7 +312,7 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, gotoLabel);
     }
 
-    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName, BType attachedType) {
+    private void genUnlockTerm(BIRTerminator.Unlock unlockIns, String funcName) {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + unlockIns.unlockBB.id.value);
 
@@ -380,7 +379,7 @@ public class JvmTerminatorGen {
         this.mv.visitJumpInsn(GOTO, falseBBLabel);
     }
 
-    private void genCallTerm(BIRTerminator.Call callIns, String funcName, int localVarOffset) {
+    private void genCallTerm(BIRTerminator.Call callIns, int localVarOffset) {
 
         PackageID calleePkgId = callIns.calleePkg;
 
@@ -394,7 +393,7 @@ public class JvmTerminatorGen {
         this.storeReturnFromCallIns(callIns.lhsOp != null ? callIns.lhsOp.variableDcl : null);
     }
 
-    private void genJCallTerm(JavaMethodCall callIns, String funcName, BType attachedType, int localVarOffset) {
+    private void genJCallTerm(JavaMethodCall callIns, BType attachedType, int localVarOffset) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -452,7 +451,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJICallTerm(JIMethodCall callIns, String funcName, BType attachedType, int localVarOffset) {
+    private void genJICallTerm(JIMethodCall callIns, int localVarOffset) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -533,8 +532,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(notBlockedOnExternLabel);
     }
 
-    private void genJIConstructorTerm(JIConstructorCall callIns, String funcName, BType attachedType,
-                                      int localVarOffset) {
+    private void genJIConstructorTerm(JIConstructorCall callIns, int localVarOffset) {
         // Load function parameters of the target Java method to the stack..
         Label blockedOnExternLabel = new Label();
         Label notBlockedOnExternLabel = new Label();
@@ -857,7 +855,7 @@ public class JvmTerminatorGen {
         this.submitToScheduler(callIns.lhsOp, localVarOffset, concurrent);
     }
 
-    private void generateWaitIns(BIRTerminator.Wait waitInst, String funcName, int localVarOffset) {
+    private void generateWaitIns(BIRTerminator.Wait waitInst, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitTypeInsn(NEW, ARRAY_LIST);
@@ -898,7 +896,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(afterIf);
     }
 
-    private void genWaitAllIns(BIRTerminator.WaitAll waitAll, String funcName, int localVarOffset) {
+    private void genWaitAllIns(BIRTerminator.WaitAll waitAll, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitTypeInsn(NEW, "java/util/HashMap");
@@ -923,7 +921,7 @@ public class JvmTerminatorGen {
                 MAP, MAP_VALUE), false);
     }
 
-    private void genFPCallIns(BIRTerminator.FPCall fpCall, String funcName, int localVarOffset) {
+    private void genFPCallIns(BIRTerminator.FPCall fpCall, int localVarOffset) {
 
         if (fpCall.isAsync) {
             // Check if already locked before submitting to scheduler.
@@ -1019,7 +1017,7 @@ public class JvmTerminatorGen {
         this.mv.visitInsn(AASTORE);
     }
 
-    private void genWorkerSendIns(BIRTerminator.WorkerSend ins, String funcName, int localVarOffset) {
+    private void genWorkerSendIns(BIRTerminator.WorkerSend ins, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         if (!ins.isSameStrand) {
@@ -1046,7 +1044,7 @@ public class JvmTerminatorGen {
         }
     }
 
-    private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, String funcName, int localVarOffset) {
+    private void genWorkerReceiveIns(BIRTerminator.WorkerReceive ins, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         if (!ins.isSameStrand) {
@@ -1079,7 +1077,7 @@ public class JvmTerminatorGen {
         this.mv.visitLabel(jumpAfterReceive);
     }
 
-    private void genFlushIns(BIRTerminator.Flush ins, String funcName, int localVarOffset) {
+    private void genFlushIns(BIRTerminator.Flush ins, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         loadChannelDetails(this.mv, Arrays.asList(ins.channels));
@@ -1132,8 +1130,7 @@ public class JvmTerminatorGen {
         jvmInstructionGen.generateVarStore(this.mv, varDcl, this.currentPackageName, this.getJVMIndexOfVarRef(varDcl));
     }
 
-    public void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRNode.BIRFunction func,
-                              int localVarOffset /* = -1 */) {
+    public void genReturnTerm(BIRTerminator.Return returnIns, int returnVarRefIndex, BIRNode.BIRFunction func) {
 
         BType bType = typeBuilder.build(func.type.retType);
 
