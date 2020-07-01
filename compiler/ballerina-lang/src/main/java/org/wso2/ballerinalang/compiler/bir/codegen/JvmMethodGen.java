@@ -45,7 +45,6 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunctionParameter;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRPackage;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
-import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.BinaryOp;
 import org.wso2.ballerinalang.compiler.bir.model.BIROperand;
 import org.wso2.ballerinalang.compiler.bir.model.BIRTerminator;
@@ -216,9 +215,6 @@ import static org.wso2.ballerinalang.compiler.bir.model.BIRNonTerminator.XMLAcce
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Branch;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Call;
 import static org.wso2.ballerinalang.compiler.bir.model.BIRTerminator.Return;
-import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.ASYNC_CALL;
-import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.CALL;
-import static org.wso2.ballerinalang.compiler.bir.model.InstructionKind.FP_LOAD;
 
 /**
  * BIR function to JVM byte code generation class.
@@ -589,79 +585,79 @@ public class JvmMethodGen {
 
     private static String getJVMTypeSign(BType bType) {
 
-        String jvmType;
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
-            jvmType = "J";
+            return "J";
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
-            jvmType = String.format("L%s;", STRING_VALUE);
+            return String.format("L%s;", STRING_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
-            jvmType = String.format("L%s;", XML_VALUE);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    jvmType = "I";
-                    break;
-                case TypeTags.FLOAT:
-                    jvmType = "D";
-                    break;
-                case TypeTags.BOOLEAN:
-                    jvmType = "Z";
-                    break;
-                case TypeTags.DECIMAL:
-                    jvmType = String.format("L%s;", DECIMAL_VALUE);
-                    break;
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    jvmType = String.format("L%s;", MAP_VALUE);
-                    break;
-                case TypeTags.STREAM:
-                    jvmType = String.format("L%s;", STREAM_VALUE);
-                    break;
-                case TypeTags.TABLE:
-                    jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
-                    break;
-                case TypeTags.ARRAY:
-                case TypeTags.TUPLE:
-                    jvmType = String.format("L%s;", ARRAY_VALUE);
-                    break;
-                case TypeTags.OBJECT:
-                    jvmType = String.format("L%s;", OBJECT_VALUE);
-                    break;
-                case TypeTags.ERROR:
-                    jvmType = String.format("L%s;", ERROR_VALUE);
-                    break;
-                case TypeTags.FUTURE:
-                    jvmType = String.format("L%s;", FUTURE_VALUE);
-                    break;
-                case TypeTags.INVOKABLE:
-                    jvmType = String.format("L%s;", FUNCTION_POINTER);
-                    break;
-                case TypeTags.HANDLE:
-                    jvmType = String.format("L%s;", HANDLE_VALUE);
-                    break;
-                case TypeTags.TYPEDESC:
-                    jvmType = String.format("L%s;", TYPEDESC_VALUE);
-                    break;
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.JSON:
-                case TypeTags.FINITE:
-                case TypeTags.READONLY:
-                    jvmType = String.format("L%s;", OBJECT);
-                    break;
-                case JTypeTags.JTYPE:
-                    jvmType = getJTypeSignature((JType) bType);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM code generation is not supported for type " +
-                            String.format("%s", bType));
-            }
-
+            return String.format("L%s;", XML_VALUE);
         }
+
+        String jvmType;
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                jvmType = "I";
+                break;
+            case TypeTags.FLOAT:
+                jvmType = "D";
+                break;
+            case TypeTags.BOOLEAN:
+                jvmType = "Z";
+                break;
+            case TypeTags.DECIMAL:
+                jvmType = String.format("L%s;", DECIMAL_VALUE);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                jvmType = String.format("L%s;", MAP_VALUE);
+                break;
+            case TypeTags.STREAM:
+                jvmType = String.format("L%s;", STREAM_VALUE);
+                break;
+            case TypeTags.TABLE:
+                jvmType = String.format("L%s;", TABLE_VALUE_IMPL);
+                break;
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                jvmType = String.format("L%s;", ARRAY_VALUE);
+                break;
+            case TypeTags.OBJECT:
+                jvmType = String.format("L%s;", OBJECT_VALUE);
+                break;
+            case TypeTags.ERROR:
+                jvmType = String.format("L%s;", ERROR_VALUE);
+                break;
+            case TypeTags.FUTURE:
+                jvmType = String.format("L%s;", FUTURE_VALUE);
+                break;
+            case TypeTags.INVOKABLE:
+                jvmType = String.format("L%s;", FUNCTION_POINTER);
+                break;
+            case TypeTags.HANDLE:
+                jvmType = String.format("L%s;", HANDLE_VALUE);
+                break;
+            case TypeTags.TYPEDESC:
+                jvmType = String.format("L%s;", TYPEDESC_VALUE);
+                break;
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.JSON:
+            case TypeTags.FINITE:
+            case TypeTags.READONLY:
+                jvmType = String.format("L%s;", OBJECT);
+                break;
+            case JTypeTags.JTYPE:
+                jvmType = getJTypeSignature((JType) bType);
+                break;
+            default:
+                throw new BLangCompilerException("JVM code generation is not supported for type " +
+                        String.format("%s", bType));
+        }
+
         return jvmType;
     }
 
@@ -943,59 +939,62 @@ public class JvmMethodGen {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitInsn(LCONST_0);
             mv.visitVarInsn(LSTORE, index);
+            return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
+            return;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
             mv.visitVarInsn(ASTORE, index);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    mv.visitInsn(ICONST_0);
-                    mv.visitVarInsn(ISTORE, index);
-                    break;
-                case TypeTags.FLOAT:
-                    mv.visitInsn(DCONST_0);
-                    mv.visitVarInsn(DSTORE, index);
-                    break;
-                case TypeTags.BOOLEAN:
-                    mv.visitInsn(ICONST_0);
-                    mv.visitVarInsn(ISTORE, index);
-                    break;
-                case TypeTags.MAP:
-                case TypeTags.ARRAY:
-                case TypeTags.STREAM:
-                case TypeTags.TABLE:
-                case TypeTags.ERROR:
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.OBJECT:
-                case TypeTags.CHAR_STRING:
-                case TypeTags.DECIMAL:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.RECORD:
-                case TypeTags.TUPLE:
-                case TypeTags.FUTURE:
-                case TypeTags.JSON:
-                case TypeTags.INVOKABLE:
-                case TypeTags.FINITE:
-                case TypeTags.HANDLE:
-                case TypeTags.TYPEDESC:
-                case TypeTags.READONLY:
-                    mv.visitInsn(ACONST_NULL);
-                    mv.visitVarInsn(ASTORE, index);
-                    break;
-                case JTypeTags.JTYPE:
-                    genJDefaultValue(mv, (JType) bType, index);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", bType));
-            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case TypeTags.FLOAT:
+                mv.visitInsn(DCONST_0);
+                mv.visitVarInsn(DSTORE, index);
+                break;
+            case TypeTags.BOOLEAN:
+                mv.visitInsn(ICONST_0);
+                mv.visitVarInsn(ISTORE, index);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.ARRAY:
+            case TypeTags.STREAM:
+            case TypeTags.TABLE:
+            case TypeTags.ERROR:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.OBJECT:
+            case TypeTags.CHAR_STRING:
+            case TypeTags.DECIMAL:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.RECORD:
+            case TypeTags.TUPLE:
+            case TypeTags.FUTURE:
+            case TypeTags.JSON:
+            case TypeTags.INVOKABLE:
+            case TypeTags.FINITE:
+            case TypeTags.HANDLE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.READONLY:
+                mv.visitInsn(ACONST_NULL);
+                mv.visitVarInsn(ASTORE, index);
+                break;
+            case JTypeTags.JTYPE:
+                genJDefaultValue(mv, (JType) bType, index);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
@@ -1049,36 +1048,46 @@ public class JvmMethodGen {
 
         if (TypeTags.isIntegerTypeTag(bType.tag) || bType.tag == TypeTags.BYTE) {
             mv.visitInsn(LCONST_0);
-        } else if (bType.tag == TypeTags.FLOAT) {
-            mv.visitInsn(DCONST_0);
-        } else if (bType.tag == TypeTags.BOOLEAN) {
-            mv.visitInsn(ICONST_0);
-        } else if (TypeTags.isStringTypeTag(bType.tag) ||
-                bType.tag == TypeTags.MAP ||
-                bType.tag == TypeTags.ARRAY ||
-                bType.tag == TypeTags.ERROR ||
-                bType.tag == TypeTags.NIL ||
-                bType.tag == TypeTags.NEVER ||
-                bType.tag == TypeTags.ANY ||
-                bType.tag == TypeTags.ANYDATA ||
-                bType.tag == TypeTags.OBJECT ||
-                bType.tag == TypeTags.UNION ||
-                bType.tag == TypeTags.INTERSECTION ||
-                bType.tag == TypeTags.RECORD ||
-                bType.tag == TypeTags.TUPLE ||
-                bType.tag == TypeTags.FUTURE ||
-                bType.tag == TypeTags.JSON ||
-                TypeTags.isXMLTypeTag(bType.tag) ||
-                bType.tag == TypeTags.INVOKABLE ||
-                bType.tag == TypeTags.FINITE ||
-                bType.tag == TypeTags.HANDLE ||
-                bType.tag == TypeTags.TYPEDESC ||
-                bType.tag == TypeTags.READONLY) {
+            return;
+        } else if (TypeTags.isStringTypeTag(bType.tag) || TypeTags.isXMLTypeTag(bType.tag)) {
             mv.visitInsn(ACONST_NULL);
-        } else if (bType.tag == JTypeTags.JTYPE) {
-            loadDefaultJValue(mv, (JType) bType);
-        } else {
-            throw new BLangCompilerException("JVM generation is not supported for type " + String.format("%s", bType));
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.FLOAT:
+                mv.visitInsn(DCONST_0);
+                break;
+            case TypeTags.BOOLEAN:
+                mv.visitInsn(ICONST_0);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.ARRAY:
+            case TypeTags.ERROR:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.OBJECT:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.RECORD:
+            case TypeTags.TUPLE:
+            case TypeTags.FUTURE:
+            case TypeTags.JSON:
+            case TypeTags.INVOKABLE:
+            case TypeTags.FINITE:
+            case TypeTags.HANDLE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.READONLY:
+                mv.visitInsn(ACONST_NULL);
+                break;
+            case JTypeTags.JTYPE:
+                loadDefaultJValue(mv, (JType) bType);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
@@ -1168,53 +1177,53 @@ public class JvmMethodGen {
             return String.format("L%s;", B_STRING_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format("L%s;", XML_VALUE);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    return "I";
-                case TypeTags.FLOAT:
-                    return "D";
-                case TypeTags.DECIMAL:
-                    return String.format("L%s;", DECIMAL_VALUE);
-                case TypeTags.BOOLEAN:
-                    return "Z";
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                    return String.format("L%s;", OBJECT);
-                case TypeTags.ARRAY:
-                case TypeTags.TUPLE:
-                    return String.format("L%s;", ARRAY_VALUE);
-                case TypeTags.ERROR:
-                    return String.format("L%s;", ERROR_VALUE);
-                case TypeTags.ANYDATA:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.JSON:
-                case TypeTags.FINITE:
-                case TypeTags.ANY:
-                case TypeTags.READONLY:
-                    return String.format("L%s;", OBJECT);
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    return String.format("L%s;", MAP_VALUE);
-                case TypeTags.FUTURE:
-                    return String.format("L%s;", FUTURE_VALUE);
-                case TypeTags.STREAM:
-                    return String.format("L%s;", STREAM_VALUE);
-                case TypeTags.TABLE:
-                    return String.format("L%s;", TABLE_VALUE_IMPL);
-                case TypeTags.INVOKABLE:
-                    return String.format("L%s;", FUNCTION_POINTER);
-                case TypeTags.TYPEDESC:
-                    return String.format("L%s;", TYPEDESC_VALUE);
-                case TypeTags.OBJECT:
-                    return String.format("L%s;", OBJECT_VALUE);
-                case TypeTags.HANDLE:
-                    return String.format("L%s;", HANDLE_VALUE);
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", bType));
-            }
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                return "I";
+            case TypeTags.FLOAT:
+                return "D";
+            case TypeTags.DECIMAL:
+                return String.format("L%s;", DECIMAL_VALUE);
+            case TypeTags.BOOLEAN:
+                return "Z";
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                return String.format("L%s;", OBJECT);
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                return String.format("L%s;", ARRAY_VALUE);
+            case TypeTags.ERROR:
+                return String.format("L%s;", ERROR_VALUE);
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.JSON:
+            case TypeTags.FINITE:
+            case TypeTags.ANY:
+            case TypeTags.READONLY:
+                return String.format("L%s;", OBJECT);
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return String.format("L%s;", MAP_VALUE);
+            case TypeTags.FUTURE:
+                return String.format("L%s;", FUTURE_VALUE);
+            case TypeTags.STREAM:
+                return String.format("L%s;", STREAM_VALUE);
+            case TypeTags.TABLE:
+                return String.format("L%s;", TABLE_VALUE_IMPL);
+            case TypeTags.INVOKABLE:
+                return String.format("L%s;", FUNCTION_POINTER);
+            case TypeTags.TYPEDESC:
+                return String.format("L%s;", TYPEDESC_VALUE);
+            case TypeTags.OBJECT:
+                return String.format("L%s;", OBJECT_VALUE);
+            case TypeTags.HANDLE:
+                return String.format("L%s;", HANDLE_VALUE);
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
@@ -1232,50 +1241,50 @@ public class JvmMethodGen {
             return String.format(")L%s;", B_STRING_VALUE);
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             return String.format(")L%s;", XML_VALUE);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    return ")I";
-                case TypeTags.FLOAT:
-                    return ")D";
-                case TypeTags.DECIMAL:
-                    return String.format(")L%s;", DECIMAL_VALUE);
-                case TypeTags.BOOLEAN:
-                    return ")Z";
-                case TypeTags.ARRAY:
-                case TypeTags.TUPLE:
-                    return String.format(")L%s;", ARRAY_VALUE);
-                case TypeTags.MAP:
-                case TypeTags.RECORD:
-                    return String.format(")L%s;", MAP_VALUE);
-                case TypeTags.ERROR:
-                    return String.format(")L%s;", ERROR_VALUE);
-                case TypeTags.STREAM:
-                    return String.format(")L%s;", STREAM_VALUE);
-                case TypeTags.TABLE:
-                    return String.format(")L%s;", TABLE_VALUE_IMPL);
-                case TypeTags.FUTURE:
-                    return String.format(")L%s;", FUTURE_VALUE);
-                case TypeTags.TYPEDESC:
-                    return String.format(")L%s;", TYPEDESC_VALUE);
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.JSON:
-                case TypeTags.FINITE:
-                case TypeTags.READONLY:
-                    return String.format(")L%s;", OBJECT);
-                case TypeTags.OBJECT:
-                    return String.format(")L%s;", OBJECT_VALUE);
-                case TypeTags.INVOKABLE:
-                    return String.format(")L%s;", FUNCTION_POINTER);
-                case TypeTags.HANDLE:
-                    return String.format(")L%s;", HANDLE_VALUE);
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", bType));
-            }
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                return ")I";
+            case TypeTags.FLOAT:
+                return ")D";
+            case TypeTags.DECIMAL:
+                return String.format(")L%s;", DECIMAL_VALUE);
+            case TypeTags.BOOLEAN:
+                return ")Z";
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                return String.format(")L%s;", ARRAY_VALUE);
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                return String.format(")L%s;", MAP_VALUE);
+            case TypeTags.ERROR:
+                return String.format(")L%s;", ERROR_VALUE);
+            case TypeTags.STREAM:
+                return String.format(")L%s;", STREAM_VALUE);
+            case TypeTags.TABLE:
+                return String.format(")L%s;", TABLE_VALUE_IMPL);
+            case TypeTags.FUTURE:
+                return String.format(")L%s;", FUTURE_VALUE);
+            case TypeTags.TYPEDESC:
+                return String.format(")L%s;", TYPEDESC_VALUE);
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.JSON:
+            case TypeTags.FINITE:
+            case TypeTags.READONLY:
+                return String.format(")L%s;", OBJECT);
+            case TypeTags.OBJECT:
+                return String.format(")L%s;", OBJECT_VALUE);
+            case TypeTags.INVOKABLE:
+                return String.format(")L%s;", FUNCTION_POINTER);
+            case TypeTags.HANDLE:
+                return String.format(")L%s;", HANDLE_VALUE);
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
@@ -2270,24 +2279,28 @@ public class JvmMethodGen {
 
         PackageID packageID;
 
-        if (kind == CALL) {
-            BIRTerminator.Call call = (BIRTerminator.Call) callIns;
-            if (call.isVirtual) {
-                return false;
-            }
-            methodName = call.name.value;
-            packageID = call.calleePkg;
-        } else if (kind == ASYNC_CALL) {
-            BIRTerminator.AsyncCall asyncCall = (BIRTerminator.AsyncCall) callIns;
-            methodName = asyncCall.name.value;
-            packageID = asyncCall.calleePkg;
-        } else if (kind == FP_LOAD) {
-            BIRNonTerminator.FPLoad fpLoad = (BIRNonTerminator.FPLoad) callIns;
-            methodName = fpLoad.funcName.value;
-            packageID = fpLoad.pkgId;
-        } else {
-            throw new BLangCompilerException("JVM static function call generation is not supported for instruction " +
-                    String.format("%s", callIns));
+        switch (kind) {
+            case CALL:
+                Call call = (Call) callIns;
+                if (call.isVirtual) {
+                    return false;
+                }
+                methodName = call.name.value;
+                packageID = call.calleePkg;
+                break;
+            case ASYNC_CALL:
+                AsyncCall asyncCall = (AsyncCall) callIns;
+                methodName = asyncCall.name.value;
+                packageID = asyncCall.calleePkg;
+                break;
+            case FP_LOAD:
+                FPLoad fpLoad = (FPLoad) callIns;
+                methodName = fpLoad.funcName.value;
+                packageID = fpLoad.pkgId;
+                break;
+            default:
+                throw new BLangCompilerException("JVM static function call generation is not supported for " +
+                        "instruction " + String.format("%s", callIns));
         }
 
         String key = getPackageName(packageID.orgName.value, packageID.name.value,

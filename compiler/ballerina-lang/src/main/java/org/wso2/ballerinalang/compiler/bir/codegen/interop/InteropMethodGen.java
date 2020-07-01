@@ -496,27 +496,27 @@ public class InteropMethodGen {
         } else if (jType.jTag == JTypeTags.JARRAY) {
             JType eType = ((JType.JArrayType) jType).elementType;
             return "[" + getJTypeSignature(eType);
-        } else {
-            switch (jType.jTag) {
-                case JTypeTags.JBYTE:
-                    return "B";
-                case JTypeTags.JCHAR:
-                    return "C";
-                case JTypeTags.JSHORT:
-                    return "S";
-                case JTypeTags.JINT:
-                    return "I";
-                case JTypeTags.JLONG:
-                    return "J";
-                case JTypeTags.JFLOAT:
-                    return "F";
-                case JTypeTags.JDOUBLE:
-                    return "D";
-                case JTypeTags.JBOOLEAN:
-                    return "Z";
-                default:
-                    throw new BLangCompilerException(String.format("invalid element type: %s", jType));
-            }
+        }
+
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
+                return "B";
+            case JTypeTags.JCHAR:
+                return "C";
+            case JTypeTags.JSHORT:
+                return "S";
+            case JTypeTags.JINT:
+                return "I";
+            case JTypeTags.JLONG:
+                return "J";
+            case JTypeTags.JFLOAT:
+                return "F";
+            case JTypeTags.JDOUBLE:
+                return "D";
+            case JTypeTags.JBOOLEAN:
+                return "Z";
+            default:
+                throw new BLangCompilerException(String.format("invalid element type: %s", jType));
         }
     }
 

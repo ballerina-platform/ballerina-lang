@@ -450,25 +450,25 @@ class JvmValueGen {
 
     private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
-            String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
+        String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
         mv.visitCode();
 
-            int fieldNameRegIndex = 1;
-            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                               String.format("()L%s;", STRING_VALUE), true);
-            fieldNameRegIndex = 2;
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            Label defaultCaseLabel = new Label();
+        int fieldNameRegIndex = 1;
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                String.format("()L%s;", STRING_VALUE), true);
+        fieldNameRegIndex = 2;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
-                                                                 defaultCaseLabel);
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+                defaultCaseLabel);
 
         int i = 0;
         for (BField optionalField : sortedFields) {

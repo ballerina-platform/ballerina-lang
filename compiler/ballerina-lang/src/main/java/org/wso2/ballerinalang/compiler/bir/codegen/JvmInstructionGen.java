@@ -352,6 +352,7 @@ public class JvmInstructionGen {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             long intValue = constVal instanceof Long ? (long) constVal : Long.parseLong(String.valueOf(constVal));
             mv.visitLdcInsn(intValue);
+            return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             String val = String.valueOf(constVal);
             int[] highSurrogates = listHighSurrogates(val);
@@ -360,37 +361,38 @@ public class JvmInstructionGen {
             } else {
                 createBmpString(mv, val);
             }
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    int byteValue = ((Number) constVal).intValue();
-                    mv.visitLdcInsn(byteValue);
-                    break;
-                case TypeTags.FLOAT:
-                    double doubleValue = constVal instanceof Double ? (double) constVal :
-                            Double.parseDouble(String.valueOf(constVal));
-                    mv.visitLdcInsn(doubleValue);
-                    break;
-                case TypeTags.BOOLEAN:
-                    boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
-                            Boolean.parseBoolean(String.valueOf(constVal));
-                    mv.visitLdcInsn(booleanVal);
-                    break;
-                case TypeTags.DECIMAL:
-                    mv.visitTypeInsn(NEW, DECIMAL_VALUE);
-                    mv.visitInsn(DUP);
-                    mv.visitLdcInsn(String.valueOf(constVal));
-                    mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V",
-                            STRING_VALUE), false);
-                    break;
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                    mv.visitInsn(ACONST_NULL);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type : " +
-                            String.format("%s", bType));
-            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                int byteValue = ((Number) constVal).intValue();
+                mv.visitLdcInsn(byteValue);
+                break;
+            case TypeTags.FLOAT:
+                double doubleValue = constVal instanceof Double ? (double) constVal :
+                        Double.parseDouble(String.valueOf(constVal));
+                mv.visitLdcInsn(doubleValue);
+                break;
+            case TypeTags.BOOLEAN:
+                boolean booleanVal = constVal instanceof Boolean ? (boolean) constVal :
+                        Boolean.parseBoolean(String.valueOf(constVal));
+                mv.visitLdcInsn(booleanVal);
+                break;
+            case TypeTags.DECIMAL:
+                mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitLdcInsn(String.valueOf(constVal));
+                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, "<init>", String.format("(L%s;)V",
+                        STRING_VALUE), false);
+                break;
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                mv.visitInsn(ACONST_NULL);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type : " +
+                        String.format("%s", bType));
         }
     }
 
@@ -499,53 +501,55 @@ public class JvmInstructionGen {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LLOAD, valueIndex);
+            return;
         }  else if (TypeTags.isXMLTypeTag(bType.tag) ||
                 TypeTags.isStringTypeTag(bType.tag)) {
             mv.visitVarInsn(ALOAD, valueIndex);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    mv.visitVarInsn(ILOAD, valueIndex);
-                    mv.visitInsn(I2B);
-                    mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
-                    break;
-                case TypeTags.FLOAT:
-                    mv.visitVarInsn(DLOAD, valueIndex);
-                    break;
-                case TypeTags.BOOLEAN:
-                    mv.visitVarInsn(ILOAD, valueIndex);
-                    break;
-                case TypeTags.ARRAY:
-                case TypeTags.MAP:
-                case TypeTags.STREAM:
-                case TypeTags.TABLE:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.TUPLE:
-                case TypeTags.RECORD:
-                case TypeTags.ERROR:
-                case TypeTags.JSON:
-                case TypeTags.FUTURE:
-                case TypeTags.OBJECT:
-                case TypeTags.DECIMAL:
-                case TypeTags.INVOKABLE:
-                case TypeTags.FINITE:
-                case TypeTags.HANDLE:
-                case TypeTags.TYPEDESC:
-                case TypeTags.READONLY:
-                    mv.visitVarInsn(ALOAD, valueIndex);
-                    break;
-                case JTypeTags.JTYPE:
-                    generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", bType));
-            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                mv.visitVarInsn(ILOAD, valueIndex);
+                mv.visitInsn(I2B);
+                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                break;
+            case TypeTags.FLOAT:
+                mv.visitVarInsn(DLOAD, valueIndex);
+                break;
+            case TypeTags.BOOLEAN:
+                mv.visitVarInsn(ILOAD, valueIndex);
+                break;
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.STREAM:
+            case TypeTags.TABLE:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.TUPLE:
+            case TypeTags.RECORD:
+            case TypeTags.ERROR:
+            case TypeTags.JSON:
+            case TypeTags.FUTURE:
+            case TypeTags.OBJECT:
+            case TypeTags.DECIMAL:
+            case TypeTags.INVOKABLE:
+            case TypeTags.FINITE:
+            case TypeTags.HANDLE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.READONLY:
+                mv.visitVarInsn(ALOAD, valueIndex);
+                break;
+            case JTypeTags.JTYPE:
+                generateJVarLoad(mv, (JType) bType, currentPackageName, valueIndex);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 
@@ -572,51 +576,53 @@ public class JvmInstructionGen {
 
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             mv.visitVarInsn(LSTORE, valueIndex);
+            return;
         } else if (TypeTags.isStringTypeTag(bType.tag) ||
                 TypeTags.isXMLTypeTag(bType.tag)) {
             mv.visitVarInsn(ASTORE, valueIndex);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.BYTE:
-                    mv.visitVarInsn(ISTORE, valueIndex);
-                    break;
-                case TypeTags.FLOAT:
-                    mv.visitVarInsn(DSTORE, valueIndex);
-                    break;
-                case TypeTags.BOOLEAN:
-                    mv.visitVarInsn(ISTORE, valueIndex);
-                    break;
-                case TypeTags.ARRAY:
-                case TypeTags.MAP:
-                case TypeTags.STREAM:
-                case TypeTags.TABLE:
-                case TypeTags.ANY:
-                case TypeTags.ANYDATA:
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                case TypeTags.UNION:
-                case TypeTags.INTERSECTION:
-                case TypeTags.TUPLE:
-                case TypeTags.DECIMAL:
-                case TypeTags.RECORD:
-                case TypeTags.ERROR:
-                case TypeTags.JSON:
-                case TypeTags.FUTURE:
-                case TypeTags.OBJECT:
-                case TypeTags.INVOKABLE:
-                case TypeTags.FINITE:
-                case TypeTags.HANDLE:
-                case TypeTags.TYPEDESC:
-                case TypeTags.READONLY:
-                    mv.visitVarInsn(ASTORE, valueIndex);
-                    break;
-                case JTypeTags.JTYPE:
-                    generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", bType));
-            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.BYTE:
+                mv.visitVarInsn(ISTORE, valueIndex);
+                break;
+            case TypeTags.FLOAT:
+                mv.visitVarInsn(DSTORE, valueIndex);
+                break;
+            case TypeTags.BOOLEAN:
+                mv.visitVarInsn(ISTORE, valueIndex);
+                break;
+            case TypeTags.ARRAY:
+            case TypeTags.MAP:
+            case TypeTags.STREAM:
+            case TypeTags.TABLE:
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.TUPLE:
+            case TypeTags.DECIMAL:
+            case TypeTags.RECORD:
+            case TypeTags.ERROR:
+            case TypeTags.JSON:
+            case TypeTags.FUTURE:
+            case TypeTags.OBJECT:
+            case TypeTags.INVOKABLE:
+            case TypeTags.FINITE:
+            case TypeTags.HANDLE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.READONLY:
+                mv.visitVarInsn(ASTORE, valueIndex);
+                break;
+            case JTypeTags.JTYPE:
+                generateJVarStore(mv, (JType) bType, currentPackageName, valueIndex);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", bType));
         }
     }
 

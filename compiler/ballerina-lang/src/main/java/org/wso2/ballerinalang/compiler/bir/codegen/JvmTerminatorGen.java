@@ -1137,67 +1137,70 @@ public class JvmTerminatorGen {
         if (TypeTags.isIntegerTypeTag(bType.tag)) {
             this.mv.visitVarInsn(LLOAD, returnVarRefIndex);
             this.mv.visitInsn(LRETURN);
+            return;
         } else if (TypeTags.isStringTypeTag(bType.tag)) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
+            return;
         } else if (TypeTags.isXMLTypeTag(bType.tag)) {
             this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
             this.mv.visitInsn(ARETURN);
-        } else {
-            switch (bType.tag) {
-                case TypeTags.NIL:
-                case TypeTags.NEVER:
-                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                    this.mv.visitInsn(ARETURN);
-                    break;
-                case TypeTags.BYTE:
-                    this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                    this.mv.visitInsn(IRETURN);
-                    break;
-                case TypeTags.FLOAT:
-                    this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
-                    this.mv.visitInsn(DRETURN);
-                    break;
-                case TypeTags.BOOLEAN:
-                    this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
-                    this.mv.visitInsn(IRETURN);
-                    break;
-                case TypeTags.MAP:
-                case TypeTags.ARRAY:
-                case TypeTags.ANY:
-                case TypeTags.INTERSECTION:
-                case TypeTags.STREAM:
-                case TypeTags.TABLE:
-                case TypeTags.ANYDATA:
-                case TypeTags.OBJECT:
-                case TypeTags.DECIMAL:
-                case TypeTags.RECORD:
-                case TypeTags.TUPLE:
-                case TypeTags.JSON:
-                case TypeTags.FUTURE:
-                case TypeTags.INVOKABLE:
-                case TypeTags.HANDLE:
-                case TypeTags.FINITE:
-                case TypeTags.TYPEDESC:
-                case TypeTags.READONLY:
-                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                    this.mv.visitInsn(ARETURN);
-                    break;
-                case TypeTags.UNION:
-                    this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),
-                            (BUnionType) bType);
-                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                    this.mv.visitInsn(ARETURN);
-                    break;
-                case TypeTags.ERROR:
-                    this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
-                    this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
-                    this.mv.visitInsn(ARETURN);
-                    break;
-                default:
-                    throw new BLangCompilerException("JVM generation is not supported for type " +
-                            String.format("%s", func.type.retType));
-            }
+            return;
+        }
+
+        switch (bType.tag) {
+            case TypeTags.NIL:
+            case TypeTags.NEVER:
+                this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                this.mv.visitInsn(ARETURN);
+                break;
+            case TypeTags.BYTE:
+                this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                this.mv.visitInsn(IRETURN);
+                break;
+            case TypeTags.FLOAT:
+                this.mv.visitVarInsn(DLOAD, returnVarRefIndex);
+                this.mv.visitInsn(DRETURN);
+                break;
+            case TypeTags.BOOLEAN:
+                this.mv.visitVarInsn(ILOAD, returnVarRefIndex);
+                this.mv.visitInsn(IRETURN);
+                break;
+            case TypeTags.MAP:
+            case TypeTags.ARRAY:
+            case TypeTags.ANY:
+            case TypeTags.INTERSECTION:
+            case TypeTags.STREAM:
+            case TypeTags.TABLE:
+            case TypeTags.ANYDATA:
+            case TypeTags.OBJECT:
+            case TypeTags.DECIMAL:
+            case TypeTags.RECORD:
+            case TypeTags.TUPLE:
+            case TypeTags.JSON:
+            case TypeTags.FUTURE:
+            case TypeTags.INVOKABLE:
+            case TypeTags.HANDLE:
+            case TypeTags.FINITE:
+            case TypeTags.TYPEDESC:
+            case TypeTags.READONLY:
+                this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                this.mv.visitInsn(ARETURN);
+                break;
+            case TypeTags.UNION:
+                this.handleErrorRetInUnion(returnVarRefIndex, Arrays.asList(func.workerChannels),
+                        (BUnionType) bType);
+                this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                this.mv.visitInsn(ARETURN);
+                break;
+            case TypeTags.ERROR:
+                this.notifyChannels(Arrays.asList(func.workerChannels), returnVarRefIndex);
+                this.mv.visitVarInsn(ALOAD, returnVarRefIndex);
+                this.mv.visitInsn(ARETURN);
+                break;
+            default:
+                throw new BLangCompilerException("JVM generation is not supported for type " +
+                        String.format("%s", func.type.retType));
         }
     }
 

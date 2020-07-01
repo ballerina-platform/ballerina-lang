@@ -276,51 +276,56 @@ class JvmTypeGen {
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", BTYPE));
 
             BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
-            if (bType.tag == TypeTags.RECORD) {
-                BRecordType recordType = (BRecordType) bType;
-                mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
-                mv.visitInsn(DUP);
-                mv.visitInsn(DUP);
-                addRecordFields(mv, recordType.fields);
-                addRecordRestField(mv, recordType.restFieldType);
-                addImmutableType(mv, recordType);
-            } else if (bType.tag == TypeTags.OBJECT) {
-                if (bType instanceof BServiceType) {
-                    BServiceType serviceType = (BServiceType) bType;
-                    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-                    mv.visitInsn(DUP);
-                    addObjectFields(mv, serviceType.fields);
-                    addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs, serviceType,
-                            indexMap, symbolTable);
-                } else {
-                    BObjectType objectType = (BObjectType) bType;
-                    mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+            switch (bType.tag) {
+                case TypeTags.RECORD:
+                    BRecordType recordType = (BRecordType) bType;
+                    mv.visitTypeInsn(CHECKCAST, RECORD_TYPE);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
-                    addObjectFields(mv, objectType.fields);
-                    BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-                    addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
-                            "$init$", "setGeneratedInitializer", symbolTable);
-                    addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
-                            "setInitializer", symbolTable);
-                    addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap, symbolTable);
-                    addImmutableType(mv, objectType);
-                }
-            } else if (bType.tag == TypeTags.ERROR) {
-                // populate detail field
-                mv.visitTypeInsn(CHECKCAST, ERROR_TYPE);
-                mv.visitInsn(DUP);
-                mv.visitInsn(DUP);
-                loadType(mv, ((BErrorType) bType).detailType);
-                mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD, String.format("(L%s;)V", BTYPE),
-                        false);
-                BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
-                if (!typeIdSet.isEmpty()) {
+                    addRecordFields(mv, recordType.fields);
+                    addRecordRestField(mv, recordType.restFieldType);
+                    addImmutableType(mv, recordType);
+                    break;
+                case TypeTags.OBJECT:
+                    if (bType instanceof BServiceType) {
+                        BServiceType serviceType = (BServiceType) bType;
+                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+                        mv.visitInsn(DUP);
+                        addObjectFields(mv, serviceType.fields);
+                        addObjectAttachedFunctions(mv, ((BObjectTypeSymbol) serviceType.tsymbol).attachedFuncs,
+                                serviceType, indexMap, symbolTable);
+                    } else {
+                        BObjectType objectType = (BObjectType) bType;
+                        mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
+                        mv.visitInsn(DUP);
+                        mv.visitInsn(DUP);
+                        addObjectFields(mv, objectType.fields);
+                        BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) objectType.tsymbol;
+                        addObjectInitFunction(mv, objectTypeSymbol.generatedInitializerFunc, objectType, indexMap,
+                                "$init$", "setGeneratedInitializer", symbolTable);
+                        addObjectInitFunction(mv, objectTypeSymbol.initializerFunc, objectType, indexMap, "init",
+                                "setInitializer", symbolTable);
+                        addObjectAttachedFunctions(mv, objectTypeSymbol.attachedFuncs, objectType, indexMap,
+                                symbolTable);
+                        addImmutableType(mv, objectType);
+                    }
+                    break;
+                case TypeTags.ERROR:
+                    // populate detail field
+                    mv.visitTypeInsn(CHECKCAST, ERROR_TYPE);
                     mv.visitInsn(DUP);
-                    loadTypeIdSet(mv, typeIdSet);
-                    mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_TYPEID_SET_METHOD,
-                            String.format("(L%s;)V", TYPE_ID_SET), false);
-                }
+                    mv.visitInsn(DUP);
+                    loadType(mv, ((BErrorType) bType).detailType);
+                    mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_DETAIL_TYPE_METHOD,
+                            String.format("(L%s;)V", BTYPE), false);
+                    BTypeIdSet typeIdSet = ((BErrorType) bType).typeIdSet;
+                    if (!typeIdSet.isEmpty()) {
+                        mv.visitInsn(DUP);
+                        loadTypeIdSet(mv, typeIdSet);
+                        mv.visitMethodInsn(INVOKEVIRTUAL, ERROR_TYPE, SET_TYPEID_SET_METHOD,
+                                String.format("(L%s;)V", TYPE_ID_SET), false);
+                    }
+                    break;
             }
 
             mv.visitInsn(RETURN);
