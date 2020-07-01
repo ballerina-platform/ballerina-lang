@@ -43,7 +43,7 @@ public class SetData {
 
     public static void setData(Strand strand, Object data) {
 
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.setTransactionData(data);
     }
 }

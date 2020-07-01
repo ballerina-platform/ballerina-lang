@@ -40,6 +40,6 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class GetAndClearFailure {
 
     public static boolean getAndClearFailure(Strand strand) {
-        return strand.transactionLocalContext.getAndClearFailure() != null;
+        return strand.currentTrxContext.getAndClearFailure() != null;
     }
 }

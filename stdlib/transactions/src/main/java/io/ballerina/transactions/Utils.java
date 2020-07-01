@@ -59,7 +59,7 @@ public class Utils {
     public static void notifyResourceManagerOnAbort(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.transactionLocalContext;
+                strand.currentTrxContext;
         org.ballerinalang.jvm.transactions.TransactionResourceManager.getInstance()
                 .notifyAbort(strand, transactionLocalContext.getGlobalTransactionId(), transactionBlockId.getValue(),
                 null);
@@ -67,24 +67,24 @@ public class Utils {
 
     public static void rollbackTransaction(BString transactionBlockId, Object error) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.rollbackTransaction(strand, transactionBlockId.getValue(), error);
     }
 
     public static void cleanupTransactionContext(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        strand.removeLocalTransactionContext();
+        strand.removeCurrentTrxContext();
     }
 
     public static boolean getAndClearFailure() {
         Strand strand = Scheduler.getStrand();
-        return strand.transactionLocalContext.getAndClearFailure() != null;
+        return strand.currentTrxContext.getAndClearFailure() != null;
     }
 
     public static void notifyRemoteParticipantOnFailure() {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.transactionLocalContext;
+                strand.currentTrxContext;
         if (transactionLocalContext == null) {
             return;
         }
@@ -94,7 +94,7 @@ public class Utils {
     public static void notifyLocalParticipantOnFailure() {
         Strand strand = Scheduler.getStrand();
         org.ballerinalang.jvm.transactions.TransactionLocalContext transactionLocalContext =
-                strand.transactionLocalContext;
+                strand.currentTrxContext;
         if (transactionLocalContext == null) {
             return;
         }
@@ -113,7 +113,7 @@ public class Utils {
         // Create transaction context and store in the strand.
         TransactionLocalContext transactionLocalContext = TransactionLocalContext
                 .create(gTransactionId, strand.getProperty(TRANSACTION_URL).toString(), "2pc");
-        strand.transactionLocalContext = transactionLocalContext;
+        strand.setCurrentTransactionContext(transactionLocalContext);
 
         // Register committed and aborted function handler if exists.
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
@@ -130,7 +130,7 @@ public class Utils {
 
     public static Object registerLocalParticipant(BString transactionBlockId, FPValue fpCommitted, FPValue fpAborted) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         if (transactionLocalContext == null) {
             // No transaction available to participate,
             // We have no business here. This is a no-op.
@@ -167,7 +167,7 @@ public class Utils {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        strand.transactionLocalContext = trxCtx;
+        strand.setCurrentTransactionContext(trxCtx);
     }
 
     private static long getRetryNumber(Object prevAttemptInfo) {
@@ -182,13 +182,13 @@ public class Utils {
 
     public static boolean isNestedTransaction() {
         Strand strand = Scheduler.getStrand();
-        return strand.transactionLocalContext != null;
+        return strand.currentTrxContext != null;
     }
 
     public static BString getCurrentTransactionId() {
         Strand strand = Scheduler.getStrand();
         String currentTransactionId = "";
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         if (transactionLocalContext != null) {
             currentTransactionId = transactionLocalContext.getGlobalTransactionId() + ":" + transactionLocalContext
                     .getCurrentTransactionBlockId();
@@ -219,7 +219,7 @@ public class Utils {
 
     public static void onCommit(FPValue fpValue) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
@@ -227,7 +227,7 @@ public class Utils {
 
     public static void onRollback(FPValue fpValue) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
@@ -241,7 +241,7 @@ public class Utils {
     public static MapValue<BString, Object> info() {
         Strand strand = Scheduler.getStrand();
         if (isTransactional()) {
-            TransactionLocalContext context = strand.transactionLocalContext;
+            TransactionLocalContext context = strand.currentTrxContext;
             return (MapValue<BString, Object>) context.getInfoRecord();
         }
         throw BallerinaErrors.createError(StringUtils

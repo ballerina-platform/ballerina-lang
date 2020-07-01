@@ -45,8 +45,8 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class CleanUpTransactionContext {
 
     public static void cleanupTransactionContext(Strand strand, BString transactionBlockId) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.removeTransactionInfo();
-        strand.removeLocalTransactionContext();
+        strand.removeCurrentTrxContext();
     }
 }

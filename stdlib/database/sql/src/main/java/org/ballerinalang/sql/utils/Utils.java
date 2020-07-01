@@ -105,7 +105,7 @@ class Utils {
             } catch (SQLException ignored) {
             }
         }
-        if (strand == null || !strand.isInTransaction() || !strand.transactionLocalContext.hasTransactionBlock()) {
+        if (strand == null || !strand.isInTransaction() || !strand.currentTrxContext.hasTransactionBlock()) {
             if (connection != null) {
                 try {
                     connection.close();
