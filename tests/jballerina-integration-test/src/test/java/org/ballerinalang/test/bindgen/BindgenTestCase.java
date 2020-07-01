@@ -74,16 +74,18 @@ public class BindgenTestCase extends BaseTest {
         LogLeecher runLeecher1 = new LogLeecher(runMsg1);
         LogLeecher runLeecher2 = new LogLeecher(runMsg2);
 
-        String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=./src/module1", "org.yaml.snakeyaml.Yaml",
+        // `commons-logging:commons-logging:1.1.1` is a dependency with the
+        String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=./src/module1", "org.apache.log4j.Logger",
                 "java.lang.Object", "java.lang.String", "java.lang.Class", "java.lang.StringBuffer",
                 "java.lang.ArithmeticException", "java.lang.AssertionError", "java.lang.StackTraceElement",
                 "java.lang.Character$Subset", "java.lang.Character", "java.io.File", "java.lang.Short",
                 "java.io.FileInputStream", "java.io.OutputStream", "java.io.FileOutputStream", "java.util.HashSet",
-                "java.util.Set", "java.util.Iterator"};
+                "java.util.Set", "java.util.Iterator", "org.apache.commons.logging.impl.Log4JLogger"};
         try {
             balClient.runMain("bindgen", args, null, new String[]{},
                     new LogLeecher[]{bindgenLeecher}, projectPath.toString());
-            throw new BallerinaTestException("Contains classes not generated.");
+            bindgenLeecher.waitForText(5000);
+            throw new BallerinaTestException("Contains classes which are not generated.");
         } catch (BallerinaTestException e) {
             if (bindgenLeecher.isTextFound()) {
                 throw new BallerinaTestException("Contains classes not generated.", e);
@@ -91,9 +93,11 @@ public class BindgenTestCase extends BaseTest {
         }
         balClient.runMain("build", new String[]{"-a"}, null, new String[]{},
                 new LogLeecher[]{buildLeecher}, projectPath.toString());
+        buildLeecher.waitForText(5000);
         balClient.runMain("run", new String[]{"target/bin/module1.jar"}, null, new String[]{},
                 new LogLeecher[]{runLeecher1, runLeecher2}, projectPath.toString());
-        buildLeecher.waitForText(5000);
+        runLeecher1.waitForText(5000);
+        runLeecher2.waitForText(5000);
     }
 
     public void copyFolder(Path src, Path dest) throws IOException {

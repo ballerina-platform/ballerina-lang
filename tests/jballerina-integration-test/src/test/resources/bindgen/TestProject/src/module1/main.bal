@@ -1,7 +1,6 @@
 import ballerina/io;
 
 public function main() {
-    io:println("Hello World!");
     error? err1 = testArrayUtils();
     error? err2 = testExceptionHandling();
     if (err1 is error) {
