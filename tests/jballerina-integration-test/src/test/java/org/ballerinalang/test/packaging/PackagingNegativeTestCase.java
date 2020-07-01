@@ -21,6 +21,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,6 +36,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 
@@ -57,6 +59,9 @@ public class PackagingNegativeTestCase extends BaseTest {
         tempProjectDirectory = Files.createTempDirectory("bal-test-integration-packaging-negative-project-");
         moduleName = moduleName + PackerinaTestUtils.randomModuleName(10);
         envVariables = addEnvVariables(PackerinaTestUtils.getEnvVariables());
+        Path testResources = Paths.get("src", "test", "resources", "packaging", "native", "TestProject3").
+                toAbsolutePath();
+        copyFolder(testResources, this.tempProjectDirectory);
         PackerinaTestUtils.createSettingToml(tempHomeDirectory);
         balClient = new BMainInstance(balServer);
     }
@@ -327,19 +332,18 @@ public class PackagingNegativeTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test whether execution of tests are broken when interop failure exists",
-            expectedExceptions = {BallerinaTestException.class},
-            expectedExceptionsMessageRegExp = "cannot run tests due to interop failures")
-    public void testInteropFailureBreakRunningTests() throws BallerinaTestException {
+    @Test(description = "Test whether execution of tests are broken when interop failure exists")
+    public void testInteropFailureBreakRunningTests() {
         try {
             String errorMsg = "Running Tests";
             LogLeecher utilsCompileLeecher = new LogLeecher(errorMsg);
             balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
-                    new LogLeecher[]{utilsCompileLeecher}, tempProjectDirectory.resolve("TestProject3").toString());
+                    new LogLeecher[]{utilsCompileLeecher}, tempProjectDirectory.toString());
             utilsCompileLeecher.waitForText(5000);
-
+            throw new BallerinaTestException("Tests are running with interop failures");
         } catch (BallerinaTestException e) {
-            throw new BallerinaTestException("cannot run tests due to interop failures", e);
+            Assert.assertTrue(e.getMessage().
+                    equals("Matching log not found prior to server shutdown for: Running Tests"));
         }
     }
 
@@ -364,6 +368,18 @@ public class PackagingNegativeTestCase extends BaseTest {
      */
     private void writeToFile(Path filePath, String content) throws IOException {
         Files.write(filePath, content.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    public  void copyFolder(Path src, Path dest) throws IOException {
+        Files.walk(src).forEach(source -> copy(source, dest.resolve(src.relativize(source))));
+    }
+
+    private void copy(Path source, Path dest) {
+        try {
+            Files.copy(source, dest, REPLACE_EXISTING);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
     }
 
     @AfterClass
