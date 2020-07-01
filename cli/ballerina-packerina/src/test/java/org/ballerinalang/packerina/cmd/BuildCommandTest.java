@@ -532,8 +532,16 @@ public class BuildCommandTest extends CommandTest {
         CleanCommand cleanCommand = new CleanCommand(Paths.get(System.getProperty("user.dir")), false);
         new CommandLine(cleanCommand).parse("--sourceroot", this.testResources.resolve("valid-project").toString());
         cleanCommand.execute();
-        Path target = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME);
-        Assert.assertFalse(Files.exists(target), "Check if target directory is deleted");
+        Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
+                + File.separator + ProjectDirConstants.BIN_DIR_NAME);
+        Path balo = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
+                + File.separator + ProjectDirConstants.BIN_DIR_NAME);
+        Path caches = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
+                + File.separator + ProjectDirConstants.BIN_DIR_NAME);
+
+        Assert.assertFalse(Files.exists(bin), "Check if bin directory is deleted");
+        Assert.assertFalse(Files.exists(balo), "Check if balo directory is deleted");
+        Assert.assertFalse(Files.exists(caches), "Check if caches directory is deleted");
     }
 
     @Test(dependsOnMethods = {"testBuildCommand"})
