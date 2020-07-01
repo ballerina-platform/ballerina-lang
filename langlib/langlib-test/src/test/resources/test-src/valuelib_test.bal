@@ -352,9 +352,10 @@ function testCloneWithTypeJsonRec1() {
     assert(j.toJsonString(), "{\"name\":\"N\", \"age\":3}");
 }
 
+type typeDesc typedesc<Person2>;
 function testCloneWithTypeJsonRec2() {
    json pj = { name : "tom", age: 2};
-   Person2|error pe = pj.cloneWithType(typedesc<Person2>);
+   Person2|error pe = pj.cloneWithType(typeDesc);
    assert(pe is Person2, true);
 
    Person2 p = <Person2> pe;
@@ -401,9 +402,10 @@ type Baz record {|
     string s;
 |};
 
+type BarOrBaz typedesc<Bar|Baz>;
 function testCloneWithTypeAmbiguousTargetType() {
     Foo f = { s: "test string" };
-    Bar|Baz|error bb = f.cloneWithType(typedesc<Bar|Baz>);
+    Bar|Baz|error bb = f.cloneWithType(BarOrBaz);
     assert(bb is error, true);
 
     error bbe = <error> bb;
@@ -411,18 +413,21 @@ function testCloneWithTypeAmbiguousTargetType() {
     assert(bbe.detail()["message"].toString(), "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
 }
 
+type StringOrNull string?;
 function testCloneWithTypeForNilPositive() {
     anydata a = ();
-    string|error? c1 = a.cloneWithType(string?);
+    string|error? c1 = a.cloneWithType(StringOrNull);
     json|error c2 = a.cloneWithType(json);
     assert(c1 is (), true);
     assert(c2 is (), true);
 }
 
+type FooOrBar typedesc<Foo|Bar>;
+type StringOrInt string|int;
 function testCloneWithTypeForNilNegative() {
     anydata a = ();
-    string|int|error c1 = a.cloneWithType(string|int);
-    Foo|Bar|error c2 = a.cloneWithType(typedesc<Foo|Bar>);
+    string|int|error c1 = a.cloneWithType(StringOrInt);
+    Foo|Bar|error c2 = a.cloneWithType(FooOrBar);
     assert(c1 is error, true);
     assert(c2 is error, true);
 
@@ -478,10 +483,12 @@ function testCloneWithTypeNumeric4() {
     assert(x.c, 1000.0);
 }
 
+type FloatArray float[];
+type FloatOrBooleanArray (float|boolean)[];
 function testCloneWithTypeNumeric5() {
     int[] i = [1, 2];
-    float[]|error j = i.cloneWithType(float[]);
-    (float|boolean)[]|error j2 = i.cloneWithType((float|boolean)[]);
+    float[]|error j = i.cloneWithType(FloatArray);
+    (float|boolean)[]|error j2 = i.cloneWithType(FloatOrBooleanArray);
     assert(j is float[], true);
 
     float[] jf = <float[]> j;
@@ -491,10 +498,12 @@ function testCloneWithTypeNumeric5() {
     assert(jf, <(float|boolean)[]> j2);
 }
 
+type IntMap map<int>;
+type IntOrStringMap map<string|int>;
 function testCloneWithTypeNumeric6() {
     map<float> m = { a: 1.2, b: 2.7 };
-    map<int>|error m2 = m.cloneWithType(map<int>);
-    map<string|int>|error m3 = m.cloneWithType(map<string|int>);
+    map<int>|error m2 = m.cloneWithType(IntMap);
+    map<string|int>|error m3 = m.cloneWithType(IntOrStringMap);
     assert(m2 is map<int>, true);
 
     map<int> m2m = <map<int>> m2;
@@ -504,9 +513,10 @@ function testCloneWithTypeNumeric6() {
     assert(m2m, <map<string|int>> m3);
 }
 
+type DecimalArray decimal[];
 function testCloneWithTypeNumeric7() {
     int[] a1 = [1, 2, 3];
-    decimal[]|error a2 = a1.cloneWithType(decimal[]);
+    decimal[]|error a2 = a1.cloneWithType(DecimalArray);
     assert(a2 is decimal[], true);
 
     decimal[] a2d = <decimal[]> a2;
@@ -514,6 +524,19 @@ function testCloneWithTypeNumeric7() {
     assert(a2d[0], <decimal> 1);
     assert(a2d[1], <decimal> 2);
     assert(a2d[2], <decimal> 3);
+}
+
+type StringArray string[];
+function testCloneWithTypeStringArray() {
+   string anArray = "[\"hello\", \"world\"]";
+   json j = <json> anArray.fromJsonString();
+ ///   string[]|error cloned = j.cloneWithType(StringArray);
+//    assert(cloned is string[], true);
+
+ //   string[]  clonedArr= <string[]> a2;
+ //   assert(clonedArr.length(), anArray.length());
+ //   assert(clonedArr[0], "Hello");
+ //   assert(clonedArr[1], "World");
 }
 
 function assert(anydata actual, anydata expected) {
