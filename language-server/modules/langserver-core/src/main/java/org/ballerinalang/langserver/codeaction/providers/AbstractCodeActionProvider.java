@@ -49,6 +49,11 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
     private List<CodeActionNodeType> codeActionNodeTypes;
     private final boolean isNodeTypeBased;
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
     /**
      * Create a diagnostic based code action provider.
      */

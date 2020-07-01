@@ -166,14 +166,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "encoding",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "encoding",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "java",
       "kind": "Module",
       "detail": "Module",
