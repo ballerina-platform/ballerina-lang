@@ -24,6 +24,7 @@ import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
+import org.ballerinalang.debugadapter.variable.types.BFunction;
 import org.ballerinalang.debugadapter.variable.types.BFuture;
 import org.ballerinalang.debugadapter.variable.types.BHandle;
 import org.ballerinalang.debugadapter.variable.types.BInt;
@@ -32,6 +33,7 @@ import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
 import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
+import org.ballerinalang.debugadapter.variable.types.BService;
 import org.ballerinalang.debugadapter.variable.types.BStream;
 import org.ballerinalang.debugadapter.variable.types.BString;
 import org.ballerinalang.debugadapter.variable.types.BTable;
@@ -78,6 +80,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <li> future - a value to be returned by a function execution
  * <li> handle - reference to externally managed storage
  * <li> typedesc - a type descriptor
+ * <li> function - a function with 0 or more specified parameter types and a single return type
+ * <li> service - a collection of named methods, including resource methods
  * <li> any - any value other than an error // Todo - show runtime type or "any"?
  * <li> anydata - not an error and does not contain behavioral members // Todo - show runtime type or "anydata"?
  * <li> union - the union of the component types // Todo - show runtime type or union type?
@@ -90,8 +94,6 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
  * <br>
  * To be implemented
  * <ul>
- * <li> function - a function with 0 or more specified parameter types and a single return type
- * <li> service - a collection of named methods, including resource methods
  * <li> never - no value
  * </ul>
  */
@@ -145,6 +147,8 @@ public class VariableFactory {
             return new BTypeDesc(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
             return new BTable(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.FP_VALUE.getString())) {
+            return new BFunction(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
             return new BFuture(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.HANDLE_VALUE.getString())) {
@@ -163,6 +167,8 @@ public class VariableFactory {
             return new BXmlItem(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
             return new BXmlItemAttributeMap(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
+            return new BService(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
             // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
             //  variables.
