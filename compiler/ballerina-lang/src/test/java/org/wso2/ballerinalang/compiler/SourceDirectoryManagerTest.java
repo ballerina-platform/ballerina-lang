@@ -17,13 +17,17 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.project.InvalidModuleException;
+import org.ballerinalang.project.Project;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -50,7 +54,6 @@ public class SourceDirectoryManagerTest {
     public void testListSourceFilesAndPackages() {
         Names names = Names.getInstance(context);
         List<PackageID> expectedPackageIds = new ArrayList<>();
-        expectedPackageIds.add(new PackageID(names.fromString("abc"), "main.bal", names.fromString("0.0.1")));
         expectedPackageIds.add(new PackageID(names.fromString("abc"),
                                              names.fromString("fruits"),
                                              names.fromString("0.0.1"))
@@ -68,5 +71,55 @@ public class SourceDirectoryManagerTest {
                                                     names.fromString("fruits"),
                                                     names.fromString("0.0.1"));
         Assert.assertEquals(fruits, expectedPackageId);
+    }
+
+    @Test(description = "Test if module exist in the project")
+    public void testIsModuleExists() {
+        Project project = context.get(Project.PROJECT_KEY);
+        Names names = Names.getInstance(context);
+        PackageID expectedPackageId = new PackageID(names.fromString("abc"),
+                names.fromString("fruits"),
+                names.fromString("0.0.1"));
+        Assert.assertTrue(project.isModuleExists(expectedPackageId));
+        PackageID invalidName = new PackageID(names.fromString("abc"),
+                names.fromString("invalid"),
+                names.fromString("0.0.1"));
+        Assert.assertFalse(project.isModuleExists(invalidName));
+        PackageID invalidOrg = new PackageID(names.fromString("invalid"),
+                names.fromString("fruits"),
+                names.fromString("0.0.1"));
+        Assert.assertFalse(project.isModuleExists(invalidOrg));
+        PackageID invalidVersion = new PackageID(names.fromString("abc"),
+                names.fromString("fruits"),
+                names.fromString("0.1.1"));
+        Assert.assertFalse(project.isModuleExists(invalidVersion));
+    }
+
+    @Test(description = "Test if get balo path")
+    public void getBaloPath() throws InvalidModuleException {
+        Project project = context.get(Project.PROJECT_KEY);
+        Names names = Names.getInstance(context);
+        PackageID moduleId = new PackageID(names.fromString("abc"),
+                names.fromString("fruits"),
+                names.fromString("0.0.1"));
+        // valid module
+        String baloName =  "fruits-"
+                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-any-0.0.1.balo";
+        Path baloPath = directoryManager.getSourceDirectory().getPath()
+                .resolve("target").resolve("balo").resolve(baloName);
+        Assert.assertEquals(project.getBaloPath(moduleId), baloPath);
+        // valid module with a diffrent platform
+
+        // invalid module
+        try {
+            PackageID invalidModuleId = new PackageID(names.fromString("invalid"),
+                    names.fromString("fruits"),
+                    names.fromString("0.0.1"));
+            // invalid valid module
+            project.getBaloPath(invalidModuleId);
+            throw new AssertionError("Failed to identify invalid module");
+        } catch (InvalidModuleException e) {
+            // catch works
+        }
     }
 }

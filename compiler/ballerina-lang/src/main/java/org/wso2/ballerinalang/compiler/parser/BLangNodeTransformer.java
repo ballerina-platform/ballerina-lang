@@ -3090,7 +3090,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             literal = createSimpleLiteral(member.identifier());
             deepLiteral = createSimpleLiteral(member.identifier());
         }
-        if (literal.originalValue != "") {
+        if (literal.originalValue != "" || member.identifier().isMissing()) {
             bLangConstant.setInitialExpression(literal);
         } else {
             bLangConstant.setInitialExpression(createExpression(member.constExprNode()));

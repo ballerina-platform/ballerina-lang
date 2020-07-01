@@ -209,7 +209,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric4" },
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
-                { "testCloneWithTypeNumeric7" }
+                { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeStringArray" }
         };
     }
 }

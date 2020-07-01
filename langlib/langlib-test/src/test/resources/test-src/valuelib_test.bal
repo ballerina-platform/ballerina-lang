@@ -530,13 +530,13 @@ type StringArray string[];
 function testCloneWithTypeStringArray() {
    string anArray = "[\"hello\", \"world\"]";
    json j = <json> anArray.fromJsonString();
- ///   string[]|error cloned = j.cloneWithType(StringArray);
-//    assert(cloned is string[], true);
+// string[]|error cloned = j.cloneWithType(StringArray);
+// assert(cloned is string[], true);
 
- //   string[]  clonedArr= <string[]> a2;
- //   assert(clonedArr.length(), anArray.length());
- //   assert(clonedArr[0], "Hello");
- //   assert(clonedArr[1], "World");
+// string[]  clonedArr= <string[]> a2;
+// assert(clonedArr.length(), anArray.length());
+// assert(clonedArr[0], "Hello");
+// assert(clonedArr[1], "World");
 }
 
 function assert(anydata actual, anydata expected) {
