@@ -32,7 +32,7 @@ public class BXmlItem extends BCompoundVariable {
     private final ObjectReferenceImpl jvmValueRef;
 
     public BXmlItem(Value value, Variable dapVariable) {
-         this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
+        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
         dapVariable.setType(BVariableType.XML.getString());
         dapVariable.setValue(this.getValue());
         this.setDapVariable(dapVariable);
