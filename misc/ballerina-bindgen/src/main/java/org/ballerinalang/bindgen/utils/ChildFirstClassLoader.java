@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * This class represents a ChildFirstClassLoader for checking specified jars before the parent.
  *
- * @since 2.0.0
+ * @since 1.2.5
  */
 public class ChildFirstClassLoader extends URLClassLoader {
 
