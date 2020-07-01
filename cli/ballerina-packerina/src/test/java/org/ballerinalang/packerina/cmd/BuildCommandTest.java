@@ -535,9 +535,9 @@ public class BuildCommandTest extends CommandTest {
         Path bin = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
                 + File.separator + ProjectDirConstants.BIN_DIR_NAME);
         Path balo = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
-                + File.separator + ProjectDirConstants.BIN_DIR_NAME);
+                + File.separator + ProjectDirConstants.TARGET_BALO_DIRECTORY);
         Path caches = this.testResources.resolve("valid-project").resolve(ProjectDirConstants.TARGET_DIR_NAME
-                + File.separator + ProjectDirConstants.BIN_DIR_NAME);
+                + File.separator + ProjectDirConstants.CACHES_DIR_NAME);
 
         Assert.assertFalse(Files.exists(bin), "Check if bin directory is deleted");
         Assert.assertFalse(Files.exists(balo), "Check if balo directory is deleted");
