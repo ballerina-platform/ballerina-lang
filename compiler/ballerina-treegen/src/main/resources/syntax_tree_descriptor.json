@@ -3888,6 +3888,50 @@
                     "type": "SimpleNameReferenceNode"
                 }
             ]
+        },
+        {
+            "name": "MappingMatchPatternNode",
+            "base": "Node",
+            "kind": "MAPPING_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "mappingMatchPatternListNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restMatchPattern",
+                    "type": "RestMatchPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FieldMatchPatternNode",
+            "base": "Node",
+            "kind": "FIELD_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "fieldNameNode",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colonToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

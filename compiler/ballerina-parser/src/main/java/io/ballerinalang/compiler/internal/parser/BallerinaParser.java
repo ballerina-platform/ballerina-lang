@@ -579,6 +579,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseRecordKeyword();
             case LIST_MATCH_PATTERN_MEMBER_RHS:
                 return parseListMatchPatternMemberRhs();
+            case MAPPING_MATCH_PATTERN_MEMBER_RHS:
+                return parseFieldMatchPatternRhs();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -12618,22 +12620,22 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseMappingMatchPattern() {
         startContext(ParserRuleContext.MAPPING_MATCH_PATTERN);
-        STNode openBracketToken = parseOpenBrace();
-        List<STNode> fieldMatchPatternList = new ArrayList<>();
+        STNode openBraceToken = parseOpenBrace();
+        List<STNode> mappingMatchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
 
-        while (!isEndOfMatchPattern()) {
+        while (!isEndOfMappingMatchPattern()) {
             STToken nextToken = peek();
             if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
                 restMatchPattern = parseRestMatchPattern();
                 break;
             }
-            STNode matchPatternListMember = parseMatchPattern();
-            matchPatternList.add(matchPatternListMember);
-            STNode matchPatternMemberRhs = parseListMatchPatternMemberRhs();
+            STNode fieldMatchPattern = parseFieldMatchPattern();
+            mappingMatchPatternList.add(fieldMatchPattern);
+            STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
 
-            if (matchPatternMemberRhs != null) {
-                matchPatternList.add(matchPatternMemberRhs);
+            if (fieldMatchPatternRhs != null) {
+                mappingMatchPatternList.add(fieldMatchPatternRhs);
             } else {
                 break;
             }
@@ -12643,17 +12645,32 @@ public class BallerinaParser extends AbstractParser {
             restMatchPattern = STNodeFactory.createEmptyNode();
         }
 
-        STNode matchPatternListNode =  STNodeFactory.createNodeList(matchPatternList);
-        STNode closeBracketToken = parseCloseBracket();
+        STNode mappingMatchPatternListNode =  STNodeFactory.createNodeList(mappingMatchPatternList);
+        STNode closeBraceToken = parseCloseBrace();
         endContext();
 
-        return STNodeFactory.createListMatchPatternNode(openBracketToken, matchPatternListNode, restMatchPattern,
-                closeBracketToken);
+        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, mappingMatchPatternListNode,
+                restMatchPattern, closeBraceToken);
     }
 
-    public boolean isEndOfMatchPattern() {
+    /**
+     * Parse filed match pattern.
+     * <p>
+     *     field-match-pattern := field-name : match-pattern
+     * </p>
+     *
+     * @return Parsed field match pattern node
+     */
+    public STNode parseFieldMatchPattern() {
+        STNode fieldNameNode = parseVariableName();
+        STNode colonToken = parseColon();
+        STNode matchPattern = parseMatchPattern();
+        return STNodeFactory.createFieldMatchPatternNode(fieldNameNode, colonToken, matchPattern);
+    }
+
+    public boolean isEndOfMappingMatchPattern() {
         switch (peek().kind) {
-            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_BRACE_TOKEN:
             case EOF_TOKEN:
                 return true;
             default:
@@ -12661,41 +12678,19 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    /** Parse rest match pattern.
-     *<p>
-     *     <code>
-     *         rest-match-pattern := ... var variable-name
-     *     </code>
-     *</p>
-     *
-     * @return Parsed rest match pattern node
-     */
-    private STNode parseRestMatchPattern() {
-        startContext(ParserRuleContext.REST_MATCH_PATTERN);
-        //We approach here only after seeing ellipsis token hence consume.
-        STNode ellipsisToken = consume();
-        STNode varKeywordToken = parseVarKeyword();
-        STNode variableName = parseVariableName();
-        endContext();
-
-        STSimpleNameReferenceNode simpleNameReferenceNode =
-                (STSimpleNameReferenceNode) STNodeFactory.createSimpleNameReferenceNode(variableName);
-        return STNodeFactory.createRestMatchPatternNode(ellipsisToken, varKeywordToken, simpleNameReferenceNode);
+    private STNode parseFieldMatchPatternRhs() {
+        return parseFieldMatchPatternRhs(peek().kind);
     }
 
-    private STNode parseListMatchPatternMemberRhs() {
-        return parseListMatchPatternMemberRhs(peek().kind);
-    }
-
-    private STNode parseListMatchPatternMemberRhs(SyntaxKind nextTokenKind) {
+    private STNode parseFieldMatchPatternRhs(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
-            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_BRACE_TOKEN:
             case EOF_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.MAPPING_MATCH_PATTERN_MEMBER_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12704,7 +12699,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseListMatchPatternMemberRhs(solution.tokenKind);
+                return parseFieldMatchPatternRhs(solution.tokenKind);
         }
     }
     // ------------------------ Ambiguity resolution at statement start ---------------------------
