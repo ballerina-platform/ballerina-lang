@@ -73,11 +73,11 @@ function waitTest8() returns int {
     return result;
 }
 
-function waitTest9() returns () {
-    future<()> f1 = runtime:timeout(2000);
-    () result = wait f1;
-    return result;
-}
+//function waitTest9() returns () {
+//    future<()> f1 = runtime:timeout(2000);
+//    () result = wait f1;
+//    return result;
+//}
 
 //function waitTest10() returns int { // Needs to be tested out
 //    int result = 0;
