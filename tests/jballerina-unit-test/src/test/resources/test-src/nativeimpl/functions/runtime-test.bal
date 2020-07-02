@@ -58,5 +58,5 @@ function testConcurrentSleep() returns (int[]) {
 }
 
 function testGetProperty(string name) returns (string) {
-    return runtime:getProperty(name);
+    return system:getProperty(name);
 }

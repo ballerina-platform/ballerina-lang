@@ -94,3 +94,15 @@ public function exec(@untainted string command, @untainted map<string> env = {},
     name: "exec",
     class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
 } external;
+
+# Returns the system property value associated with the specified property name.
+# ```ballerina
+# string userHome = system:getProperty("user.home");
+# ```
+#
+# + name - Name of the property
+# + return - Value of the property if the property exists or else an empty string otherwise
+public function getProperty(@untainted string name) returns string = @java:Method {
+    name: "getProperty",
+    class: "org.ballerinalang.stdlib.system.nativeimpl.GetProperty"
+} external;

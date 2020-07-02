@@ -17,10 +17,10 @@
 import ballerina/io;
 import ballerina/bir;
 import ballerina/jvm;
-import ballerina/runtime;
+import ballerina/system;
 
-boolean IS_BSTRING = runtime:getProperty("ballerina.bstring") != "";
-string BSTRING_VALUE = runtime:getProperty("ballerina.bstring") == "" ? STRING_VALUE : B_STRING_VALUE;
+boolean IS_BSTRING = system:getProperty("ballerina.bstring") != "";
+string BSTRING_VALUE = system:getProperty("ballerina.bstring") == "" ? STRING_VALUE : B_STRING_VALUE;
 
 type InstructionGenerator object {
     jvm:MethodVisitor mv;
