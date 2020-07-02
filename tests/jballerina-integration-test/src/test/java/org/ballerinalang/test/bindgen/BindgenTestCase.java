@@ -37,7 +37,7 @@ import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 /**
  * Integration tests for the bindgen tool.
  *
- * @since 2.0.0
+ * @since 1.2.6
  */
 public class BindgenTestCase extends BaseTest {
 
