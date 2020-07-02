@@ -342,7 +342,7 @@ public class TestCommand implements BLauncherCmd {
         }
 
         // if home cache is given use that
-        if ( homeCache != null ) {
+        if (homeCache != null) {
             System.setProperty(RepoUtils.HOME_CACHE_DIR, homeCache);
         }
 

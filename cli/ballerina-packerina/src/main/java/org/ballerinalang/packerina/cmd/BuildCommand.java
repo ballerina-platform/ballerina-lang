@@ -63,7 +63,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
-import static org.ballerinalang.compiler.CompilerOptionName.HOME_CACHE;
 import static org.ballerinalang.jvm.runtime.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType.SINGLE_BAL_FILE;
 import static org.ballerinalang.packerina.cmd.Constants.BUILD_COMMAND;
@@ -371,7 +370,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // if home cache is given use that
-        if ( homeCache != null ) {
+        if (homeCache != null) {
             System.setProperty(RepoUtils.HOME_CACHE_DIR, homeCache);
         }
         

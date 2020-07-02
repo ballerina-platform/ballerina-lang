@@ -76,7 +76,7 @@ public class RepoUtils {
         if (homeRepoDir != null && !homeRepoDir.isEmpty()) {
             // User has specified the home repo path with env variable.
             homeRepoPath = Paths.get(homeRepoDir);
-        } else if (homeCacheDir != null && !homeCacheDir.isEmpty()){
+        } else if (homeCacheDir != null && !homeCacheDir.isEmpty()) {
             // If home cache is given we will use that
             homeRepoPath = Paths.get(homeCacheDir);
         } else {
