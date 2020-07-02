@@ -61,6 +61,8 @@ public class RepoUtils {
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
     public static final boolean BALLERINA_DEV_PREPROD_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_PREPROD_CENTRAL"));
+
+    public static final String HOME_CACHE_DIR = "HOME_CACHE_DIR";
     
     /**
      * Create and get the home repository path.
@@ -70,15 +72,19 @@ public class RepoUtils {
     public static Path createAndGetHomeReposPath() {
         Path homeRepoPath;
         String homeRepoDir = System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY);
-        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+        String homeCacheDir = System.getProperty(HOME_CACHE_DIR);
+        if (homeRepoDir != null && !homeRepoDir.isEmpty()) {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
+        } else if (homeCacheDir != null && !homeCacheDir.isEmpty()){
+            // If home cache is given we will use that
+            homeRepoPath = Paths.get(homeCacheDir);
+        } else {
             String userHomeDir = System.getProperty(USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
             homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
-        } else {
-            // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();

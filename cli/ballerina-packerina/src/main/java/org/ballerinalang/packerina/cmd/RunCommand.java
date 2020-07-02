@@ -107,6 +107,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+    @CommandLine.Option(names = "--home-cache", description = "Custom home cache")
+    private String homeCache;
+
     public RunCommand() {
         this.outStream = System.err;
         this.errStream = System.err;
@@ -240,6 +243,11 @@ public class RunCommand implements BLauncherCmd {
                     "ballerina run {<bal-file> | <module-name> | <executable-jar>}", true);
             Runtime.getRuntime().exit(1);
             return;
+        }
+
+        // if home cache is given use that
+        if ( homeCache != null ) {
+            System.setProperty(RepoUtils.HOME_CACHE_DIR, homeCache);
         }
 
         // normalize paths
