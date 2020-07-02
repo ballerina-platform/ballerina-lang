@@ -151,13 +151,11 @@ public class Generator {
             // TODO: handle value type nodes
             added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
-            List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) typeNode).memberTypeNodes;
-            List<Type> memberTypes = memberTypeNodes.stream()
-                    .map(type -> Type.fromTypeNode(type, module.id))
-                    .collect(Collectors.toList());
-            UnionType tupleType = new UnionType(typeName, description(typeDefinition), isDeprecated, memberTypes);
-            tupleType.isTuple = true;
-            module.unionTypes.add(tupleType);
+            Type tupleType = Type.fromTypeNode(typeNode, module.id);
+            UnionType UnionTupleType = new UnionType(typeName, description(typeDefinition), isDeprecated,
+                    tupleType.memberTypes);
+            UnionTupleType.isTuple = true;
+            module.unionTypes.add(UnionTupleType);
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
