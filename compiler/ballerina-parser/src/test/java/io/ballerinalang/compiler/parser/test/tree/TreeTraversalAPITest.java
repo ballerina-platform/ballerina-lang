@@ -17,6 +17,8 @@
  */
 package io.ballerinalang.compiler.parser.test.tree;
 
+import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -61,17 +63,42 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
         ModulePartNode modulePart = syntaxTree.rootNode();
         Token token = modulePart.findToken(115);
 
-        Node parent = token.parent();
+        Node parent = token.parent().parent();
         Assert.assertEquals(parent.kind(), SyntaxKind.BINARY_EXPRESSION);
 
-        parent = token.parent().parent().parent().parent().parent().parent().parent();
+        parent = token.parent().parent().parent().parent().parent().parent().parent().parent();
         Assert.assertEquals(parent.kind(), SyntaxKind.LOCAL_VAR_DECL);
+    }
+
+    @Test
+    public void testGetSpecificAncestorOfToken() {
+        SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
+        ModulePartNode modulePart = syntaxTree.rootNode();
+        Token token = modulePart.findToken(115);
+
+        //testing a positive case
+        Node ancestor = token.ancestor(node -> node instanceof FunctionDefinitionNode);
+        Assert.assertEquals(ancestor.kind(), SyntaxKind.FUNCTION_DEFINITION);
+
+        //testing a negative case
+        ancestor = token.ancestor(node -> node instanceof ForEachStatementNode);
+        Assert.assertEquals(ancestor, null);
+    }
+
+    @Test
+    public void testGetAllAncestorsOfToken() {
+        SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
+        ModulePartNode modulePart = syntaxTree.rootNode();
+        Token token = modulePart.findToken(115);
+
+        List<NonTerminalNode> ancestors = token.ancestors();
+        Assert.assertEquals(ancestors.size(), 11);
     }
 
     @Test
@@ -83,6 +110,31 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Node funcDef = funcToken.parent();
         Assert.assertEquals(funcDef.kind(), SyntaxKind.FUNCTION_DEFINITION);
         Assert.assertEquals(funcDef.parent().kind(), SyntaxKind.MODULE_PART);
+    }
+
+    @Test
+    public void testGetSpecificAncestorOfFunctionDef() {
+        SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
+        ModulePartNode modulePart = syntaxTree.rootNode();
+        Token funcToken = modulePart.findToken(50);
+
+        //testing a positive case
+        Node ancestor = funcToken.ancestor(node -> node instanceof ModulePartNode);
+        Assert.assertEquals(ancestor.kind(), SyntaxKind.MODULE_PART);
+
+        //testing a negative case
+        ancestor = funcToken.ancestor(node -> node instanceof ForEachStatementNode);
+        Assert.assertEquals(ancestor, null);
+    }
+
+    @Test
+    public void testGetAllAncestorsOfFunctionDef() {
+        SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
+        ModulePartNode modulePart = syntaxTree.rootNode();
+        Token funcToken = modulePart.findToken(50);
+
+        List<NonTerminalNode> ancestors = funcToken.ancestors();
+        Assert.assertEquals(ancestors.size(), 2);
     }
 
     @Test

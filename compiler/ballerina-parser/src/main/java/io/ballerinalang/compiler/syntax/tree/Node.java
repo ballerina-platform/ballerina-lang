@@ -25,6 +25,10 @@ import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Predicate;
+
 /**
  * This class represents a node in the syntax tree.
  *
@@ -57,6 +61,33 @@ public abstract class Node {
 
     public NonTerminalNode parent() {
         return parent;
+    }
+
+    public NonTerminalNode ancestor(Predicate<Node> filter) {
+        NonTerminalNode parent = this.parent;
+
+        // null is returned if predicate doesnt match any of the ancestors
+        while (parent != null) {
+            if (filter.test(parent)) {
+                return parent;
+            }
+            parent = parent.parent();
+        }
+
+        return parent;
+    }
+
+    public List<NonTerminalNode> ancestors() {
+        List<NonTerminalNode> ancestors = new ArrayList<>();
+
+        NonTerminalNode parent = this.parent;
+
+        while (parent != null) {
+            ancestors.add(parent);
+            parent = parent.parent();
+        }
+
+        return ancestors;
     }
 
     public TextRange textRange() {
