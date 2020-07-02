@@ -179,10 +179,10 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(actualMsg.contains("0.1.0"));
     }
 
-    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull", enabled = false)
     public void testPullCount() throws IOException {
         initializeSsl();
-        String url = RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
+        String url = RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
         HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), "", 0, "", "");
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
@@ -302,7 +302,7 @@ public class PackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
     }
 

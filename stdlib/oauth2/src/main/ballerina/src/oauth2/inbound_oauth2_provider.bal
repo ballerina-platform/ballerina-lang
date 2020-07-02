@@ -67,11 +67,12 @@ public type InboundOAuth2Provider object {
 
         cache:Cache? oauth2Cache = self.inboundOAuth2Cache;
         if (oauth2Cache is cache:Cache && oauth2Cache.hasKey(credential)) {
-            InboundOAuth2CacheEntry? oauth2CacheEntry = authenticateFromCache(oauth2Cache, credential);
-            if (oauth2CacheEntry is InboundOAuth2CacheEntry) {
+            map<json>? claims = authenticateFromCache(oauth2Cache, credential);
+            if (claims is map<json>) {
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(oauth2CacheEntry.username, oauth2CacheEntry.username,
-                                  getScopes(oauth2CacheEntry.scopes));
+                auth:setPrincipal(claims["username"] is string ? <string>claims["username"] : (),
+                                  claims["username"] is string ? <string>claims["username"] : (),
+                                  getScopes(claims["scopes"] is string ? <string>claims["scopes"] : ""), claims);
                 return true;
             }
         }
@@ -95,27 +96,48 @@ public type InboundOAuth2Provider object {
             json payload = <json>result;
             boolean active = <boolean>payload.active;
             if (active) {
-                string? username = ();
-                string? scopes = ();
-                int exp;
-
-                if (payload.username is string) {
-                    username = <@untainted> <string>payload.username;
-                }
+                map<json> claims = {};
                 if (payload.scope is string) {
-                    scopes = <@untainted> <string>payload.scope;
+                    claims["scopes"] = <@untainted> <string>payload.scope;
+                }
+                if (payload.client_id is string) {
+                    claims["clientId"] = <@untainted> <string>payload.client_id;
+                }
+                if (payload.username is string) {
+                    claims["username"] = <@untainted> <string>payload.username;
+                }
+                if (payload.token_type is string) {
+                    claims["tokenType"] = <@untainted> <string>payload.token_type;
                 }
                 if (payload.exp is int) {
-                    exp = <@untainted> <int>payload.exp;
-                } else {
-                    exp = self.defaultTokenExpTimeInSeconds +  (time:currentTime().time / 1000);
+                    claims["exp"] = <@untainted> <int>payload.exp;
+                }
+                if (payload.iat is int) {
+                    claims["iat"] = <@untainted> <int>payload.iat;
+                }
+                if (payload.nbf is int) {
+                    claims["nbf"] = <@untainted> <int>payload.nbf;
+                }
+                if (payload.sub is string) {
+                    claims["sub"] = <@untainted> <string>payload.sub;
+                }
+                if (payload.aud is string) {
+                    claims["aud"] = <@untainted> <string>payload.aud;
+                }
+                if (payload.iss is string) {
+                    claims["iss"] = <@untainted> <string>payload.iss;
+                }
+                if (payload.jti is string) {
+                    claims["jti"] = <@untainted> <string>payload.jti;
                 }
 
                 if (oauth2Cache is cache:Cache) {
-                    addToAuthenticationCache(oauth2Cache, credential, username, scopes, exp);
+                    addToAuthenticationCache(oauth2Cache, credential, claims, self.defaultTokenExpTimeInSeconds);
                 }
                 auth:setAuthenticationContext("oauth2", credential);
-                auth:setPrincipal(username, username, getScopes(scopes ?: ""));
+                auth:setPrincipal(claims["username"] is string ? <string>claims["username"] : (),
+                                  claims["username"] is string ? <string>claims["username"] : (),
+                                  getScopes(claims["scopes"] is string ? <string>claims["scopes"] : ""), claims);
                 return true;
             }
             return false;
@@ -125,30 +147,59 @@ public type InboundOAuth2Provider object {
     }
 };
 
-function addToAuthenticationCache(cache:Cache oauth2Cache, string token, string? username, string? scopes, int exp) {
-    InboundOAuth2CacheEntry oauth2CacheEntry = {username: username ?: "", scopes: scopes ?: ""};
-    cache:Error? result = oauth2Cache.put(token, oauth2CacheEntry, exp);
+function addToAuthenticationCache(cache:Cache oauth2Cache, string token, map<json> claims,
+                                  int defaultTokenExpTimeInSeconds) {
+    cache:Error? result;
+    if (claims["exp"] is int) {
+        result = oauth2Cache.put(token, claims);
+    } else {
+        // If the `exp` parameter is not set by the introspection response, use the cache default expiry by
+        // the `defaultTokenExpTimeInSeconds`. Then, the cached value will be removed when retrieving.
+        result = oauth2Cache.put(token, claims, defaultTokenExpTimeInSeconds);
+    }
     if (result is cache:Error) {
         log:printDebug(function() returns string {
             return "Failed to add JWT to the cache";
         });
         return;
     }
-    if (username is string) {
-        string user = username;
-        log:printDebug(function() returns string {
-            return "Add authenticated user: " + user + " to the cache.";
-        });
-    }
+    log:printDebug(function() returns string {
+        return "OAuth2 token added to the cache. Claims: " + claims.toString();
+    });
 }
 
-function authenticateFromCache(cache:Cache oauth2Cache, string token) returns InboundOAuth2CacheEntry? {
-    if (oauth2Cache.hasKey(token)) {
-        InboundOAuth2CacheEntry oauth2CacheEntry = <InboundOAuth2CacheEntry>oauth2Cache.get(token);
+function authenticateFromCache(cache:Cache oauth2Cache, string token) returns map<json>? {
+    any|cache:Error cachedValue = oauth2Cache.get(token);
+    if (cachedValue is ()) {
+        // If the cached value is expired (defaultTokenExpTimeInSeconds is passed), it will return `()`.
         log:printDebug(function() returns string {
-            return "Get authenticated user: " + oauth2CacheEntry.username + " from the cache.";
+            return "Failed to validate the token from the cache since the token is expired.";
         });
-        return oauth2CacheEntry;
+        return;
+    }
+    if (cachedValue is cache:Error) {
+        log:printDebug(function() returns string {
+            return "Failed to validate the token from the cache. Cache error: " + cachedValue.toString();
+        });
+        return;
+    }
+    map<json> claims = <map<json>>cachedValue;
+    int? expTime = claims["exp"] is int ? <int> claims["exp"] : ();
+    // The `expTime` can be `()`. This means that the `defaultTokenExpTimeInSeconds` is not exceeded yet.
+    // Hence, the token is still valid. If the `expTime` is given in int, convert this to the current time and
+    // check if the expiry time is exceeded.
+    if (expTime is () || expTime > (time:currentTime().time / 1000)) {
+        log:printDebug(function() returns string {
+            return "OAuth2 token validated from the cache. Claims: " + claims.toString();
+        });
+        return claims;
+    } else {
+        cache:Error? result = oauth2Cache.invalidate(token);
+        if (result is cache:Error) {
+            log:printDebug(function() returns string {
+                return "Failed to invalidate OAuth2 token from the cache. Claims: " + claims.toString();
+            });
+        }
     }
 }
 
@@ -183,6 +234,10 @@ public type IntrospectionServerConfig record {|
 #
 # + username - Username of the OAuth2 validated user
 # + scopes - Scopes of the OAuth2 validated user
+# # Deprecated
+# This record is deprecated and it was used for OAuth2 caching. With the new cache API v2.0.0 this record no longer
+# used and will be removed in next major version.
+@deprecated
 public type InboundOAuth2CacheEntry record {|
     string username;
     string scopes;
