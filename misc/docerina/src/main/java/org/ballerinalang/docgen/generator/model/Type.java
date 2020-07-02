@@ -243,6 +243,8 @@ public class Type {
                         .ERROR: this.category = "errors"; break;
                 case TypeTags
                         .MAP: this.category = "map"; break;
+                case TypeTags
+                        .TUPLE: this.category = "types"; break;
                 case TypeTags.INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:

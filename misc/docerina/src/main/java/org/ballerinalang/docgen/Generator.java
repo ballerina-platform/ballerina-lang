@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -150,7 +151,13 @@ public class Generator {
             // TODO: handle value type nodes
             added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
-            // TODO: handle tuple type nodes
+            List<BLangType> memberTypeNodes = ((BLangTupleTypeNode) typeNode).memberTypeNodes;
+            List<Type> memberTypes = memberTypeNodes.stream()
+                    .map(type -> Type.fromTypeNode(type, module.id))
+                    .collect(Collectors.toList());
+            UnionType tupleType = new UnionType(typeName, description(typeDefinition), isDeprecated, memberTypes);
+            tupleType.isTuple = true;
+            module.unionTypes.add(tupleType);
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
