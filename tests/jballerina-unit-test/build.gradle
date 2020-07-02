@@ -74,7 +74,6 @@ dependencies {
     baloTestImplementation project(path: ':ballerina-time', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-task', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    baloTestImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-reflect', configuration: 'baloImplementation')
     baloTestImplementation project(path: ':ballerina-java', configuration: 'baloImplementation')

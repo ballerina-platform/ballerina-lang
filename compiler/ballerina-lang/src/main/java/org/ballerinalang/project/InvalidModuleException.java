@@ -15,23 +15,12 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.stdlib.encoding;
-
-import org.ballerinalang.jvm.types.BPackage;
-
-import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+package org.ballerinalang.project;
 
 /**
- * Constants related to encoding module.
+ * Invalid module is provided as input.
+ *
+ * @since 2.0.0
  */
-public class Constants {
-    private static final String PACKAGE_NAME = "encoding";
-    static final BPackage ENCODING_PACKAGE_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, PACKAGE_NAME, "1.0.0");
-    // Error type IDs
-    public static final String ENCODING_ERROR = "EncodingError";
-    public static final String DECODING_ERROR = "DecodingError";
-
-    private Constants() {
-    }
+public class InvalidModuleException extends Exception {
 }
