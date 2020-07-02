@@ -56,10 +56,20 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_01.bal", "documentation/doc_assert_01.json");
     }
 
-//    @Test
-//    public void testRecordFieldDocumentation() {
-//        testFile("documentation/doc_source_02.bal", "documentation/doc_assert_02.json");
-//    }
+    @Test
+    public void testRecordFieldDocumentation() {
+        testFile("documentation/doc_source_02.bal", "documentation/doc_assert_02.json");
+    }
+
+    @Test
+    public void testObjectFieldDocumentation() {
+        testFile("documentation/doc_source_08.bal", "documentation/doc_assert_08.json");
+    }
+
+    @Test
+    public void testServiceBodyBlockDocumentation() {
+        testFile("documentation/doc_source_09.bal", "documentation/doc_assert_09.json");
+    }
 
     // Recovery tests
 

@@ -371,7 +371,6 @@ public class ParserTestUtils {
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-            case BACKTICK_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -1179,8 +1178,6 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
                 return SyntaxKind.DOCUMENTATION_REFERENCE;
-            case "BACKTICK_CONTENT":
-                return SyntaxKind.BACKTICK_CONTENT;
             case "PARAMETER_NAME":
                 return SyntaxKind.PARAMETER_NAME;
 

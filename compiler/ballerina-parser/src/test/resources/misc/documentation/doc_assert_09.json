@@ -9,7 +9,7 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "TYPE_DEFINITION",
+          "kind": "SERVICE_DECLARATION",
           "children": [
             {
               "kind": "METADATA",
@@ -21,7 +21,7 @@
               ]
             },
             {
-              "kind": "PUBLIC_KEYWORD",
+              "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -30,7 +30,7 @@
               ]
             },
             {
-              "kind": "TYPE_KEYWORD",
+              "kind": "ON_KEYWORD",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -39,29 +39,35 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "Person",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "RECORD_TYPE_DESC",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "RECORD_KEYWORD",
-                  "trailingMinutiae": [
+                  "kind": "EXPRESSION_LIST_ITEM",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "listner1",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "SERVICE_BODY",
+              "children": [
                 {
-                  "kind": "OPEN_BRACE_PIPE_TOKEN",
+                  "kind": "OPEN_BRACE_TOKEN",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -73,7 +79,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "RECORD_FIELD",
+                      "kind": "FUNCTION_DEFINITION",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -111,7 +117,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "name of the person",
+                                              "value": "This is first function",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -134,16 +140,36 @@
                           ]
                         },
                         {
-                          "kind": "STRING_TYPE_DESC",
+                          "kind": "FUNCTION_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "foo"
+                        },
+                        {
+                          "kind": "FUNCTION_SIGNATURE",
                           "children": [
                             {
-                              "kind": "STRING_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -154,22 +180,42 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "name"
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "trailingMinutiae": [
+                          "kind": "FUNCTION_BODY_BLOCK",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "OPEN_BRACE_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_BRACE_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
                             }
                           ]
                         }
                       ]
                     },
                     {
-                      "kind": "RECORD_FIELD",
+                      "kind": "FUNCTION_DEFINITION",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -207,7 +253,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "age of the person",
+                                              "value": "This is second function",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -230,16 +276,45 @@
                           ]
                         },
                         {
-                          "kind": "INT_TYPE_DESC",
+                          "kind": "RESOURCE_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "FUNCTION_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "bar"
+                        },
+                        {
+                          "kind": "FUNCTION_SIGNATURE",
                           "children": [
                             {
-                              "kind": "INT_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
+                              "kind": "OPEN_PAREN_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
+                            {
+                              "kind": "CLOSE_PAREN_TOKEN",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -250,87 +325,23 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "age"
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "RECORD_FIELD",
-                      "children": [
-                        {
-                          "kind": "METADATA",
+                          "kind": "FUNCTION_BODY_BLOCK",
                           "children": [
                             {
-                              "kind": "DOCUMENTATION_STRING",
-                              "children": [
+                              "kind": "OPEN_BRACE_TOKEN",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "LIST",
-                                  "children": [
-                                    {
-                                      "kind": "DOCUMENTATION_LINE",
-                                      "children": [
-                                        {
-                                          "kind": "HASH_TOKEN",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            },
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "    "
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "country code of the person",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
                             },
                             {
                               "kind": "LIST",
                               "children": []
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                            },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "CountryCode",
+                              "kind": "CLOSE_BRACE_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -339,23 +350,10 @@
                               ],
                               "trailingMinutiae": [
                                 {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "countryCode"
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
                             }
                           ]
                         }
@@ -364,16 +362,13 @@
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_PIPE_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 }
               ]
             }

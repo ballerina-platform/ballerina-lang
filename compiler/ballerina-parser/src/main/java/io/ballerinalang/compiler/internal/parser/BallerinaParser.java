@@ -652,9 +652,8 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return null;
-//            case DOCUMENTATION_LINE:
-            case AT_TOKEN:
             case HASH_TOKEN:
+            case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
             case IMPORT_KEYWORD:
@@ -1498,7 +1497,6 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param isParamNameOptional Whether the parameter names are optional
-     * @param isInExprContext Whether this function signature is occurred within an expression context
      * @return Function signature node
      */
     private STNode parseFuncSignature(boolean isParamNameOptional) {
@@ -3227,8 +3225,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
+            case HASH_TOKEN:
             case AT_TOKEN:
-            case DOCUMENTATION_LINE:
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -4819,7 +4817,7 @@ public class BallerinaParser extends AbstractParser {
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
             case AT_TOKEN:
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case AS_KEYWORD:
             case IN_KEYWORD:
             case BACKTICK_TOKEN:
@@ -5259,7 +5257,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -5955,7 +5953,7 @@ public class BallerinaParser extends AbstractParser {
                 return false;
             case EOF_TOKEN:
             case AT_TOKEN:
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
             case PUBLIC_KEYWORD:
@@ -6513,7 +6511,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -7063,7 +7061,6 @@ public class BallerinaParser extends AbstractParser {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-//            case DOCUMENTATION_LINE:
             case HASH_TOKEN:
                 docString = parseDocumentationString();
                 annotations = parseAnnotations();
@@ -8238,9 +8235,9 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse documentation string.
      * <p>
-     * <code>DocumentationString := DocumentationLine +</code>
+     * <code>DocumentationString := (DocumentationLine | ParameterDocumentationLine)+ </code>
      * <p>
-     * Refer {@link BallerinaLexer#processDocumentationLine}
+     * Refer {@link BallerinaLexer#readDocumentationToken}
      *
      * @return Parsed node
      */
@@ -8260,15 +8257,32 @@ public class BallerinaParser extends AbstractParser {
         switch (kind) {
             case HASH_TOKEN:
             case DOCUMENTATION_DESCRIPTION:
+            case PLUS_TOKEN:
             case PARAMETER_NAME:
+            case MINUS_TOKEN:
             case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
                 return false;
             default:
                 if (isDocumentReferenceType(kind)) {
                     return false;
                 }
                 return true;
+        }
+    }
+
+    private boolean isDocumentReferenceType(SyntaxKind kind) {
+        switch (kind) {
+            case TYPE_DOC_REFERENCE_TOKEN:
+            case SERVICE_DOC_REFERENCE_TOKEN:
+            case VARIABLE_DOC_REFERENCE_TOKEN:
+            case VAR_DOC_REFERENCE_TOKEN:
+            case ANNOTATION_DOC_REFERENCE_TOKEN:
+            case MODULE_DOC_REFERENCE_TOKEN:
+            case FUNCTION_DOC_REFERENCE_TOKEN:
+            case PARAMETER_DOC_REFERENCE_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -8286,6 +8300,98 @@ public class BallerinaParser extends AbstractParser {
                     return parseDocumentationLine(hashToken);
                 }
                 throw new IllegalStateException();
+        }
+    }
+
+    /**
+     * Parse '#' token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HASH_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseParameterDocumentationLine(STNode hashToken) {
+        STNode plusToken = parsePlusToken();
+        STNode parameterName = parseParameterName();
+        STNode minusToken = parseMinusToken();
+        STNode documentationDescription = parseDocumentationDescription();
+
+        SyntaxKind kind;
+        if (((STToken) parameterName).text().equals("return")) {
+            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
+        } else {
+            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
+        }
+
+        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
+                documentationDescription);
+    }
+
+    /**
+     * Parse '+' token.
+     *
+     * @return Parsed node
+     */
+    private STNode parsePlusToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PLUS_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse parameter name token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PARAMETER_NAME) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse '-' token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseMinusToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MINUS_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse documentation description token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDocumentationDescription() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
         }
     }
 
@@ -8325,6 +8431,24 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseDocumentationReference() {
+        STNode referenceType = parseReferenceType();
+        STNode startBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        STNode nameReference = parseExpression();
+        STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
+        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, nameReference, endBacktick);
+    }
+
+    private STNode parseReferenceType() {
+        STToken token = peek();
+        if (isDocumentReferenceType(token.kind)) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
     private STNode createDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
         return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
                 documentationDescription);
@@ -8338,117 +8462,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
         return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
                 documentationDescription);
-    }
-
-    private boolean isDocumentReferenceType(SyntaxKind kind) {
-        switch (kind) {
-            case TYPE_DOC_REFERENCE_TOKEN:
-            case SERVICE_DOC_REFERENCE_TOKEN:
-            case VARIABLE_DOC_REFERENCE_TOKEN:
-            case VAR_DOC_REFERENCE_TOKEN:
-            case ANNOTATION_DOC_REFERENCE_TOKEN:
-            case MODULE_DOC_REFERENCE_TOKEN:
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-            case PARAMETER_DOC_REFERENCE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private STNode parseDocumentationReference() {
-        STNode referenceType = parseReferenceType();
-        STNode startBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
-        STNode nameReference = parseExpression();
-        STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, nameReference, endBacktick);
-    }
-
-    private STNode parseParameterDocumentationLine(STNode hashToken) {
-        STNode plusToken = parsePlusToken();
-        STNode parameterName = parseParameterName();
-        STNode minusToken = parseMinusToken();
-        STNode documentationDescription = parseDocumentationDescription();
-
-        SyntaxKind kind;
-        if (((STToken) parameterName).text().equals("return")) {
-            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-        } else {
-            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
-        }
-
-        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
-                documentationDescription);
-    }
-
-    private STNode parseHashToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.HASH_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parsePlusToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PLUS_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseParameterName() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PARAMETER_NAME) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseMinusToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MINUS_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseReferenceType() {
-        STToken token = peek();
-        if (isDocumentReferenceType(token.kind)) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseDocumentationDescription() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseBacktickContent() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
     }
 
     /**
@@ -10312,7 +10325,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
             case RESOURCE_KEYWORD:
             case LISTENER_KEYWORD:
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case PRIVATE_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -11594,7 +11607,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode metadata;
         switch (nextToken.kind) {
-            case DOCUMENTATION_LINE:
+            case HASH_TOKEN:
             case AT_TOKEN:
                 metadata = parseMetaData(nextToken.kind);
                 break;
