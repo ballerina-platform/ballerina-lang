@@ -109,7 +109,6 @@ public class CodeGenerator {
                 implPath = implPath.resolve("client");
             }
 
-
             if (Files.notExists(srcPath)) {
                 Files.createDirectory(srcPath);
             }
