@@ -159,6 +159,5 @@ type IterableFromIterator object {
 };
 
 function getIterableObject(_Iterator iterator) returns IterableFromIterator {
-    IterableFromIterator p = new IterableFromIterator(iterator);
-    return p;
+    return new IterableFromIterator(iterator);
 }
