@@ -104,7 +104,7 @@ public class NestedTransactionTest {
         BRunUtil.invoke(programFile, "testTransactionLangLib");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) //TODO: issue #24545
     public void testWithinTrxMode() {
         BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
@@ -112,7 +112,7 @@ public class NestedTransactionTest {
                 + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
     }
 
-    @Test(enabled = false)
+    @Test(enabled = false) //TODO: issue #24545
     public void testUnreachableCode() {
         BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
