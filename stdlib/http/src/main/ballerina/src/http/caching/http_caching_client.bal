@@ -16,7 +16,7 @@
 
 import ballerina/cache;
 import ballerina/log;
-import ballerina/runtime;
+import ballerina/system;
 import ballerina/time;
 import ballerina/io;
 import ballerina/lang.'int;
@@ -773,6 +773,6 @@ function getDateValue(Response inboundResponse) returns int {
 }
 
 function getWarningAgent() returns string {
-    string ballerinaVersion = runtime:getProperty("ballerina.version");
+    string ballerinaVersion = system:getProperty("ballerina.version");
     return "ballerina-http-caching-client/" + ballerinaVersion;
 }
