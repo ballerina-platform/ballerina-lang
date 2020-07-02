@@ -1337,7 +1337,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public DocumentationStringNode transform(
             DocumentationStringNode documentationStringNode) {
-        NodeList<Token> documentationLines =
+        NodeList<Node> documentationLines =
                 modifyNodeList(documentationStringNode.documentationLines());
         return documentationStringNode.modify(
                 documentationLines);

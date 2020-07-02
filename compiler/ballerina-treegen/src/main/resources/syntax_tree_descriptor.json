@@ -1774,7 +1774,7 @@
             "attributes": [
                 {
                     "name": "documentationLines",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 }
             ]

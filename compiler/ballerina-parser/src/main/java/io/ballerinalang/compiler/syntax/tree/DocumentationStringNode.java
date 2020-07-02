@@ -32,7 +32,7 @@ public class DocumentationStringNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public NodeList<Token> documentationLines() {
+    public NodeList<Node> documentationLines() {
         return new NodeList<>(childInBucket(0));
     }
 
@@ -53,7 +53,7 @@ public class DocumentationStringNode extends NonTerminalNode {
     }
 
     public DocumentationStringNode modify(
-            NodeList<Token> documentationLines) {
+            NodeList<Node> documentationLines) {
         if (checkForReferenceEquality(
                 documentationLines.underlyingListNode())) {
             return this;
@@ -74,7 +74,7 @@ public class DocumentationStringNode extends NonTerminalNode {
      */
     public static class DocumentationStringNodeModifier {
         private final DocumentationStringNode oldNode;
-        private NodeList<Token> documentationLines;
+        private NodeList<Node> documentationLines;
 
         public DocumentationStringNodeModifier(DocumentationStringNode oldNode) {
             this.oldNode = oldNode;
@@ -82,7 +82,7 @@ public class DocumentationStringNode extends NonTerminalNode {
         }
 
         public DocumentationStringNodeModifier withDocumentationLines(
-                NodeList<Token> documentationLines) {
+                NodeList<Node> documentationLines) {
             Objects.requireNonNull(documentationLines, "documentationLines must not be null");
             this.documentationLines = documentationLines;
             return this;

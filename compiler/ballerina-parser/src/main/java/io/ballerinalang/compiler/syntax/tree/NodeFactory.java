@@ -1306,7 +1306,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static DocumentationStringNode createDocumentationStringNode(
-            NodeList<Token> documentationLines) {
+            NodeList<Node> documentationLines) {
         Objects.requireNonNull(documentationLines, "documentationLines must not be null");
 
         STNode stDocumentationStringNode = STNodeFactory.createDocumentationStringNode(
