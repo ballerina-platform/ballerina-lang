@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
+import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.antlr.v4.runtime.CommonToken;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -137,7 +142,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * Populate the completion item list by considering the.
      *
      * @param scopeEntries list of symbol information
-     * @param context        Language server operation context
+     * @param context      Language server operation context
      * @return {@link List}     list of completion items
      */
     protected List<LSCompletionItem> getCompletionItemList(List<Scope.ScopeEntry> scopeEntries, LSContext context) {
@@ -179,14 +184,14 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @return {@link List}     Completion Items List
      */
     protected List<LSCompletionItem> getCompletionItemList(Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> list,
-                                                         LSContext context) {
+                                                           LSContext context) {
         return list.isLeft() ? list.getLeft() : this.getCompletionItemList(list.getRight(), context);
     }
 
     /**
      * Get the basic types.
      *
-     * @param context LS Operation Context
+     * @param context        LS Operation Context
      * @param visibleSymbols List of visible symbols
      * @return {@link List}     List of completion items
      */
@@ -205,7 +210,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                 completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
             }
         });
-        
+
         completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
 
         return completionItems;
@@ -215,12 +220,12 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * Get all the types in the Package with given name.
      *
      * @param visibleSymbols Visible Symbols
-     * @param pkgName package name
-     * @param ctx language server context
+     * @param pkgName        package name
+     * @param ctx            language server context
      * @return {@link List} list of Type completion items
      */
     protected List<LSCompletionItem> getTypeItemsInPackage(List<Scope.ScopeEntry> visibleSymbols, String pkgName,
-                                                         LSContext ctx) {
+                                                           LSContext ctx) {
         List<Scope.ScopeEntry> filteredList = new ArrayList<>();
         Optional<Scope.ScopeEntry> pkgSymbolInfo = visibleSymbols.stream()
                 .filter(scopeEntry -> {
@@ -238,7 +243,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                 }
             });
         });
-        
+
         return this.getCompletionItemList(filteredList, ctx);
     }
 
@@ -248,10 +253,21 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @param context LS Context
      * @return {@link List}     List of populated completion items
      */
+    @Deprecated
     protected List<LSCompletionItem> addTopLevelItems(LSContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IMPORT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CONST.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LISTENER.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ENUM.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
+
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_MAIN_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_SERVICE.get()));
@@ -264,13 +280,6 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_OBJECT_SNIPPET.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RECORD.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPE.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PUBLIC.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FINAL.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CONST.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_ERROR.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LISTENER.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         return completionItems;
     }
 
@@ -349,7 +358,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     protected List<LSCompletionItem> getDelimiterBasedCompletionItems(LSContext context) {
         Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> itemList =
                 SymbolFilters.get(DelimiterBasedContentFilter.class)
-                .filterItems(context);
+                        .filterItems(context);
         return this.getCompletionItemList(itemList, context);
     }
 
@@ -379,7 +388,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @return {@link AbstractCompletionProvider} Completion Provider
      */
     protected LSCompletionProvider getProvider(Class providerKey) {
-        return LSCompletionProviderHolder.getInstance().getProvider(providerKey);
+        return LSCompletionProviderHolder.instance().getProvider(providerKey);
     }
 
     protected List<LSCompletionItem> getCompletionItemsAfterOnKeyword(LSContext ctx) {
@@ -395,8 +404,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     /**
      * Get the completions for the expression context in a variable definition.
      * Eg: Completion after the EQUAL sign of the variable definition
-     * 
-     * @param context Language Server context
+     *
+     * @param context  Language Server context
      * @param onGlobal whether global variable definition
      * @return {@link List} List of completion Items
      */
@@ -408,7 +417,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_COMMIT.get()));
             }
             Optional<BLangType> assignmentType = getAssignmentType(context, onGlobal);
-            
+
             if (assignmentType.isPresent() && !(assignmentType.get() instanceof BLangUserDefinedType)
                     && invocationType > -1) {
                 Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredList =
@@ -465,7 +474,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         if (pkgSymbol.isPresent()) {
             Optional<Scope.ScopeEntry> entry = pkgSymbol.get().symbol.scope.entries.values().stream()
                     .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(typeName)).findAny();
-            
+
             if (!entry.isPresent()) {
                 return completionItems;
             }
@@ -477,11 +486,11 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             }
             bSymbol = typeSymbol.get(0).symbol;
         }
-        
+
         if (bSymbol == null) {
             return completionItems;
         }
-        
+
         if (bSymbol instanceof BRecordTypeSymbol) {
             if (invocationType > -1) {
                 Either<List<LSCompletionItem>, List<Scope.ScopeEntry>> filteredList =
@@ -498,11 +507,11 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             }
             return getVarDefCompletions(context);
         }
-        
+
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) bSymbol;
         BAttachedFunction initFunction = objectTypeSymbol.initializerFunc;
         BInvokableSymbol initFuncSymbol = initFunction == null ? null : initFunction.symbol;
-        
+
         if (newTokenIndex > -1 && firstColonIndex > -1 && lastColonIndex == firstColonIndex) {
             /*
             ex: modName:ObjectName = new <cursor>
@@ -525,40 +534,40 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
                     SymbolFilters.get(DelimiterBasedContentFilter.class).filterItems(context);
             return this.getCompletionItemList(filteredList, context);
         }
-        
+
         CompletionItem newCItem;
         CompletionItem typeCItem;
         if (initFunction == null) {
             newCItem = BFunctionCompletionItemBuilder.build(null, "new()", "new();", context);
             typeCItem = BFunctionCompletionItemBuilder.build(null, typeName + "()",
-                                                             typeName + "();", context);
+                    typeName + "();", context);
             completionItems.add(new SymbolCompletionItem(context, null, newCItem));
             completionItems.add(new SymbolCompletionItem(context, null, typeCItem));
         } else {
             Pair<String, String> newSign = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
-                                                                                     CommonKeys.NEW_KEYWORD_KEY,
-                                                                                     context);
+                    CommonKeys.NEW_KEYWORD_KEY,
+                    context);
             Pair<String, String> newWithTypeSign = CommonUtil.getFunctionInvocationSignature(initFunction.symbol,
-                                                                                             typeName,
-                                                                                             context);
+                    typeName,
+                    context);
             newCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol,
-                                                            newSign.getRight(),
-                                                            newSign.getLeft(), context);
+                    newSign.getRight(),
+                    newSign.getLeft(), context);
             typeCItem = BFunctionCompletionItemBuilder.build(initFunction.symbol,
-                                                             newWithTypeSign.getRight(),
-                                                             newWithTypeSign.getLeft(), context);
+                    newWithTypeSign.getRight(),
+                    newWithTypeSign.getLeft(), context);
             completionItems.add(new SymbolCompletionItem(context, initFunction.symbol, newCItem));
             completionItems.add(new SymbolCompletionItem(context, initFunction.symbol, typeCItem));
         }
         completionItems.addAll(getVarDefCompletions(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-    
+
         return completionItems;
     }
 
     /**
      * Get the Resource Snippets.
-     * 
+     *
      * @param ctx Language Server Context
      * @return {@link Optional} Completion List
      */
@@ -713,7 +722,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
          */
         return tokenSize > 2 && defaultTokens.contains(BallerinaParser.FUNCTION) &&
                 (defaultTokens.get(tokenSize - 1) == BallerinaParser.RIGHT_PARENTHESIS
-                || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
+                        || defaultTokens.get(tokenSize - 2) == BallerinaParser.RIGHT_PARENTHESIS);
     }
 
     protected boolean isAnnotationAccessExpression(LSContext context) {
@@ -774,7 +783,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         if (!onGlobal) {
             subRule.append(CommonUtil.LINE_SEPARATOR).append("}");
         }
-        
+
         Optional<BLangPackage> bLangPackage;
         try {
             bLangPackage = ExtendedLSCompiler.compileContent(subRule.toString(), CompilerPhase.CODE_ANALYZE)
@@ -788,7 +797,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         }
 
         BLangType typeNode;
-        
+
         if (onGlobal) {
             typeNode = bLangPackage.get().globalVars.get(0).getTypeNode();
         } else {
@@ -831,7 +840,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
     }
 
     private void fillArrowFunctionSnippet(BLangFunctionTypeNode functionTypeNode, LSContext context,
-                                           List<LSCompletionItem> completionItems) throws LSCompletionException {
+                                          List<LSCompletionItem> completionItems) throws LSCompletionException {
         List<BLangVariable> params = functionTypeNode.getParams();
         BLangType returnBLangType = functionTypeNode.getReturnTypeNode();
         String paramSignature = this.getDynamicParamsSnippet(params, false, context);
@@ -856,7 +865,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         // Populate the anonymous function signature completion item
         completionItems.add(new SnippetCompletionItem(context, snippetBlock));
     }
-    
+
     private String getAnonFunctionSnippetBody(BLangType returnType, int numberOfParams) {
         StringBuilder body = new StringBuilder();
         if (!(returnType.type instanceof BNilType)) {
@@ -889,13 +898,12 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
 
     /**
      * Get the function parameter signature generated dynamically, with the given list of parameter types.
-     * Parameter names will not be included for the arrow function snippets and the parameter names are generated 
+     * Parameter names will not be included for the arrow function snippets and the parameter names are generated
      * dynamically
-     * 
+     *
      * @param paramTypes List of Parameter Types
-     * @param withType Whether tha parameters included with the types. In case of arrow functions this value is false
-     * @param context Language server operation context
-     *                 
+     * @param withType   Whether tha parameters included with the types. In case of arrow functions this value is false
+     * @param context    Language server operation context
      * @return {@link String} Generated function parameter snippet
      * @throws LSCompletionException Completion exception
      */
@@ -929,7 +937,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * Get variable definition context related completion items. This will extract the completion items analyzing the
      * variable definition context properties.
      *
-     * @param context Completion context
+     * @param context              Completion context
      * @param includeErrorSnippets Whether include error snippets or not
      * @return {@link List}     List of resolved completion items
      */
@@ -1007,18 +1015,34 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
             counter--;
             visitCount++;
         }
-        
+
         return false;
     }
 
     /**
-     * Returns a websocket service or not.
+     * Whether the cursor is located at the qualified name reference context.
+     * This is added in order to support both of the following cases,
+     * Ex:
+     * (1) ... http:<cursor>
+     * (2) ... http:a<cursor>
      *
+     * @param tokenAtCursor Token at cursor
+     * @param nodeAtCursor  Node at cursor
+     * @return {@link Boolean} status
+     */
+    protected boolean qualifiedNameReferenceContext(Token tokenAtCursor, Node nodeAtCursor) {
+        return nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+                || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
+    }
+
+    /**
+     * Returns a websocket service or not.
+     * <p>
      * Currently, both 'websocket' and 'http' services are attached into a common http:Listener.
      * Thus, need to distinguish both.
      *
-     * @param service   service
-     * @return  Optional boolean, empty when service has zero resources(ambiguous).
+     * @param service service
+     * @return Optional boolean, empty when service has zero resources(ambiguous).
      */
     private Optional<Boolean> isWebSocketService(BLangService service) {
         List<BLangFunction> resources = service.getResources();
@@ -1059,14 +1083,14 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         }
         return Optional.empty();
     }
-    
+
     private boolean appendSingleQuoteForPackageInsertText(LSContext context) {
         List<CommonToken> defaultTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         if (defaultTokens == null || defaultTokens.isEmpty()) {
             return false;
         }
         CommonToken lastToken = defaultTokens.get(defaultTokens.size() - 1);
-        
+
         return !lastToken.getText().startsWith("'");
     }
 

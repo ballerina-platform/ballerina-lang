@@ -153,6 +153,10 @@ public enum Snippet {
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
 
+    KW_ENUM(SnippetGenerator.getEnumKeywordSnippet()),
+
+    KW_XMLNS(SnippetGenerator.getXMLNSKeywordSnippet()),
+
     KW_LISTENER(SnippetGenerator.getListenerKeywordSnippet()),
 
     KW_RETURNS(SnippetGenerator.getReturnsKeywordSnippet()),

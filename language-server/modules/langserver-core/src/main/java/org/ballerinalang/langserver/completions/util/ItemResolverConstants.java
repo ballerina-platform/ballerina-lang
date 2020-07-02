@@ -102,6 +102,7 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
+    public static final String ENUM_KEYWORD = "enum";
     public static final String ROLLBACK_KEYWORD = "rollback";
     public static final String CHECK_KEYWORD = "check";
     public static final String CHECKPANIC_KEYWORD = "checkpanic";

@@ -952,6 +952,26 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.VAR_KEYWORD, "var ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
+    
+    /**
+     * Get Enum Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getEnumKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ENUM_KEYWORD, "enum ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+    
+    /**
+     * Get Enum Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getXMLNSKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.XMLNS, "xmlns ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
 
     /**
      * Get Rollback Keyword Snippet Block.

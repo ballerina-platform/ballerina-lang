@@ -15,10 +15,13 @@
  */
 package org.ballerinalang.langserver.completions;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
 
+import javax.swing.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ServiceLoader;
 
 /**
@@ -28,7 +31,7 @@ import java.util.ServiceLoader;
  */
 public class LSCompletionProviderHolder {
 
-    private static final Map<Class, LSCompletionProvider> providers = new HashMap<>();
+    private static final Map<Class<?>, LSCompletionProvider> providers = new HashMap<>();
 
     private static final LSCompletionProviderHolder INSTANCE = new LSCompletionProviderHolder();
 
@@ -38,7 +41,7 @@ public class LSCompletionProviderHolder {
             if (provider == null) {
                 continue;
             }
-            for (Class attachmentPoint : provider.getAttachmentPoints()) {
+            for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
                 if (!providers.containsKey(attachmentPoint) ||
                         (providers.get(attachmentPoint).getPrecedence() == LSCompletionProvider.Precedence.LOW
                         && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
@@ -47,8 +50,8 @@ public class LSCompletionProviderHolder {
             }
         }
     }
-
-    public static LSCompletionProviderHolder getInstance() {
+    
+    public static LSCompletionProviderHolder instance() {
         return INSTANCE;
     }
 
@@ -58,7 +61,7 @@ public class LSCompletionProviderHolder {
      * @param provider completion provider to register
      */
     public void register(LSCompletionProvider provider) {
-        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+        for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.put(attachmentPoint, provider);
         }
     }
@@ -69,12 +72,12 @@ public class LSCompletionProviderHolder {
      * @param provider completion provider to unregister
      */
     public void unregister(LSCompletionProvider provider) {
-        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+        for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.remove(attachmentPoint, provider);
         }
     }
 
-    public Map<Class, LSCompletionProvider> getProviders() {
+    public Map<Class<?>, LSCompletionProvider> getProviders() {
         return providers;
     }
 
@@ -84,7 +87,28 @@ public class LSCompletionProviderHolder {
      * @param key   Provider key
      * @return {@link LSCompletionProvider} Completion provider  
      */
-    public LSCompletionProvider getProvider(Class key) {
+    public LSCompletionProvider getProvider(Class<?> key) {
         return providers.get(key);
+    }
+
+    /**
+     * Get the nearest matching provider for the context node.
+     * 
+     * @param node node to evaluate
+     * @return {@link Optional} provider which resolved
+     */
+    public Optional<LSCompletionProvider> getNearestMatch(Node node) {
+        if (node == null) {
+            return Optional.empty();
+        }
+        Node reference = node;
+        LSCompletionProvider provider = null;
+        
+        while (provider == null && reference != null) {
+            provider = providers.get(reference.getClass());
+            reference = reference.parent();
+        }
+        
+        return Optional.ofNullable(provider);
     }
 }

@@ -15,8 +15,16 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
+import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.StatementNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -29,25 +37,21 @@ import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
 import org.ballerinalang.langserver.sourceprune.SourcePruner;
 import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.Position;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 /**
  * Common utility methods for the completion operation.
@@ -58,7 +62,7 @@ public class CompletionUtil {
     /**
      * Resolve the visible symbols from the given BLang Package and the current context.
      *
-     * @param completionContext     Completion Service Context
+     * @param completionContext Completion Service Context
      */
     public static void resolveSymbols(LSContext completionContext) {
         // Visit the package to resolve the symbols
@@ -73,21 +77,19 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem>  getCompletionItems(LSContext ctx) {
+    public static List<CompletionItem> getCompletionItems(LSContext ctx) throws WorkspaceDocumentException {
         List<LSCompletionItem> items = new ArrayList<>();
-        if (ctx == null) {
-            return new ArrayList<>();
-        }
-        // Set the invocation or field access token type
-        setInvocationOrInteractionOrFieldAccessToken(ctx);
-        BLangNode scope = ctx.get(CompletionKeys.SCOPE_NODE_KEY);
-        Map<Class, LSCompletionProvider> scopeProviders = LSCompletionProviderHolder.getInstance().getProviders();
-        LSCompletionProvider completionProvider = scopeProviders.get(scope.getClass());
-        try {
-            items.addAll(completionProvider.getCompletions(ctx));
-        } catch (Exception e) {
-            LOGGER.error("Error while retrieving completions from: " + completionProvider.getClass());
-        }
+        fillTokenInfoAtCursor(ctx);
+        Optional<LSCompletionProvider> provider = LSCompletionProviderHolder.instance()
+                .getNearestMatch(ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY));
+
+        provider.ifPresent(lsCompletionProvider -> {
+            try {
+                items.addAll(lsCompletionProvider.getCompletions(ctx));
+            } catch (Exception e) {
+                LOGGER.error("Error while retrieving completions from: " + provider.get().getClass());
+            }
+        });
 
         return getPreparedCompletionItems(ctx, items);
     }
@@ -118,41 +120,19 @@ public class CompletionUtil {
      *
      * @param context Completion operation context
      */
+    @Deprecated
     private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
-        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
-        List<Integer> invocationTokens = Arrays.asList(
-                BallerinaParser.COLON, BallerinaParser.DOT, BallerinaParser.RARROW, BallerinaParser.NOT,
-                BallerinaParser.OPTIONAL_FIELD_ACCESS
-        );
-        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, -1);
-        if (lhsTokens == null) {
-            return;
-        }
-        List<CommonToken> lhsDefaultTokens = lhsTokens.stream()
-                .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
-                .collect(Collectors.toList());
-        if (lhsDefaultTokens.isEmpty()) {
-            return;
-        }
-        int lastToken = CommonUtil.getLastItem(lhsDefaultTokens).getType();
-        int tokenBeforeLast = lhsDefaultTokens.size() >= 2 ?
-                lhsDefaultTokens.get(lhsDefaultTokens.size() - 2).getType() : -1;
-        int resultToken = -1;
-        if (invocationTokens.contains(lastToken)) {
-            resultToken = lastToken;
-        } else if (lhsDefaultTokens.size() >= 2 && invocationTokens.contains(tokenBeforeLast)) {
-            resultToken = tokenBeforeLast;
-        }
-        context.put(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY, resultToken);
+
     }
 
     /**
      * Prune source if syntax errors exists.
      *
      * @param lsContext {@link LSContext}
-     * @throws SourcePruneException when file uri is invalid
+     * @throws SourcePruneException       when file uri is invalid
      * @throws WorkspaceDocumentException when document read error occurs
      */
+    @Deprecated
     public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
         WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
@@ -162,10 +142,42 @@ public class CompletionUtil {
 
         Path filePath = Paths.get(URI.create(uri));
         TokenTraverserFactory tokenTraverserFactory = new CompletionsTokenTraverserFactory(filePath, documentManager,
-                                                                                           SourcePruner.newContext());
+                SourcePruner.newContext());
         SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
 
         // Update document manager
         documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
+    }
+
+    /**
+     * Find the token at cursor.
+     *
+     * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
+     */
+    public static void fillTokenInfoAtCursor(LSContext context) throws WorkspaceDocumentException {
+        WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
+        Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
+        if (!filePath.isPresent()) {
+            return;
+        }
+        SyntaxTree syntaxTree = docManager.getTree(filePath.get());
+        TextDocument textDocument = syntaxTree.textDocument();
+
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        Token tokenAtCursor = ((ModulePartNode) syntaxTree.rootNode()).findToken(txtPos);
+
+        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor));
+    }
+    
+    private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor) {
+        NonTerminalNode parent = tokenAtCursor.parent();
+
+        while (!(parent instanceof ModuleMemberDeclarationNode) && !(parent instanceof StatementNode)) {
+            parent = parent.parent();
+        }
+
+        return parent;
     }
 }

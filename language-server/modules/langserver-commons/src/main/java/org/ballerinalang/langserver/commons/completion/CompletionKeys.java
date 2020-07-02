@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.commons.completion;
 
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
@@ -57,6 +59,10 @@ public class CompletionKeys {
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Class> ITEM_SORTER_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Token> TOKEN_AT_CURSOR_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<NonTerminalNode> NODE_AT_CURSOR_KEY
             = new LSContext.Key<>();
     
     // Following key is used for the completion within the if else/ while condition context
