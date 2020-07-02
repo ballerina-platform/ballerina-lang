@@ -27,7 +27,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for flow validation in TransactionStatement.
+ * Test cases for flow validation in Nested transactions.
  */
 
 public class NestedTransactionTest {
