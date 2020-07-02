@@ -99,18 +99,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|XmlElementFilter|XmlStepExpression|Invocation|AnnotationAccess|TypeDescExprInvocation|StringFunctionInvocation|Group(FieldVariable|Invocation|MapArrayVariable|StringFunctionInvocation))Reference") =VariableReference
-
-    extends("((Simple|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|Type(Init|Conversion|Desc|Test)|Group|Wait|WorkerSendSync|WorkerReceive|FlushWorker|Checked|CheckPanic|TableLiteral|Elvis|ActionInvocation|IntegerRange|ArrowFunction|ServiceConstructor|ListConstructor|BinaryRefEqual|Trap|AnnotationAction|StreamConstructor|Query|QueryAction|AnonymousFunction|Let)Expression") = Expression
-    extends("(Unary|Binary|Ternary|Bitwise|BitwiseShift)Expression") = Expression
-
-    extends("Binary(DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
-
-    extends("(SimpleLiteralConst|RecordLiteralConst|ConstDivMulMod|ConstAddSub|ConstGroup)Expression") = ConstantExpression
-
-    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object)TypeName|(Inclusive|Exclusive)RecordTypeDescriptor|BinaryAndExpression") = TypeName
-
-    extends("StaticMatch(OrExpression|(Simple|Record|List|Identifier)Literal)") = StaticMatchLiteral
+    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object)TypeName|RecordTypeDescriptor|BinaryAndExpression") = TypeName
 
     // This is to identify top level elements in a file.
     implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
@@ -118,153 +107,58 @@
     generateTokenAccessors = true
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        compilation unit                                                           //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 CompilationUnit ::=(ImportDeclaration | NamespaceDeclaration)* (DefinitionWithoutAnnotationAttachments |  DefinitionWithMultipleAnnotationAttachments | DefinitionWithSingleAnnotationAttachment)* <<eof>>
 
-DefinitionWithMultipleAnnotationAttachments ::=  documentationString? AnnotationAttachment AnnotationAttachment+ Definition {pin=3 elementType=Definition}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                  import/namespace declarations                                                    //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? Alias? SEMICOLON {pin=1}
+OrgName ::= identifier
+CompletePackageName ::= PackageName (DOT PackageName)* {pin(".*")=1}
+PackageName ::= identifier
+PackageVersion ::= version VersionPattern {pin=1}
+VersionPattern ::= DECIMAL_INTEGER_LITERAL | DECIMAL_FLOATING_POINT_NUMBER | DECIMAL_EXTENDED_FLOATING_POINT_NUMBER
+Alias ::= as identifier {pin=1}
+NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON {pin=1}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        top level definitions                                                      //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+DefinitionWithMultipleAnnotationAttachments ::= documentationString? AnnotationAttachment AnnotationAttachment+ Definition {pin=3 elementType=Definition}
 DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAttachment Definition {pin=2 elementType=Definition}
 DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=2 elementType=Definition}
 
-CompletePackageName ::= PackageName (DOT PackageName)* {
-    pin(".*")=1
-}
-
-PackageName ::= identifier
-PackageVersion ::= version VersionPattern {pin=1}
-
-VersionPattern
-    ::=   DECIMAL_INTEGER_LITERAL
-    |   DECIMAL_FLOATING_POINT_NUMBER
-    |   DECIMAL_EXTENDED_FLOATING_POINT_NUMBER
-    ;
-
-// Todo - Cache
-ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? Alias? SEMICOLON {
-    pin=1
-}
-
-OrgName ::= identifier {
-}
-
-Alias ::= as identifier {
-    pin=1
-}
-
-// Note - Global variable definition should be the first definition since it can contain identifier as type.
-Definition ::= ( TypeDefinition
-               | ServiceDefinition
-               | GlobalVariableDefinition
-               | FunctionDefinition
-               | AnnotationDefinition
-               | ConstantDefinition )
-{recoverWhile=TopLevelDefinitionRecover}
-
+Definition ::= TypeDefinition | ServiceDefinition | FunctionDefinition | AnnotationDefinition | ConstantDefinition | GlobalVariableDefinition {recoverWhile=TopLevelDefinitionRecover}
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
-// cannot set pin to "service" keyword because there can be variable definitions with service constructors.
-ServiceDefinition ::= service identifier? on ExpressionList ServiceBody {pin=3}
-ServiceBody ::= LEFT_BRACE ObjectMethod* RIGHT_BRACE
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                         type definitions                                                          //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+TypeDefinition ::= public? type identifier RecoverableTypeContent (RecoverableTypeBody)? SEMICOLON {pin=2}
+RecoverableTypeContent ::= identifier {recoverWhile = TypeDefinitionRecover}
+private TypeDefinitionRecover ::= !(LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER | SEMICOLON)
+RecoverableTypeBody ::= (LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER) RecoverableTypeBodyContent (RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER) {pin=1}
+RecoverableTypeBodyContent ::= identifier {recoverWhile=TypeBodyRecover}
+private TypeBodyRecover ::= !(RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER)
 
-// Pin to make sure BlockFunctionBody is identified correctly
-BlockFunctionBody ::= LEFT_BRACE (RIGHT_BRACE | Statement* WorkerWithStatementsBlock+ RIGHT_BRACE | Statement+ RIGHT_BRACE ) {pin=1}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        service definitions                                                        //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ServiceDefinition ::= service identifier? on RecoverableServiceContent RIGHT_BRACE {pin=3}
+RecoverableServiceContent ::= identifier {recoverWhile = ServiceDefinitionRecover}
+private ServiceDefinitionRecover ::= !(RIGHT_BRACE)
 
-WorkerWithStatementsBlock ::= WorkerDefinition+ Statement*
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                     global variable definitions                                                   //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+GlobalVariableDefinition ::= varDefinition | listenerDefinition | typedVariableDefinition
+private varDefinition ::= final? var RecoverableVariableDefinitionContent SEMICOLON {pin=2}
+private listenerDefinition ::= public? listener RecoverableVariableDefinitionContent SEMICOLON {pin=2}
+private typedVariableDefinition ::= final? TypeName identifier ASSIGN RecoverableVarDefContent SEMICOLON {pin=3}
 
-Block ::= Statement* {methods=[processDeclarations]}
-
-// Todo - Need getIdentifier?
-FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {
-    pin=3 methods=[getIdentifier getName]
-}
-
-FunctionDefinitionBody ::= (ExprFunctionBodySpec SEMICOLON) | (ExternalFunctionBody SEMICOLON) | BlockFunctionBody
-// bnf specific rules to add error recovery more precisely.
-ExprFunctionBodySpec ::= EQUAL_GT Expression {pin=1 recoverWhile=ExprFuncBodyRecover}
-private ExprFuncBodyRecover ::= !(SEMICOLON)
-
-ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=3}
-ExprFunctionBody ::= EQUAL_GT Expression {pin=1}
-
-AnonymousFunctionExpr ::= ExplicitAnonymousFunctionExpr | InferAnonymousFunctionExpr
-ExplicitAnonymousFunctionExpr ::= function FunctionSignature (BlockFunctionBody | ExprFunctionBody) {pin=1}
-InferAnonymousFunctionExpr ::= InferParamList ExprFunctionBody
-
-InferParamList ::= (LEFT_PARENTHESIS (InferParam (COMMA InferParam)*)? RIGHT_PARENTHESIS) | InferParam
-
-InferParam ::= identifier
-
-FunctionSignature ::= LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter?
-
-TypeDefinition ::= public? type identifier FiniteType SEMICOLON {
-    pin=2
-}
-
-ObjectBody ::=  (ObjectFieldDefinition | ObjectMethod | TypeReference)*
-
-TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
-
-ObjectFieldDefinition ::= documentationString? AnnotationAttachment* (public | private)? TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=4}
-
-FieldDefinition ::= documentationString? AnnotationAttachment* TypeName identifier QUESTION_MARK? (ASSIGN Expression)? SEMICOLON {pin=3}
-
-RecordRestFieldDefinition ::= TypeName <<restDescriptorPredicate>> ELLIPSIS SEMICOLON
-
-SealedLiteral ::= NOT <<restDescriptorPredicate>> ELLIPSIS
-
-ObjectMethod ::= MethodDeclaration | MethodDefinition
-MethodDeclaration ::= documentationString? AnnotationAttachment* (public | private)? (remote|resource)? function AnyIdentifierName FunctionSignature SEMICOLON
-MethodDefinition ::= documentationString? AnnotationAttachment* (public | private)? (remote | resource)? function AnyIdentifierName FunctionSignature FunctionDefinitionBody
-
-
-AnnotationDefinition ::= public? const? annotation (TypeName identifier | identifier) (on AttachmentPoint (COMMA AttachmentPoint)*)? SEMICOLON {pin=3}
-
-ConstantDefinition ::= public? const (TypeName identifier  | identifier) ASSIGN ConstantExpression SEMICOLON  {pin=2}
-
-ConstantExpression ::=  SimpleLiteralConstExpression | RecordLiteralConstExpression | ConstDivMulModExpression | ConstAddSubExpression | ConstGroupExpression
-SimpleLiteralConstExpression ::= SimpleLiteral
-RecordLiteralConstExpression ::= RecordLiteral
-ConstDivMulModExpression ::=   ConstantExpression (DIV | MUL) ConstantExpression
-ConstAddSubExpression ::=  ConstantExpression (ADD | SUB) ConstantExpression
-ConstGroupExpression ::= LEFT_PARENTHESIS ConstantExpression RIGHT_PARENTHESIS
-
-GlobalVariableDefinition ::= varDefinition
-                            | listenerDefinition
-                            | typedVariableDefinition
-
-private typedVariableDefinition ::= final? TypeName identifier ASSIGN Expression SEMICOLON {pin=2}
-private varDefinition ::= final? var identifier ASSIGN Expression SEMICOLON {pin=2}
-private listenerDefinition ::= public? listener TypeName? identifier ASSIGN Expression SEMICOLON {pin=2}
-
-AttachmentPoint ::= DualAttachPoint | SourceOnlyAttachPoint
-
-DualAttachPoint ::= source? DualAttachPointIdent
-
-// Note - "parameter" is treated differently here because there is a parser rule named "parameter" as well.
-DualAttachPointIdent ::= object? type
-                       | (object | resource)? function
-                       | TYPE_PARAMETER
-                       | return
-                       | service
-                       | (object | record)? TYPE_FIELD // cannot use "field" instead, since already used.
-
-SourceOnlyAttachPoint ::= source SourceOnlyAttachPointIdent {pin=1}
-
-SourceOnlyAttachPointIdent ::=  annotation | external | var | const | listener | worker
-
-// Todo - Rename as declaration
-WorkerDefinition ::= AnnotationAttachment* worker identifier ReturnParameter? WorkerBody {
-    pin=2
-    recoverWhile=WorkerDefinitionRecover
-}
-
-private WorkerDefinitionRecover ::= StatementRecover
-
-WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
-
-FiniteType ::= FiniteTypeUnit (PIPE FiniteTypeUnit)*
-
-FiniteTypeUnit ::= SimpleLiteral | TypeName
-
-//todo
 TypeName ::= TupleTypeName
              | SimpleTypeName
              | GroupTypeName
@@ -272,8 +166,7 @@ TypeName ::= TupleTypeName
              | UnionTypeName
              | ObjectTypeName
              | NullableTypeName
-             | InclusiveRecordTypeDescriptor
-             | ExclusiveRecordTypeDescriptor
+             | RecordTypeDescriptor
 
 SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
@@ -294,19 +187,20 @@ NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
 TupleTypeName ::=  LEFT_BRACKET ((TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)?) | TupleRestDescriptor) RIGHT_BRACKET {pin=1}
-ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=3}
+ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
+ObjectBody ::= {recoverWhile=ObjectBodyRecover}
+private ObjectBodyRecover ::= !(RIGHT_BRACE)
 
-InclusiveRecordTypeDescriptor ::=   record LEFT_BRACE FieldDescriptor* RIGHT_BRACE
-ExclusiveRecordTypeDescriptor ::=  record LEFT_CLOSED_RECORD_DELIMITER FieldDescriptor* RecordRestFieldDefinition? RIGHT_CLOSED_RECORD_DELIMITER {pin=2}
+RecordTypeDescriptor ::= record (LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER) RecordBody (RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER) {pin=1}
+RecordBody ::= {recoverWhile=RecordBodyRecover}
+private RecordBodyRecover ::= !(RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER)
+
 TupleRestDescriptor::= TypeName ELLIPSIS
-
-FieldDescriptor ::= FieldDefinition | TypeReference
 
 ReferenceTypeName ::= BuiltInReferenceTypeName
                       | UserDefineTypeName
 
-UserDefineTypeName ::= NameReference
-
+UserDefineTypeName ::= identifier
 ValueTypeName ::=   boolean | int | float | decimal | string | byte
 
 BuiltInReferenceTypeName ::= MapTypeName
@@ -327,518 +221,62 @@ JsonTypeName ::= json
 TableTypeName ::= table LT TypeName GT {pin=1}
 ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName (COMMA TypeName)? GT)? {pin=1}
-FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
+FunctionTypeName ::= function
 ServiceTypeName ::= service
 TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=2}
 
-// Todo - Cache
-AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
-
-// STATEMENTS / BLOCKS =================================================================================================
-
-// Todo - Add recovery rules
-// Note - Expression statement should be the first one.
-Statement ::=
-        WhileStatement
-    |   ContinueStatement
-    |   ForeachStatement
-    |   MatchStatement
-    |   BreakStatement
-    |   ThrowStatement
-    |   PanicStatement
-    |   ReturnStatement
-    |   AbortStatement
-    |   RetryStatement
-    |   LockStatement
-    |   NamespaceDeclarationStatement
-    |   TransactionStatement
-    |   IfElseStatement
-    |   TryCatchStatement
-    |   ForkJoinStatement
-    |   ListDestructuringStatement
-    |   RecordDestructuringStatement
-    |   WorkerSendAsyncStatement
-    |   AssignmentStatement
-    |   VariableDefinitionStatement
-    |   CompoundAssignmentStatement
-    |   ExpressionStmt
-    |   ErrorDestructuringStatement
-{recoverWhile = StatementRecover}
-
-// Todo - Add more tokens (for record destructuring and panic)
-// Note - Literals are added for worker interactions - 10 -> w2;
-// NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
-
-// Note - VariableDefinitionStatementInService
-//TODO - change pin
-VariableDefinitionStatement ::= variableDefinitionStatementWithAssignment | variableDefinitionStatementWithoutAssignment
-variableDefinitionStatementWithoutAssignment::= TypeName identifier SEMICOLON {pin=2}
-variableDefinitionStatementWithAssignment ::= final? (TypeName | var) BindingPattern ASSIGN Expression SEMICOLON {pin=4}
-
-RecordLiteral ::= LEFT_BRACE RecordLiteralBody? RIGHT_BRACE {pin(".*")=1}
-
-RecordLiteralBody ::= RecordField (COMMA RecordField)* {pin(".*")=1}
-
-RecordField ::= RecordKeyValueField
-              | RecordRestField
-              | identifier
-RecordRestField ::= ELLIPSIS Expression {pin=1}
-RecordKeyValueField ::= RecordKey COLON Expression {pin=1}
-
-RecordKey ::= LEFT_BRACKET Expression RIGHT_BRACKET | Expression | identifier
-
-TableLiteral ::= table LEFT_BRACE TableColumnDefinition? (COMMA TableDataArray)? RIGHT_BRACE {pin=1}
-
-TableColumnDefinition ::= LEFT_BRACE (TableColumn (COMMA TableColumn)*)? RIGHT_BRACE
-
-TableColumn ::= identifier identifier | identifier
-
-TableDataArray ::= LEFT_BRACKET TableDataList? RIGHT_BRACKET
-
-TableDataList ::=  TableData (COMMA TableData)* | ExpressionList
-
-TableData ::= LEFT_BRACE ExpressionList RIGHT_BRACE
-
-ListConstructorExpr ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
-
-AssignmentStatement ::= VariableReference ASSIGN Expression SEMICOLON {pin=2}
-
-ListDestructuringStatement ::= ListRefBindingPattern ASSIGN Expression SEMICOLON {pin=2}
-
-RecordDestructuringStatement ::= RecordRefBindingPattern ASSIGN Expression SEMICOLON {pin=3}
-
-ErrorDestructuringStatement ::= ErrorRefBindingPattern ASSIGN Expression SEMICOLON
-
-CompoundAssignmentStatement ::= VariableReference CompoundOperator Expression SEMICOLON
-
-CompoundOperator ::=  COMPOUND_ADD
-                    | COMPOUND_SUB
-                    | COMPOUND_MUL
-                    | COMPOUND_DIV
-                    | COMPOUND_BIT_AND
-                    | COMPOUND_BIT_OR
-                    | COMPOUND_BIT_XOR
-                    | COMPOUND_LEFT_SHIFT
-                    | COMPOUND_RIGHT_SHIFT
-                    | COMPOUND_LOGICAL_SHIFT
-
-IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
-
-IfClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
-
-ElseIfClause ::= else pinnedElseClause
-private pinnedElseClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
-
-ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
-
-MatchStatement ::= match Expression MatchStatementBody {pin=1}
-MatchStatementBody ::= LEFT_BRACE MatchPatternClause+ RIGHT_BRACE
-
-MatchPatternClause ::= VarMatchPatternClause | StaticMatchPatternClause | ErrorMatchPatternClause
-
-VarMatchPatternClause ::= var BindingPattern (if Expression)? EQUAL_GT LEFT_BRACE Block RIGHT_BRACE {pin=1}
-StaticMatchPatternClause ::=  StaticMatchLiteral EQUAL_GT LEFT_BRACE Block RIGHT_BRACE
-ErrorMatchPatternClause ::= ErrorMatchPattern (if Expression)? EQUAL_GT LEFT_BRACE Statement* RIGHT_BRACE
-
-StaticMatchLiteral ::= StaticMatchSimpleLiteral
-                    |   StaticMatchRecordLiteral
-                    |   StaticMatchListLiteral
-                    |   StaticMatchIdentifierLiteral
-                    |   StaticMatchOrExpression
-
-StaticMatchSimpleLiteral ::= SimpleLiteral
-StaticMatchRecordLiteral ::= RecordLiteral
-StaticMatchListLiteral ::= ListConstructorExpr
-StaticMatchIdentifierLiteral ::=  identifier
-StaticMatchOrExpression ::= StaticMatchLiteral PIPE StaticMatchLiteral
-
-BindingPattern ::= identifier | StructuredBindingPattern
-
-StructuredBindingPattern ::= ListBindingPattern | RecordBindingPattern | ErrorBindingPattern
-
-ErrorBindingPattern ::= (error LEFT_PARENTHESIS identifier (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? RIGHT_PARENTHESIS)
-                           | (TypeName LEFT_PARENTHESIS ErrorFieldBindingPatterns RIGHT_PARENTHESIS)
-
-ErrorFieldBindingPatterns ::= ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA ErrorRestBindingPattern)? | ErrorRestBindingPattern
-
-ErrorMatchPattern ::= error LEFT_PARENTHESIS ErrorArgListMatchPattern RIGHT_PARENTHESIS | TypeName LEFT_PARENTHESIS ErrorFieldMatchPatterns RIGHT_PARENTHESIS
-ErrorArgListMatchPattern::= SimpleMatchPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
-                          | ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)?
-                          | RestMatchPattern
-
-ErrorFieldMatchPatterns ::= ErrorDetailBindingPattern (COMMA ErrorDetailBindingPattern)* (COMMA RestMatchPattern)? | RestMatchPattern
-
-ErrorRestBindingPattern ::= ELLIPSIS identifier
-RestMatchPattern ::= ELLIPSIS var identifier
-SimpleMatchPattern ::= var? (identifier | QUOTED_STRING_LITERAL)
-ErrorDetailBindingPattern ::= identifier ASSIGN BindingPattern
-
-ListBindingPattern ::= LEFT_BRACKET BindingPattern (COMMA BindingPattern)+ RIGHT_BRACKET
-
-RecordBindingPattern ::= ClosedRecordBindingPattern |  OpenRecordBindingPattern
-
-OpenRecordBindingPattern ::= LEFT_BRACE EntryBindingPattern RIGHT_BRACE {pin=1}
-
-ClosedRecordBindingPattern ::= LEFT_CLOSED_RECORD_DELIMITER PIPE FieldBindingPattern (COMMA FieldBindingPattern)* PIPE RIGHT_CLOSED_RECORD_DELIMITER {pin=2}
-
-EntryBindingPattern ::=  FieldBindingPattern (COMMA FieldBindingPattern)* (COMMA RestBindingPattern)? | RestBindingPattern
-
-FieldBindingPattern ::= identifier (COLON BindingPattern)? {pin=1}
-
-RestBindingPattern ::= ELLIPSIS identifier
-
-BindingRefPattern ::= VariableReference
-                    | StructuredRefBindingPattern
-                    | ErrorRefBindingPattern
-
-StructuredRefBindingPattern ::= ListRefBindingPattern | RecordRefBindingPattern
-
-ListRefBindingPattern ::= LEFT_BRACKET ((BindingRefPattern (COMMA BindingRefPattern)* (COMMA ListRefRestPattern)?) | ListRefRestPattern) RIGHT_BRACKET {pin=1}
-
-ListRefRestPattern ::= ELLIPSIS VariableReference {pin=1}
-
-RecordRefBindingPattern ::= LEFT_BRACE EntryRefBindingPattern RIGHT_BRACE
-
-ErrorRefBindingPattern ::= (error LEFT_PARENTHESIS ((VariableReference (COMMA ErrorNamedArgRefPattern)*) | ErrorNamedArgRefPattern+) (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
-                            | (error LEFT_PARENTHESIS ErrorRefRestPattern RIGHT_PARENTHESIS)
-                            | (TypeName LEFT_PARENTHESIS ErrorNamedArgRefPattern (COMMA ErrorNamedArgRefPattern)*  (COMMA ErrorRefRestPattern)? RIGHT_PARENTHESIS)
-ErrorNamedArgRefPattern ::= identifier ASSIGN BindingRefPattern
-ErrorRefRestPattern::= ELLIPSIS VariableReference
-
-EntryRefBindingPattern ::= FieldRefBindingPattern (COMMA FieldRefBindingPattern)* (COMMA RestRefBindingPattern)? | RestRefBindingPattern?
-
-FieldRefBindingPattern ::= identifier (COLON BindingRefPattern)? {pin=1}
-
-RestRefBindingPattern ::= ELLIPSIS VariableReference | SealedLiteral
-
-ForeachStatement ::= foreach (LEFT_PARENTHESIS? (TypeName | var) BindingPattern in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
-
-// Todo - pin 1?
-WhileStatement ::= while Expression WhileStatementBody {pin(".*")=1}
-
-WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE
-
-ContinueStatement ::= continue SEMICOLON {pin=1}
-
-BreakStatement ::= break SEMICOLON {pin=1}
-
-// typeName is only message
-ForkJoinStatement ::= fork LEFT_BRACE WorkerDefinition* RIGHT_BRACE {pin=1}
-
-// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
-TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
-
-// Depricated since 0.983.0, use trap expressoin. Todo - Remove this.
-CatchClauses ::= CatchClause+ FinallyClause? | FinallyClause
-
-// Todo - Remove this.
-CatchClause ::= catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
-
-// Todo - Remove this.
-FinallyClause ::= finally {LEFT_BRACE Block RIGHT_BRACE} {pin(".*")=1}
-
-// Depricated since 0.983.0, use panic instead. Todo - Remove this.
-ThrowStatement ::= throw Expression SEMICOLON {pin=1}
-
-PanicStatement ::= panic Expression SEMICOLON {pin=1}
-
-ReturnStatement ::= return Expression? SEMICOLON {pin=1}
-
-WorkerSendAsyncStatement ::= Expression RARROW PeerWorker (COMMA Expression)? SEMICOLON {pin=2}
-
-PeerWorker ::= WorkerName | default
-
-WorkerName ::= identifier
-
-FlushWorker ::= flush identifier? {pin=1}
-
-WaitForCollection ::= LEFT_BRACE WaitKeyValue (COMMA WaitKeyValue)* RIGHT_BRACE {pin=1}
-
-WaitKeyValue ::= identifier COLON Expression | identifier
-
-// Note - Order of 'simpleVariableReference' and 'functionInvocationReference' because otherwise all function
-// invocations will match simpleVariableReference first.
-VariableReference ::= MapArrayVariableReference
-                      | StringFunctionInvocationReference
-                      | InvocationReference
-                      | FieldVariableReference
-                      | XmlAttribVariableReference
-                      | XmlElementFilterReference
-                      | FunctionInvocationReference
-                      | SimpleVariableReference
-                      | TypeDescExprInvocationReference
-                      | AnnotationAccessReference
-                      | GroupFieldVariableReference
-                      | GroupInvocationReference
-                      | GroupMapArrayVariableReference
-                      | GroupStringFunctionInvocationReference
-                      | XmlStepExpressionReference
-
-InvocationReference ::= VariableReference Invocation
-MapArrayVariableReference ::= VariableReference Index
-FieldVariableReference ::= VariableReference Field
-XmlAttribVariableReference ::= VariableReference XmlAttrib
-XmlElementFilterReference ::= VariableReference xmlElementFilter
-FunctionInvocationReference ::= FunctionInvocation
-SimpleVariableReference ::=  NameReference
-TypeDescExprInvocationReference ::=  TypeDescExpression Invocation
-StringFunctionInvocationReference ::= QUOTED_STRING_LITERAL Invocation
-AnnotationAccessReference ::= VariableReference ANNOTATION_ACCESS NameReference
-GroupFieldVariableReference ::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTHESIS Field
-GroupInvocationReference::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTHESIS Invocation
-GroupMapArrayVariableReference ::= LEFT_PARENTHESIS VariableReference RIGHT_PARENTHESIS Index
-GroupStringFunctionInvocationReference ::= LEFT_PARENTHESIS QUOTED_STRING_LITERAL RIGHT_PARENTHESIS Invocation
-XmlStepExpressionReference ::=  VariableReference XmlStepExpression
-
-// Todo - Adding pin will mess function invocation.
-Invocation ::= DOT AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
-Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
-Field ::= (DOT | OPTIONAL_FIELD_ACCESS) ((identifier COLON)? identifier | MUL) /*{pin=1}*/
-
-xmlElementFilter ::= DOT XmlElementNames
-
-XmlStepExpression ::= DIV XmlElementNames Index?
-                    | DIV MUL
-                    | DIV MUL MUL DIV XmlElementNames
-
-XmlElementNames ::= LT XmlElementAccessFilter (PIPE XmlElementAccessFilter)* GT
-
-XmlElementAccessFilter ::= (identifier COLON)? (identifier | MUL)
-
-XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? {pin=1}
-
-// Todo - Need to pin?
-FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
-InvocationArgList ::= InvocationArg (COMMA InvocationArg)* {pin(".*")=1 recoverWhile = InvocationArgListRecover }
-InvocationArg ::= NamedArgs | RestArgs | Expression
-
-private InvocationArgListRecover ::= !(')')
-
-// Todo - Update the recovery rule
-ActionInvocation ::= (AnnotationAttachment* start)? VariableReference RARROW FunctionInvocation {/*pin=3 recoverWhile=StatementRecover*/}
-
-ExpressionList ::= Expression (COMMA Expression)* {
-    pin(".*")=1
-//    recoverWhile = ExpressionListRecover
-}
-//private ExpressionListRecover ::= !(RIGHT_PARENTHESIS | SEMICOLON)
-
-ExpressionStmt ::= Expression SEMICOLON
-
-TransactionStatement ::= TransactionClause OnRetryClause? CommittedAbortedClauses? {pin=1}
-
-CommittedAbortedClauses ::= CommittedClause AbortedClause | AbortedClause CommittedClause | AbortedClause | CommittedClause
-
-TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
-
-TransactionPropertyInitStatement ::= RetriesStatement
-
-TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
-
-LockStatement ::= lock LEFT_BRACE Block RIGHT_BRACE {pin=1}
-
-OnRetryClause ::= onretry (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
-
-AbortStatement ::= abort SEMICOLON {pin=1}
-
-RetryStatement ::= retry SEMICOLON {pin=1}
-
-RetriesStatement ::= retries ASSIGN Expression {pin=1}
-
-CommittedClause ::= committed LEFT_BRACE Block RIGHT_BRACE {pin=1}
-
-AbortedClause ::= aborted LEFT_BRACE Block RIGHT_BRACE {pin=1}
-
-NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
-
-NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON {
-    pin=1
-}
-
-Expression
-    ::=
-        AnonymousFunctionExpression
-    |   SimpleLiteralExpression
-    |   StringTemplateLiteralExpression
-    |   XmlLiteralExpression
-    |   TableLiteralExpression
-    |   RecordLiteralExpression
-    |   GroupExpression
-    |   TernaryExpression
-    |   ListConstructorExpression
-    |   ActionInvocationExpression
-    |   VariableReferenceExpression
-    |   TypeInitExpression
-    |   TypeConversionExpression
-    |   UnaryExpression
-    |   BinaryDivMulModExpression
-    |   BinaryAddSubExpression
-    |   BinaryCompareExpression
-    |   BinaryEqualExpression
-    |   BinaryAndExpression
-    |   BinaryOrExpression
-    |   CheckedExpression
-    |   CheckPanicExpression
-    |   ElvisExpression
-    |   WaitExpression
-    |   WorkerSendSyncExpression
-    |   WorkerReceiveExpression
-    |   FlushWorkerExpression
-    |   IntegerRangeExpression
-    |   BitwiseExpression
-    |   BitwiseShiftExpression
-    |   ServiceConstructorExpression
-    |   TypeTestExpression
-    |   BinaryRefEqualExpression
-    |   TrapExpression
-    |   TypeDescExpression
-    |   AnnotationActionExpression
-    |   QueryExpression
-    |   QueryActionExpression
-    |   LetExpression
-    {recoverWhile=ExpressionRecover}
-
-TypeDescExpression ::= TypeName
-
-TypeTestExpression ::= Expression is TypeName
-BinaryRefEqualExpression ::= Expression (REF_EQUAL | REF_NOT_EQUAL) Expression
-ActionInvocationExpression::= ActionInvocation
-ElvisExpression::= Expression ELVIS Expression
-TableLiteralExpression ::= TableLiteral
-QueryExpression ::= QueryExpr
-AnnotationActionExpression ::= Expression ANNOTATION_ACCESS NameReference
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
-
-fake BinaryExpression ::= Expression {
-  methods=[left="Expression[0]" right="Expression[1]" getOperator]
-}
-
-//private ExpressionRecover ::=  !('!' | '!=' | '%' | '%=' | '&&' | '&' | '&=' | '&^' | '&^=' | '(' | ')' | '*' | '*=' | '+' | '++' | '+=' | ',' | '-' | '--' | '-=' | '...' | '/' | '/=' | ':' | ';' | '<' | '<-' | '<<' | '<<=' | '<=' | '<NL>' | '=' | '==' | '>' | '>=' | '>>' | '>>=' | '[' | ']' | '^' | '^=' | 'type' | '{' | '|' | '|=' | '||' | '}' | break | case | chan | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex | identifier | if | int | interface | map | oct | return | select | string | raw_string | struct | switch | var )
-SimpleLiteralExpression ::= SimpleLiteral
-ListConstructorExpression ::= ListConstructorExpr
-RecordLiteralExpression ::= RecordLiteral
-XmlLiteralExpression ::= XmlLiteral
-StringTemplateLiteralExpression ::= StringTemplateLiteral
-VariableReferenceExpression ::= AnnotationAttachment* start? VariableReference
-AnonymousFunctionExpression ::= AnonymousFunctionExpr
-TypeConversionExpression ::= LT (AnnotationAttachment+ TypeName? | TypeName) GT Expression {pin=1}
-UnaryExpression ::= (ADD | SUB | BIT_COMPLEMENT | NOT | typeof) Expression {pin=1}
-GroupExpression ::=  LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS
-BinaryDivMulModExpression ::= Expression (DIV | MUL | MOD) Expression
-BinaryAddSubExpression ::= Expression (ADD | SUB) Expression
-BinaryCompareExpression ::= Expression (LT_EQUAL | GT_EQUAL | GT | LT) Expression
-BinaryEqualExpression ::= Expression (EQUAL | NOT_EQUAL) Expression
-BinaryAndExpression ::= Expression <<isNotInStreams>> AND Expression
-BinaryOrExpression ::= Expression OR Expression
-WaitExpression ::=   wait (WaitForCollection | Expression) {pin=1}
-WorkerSendSyncExpression ::= Expression SYNCRARROW PeerWorker {pin=2}
-WorkerReceiveExpression ::= LARROW PeerWorker (COMMA Expression)? {pin=1}
-FlushWorkerExpression ::= FlushWorker
-CheckedExpression ::= check Expression {pin=1}
-CheckPanicExpression ::= checkpanic Expression {pin=1}
-IntegerRangeExpression ::= Expression (ELLIPSIS | HALF_OPEN_RANGE) Expression
-BitwiseExpression ::= Expression (BITAND | PIPE | BITXOR) Expression
-BitwiseShiftExpression ::= Expression (ShiftExpression) Expression
-ServiceConstructorExpression ::= AnnotationAttachment* service ServiceBody {pin=2}
-TernaryExpression ::= Expression (QUESTION_MARK Expression COLON Expression) {pin(".*")=1}
-LetExpression ::= let LetVarDecl (COMMA LetVarDecl)* IN Expression {pin=1}
-
-LetVarDecl ::= AnnotationAttachment* (TypeName | var) BindingPattern ASSIGN Expression
-
-TypeInitExpression ::= initWithType | initWithoutType
-initWithType ::= new (UserDefineTypeName | StreamTypeName) LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=3}
-initWithoutType ::= new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?
-
-TrapExpression ::= trap Expression {pin=1}
-
-ShiftExpression ::= GT <<shiftExprPredicate>> GT
-    | LT <<shiftExprPredicate>> LT
-    | GT <<shiftExprPredicate>> GT <<shiftExprPredicate>> GT
-
-SelectClause ::= select Expression {pin=1}
-WhereClause ::= where Expression{pin=1}
-FromClause ::= from (TypeName | var) BindingPattern IN Expression {pin=1}
-DoClause ::= do LEFT_BRACE Statement* RIGHT_BRACE {pin=1}
-LetClause ::= let LetVarDecl (COMMA LetVarDecl)* {pin=1}
-
-QueryPipeline ::= FromClause (FromClause | LetClause | WhereClause)*
-QueryExpr ::= QueryPipeline SelectClause
-QueryActionExpression ::= QueryPipeline DoClause
-
-NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier
-
-functionNameReference ::= <<isPackageExpected>> PackageReference? AnyIdentifierName {
-    methods=[/*getReference*/ getQualifier /*resolve*/ resolveTypeWhereClause isInLocalPackage]
-}
-
-PackageReference ::= identifier COLON {
-    pin=2
-}
-
-ReturnParameter ::= returns AnnotationAttachment* TypeName {pin=1}
-
-ParameterTypeNameList ::= ParameterTypeName (COMMA ParameterTypeName)*
-
-// Merged rules "ParameterTypeName" and "RestParameterTypeName" to fix capturing rest parameters properly.
-// Todo - Alternatives?
-ParameterTypeName ::= AnnotationAttachment* TypeName ELLIPSIS?
-
-ParameterList ::=  (Parameter (COMMA Parameter)* (COMMA RestParameter)?) | RestParameter
-
-Parameter ::= AnnotationAttachment* public? TypeName identifier {pin=4}
-
-DefaultableParameter ::= Parameter ASSIGN Expression
-
-// do not pin on ELLIPSIS as it will mess up with the parameter type name rules
-RestParameter ::= AnnotationAttachment* TypeName ELLIPSIS identifier {pin=4}
-
-FormalParameterList ::= (DefaultableParameter | Parameter) (COMMA (DefaultableParameter | Parameter))* (COMMA RestParameter)? | RestParameter {pin=1 recoverWhile=FormalParameterListRecover}
-
-private FormalParameterListRecover::= !(')')
-
-SimpleLiteral ::= SUB? IntegerLiteral
-                  | SUB? FloatingPointLiteral
-                  | QUOTED_STRING_LITERAL
-                  | BOOLEAN_LITERAL
-                  | NilLiteral
-                  | BlobLiteral
-                  | NULL_LITERAL
-
-// §3.10.1 Integer Literals
+NilLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
 IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL
 
-FloatingPointLiteral ::= DECIMAL_FLOATING_POINT_NUMBER | HEXADECIMAL_FLOATING_POINT_LITERAL
+RecoverableVarDefContent ::= identifier {recoverWhile=VarDefExpressionRecover}
+private VarDefExpressionRecover ::= !(SEMICOLON)
+RecoverableVariableDefinitionContent ::= identifier {recoverWhile=GlobalVariableDefinitionRecover}
+private GlobalVariableDefinitionRecover ::= !(SEMICOLON)
 
-NilLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        function definitions                                                       //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {pin=3 methods=[getIdentifier]}
+FunctionSignature ::= LEFT_PARENTHESIS RecoverableParameterContent RIGHT_PARENTHESIS returns? RecoverableReturnType {pin=1}
+RecoverableParameterContent ::= identifier {recoverWhile=FunctionSignatureRecover}
+private FunctionSignatureRecover ::= !(RIGHT_PARENTHESIS)
+RecoverableReturnType ::= identifier {recoverWhile=ReturnParamRecover}
+private ReturnParamRecover ::= !(EQUAL_GT | ASSIGN | LEFT_BRACE)
 
-BlobLiteral ::= BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
+FunctionDefinitionBody ::= (ExprFunctionBodySpec SEMICOLON) | (ExternalFunctionBody SEMICOLON) | BlockFunctionBody
+// bnf specific rules to add error recovery more precisely.
+ExprFunctionBodySpec ::= EQUAL_GT identifier {pin=1 recoverWhile=ExprFuncBodyRecover}
+private ExprFuncBodyRecover ::= !(SEMICOLON)
 
-NamedArgs ::= identifier ASSIGN Expression {pin=2}
+ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=1 recoverWhile=ExternalFuncBodyRecover}
+private ExternalFuncBodyRecover ::= !(SEMICOLON)
 
-RestArgs ::= ELLIPSIS Expression {pin=1}
+BlockFunctionBody ::= LEFT_BRACE  RecoverableFunctionContent RIGHT_BRACE {pin=1}
+RecoverableFunctionContent ::= identifier {recoverWhile=BlockFunctionRecover}
+private BlockFunctionRecover ::= !(RIGHT_BRACE)
+AnyIdentifierName ::= identifier
 
-// Todo - remove after restoring xml grammar
-XmlLiteral ::= XML_LITERAL_START XmlAllowedText XML_LITERAL_END
-XmlAllowedText ::= XML_ALL_CHAR*
+AnnotationDefinition ::= public? const? annotation RecoverableAnnotationContent SEMICOLON {pin=3}
+RecoverableAnnotationContent ::= identifier {recoverWhile=AnnotationDefinitionRecover}
+private AnnotationDefinitionRecover ::= !(SEMICOLON)
 
-StringTemplateLiteral ::= STRING_TEMPLATE_LITERAL_START StringTemplateContent? STRING_TEMPLATE_LITERAL_END {pin=1 /*recoverWhile=StringTemplateLiteralRecover*/}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        constant definitions                                                       //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ConstantDefinition ::= public? const RecoverableConstantContent SEMICOLON  {pin=2}
+RecoverableConstantContent ::= identifier {recoverWhile=ConstantDefinitionRecover}
+private ConstantDefinitionRecover ::= !(SEMICOLON)
 
-// Todo - Update to statement recover
-/*private StringTemplateLiteralRecover ::= !(SEMICOLON | string | int | identifier)*/
+AnnotationAttachment ::= AT RecoverableAnnotationAttachmentContent identifier (AnnotationRecord)? {pin=1}
+RecoverableAnnotationAttachmentContent ::= any { recoverWhile=AnnotationAttachmentRecovery }
+private AnnotationAttachmentRecovery ::= !(identifier)
+AnnotationRecord ::= LEFT_BRACE RecoverableAnnotationRecordContent RIGHT_BRACE {pin=1}
+RecoverableAnnotationRecordContent ::= identifier {recoverWhile=AnnotationRecordRecover}
+private AnnotationRecordRecover ::= !(RIGHT_BRACE)
 
-StringTemplateContent ::= StringTemplateExpressionContent | StringTemplateTextContent
-
-private StringTemplateExpressionContent ::= StringTemplateExpression+ STRING_TEMPLATE_TEXT?
-private StringTemplateExpression ::= STRING_TEMPLATE_EXPRESSION_START Expression STRING_TEMPLATE_EXPRESSION_END
-private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
-
-AnyIdentifierName ::= identifier | ReservedWord
-
-ReservedWord ::= foreach | map | start | continue | OBJECT_INIT | error
-
-// Markdown Documentation parsing
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        markdown documentation                                                     //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
 
 documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
@@ -855,7 +293,7 @@ parameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 returnParameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
-deprecateAnnotationDescriptionLin ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
+deprecateAnnotationDescriptionLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 //TODO: Fix documentation reference capturing.
 documentationText ::= (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
@@ -890,3 +328,60 @@ doubleBacktickedBlock ::= DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACKTICK_CONTENT
 tripleBacktickedBlock ::= TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACKTICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END {pin=1}
 
 documentationTextContent ::= MARKDOWN_DOCUMENTATION_TEXT | DOCUMENTATION_ESCAPED_CHARACTERS
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                             Unused tokens                                                         //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
+
+unused_Resource ::= resource
+unused_Returns ::= returns
+unused_Catch ::= catch
+unused_Else ::= else
+unused_Finally ::= finally
+unused_Handle ::= handle
+unused_In ::= in
+unused_Is ::= is
+unused_Let ::= let
+unused_New ::= new
+unused_ObjInit ::= OBJECT_INIT
+unused_OnRetry ::= onretry
+unused_Retries ::= retries
+unused_Source ::= source
+unused_Start ::= start
+unused_TypeField ::= TYPE_FIELD
+unused_TypeParameter ::= TYPE_PARAMETER
+unused_With ::= with
+unused_Select ::= select
+unused_Where ::= where
+unused_Do ::= do
+unused_Elvis ::= ELVIS
+unused_RARROW ::= SYNCRARROW
+unused_Parameter ::= PARAMETER
+
+unused_stringTemPlateExpressionStart ::= STRING_TEMPLATE_EXPRESSION_START
+unused_stringTemPlateExpressionEnd ::= STRING_TEMPLATE_EXPRESSION_END
+unused_BitAnd ::= BITAND
+unused_BitXor ::= BITXOR
+unused_BitComplement ::= BIT_COMPLEMENT
+unused_CompoundBitOr ::= COMPOUND_BIT_OR
+unused_CompoundBitAnd ::= COMPOUND_BIT_AND
+unused_CompoundBitXor ::= COMPOUND_BIT_XOR
+unused_XmlAllChar ::= XML_ALL_CHAR
+unused_XmlLiteralEnd ::= XML_LITERAL_END
+unused_StringTemplateText ::= STRING_TEMPLATE_TEXT
+unused_StringTemplateLiteralStart ::= STRING_TEMPLATE_LITERAL_START
+unused_StringTemplateLiteralEnd ::= STRING_TEMPLATE_LITERAL_END
+unused_AnnotationAccess ::= ANNOTATION_ACCESS
+unused_RightClosedRecordDelimiter ::= RIGHT_CLOSED_RECORD_DELIMITER
+unused_LeftClosedRecordDelimiter ::= LEFT_CLOSED_RECORD_DELIMITER
+unused_OptionalFieldAccess ::= OPTIONAL_FIELD_ACCESS
+unused_CompoundLeftShift ::= COMPOUND_LEFT_SHIFT
+unused_CompoundRightShift ::= COMPOUND_RIGHT_SHIFT
+unused_HalfOpenRange ::= HALF_OPEN_RANGE
+unused_Default ::= DEFAULT
+unused_b16Blob ::= BASE_16_BLOB_LITERAL
+unused_b64Blob ::= BASE_64_BLOB_LITERAL
+unused_CompoundLogicalShift ::= COMPOUND_LOGICAL_SHIFT
+unused_xmlLiteralStart ::= XML_LITERAL_START
