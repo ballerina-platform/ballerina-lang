@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -1356,6 +1357,8 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.varType = source.varType;
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
+        clone.isOuterJoin = source.isOuterJoin;
+        clone.onClauseNode = (OnClauseNode) clone((BLangNode) source.onClauseNode);
 
     }
 

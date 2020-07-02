@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -839,6 +840,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         joinClause.collection = rewrite(joinClause.collection);
+        if (joinClause.onClauseNode != null) {
+            joinClause.onClauseNode = (OnClauseNode) rewrite((BLangNode) joinClause.onClauseNode);
+        }
         result = joinClause;
     }
 

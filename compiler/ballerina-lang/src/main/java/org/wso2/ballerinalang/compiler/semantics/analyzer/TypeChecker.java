@@ -4020,6 +4020,9 @@ public class TypeChecker extends BLangNodeVisitor {
         types.setInputClauseTypedBindingPatternType(joinClause);
         narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
+        if (joinClause.onClauseNode != null) {
+            ((BLangOnClause) joinClause.onClauseNode).accept(this);
+        }
     }
 
     @Override
