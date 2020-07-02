@@ -17,9 +17,11 @@
  */
 package org.ballerinalang.langlib.testutils;
 
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BNullType;
 import org.ballerinalang.jvm.values.DecimalValue;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -84,9 +86,25 @@ public class CTestRunner {
                 reportDetails.setClassName(cTests.getPath());
                 reportDetails.setFunctionName(testFunction.getFunctionName());
                 long startTime = System.currentTimeMillis();
-                String returnValue = invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
+                boolean failFlag = false;
+                String returnValue = null;
+                String errCause = null;
+                try {
+                    returnValue = invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
+                } catch (ExecutionException e) {
+                    failFlag = true;
+                    errCause = e.getCause().toString();
+                } catch (InterruptedException e) {
+                    failFlag = true;
+                    errCause = e.getCause().toString();
+                }
+                if (failFlag) {
+                    returnValue = CTestConstants.TEST_FAILED_STATUS;
+                    outStream.println(cTests.getPath() + " -> " + testFunction.getFunctionName() + "failed \n"
+                            + errCause);
+                }
                 long endTime = System.currentTimeMillis();
-                long totalTime = (endTime - startTime) / 1000;
+                long totalTime = endTime - startTime;
                 reportDetails.setExecutionTime(String.valueOf(totalTime));
                 reportDetails.setStackTrace(returnValue);
                 if (returnValue.equals(CTestConstants.TEST_PASSED_STATUS)) {
@@ -144,7 +162,7 @@ public class CTestRunner {
     }
 
     private static String invokeFunctionWithAssert(CompileResult compileResult, String functionName,
-                               String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
+                                   String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
         Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], panicFlag);
         String returnValue = validateResult(results[0], assertVal, functionDetails, results[1].toString());
@@ -213,9 +231,12 @@ public class CTestRunner {
                     args[i] = Long.parseLong(paramValue[i]);
                     break;
                 case CTestConstants.TEST_ERROR_TAG:     // currently error value is considered as a string value
-                case CTestConstants.TEST_STRING_TAG:
                     paramTypes[i] = String.class;
                     args[i] = paramValue[i];
+                    break;
+                case CTestConstants.TEST_STRING_TAG:
+                    paramTypes[i] = BString.class;
+                    args[i] = StringUtils.fromString(paramValue[i]);
                     break;
                 case CTestConstants.TEST_BOOLEAN_TAG:
                     paramTypes[i] = Boolean.class;
@@ -253,7 +274,7 @@ public class CTestRunner {
     }
 
     private static String invokeWithTimeoutWithExecutor(CompileResult compileResult, TestFunction testFunction,
-                                                        String functionClassName) {
+                                            String functionClassName) throws ExecutionException, InterruptedException {
         ExecutorService exec = Executors.newFixedThreadPool(1,
                 new ThreadFactory() {
                     public Thread newThread(Runnable r) {
@@ -267,28 +288,13 @@ public class CTestRunner {
         Future<String> future = exec.submit(task);
         exec.shutdown();
         boolean finished = false;
-        try {
-            finished = exec.awaitTermination(60, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // throw an exception if the thread is interrupted during the wait time
-            throw new RuntimeException(e.getCause());
-        }
+        finished = exec.awaitTermination(60, TimeUnit.SECONDS);
         if (!finished) {
             exec.shutdownNow();
             outStream.println(functionClassName + " => " + testFunction.getFunctionName() + " failed! ");
             throw new RuntimeException("Time limit exceeded.");
         }
-        String returnValue = null;
-        try {
-            returnValue = future.get();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(functionClassName + " -> " + testFunction.getFunctionName() +
-                    " failed \n" + e.getCause());
-        } catch (ExecutionException e) {
-            throw new RuntimeException(functionClassName + " -> " + testFunction.getFunctionName() +
-                    " failed \n" + e.getCause());
-        }
-        return returnValue;
+        return future.get();
     }
 }
 

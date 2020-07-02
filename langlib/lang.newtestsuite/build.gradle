@@ -22,5 +22,5 @@ description = 'Lang Library Unit Test new  Module'
 apply from: "$rootDir/gradle/balTestableProjectForTest.gradle"
 
 runTestSuites{
-    libPath << "src/test/resources/TestSuite.xml"
+    libPath << "src/test/resources/langlib-test-suite.xml"
 }

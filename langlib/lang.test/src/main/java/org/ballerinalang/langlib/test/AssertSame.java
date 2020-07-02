@@ -43,7 +43,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 public class AssertSame {
     public static void assertSame(Strand strand, Object actual, Object expected, Object message) {
         if (!TypeChecker.isReferenceEqual(expected, actual)) {
-            String msg = "expected: " + expected + " but found: " + actual;
+            String msg = "expected: [" + expected.hashCode() + "] but found: [" + actual.hashCode() + "]";
             msg = message != null ? message.toString() + msg : msg;
             strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,
                     BallerinaErrors.createError(NativeImpConstants.TEST_FAIL_REASON, msg));

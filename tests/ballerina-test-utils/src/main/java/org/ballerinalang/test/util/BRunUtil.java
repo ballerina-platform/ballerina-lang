@@ -113,6 +113,10 @@ import java.util.stream.Collectors;
  */
 public class BRunUtil {
     private static final PrintStream outStream = System.out;
+    public static final String TEST_PASS_STATUS = "passed";
+    public static final String TEST_FAILED_STATUS = "failed";
+    public static final String TEST_FAILED_MSG = "lang.test.state.failMsg";
+    public static final String ERROR_PREFIX = "org.ballerinalang.util.exceptions.BLangRuntimeException: ";
 
     public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
 
@@ -1210,11 +1214,22 @@ public class BRunUtil {
     }
 
     public static Object[] cInvoke(CompileResult compileResult, String functionName, Object[] args,
-                                   Class<?>[] paramTypes , boolean panicFlag) {
-        BIRNode.BIRFunction function = getInvokedFunction(compileResult, functionName);
-        args = addDefaultableBoolean(args);
-        paramTypes = addDefaultableBooleanType(paramTypes);
-        Object[] jvmResult = cInvoke(compileResult, function, functionName, args, paramTypes, panicFlag);
+                                   Class<?>[] paramTypes, boolean panicFlag) {
+        Object[] jvmResult = new Object[2];
+        BIRNode.BIRFunction function = null;
+        //if the function name is invalid, mark it as failed
+        try {
+            function = getInvokedFunction(compileResult, functionName);
+        } catch (RuntimeException e) {
+            outStream.println(functionName + " -> failed! \n" + e.getMessage());
+            jvmResult[1] = TEST_FAILED_STATUS;
+            jvmResult[0] = e.getMessage();
+        }
+        if (function != null) {
+            args = addDefaultableBoolean(args);
+            paramTypes = addDefaultableBooleanType(paramTypes);
+            jvmResult = cInvoke(compileResult, function, functionName, args, paramTypes, panicFlag);
+        }
         return jvmResult;
     }
 
@@ -1263,17 +1278,21 @@ public class BRunUtil {
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
                     org.ballerinalang.jvm.types.BTypes.typeAny);
             scheduler.start();
-            Object errorMsg = futureValue.strand.getProperty("lang.test.state.failMsg");
+            Object errorMsg = futureValue.strand.getProperty(TEST_FAILED_MSG);
             jvmResult[0] = futureValue.result;
-            jvmResult[1] = "failed";
-            if (errorMsg != null && !panicFlag) {
-                jvmResult[1] = "passed";
-                jvmResult[0] = errorMsg.toString();
+            jvmResult[1] = TEST_FAILED_STATUS;
+            if (!panicFlag) {
+                jvmResult[1] = TEST_PASS_STATUS;
+                if (errorMsg != null) {
+                    jvmResult[0] = errorMsg.toString();
+                } else if (futureValue.panic != null) {
+                    jvmResult[0] = getPanicError(futureValue.panic.toString());
+                }
             } else if (futureValue.panic instanceof RuntimeException) {
                 jvmResult[0] = getFormattedErrorMessage(futureValue);
                 outStream.println(funcClassName + "-> " + functionName + " failed! \n" + jvmResult[0]);
             } else {
-                jvmResult[1] = "passed";
+                jvmResult[1] = TEST_PASS_STATUS;
             }
         } catch (ClassNotFoundException | NoSuchMethodException e) {
             throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
@@ -1281,16 +1300,20 @@ public class BRunUtil {
         return jvmResult;
     }
 
+    public static String getPanicError(String panicError) {
+        if (panicError.contains("\n")) {
+            panicError = panicError.substring(0, panicError.indexOf("\n"));
+        }
+        if (panicError.contains(ERROR_PREFIX)) {
+            panicError = panicError.replace(ERROR_PREFIX, "");
+        }
+        return panicError;
+    }
+
     public static String getFormattedErrorMessage(FutureValue futureValue) {
         String errMsg = futureValue.panic.toString();
-        String errorVal = null;
-        try {
-            errorVal = futureValue.getPanic().getCause().getCause().toString();
-        } catch (Exception e) {
-            //do nothing
-        }
-        if (errorVal != null) {
-            errMsg = errMsg + "\n" + errorVal + "\n";
+        if (futureValue.getPanic().getCause() != null) {
+            errMsg = errMsg + "\n" + futureValue.getPanic().getCause().getCause().toString() + "\n";
         }
         return errMsg;
     }

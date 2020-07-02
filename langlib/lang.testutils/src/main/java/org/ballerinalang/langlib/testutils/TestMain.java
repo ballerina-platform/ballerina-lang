@@ -23,6 +23,9 @@ import org.ballerinalang.jvm.values.XMLValue;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.PrintStream;
+
+import static java.lang.System.exit;
 
 /**
  * Main class to init the test suite.
@@ -31,6 +34,8 @@ import java.io.FileNotFoundException;
  */
 
 public class TestMain {
+    private static final PrintStream outStream = System.out;
+
     public static void main(String[] args) {
         for (int i = 1; i < args.length; i++) {
             String testSuitePath = args[0] + args[i];
@@ -39,20 +44,30 @@ public class TestMain {
         }
         //TODO: remove after implementing proper build failure approach
         if (CTestSuite.failedTestCount > 0) {
-            throw new RuntimeException(" There are test failures ");
+            exit(1);
         }
     }
 
     public static void extractTestGroupPaths(CTestSuite cTestSuite, String testSuitePath, String absPath) {
-        InitializeTestSuite.extractPath(readXml(testSuitePath), cTestSuite, absPath);
-        testSuiteInitilizer(cTestSuite);
+        XMLValue xmlValue = readXml(testSuitePath);
+        if (xmlValue != null) {
+            InitializeTestSuite.extractPath(xmlValue, cTestSuite, absPath);
+            testSuiteInitilizer(cTestSuite);
+        } else {
+            CTestSuite.failedTestCount++;
+        }
     }
 
     public static void testSuiteInitilizer(CTestSuite cTestSuite) {
         for (String groupPath : cTestSuite.getPaths()) {
             CTestGroup cTestGroup = new CTestGroup();
-            InitializeTestSuite.fillGroup(readXml(groupPath), cTestGroup);
-            cTestSuite.setTestGroup(cTestGroup);
+            XMLValue xmlValue = readXml(groupPath);
+            if (xmlValue != null) {
+                InitializeTestSuite.fillGroup(xmlValue, cTestGroup);
+                cTestSuite.setTestGroup(cTestGroup);
+            } else {
+                CTestSuite.failedTestCount++;
+            }
         }
         invokeTests(cTestSuite);
     }
@@ -68,7 +83,7 @@ public class TestMain {
             FileInputStream fileInputStream = new FileInputStream(path);
             xmlvalue = XMLFactory.parse(fileInputStream);
         } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+            outStream.println(e.getMessage());
         }
         return xmlvalue;
     }

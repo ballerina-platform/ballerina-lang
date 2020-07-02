@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<test-group name="ABC">
-    <description>str1234</description>
-    <test name="xyz">
-        <description>str1234</description>
+<test-group name="test suite example">
+    <description>examples test</description>
+    <test name="example-test">
+        <description>example test</description>
         <source>
-            <file>test-src/function_test.bal</file>
+            <file>test-src/example_test.bal</file>
         </source>
         <steps>
             <run>

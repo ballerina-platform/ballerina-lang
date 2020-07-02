@@ -80,7 +80,7 @@ public class GenerateHtmlReportForTest {
                 .append("<thead>\n")
                 .append("<tr>\n")
                 .append("<th>Test</th>\n")
-                .append("<th>Duration(s)</th>\n")
+                .append("<th>Duration(ms)</th>\n")
                 .append("<th>Result</th>\n")
                 .append("</tr>\n")
                 .append("</thead>\n");
@@ -126,14 +126,22 @@ public class GenerateHtmlReportForTest {
 
     public static String getDiff(String message) {
         if (message.contains("expected") && message.contains("but found")) {
-            String str1 = message.substring(message.indexOf("[") + 1, message.indexOf("]"));
-            String temp = message.replace("[" + str1 + "]", "");
-            String str2 = temp.substring(temp.indexOf("[") + 1, temp.indexOf("]"));
-            StringsComparator comparator = new StringsComparator(str1, str2);
-            TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
-            comparator.getScript().visit(textDiffHighlighter);
-            message = message.replace(str1, textDiffHighlighter.leftStr);
-            message = message.replace(str2, textDiffHighlighter.rightStr);
+            //skip if string contains xml elements
+            if (message.matches("(?s).*(<(\\w+)[^>]*>.*</\\2>|<(\\w+)[^>]*/>).*") ||
+                    message.matches(".*(<(\\w+)[^>]*>).*")) {
+                message = "<xmp>" + message + "</xmp>";
+            } else {
+                String str1 = message.substring(message.indexOf("["), message.indexOf("]") + 1);
+                String temp = message.replace(str1, "");
+                if (temp.contains("[") && temp.contains("]")) {
+                    String str2 = temp.substring(temp.indexOf("["), temp.indexOf("]") + 1);
+                    StringsComparator comparator = new StringsComparator(str1, str2);
+                    TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
+                    comparator.getScript().visit(textDiffHighlighter);
+                    message = message.replace(str1, textDiffHighlighter.leftStr);
+                    message = message.replace(str2, textDiffHighlighter.rightStr);
+                }
+            }
         }
         return message;
     }

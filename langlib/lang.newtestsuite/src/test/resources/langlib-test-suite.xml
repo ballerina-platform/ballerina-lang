@@ -1,0 +1,7 @@
+<test-suite>
+    <name>langlib test suite</name>
+    <description>Includes test for langlib test</description>
+    <tests-groups name="langlib tests">
+        <test-group>src/test/resources/lang.example-tests.xml</test-group>
+    </tests-groups>
+</test-suite>

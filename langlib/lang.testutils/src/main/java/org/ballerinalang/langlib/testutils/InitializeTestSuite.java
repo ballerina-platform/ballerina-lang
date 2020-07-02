@@ -106,6 +106,9 @@ public class InitializeTestSuite {
                     } else if (xmlElment.getElementName().equals(CTestConstants.TEST_RETURN_TAG)) {
                         paramList = getFunctionParams(xmlElment.children());
                         testFunction.addAssertVal(paramList);
+                    } else {
+                        paramList = getFunctionParams(xmlElemnets);
+                        testFunction.addAssertVal(paramList);
                     }
                     testFunction.setAssertParamFlag();
                 }

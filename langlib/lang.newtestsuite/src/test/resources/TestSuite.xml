@@ -1,7 +1,0 @@
-<test-suite>
-<name>langlib test suite</name>
-    <description>Includes test for langlib test</description>
-    <tests-groups name="hh">
-          <test-group>src/test/resources/lang.int-tests.xml</test-group>
-    </tests-groups>
-</test-suite>
