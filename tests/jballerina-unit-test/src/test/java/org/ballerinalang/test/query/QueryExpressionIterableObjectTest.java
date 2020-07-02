@@ -85,4 +85,23 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
         Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
     }
+
+    @Test
+    public void testStreamOfStreams() {
+        BValue[] returns = BRunUtil.invoke(program, "testStreamOfStreams");
+        Assert.assertEquals(returns.length, 12);
+        int i = 0;
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 4);
+    }
 }
