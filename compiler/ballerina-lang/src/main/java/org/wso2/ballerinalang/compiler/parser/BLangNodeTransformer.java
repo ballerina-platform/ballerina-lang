@@ -4138,8 +4138,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             inThreeTicks = addReferences(text, references, inThreeTicks);
 
             if (inThreeTicksPreviousLine) {
-                threeTickContent.append(token.leadingMinutiae())
-                                .append(token.text());
+                threeTickContent.append(token.leadingMinutiae()).append(text);
                 if (inThreeTicks) {
                     threeTickContent.append(token.trailingMinutiae());
                 }

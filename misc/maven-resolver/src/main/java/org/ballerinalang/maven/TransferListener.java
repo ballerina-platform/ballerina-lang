@@ -31,6 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Progress bar implementation for Maven Resolver.
  */
 public class TransferListener extends AbstractTransferListener {
+    private static final String JAR_EXTENSION = "jar";
     private PrintStream out;
     private Map<TransferResource, Long> downloads = new ConcurrentHashMap<>();
     private Map<String, ProgressBar> progressBars = new ConcurrentHashMap<>();
@@ -47,25 +48,30 @@ public class TransferListener extends AbstractTransferListener {
     @Override
     public void transferProgressed(TransferEvent event) {
         TransferResource resource = event.getResource();
-        downloads.put(resource, event.getTransferredBytes());
-        for (Map.Entry<TransferResource, Long> entry : downloads.entrySet()) {
-            String currentResource = entry.getKey().getResourceName();
-            // Each transitive dependency download be displayed in own progress bars
-            if (progressBars.get(currentResource) == null) {
-                String[] files = currentResource.split("/");
-                progressBars.put(currentResource, new ProgressBar(files[files.length - 1],
-                        getKB(entry.getKey().getContentLength()), 1000, out, ProgressBarStyle.ASCII, " KB", 1));
+        if (resource.getFile().getName().contains(JAR_EXTENSION)) {
+            downloads.put(resource, event.getTransferredBytes());
+            for (Map.Entry<TransferResource, Long> entry : downloads.entrySet()) {
+                String currentResource = entry.getKey().getResourceName();
+                // Each transitive dependency download be displayed in own progress bars
+                if (progressBars.get(currentResource) == null) {
+                    String[] files = currentResource.split("/");
+                    progressBars.put(currentResource, new ProgressBar(files[files.length - 1],
+                            getKB(entry.getKey().getContentLength()), 1000, out, ProgressBarStyle.ASCII, " KB", 1));
+                }
+                long transferredLength = getKB(event.getTransferredBytes());
+                Long previousStep = progresses.get(currentResource) == null ? 0L : progresses.get(currentResource);
+                progressBars.get(currentResource).stepBy(transferredLength - previousStep);
+                progresses.put(currentResource, transferredLength);
             }
-            long transferredLength = getKB(event.getTransferredBytes());
-            Long previousStep = progresses.get(currentResource) == null ? 0L : progresses.get(currentResource);
-            progressBars.get(currentResource).stepBy(transferredLength - previousStep);
-            progresses.put(currentResource, transferredLength);
         }
     }
 
     @Override
     public void transferSucceeded(TransferEvent event) {
-        progressBars.get(event.getResource().getResourceName()).close();
+        TransferResource resource = event.getResource();
+        if (resource.getFile().getName().contains(JAR_EXTENSION)) {
+            progressBars.get(resource.getResourceName()).close();
+        }
     }
 
     private long getKB(long bytes) {

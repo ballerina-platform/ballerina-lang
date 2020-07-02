@@ -93,3 +93,43 @@ public function testIterableWithError() returns int[]|error {
 
     return integers;
 }
+
+type NumberGenerator object {
+    int i = 0;
+    public function next() returns record {| int value; |}? {
+        self.i += 1;
+        if(self.i < 5) {
+          return { value: self.i };
+        }
+    }
+};
+
+type NumberStreamGenerator object {
+    int i = 0;
+    public function next() returns record {| stream<int> value; |}? {
+         self.i += 1;
+         if (self.i < 5) {
+             NumberGenerator numGen = new();
+             stream<int> numberStream = new (numGen);
+             return { value: numberStream};
+         }
+    }
+};
+
+public function testStreamOfStreams() returns int[] {
+    NumberStreamGenerator numStreamGen = new();
+    stream<stream<int>> numberStream = new (numStreamGen);
+    record {| stream<int> value; |}? nextStream = numberStream.next();
+    int[] integers = from var strm in numberStream
+                     from var num in liftError(strm.toArray())
+                     select num;
+
+    return integers;
+}
+
+function liftError (int[]|error arrayData) returns int[] {
+    if(!(arrayData is error)) {
+        return arrayData;
+    }
+    return [];
+}

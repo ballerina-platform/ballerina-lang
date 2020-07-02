@@ -2833,5 +2833,37 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 expression.internalNode());
         return stOnClauseNode.createUnlinkedFacade();
     }
+
+    public static ListMatchPatternNode createListMatchPatternNode(
+            Token openBracket,
+            SeparatedNodeList<Node> matchPatterns,
+            RestMatchPatternNode restMatchPattern,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListMatchPatternNode = STNodeFactory.createListMatchPatternNode(
+                openBracket.internalNode(),
+                matchPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern),
+                closeBracket.internalNode());
+        return stListMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static RestMatchPatternNode createRestMatchPatternNode(
+            Token ellipsisToken,
+            Token varKeywordToken,
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(varKeywordToken, "varKeywordToken must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stRestMatchPatternNode = STNodeFactory.createRestMatchPatternNode(
+                ellipsisToken.internalNode(),
+                varKeywordToken.internalNode(),
+                variableName.internalNode());
+        return stRestMatchPatternNode.createUnlinkedFacade();
+    }
 }
 
