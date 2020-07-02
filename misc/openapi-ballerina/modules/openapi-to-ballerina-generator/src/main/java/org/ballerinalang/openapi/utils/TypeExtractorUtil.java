@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.openapi.OpenApiMesseges.BAL_KEYWORDS;
 import static org.ballerinalang.openapi.OpenApiMesseges.BAL_TYPES;
@@ -303,13 +304,18 @@ public class TypeExtractorUtil {
             } else if ((schema.getType() != null && schema.getType().equals("object")) ||
                     schema.getProperties() != null) {
                 if (schema.getProperties() != null) {
+                    List<String> requiredBlock = schema.getRequired();
                     final Iterator<Map.Entry<String, Schema>> propertyIterator = schema.getProperties()
                             .entrySet().iterator();
                     List<BallerinaOpenApiSchema> propertyList = new ArrayList<>();
 
                     while (propertyIterator.hasNext()) {
                         final Map.Entry<String, Schema> nextProp = propertyIterator.next();
-                        final String propName = nextProp.getKey();
+                        String propName = nextProp.getKey();
+                        if (requiredBlock == null || (!requiredBlock.isEmpty() &&
+                                !requiredBlock.contains(propName))) {
+                            propName += "?";
+                        }
                         final Schema propValue = nextProp.getValue();
                         BallerinaOpenApiSchema propertySchema = new BallerinaOpenApiSchema();
 
@@ -390,8 +396,19 @@ public class TypeExtractorUtil {
             if (identifier.equals("error")) {
                 identifier = "_error";
             } else {
-                identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "\\\\$1");
-                identifier = "'" + identifier;
+                identifier = identifier.replaceAll("([\\\\?!<>*\\-=^+()_{}|.$])", "$1");
+                if (identifier.endsWith("?")) {
+                    if (BAL_KEYWORDS.stream().anyMatch(Optional.ofNullable(identifier)
+                            .filter(sStr -> sStr.length() != 0)
+                            .map(sStr -> sStr.substring(0, sStr.length() - 1))
+                            .orElse(identifier)::equals)) {
+                        identifier = "'" + identifier;
+                    } else {
+                        return identifier;
+                    }
+                } else {
+                    identifier = "'" + identifier;
+                }
             }
             
         }
