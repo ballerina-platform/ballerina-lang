@@ -65,18 +65,18 @@ suite("Language Server Tests", function () {
         });
     });
 
-    test("Fragment Pass", function (done): void {
-        langClient.onReady().then(() => {
-            langClient.parseFragment({
-                expectedNodeType: "top-level-node",
-                source: "function sample(){}"
-            }).then((response) => {
-                done();
-            }, (reason) => {
-                done(reason);
-            });
-        });
-    });
+    // test("Fragment Pass", function (done): void {
+    //     langClient.onReady().then(() => {
+    //         langClient.parseFragment({
+    //             expectedNodeType: "top-level-node",
+    //             source: "function sample(){}"
+    //         }).then((response) => {
+    //             done();
+    //         }, (reason) => {
+    //             done(reason);
+    //         });
+    //     });
+    // });
 
     test("Test Language Server Stop", function (done): void {
         langClient.stop().then(() => {
