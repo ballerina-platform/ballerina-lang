@@ -2897,32 +2897,32 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(parameterDocumentationLineNode.parameterName());
         Token minusToken =
                 modifyToken(parameterDocumentationLineNode.minusToken());
-        Token description =
-                modifyToken(parameterDocumentationLineNode.description());
+        NodeList<Node> documentElements =
+                modifyNodeList(parameterDocumentationLineNode.documentElements());
         return parameterDocumentationLineNode.modify(
                 parameterDocumentationLineNode.kind(),
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description);
+                documentElements);
     }
 
     @Override
     public DocumentationReferenceNode transform(
             DocumentationReferenceNode documentationReferenceNode) {
         Token referenceType =
-                modifyToken(documentationReferenceNode.referenceType());
+                modifyToken(documentationReferenceNode.referenceType().orElse(null));
         Token startBacktick =
                 modifyToken(documentationReferenceNode.startBacktick());
-        Token nameReference =
-                modifyToken(documentationReferenceNode.nameReference());
+        Token backtickContent =
+                modifyToken(documentationReferenceNode.backtickContent());
         Token endBacktick =
                 modifyToken(documentationReferenceNode.endBacktick());
         return documentationReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick);
     }
 
@@ -2931,12 +2931,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             DocumentationLineNode documentationLineNode) {
         Token hashToken =
                 modifyToken(documentationLineNode.hashToken());
-        NodeList<Node> referenceOrDescription =
-                modifyNodeList(documentationLineNode.referenceOrDescription());
+        NodeList<Node> documentElements =
+                modifyNodeList(documentationLineNode.documentElements());
         return documentationLineNode.modify(
                 documentationLineNode.kind(),
                 hashToken,
-                referenceOrDescription);
+                documentElements);
     }
 
     // Tokens

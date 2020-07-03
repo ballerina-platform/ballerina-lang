@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,15 +33,15 @@ public class DocumentationReferenceNode extends DocumentationNode {
         super(internalNode, position, parent);
     }
 
-    public Token referenceType() {
-        return childInBucket(0);
+    public Optional<Token> referenceType() {
+        return optionalChildInBucket(0);
     }
 
     public Token startBacktick() {
         return childInBucket(1);
     }
 
-    public Token nameReference() {
+    public Token backtickContent() {
         return childInBucket(2);
     }
 
@@ -63,19 +64,19 @@ public class DocumentationReferenceNode extends DocumentationNode {
         return new String[]{
                 "referenceType",
                 "startBacktick",
-                "nameReference",
+                "backtickContent",
                 "endBacktick"};
     }
 
     public DocumentationReferenceNode modify(
             Token referenceType,
             Token startBacktick,
-            Token nameReference,
+            Token backtickContent,
             Token endBacktick) {
         if (checkForReferenceEquality(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick)) {
             return this;
         }
@@ -83,7 +84,7 @@ public class DocumentationReferenceNode extends DocumentationNode {
         return NodeFactory.createDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick);
     }
 
@@ -100,14 +101,14 @@ public class DocumentationReferenceNode extends DocumentationNode {
         private final DocumentationReferenceNode oldNode;
         private Token referenceType;
         private Token startBacktick;
-        private Token nameReference;
+        private Token backtickContent;
         private Token endBacktick;
 
         public DocumentationReferenceNodeModifier(DocumentationReferenceNode oldNode) {
             this.oldNode = oldNode;
-            this.referenceType = oldNode.referenceType();
+            this.referenceType = oldNode.referenceType().orElse(null);
             this.startBacktick = oldNode.startBacktick();
-            this.nameReference = oldNode.nameReference();
+            this.backtickContent = oldNode.backtickContent();
             this.endBacktick = oldNode.endBacktick();
         }
 
@@ -125,10 +126,10 @@ public class DocumentationReferenceNode extends DocumentationNode {
             return this;
         }
 
-        public DocumentationReferenceNodeModifier withNameReference(
-                Token nameReference) {
-            Objects.requireNonNull(nameReference, "nameReference must not be null");
-            this.nameReference = nameReference;
+        public DocumentationReferenceNodeModifier withBacktickContent(
+                Token backtickContent) {
+            Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+            this.backtickContent = backtickContent;
             return this;
         }
 
@@ -143,7 +144,7 @@ public class DocumentationReferenceNode extends DocumentationNode {
             return oldNode.modify(
                     referenceType,
                     startBacktick,
-                    nameReference,
+                    backtickContent,
                     endBacktick);
         }
     }

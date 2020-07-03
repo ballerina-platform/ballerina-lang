@@ -2134,7 +2134,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode plusToken,
             STNode parameterName,
             STNode minusToken,
-            STNode description) {
+            STNode documentElements) {
 
         return new STParameterDocumentationLineNode(
                 kind,
@@ -2142,31 +2142,31 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 plusToken,
                 parameterName,
                 minusToken,
-                description);
+                documentElements);
     }
 
     public static STNode createDocumentationReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode nameReference,
+            STNode backtickContent,
             STNode endBacktick) {
 
         return new STDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick);
     }
 
     public static STNode createDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
-            STNode referenceOrDescription) {
+            STNode documentElements) {
 
         return new STDocumentationLineNode(
                 kind,
                 hashToken,
-                referenceOrDescription);
+                documentElements);
     }
 }
 

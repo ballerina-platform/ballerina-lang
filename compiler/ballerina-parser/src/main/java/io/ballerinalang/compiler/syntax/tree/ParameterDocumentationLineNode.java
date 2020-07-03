@@ -48,8 +48,8 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
         return childInBucket(3);
     }
 
-    public Token description() {
-        return childInBucket(4);
+    public NodeList<Node> documentElements() {
+        return new NodeList<>(childInBucket(4));
     }
 
     @Override
@@ -69,7 +69,7 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
                 "plusToken",
                 "parameterName",
                 "minusToken",
-                "description"};
+                "documentElements"};
     }
 
     public ParameterDocumentationLineNode modify(
@@ -78,13 +78,13 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
             Token plusToken,
             Token parameterName,
             Token minusToken,
-            Token description) {
+            NodeList<Node> documentElements) {
         if (checkForReferenceEquality(
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description)) {
+                documentElements.underlyingListNode())) {
             return this;
         }
 
@@ -94,7 +94,7 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
                 plusToken,
                 parameterName,
                 minusToken,
-                description);
+                documentElements);
     }
 
     public ParameterDocumentationLineNodeModifier modify() {
@@ -112,7 +112,7 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
         private Token plusToken;
         private Token parameterName;
         private Token minusToken;
-        private Token description;
+        private NodeList<Node> documentElements;
 
         public ParameterDocumentationLineNodeModifier(ParameterDocumentationLineNode oldNode) {
             this.oldNode = oldNode;
@@ -120,7 +120,7 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
             this.plusToken = oldNode.plusToken();
             this.parameterName = oldNode.parameterName();
             this.minusToken = oldNode.minusToken();
-            this.description = oldNode.description();
+            this.documentElements = oldNode.documentElements();
         }
 
         public ParameterDocumentationLineNodeModifier withHashToken(
@@ -151,10 +151,10 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
             return this;
         }
 
-        public ParameterDocumentationLineNodeModifier withDescription(
-                Token description) {
-            Objects.requireNonNull(description, "description must not be null");
-            this.description = description;
+        public ParameterDocumentationLineNodeModifier withDocumentElements(
+                NodeList<Node> documentElements) {
+            Objects.requireNonNull(documentElements, "documentElements must not be null");
+            this.documentElements = documentElements;
             return this;
         }
 
@@ -165,7 +165,7 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
                     plusToken,
                     parameterName,
                     minusToken,
-                    description);
+                    documentElements);
         }
     }
 }

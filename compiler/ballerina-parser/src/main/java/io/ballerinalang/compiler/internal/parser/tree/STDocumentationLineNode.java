@@ -32,55 +32,55 @@ import java.util.Collections;
  */
 public class STDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
-    public final STNode referenceOrDescription;
+    public final STNode documentElements;
 
     STDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
-            STNode referenceOrDescription) {
+            STNode documentElements) {
         this(
                 kind,
                 hashToken,
-                referenceOrDescription,
+                documentElements,
                 Collections.emptyList());
     }
 
     STDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
-            STNode referenceOrDescription,
+            STNode documentElements,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.hashToken = hashToken;
-        this.referenceOrDescription = referenceOrDescription;
+        this.documentElements = documentElements;
 
         addChildren(
                 hashToken,
-                referenceOrDescription);
+                documentElements);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STDocumentationLineNode(
                 this.kind,
                 this.hashToken,
-                this.referenceOrDescription,
+                this.documentElements,
                 diagnostics);
     }
 
     public STDocumentationLineNode modify(
             SyntaxKind kind,
             STNode hashToken,
-            STNode referenceOrDescription) {
+            STNode documentElements) {
         if (checkForReferenceEquality(
                 hashToken,
-                referenceOrDescription)) {
+                documentElements)) {
             return this;
         }
 
         return new STDocumentationLineNode(
                 kind,
                 hashToken,
-                referenceOrDescription,
+                documentElements,
                 diagnostics);
     }
 

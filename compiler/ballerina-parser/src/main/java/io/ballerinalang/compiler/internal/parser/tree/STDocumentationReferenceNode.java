@@ -33,18 +33,18 @@ import java.util.Collections;
 public class STDocumentationReferenceNode extends STDocumentationNode {
     public final STNode referenceType;
     public final STNode startBacktick;
-    public final STNode nameReference;
+    public final STNode backtickContent;
     public final STNode endBacktick;
 
     STDocumentationReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode nameReference,
+            STNode backtickContent,
             STNode endBacktick) {
         this(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick,
                 Collections.emptyList());
     }
@@ -52,19 +52,19 @@ public class STDocumentationReferenceNode extends STDocumentationNode {
     STDocumentationReferenceNode(
             STNode referenceType,
             STNode startBacktick,
-            STNode nameReference,
+            STNode backtickContent,
             STNode endBacktick,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.DOCUMENTATION_REFERENCE, diagnostics);
         this.referenceType = referenceType;
         this.startBacktick = startBacktick;
-        this.nameReference = nameReference;
+        this.backtickContent = backtickContent;
         this.endBacktick = endBacktick;
 
         addChildren(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick);
     }
 
@@ -72,7 +72,7 @@ public class STDocumentationReferenceNode extends STDocumentationNode {
         return new STDocumentationReferenceNode(
                 this.referenceType,
                 this.startBacktick,
-                this.nameReference,
+                this.backtickContent,
                 this.endBacktick,
                 diagnostics);
     }
@@ -80,12 +80,12 @@ public class STDocumentationReferenceNode extends STDocumentationNode {
     public STDocumentationReferenceNode modify(
             STNode referenceType,
             STNode startBacktick,
-            STNode nameReference,
+            STNode backtickContent,
             STNode endBacktick) {
         if (checkForReferenceEquality(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick)) {
             return this;
         }
@@ -93,7 +93,7 @@ public class STDocumentationReferenceNode extends STDocumentationNode {
         return new STDocumentationReferenceNode(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick,
                 diagnostics);
     }

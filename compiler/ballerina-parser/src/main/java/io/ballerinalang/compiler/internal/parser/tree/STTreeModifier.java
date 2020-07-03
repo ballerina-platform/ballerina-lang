@@ -2296,14 +2296,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
         STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
         STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
-        STNode description = modifyNode(parameterDocumentationLineNode.description);
+        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
         return parameterDocumentationLineNode.modify(
                 parameterDocumentationLineNode.kind,
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description);
+                documentElements);
     }
 
     @Override
@@ -2311,12 +2311,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STDocumentationReferenceNode documentationReferenceNode) {
         STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
         STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
-        STNode nameReference = modifyNode(documentationReferenceNode.nameReference);
+        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
         STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
         return documentationReferenceNode.modify(
                 referenceType,
                 startBacktick,
-                nameReference,
+                backtickContent,
                 endBacktick);
     }
 
@@ -2324,11 +2324,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STDocumentationLineNode transform(
             STDocumentationLineNode documentationLineNode) {
         STNode hashToken = modifyNode(documentationLineNode.hashToken);
-        STNode referenceOrDescription = modifyNode(documentationLineNode.referenceOrDescription);
+        STNode documentElements = modifyNode(documentationLineNode.documentElements);
         return documentationLineNode.modify(
                 documentationLineNode.kind,
                 hashToken,
-                referenceOrDescription);
+                documentElements);
     }
 
     // Tokens

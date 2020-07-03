@@ -3871,8 +3871,9 @@
                     "type": "Token"
                 },
                 {
-                    "name": "description",
-                    "type": "Token"
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         },
@@ -3883,14 +3884,15 @@
             "attributes": [
                 {
                     "name": "referenceType",
-                    "type": "Token"
+                    "type": "Token",
+                    "isOptional": true
                 },
                 {
                     "name": "startBacktick",
                     "type": "Token"
                 },
                 {
-                    "name": "nameReference",
+                    "name": "backtickContent",
                     "type": "Token"
                 },
                 {
@@ -3908,7 +3910,7 @@
                     "type": "Token"
                 },
                 {
-                    "name": "referenceOrDescription",
+                    "name": "documentElements",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
                 }

@@ -35,7 +35,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
     public final STNode plusToken;
     public final STNode parameterName;
     public final STNode minusToken;
-    public final STNode description;
+    public final STNode documentElements;
 
     STParameterDocumentationLineNode(
             SyntaxKind kind,
@@ -43,14 +43,14 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
             STNode plusToken,
             STNode parameterName,
             STNode minusToken,
-            STNode description) {
+            STNode documentElements) {
         this(
                 kind,
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description,
+                documentElements,
                 Collections.emptyList());
     }
 
@@ -60,21 +60,21 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
             STNode plusToken,
             STNode parameterName,
             STNode minusToken,
-            STNode description,
+            STNode documentElements,
             Collection<STNodeDiagnostic> diagnostics) {
         super(kind, diagnostics);
         this.hashToken = hashToken;
         this.plusToken = plusToken;
         this.parameterName = parameterName;
         this.minusToken = minusToken;
-        this.description = description;
+        this.documentElements = documentElements;
 
         addChildren(
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description);
+                documentElements);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -84,7 +84,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
                 this.plusToken,
                 this.parameterName,
                 this.minusToken,
-                this.description,
+                this.documentElements,
                 diagnostics);
     }
 
@@ -94,13 +94,13 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
             STNode plusToken,
             STNode parameterName,
             STNode minusToken,
-            STNode description) {
+            STNode documentElements) {
         if (checkForReferenceEquality(
                 hashToken,
                 plusToken,
                 parameterName,
                 minusToken,
-                description)) {
+                documentElements)) {
             return this;
         }
 
@@ -110,7 +110,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
                 plusToken,
                 parameterName,
                 minusToken,
-                description,
+                documentElements,
                 diagnostics);
     }
 
