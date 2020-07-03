@@ -107,9 +107,23 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testTransactionLangLib");
     }
 
+    @Test
+    public void testWithinTrxMode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
+                + "-> strand in transactional mode -> invoked function returned -> strand in transactional mode "
+                + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
+    }
+
+    @Test
+    public void testUnreachableCode() {
+        BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 26);
+        Assert.assertEquals(resultNegative.getErrorCount(), 25);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 6, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
@@ -153,15 +167,13 @@ public class TransactionStmtTest {
                 "from a transaction without a commit or a rollback statement", 189, 21);
         BAssertUtil.validateError(resultNegative, 20, "invoking transactional function outside " +
                 "transactional scope is prohibited", 208, 16);
-        BAssertUtil.validateError(resultNegative, 21, "transaction statement cannot be nested " +
-                "within another transaction block", 215, 9);
-        BAssertUtil.validateError(resultNegative, 22, "invoking transactional function outside " +
+        BAssertUtil.validateError(resultNegative, 21, "invoking transactional function outside " +
                 "transactional scope is prohibited", 237, 9);
-        BAssertUtil.validateError(resultNegative, 23, "invoking transactional function outside " +
+        BAssertUtil.validateError(resultNegative, 22, "invoking transactional function outside " +
                 "transactional scope is prohibited", 238, 9);
-        BAssertUtil.validateError(resultNegative, 24, "invoking transactional function outside " +
+        BAssertUtil.validateError(resultNegative, 23, "invoking transactional function outside " +
                 "transactional scope is prohibited", 239, 34);
-        BAssertUtil.validateError(resultNegative, 25, "invoking transactional function outside " +
+        BAssertUtil.validateError(resultNegative, 24, "invoking transactional function outside " +
                 "transactional scope is prohibited", 241, 17);
     }
 

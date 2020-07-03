@@ -41,6 +41,6 @@ public class GetData {
 
     public static Object getData(Strand strand) {
 
-        return strand.transactionLocalContext.getTransactionData();
+        return strand.currentTrxContext.getTransactionData();
     }
 }

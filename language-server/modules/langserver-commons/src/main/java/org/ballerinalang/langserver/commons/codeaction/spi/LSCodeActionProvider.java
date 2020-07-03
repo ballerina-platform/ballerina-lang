@@ -28,6 +28,13 @@ import java.util.List;
  * @since 1.2.0
  */
 public interface LSCodeActionProvider {
+
+    /**
+     * Returns True if code action is enabled.
+     * @return  True if code action is enabled, False otherwise
+     */
+    boolean isEnabled();
+
     /**
      * Returns the list of code actions based on node type or diagnostics.
      *

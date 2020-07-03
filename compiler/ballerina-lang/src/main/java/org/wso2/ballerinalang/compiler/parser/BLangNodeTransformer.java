@@ -3087,7 +3087,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             literal = createSimpleLiteral(member.identifier());
             deepLiteral = createSimpleLiteral(member.identifier());
         }
-        if (literal.originalValue != "") {
+        if (literal.originalValue != "" || member.identifier().isMissing()) {
             bLangConstant.setInitialExpression(literal);
         } else {
             bLangConstant.setInitialExpression(createExpression(member.constExprNode()));
@@ -4018,6 +4018,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BuiltinSimpleNameReferenceNode simpleNameRef = (BuiltinSimpleNameReferenceNode) type;
             if (simpleNameRef.kind() == SyntaxKind.VAR_TYPE_DESC) {
                 return null;
+            } else if (simpleNameRef.name().isMissing()) {
+                String name = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+                BLangIdentifier identifier = createIdentifier(getPosition(simpleNameRef.name()), name);
+                BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                return createUserDefinedType(getPosition(type), pkgAlias, identifier);
             }
             typeText = simpleNameRef.name().text();
         } else {
@@ -4138,8 +4143,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             inThreeTicks = addReferences(text, references, inThreeTicks);
 
             if (inThreeTicksPreviousLine) {
-                threeTickContent.append(token.leadingMinutiae())
-                                .append(token.text());
+                threeTickContent.append(token.leadingMinutiae()).append(text);
                 if (inThreeTicks) {
                     threeTickContent.append(token.trailingMinutiae());
                 }

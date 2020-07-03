@@ -332,15 +332,14 @@ class JvmValueGen {
         }
     }
 
-    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs, boolean isService,
-                                     String typeName, BObjectType currentObjectType,
-                                     LambdaMetadata lambdaGenMetadata) {
+    private void createObjectMethods(ClassWriter cw, List<BIRNode.BIRFunction> attachedFuncs,
+                                     BObjectType currentObjectType, LambdaMetadata lambdaGenMetadata) {
 
         for (BIRNode.BIRFunction func : attachedFuncs) {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, isService, typeName, lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, module, currentObjectType, lambdaGenMetadata);
         }
     }
 
@@ -376,7 +375,7 @@ class JvmValueGen {
     }
 
     private void createCallMethod(ClassWriter cw, List<BIRNode.BIRFunction> functions, String objClassName,
-                                  String objTypeName, boolean isService) {
+                                  boolean isService) {
 
         List<BIRNode.BIRFunction> funcs = getFunctions(functions);
 
@@ -405,7 +404,7 @@ class JvmValueGen {
             List<BType> paramTypes = func.type.paramTypes;
             BType retType = func.type.retType;
 
-            String methodSig = "";
+            String methodSig;
 
             // use index access, since retType can be nil.
             methodSig = getMethodDesc(paramTypes, retType, null, false);
@@ -450,25 +449,25 @@ class JvmValueGen {
 
     private void createObjectGetMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
-            String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
+        String signature = String.format("(L%s;)L%s;", B_STRING_VALUE, OBJECT);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "get", signature, null, null);
         mv.visitCode();
 
-            int fieldNameRegIndex = 1;
-            mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                               String.format("()L%s;", STRING_VALUE), true);
-            fieldNameRegIndex = 2;
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            Label defaultCaseLabel = new Label();
+        int fieldNameRegIndex = 1;
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+                String.format("()L%s;", STRING_VALUE), true);
+        fieldNameRegIndex = 2;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        Label defaultCaseLabel = new Label();
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(NAME_HASH_COMPARATOR);
 
-            List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
-            List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
-                                                                 defaultCaseLabel);
+        List<Label> labels = createLabelsForSwitch(mv, fieldNameRegIndex, sortedFields, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, fieldNameRegIndex, sortedFields, labels,
+                defaultCaseLabel);
 
         int i = 0;
         for (BField optionalField : sortedFields) {
@@ -558,7 +557,7 @@ class JvmValueGen {
         }
         cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, className, null, TYPEDESC_VALUE_IMPL, new String[]{TYPEDESC_VALUE});
 
-        this.createTypeDescConstructor(cw, className);
+        this.createTypeDescConstructor(cw);
         this.createInstantiateMethod(cw, recordType, typeDef);
 
         cw.visitEnd();
@@ -707,11 +706,11 @@ class JvmValueGen {
             if (func == null) {
                 continue;
             }
-            jvmMethodGen.generateMethod(func, cw, this.module, null, false, "", lambdaGenMetadata);
+            jvmMethodGen.generateMethod(func, cw, this.module, null, lambdaGenMetadata);
         }
     }
 
-    private void createTypeDescConstructor(ClassWriter cw, String className) {
+    private void createTypeDescConstructor(ClassWriter cw) {
 
         String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
@@ -1082,7 +1081,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetValuesMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "values", String.format("()L%s;", COLLECTION),
                                           String.format("()L%s<TV;>;", COLLECTION), null);
@@ -1128,7 +1127,7 @@ class JvmValueGen {
         mv.visitEnd();
     }
 
-    void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createGetSizeMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "size", "()I", null, null);
         mv.visitCode();
@@ -1264,7 +1263,7 @@ class JvmValueGen {
         }
     }
 
-    void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
+    private void createRecordGetKeysMethod(ClassWriter cw, Map<String, BField> fields, String className) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "getKeys", String.format("()[L%s;", OBJECT), "()[TK;", null);
         mv.visitCode();
@@ -1373,11 +1372,11 @@ class JvmValueGen {
 
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
         if (attachedFuncs != null) {
-            this.createObjectMethods(cw, attachedFuncs, isService, typeDef.name.value, objectType, lambdaGenMetadata);
+            this.createObjectMethods(cw, attachedFuncs, objectType, lambdaGenMetadata);
         }
 
         this.createObjectInit(cw, fields, className);
-        this.createCallMethod(cw, attachedFuncs, className, toNameString(objectType), isService);
+        this.createCallMethod(cw, attachedFuncs, className, isService);
         this.createObjectGetMethod(cw, fields, className);
         this.createObjectSetMethod(cw, fields, className);
         this.createObjectSetOnInitializationMethod(cw, fields, className);
