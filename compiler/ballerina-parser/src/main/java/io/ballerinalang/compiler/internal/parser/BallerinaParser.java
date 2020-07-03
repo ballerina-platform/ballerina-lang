@@ -8261,6 +8261,7 @@ public class BallerinaParser extends AbstractParser {
             case PARAMETER_NAME:
             case MINUS_TOKEN:
             case BACKTICK_TOKEN:
+            case BACKTICK_CONTENT:
                 return false;
             default:
                 if (isDocumentReferenceType(kind)) {
@@ -8296,7 +8297,7 @@ public class BallerinaParser extends AbstractParser {
             case HASH_TOKEN:
                 return parseDocumentationLine(hashToken);
             default:
-                if (isDocumentReferenceType(nextToken.kind)) {
+                if (isDocumentReferenceType(nextToken.kind) || nextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
                     return parseDocumentationLine(hashToken);
                 }
                 throw new IllegalStateException();
@@ -8322,7 +8323,24 @@ public class BallerinaParser extends AbstractParser {
         STNode plusToken = parsePlusToken();
         STNode parameterName = parseParameterName();
         STNode minusToken = parseMinusToken();
-        STNode documentationDescription = parseDocumentationDescription();
+
+        STNode docElement;
+        List<STNode> docElements = new ArrayList<>();
+        while (true) {
+            SyntaxKind nextTokenKind = peek().kind;
+            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                docElement = parseDocumentationDescription();
+                docElements.add(docElement);
+                continue;
+            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
+                docElement = parseDocumentationReference();
+                docElements.add(docElement);
+                continue;
+            }
+            break;
+        }
+
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
 
         SyntaxKind kind;
         if (((STToken) parameterName).text().equals("return")) {
@@ -8332,7 +8350,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
-                documentationDescription);
+                docElementList);
     }
 
     /**
@@ -8404,7 +8422,7 @@ public class BallerinaParser extends AbstractParser {
                 docElement = parseDocumentationDescription();
                 docElements.add(docElement);
                 continue;
-            } else if (isDocumentReferenceType(nextTokenKind)) {
+            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
                 docElement = parseDocumentationReference();
                 docElements.add(docElement);
                 continue;
@@ -8432,11 +8450,15 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseDocumentationReference() {
-        STNode referenceType = parseReferenceType();
+        STNode referenceType = STNodeFactory.createEmptyNode();
+        if (peek().kind != SyntaxKind.BACKTICK_TOKEN) {
+            referenceType = parseReferenceType();
+        }
         STNode startBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
-        STNode nameReference = parseExpression();
+        STNode backtickContent = parseBacktickContent();
         STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, nameReference, endBacktick);
+        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
+                endBacktick);
     }
 
     private STNode parseReferenceType() {
@@ -8445,6 +8467,16 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.PIPE); // change
+            return sol.recoveredNode;
+        }
+    }
+
+    private STNode parseBacktickContent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.TEMPLATE_START); // change
             return sol.recoveredNode;
         }
     }

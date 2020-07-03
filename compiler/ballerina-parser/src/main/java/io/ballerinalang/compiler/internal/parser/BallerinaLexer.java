@@ -1583,6 +1583,10 @@ public class BallerinaLexer extends AbstractLexer {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_PARAMETER);
             return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+        } else if (nextChar == LexerTerminals.BACKTICK) {
+            reader.advance();
+            switchMode(ParserMode.DOCUMENTATION_REFERENCE_NAME);
+            return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         } else {
             while (!reader.isEOF()) {
                 switch (nextChar) {
@@ -1590,6 +1594,19 @@ public class BallerinaLexer extends AbstractLexer {
                     case LexerTerminals.CARRIAGE_RETURN:
                         endMode();
                         break;
+                    case LexerTerminals.BACKTICK:
+                        if (reader.peek(1) != LexerTerminals.BACKTICK) {
+                            break;
+                        } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
+                            // Double backtick detected
+                            reader.advance(2);
+                            processDoubleBacktickContent();
+                        } else {
+                            // Triple backtick detected
+                            reader.advance(3);
+                            processTripleBacktickContent();
+                        }
+                        // Fall through
                     default:
                         if (isIdentifierInitialChar(nextChar)) {
                             // Look ahead and see if next characters belong to a documentation reference.
@@ -1612,6 +1629,63 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         return getTemplateString(SyntaxKind.DOCUMENTATION_DESCRIPTION);
+    }
+
+    // TODO: Refactor
+    private void processDoubleBacktickContent() {
+        int nextChar = peek();
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.BACKTICK:
+                    reader.advance();
+                    if (peek() == LexerTerminals.BACKTICK && reader.peek(1) != LexerTerminals.BACKTICK) {
+                        reader.advance();
+                        return;
+                    } else if (peek() != LexerTerminals.NEWLINE) {
+                        reader.advance();
+                    }
+                    nextChar = peek();
+                    continue;
+                case LexerTerminals.NEWLINE:
+                    if (reader.peek(1) != LexerTerminals.HASH) {
+                        return;
+                    }
+                    // Fall through
+                default:
+                    reader.advance();
+                    nextChar = peek();
+            }
+        }
+    }
+
+    // TODO: Refactor
+    private void processTripleBacktickContent() {
+        int nextChar = peek();
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.BACKTICK:
+                    reader.advance();
+                    if (peek() != LexerTerminals.BACKTICK) {
+                        nextChar = peek();
+                        continue;
+                    }
+                    reader.advance();
+                    if (peek() != LexerTerminals.BACKTICK) {
+                        nextChar = peek();
+                        continue;
+                    }
+                    reader.advance();
+                    return;
+                case LexerTerminals.NEWLINE:
+                    if (reader.peek(1) != LexerTerminals.HASH) {
+                        return;
+                    }
+                    // Fall through
+                default:
+                    reader.advance();
+                    nextChar = peek();
+            }
+        }
     }
 
     private int lookAheadForDocumentationReference(int nextChar) {
@@ -1736,6 +1810,7 @@ public class BallerinaLexer extends AbstractLexer {
      */
 
     private STToken readDocumentationReferenceNameToken() {
+        reader.mark();
         int nextToken = peek();
         if (nextToken == LexerTerminals.BACKTICK) {
             reader.advance();
@@ -1743,13 +1818,23 @@ public class BallerinaLexer extends AbstractLexer {
             return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         }
 
-        STToken token = readToken();
-        STNode trailingTrivia = token.trailingMinutiae();
-        for (int i = 0; i < trailingTrivia.bucketCount(); i++) {
-            if (trailingTrivia.childInBucket(i).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
-                endMode();
+        while (!reader.isEOF()) {
+            switch (nextToken) {
+                case LexerTerminals.BACKTICK:
+                    break;
+                case LexerTerminals.NEWLINE:
+                    if (reader.peek(1) != LexerTerminals.HASH) {
+                        switchMode(ParserMode.DOCUMENTATION);
+                        break;
+                    }
+                    // Fall through
+                default:
+                    reader.advance();
+                    nextToken = peek();
+                    continue;
             }
+            break;
         }
-        return token;
+        return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
     }
 }

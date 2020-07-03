@@ -61,12 +61,17 @@
                               ]
                             },
                             {
-                              "kind": "DOCUMENTATION_DESCRIPTION",
-                              "value": "one thing to be added",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "one thing to be added",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
                                 }
                               ]
                             }

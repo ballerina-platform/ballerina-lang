@@ -55,13 +55,8 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "x"
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_CONTENT",
+                                      "value": "x"
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -94,13 +89,8 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "SIMPLE_NAME_REFERENCE",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "y"
-                                        }
-                                      ]
+                                      "kind": "BACKTICK_CONTENT",
+                                      "value": "y"
                                     },
                                     {
                                       "kind": "BACKTICK_TOKEN",
@@ -158,12 +148,17 @@
                               ]
                             },
                             {
-                              "kind": "DOCUMENTATION_DESCRIPTION",
-                              "value": "one thing to be added",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "one thing to be added",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -210,12 +205,17 @@
                               ]
                             },
                             {
-                              "kind": "DOCUMENTATION_DESCRIPTION",
-                              "value": "another thing to be added",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "another thing to be added",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
                                 }
                               ]
                             }
@@ -262,12 +262,17 @@
                               ]
                             },
                             {
-                              "kind": "DOCUMENTATION_DESCRIPTION",
-                              "value": "the sum of them",
-                              "trailingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "the sum of them",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
                                 }
                               ]
                             }
