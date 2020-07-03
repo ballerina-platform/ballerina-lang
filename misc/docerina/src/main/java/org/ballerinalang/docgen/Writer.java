@@ -189,6 +189,9 @@ public class Writer {
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
+        } else if ("map".equals(type.category) && type.constraint != null) {
+            label = "<span class=\"builtin-type\">" + type.name + "</span> <" +
+                    getTypeLabel(type.constraint, context) + ">";
         } else {
             label = getHtmlLink(type, root);
         }
