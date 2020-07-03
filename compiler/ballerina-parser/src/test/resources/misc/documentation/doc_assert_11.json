@@ -66,7 +66,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "```xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;```",
+                                  "value": "``xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;``",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -195,7 +195,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "```this is to test `(single backtick) and ``(double backtick) within triple backticks```",
+                                  "value": "``this is to test `(single backtick) and ```(triple backtick) within double backticks``",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -353,7 +353,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "``` Purpose of adding\n# this documentation is\n# to check backtick documentations ```",
+                                  "value": "`` Purpose of adding\n# this documentation is\n# to check backtick documentations ``",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -496,7 +496,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "``` Purpose of adding\n    # this documentation is\n    # to check backtick documentations ```",
+                                              "value": "`` Purpose of adding\n    # this documentation is\n    # to check backtick documentations ``",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",

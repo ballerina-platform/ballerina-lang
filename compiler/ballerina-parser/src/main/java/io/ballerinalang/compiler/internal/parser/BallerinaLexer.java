@@ -1610,7 +1610,8 @@ public class BallerinaLexer extends AbstractLexer {
                                 reader.advance(3);
                                 processTripleBacktickContent();
                             }
-                            // Fall through
+                            nextChar = peek();
+                            continue;
                         default:
                             if (isIdentifierInitialChar(nextChar)) {
                                 // Look ahead and see if next characters belong to a documentation reference.
@@ -1651,10 +1652,18 @@ public class BallerinaLexer extends AbstractLexer {
                     nextChar = peek();
                     continue;
                 case LexerTerminals.NEWLINE:
-                    if (reader.peek(1) != LexerTerminals.HASH) {
+                    int lookAheadCount = 1;
+                    int lookAheadChar = reader.peek(lookAheadCount);
+                    while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
+                        lookAheadCount++;
+                        lookAheadChar = reader.peek(lookAheadCount);
+                    }
+                    if (lookAheadChar != LexerTerminals.HASH) {
                         return;
                     }
-                    // Fall through
+                    reader.advance(lookAheadCount);
+                    nextChar = peek();
+                    continue;
                 default:
                     reader.advance();
                     nextChar = peek();
@@ -1681,10 +1690,18 @@ public class BallerinaLexer extends AbstractLexer {
                     reader.advance();
                     return;
                 case LexerTerminals.NEWLINE:
-                    if (reader.peek(1) != LexerTerminals.HASH) {
+                    int lookAheadCount = 1;
+                    int lookAheadChar = reader.peek(lookAheadCount);
+                    while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
+                        lookAheadCount++;
+                        lookAheadChar = reader.peek(lookAheadCount);
+                    }
+                    if (lookAheadChar != LexerTerminals.HASH) {
                         return;
                     }
-                    // Fall through
+                    reader.advance(lookAheadCount);
+                    nextChar = peek();
+                    continue;
                 default:
                     reader.advance();
                     nextChar = peek();

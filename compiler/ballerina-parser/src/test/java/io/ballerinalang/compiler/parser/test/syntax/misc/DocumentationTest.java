@@ -52,8 +52,9 @@ public class DocumentationTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testBasicDocumentation() {
+    public void testDocumentation() {
         testFile("documentation/doc_source_01.bal", "documentation/doc_assert_01.json");
+        testFile("documentation/doc_source_12.bal", "documentation/doc_assert_12.json");
     }
 
     @Test
@@ -71,6 +72,13 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_09.bal", "documentation/doc_assert_09.json");
     }
 
-    // Recovery tests
+    @Test
+    public void testTippleBacktickDocumentation() {
+        testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
+    }
 
+    @Test
+    public void testDoubleBacktickDocumentation() {
+        testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
+    }
 }
