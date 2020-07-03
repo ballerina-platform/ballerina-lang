@@ -129,3 +129,9 @@ function testXmlToJsonToPInfo() returns PInfo {
     PInfo p = checkpanic k.cloneWithType(PInfo);
     return p;
 }
+
+function testXMLWithEmptyChildren() returns string {
+    xml x = xml `<foo><bar>2</bar><car></car></foo>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    return j.toJsonString();
+}

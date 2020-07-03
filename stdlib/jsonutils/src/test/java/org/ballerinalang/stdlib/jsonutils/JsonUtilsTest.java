@@ -204,6 +204,13 @@ public class JsonUtilsTest {
         Assert.assertEquals(res[0].stringValue(), "{name:\"Jane\", age:\"33\", gender:\"not-specified\"}");
     }
 
+    @Test
+    public void testXMLWithEmptyChildren() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLWithEmptyChildren");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":{\"bar\":\"2\", \"car\":\"\"}}");
+    }
+
     private void convertToJsonAndAssert(String xmlStr, String jsonStr) {
         XMLValue parse = XMLFactory.parse(xmlStr);
         Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
