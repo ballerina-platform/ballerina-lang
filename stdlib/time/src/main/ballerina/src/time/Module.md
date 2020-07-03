@@ -9,7 +9,7 @@ The module has two main types as [Time](records/Time.html) and [TimeZone](record
 * If `id` starts with '+' or '-', the ID is parsed as an offset. The offset can be specified in one of the following ways: +h, +hh, +hh:mm, -hh:mm, +hhmm, -hhmm, +hh:mm:ss, -hh:mm:ss, +hhmmss, -hhmmss
 * Also, `id` can be a region-based zone ID. The format is '{area}/{city}' e.g., "America/Panama". The zones are based on IANA Time Zone Database (TZDB) supplied data.
 
-For information on the operations, which you can perform with this module, see the below **Functions**. For an example on the usage of the operations, see the [Time Example](https://ballerina.io/learn/by-example/time.html).
+For information on the operations, which you can perform with this module, see the below **Functions**. For an example on the usage of the operations, see the [Time Example](https://ballerina.io/swan-lake/learn/by-example/time.html).
 
 ### Patterns for formatting and parsing
 
