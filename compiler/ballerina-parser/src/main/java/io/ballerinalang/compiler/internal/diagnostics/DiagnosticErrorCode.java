@@ -147,7 +147,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_MAP_KEYWORD("BCE02114", "error.missing.map.keyword"),
     ERROR_MISSING_FUTURE_KEYWORD("BCE02115", "error.missing.future.keyword"),
     ERROR_MISSING_TYPEDESC_KEYWORD("BCE02116", "error.missing.typedesc.keyword"),
-    ERROR_MISSING_ERROR_KEYWORD("BCE02117", "error.keyword"),
+    ERROR_MISSING_ERROR_KEYWORD("BCE02117", "error.missing.error.keyword"),
     ERROR_MISSING_STREAM_KEYWORD("BCE02118", "error.missing.stream.keyword"),
     ERROR_MISSING_READONLY_KEYWORD("BCE02119", "error.missing.readonly.keyword"),
     ERROR_MISSING_DISTINCT_KEYWORD("BCE02120", "error.missing.distinct.keyword"),

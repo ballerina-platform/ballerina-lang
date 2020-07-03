@@ -189,6 +189,8 @@ public class SymbolEnv {
 
     public static SymbolEnv createTransactionEnv(BLangTransaction node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
         symbolEnv.enclEnv = env;
         symbolEnv.enclInvokable = env.enclInvokable;
         symbolEnv.node = node;
