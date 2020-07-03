@@ -16,6 +16,30 @@
 
 import ballerina/java;
 
+# Represents the debug log level.
+public const DEBUG = "DEBUG";
+
+# Represents the error log level.
+public const ERROR = "ERROR";
+
+# Represents the info log level.
+public const INFO = "INFO";
+
+# Represents the trace log level.
+public const TRACE = "TRACE";
+
+# Represents the warn log level.
+public const WARN = "WARN";
+
+# Represents the all log level.
+public const ALL = "ALL";
+
+# Represents the off log level.
+public const OFF = "OFF";
+
+# Represents log level types.
+public type LogLevel DEBUG | INFO | ERROR | WARN | TRACE | OFF | ALL;
+
 # Logs the specified value at DEBUG level.
 # ```ballerina
 # log:printDebug("debug log");
@@ -65,5 +89,33 @@ public function printTrace(anydata|(function () returns (anydata)) msg) = @java:
 # 
 # + msg - The message to be logged
 public function printWarn(anydata|(function () returns (anydata)) msg) = @java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;
+
+# Sets the module log level. If the module is not defined, the log level will be set to the current module.
+# Following log levels are allowed.
+#
+# ERROR - error log level
+#
+# WARN - warn log level
+#
+# INFO - info log level
+#
+# DEBUG - debug log level
+#
+# TRACE - trace log level
+#
+# OFF - turns off logging
+#
+# ALL - enables all the log levels
+#
+# ```ballerina
+# log:setModuleLevelLog(log:DEBUG, moduleName=“alpha”);
+# log:setModuleLevelLog(log:WARN);
+# ```
+#
+# + logLevel - Log level to be set
+# + moduleName - Name of the module
+public function setModuleLogLevel(LogLevel logLevel, public string moduleName = "") = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
