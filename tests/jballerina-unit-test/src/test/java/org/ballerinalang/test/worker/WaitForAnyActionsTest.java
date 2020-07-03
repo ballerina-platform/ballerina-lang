@@ -207,7 +207,7 @@ public class WaitForAnyActionsTest {
     public void waitTest23() {
         BValue[] vals = BRunUtil.invoke(result, "waitTest23", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
-        Assert.assertNull(vals[0]);
+        Assert.assertEquals("7", vals[0].stringValue());
     }
 
     @Test
