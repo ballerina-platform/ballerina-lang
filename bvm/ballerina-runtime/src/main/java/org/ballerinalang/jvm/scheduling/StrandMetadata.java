@@ -28,27 +28,27 @@ public class StrandMetadata {
     /**
      * Organization name of module @{@link Strand} was initiated.
      */
-    public final String moduleOrg;
+    private final String moduleOrg;
 
     /**
      * Name of module @{@link Strand} was initiated.
      */
-    public final String moduleName;
+    private final String moduleName;
 
     /**
      * Version of module @{@link Strand} was initiated.
      */
-    public final String moduleVersion;
+    private final String moduleVersion;
 
     /**
-     * Type Name if @{@link Strand} was initiated inside type.
+     * Type name if @{@link Strand} was initiated inside type.
      */
-    public final String typeName;
+    private final String typeName;
 
     /**
-     * Parent Function Name where @{@link Strand} was initiated.
+     * Parent function name where @{@link Strand} was initiated.
      */
-    public final String parentFunctionName;
+    private final String parentFunctionName;
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String typeName,
                           String parentFunctionName) {
@@ -61,5 +61,50 @@ public class StrandMetadata {
 
     public StrandMetadata(String moduleOrg, String moduleName, String moduleVersion, String parentFunctionName) {
         this(moduleOrg, moduleName, moduleVersion, null, parentFunctionName);
+    }
+
+    /**
+     * Gets the organization name of module @{@link Strand} was initiated.
+     *
+     * @return Strand module org name.
+     */
+    public String getModuleOrg() {
+        return moduleOrg;
+    }
+
+    /**
+     * Gets the name of module @{@link Strand} was initiated.
+     *
+     * @return Strand module name.
+     */
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    /**
+     * Gets the version of module @{@link Strand} was initiated.
+     *
+     * @return Strand module version.
+     */
+    public String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    /**
+     * Gets the type name if @{@link Strand} was initiated inside type.
+     *
+     * @return Strand type name.
+     */
+    public String getTypeName() {
+        return typeName;
+    }
+
+    /**
+     * Gets the parent function name where @{@link Strand} was initiated.
+     *
+     * @return Strand parent function name.
+     */
+    public String getParentFunctionName() {
+        return parentFunctionName;
     }
 }

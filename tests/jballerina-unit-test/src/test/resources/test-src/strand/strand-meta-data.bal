@@ -54,10 +54,15 @@ function testStrandMetadataAsyncCalls() {
     assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.test");
     // inside function call
     foo();
-    // worker
+    // workers
     worker w1 {
         assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.w1");
     }
+    @strand{name:"**my strand inside worker**"}
+    worker w2 {
+        assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.**my strand inside worker**");
+    }
+
     // async function call
     future<()> f1 = start assertStrandMetadataResult("$anon/.:0.0.0.testStrandMetadataAsyncCalls.f1");
 
@@ -149,30 +154,24 @@ function getMetadata(handle strand) returns handle = @java:Method {
     class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
-function getModuleOrg(handle strandMetadata) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
-    name : "moduleOrg"
+function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
-function getModuleName(handle strandMetadata) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
-     name : "moduleName"
+function getModuleName(handle strandMetadata) returns handle = @java:Method {
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
-function getModuleVersion(handle strandMetadata) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
-    name : "moduleVersion"
+function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
-function getParentFunctionName(handle strandMetadata) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
-    name : "parentFunctionName"
+function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
-function getTypeName(handle strandMetadata) returns handle = @java:FieldGet {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata",
-    name : "typeName"
-
+function getTypeName(handle strandMetadata) returns handle = @java:Method {
+    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
