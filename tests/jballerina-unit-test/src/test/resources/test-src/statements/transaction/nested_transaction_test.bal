@@ -318,7 +318,7 @@ function testMultipleTrxReturnVal() returns string {
             str += " -> within transaction 2";
             var commitRes2 = commit;
             if(i >= 3) {
-                        return str;
+                return str;
             }
             transaction {
                 i += 1;
