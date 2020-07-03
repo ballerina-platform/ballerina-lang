@@ -75,9 +75,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_UNSIGNED_INT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LONG_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.NUMBER;
@@ -172,7 +175,7 @@ public class JvmCastGen {
                 mv.visitInsn(I2B);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD, "()Ljava/lang/Object;",
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;",
                         false);
                 break;
             case TypeTags.FINITE:
@@ -204,7 +207,7 @@ public class JvmCastGen {
                 mv.visitInsn(I2C);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -236,7 +239,7 @@ public class JvmCastGen {
                 mv.visitInsn(I2S);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -264,7 +267,7 @@ public class JvmCastGen {
                 mv.visitInsn(D2I);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -293,7 +296,7 @@ public class JvmCastGen {
                 mv.visitInsn(D2L);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -321,7 +324,7 @@ public class JvmCastGen {
                 mv.visitInsn(D2F);
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -350,7 +353,7 @@ public class JvmCastGen {
                 // do nothing
                 break;
             case TypeTags.HANDLE:
-                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+                mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                         String.format("()L%s;", OBJECT), false);
                 break;
             case TypeTags.FINITE:
@@ -376,7 +379,7 @@ public class JvmCastGen {
                     return;
                 }
             }
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, HANDLE_GET_VALUE_METHOD,
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD,
                     String.format("()L%s;", OBJECT), false);
             String sig = getSignatureForJType(targetType);
             mv.visitTypeInsn(CHECKCAST, sig);
@@ -451,7 +454,7 @@ public class JvmCastGen {
         switch (sourceType.jTag) {
             case JTypeTags.JBYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case JTypeTags.JCHAR:
@@ -479,7 +482,7 @@ public class JvmCastGen {
         switch (sourceType.jTag) {
             case JTypeTags.JBYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, "java/lang/Byte", "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2D);
                 break;
             case JTypeTags.JCHAR:
@@ -687,7 +690,7 @@ public class JvmCastGen {
                 mv.visitTypeInsn(NEW, HANDLE_VALUE);
                 mv.visitInsn(DUP);
                 mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+                mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, JVM_INIT_METHOD, "(Ljava/lang/Object;)V", false);
                 mv.visitLabel(afterHandle);
                 break;
             case JTypeTags.JARRAY:
@@ -833,7 +836,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -864,7 +867,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -895,7 +898,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -926,7 +929,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "intToSigned8", "(J)J", false);
                 break;
@@ -958,7 +961,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -989,7 +992,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -1020,7 +1023,7 @@ public class JvmCastGen {
         switch (sourceType.tag) {
             case TypeTags.BYTE:
                 mv.visitInsn(I2B);
-                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, "toUnsignedInt", "(B)I", false);
+                mv.visitMethodInsn(INVOKESTATIC, BYTE_VALUE, JVM_TO_UNSIGNED_INT_METHOD, "(B)I", false);
                 mv.visitInsn(I2L);
                 break;
             case TypeTags.FLOAT:
@@ -1109,7 +1112,8 @@ public class JvmCastGen {
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, JVM_TO_STRING_METHOD,
+                    String.format("(J)L%s;", STRING_VALUE), false);
         } else {
             switch (sourceType.tag) {
                 case TypeTags.ANY:
@@ -1121,12 +1125,12 @@ public class JvmCastGen {
                     mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                     return;
                 case TypeTags.FLOAT:
-                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE),
-                            false);
+                    mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, JVM_TO_STRING_METHOD,
+                            String.format("(D)L%s;", STRING_VALUE), false);
                     break;
                 case TypeTags.BOOLEAN:
-                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE),
-                            false);
+                    mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, JVM_TO_STRING_METHOD,
+                            String.format("(Z)L%s;", STRING_VALUE), false);
                     break;
                 case TypeTags.DECIMAL:
                     mv.visitMethodInsn(INVOKESTATIC, STRING_VALUE, VALUE_OF_METHOD, String.format("(L%s;)L%s;", OBJECT,
@@ -1152,7 +1156,8 @@ public class JvmCastGen {
         mv.visitTypeInsn(NEW, BMP_STRING_VALUE);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, tmpVarIndex);
-        mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, BMP_STRING_VALUE, JVM_INIT_METHOD,
+                String.format("(L%s;)V", STRING_VALUE), false);
     }
 
     private static void generateCheckCastToChar(MethodVisitor mv, BType sourceType) {
@@ -1421,18 +1426,19 @@ public class JvmCastGen {
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
-            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, JVM_TO_STRING_METHOD,
+                    String.format("(J)L%s;", STRING_VALUE), false);
             return;
         }
 
         switch (sourceType.tag) {
             case TypeTags.FLOAT:
-                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "toString", String.format("(D)L%s;", STRING_VALUE),
-                        false);
+                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, JVM_TO_STRING_METHOD,
+                        String.format("(D)L%s;", STRING_VALUE), false);
                 break;
             case TypeTags.BOOLEAN:
-                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "toString", String.format("(Z)L%s;", STRING_VALUE),
-                        false);
+                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, JVM_TO_STRING_METHOD,
+                        String.format("(Z)L%s;", STRING_VALUE), false);
                 break;
             case TypeTags.ANY:
             case TypeTags.ANYDATA:

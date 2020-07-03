@@ -139,6 +139,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
@@ -155,6 +156,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
@@ -732,7 +734,7 @@ public class JvmMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", String.format("()L%s;", JAVA_RUNTIME), false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD),
                 false);
     }
@@ -781,7 +783,7 @@ public class JvmMethodGen {
                 // var varIndex = indexMap.getIndex(param);
                 loadType(mv, param.type);
             }
-            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), "<init>",
+            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), JVM_INIT_METHOD,
                     String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
             mv.visitInsn(AASTORE);
         }
@@ -840,7 +842,7 @@ public class JvmMethodGen {
     }
     private static String calculateModuleInitFuncName(PackageID id) {
 
-        return calculateModuleSpecialFuncName(id, "<init>");
+        return calculateModuleSpecialFuncName(id, JVM_INIT_METHOD);
     }
 
     private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
@@ -1313,7 +1315,7 @@ public class JvmMethodGen {
         // load null here for type, since these are fp's created for internal usages.
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
     }
 
@@ -1445,10 +1447,10 @@ public class JvmMethodGen {
 
     static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -1778,7 +1780,7 @@ public class JvmMethodGen {
         mv.visitLabel(yieldLable);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
 
         generateFrameClassFieldUpdate(localVars, mv, indexMap, frameName);
 
@@ -2377,7 +2379,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(Z)V", false);
         BIRVariableDcl schedulerVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerdummy"),
                 VarScope.FUNCTION, VarKind.ARG);
         int schedulerVarIndex = indexMap.getIndex(schedulerVar);
@@ -2657,7 +2659,7 @@ public class JvmMethodGen {
                                    BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, "<init>");
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, JVM_INIT_METHOD);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
@@ -2857,10 +2859,10 @@ public class JvmMethodGen {
                 String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
         mv.visitCode();
 
-        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypes", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPES_METHOD, "()V", false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(orgName);
         mv.visitLdcInsn(moduleName);
@@ -2899,7 +2901,7 @@ public class JvmMethodGen {
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
 
         mv.visitVarInsn(ASTORE, schedulerIndex);
 

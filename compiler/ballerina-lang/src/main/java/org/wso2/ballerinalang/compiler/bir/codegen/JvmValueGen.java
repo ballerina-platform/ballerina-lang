@@ -92,6 +92,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUN
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
@@ -104,6 +107,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_INITIAL_VALUES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
@@ -237,13 +241,14 @@ class JvmValueGen {
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
         mv.visitLdcInsn("No such field or method: ");
-        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, "<init>", String.format("(L%s;)V", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, String.format("(L%s;)V", STRING_VALUE),
+                false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
                 String.format("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "toString", String.format("()L%s;", STRING_VALUE), false);
-
-        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, "<init>",
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD,
+                String.format("()L%s;", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, JVM_INIT_METHOD,
                 String.format("(L%s;)V", STRING_VALUE), false);
         mv.visitInsn(ATHROW);
     }
@@ -345,7 +350,8 @@ class JvmValueGen {
 
     private void createObjectInit(ClassWriter cw, Map<String, BField> fields, String className) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", OBJECT_TYPE), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE), null,
+                null);
         mv.visitCode();
 
         // load super
@@ -353,7 +359,7 @@ class JvmValueGen {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke super(type);
-        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, "<init>", String.format("(L%s;)V", OBJECT_TYPE),
+        mv.visitMethodInsn(INVOKESPECIAL, ABSTRACT_OBJECT_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE),
                 false);
 
         String lockClass = "L" + LOCK_VALUE + ";";
@@ -367,7 +373,7 @@ class JvmValueGen {
             mv.visitVarInsn(ALOAD, 0);
             mv.visitTypeInsn(NEW, LOCK_VALUE);
             mv.visitInsn(DUP);
-            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, JVM_INIT_METHOD, "()V", false);
             mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
         }
 
@@ -457,7 +463,7 @@ class JvmValueGen {
 
         int fieldNameRegIndex = 1;
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD,
                 String.format("()L%s;", STRING_VALUE), true);
         fieldNameRegIndex = 2;
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
@@ -511,7 +517,7 @@ class JvmValueGen {
         // code gen type checking for inserted value
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                            true);
         mv.visitInsn(DUP);
         fieldNameRegIndex = 3;
@@ -578,7 +584,7 @@ class JvmValueGen {
         mv.visitInsn(DUP);
         mv.visitInsn(DUP);
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", TYPEDESC_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", TYPEDESC_VALUE), false);
 
         BAttachedFunction initializer = ((BRecordTypeSymbol) recordType.tsymbol).initializerFunc;
         StringBuilder closureParamSignature = calcClosureMapSignature(initializer.type.paramTypes.size());
@@ -642,7 +648,7 @@ class JvmValueGen {
         mv.visitTypeInsn(CHECKCAST, valueClassName);
         mv.visitVarInsn(ALOAD, 2);
         mv.visitTypeInsn(CHECKCAST, String.format("[L%s;", MAPPING_INITIAL_VALUE_ENTRY));
-        mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, "populateInitialValues",
+        mv.visitMethodInsn(INVOKEVIRTUAL, valueClassName, POPULATE_INITIAL_VALUES_METHOD,
                            String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
 
         mv.visitInsn(ARETURN);
@@ -715,7 +721,7 @@ class JvmValueGen {
     private void createTypeDescConstructor(ClassWriter cw) {
 
         String descriptor = String.format("(L%s;[L%s;)V", BTYPE, MAP_VALUE);
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, descriptor, null, null);
         mv.visitCode();
 
         // load super
@@ -725,7 +731,7 @@ class JvmValueGen {
 
         mv.visitVarInsn(ALOAD, 2);
         // invoke `super(type)`;
-        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, "<init>", descriptor, false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_VALUE_IMPL, JVM_INIT_METHOD, descriptor, false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -733,7 +739,8 @@ class JvmValueGen {
     }
 
     private void createRecordConstructor(ClassWriter cw, String argumentClass) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", String.format("(L%s;)V", argumentClass), null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, String.format("(L%s;)V", argumentClass),
+                null, null);
         mv.visitCode();
 
         // load super
@@ -741,7 +748,8 @@ class JvmValueGen {
         // load type
         mv.visitVarInsn(ALOAD, 1);
         // invoke `super(type)`;
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "<init>", String.format("(L%s;)V", argumentClass), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, JVM_INIT_METHOD, String.format("(L%s;)V", argumentClass),
+                false);
 
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
@@ -838,7 +846,7 @@ class JvmValueGen {
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
             mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                                true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
@@ -897,7 +905,7 @@ class JvmValueGen {
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                                true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
@@ -977,7 +985,7 @@ class JvmValueGen {
         int entrySetVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, entrySetVarIndex);
 
         for (BField optionalField : fields.values()) {
@@ -989,7 +997,7 @@ class JvmValueGen {
             if (this.isOptionalRecordField(field)) {
                 mv.visitVarInsn(ALOAD, 0);
                 mv.visitFieldInsn(GETFIELD, className, this.getFieldIsPresentFlagName(fieldName),
-                                  getTypeDesc(booleanType));
+                        getTypeDesc(booleanType));
                 mv.visitJumpInsn(IFEQ, ifNotPresent);
             }
 
@@ -999,17 +1007,17 @@ class JvmValueGen {
 
             // field name as key
             mv.visitLdcInsn(fieldName);
-                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
-                                   String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             // field value as the map-entry value
             mv.visitVarInsn(ALOAD, 0);
             mv.visitFieldInsn(GETFIELD, className, fieldName, getTypeDesc(field.type));
             addBoxInsn(mv, field.type);
 
-                mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, "<init>", String.format("(L%s;L%s;)V", OBJECT,
-                                                                                            OBJECT), false);
-                mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
-                mv.visitInsn(POP);
+            mv.visitMethodInsn(INVOKESPECIAL, MAP_SIMPLE_ENTRY, JVM_INIT_METHOD,
+                    String.format("(L%s;L%s;)V", OBJECT, OBJECT), false);
+            mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
+            mv.visitInsn(POP);
 
             mv.visitLabel(ifNotPresent);
         }
@@ -1039,7 +1047,7 @@ class JvmValueGen {
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                 true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
@@ -1093,7 +1101,7 @@ class JvmValueGen {
         int valuesVarIndex = 1;
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, valuesVarIndex);
 
         for (BField optionalField : fields.values()) {
@@ -1171,7 +1179,7 @@ class JvmValueGen {
         mv.visitCode();
         mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
         mv.visitInsn(ATHROW);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -1189,7 +1197,8 @@ class JvmValueGen {
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE), true);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
+                true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         mv.visitVarInsn(ALOAD, 0);
@@ -1234,7 +1243,7 @@ class JvmValueGen {
             } else {
                 mv.visitTypeInsn(NEW, UNSUPPORTED_OPERATION_EXCEPTION);
                 mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, "<init>", "()V", false);
+                mv.visitMethodInsn(INVOKESPECIAL, UNSUPPORTED_OPERATION_EXCEPTION, JVM_INIT_METHOD, "()V", false);
                 mv.visitInsn(ATHROW);
             }
             i += 1;
@@ -1273,7 +1282,7 @@ class JvmValueGen {
         int keysVarIndex = 1;
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, keysVarIndex);
 
         for (BField optionalField : fields.values()) {
@@ -1317,13 +1326,13 @@ class JvmValueGen {
 
     private void createRecordPopulateInitialValuesMethod(ClassWriter cw) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "populateInitialValues",
+        MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, POPULATE_INITIAL_VALUES_METHOD,
                                           String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), null, null);
         mv.visitCode();
 
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, "populateInitialValues",
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_VALUE_IMPL, POPULATE_INITIAL_VALUES_METHOD,
                            String.format("([L%s;)V", MAPPING_INITIAL_VALUE_ENTRY), false);
 
         mv.visitInsn(RETURN);

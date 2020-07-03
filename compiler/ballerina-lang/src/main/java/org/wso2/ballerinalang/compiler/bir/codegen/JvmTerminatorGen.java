@@ -100,9 +100,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GLOBAL_LOCK_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
@@ -210,8 +213,8 @@ public class JvmTerminatorGen {
                 mv.visitInsn(ICONST_0);
             }
 
-            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, "<init>", String.format("(L%s;ZZ)V", STRING_VALUE),
-                    false);
+            mv.visitMethodInsn(INVOKESPECIAL, CHANNEL_DETAILS, JVM_INIT_METHOD,
+                    String.format("(L%s;ZZ)V", STRING_VALUE), false);
             mv.visitInsn(AASTORE);
         }
     }
@@ -474,7 +477,8 @@ public class JvmTerminatorGen {
             // check whether function params already include the self
             BIRNode.BIRVariableDcl selfArg = getVariableDcl(callIns.args.get(0).variableDcl);
             this.loadVar(selfArg);
-            this.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            this.mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, String.format("()L%s;", OBJECT),
+                    false);
             this.mv.visitTypeInsn(CHECKCAST, callIns.jClassName);
 
             Label ifNonNullLabel = this.labelGen.getLabel("receiver_null_check");
@@ -486,13 +490,13 @@ public class JvmTerminatorGen {
             Label thenBlockLabel = this.labelGen.getLabel("receiver_null_check_then");
             this.mv.visitLabel(thenBlockLabel);
             this.mv.visitFieldInsn(GETSTATIC, BAL_ERROR_REASONS, "JAVA_NULL_REFERENCE_ERROR",
-                    "L" + STRING_VALUE + ";");
-            this.mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE", "L" + RUNTIME_ERRORS + ";");
+                    String.format("L%s;", STRING_VALUE));
+            this.mv.visitFieldInsn(GETSTATIC, RUNTIME_ERRORS, "JAVA_NULL_REFERENCE",
+                    String.format("L%s;", RUNTIME_ERRORS));
             this.mv.visitInsn(ICONST_0);
             this.mv.visitTypeInsn(ANEWARRAY, OBJECT);
             this.mv.visitMethodInsn(INVOKESTATIC, BLANG_EXCEPTION_HELPER, "getRuntimeException",
-                    "(L" + STRING_VALUE + ";L" + RUNTIME_ERRORS + ";[L" + OBJECT + ";)L" + ERROR_VALUE + ";",
-                    false);
+                    String.format("(L%s;L%s;[L%s;)L%s;", STRING_VALUE, RUNTIME_ERRORS, OBJECT, ERROR_VALUE), false);
             this.mv.visitInsn(ATHROW);
             this.mv.visitLabel(elseBlockLabel);
             argIndex += 1;
@@ -530,8 +534,7 @@ public class JvmTerminatorGen {
         genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp.variableDcl != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitFieldInsn(GETFIELD, STRAND, "returnValue",
-                    "Ljava/lang/Object;");
+            this.mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", String.format("L%s;", OBJECT));
             JvmInstructionGen.addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type);
             // store return
             BIRNode.BIRVariableDcl lhsOpVarDcl = callIns.lhsOp.variableDcl;
@@ -867,7 +870,7 @@ public class JvmTerminatorGen {
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitTypeInsn(NEW, ARRAY_LIST);
         this.mv.visitInsn(DUP);
-        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
 
         int i = 0;
         while (i < waitInst.exprList.size()) {
@@ -906,9 +909,9 @@ public class JvmTerminatorGen {
     private void genWaitAllIns(BIRTerminator.WaitAll waitAll, int localVarOffset) {
 
         this.mv.visitVarInsn(ALOAD, localVarOffset);
-        this.mv.visitTypeInsn(NEW, "java/util/HashMap");
+        this.mv.visitTypeInsn(NEW, HASH_MAP);
         this.mv.visitInsn(DUP);
-        this.mv.visitMethodInsn(INVOKESPECIAL, "java/util/HashMap", "<init>", "()V", false);
+        this.mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
         int i = 0;
         while (i < waitAll.keys.size()) {
             this.mv.visitInsn(DUP);
@@ -917,7 +920,7 @@ public class JvmTerminatorGen {
             if (futureRef != null) {
                 this.loadVar(futureRef.variableDcl);
             }
-            this.mv.visitMethodInsn(INVOKEINTERFACE, "java/util/Map", "put", String.format("(L%s;L%s;)L%s;",
+            this.mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;",
                     OBJECT, OBJECT, OBJECT), true);
             this.mv.visitInsn(POP);
             i += 1;

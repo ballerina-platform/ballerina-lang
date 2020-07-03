@@ -86,12 +86,14 @@ import static org.objectweb.asm.Opcodes.NEW;
 import static org.objectweb.asm.Opcodes.PUTSTATIC;
 import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FILE_NAME_PERIOD_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_STARTED;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_START_ATTEMPTED;
@@ -210,7 +212,7 @@ public class JvmPackageGen {
 
     private static boolean isLangModule(BIRPackage moduleId) {
 
-        if (!"ballerina".equals(moduleId.org.value)) {
+        if (!BALLERINA.equals(moduleId.org.value)) {
             return false;
         }
         return moduleId.name.value.indexOf("lang.") == 0;
@@ -227,7 +229,7 @@ public class JvmPackageGen {
 
         String lockStoreClass = "L" + LOCK_STORE + ";";
         FieldVisitor fv;
-        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, "LOCK_STORE", lockStoreClass, null, null);
+        fv = cw.visitField(ACC_PUBLIC + ACC_FINAL + ACC_STATIC, LOCK_STORE_VAR_NAME, lockStoreClass, null, null);
         fv.visitEnd();
     }
 
@@ -240,7 +242,7 @@ public class JvmPackageGen {
         mv.visitTypeInsn(NEW, LOCK_STORE);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, "()V", false);
-        mv.visitFieldInsn(PUTSTATIC, className, "LOCK_STORE", lockStoreClass);
+        mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, lockStoreClass);
 
         setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
         setModuleStatusField(cw, mv, className);
@@ -653,15 +655,15 @@ public class JvmPackageGen {
                 }
 
                 String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-                if (jClassName != null) {
-                    OldStyleExternalFunctionWrapper wrapper =
-                            ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
-                                    moduleName, version, jClassName, jClassName, isEntry, symbolTable);
-                    birFunctionMap.put(pkgName + lookupKey, wrapper);
-                } else {
-                    throw new BLangCompilerException("native function not available: " +
-                            pkgName + lookupKey);
+
+                if (jClassName == null) {
+                    throw new BLangCompilerException("native function not available: " + pkgName + lookupKey);
                 }
+
+                OldStyleExternalFunctionWrapper wrapper =
+                        ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
+                                moduleName, version, jClassName, jClassName, isEntry, symbolTable);
+                birFunctionMap.put(pkgName + lookupKey, wrapper);
             }
         }
     }
