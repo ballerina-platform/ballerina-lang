@@ -3632,8 +3632,14 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BType targetType = symResolver.resolveTypeNode(conversionExpr.typeNode, env);
+
+        boolean requiresTypeInference = requireTypeInference(expr, false);
+        if (requiresTypeInference) {
+            targetType = getEffectiveReadOnlyType(conversionExpr.typeNode.pos, targetType);
+        }
+
         conversionExpr.targetType = targetType;
-        BType expType = requireTypeInference(expr, false) ? targetType : symTable.noType;
+        BType expType = requiresTypeInference ? targetType : symTable.noType;
         BType sourceType = checkExpr(expr, env, expType);
 
         if (types.isTypeCastable(expr, sourceType, targetType)) {
@@ -4465,6 +4471,52 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(varRef.pos, DiagnosticCode.INVALID_RECORD_BINDING_PATTERN, varRef.type);
                 return false;
         }
+    }
+
+    private BType getEffectiveReadOnlyType(DiagnosticPos pos, BType origTargetType) {
+        if (origTargetType == symTable.readonlyType) {
+            if (types.isInherentlyImmutableType(expType) || !types.isSelectivelyImmutableType(expType)) {
+                return origTargetType;
+            }
+
+            return ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+                                                                    (SelectivelyImmutableReferenceType) expType,
+                                                                    env, symTable, anonymousModelHelper, names);
+        }
+
+        if (origTargetType.tag != TypeTags.UNION) {
+            return origTargetType;
+        }
+
+        boolean hasReadOnlyType = false;
+
+        LinkedHashSet<BType> nonReadOnlyTypes = new LinkedHashSet<>();
+
+        for (BType memberType : ((BUnionType) origTargetType).getMemberTypes()) {
+            if (memberType == symTable.readonlyType) {
+                hasReadOnlyType = true;
+                continue;
+            }
+
+            nonReadOnlyTypes.add(memberType);
+        }
+
+        if (!hasReadOnlyType) {
+            return origTargetType;
+        }
+
+        if (types.isInherentlyImmutableType(expType) || !types.isSelectivelyImmutableType(expType)) {
+            return origTargetType;
+        }
+
+        BUnionType nonReadOnlyUnion = BUnionType.create(null, nonReadOnlyTypes);
+
+        nonReadOnlyUnion.add(ImmutableTypeCloner.getImmutableIntersectionType(null, pos, types,
+                                                                              (SelectivelyImmutableReferenceType)
+                                                                                      expType,
+                                                                              env, symTable, anonymousModelHelper,
+                                                                              names));
+        return nonReadOnlyUnion;
     }
 
     private BType populateArrowExprReturn(BLangArrowFunction bLangArrowFunction, BType expectedRetType) {

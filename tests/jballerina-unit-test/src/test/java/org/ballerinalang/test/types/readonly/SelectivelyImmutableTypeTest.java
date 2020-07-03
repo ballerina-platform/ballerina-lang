@@ -90,6 +90,16 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
         validateError(result, index++, "invalid intersection type '(JKL & readonly)': no intersection", 209, 5);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
+        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 237, 54);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 46);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 51);
+        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 243, 25);
+        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
+                "'other'", 243, 36);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 243, 46);
 
         assertEquals(result.getErrorCount(), index);
     }
