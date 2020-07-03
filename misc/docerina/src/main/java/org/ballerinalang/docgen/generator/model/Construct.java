@@ -15,12 +15,17 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * Represents a language construct in a Ballerina module.
  */
 public class Construct {
+    @Expose
     public String name;
+    @Expose
     public String description;
+    @Expose
     public boolean isDeprecated;
 
     public Construct(String name, String description, boolean isDeprecated) {

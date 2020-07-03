@@ -70,7 +70,35 @@ public class STQualifiedNameReferenceNode extends STNameReferenceNode {
                 diagnostics);
     }
 
+    public STQualifiedNameReferenceNode modify(
+            STNode modulePrefix,
+            STNode colon,
+            STNode identifier) {
+        if (checkForReferenceEquality(
+                modulePrefix,
+                colon,
+                identifier)) {
+            return this;
+        }
+
+        return new STQualifiedNameReferenceNode(
+                modulePrefix,
+                colon,
+                identifier,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new QualifiedNameReferenceNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

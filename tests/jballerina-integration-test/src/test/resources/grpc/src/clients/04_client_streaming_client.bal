@@ -33,7 +33,7 @@ function testClientStreaming(string[] args) returns (string) {
     // Executing unary non-blocking call registering server message listener.
     var res = helloWorldEp->lotsOfGreetings(HelloWorldMessageListener);
     if (res is grpc:Error) {
-        io:println("Error from Connector: " + res.reason() + " - " + <string> res.detail()["message"]);
+        io:println("Error from Connector: " + res.message());
     } else {
         ep = res;
     }
@@ -42,7 +42,7 @@ function testClientStreaming(string[] args) returns (string) {
     foreach var greet in args {
         grpc:Error? err = ep->send(greet);
         if (err is grpc:Error) {
-            io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
+            io:println("Error from Connector: " + err.message());
         }
     }
     checkpanic ep->complete();
@@ -72,7 +72,7 @@ service HelloWorldMessageListener = service {
 
     // Resource registered to receive server error messages
     function onError(error err) {
-        io:println("Error from Connector: " + err.reason() + " - " + <string> err.detail()["message"]);
+        io:println("Error from Connector: " + err.message());
     }
 
     // Resource registered to receive server completed message.
@@ -89,7 +89,7 @@ public type HelloWorldClient client object {
 
     private grpc:Client grpcClient;
 
-    public function __init(string url, grpc:ClientConfiguration? config = ()) {
+    public function init(string url, grpc:ClientConfiguration? config = ()) {
         // initialize client endpoint.
         self.grpcClient = new(url, config);
         checkpanic self.grpcClient.initStub(self, "non-blocking", ROOT_DESCRIPTOR, getDescriptorMap());

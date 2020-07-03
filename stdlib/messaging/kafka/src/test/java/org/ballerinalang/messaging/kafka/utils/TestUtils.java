@@ -22,7 +22,6 @@ import kafka.server.KafkaConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.ballerinalang.core.model.values.BError;
-import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 
 import java.io.File;
@@ -76,7 +75,7 @@ public class TestUtils {
     }
 
     public static String getErrorMessageFromReturnValue(BValue value) {
-        return ((BMap) ((BError) value).getDetails()).get("message").stringValue();
+        return ((BError) value).getMessage();
     }
 
     public static void finishTest(KafkaCluster kafkaCluster, String dataDir) {

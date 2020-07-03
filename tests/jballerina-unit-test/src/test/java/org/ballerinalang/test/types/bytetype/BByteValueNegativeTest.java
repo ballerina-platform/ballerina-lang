@@ -39,7 +39,7 @@ public class BByteValueNegativeTest {
         result = BCompileUtil.compile("test-src/types/byte/byte-value-runtime-negative.bal");
     }
 
-    @Test(description = "Test byte value negative")
+    @Test(description = "Test byte value negative", groups = { "brokenOnNewParser" })
     public void testByteValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 23);
@@ -77,7 +77,7 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 22, msg4, 40, 87);
     }
 
-    @Test(description = "Test byte shift operators negative")
+    @Test(description = "Test byte shift operators negative", groups = { "brokenOnNewParser" })
     public void invalidByteShiftOperators() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 8);
@@ -97,7 +97,7 @@ public class BByteValueNegativeTest {
         BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral1", new BValue[]{});
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {message:" +
+        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
                 "\"'int' value '-12' cannot be converted to 'byte'\"}");
     }
 
@@ -106,7 +106,7 @@ public class BByteValueNegativeTest {
         BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral2", new BValue[]{});
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {message:" +
+        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
                 "\"'int' value '-257' cannot be converted to 'byte'\"}");
     }
 
@@ -115,7 +115,7 @@ public class BByteValueNegativeTest {
         BValue[] returnValue = BRunUtil.invoke(result, "invalidByteLiteral3", new BValue[]{});
         Assert.assertEquals(returnValue.length, 1);
         Assert.assertTrue(returnValue[0] instanceof BError);
-        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {message:" +
+        Assert.assertEquals(returnValue[0].stringValue(), "{ballerina}NumberConversionError {\"message\":" +
                 "\"'int' value '12,345' cannot be converted to 'byte'\"}");
     }
 }

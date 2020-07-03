@@ -54,7 +54,7 @@ function testCyclicReferenceViaMutationInRecords() {
 public type BarObjectOne object {
     public int barOneFieldOne;
 
-    public function __init(int barOneFieldOne) {
+    public function init(int barOneFieldOne) {
         self.barOneFieldOne = barOneFieldOne;
     }
 
@@ -68,7 +68,7 @@ public type BarObjectTwo object {
     public BarObjectOne? barTwoFieldTwo = ();
     public BarObjectTwo? barTwoFieldThree = ();
 
-    public function __init(BarObjectOne barTwoFieldOne) {
+    public function init(BarObjectOne barTwoFieldOne) {
         self.barTwoFieldOne = barTwoFieldOne;
     }
 

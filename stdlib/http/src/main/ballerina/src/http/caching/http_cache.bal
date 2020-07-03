@@ -34,7 +34,7 @@ public type HttpCache object {
     # Creates the HTTP cache.
     #
     # + cacheConfig - The configurations for the HTTP cache
-    public function __init(CacheConfig cacheConfig) {
+    public function init(CacheConfig cacheConfig) {
         cache:CacheConfig config = {
             capacity: cacheConfig.capacity,
             evictionFactor: cacheConfig.evictionFactor
@@ -193,5 +193,5 @@ function weakValidatorEquals(string etag1, string etag2) returns boolean {
 }
 
 function getCacheKey(string httpMethod, string url) returns string {
-    return httpMethod + " " + url;
+    return string `${httpMethod} ${url}`;
 }

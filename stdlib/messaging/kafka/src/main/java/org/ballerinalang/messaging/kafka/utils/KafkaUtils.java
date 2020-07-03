@@ -29,10 +29,12 @@ import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.config.SaslConfigs;
 import org.apache.kafka.common.config.SslConfigs;
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BArray;
@@ -627,27 +629,16 @@ public class KafkaUtils {
         return createKafkaRecord(KafkaConstants.TOPIC_PARTITION_STRUCT_NAME);
     }
 
-    public static BError createKafkaError(String message, String reason) {
-        MapValue<BString, Object> detail = createKafkaDetailRecord(message);
-        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
+    public static BError createKafkaError(String message, String typeId) {
+        return BallerinaErrors.createDistinctError(typeId, KafkaConstants.KAFKA_PACKAGE_ID, message);
     }
 
-    public static BError createKafkaError(String message, String reason, BError cause) {
-        MapValue<BString, Object> detail = createKafkaDetailRecord(message, cause);
-        return BValueCreator.createErrorValue(StringUtils.fromString(reason), detail);
-    }
-
-    private static MapValue<BString, Object> createKafkaDetailRecord(String message) {
-        return createKafkaDetailRecord(message, null);
-    }
-
-    private static MapValue<BString, Object> createKafkaDetailRecord(String message, BError cause) {
-        MapValue<BString, Object> detail = createKafkaRecord(KafkaConstants.DETAIL_RECORD_NAME);
-        return BallerinaValues.createRecord(detail, message, cause);
+    public static BError createKafkaError(String message, String typeId, ErrorValue cause) {
+        return BallerinaErrors.createDistinctError(typeId, KafkaConstants.KAFKA_PACKAGE_ID, message, cause);
     }
 
     public static MapValue<BString, Object> createKafkaRecord(String recordName) {
-        return BallerinaValues.createRecordValue(KafkaConstants.KAFKA_PROTOCOL_PACKAGE_ID, recordName);
+        return BallerinaValues.createRecordValue(KafkaConstants.KAFKA_PACKAGE_ID, recordName);
     }
 
     public static BArray getPartitionOffsetArrayFromOffsetMap(Map<TopicPartition, Long> offsetMap) {

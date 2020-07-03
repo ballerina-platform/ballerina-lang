@@ -50,7 +50,7 @@ type RemoteParticipant object {
     private string transactionId;
     private RemoteProtocol[] participantProtocols;
 
-    function __init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
+    function init(string participantId, string transactionId, RemoteProtocol[] participantProtocols) {
         self.participantId = participantId;
         self.transactionId = transactionId;
         self.participantProtocols = participantProtocols;
@@ -119,8 +119,7 @@ type RemoteParticipant object {
                 log:printInfo("Remote participant: " + self.participantId + ", outcome: " + result);
             }
         }
-        error err = error("Remote participant:" + self.participantId + " replied with invalid outcome");
-        panic err;
+        panic TransactionError("Remote participant:" + self.participantId + " replied with invalid outcome");
     }
 
     function notifyMe(string protocolUrl, string action) returns @tainted NotifyResult|error {
@@ -141,8 +140,7 @@ type RemoteParticipant object {
                 return NOTIFY_RESULT_COMMITTED;
             }
         }
-        error err = error("Unknown status on notify remote participant");
-        panic err;
+        panic TransactionError("Unknown status on notify remote participant");
     }
 };
 
@@ -152,7 +150,7 @@ type LocalParticipant object {
     private TwoPhaseCommitTransaction participatedTxn;
     private LocalProtocol[] participantProtocols;
 
-    function __init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
+    function init(string participantId, TwoPhaseCommitTransaction participatedTxn, LocalProtocol[]
         participantProtocols) {
         self.participantId = participantId;
         self.participatedTxn = participatedTxn;
@@ -173,8 +171,7 @@ type LocalParticipant object {
     function prepareMe(string transactionId, string transactionBlockId) returns PrepareResult|error {
         string participatedTxnId = getParticipatedTransactionId(transactionId, transactionBlockId);
         if (!participatedTransactions.hasKey(participatedTxnId)) {
-            error err = error(TRANSACTION_UNKNOWN);
-            return err;
+            return TransactionError(TRANSACTION_UNKNOWN);
         }
         if (self.participatedTxn.state == TXN_STATE_ABORTED) {
             removeParticipatedTransaction(participatedTxnId);
@@ -228,12 +225,10 @@ type LocalParticipant object {
                 if (successful) {
                     return NOTIFY_RESULT_COMMITTED;
                 } else {
-                    error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
-                    return err;
+                    return TransactionError(NOTIFY_RESULT_FAILED_EOT_STR);
                 }
             } else {
-                error err = error(NOTIFY_RESULT_NOT_PREPARED_STR);
-                return err;
+                return TransactionError(NOTIFY_RESULT_NOT_PREPARED_STR);
             }
         } else if (action == COMMAND_ABORT) {
             boolean successful = abortResourceManagers(self.participatedTxn.transactionId, participatedTxnBlockId);
@@ -241,12 +236,10 @@ type LocalParticipant object {
             if (successful) {
                 return NOTIFY_RESULT_ABORTED;
             } else {
-                error err = error(NOTIFY_RESULT_FAILED_EOT_STR);
-                return err;
+               return TransactionError(NOTIFY_RESULT_FAILED_EOT_STR);
             }
         } else {
-            error err = error("Invalid protocol action:" + action);
-            panic err;
+            panic TransactionError("Invalid protocol action:" + action);
         }
     }
 };

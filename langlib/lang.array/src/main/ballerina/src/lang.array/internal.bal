@@ -21,7 +21,7 @@ type ArrayIterator object {
 
     private Type[] m;
 
-    public function __init(Type[] m) {
+    public function init(Type[] m) {
         self.m = m;
     }
 

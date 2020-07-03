@@ -2,15 +2,26 @@
   "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
-    },
-    {
-      "kind": "DOUBLE_LT_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
       "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "DOUBLE_LT_TOKEN"
+        },
         {
           "kind": "TYPE_CAST_EXPRESSION",
           "children": [
@@ -34,7 +45,12 @@
                       "kind": "LT_TOKEN"
                     },
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        }
+                      ]
                     },
                     {
                       "kind": "GT_TOKEN"
@@ -44,25 +60,45 @@
               ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             }
           ]
-        },
+        }
+      ]
+    },
+    {
+      "kind": "DOUBLE_GT_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "DOUBLE_GT_TOKEN",
-          "children": [
-            {
-              "kind": "GT_TOKEN"
-            },
-            {
-              "kind": "GT_TOKEN"
-            }
-          ]
-        },
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
+    },
+    {
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
           "value": "c"

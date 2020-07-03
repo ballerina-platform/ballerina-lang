@@ -248,7 +248,7 @@ public class LangLibStringTest {
         BValue[] args = {new BString(str), new BInteger(start), new BInteger(end)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
         Assert.assertEquals(returns[0].stringValue(),
-                            "{ballerina/lang.string}StringOperationError {message:\"" + result + "\"}");
+                            "{ballerina/lang.string}StringOperationError {\"message\":\"" + result + "\"}");
     }
 
     @Test

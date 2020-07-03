@@ -75,8 +75,29 @@ public{{#isAbstract}} abstract{{/isAbstract}} class {{internalClassName}} extend
                 diagnostics);
     }
 
+    public {{internalClassName}} modify(
+            {{^syntaxKind}}SyntaxKind kind, &#10;            {{/syntaxKind}}{{#fields}}STNode {{fieldName}}{{^isLast}}, &#10;            {{/isLast}}{{/fields}}) {
+        if (checkForReferenceEquality(
+                {{#fields}}{{fieldName}}{{^isLast}}, &#10;                {{/isLast}}{{/fields}})) {
+            return this;
+        }
+
+        return new {{internalClassName}}(
+                {{^syntaxKind}}kind, &#10;                {{/syntaxKind}}{{#fields}}{{fieldName}}, &#10;                {{/fields}}diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new {{externalClassName}}(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
     {{/isAbstract}}
 }

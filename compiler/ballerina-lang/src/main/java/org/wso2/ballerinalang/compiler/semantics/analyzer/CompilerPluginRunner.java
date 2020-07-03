@@ -21,8 +21,11 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.compiler.plugins.SupportedResourceParamTypes;
+import org.ballerinalang.jvm.util.RuntimeUtils;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.TopLevelNode;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -63,6 +66,7 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -89,6 +93,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private Map<DefinitionID, Set<CompilerPlugin>> processorMap;
     private Map<CompilerPlugin, List<DefinitionID>> resourceTypeProcessorMap;
     private Map<CompilerPlugin, BType> serviceListenerMap;
+    private List<CompilerPlugin> failedPlugins;
 
 
     public static CompilerPluginRunner getInstance(CompilerContext context) {
@@ -115,6 +120,7 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         this.processorMap = new HashMap<>();
         this.resourceTypeProcessorMap = new HashMap<>();
         this.serviceListenerMap = new HashMap<>();
+        this.failedPlugins = new ArrayList<>();
 
         ServiceLoader<CompilerPlugin> pluginLoader = ServiceLoader.load(CompilerPlugin.class);
         pluginLoader.forEach(plugin -> pluginList.add(plugin));
@@ -131,18 +137,39 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.COMPILER_PLUGIN)) {
             return;
         }
-        pluginList.forEach(plugin -> plugin.pluginExecutionStarted(pkgNode.packageID));
-        pluginList.forEach(plugin -> plugin.process(pkgNode));
+        for (CompilerPlugin compilerPlugin : pluginList) {
+            executePluginSafely(pkgNode, compilerPlugin, pkgNode.packageID, compilerPlugin::pluginExecutionStarted);
+        }
+        for (CompilerPlugin compilerPlugin : pluginList) {
+            executePluginSafely(pkgNode, compilerPlugin, pkgNode, compilerPlugin::process);
+        }
 
         // Then visit each top-level element sorted using the compilation unit
-        pkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+        for (TopLevelNode topLevelNode : pkgNode.topLevelNodes) {
+            ((BLangNode) topLevelNode).accept(this);
+        }
 
         pkgNode.getTestablePkgs().forEach(testablePackage -> {
             this.defaultPos = testablePackage.pos;
             visit(testablePackage);
         });
-        pluginList.forEach(plugin -> plugin.pluginExecutionCompleted(pkgNode.packageID));
+        for (CompilerPlugin plugin : pluginList) {
+            executePluginSafely(pkgNode, plugin, pkgNode.packageID, plugin::pluginExecutionCompleted);
+        }
         pkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
+    }
+
+    private <T> void executePluginSafely(BLangPackage pkgNode, CompilerPlugin plugin, T arg, Consumer<T> consumer) {
+        if (failedPlugins.contains(plugin)) {
+            return;
+        }
+        try {
+            consumer.accept(arg);
+        } catch (Throwable e) {
+            dlog.warning(pkgNode.pos, DiagnosticCode.COMPILER_PLUGIN_ERROR);
+            printErrorLog(e);
+            failedPlugins.add(plugin);
+        }
     }
 
     public void visit(BLangTestablePackage testablePkgNode) {
@@ -150,10 +177,14 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
             return;
         }
 
-        pluginList.forEach(plugin -> plugin.process(testablePkgNode));
+        for (CompilerPlugin plugin : pluginList) {
+            executePluginSafely(testablePkgNode, plugin, testablePkgNode, plugin::process);
+        }
 
         // Then visit each top-level element sorted using the compilation unit
-        testablePkgNode.topLevelNodes.forEach(topLevelNode -> ((BLangNode) topLevelNode).accept(this));
+        for (TopLevelNode topLevelNode : testablePkgNode.topLevelNodes) {
+            ((BLangNode) topLevelNode).accept(this);
+        }
         testablePkgNode.completedPhases.add(CompilerPhase.COMPILER_PLUGIN);
     }
 
@@ -280,8 +311,23 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
 
         for (CompilerPlugin processor : attachmentMap.keySet()) {
-            notifier.accept(processor, Collections.unmodifiableList(attachmentMap.get(processor)));
+            if (failedPlugins.contains(processor)) {
+                continue;
+            }
+
+            List<AnnotationAttachmentNode> list = attachmentMap.get(processor);
+            try {
+                notifier.accept(processor, Collections.unmodifiableList(list));
+            } catch (Throwable e) {
+                dlog.warning((DiagnosticPos) list.get(0).getPosition(), DiagnosticCode.COMPILER_PLUGIN_ERROR);
+                printErrorLog(e);
+                failedPlugins.add(processor);
+            }
         }
+    }
+
+    private void printErrorLog(Throwable e) {
+        RuntimeUtils.printCrashLog(e);
     }
 
     private void handleServiceTypeProcesses(CompilerPlugin plugin) {

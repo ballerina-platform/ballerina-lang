@@ -486,9 +486,9 @@ public class ObjectTest {
     public void testObjectInitFunctionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_init_function_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 2);
-        BAssertUtil.validateError(result, 0, "object '__init' method cannot have an 'external' implementation",
+        BAssertUtil.validateError(result, 0, "object 'init' method cannot have an 'external' implementation",
                 19, 5);
-        BAssertUtil.validateError(result, 1, "object '__init' method cannot have an 'external' implementation",
+        BAssertUtil.validateError(result, 1, "object 'init' method cannot have an 'external' implementation",
                 23, 5);
     }
 
@@ -727,7 +727,7 @@ public class ObjectTest {
         Assert.assertEquals(((BInteger) result[1]).intValue(), 1);
     }
 
-    @Test(description = "Negative test for object union type inference")
+    @Test(description = "Negative test for object union type inference", groups = { "brokenOnNewParser" })
     public void testNegativeUnionTypeInit() {
         CompileResult resultNegative = BCompileUtil.compile("test-src/object/object_type_union_negative.bal");
         int i = 0;

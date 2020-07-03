@@ -14,93 +14,70 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Holds the details of the entity header and body-related errors.
-#
-# + message - Error message
-# + cause - Error cause
-public type Detail record {
-    string message;
-    error cause?;
-};
-
 // Ballerina MIME Error Types
+# Represents an `EncodeError` with the message and the cause.
+public type EncodeError distinct error;
 
-# Identifies encoding errors.
-public const ENCODE_ERROR = "{ballerina/mime}EncodingFailed";
+# Represents a `DecodeError` with the message and the cause.
+public type DecodeError distinct error;
 
-# Represents an `EncodeError` with a detailed message.
-public type EncodeError error<ENCODE_ERROR, Detail>;
+# Represents a `GenericMimeError` with the message and the cause.
+public type GenericMimeError distinct error;
 
-# Identifies decoding errors.
-public const DECODE_ERROR = "{ballerina/mime}DecodingFailed";
+# Represents a `SetHeaderError` with the message and the cause.
+public type SetHeaderError distinct error;
 
-# Represents a `DecodeError` with a detailed message.
-public type DecodeError error<DECODE_ERROR, Detail>;
+# Represents a `InvalidHeaderValueError` error with the message and the cause.
+public type InvalidHeaderValueError distinct error;
 
-# Identifies generic errors related to MIME.
-public const GENERIC_MIME_ERROR = "{ballerina/mime}GenericMimeError";
+# Represents a `InvalidHeaderParamError` error with the message and the cause.
+public type InvalidHeaderParamError distinct error;
 
-# Represents a `GenericMimeError` with a detailed message.
-public type GenericMimeError error<GENERIC_MIME_ERROR, Detail>;
+# Represents a `InvalidContentLengthError` error with the message and the cause.
+public type InvalidContentLengthError distinct error;
 
-# Identifies the set header errors.
-public const SET_HEADER_FAILED = "{ballerina/mime}SetHeaderFailed";
+# Represents a `HeaderNotFoundError` error with the message and the cause.
+public type HeaderNotFoundError distinct error;
 
-# Represents a `SetHeaderError` with a detailed message.
-public type SetHeaderError error<SET_HEADER_FAILED, Detail>;
+# Represents a `InvalidHeaderOperationError` error with the message and the cause.
+public type InvalidHeaderOperationError distinct error;
 
-// TODO: Give a proper name for this.
-# Identifies header parsing errors.
-public const READING_HEADER_FAILED = "{ballerina/mime}ReadingHeaderFailed";
+# Represents a `SerializationError` error with the message and the cause.
+public type SerializationError distinct error;
 
-# Represents a `ReadingHeaderFailed` error with a detailed message.
-public type ReadingHeaderFailed error<READING_HEADER_FAILED, Detail>;
+# Represents a `ParserError` with the message and the cause.
+public type ParserError distinct error;
 
-# Identifies entity body parsing errors.
-public const PARSER_ERROR = "{ballerina/mime}ParsingEntityBodyFailed";
+# Represents an `InvalidContentTypeError` with the message and the cause.
+public type InvalidContentTypeError distinct error;
 
-# Represents a `ParserError` with a detailed message.
-public type ParserError error<PARSER_ERROR, Detail>;
+# Represents a `HeaderUnavailableError` with the message and the cause.
+public type HeaderUnavailableError distinct error;
 
-# Identifies errors related to content-type header.
-public const INVALID_CONTENT_TYPE = "{ballerina/mime}InvalidContentType";
+# Represents an `IdleTimeoutTriggeredError` with the message and the cause.
+public type IdleTimeoutTriggeredError distinct error;
 
-# Represents an `InvalidContentTypeError` with a detailed message.
-public type InvalidContentTypeError error<INVALID_CONTENT_TYPE, Detail>;
-
-# Identifies errors related to header unavailability.
-public const HEADER_UNAVAILABLE = "{ballerina/mime}HeaderUnavailable";
-
-# Represents a `HeaderUnavailableError` with a detailed message.
-public type HeaderUnavailableError error<HEADER_UNAVAILABLE, Detail>;
-
-# Identifies errors related to read/write timeouts.
-public const IDLE_TIMEOUT_TRIGGERED = "{ballerina/mime}IdleTimeoutTriggeredError";
-
-# Represents an `IdleTimeoutTriggeredError` with a detailed message.
-public type IdleTimeoutTriggeredError error<IDLE_TIMEOUT_TRIGGERED, Detail>;
-
-# Identifies the errors occurred due to payloads with no content.
-public const NO_CONTENT_ERROR_CODE = "{ballerina/mime}NoContentError";
-
-# Represents a `NoContentError` with a detailed message.
-public type NoContentError error<NO_CONTENT_ERROR_CODE, Detail>;
+# Represents a `NoContentError` with the message and the cause.
+public type NoContentError distinct error;
 
 # Represents MIME related errors.
 public type Error ParserError|EncodeError|DecodeError|GenericMimeError|SetHeaderError|InvalidContentTypeError
-                |ReadingHeaderFailed|InvalidContentTypeError|HeaderUnavailableError|IdleTimeoutTriggeredError
-                |NoContentError;
+                |HeaderUnavailableError|IdleTimeoutTriggeredError|NoContentError|SerializationError
+                |InvalidHeaderValueError|InvalidHeaderParamError|InvalidContentLengthError|HeaderNotFoundError
+                |InvalidHeaderOperationError;
 
 # Constructs an `EncodeError` with the given details.
+#
 # + detail - Error details
 # + return - An `EncodeError` with the given details set to the message
 public function prepareEncodingErrorWithDetail(string detail) returns EncodeError {
-    return error(ENCODE_ERROR, message = detail);
+    return EncodeError(detail);
 }
 
 # Constructs a `DecodeError` with the given details.
+#
 # + detail - Error details
 # + return - `DecodeError` with the given details set to the message
 public function prepareDecodingErrorWithDetail(string detail) returns DecodeError {
-    return error(DECODE_ERROR, message = detail);
+    return DecodeError(detail);
 }

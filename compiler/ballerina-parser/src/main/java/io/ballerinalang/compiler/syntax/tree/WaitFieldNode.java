@@ -32,7 +32,7 @@ public class WaitFieldNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public NameReferenceNode fieldName() {
+    public SimpleNameReferenceNode fieldName() {
         return childInBucket(0);
     }
 
@@ -63,7 +63,7 @@ public class WaitFieldNode extends NonTerminalNode {
     }
 
     public WaitFieldNode modify(
-            NameReferenceNode fieldName,
+            SimpleNameReferenceNode fieldName,
             Token colon,
             ExpressionNode waitFutureExpr) {
         if (checkForReferenceEquality(
@@ -90,7 +90,7 @@ public class WaitFieldNode extends NonTerminalNode {
      */
     public static class WaitFieldNodeModifier {
         private final WaitFieldNode oldNode;
-        private NameReferenceNode fieldName;
+        private SimpleNameReferenceNode fieldName;
         private Token colon;
         private ExpressionNode waitFutureExpr;
 
@@ -102,7 +102,7 @@ public class WaitFieldNode extends NonTerminalNode {
         }
 
         public WaitFieldNodeModifier withFieldName(
-                NameReferenceNode fieldName) {
+                SimpleNameReferenceNode fieldName) {
             Objects.requireNonNull(fieldName, "fieldName must not be null");
             this.fieldName = fieldName;
             return this;

@@ -76,7 +76,7 @@ function 'test\ function\ for\ identifier(string val) returns (string) {
 public type '\|Test\ Connector\| client object {
     boolean action2Invoked = false;
 
-    public function __init(string param1, string param2, int param3) {
+    public function init(string param1, string param2, int param3) {
 
     }
 

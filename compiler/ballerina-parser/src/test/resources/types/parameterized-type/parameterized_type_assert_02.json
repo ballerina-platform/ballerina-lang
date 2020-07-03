@@ -23,10 +23,21 @@
               "kind": "LT_TOKEN"
             },
             {
-              "kind": "STRING_KEYWORD"
+              "kind": "STRING_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "STRING_KEYWORD"
+                }
+              ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

@@ -21,7 +21,7 @@ public function main (string... args) {
     error err1 = error("Reason", message = "message");
     secureFunction(err1, err1);
 
-    secureFunction1(err.reason(), err.reason());
+    secureFunction1(err.message(), err.message());
     secureFunction1(err.detail(), err.detail());
 }
 

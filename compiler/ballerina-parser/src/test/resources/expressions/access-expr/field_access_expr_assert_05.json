@@ -1,65 +1,130 @@
 {
   "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "x"
-    },
-    {
-      "kind": "PLUS_TOKEN"
-    },
-    {
       "kind": "BINARY_EXPRESSION",
+      "hasDiagnostics": true,
       "children": [
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "PLUS_TOKEN",
-          "isMissing": true
-        },
         {
           "kind": "BINARY_EXPRESSION",
           "children": [
             {
-              "kind": "FUNCTION_CALL",
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "b"
-                },
-                {
-                  "kind": "OPEN_PAREN_TOKEN"
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "value": "x",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
             {
               "kind": "PLUS_TOKEN",
-              "isMissing": true
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "FIELD_ACCESS",
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "c"
-                },
-                {
-                  "kind": "DOT_TOKEN"
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "d"
+                  "value": "a",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
+            }
+          ]
+        },
+        {
+          "kind": "PLUS_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_PLUS_TOKEN"
+          ]
+        },
+        {
+          "kind": "FUNCTION_CALL",
+          "children": [
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b"
+                }
+              ]
+            },
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "LIST",
+              "children": []
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "PLUS_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_PLUS_TOKEN"
+      ]
+    },
+    {
+      "kind": "FIELD_ACCESS",
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c"
+            }
+          ]
+        },
+        {
+          "kind": "DOT_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
             }
           ]
         }

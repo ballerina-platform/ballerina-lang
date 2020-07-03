@@ -37,20 +37,24 @@ public class RecordFieldNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node typeName() {
-        return childInBucket(1);
+    public Optional<Token> readonlyKeyword() {
+        return optionalChildInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
+    public Token fieldName() {
+        return childInBucket(3);
+    }
+
     public Optional<Token> questionMarkToken() {
-        return optionalChildInBucket(3);
+        return optionalChildInBucket(4);
     }
 
     public Token semicolonToken() {
-        return childInBucket(4);
+        return childInBucket(5);
     }
 
     @Override
@@ -67,6 +71,7 @@ public class RecordFieldNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "readonlyKeyword",
                 "typeName",
                 "fieldName",
                 "questionMarkToken",
@@ -75,12 +80,14 @@ public class RecordFieldNode extends NonTerminalNode {
 
     public RecordFieldNode modify(
             MetadataNode metadata,
+            Token readonlyKeyword,
             Node typeName,
             Token fieldName,
             Token questionMarkToken,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -90,6 +97,7 @@ public class RecordFieldNode extends NonTerminalNode {
 
         return NodeFactory.createRecordFieldNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -108,6 +116,7 @@ public class RecordFieldNode extends NonTerminalNode {
     public static class RecordFieldNodeModifier {
         private final RecordFieldNode oldNode;
         private MetadataNode metadata;
+        private Token readonlyKeyword;
         private Node typeName;
         private Token fieldName;
         private Token questionMarkToken;
@@ -116,6 +125,7 @@ public class RecordFieldNode extends NonTerminalNode {
         public RecordFieldNodeModifier(RecordFieldNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
+            this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();
             this.questionMarkToken = oldNode.questionMarkToken().orElse(null);
@@ -126,6 +136,13 @@ public class RecordFieldNode extends NonTerminalNode {
                 MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
+            return this;
+        }
+
+        public RecordFieldNodeModifier withReadonlyKeyword(
+                Token readonlyKeyword) {
+            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
+            this.readonlyKeyword = readonlyKeyword;
             return this;
         }
 
@@ -160,6 +177,7 @@ public class RecordFieldNode extends NonTerminalNode {
         public RecordFieldNode apply() {
             return oldNode.modify(
                     metadata,
+                    readonlyKeyword,
                     typeName,
                     fieldName,
                     questionMarkToken,

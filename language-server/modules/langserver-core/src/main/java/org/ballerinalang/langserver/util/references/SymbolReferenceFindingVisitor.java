@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -249,7 +250,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangFunction funcNode) {
         boolean isWorker = funcNode.flagSet.contains(Flag.WORKER);
         String funcName = isWorker ? funcNode.defaultWorkerName.value : funcNode.name.value;
-        if (funcName.equals(this.tokenName) || ("__init".equals(funcName) && "new".equals(this.tokenName))) {
+        if (funcName.equals(this.tokenName) || ("init".equals(funcName) && "new".equals(this.tokenName))) {
             /*
             If the go-to definition is triggered for the new keyword and there is an init function defined,
             then jump to the init function
@@ -347,11 +348,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        this.acceptNode(transactionNode.retryCount);
         this.acceptNode(transactionNode.transactionBody);
-        this.acceptNode(transactionNode.onRetryBody);
-        this.acceptNode(transactionNode.committedBody);
-        this.acceptNode(transactionNode.abortedBody);
     }
 
     @Override
@@ -410,7 +407,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         this.acceptNode(bLangErrorVariable.typeNode);
-        this.acceptNode(bLangErrorVariable.reason);
+        this.acceptNode(bLangErrorVariable.message);
         for (BLangErrorVariable.BLangErrorDetailEntry bLangErrorDetailEntry : bLangErrorVariable.detail) {
             this.acceptNode(bLangErrorDetailEntry.valueBindingPattern);
         }
@@ -637,7 +634,6 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangErrorType errorType) {
-        this.acceptNode(errorType.reasonType);
         this.acceptNode(errorType.detailType);
     }
 
@@ -895,7 +891,7 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
         this.acceptNode(varRefExpr.typeNode);
-        this.acceptNode(varRefExpr.reason);
+        this.acceptNode(varRefExpr.message);
         varRefExpr.detail.forEach(bLangNamedArgsExpression -> this.acceptNode(bLangNamedArgsExpression.expr));
         this.acceptNode(varRefExpr.restVar);
     }
@@ -945,6 +941,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
         this.acceptNode(onConflictClause.expression);
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        this.acceptNode(limitClause.expression);
     }
 
     @Override
@@ -1044,7 +1045,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
         return this.workerLambdas.stream()
-                .filter(function -> function.defaultWorkerName.getPosition() == position)
+                .filter(function -> {
+                    DiagnosticPos namePosition = function.defaultWorkerName.getPosition();
+                    return namePosition.sLine == position.sLine && namePosition.eLine == position.eLine
+                            && namePosition.sCol == position.sCol && namePosition.eCol == position.eCol;
+                })
                 .findAny();
     }
     
@@ -1064,7 +1069,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private BSymbol getWorkerSymbolForPosition(DiagnosticPos pos) {
         return this.workerVarDefMap.entrySet().stream()
-                .filter(entry -> entry.getValue() == pos)
+                .filter(workerPos -> {
+                    DiagnosticPos posValue = workerPos.getValue();
+                    return posValue.sLine == pos.sLine && posValue.eLine == pos.eLine
+                            && posValue.sCol == pos.sCol && posValue.eCol == pos.eCol;
+                })
                 .findAny()
                 .map(Map.Entry::getKey)
                 .orElse(null);

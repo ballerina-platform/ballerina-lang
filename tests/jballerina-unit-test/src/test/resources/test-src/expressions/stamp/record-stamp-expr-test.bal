@@ -98,6 +98,9 @@ type ExtendedEmployeeWithUnionRest record {|
     map<anydata>|string...;
 |};
 
+type AnydataMap map<anydata>;
+type StringMap map<string>;
+
 //-----------------------Record Stamp -------------------------------------------------------------------
 
 function stampWithOpenRecords() returns Employee|error {
@@ -142,14 +145,14 @@ function stampRecordToJSON() returns json|error {
 
 function stampRecordToMap() returns map<anydata>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
-    map<anydata>|error mapValue = employee.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = employee.cloneWithType(AnydataMap);
 
     return mapValue;
 }
 
 function stampRecordToMapV2() returns map<string>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014", "school": "Hindu College" };
-    map<string>|error mapValue = employee.cloneWithType(map<string>);
+    map<string>|error mapValue = employee.cloneWithType(StringMap);
 
     return mapValue;
 }
@@ -158,7 +161,7 @@ function stampRecordToMapV3() returns map<anydata>|error {
     Employee employee = { name: "John", status: "single", batch: "LK2014" };
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College",
                             "emp": employee };
-    map<anydata>|error mapValue = teacher.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = teacher.cloneWithType(AnydataMap);
 
     return mapValue;
 }
@@ -371,7 +374,7 @@ function stampComplexRecordToJSON() returns map<anydata>|error {
         marks: [value, value2]
     };
 
-    map<anydata>|error m = p.cloneWithType(map<anydata>);
+    map<anydata>|error m = p.cloneWithType(AnydataMap);
     return m;
 }
 
@@ -396,7 +399,7 @@ function stampRecordToRecordWithOptionalFields() returns TeacherWithOptionalFiel
 
 function stampOpenRecordToMap() returns map<string>|error {
     Teacher teacher = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    map<string>|error mapValue = teacher.cloneWithType(map<string>);
+    map<string>|error mapValue = teacher.cloneWithType(StringMap);
 
     return mapValue;
 }

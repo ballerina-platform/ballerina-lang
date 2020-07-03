@@ -195,13 +195,18 @@ export class List extends React.Component<ListProps, ListState> {
     render() {
         return (
             <div>
-                <div className="ui fluid icon input search-bar">
+                <div className="ui fluid icon input">
                     <input type="text" id="searchBox" onKeyUp={this.handleChange} placeholder="Search..." />
                     <i className="search icon"></i>
                 </div>
                 {this.state.searchText &&
                     <div className="search-list">
                         <h1>Search results for '{this.state.searchText}'</h1>
+                        {this.state.filteredModules.length == 0 && this.state.filteredObjects.length == 0 &&
+                        this.state.filteredFunctions.length == 0 && this.state.filteredRecords.length == 0 &&
+                        this.state.filteredConstants.length == 0 && this.state.filteredTypes.length == 0 &&
+                        this.state.filteredErrors.length == 0 && <p>No results found</p>
+                        }
                         {this.state.filteredModules.length > 0 &&
                             <div>
                                 <h3>Modules: {this.state.filteredModules.length}</h3>

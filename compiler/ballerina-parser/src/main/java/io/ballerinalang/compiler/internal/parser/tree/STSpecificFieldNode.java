@@ -31,15 +31,18 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STSpecificFieldNode extends STMappingFieldNode {
+    public final STNode readonlyKeyword;
     public final STNode fieldName;
     public final STNode colon;
     public final STNode valueExpr;
 
     STSpecificFieldNode(
+            STNode readonlyKeyword,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
         this(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr,
@@ -47,16 +50,19 @@ public class STSpecificFieldNode extends STMappingFieldNode {
     }
 
     STSpecificFieldNode(
+            STNode readonlyKeyword,
             STNode fieldName,
             STNode colon,
             STNode valueExpr,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.SPECIFIC_FIELD, diagnostics);
+        this.readonlyKeyword = readonlyKeyword;
         this.fieldName = fieldName;
         this.colon = colon;
         this.valueExpr = valueExpr;
 
         addChildren(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);
@@ -64,13 +70,45 @@ public class STSpecificFieldNode extends STMappingFieldNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STSpecificFieldNode(
+                this.readonlyKeyword,
                 this.fieldName,
                 this.colon,
                 this.valueExpr,
                 diagnostics);
     }
 
+    public STSpecificFieldNode modify(
+            STNode readonlyKeyword,
+            STNode fieldName,
+            STNode colon,
+            STNode valueExpr) {
+        if (checkForReferenceEquality(
+                readonlyKeyword,
+                fieldName,
+                colon,
+                valueExpr)) {
+            return this;
+        }
+
+        return new STSpecificFieldNode(
+                readonlyKeyword,
+                fieldName,
+                colon,
+                valueExpr,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new SpecificFieldNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

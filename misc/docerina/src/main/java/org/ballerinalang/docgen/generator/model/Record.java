@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.List;
 
 /**
@@ -22,7 +24,9 @@ import java.util.List;
  */
 public class Record extends Construct {
 
+    @Expose
     public List<DefaultableVariable> fields;
+    @Expose
     public boolean isAnonymous = false;
 
     public Record(String name, String description, boolean isDeprecated, boolean isAnonymous,

@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langlib.test.statements.foreach;
 
+import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -68,5 +69,11 @@ public class ForeachTableTypedBindingPatternsTests {
         BValue[] returns = BRunUtil.invoke(program, "testEmptyTableIteration");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "");
+    }
+
+    @Test
+    public void testIterationOverKeylessTable() {
+        BValue[] returns = BRunUtil.invoke(program, "testIterationOverKeylessTable");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 }

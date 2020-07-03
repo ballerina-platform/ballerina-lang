@@ -42,7 +42,6 @@ public class ForeachTupleTests {
     @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples.bal");
-        negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
     }
 
     @Test
@@ -132,6 +131,7 @@ public class ForeachTupleTests {
 
     @Test
     public void testNegativeTupleForeach() {
+        negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
         Assert.assertEquals(negative.getErrorCount(), 3);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'string'", 20, 13);

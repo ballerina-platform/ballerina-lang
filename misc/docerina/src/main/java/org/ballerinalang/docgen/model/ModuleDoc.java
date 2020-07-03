@@ -60,7 +60,7 @@ public class ModuleDoc {
     private String getDescription(Path descriptionPath) throws IOException {
         if (descriptionPath != null) {
             String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
-            return BallerinaDocUtils.mdToHtml(mdContent);
+            return BallerinaDocUtils.mdToHtml(mdContent, true);
         }
         return null;
     }

@@ -42,7 +42,7 @@ public class TypeGuardTest {
         result = BCompileUtil.compile("test-src/statements/ifelse/type-guard.bal");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
         int i = 0;
@@ -81,7 +81,7 @@ public class TypeGuardTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/ifelse/type-guard-semantics-negative.bal");
@@ -371,7 +371,7 @@ public class TypeGuardTest {
         Assert.assertEquals(returns[0].stringValue(), "status: 500");
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
     public void testTypeGuardsWithErrorInmatch() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardsWithErrorInmatch");
         Assert.assertEquals(returns[0].stringValue(), "some error");
@@ -587,13 +587,13 @@ public class TypeGuardTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser"})
     public void testTypeGuardForErrorDestructuringAssignmentPositive() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentPositive");
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test
+    @Test(groups = { "brokenOnJBallerina", "brokenOnNewParser" })
     public void testTypeGuardForErrorDestructuringAssignmentNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeGuardForErrorDestructuringAssignmentNegative");
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());

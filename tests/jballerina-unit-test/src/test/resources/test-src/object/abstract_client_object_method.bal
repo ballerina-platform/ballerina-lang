@@ -25,7 +25,7 @@ public type AbPersonOne abstract client object {
 public type PersonOne client object {
     *AbPersonOne;
 
-    public function __init(int salary) {
+    public function init(int salary) {
         self.salary = salary;
     }
 
@@ -51,7 +51,7 @@ public type AbPersonTwo client abstract object {
 public type PersonTwo client object {
     *AbPersonTwo;
 
-    public function __init(int salary) {
+    public function init(int salary) {
         self.salary = salary;
     }
 

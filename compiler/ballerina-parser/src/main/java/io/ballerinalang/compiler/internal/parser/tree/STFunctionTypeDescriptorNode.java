@@ -63,7 +63,32 @@ public class STFunctionTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STFunctionTypeDescriptorNode modify(
+            STNode functionKeyword,
+            STNode functionSignature) {
+        if (checkForReferenceEquality(
+                functionKeyword,
+                functionSignature)) {
+            return this;
+        }
+
+        return new STFunctionTypeDescriptorNode(
+                functionKeyword,
+                functionSignature,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FunctionTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

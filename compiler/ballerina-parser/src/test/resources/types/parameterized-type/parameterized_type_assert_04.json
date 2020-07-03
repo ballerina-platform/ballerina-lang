@@ -26,7 +26,12 @@
               "kind": "OPTIONAL_TYPE_DESC",
               "children": [
                 {
-                  "kind": "STRING_KEYWORD"
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
+                    {
+                      "kind": "STRING_KEYWORD"
+                    }
+                  ]
                 },
                 {
                   "kind": "QUESTION_MARK_TOKEN"
@@ -34,7 +39,13 @@
               ]
             },
             {
-              "kind": "GT_TOKEN"
+              "kind": "GT_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

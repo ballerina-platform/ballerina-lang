@@ -17,24 +17,28 @@
  */
 package io.ballerinalang.compiler.internal.parser;
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
  * An abstract lexer to be extended by all ballerina lexer implementations.
- * 
+ *
  * @since 2.0.0
  */
 public abstract class AbstractLexer {
 
     protected List<STNode> leadingTriviaList;
+    private Collection<STNodeDiagnostic> diagnostics = new ArrayList<>();
     protected CharReader reader;
     protected ParserMode mode;
     protected ArrayDeque<ParserMode> modeStack = new ArrayDeque<>();
-    protected final BallerinaParserErrorListener errorListener = new BallerinaParserErrorListener();
 
     public AbstractLexer(CharReader charReader, ParserMode initialParserMode) {
         this.reader = charReader;
@@ -74,5 +78,31 @@ public abstract class AbstractLexer {
     public void endMode() {
         this.modeStack.pop();
         this.mode = this.modeStack.peek();
+    }
+
+    private void resetDiagnosticList() {
+        this.diagnostics = new ArrayList<>();
+    }
+
+    private boolean noDiagnostics() {
+        return diagnostics.isEmpty();
+    }
+
+    private Collection<STNodeDiagnostic> getDiagnostics() {
+        return diagnostics;
+    }
+
+    protected STToken cloneWithDiagnostics(STToken toClone) {
+        if (noDiagnostics()) {
+            return toClone;
+        }
+
+        STToken cloned = SyntaxErrors.addSyntaxDiagnostics(toClone, getDiagnostics());
+        resetDiagnosticList();
+        return cloned;
+    }
+
+    protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
+        diagnostics.add(SyntaxErrors.createDiagnostic(diagnosticCode, args));
     }
 }

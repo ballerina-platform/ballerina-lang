@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -36,24 +37,28 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Node typeName() {
-        return childInBucket(1);
+    public Optional<Token> readonlyKeyword() {
+        return optionalChildInBucket(1);
     }
 
-    public Token fieldName() {
+    public Node typeName() {
         return childInBucket(2);
     }
 
-    public Token equalsToken() {
+    public Token fieldName() {
         return childInBucket(3);
     }
 
-    public ExpressionNode expression() {
+    public Token equalsToken() {
         return childInBucket(4);
     }
 
-    public Token semicolonToken() {
+    public ExpressionNode expression() {
         return childInBucket(5);
+    }
+
+    public Token semicolonToken() {
+        return childInBucket(6);
     }
 
     @Override
@@ -70,6 +75,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "readonlyKeyword",
                 "typeName",
                 "fieldName",
                 "equalsToken",
@@ -79,6 +85,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
     public RecordFieldWithDefaultValueNode modify(
             MetadataNode metadata,
+            Token readonlyKeyword,
             Node typeName,
             Token fieldName,
             Token equalsToken,
@@ -86,6 +93,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -96,6 +104,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
 
         return NodeFactory.createRecordFieldWithDefaultValueNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -115,6 +124,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
     public static class RecordFieldWithDefaultValueNodeModifier {
         private final RecordFieldWithDefaultValueNode oldNode;
         private MetadataNode metadata;
+        private Token readonlyKeyword;
         private Node typeName;
         private Token fieldName;
         private Token equalsToken;
@@ -124,6 +134,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         public RecordFieldWithDefaultValueNodeModifier(RecordFieldWithDefaultValueNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
+            this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.typeName = oldNode.typeName();
             this.fieldName = oldNode.fieldName();
             this.equalsToken = oldNode.equalsToken();
@@ -135,6 +146,13 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
                 MetadataNode metadata) {
             Objects.requireNonNull(metadata, "metadata must not be null");
             this.metadata = metadata;
+            return this;
+        }
+
+        public RecordFieldWithDefaultValueNodeModifier withReadonlyKeyword(
+                Token readonlyKeyword) {
+            Objects.requireNonNull(readonlyKeyword, "readonlyKeyword must not be null");
+            this.readonlyKeyword = readonlyKeyword;
             return this;
         }
 
@@ -176,6 +194,7 @@ public class RecordFieldWithDefaultValueNode extends NonTerminalNode {
         public RecordFieldWithDefaultValueNode apply() {
             return oldNode.modify(
                     metadata,
+                    readonlyKeyword,
                     typeName,
                     fieldName,
                     equalsToken,

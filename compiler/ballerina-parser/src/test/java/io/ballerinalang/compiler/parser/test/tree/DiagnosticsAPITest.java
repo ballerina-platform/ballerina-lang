@@ -26,6 +26,9 @@ import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.LineRange;
+import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -49,7 +52,7 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         // Some branches has this flag, but not all branches of three.
         // This method tests above mentioned points.
         SyntaxTree syntaxTree = parseFile("diagnostics_test_001.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
 
         // Check the hasDiagnostics() method in the syntax tree
         Assert.assertTrue(syntaxTree.hasDiagnostics());
@@ -78,11 +81,9 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
     public void testGetDiagnosticsMethod() {
         // This bal file has two missing semicolon error.
         SyntaxTree syntaxTree = parseFile("diagnostics_test_001.bal");
-        ModulePartNode modulePartNode = syntaxTree.modulePart();
 
         List<Diagnostic> diagnosticList = new ArrayList<>();
         syntaxTree.diagnostics().forEach(diagnosticList::add);
-
 
         Diagnostic firstDiagnostic = diagnosticList.get(0);
         DiagnosticInfo firstDiagnosticInfo = firstDiagnostic.diagnosticInfo();
@@ -95,6 +96,23 @@ public class DiagnosticsAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(secondDiagnosticInfo.severity(), DiagnosticSeverity.ERROR);
         Assert.assertEquals(secondDiagnosticInfo.code(),
                 ERROR_MISSING_SEMICOLON_TOKEN.diagnosticId());
+    }
+
+    @Test(description = "This is a test case for https://github.com/ballerina-platform/ballerina-lang/issues/24304")
+    public void testLocationWithInvalidMissingNodes() {
+        String input = "public function main() {\n" +
+                "    string s = string ```;\n" +
+                "}";
+        int expectedLength = input.length();
+        TextDocument textDocument = TextDocuments.from(input);
+        SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
+
+        Assert.assertEquals(syntaxTree.rootNode().textRangeWithMinutiae().length(), expectedLength);
+
+        List<LineRange> lineRangeList = new ArrayList<>();
+        // The following line triggers the calculation of line ranges
+        syntaxTree.diagnostics().forEach(diagnostic -> lineRangeList.add(diagnostic.location().lineRange()));
+        Assert.assertFalse(lineRangeList.isEmpty());
     }
 
     protected SyntaxTree parseFile(String sourceFileName) {

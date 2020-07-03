@@ -17,9 +17,11 @@
 */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerinalang.compiler.syntax.tree.NodeLocation;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.text.TextDocument;
-import io.ballerinalang.compiler.text.TextDocuments;
+import io.ballerinalang.compiler.text.LinePosition;
+import io.ballerinalang.compiler.text.LineRange;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.DefaultErrorStrategy;
@@ -30,6 +32,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.repository.PackageSource;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.packaging.converters.FileSystemSourceInput;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
@@ -43,6 +46,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.ByteArrayInputStream;
@@ -66,6 +70,7 @@ public class Parser {
     private PackageCache pkgCache;
     private ParserCache parserCache;
     private NodeCloner nodeCloner;
+    private BLangDiagnosticLogHelper dlog;
 
     public static Parser getInstance(CompilerContext context) {
         Parser parser = context.get(PARSER_KEY);
@@ -85,6 +90,7 @@ public class Parser {
         this.pkgCache = PackageCache.getInstance(context);
         this.parserCache = ParserCache.getInstance(context);
         this.nodeCloner = NodeCloner.getInstance(context);
+        this.dlog = BLangDiagnosticLogHelper.getInstance(context);
     }
 
     public BLangPackage parseNew(PackageSource pkgSource, Path sourceRootPath) {
@@ -103,7 +109,9 @@ public class Parser {
                     testablePkg.pos = new DiagnosticPos(new BDiagnosticSource(pkgId, pkgSource.getName()), 1, 1, 1, 1);
                     pkgNode.addTestablePkg(testablePkg);
                 }
-                pkgNode.getTestablePkg().addCompilationUnit(generateCompilationUnit(sourceInput, pkgId));
+                pkgNode.getTestablePkg().addCompilationUnit(
+                        generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource)
+                );
             } else {
                 pkgNode.addCompilationUnit(generateCompilationUnitNew(sourceInput, pkgId, diagnosticSource));
             }
@@ -116,34 +124,28 @@ public class Parser {
 
     private CompilationUnitNode generateCompilationUnitNew(CompilerInput sourceEntry, PackageID packageID,
                                                            BDiagnosticSource diagnosticSource) {
-        byte[] code = sourceEntry.getCode();
         String entryName = sourceEntry.getEntryName();
+        BLangCompilationUnit compilationUnit;
+        SyntaxTree tree = sourceEntry.getTree();
+        reportSyntaxDiagnostics(diagnosticSource, tree);
+
+        //TODO: Get hash and length from tree
+        byte[] code = sourceEntry.getCode();
         int hash = getHash(code);
         int length = code.length;
-        BLangCompilationUnit compilationUnit = parserCache.get(packageID, entryName, hash, length);
+
+        compilationUnit = parserCache.get(packageID, entryName, hash, length);
         if (compilationUnit != null) {
             return compilationUnit;
         }
-        compilationUnit = populateCompilationUnitNew(code, diagnosticSource);
 
-        // TODO Figure out a way to check for syntax errors
-        // TODO If there are syntax errors, then do not perform following two statements.
+        BLangNodeTransformer bLangNodeTransformer = new BLangNodeTransformer(this.context, diagnosticSource);
+        compilationUnit = (BLangCompilationUnit) bLangNodeTransformer.accept(tree.rootNode()).get(0);
         parserCache.put(packageID, entryName, hash, length, compilationUnit);
         // Node cloner will run for valid ASTs.
         // This will verify, any modification done to the AST will get handled properly.
         compilationUnit = nodeCloner.cloneCUnit(compilationUnit);
-
         return compilationUnit;
-    }
-
-    private BLangCompilationUnit populateCompilationUnitNew(byte[] code, BDiagnosticSource diagnosticSource) {
-
-        // TODO We need a way to create a TextDocument from a byte[]
-        TextDocument sourceText = TextDocuments.from(new String(code));
-        SyntaxTree syntaxTree = SyntaxTree.from(sourceText);
-        // TODO we need a ModulePart -> BLCompilationUnit converter
-        BLangNodeTransformer bLangCompUnitGen = new BLangNodeTransformer(this.context, diagnosticSource);
-        return (BLangCompilationUnit) bLangCompUnitGen.accept(syntaxTree.modulePart()).get(0);
     }
 
     public BLangPackage parse(PackageSource pkgSource, Path sourceRootPath) {
@@ -256,7 +258,29 @@ public class Parser {
 
     private static int getHash(byte[] code) {
         // Assuming hash collision is unlikely in a modified source.
-        // Additionaly code.Length is considered to avoid hash collision.
+        // Additionally code.Length is considered to avoid hash collision.
         return Arrays.hashCode(code);
+    }
+
+    private void reportSyntaxDiagnostics(BDiagnosticSource diagnosticSource, SyntaxTree tree) {
+        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+            DiagnosticPos pos = getPosition(syntaxDiagnostic.location(), diagnosticSource);
+
+            // TODO This is the temporary mechanism
+            // We need to merge the diagnostic reporting mechanisms of the new parser and the semantic analyzer
+            DiagnosticCode code = DiagnosticCode.SYNTAX_ERROR;
+            dlog.error(pos, code, syntaxDiagnostic.message());
+        }
+    }
+
+    private DiagnosticPos getPosition(NodeLocation location, BDiagnosticSource diagnosticSource) {
+        if (location == null) {
+            return null;
+        }
+        LineRange lineRange = location.lineRange();
+        LinePosition startPos = lineRange.startLine();
+        LinePosition endPos = lineRange.endLine();
+        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1,
+                startPos.offset() + 1, endPos.offset() + 1);
     }
 }

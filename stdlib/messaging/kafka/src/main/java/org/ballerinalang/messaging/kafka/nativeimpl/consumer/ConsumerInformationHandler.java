@@ -172,7 +172,7 @@ public class ConsumerInformationHandler {
      * @param duration       Duration in milliseconds to try the operation.
      * @return Topic partition array of the given topic.
      */
-    public static Object getTopicPartitions(ObjectValue consumerObject, String topic, long duration) {
+    public static Object getTopicPartitions(ObjectValue consumerObject, BString topic, long duration) {
         KafkaTracingUtil.traceResourceInvocation(Scheduler.getStrand(), consumerObject);
         KafkaConsumer kafkaConsumer = (KafkaConsumer) consumerObject.getNativeData(NATIVE_CONSUMER);
         Properties consumerProperties = (Properties) consumerObject.getNativeData(NATIVE_CONSUMER_CONFIG);
@@ -183,11 +183,11 @@ public class ConsumerInformationHandler {
         try {
             List<PartitionInfo> partitionInfoList;
             if (apiTimeout > DURATION_UNDEFINED_VALUE) {
-                partitionInfoList = getPartitionInfoList(kafkaConsumer, topic, apiTimeout);
+                partitionInfoList = getPartitionInfoList(kafkaConsumer, topic.getValue(), apiTimeout);
             } else if (defaultApiTimeout > DURATION_UNDEFINED_VALUE) {
-                partitionInfoList = getPartitionInfoList(kafkaConsumer, topic, defaultApiTimeout);
+                partitionInfoList = getPartitionInfoList(kafkaConsumer, topic.getValue(), defaultApiTimeout);
             } else {
-                partitionInfoList = kafkaConsumer.partitionsFor(topic);
+                partitionInfoList = kafkaConsumer.partitionsFor(topic.getValue());
             }
             BArray topicPartitionArray =
                     BValueCreator.createArrayValue(new BArrayType(getTopicPartitionRecord().getType()));

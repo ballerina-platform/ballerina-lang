@@ -271,7 +271,7 @@ public function elementChildren(xml x, string? nm = ()) returns xml<Element> = @
 # + x - the xml value
 # + func - a function to apply to each child or `item`
 # + return - new xml value containing result of applying `func` to each child or `item`
-public function map(xml<ItemType> x, function(ItemType item) returns XmlType func)
+public function 'map(xml<ItemType> x, function(ItemType item) returns XmlType func)
     returns xml<XmlType> = @java:Method {
         class: "org.ballerinalang.langlib.xml.Map",
         name: "map"

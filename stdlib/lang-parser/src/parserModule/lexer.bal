@@ -33,7 +33,7 @@ public type Lexer object {
     //instance of the bufferReader object
     private BufferReader buffer;
 
-    public function __init(BufferReader buffer) {
+    public function init(BufferReader buffer) {
         self.buffer = buffer;
     }
 
@@ -315,7 +315,7 @@ type WhiteSpaceStack object {
     string[] spaceStack = [];
     int top;
 
-    public function __init(int top = 0) {
+    public function init(int top = 0) {
         self.top = top;
     }
 

@@ -2,41 +2,28 @@
   "kind": "CONDITIONAL_EXPRESSION",
   "children": [
     {
-      "kind": "CONDITIONAL_EXPRESSION",
+      "kind": "SIMPLE_NAME_REFERENCE",
       "children": [
         {
           "kind": "IDENTIFIER_TOKEN",
-          "value": "a"
-        },
-        {
-          "kind": "QUESTION_MARK_TOKEN"
-        },
-        {
-          "kind": "BRACED_EXPRESSION",
-          "children": [
+          "value": "a",
+          "trailingMinutiae": [
             {
-              "kind": "OPEN_PAREN_TOKEN"
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "b"
-            },
-            {
-              "kind": "CLOSE_PAREN_TOKEN"
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ]
-        },
-        {
-          "kind": "COLON_TOKEN"
-        },
-        {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "c"
         }
       ]
     },
     {
-      "kind": "QUESTION_MARK_TOKEN"
+      "kind": "QUESTION_MARK_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "BRACED_EXPRESSION",
@@ -45,20 +32,106 @@
           "kind": "OPEN_PAREN_TOKEN"
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "d"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "b"
+            }
+          ]
         },
         {
-          "kind": "CLOSE_PAREN_TOKEN"
+          "kind": "CLOSE_PAREN_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
     {
-      "kind": "COLON_TOKEN"
+      "kind": "COLON_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "e"
+      "kind": "CONDITIONAL_EXPRESSION",
+      "children": [
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "c",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "QUESTION_MARK_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "BRACED_EXPRESSION",
+          "children": [
+            {
+              "kind": "OPEN_PAREN_TOKEN"
+            },
+            {
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "d"
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_PAREN_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COLON_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "e"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

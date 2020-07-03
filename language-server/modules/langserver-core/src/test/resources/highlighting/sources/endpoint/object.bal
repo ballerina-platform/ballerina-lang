@@ -9,7 +9,7 @@ type ObjectName object {
         }
     }
 
-    function __init() returns error? {
+    function init() returns error? {
 
         http:Client myClient2 = new ("");
     }

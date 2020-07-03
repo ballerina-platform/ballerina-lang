@@ -10,7 +10,7 @@ type RecordName record {
 };
 
 type ObjectName object {
-    public function __init(int arg1, string arg2, http:Response arg3) {
+    public function init(int arg1, string arg2, http:Response arg3) {
         
     }
 };

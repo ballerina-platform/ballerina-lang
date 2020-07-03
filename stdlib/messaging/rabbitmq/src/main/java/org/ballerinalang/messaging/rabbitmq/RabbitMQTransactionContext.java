@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.transactions.BallerinaTransactionContext;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
-import org.ballerinalang.jvm.values.ObjectValue;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -42,11 +41,11 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
     /**
      * Initializes the rabbitmq transaction context.
      *
-     * @param channelObject RabbitMQ Channel object.
-     * @param connectorId   Connector ID.
+     * @param channel     RabbitMQ Channel.
+     * @param connectorId Connector ID.
      */
-    public RabbitMQTransactionContext(ObjectValue channelObject, String connectorId) {
-        this.channel = (Channel) channelObject.getNativeData(RabbitMQConstants.CHANNEL_NATIVE_OBJECT);
+    public RabbitMQTransactionContext(Channel channel, String connectorId) {
+        this.channel = channel;
         this.connectorId = connectorId;
     }
 
@@ -87,7 +86,7 @@ public class RabbitMQTransactionContext implements BallerinaTransactionContext {
      *
      * @param strand Strand.
      */
-    public void handleTransactionBlock(Strand strand) {
+    void handleTransactionBlock(Strand strand) {
         TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
         BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);
         if (Objects.isNull(txContext)) {

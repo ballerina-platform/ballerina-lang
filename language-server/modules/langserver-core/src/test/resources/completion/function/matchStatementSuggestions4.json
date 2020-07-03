@@ -286,20 +286,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "HTTP_ERROR_CODE",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Constant for the http error code"
-        }
-      },
-      "sortText": "130",
-      "insertText": "HTTP_ERROR_CODE",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "MULTIPART_AS_PRIMARY_TYPE",
       "kind": "Variable",
       "detail": "string",
@@ -647,426 +633,6 @@
       },
       "sortText": "130",
       "insertText": "REDIRECT_PERMANENT_REDIRECT_308",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "FAILOVER_ALL_ENDPOINTS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:FailoverAllEndpointsFailedError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "FAILOVER_ALL_ENDPOINTS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "FAILOVER_ENDPOINT_ACTION_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:FailoverActionFailedError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "FAILOVER_ENDPOINT_ACTION_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "UPSTREAM_SERVICE_UNAVAILABLE",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:UpstreamServiceUnavailableError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "UPSTREAM_SERVICE_UNAVAILABLE",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:AllLoadBalanceEndpointsFailedError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "ALL_LOAD_BALANCE_ENDPOINTS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ALL_RETRY_ATTEMPTS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:AllRetryAttemptsFailed`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "ALL_RETRY_ATTEMPTS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "IDLE_TIMEOUT_TRIGGERED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:IdleTimeoutError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "IDLE_TIMEOUT_TRIGGERED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AUTHN_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:AuthenticationError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "AUTHN_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AUTHZ_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:AuthorizationError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "AUTHZ_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INIT_OUTBOUND_REQUEST_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:InitializingOutboundRequestError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INIT_OUTBOUND_REQUEST_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:WritingOutboundRequestHeadersError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITING_OUTBOUND_REQUEST_HEADERS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:WritingOutboundRequestBodyError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITING_OUTBOUND_REQUEST_BODY_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INIT_INBOUND_RESPONSE_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:InitializingInboundResponseError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INIT_INBOUND_RESPONSE_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:ReadingInboundResponseBodyError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "READING_INBOUND_RESPONSE_HEADERS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "READING_INBOUND_RESPONSE_BODY_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:ReadingInboundResponseBodyError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "READING_INBOUND_RESPONSE_BODY_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INIT_INBOUND_REQUEST_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:InitialingInboundRequestError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INIT_INBOUND_REQUEST_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "READING_INBOUND_REQUEST_HEADERS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:ReadingInboundRequestHeadersError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "READING_INBOUND_REQUEST_HEADERS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "READING_INBOUND_REQUEST_BODY_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:ReadingInboundRequestBodyError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "READING_INBOUND_REQUEST_BODY_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INIT_OUTBOUND_RESPONSE_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:InitializingOutboundResponseError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INIT_OUTBOUND_RESPONSE_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:WritingOutboundResponseHeadersError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITING_OUTBOUND_RESPONSE_HEADERS_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:WritingOutboundResponseBodyError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITING_OUTBOUND_RESPONSE_BODY_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:Initiating100ContinueResponseError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INITIATING_100_CONTINUE_RESPONSE_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "WRITING_100_CONTINUE_RESPONSE_FAILED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:Writing100ContinueResponseError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "WRITING_100_CONTINUE_RESPONSE_FAILED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INVALID_COOKIE_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:InvalidCookieError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INVALID_COOKIE_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "GENERIC_CLIENT_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for generic client error"
-        }
-      },
-      "sortText": "130",
-      "insertText": "GENERIC_CLIENT_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "GENERIC_LISTENER_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:GenericListenerError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "GENERIC_LISTENER_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "UNSUPPORTED_ACTION",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:UnsupportedActionError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "UNSUPPORTED_ACTION",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "HTTP2_CLIENT_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:Http2ClientError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "HTTP2_CLIENT_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "MAXIMUM_WAIT_TIME_EXCEEDED",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:MaximumWaitTimeExceededError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "MAXIMUM_WAIT_TIME_EXCEEDED",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "SSL_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:SslError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "SSL_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "COOKIE_HANDLING_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Represents the reason string for the `http:CookieHandlingError`"
-        }
-      },
-      "sortText": "130",
-      "insertText": "COOKIE_HANDLING_ERROR",
       "insertTextFormat": "Snippet"
     },
     {
@@ -2134,104 +1700,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "CONNECTION_CLOSURE_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for failures during connection closure"
-        }
-      },
-      "sortText": "130",
-      "insertText": "CONNECTION_CLOSURE_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INVALID_HANDSHAKE_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for WebSocket handshake failures"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INVALID_HANDSHAKE_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "PAYLOAD_TOO_BIG_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for exceeding maximum frame size"
-        }
-      },
-      "sortText": "130",
-      "insertText": "PAYLOAD_TOO_BIG_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "PROTOCOL_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for other side breaking the protocol"
-        }
-      },
-      "sortText": "130",
-      "insertText": "PROTOCOL_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "CONNECTION_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for connection failures"
-        }
-      },
-      "sortText": "130",
-      "insertText": "CONNECTION_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "INVALID_CONTINUATION_FRAME_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for invalid continuation frame"
-        }
-      },
-      "sortText": "130",
-      "insertText": "INVALID_CONTINUATION_FRAME_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "GENERIC_ERROR",
-      "kind": "Variable",
-      "detail": "string",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "Error reason for errors not captured by the specific errors"
-        }
-      },
-      "sortText": "130",
-      "insertText": "GENERIC_ERROR",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "HttpServiceConfig",
       "kind": "Struct",
       "detail": "Record",
@@ -2773,17 +2241,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Detail",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Holds the details of an HTTP error\n"
-      },
-      "sortText": "180",
-      "insertText": "Detail",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "FailoverAllEndpointsFailedError",
       "kind": "Event",
       "detail": "Error",
@@ -2825,6 +2282,17 @@
       },
       "sortText": "200",
       "insertText": "AllLoadBalanceEndpointsFailedError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CircuitBreakerConfigError",
+      "kind": "Event",
+      "detail": "Error",
+      "documentation": {
+        "left": "Represents a client error that occurred due to circuit breaker configuration error."
+      },
+      "sortText": "200",
+      "insertText": "CircuitBreakerConfigError",
       "insertTextFormat": "Snippet"
     },
     {
@@ -3491,7 +2959,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Represents an error occurred in an remote function of the Load Balance connector.\n"
+        "left": "Represents the error attributes in addition to the message and the cause of the `LoadBalanceActionError`.\n"
       },
       "sortText": "180",
       "insertText": "LoadBalanceActionErrorData",
@@ -3501,6 +2969,9 @@
       "label": "LoadBalanceActionError",
       "kind": "Event",
       "detail": "Error",
+      "documentation": {
+        "left": "Represents an error occurred in an remote function of the Load Balance connector."
+      },
       "sortText": "200",
       "insertText": "LoadBalanceActionError",
       "insertTextFormat": "Snippet"
@@ -3813,6 +3284,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "CsvPersistentCookieHandler",
+      "kind": "Interface",
+      "detail": "Object",
+      "documentation": {
+        "left": "Represents a default persistent cookie handler, which stores persistent cookies in a CSV file.\n"
+      },
+      "sortText": "190",
+      "insertText": "CsvPersistentCookieHandler",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "RequestMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -3841,11 +3323,29 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: The `Request` instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nExtracts the Authorization header value from the request.\n  \n**Params**  \n- `http:Request` req: The `Request` instance  \n  \n**Returns** `string`   \n- Value of the Authorization header  \n  \n"
         }
       },
       "sortText": "120",
       "insertText": "extractAuthorizationHeaderValue(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isResourceSecured(http:FilterContext context)(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nChecks whether the calling resource is secured by evaluating the authentication hierarchy.\n  \n**Params**  \n- `http:FilterContext` context: The `FilterContext` instance  \n  \n**Returns** `boolean`   \n- The status of calling resource is secured or not  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "isResourceSecured(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -3859,7 +3359,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `http:HttpCachingClient` instance, which wraps the base `http:Client` with a caching layer   \n           or else an `http:ClientError`  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates an HTTP client capable of caching HTTP responses.\n  \n**Params**  \n- `string` url: The URL of the HTTP endpoint to connect  \n- `http:ClientConfiguration` config: The configurations for the client endpoint associated with the caching client  \n- `http:CacheConfig` cacheConfig: The configurations for the HTTP cache to be used with the caching client  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- An `http:HttpCachingClient` instance, which wraps the base `http:Client` with a caching layer   \n           or else an `http:ClientError`  \n  \n"
         }
       },
       "sortText": "120",
@@ -3877,7 +3377,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map\u003cany\u003e]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nParses the given header value to extract its value and parameter map.\n  \n**Params**  \n- `string` headerValue: The header value  \n  \n**Returns** `([string,map<any>]|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails  \n  \n"
         }
       },
       "sortText": "120",
@@ -3895,7 +3395,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nThe HEAD remote function implementation of the Circuit Breaker. This wraps the `head` function of the underlying\nHTTP remote function provider.  \n**Params**  \n- `string` path: Resource path  \n- `http:Request` outRequest: A Request struct  \n- `(FORWARD|GET|POST|DELETE|OPTIONS|PUT|PATCH|HEAD|SUBMIT|NONE)` requestAction: `HttpOperation` related to the request  \n- `http:HttpClient` httpClient: HTTP client which uses to call the relevant functions  \n- `string` verb: HTTP verb used for submit method(Defaultable)  \n  \n**Returns** `(http:Response|http:HttpFuture|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- The response for the request or an `http:ClientError` if failed to establish communication with the upstream server  \n  \n"
         }
       },
       "sortText": "120",
@@ -3913,7 +3413,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/http_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nCreates an HTTP client capable of securing HTTP requests with authentication.\n  \n**Params**  \n- `string` url: Base URL  \n- `http:ClientConfiguration` config: Client endpoint configurations  \n  \n**Returns** `(http:HttpClient|http:FailoverAllEndpointsFailedError|http:FailoverActionFailedError|http:UpstreamServiceUnavailableError|http:AllLoadBalanceEndpointsFailedError|http:AllRetryAttemptsFailed|http:IdleTimeoutError|http:AuthenticationError|http:AuthorizationError|http:InitializingOutboundRequestError|http:WritingOutboundRequestHeadersError|http:WritingOutboundRequestBodyError|http:InitializingInboundResponseError|http:ReadingInboundResponseHeadersError|http:ReadingInboundResponseBodyError|http:UnsupportedActionError|http:Http2ClientError|http:MaximumWaitTimeExceededError|http:SslError|http:GenericClientError|http:CookieHandlingError)`   \n- Created secure HTTP client  \n  \n"
         }
       },
       "sortText": "120",

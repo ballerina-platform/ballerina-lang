@@ -1,0 +1,17 @@
+[project]
+org-name= "jo"
+version= "0.1.0"
+
+[dependencies]
+
+
+
+
+[platform]
+target = "java8"
+
+    [[platform.libraries]]
+    modules = ["jyaml"]
+    groupId = "org.yaml"
+    artifactId = "snakeyaml"
+    version = "1.26"

@@ -157,6 +157,29 @@ function tupleTest() returns int {
    return 10;
 }
 
+public function testRestType() {
+    [int...] x = [1, 2];
+    any y = x;
+    assertEquality(y is string[], false);
+}
+
+public function testEmptyArrayType() {
+    var x = [];
+    any a = x;
+    assertEquality(a is int[2], false);
+    assertEquality(a is int[], true);
+
+    string[] sa = [];
+    any arr = sa;
+    assertEquality(arr is string[], true);
+    assertEquality(arr is int[], false);
+
+    int[0] ia = [];
+    any iarr = ia;
+    assertEquality(iarr is int[0], true);
+    assertEquality(iarr is int[], true);
+}
+
 function divideBy([int,int] d) returns [int, int] {
    //  int q = d[0] / d[1];
    // int r = d[0] % d[1];
@@ -738,7 +761,7 @@ function testTypeDescValuePrint() {
     io:print(t1);
 }
 
-type AssertionError error<ASSERTION_ERROR_REASON>;
+type AssertionError error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 
@@ -751,5 +774,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic AssertionError(message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

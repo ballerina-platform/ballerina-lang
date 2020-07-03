@@ -133,8 +133,7 @@ public class HeaderTest {
 
     @Test(description = "Test getting a value out of a non existence header", expectedExceptions =
             BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*HeaderNotFound message=Http header does not " +
-                  "exist.*")
+          expectedExceptionsMessageRegExp = ".*error: Http header does not exist.*")
     public void testNonExistenceHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNonExistenceHeader");
         Assert.assertEquals(returns.length, 1);
@@ -222,8 +221,7 @@ public class HeaderTest {
 
     @Test(description = "Test getting a value out of a non existence trailing header", expectedExceptions =
             BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*HeaderNotFound message=Http header does not " +
-                  "exist.*")
+          expectedExceptionsMessageRegExp = ".*error: Http header does not exist.*")
     public void testNonExistenceTrailingHeader() {
         BString headerName = new BString("heAder1");
         BString headerValue = new BString("value1");
@@ -260,8 +258,7 @@ public class HeaderTest {
     }
 
     @Test(description = "Test adding illegal trailing header", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InvalidHeaderOperation message=prohibited trailing header: " +
-                  "Transfer-encoding.*")
+          expectedExceptionsMessageRegExp = ".*error: prohibited trailing header: Transfer-encoding.*")
     public void testAddHeaderWhenAddingIllegalHeaderAsTrailingHeader() {
         BString headerName = new BString("Transfer-encoding");
         BString headerValue = new BString("gzip");
@@ -270,8 +267,7 @@ public class HeaderTest {
     }
 
     @Test(description = "Test setting illegal trailing header", expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InvalidHeaderOperation message=prohibited trailing header: " +
-                  "Content-Length.*")
+          expectedExceptionsMessageRegExp = ".*error: prohibited trailing header: Content-Length.*")
     public void testSetHeaderWhenSettingIllegalHeaderAsTrailingHeader() {
         BString headerName = new BString("Content-Length");
         BString headerValue = new BString("15");

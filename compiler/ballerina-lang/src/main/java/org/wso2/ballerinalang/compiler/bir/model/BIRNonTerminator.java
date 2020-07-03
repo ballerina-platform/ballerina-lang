@@ -270,6 +270,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
         public BIROperand rhsOp;
         public boolean optionalFieldAccess = false;
         public boolean fillingRead = false;
+        public boolean onInitialization = false;
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
                            BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp) {
@@ -277,6 +278,15 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
             this.lhsOp = lhsOp;
             this.keyOp = keyOp;
             this.rhsOp = rhsOp;
+        }
+
+        public FieldAccess(DiagnosticPos pos, InstructionKind kind,
+                           BIROperand lhsOp, BIROperand keyOp, BIROperand rhsOp, boolean onInitialization) {
+            super(pos, kind);
+            this.lhsOp = lhsOp;
+            this.keyOp = keyOp;
+            this.rhsOp = rhsOp;
+            this.onInitialization = onInitialization;
         }
 
         public FieldAccess(DiagnosticPos pos, InstructionKind kind,
@@ -306,16 +316,18 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     public static class NewError extends BIRNonTerminator {
 
         public BType type;
-        
-        public BIROperand reasonOp;
 
+        public BIROperand messageOp;
+        public BIROperand causeOp;
         public BIROperand detailOp;
         
-        public NewError(DiagnosticPos pos,  BType type, BIROperand lhsOp, BIROperand reasonOp, BIROperand detailOp) {
+        public NewError(DiagnosticPos pos, BType type, BIROperand lhsOp, BIROperand messageOp, BIROperand causeOp,
+                        BIROperand detailOp) {
             super(pos, InstructionKind.NEW_ERROR);
             this.type = type;
             this.lhsOp = lhsOp;
-            this.reasonOp = reasonOp;
+            this.messageOp = messageOp;
+            this.causeOp = causeOp;
             this.detailOp = detailOp;
         }
 

@@ -2,11 +2,22 @@
   "kind": "RETURN_STATEMENT",
   "children": [
     {
-      "kind": "RETURN_KEYWORD"
+      "kind": "RETURN_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "DECIMAL_INTEGER_LITERAL",
-      "value": "6"
+      "children": [
+        {
+          "kind": "DECIMAL_INTEGER_LITERAL",
+          "value": "6"
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

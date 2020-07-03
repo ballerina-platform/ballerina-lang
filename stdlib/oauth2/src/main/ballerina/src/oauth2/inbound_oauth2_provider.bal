@@ -22,6 +22,8 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/time;
 
+type JsonMap map<json>;
+
 # Represents the inbound OAuth2 provider, which calls the introspection server, validates the received credentials,
 # and performs authentication and authorization. The `oauth2:InboundOAuth2Provider` is an implementation of the
 # `auth:InboundAuthProvider` interface.
@@ -31,7 +33,6 @@ import ballerina/time;
 # };
 # oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
 # ```
-#
 public type InboundOAuth2Provider object {
 
     *auth:InboundAuthProvider;
@@ -41,7 +42,7 @@ public type InboundOAuth2Provider object {
     # Provides authentication based on the provided introspection configurations.
     #
     # + introspectionServerConfig - OAuth2 introspection server configurations
-    public function __init(IntrospectionServerConfig introspectionServerConfig) {
+    public function init(IntrospectionServerConfig introspectionServerConfig) {
         self.introspectionServerConfig = introspectionServerConfig;
     }
 
@@ -63,6 +64,10 @@ public type InboundOAuth2Provider object {
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(validationResult?.username, validationResult?.username,
                                   getScopes(validationResult?.scopes));
+                map<json>|error introspectionResponseMap = validationResult.cloneWithType(JsonMap);
+                if (introspectionResponseMap is map<json>) {
+                    auth:setPrincipal(claims = introspectionResponseMap);
+                }
             }
             return validationResult.active;
         } else {
@@ -104,7 +109,7 @@ public function validateOAuth2Token(string token, IntrospectionServerConfig conf
     if (response is http:Response) {
         json|error result = response.getJsonPayload();
         if (result is error) {
-            return <@untainted> prepareError(result.reason(), result);
+            return <@untainted> prepareError(result.message(), result);
         }
         IntrospectionResponse introspectionResponse = prepareIntrospectionResponse(<json>result);
         if (introspectionResponse.active) {

@@ -28,6 +28,10 @@ type Teacher record {
     string school;
 };
 
+type StringTeacher [string, Teacher];
+type TeacherArray Teacher[];
+type EmployeeMap map<Employee>;
+
 function stampAnydataToJSON() returns json|error  {
     anydata anydataValue = 3;
     json|error  jsonValue = anydataValue.cloneWithType(json);
@@ -63,7 +67,7 @@ function stampAnydataToMap() returns map<Employee>|error  {
 
     map<Teacher> teacherMap = { "a": p1, "b": p2 };
     anydata anydataValue = teacherMap;
-    map<Employee>|error  mapValue = anydataValue.cloneWithType(map<Employee>);
+    map<Employee>|error  mapValue = anydataValue.cloneWithType(EmployeeMap);
 
     return mapValue;
 }
@@ -74,7 +78,7 @@ function stampAnydataToRecordArray() returns Teacher[]|error  {
 
     Teacher[] teacherArray = [p1, p2];
     anydata anydataValue = teacherArray;
-    Teacher[]|error  returnValue = anydataValue.cloneWithType(Teacher[]);
+    Teacher[]|error  returnValue = anydataValue.cloneWithType(TeacherArray);
 
     return returnValue;
 }
@@ -84,15 +88,16 @@ function stampAnydataToTuple() returns [string,Teacher]|error  {
     "Hindu College" }];
 
     anydata anydataValue = tupleValue;
-    [string,Teacher]|error  returnValue = anydataValue.cloneWithType([string, Teacher]);
+    [string,Teacher]|error  returnValue = anydataValue.cloneWithType(StringTeacher);
 
     return returnValue;
 }
+type AnydataMap map<anydata>;
 
 function stampAnydataMapToAnydataMap() returns map<anydata>|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    map<anydata>|error mapValue = anydataMap.cloneWithType(map<anydata>);
+    map<anydata>|error mapValue = anydataMap.cloneWithType(AnydataMap);
     return mapValue;
 }
 
@@ -104,9 +109,11 @@ function stampAnydataToAnydata() returns anydata|error {
     return returnValue;
 }
 
+type JsonOrXml json|xml;
+
 function stampAnydataMapToUnion() returns json|xml|error {
     map<anydata> anydataMap = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
 
-    json|xml|error mapValue = anydataMap.cloneWithType(json|xml);
+    json|xml|error mapValue = anydataMap.cloneWithType(JsonOrXml);
     return mapValue;
 }

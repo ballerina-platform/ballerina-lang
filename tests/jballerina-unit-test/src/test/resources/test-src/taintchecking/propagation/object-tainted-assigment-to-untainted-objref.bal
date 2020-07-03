@@ -17,7 +17,7 @@
 type TestObject object {
     string? 'field;
 
-    function __init() {
+    function init() {
         self.'field = ();
     }
 

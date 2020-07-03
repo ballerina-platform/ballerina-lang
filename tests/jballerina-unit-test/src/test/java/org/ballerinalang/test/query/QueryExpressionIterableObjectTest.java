@@ -18,8 +18,8 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.core.model.values.BError;
+import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -36,54 +36,49 @@ public class QueryExpressionIterableObjectTest {
 
     private CompileResult program;
 
-    // TODO: Skipping until https://github.com/ballerina-platform/ballerina-lang/issues/23129 is fixed.
-    @BeforeClass(enabled = false)
+    @BeforeClass
     public void setup() {
         program = BCompileUtil.compile("test-src/query/query-exp-iterable-objects.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testIterableObject");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 7);
+        Assert.assertEquals(returns.length, 7);
         int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i]).intValue(), 90);
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNestedIterableObject() {
         BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 14);
+        Assert.assertEquals(returns.length, 14);
         int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i++), 90);
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 90);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 12);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 56);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 34);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 78);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 21);
+        Assert.assertEquals(((BInteger) returns[i]).intValue(), 90);
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testIterableWithError() {
         BValue[] returnValues = BRunUtil.invoke(program, "testIterableWithError");
         Assert.assertNotNull(returnValues);

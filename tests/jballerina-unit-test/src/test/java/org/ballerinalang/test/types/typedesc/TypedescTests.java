@@ -39,7 +39,7 @@ public class TypedescTests {
         result = BCompileUtil.compile("test-src/types/typedesc/typedesc_positive.bal");
     }
 
-    @Test(description = "Test basics types")
+    @Test(description = "Test basics types", groups = { "brokenOnNewParser" })
     public void testNegative() {
         final CompileResult compile = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 2);

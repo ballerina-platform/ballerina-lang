@@ -15,7 +15,7 @@ public type Employee record {
 
 public type Person object {
     int age = 9;
-    public function __init(int age) {
+    public function init(int age) {
         self.age = age;
     }
 };
@@ -37,7 +37,7 @@ public function acceptRefTypesAndReturnMap(Person a, [int, string, Person] b, in
 
 public function interopWithErrorReturn() returns string {
     error e = acceptStringOrErrorReturn("example error with given reason");
-    return e.reason();
+    return e.message();
 }
 
 public function acceptStringOrErrorReturn(string s) returns error = @java:Method {

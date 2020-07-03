@@ -91,7 +91,44 @@ public class STTypeDefinitionNode extends STModuleMemberDeclarationNode {
                 diagnostics);
     }
 
+    public STTypeDefinitionNode modify(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode typeKeyword,
+            STNode typeName,
+            STNode typeDescriptor,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STTypeDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                typeKeyword,
+                typeName,
+                typeDescriptor,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeDefinitionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

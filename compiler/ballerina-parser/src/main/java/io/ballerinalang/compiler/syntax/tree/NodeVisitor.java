@@ -315,6 +315,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(xMLNamespaceDeclarationNode);
     }
 
+    public void visit(ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        visitSyntaxNode(moduleXMLNamespaceDeclarationNode);
+    }
+
     public void visit(FunctionBodyBlockNode functionBodyBlockNode) {
         visitSyntaxNode(functionBodyBlockNode);
     }
@@ -391,8 +395,16 @@ public abstract class NodeVisitor {
         visitSyntaxNode(streamTypeParamsNode);
     }
 
+    public void visit(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
+        visitSyntaxNode(typedescTypeDescriptorNode);
+    }
+
     public void visit(LetExpressionNode letExpressionNode) {
         visitSyntaxNode(letExpressionNode);
+    }
+
+    public void visit(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        visitSyntaxNode(xmlTypeDescriptorNode);
     }
 
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
@@ -551,8 +563,8 @@ public abstract class NodeVisitor {
         visitSyntaxNode(singletonTypeDescriptorNode);
     }
 
-    public void visit(FunctionDeclarationNode functionDeclarationNode) {
-        visitSyntaxNode(functionDeclarationNode);
+    public void visit(MethodDeclarationNode methodDeclarationNode) {
+        visitSyntaxNode(methodDeclarationNode);
     }
 
     public void visit(TypedBindingPatternNode typedBindingPatternNode) {
@@ -561,6 +573,10 @@ public abstract class NodeVisitor {
 
     public void visit(CaptureBindingPatternNode captureBindingPatternNode) {
         visitSyntaxNode(captureBindingPatternNode);
+    }
+
+    public void visit(WildcardBindingPatternNode wildcardBindingPatternNode) {
+        visitSyntaxNode(wildcardBindingPatternNode);
     }
 
     public void visit(ListBindingPatternNode listBindingPatternNode) {
@@ -677,6 +693,70 @@ public abstract class NodeVisitor {
 
     public void visit(ByteArrayLiteralNode byteArrayLiteralNode) {
         visitSyntaxNode(byteArrayLiteralNode);
+    }
+
+    public void visit(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        visitSyntaxNode(xMLFilterExpressionNode);
+    }
+
+    public void visit(XMLStepExpressionNode xMLStepExpressionNode) {
+        visitSyntaxNode(xMLStepExpressionNode);
+    }
+
+    public void visit(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        visitSyntaxNode(xMLNamePatternChainingNode);
+    }
+
+    public void visit(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        visitSyntaxNode(xMLAtomicNamePatternNode);
+    }
+
+    public void visit(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
+        visitSyntaxNode(typeReferenceTypeDescNode);
+    }
+
+    public void visit(MatchStatementNode matchStatementNode) {
+        visitSyntaxNode(matchStatementNode);
+    }
+
+    public void visit(MatchClauseNode matchClauseNode) {
+        visitSyntaxNode(matchClauseNode);
+    }
+
+    public void visit(MatchGuardNode matchGuardNode) {
+        visitSyntaxNode(matchGuardNode);
+    }
+
+    public void visit(ObjectMethodDefinitionNode objectMethodDefinitionNode) {
+        visitSyntaxNode(objectMethodDefinitionNode);
+    }
+
+    public void visit(DistinctTypeDescriptorNode distinctTypeDescriptorNode) {
+        visitSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public void visit(OnConflictClauseNode onConflictClauseNode) {
+        visitSyntaxNode(onConflictClauseNode);
+    }
+
+    public void visit(LimitClauseNode limitClauseNode) {
+        visitSyntaxNode(limitClauseNode);
+    }
+
+    public void visit(JoinClauseNode joinClauseNode) {
+        visitSyntaxNode(joinClauseNode);
+    }
+
+    public void visit(OnClauseNode onClauseNode) {
+        visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(ListMatchPatternNode listMatchPatternNode) {
+        visitSyntaxNode(listMatchPatternNode);
+    }
+
+    public void visit(RestMatchPatternNode restMatchPatternNode) {
+        visitSyntaxNode(restMatchPatternNode);
     }
 
     // Tokens

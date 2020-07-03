@@ -354,7 +354,7 @@ public function cloneNilAnydata() returns [any, any] {
     return [x, y];
 }
 
-type MyError error<string, record {| string message?; error cause?; string...; |}>;
+type MyError error<record {| string message?; error cause?; string...; |}>;
 
 string reason1 = "err reason 1";
 string reason2 = "err reason 2";
@@ -364,8 +364,8 @@ string[*] reasonArray = [reason1, reason2, reason3, reason4];
 
 error err1 = error(reason1);
 error err2 = error(reason2, one = 1, two = "2");
-MyError err3 = error(reason3, one = "first");
-MyError err4 = error(reason4, one = "first", two = "second");
+MyError err3 = MyError(reason3, one = "first");
+MyError err4 = MyError(reason4, one = "first", two = "second");
 
 public function testCloneArrayWithError() returns boolean {
     error[*] errArray = [err1, err2, err3, err4];
@@ -375,8 +375,8 @@ public function testCloneArrayWithError() returns boolean {
 
     foreach int i in 0 ... 3 {
         cloneSuccessful = cloneSuccessful &&
-                            errArray[i].reason() == clonedErrArray[i].reason() &&
-                            errArray[i].reason() == reasonArray[i] &&
+                            errArray[i].message() == clonedErrArray[i].message() &&
+                            errArray[i].message() == reasonArray[i] &&
                             errArray[i].detail() === clonedErrArray[i].detail();
     }
     return cloneSuccessful;

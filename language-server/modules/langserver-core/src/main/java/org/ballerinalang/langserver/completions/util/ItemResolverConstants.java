@@ -32,6 +32,7 @@ public class ItemResolverConstants {
     public static final String FORK = "fork";
     public static final String WORKER = "worker";
     public static final String TRANSACTION = "transaction";
+    public static final String RETRY_TRANSACTION = "retry transaction";
     public static final String ABORT = "abort";
     public static final String RETRY = "retry";
     public static final String TRAP = "trap";
@@ -41,6 +42,7 @@ public class ItemResolverConstants {
     public static final String ON = "on";
     public static final String NEW = "new";
     public static final String CLIENT = "client";
+    public static final String READONLY = "readonly";
     public static final String EXTERNAL = "external";
     public static final String ABSTRACT = "abstract";
     public static final String CONTINUE = "continue";
@@ -50,6 +52,7 @@ public class ItemResolverConstants {
     public static final String PANIC = "panic";
     public static final String LENGTHOF = "lengthof";
     public static final String TYPEOF = "typeof";
+    public static final String COMMIT = "commit";
 
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
@@ -99,6 +102,7 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
+    public static final String ROLLBACK_KEYWORD = "rollback";
     public static final String CHECK_KEYWORD = "check";
     public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";

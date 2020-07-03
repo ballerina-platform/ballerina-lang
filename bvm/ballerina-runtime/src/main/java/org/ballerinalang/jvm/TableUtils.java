@@ -80,6 +80,11 @@ public class TableUtils {
                     result = 31 * result + hash(arrayIterator.next(), node);
                 }
                 return result;
+            } else if (refType.getTag() == TypeTags.XML_TAG || refType.getTag() == TypeTags.XML_ELEMENT_TAG ||
+                    refType.getTag() == TypeTags.XML_TEXT_TAG || refType.getTag() == TypeTags.XML_ATTRIBUTES_TAG ||
+                    refType.getTag() == TypeTags.XML_COMMENT_TAG || refType.getTag() == TypeTags.XML_PI_TAG ||
+                    refType.getTag() == TypeTags.XMLNS_TAG) {
+                return (long) refValue.toString().hashCode();
             } else {
                 return (long) obj.hashCode();
             }

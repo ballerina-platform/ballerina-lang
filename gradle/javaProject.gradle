@@ -22,6 +22,9 @@ apply plugin: 'jacoco'
 
 apply from: "$rootDir/gradle/repositories.gradle"
 
+ext.setProperty("grpcVersion", "1.27.2")
+ext.setProperty("protobufVersion", "3.11.0")
+
 dependencies {
     checkstyle project(':build-config:checkstyle')
     checkstyle 'com.puppycrawl.tools:checkstyle:8.18'
@@ -55,6 +58,9 @@ dependencies {
         implementation 'io.jaegertracing:jaeger-core:0.31.0'
         implementation 'io.jaegertracing:jaeger-thrift:0.31.0'
         implementation 'com.zaxxer:HikariCP:3.3.1'
+        implementation "io.grpc:grpc-protobuf:${project.ext.grpcVersion}"
+        implementation "io.grpc:grpc-stub:${project.ext.grpcVersion}"
+        implementation "io.grpc:grpc-netty-shaded:${project.ext.grpcVersion}"
         implementation 'com.github.spullara.mustache.java:compiler:0.8.9'
         implementation 'org.bitbucket.cowwoc:diff-match-patch:1.2'
 
@@ -99,12 +105,12 @@ dependencies {
         implementation 'org.wso2.carbon.messaging:org.wso2.carbon.messaging:2.3.7'
         implementation 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
         implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
-        implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.8'
+        implementation 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.9'
         implementation 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
         implementation 'org.wso2.staxon:staxon-core:1.2.0.wso2v2'
         implementation 'org.quartz-scheduler:quartz:2.3.1'
         implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.9.5'
-        
+
         implementation 'info.picocli:picocli:4.0.1'
         implementation 'io.ballerina.messaging:broker-common:0.970.5'
         implementation 'io.ballerina.messaging:broker-core:0.970.5'

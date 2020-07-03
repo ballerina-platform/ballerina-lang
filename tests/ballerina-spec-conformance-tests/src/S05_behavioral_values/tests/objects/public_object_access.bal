@@ -117,7 +117,7 @@ type ObjReferenceToPublicAbstractClientObject client object {
         return self.counter;
     }
 
-    public function __init(string argOne) {
+    public function init(string argOne) {
         self.publicStringField = argOne;
         self.counter = 10;
     }

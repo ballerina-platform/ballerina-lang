@@ -15,7 +15,12 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "ERROR_REASON"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "ERROR_REASON"
+                }
+              ]
             }
           ]
         },
@@ -23,11 +28,22 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "error message"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "error message"
+                }
+              ]
             }
           ]
         }

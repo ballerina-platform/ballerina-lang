@@ -29,6 +29,7 @@ import org.testng.annotations.Test;
 /**
  * Test class for String Template Literal.
  */
+@Test(groups = { "disableOnOldParser" })
 public class StringTemplateLiteralTest {
 
     private CompileResult result;

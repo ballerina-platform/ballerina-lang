@@ -6,21 +6,60 @@
       "children": [
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "3"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "3",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         },
         {
-          "kind": "IS_KEYWORD"
+          "kind": "IS_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
-          "kind": "INT_KEYWORD"
+          "kind": "INT_TYPE_DESC",
+          "children": [
+            {
+              "kind": "INT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
-      "kind": "IS_KEYWORD"
+      "kind": "IS_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "DECIMAL_KEYWORD"
+      "kind": "DECIMAL_TYPE_DESC",
+      "children": [
+        {
+          "kind": "DECIMAL_KEYWORD"
+        }
+      ]
     }
   ]
 }

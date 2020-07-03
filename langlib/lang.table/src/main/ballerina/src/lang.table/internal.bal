@@ -20,7 +20,7 @@ type TableIterator object {
     private KeyType[] keys;
     private int size;
 
-    public function __init(table<Type> t) {
+    public function init(table<Type> t) {
        self.t = t;
         self.size = length(t);
        if (t is table<Type> key<KeyType>) {

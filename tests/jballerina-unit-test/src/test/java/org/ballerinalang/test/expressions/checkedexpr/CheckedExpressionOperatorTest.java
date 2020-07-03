@@ -248,7 +248,8 @@ public class CheckedExpressionOperatorTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(description = "Test service resource that returns an error containing check expression")
+    @Test(description = "Test service resource that returns an error containing check expression",
+            groups = "brokenOnErrorChange")
     public void testSemanticErrorsWithResources() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");

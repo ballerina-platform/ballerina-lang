@@ -34,6 +34,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  *
  * @since 0.8.0
  */
+@Test
 public class FuncInvocationExprTest {
 
     private CompileResult funcInvocationExpResult;
@@ -140,7 +141,7 @@ public class FuncInvocationExprTest {
         BRunUtil.invoke(funcInvocationExpResult, "testInvocationWithArgVarargMix");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testFunctionCallNegativeCases() {
         int i = 0;
         validateError(funcInvocationNegative, i++, "incompatible types: expected 'int', found 'string'", 3, 16);
@@ -167,7 +168,7 @@ public class FuncInvocationExprTest {
         Assert.assertEquals(i,  funcInvocationNegative.getErrorCount());
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testMethodCallNegativeCases() {
         int i = 0;
         validateError(methodInvocationNegative, i++, "incompatible types: expected 'string', found 'int'", 23, 16);

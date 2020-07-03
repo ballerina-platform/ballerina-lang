@@ -85,7 +85,7 @@ test {
     useTestNG() {
         suites 'src/test/resources/testng.xml'
     }
-    minHeapSize = "256m"
-    maxHeapSize = "1024m"
+    minHeapSize = "512m"
+    maxHeapSize = "2048m"
 }
 

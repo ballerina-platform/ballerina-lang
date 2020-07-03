@@ -21,9 +21,9 @@ package org.ballerinalang.nats.basic.consumer;
 import io.nats.client.Connection;
 import io.nats.client.Dispatcher;
 import org.ballerinalang.jvm.BRuntime;
-import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.nats.Constants;
 import org.ballerinalang.nats.Utils;
 import org.ballerinalang.nats.observability.NatsMetricsReporter;
@@ -54,15 +54,17 @@ public class Register {
         List<ObjectValue> serviceList =
                 (List<ObjectValue>) ((ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ))
                         .getNativeData(Constants.SERVICE_LIST);
-        MapValue<String, Object> subscriptionConfig =
+        MapValue<BString, Object> subscriptionConfig =
                 Utils.getSubscriptionConfig(service.getType().getAnnotation(Constants.NATS_PACKAGE,
                                                                             Constants.SUBSCRIPTION_CONFIG));
         if (subscriptionConfig == null) {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
-                                               errorMessage + " Cannot find subscription configuration.");
+            return Utils.createNatsError(errorMessage + " Cannot find subscription configuration.");
         }
-        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+        String queueName = null;
+        if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
+            queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+        }
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         BRuntime runtime = BRuntime.getCurrentRuntime();
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);
@@ -87,8 +89,7 @@ public class Register {
             }
         } catch (IllegalArgumentException | IllegalStateException ex) {
             natsMetricsReporter.reportConsumerError(subject, NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
-            return BallerinaErrors.createError(Constants.NATS_ERROR_CODE,
-                                               errorMessage + ex.getMessage());
+            return Utils.createNatsError(errorMessage + ex.getMessage());
         }
         serviceList.add(service);
         String consoleOutput = "subject " + subject + (queueName != null ? " & queue " + queueName : "");

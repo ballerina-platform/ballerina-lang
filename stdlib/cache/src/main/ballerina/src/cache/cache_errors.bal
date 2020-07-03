@@ -16,50 +16,34 @@
 
 import ballerina/log;
 
-# Record type to hold the details of an error.
-#
-# + message - Specific error message of the error.
-# + cause - Any other error, which causes this error.
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason for the `cache:Error`.
-public const CACHE_ERROR = "{ballerina/cache}Error";
-
 # Represents the Cache error type with details. This will be returned if an error occurred while doing any of the cache
 # operations.
-public type Error error<CACHE_ERROR, Detail>;
+public type CacheError distinct error;
 
-# Prepare the `error` as a `cache:Error` after printing an error log.
+# Represents Cache related errors.
+public type Error CacheError;
+
+const string LOG_LEVEL_DEBUG = "DEBUG";
+const string LOG_LEVEL_ERROR = "ERROR";
+type LOG_LEVEL LOG_LEVEL_DEBUG|LOG_LEVEL_ERROR;
+
+# Prepare the `error` as a `cache:Error` after printing an log with provided log level.
 #
 # + message - Error message
 # + err - `error` instance
+# + logLevel - Log level of the error message
 # + return - Prepared `Error` instance
-function prepareError(string message, error? err = ()) returns Error {
-    log:printError(message, err);
-    Error cacheError;
-    if (err is error) {
-        cacheError = error(CACHE_ERROR, message = message, cause = err);
-    } else {
-        cacheError = error(CACHE_ERROR, message = message);
+function prepareError(string message, error? err = (), LOG_LEVEL logLevel = LOG_LEVEL_ERROR) returns Error {
+    if (logLevel == LOG_LEVEL_ERROR) {
+        log:printError(message, err);
+    } else if (logLevel == LOG_LEVEL_DEBUG) {
+        log:printDebug(message);
     }
-    return cacheError;
-}
-
-# Prepare the `error` as a `cache:Error` after printing a debug log.
-#
-# + message - Error message
-# + err - `error` instance
-# + return - Prepared `Error` instance
-function prepareErrorWithDebugLog(string message, error? err = ()) returns Error {
-    log:printDebug(message);
     Error cacheError;
     if (err is error) {
-        cacheError = error(CACHE_ERROR, message = message, cause = err);
+        cacheError = CacheError(message, err);
     } else {
-        cacheError = error(CACHE_ERROR, message = message);
+        cacheError = CacheError(message);
     }
     return cacheError;
 }

@@ -66,6 +66,8 @@ class TypeEmitter {
                 return "any";
             case TypeTags.NIL:
                 return "()";
+            case TypeTags.NEVER:
+                return "never";
             case TypeTags.BYTE:
                 return "byte";
             case TypeTags.FLOAT:
@@ -283,9 +285,6 @@ class TypeEmitter {
     private static String emitBErrorType(BErrorType bType, int tabs) {
 
         String errStr = "error{";
-        errStr += emitTypeRef(bType.reasonType, tabs);
-        errStr += ",";
-        errStr += emitSpaces(1);
         errStr += emitTypeRef(bType.detailType, tabs);
         errStr += "}";
         return errStr;

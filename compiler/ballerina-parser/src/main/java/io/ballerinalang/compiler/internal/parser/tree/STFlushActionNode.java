@@ -63,7 +63,32 @@ public class STFlushActionNode extends STExpressionNode {
                 diagnostics);
     }
 
+    public STFlushActionNode modify(
+            STNode flushKeyword,
+            STNode peerWorker) {
+        if (checkForReferenceEquality(
+                flushKeyword,
+                peerWorker)) {
+            return this;
+        }
+
+        return new STFlushActionNode(
+                flushKeyword,
+                peerWorker,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new FlushActionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

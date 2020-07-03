@@ -14,43 +14,29 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the details of an error.
-#
-# + message - The description of the error occurred
-# + cause - Cause of the error
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Used as the error reason for the `kafka:ConsumerError` type.
-public const CONSUMER_ERROR = "{ballerina/kafka}ConsumerError";
-
 # Error type specific to the `kafka:Consumer` object functions.
-public type ConsumerError error<CONSUMER_ERROR, Detail>;
-
-# Used as the error reason for the `kafka:ProducerError` type.
-public const PRODUCER_ERROR = "{ballerina/kafka}ProducerError";
+public type ConsumerError distinct error;
 
 # Error type specific to the `kafka:Producer` object functions.
-public type ProducerError error<PRODUCER_ERROR, Detail>;
-
-# Used as the error reason for the `kafka:AvroError` type.
-public const AVRO_ERROR = "{ballerina/kafka}AvroError";
+public type ProducerError distinct error;
 
 # Represents a Kafka Avro related error.
-public type AvroError error<AVRO_ERROR, Detail>;
+public type AvroError distinct error;
 
 function getValueTypeMismatchError(string expectedType) returns ProducerError {
     string message = "Invalid type found for Kafka value. Expected value type: '" + expectedType + "'.";
-    return createProducerError(message);
+    return ProducerError(message);
 }
 
 function getKeyTypeMismatchError(string expectedType) returns ProducerError {
     string message = "Invalid type found for Kafka key. Expected key type: '" + expectedType + "'.";
-    return createProducerError(message);
+    return ProducerError(message);
 }
 
 function createProducerError(string message) returns ProducerError {
-    return error(PRODUCER_ERROR, message = message);
+    return ProducerError(message);
+}
+
+function createConsumerError(string message) returns ConsumerError {
+    return ConsumerError(message);
 }

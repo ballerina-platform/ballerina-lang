@@ -70,7 +70,35 @@ public class STParenthesisedTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STParenthesisedTypeDescriptorNode modify(
+            STNode openParenToken,
+            STNode typedesc,
+            STNode closeParenToken) {
+        if (checkForReferenceEquality(
+                openParenToken,
+                typedesc,
+                closeParenToken)) {
+            return this;
+        }
+
+        return new STParenthesisedTypeDescriptorNode(
+                openParenToken,
+                typedesc,
+                closeParenToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ParenthesisedTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

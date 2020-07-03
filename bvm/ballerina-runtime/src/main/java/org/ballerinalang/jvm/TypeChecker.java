@@ -21,12 +21,14 @@ import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.types.AnnotatableType;
 import org.ballerinalang.jvm.types.AttachedFunction;
+import org.ballerinalang.jvm.types.BAnydataType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BFiniteType;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BFutureType;
+import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BJSONType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BObjectType;
@@ -36,6 +38,7 @@ import org.ballerinalang.jvm.types.BStreamType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
@@ -50,6 +53,7 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.TypedescValueImpl;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -580,7 +584,19 @@ public class TypeChecker {
             return false;
         }
 
+        int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(((BIntersectionType) sourceType).getEffectiveType(),
+                               targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                       ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsType(sourceType, ((BIntersectionType) targetType).getEffectiveType(), unresolvedTypes);
+        }
+
         switch (targetTypeTag) {
             case TypeTags.BYTE_TAG:
             case TypeTags.SIGNED32_INT_TAG:
@@ -596,15 +612,15 @@ public class TypeChecker {
             case TypeTags.CHAR_STRING_TAG:
             case TypeTags.BOOLEAN_TAG:
             case TypeTags.NULL_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == targetTypeTag;
+                return sourceTypeTag == targetTypeTag;
             case TypeTags.INT_TAG:
-                if (sourceType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+                if (sourceTypeTag == TypeTags.FINITE_TYPE_TAG) {
                     return isFiniteTypeMatch((BFiniteType) sourceType, targetType);
                 }
-                return sourceType.getTag() == TypeTags.BYTE_TAG || sourceType.getTag() == TypeTags.INT_TAG;
+                return sourceTypeTag == TypeTags.BYTE_TAG || sourceTypeTag == TypeTags.INT_TAG;
             case TypeTags.ANY_TAG:
                 return checkIsAnyType(sourceType);
             case TypeTags.ANYDATA_TAG:
@@ -612,13 +628,13 @@ public class TypeChecker {
             case TypeTags.SERVICE_TAG:
                 return checkIsServiceType(sourceType);
             case TypeTags.HANDLE_TAG:
-                return sourceType.getTag() == TypeTags.HANDLE_TAG;
+                return sourceTypeTag == TypeTags.HANDLE_TAG;
             case TypeTags.READONLY_TAG:
                 return isInherentlyImmutableType(sourceType) || sourceType.isReadOnly();
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
-                return targetTypeTag == sourceType.getTag();
+                return targetTypeTag == sourceTypeTag;
             default:
                 return checkIsRecursiveType(sourceType, targetType,
                         unresolvedTypes == null ? new ArrayList<>() : unresolvedTypes);
@@ -925,6 +941,10 @@ public class TypeChecker {
                 return false;
             }
 
+            if (hasIncompatibleReadOnlyFlags(targetField, sourceField)) {
+                return false;
+            }
+
             // If the target field is required, the source field should be required as well.
             if (!Flags.isFlagOn(targetField.flags, Flags.OPTIONAL)
                     && Flags.isFlagOn(sourceField.flags, Flags.OPTIONAL)) {
@@ -955,6 +975,10 @@ public class TypeChecker {
         return true;
     }
 
+    private static boolean hasIncompatibleReadOnlyFlags(BField targetField, BField sourceField) {
+        return Flags.isFlagOn(targetField.flags, Flags.READONLY) && !Flags.isFlagOn(sourceField.flags, Flags.READONLY);
+    }
+
     private static boolean checkIsArrayType(BType sourceType, BArrayType targetType, List<TypePair> unresolvedTypes) {
         if (sourceType.getTag() == TypeTags.UNION_TAG) {
             for (BType memberType : ((BUnionType) sourceType).getMemberTypes()) {
@@ -977,6 +1001,9 @@ public class TypeChecker {
             Set<BType> tupleTypes = new HashSet<>(sourceTupleType.getTupleTypes());
             if (sourceTupleType.getRestType() != null) {
                 tupleTypes.add(sourceTupleType.getRestType());
+            }
+            if (tupleTypes.isEmpty()) {
+                return targetType.getState() == ArrayState.UNSEALED || targetType.getSize() == 0;
             }
             sourceArrayType =
                     new BArrayType(new BUnionType(new ArrayList<>(tupleTypes), sourceTupleType.getTypeFlags()));
@@ -1108,9 +1135,10 @@ public class TypeChecker {
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
+                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
                         .orElse(""), lhsField.flags, rhsField.flags) ||
+                    hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
             }
@@ -1124,6 +1152,9 @@ public class TypeChecker {
                                     .orElse(""),
                             Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
                             lhsFunc.flags, rhsFunc.flags)) {
+                return false;
+            }
+            if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
                 return false;
             }
         }
@@ -1217,14 +1248,11 @@ public class TypeChecker {
             case TypeTags.INVOKABLE_TAG:
             case TypeTags.SERVICE_TAG:
             case TypeTags.TYPEDESC_TAG:
+            case TypeTags.FUNCTION_POINTER_TAG:
             case TypeTags.HANDLE_TAG:
                 return true;
         }
         return false;
-    }
-
-    boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, new HashSet<>());
     }
 
     public static boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
@@ -1278,6 +1306,22 @@ public class TypeChecker {
 
                 return isInherentlyImmutableType(recordRestType) ||
                         isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+            case TypeTags.OBJECT_TYPE_TAG:
+                BObjectType objectType = (BObjectType) type;
+
+                if (!Flags.isFlagOn(objectType.flags, Flags.ABSTRACT) &&
+                        !Flags.isFlagOn(objectType.flags, Flags.READONLY)) {
+                    return false;
+                }
+
+                for (BField field : objectType.getFields().values()) {
+                    BType fieldType = field.type;
+                    if (!isInherentlyImmutableType(fieldType) &&
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                        return false;
+                    }
+                }
+                return true;
             case TypeTags.MAP_TAG:
                 BType constraintType = ((BMapType) type).getConstrainedType();
                 return isInherentlyImmutableType(constraintType) ||
@@ -1367,11 +1411,26 @@ public class TypeChecker {
      */
     private static boolean checkIsLikeOnValue(Object sourceValue, BType sourceType, BType targetType,
                                               List<TypeValuePair> unresolvedValues, boolean allowNumericConversion) {
-        switch (targetType.getTag()) {
+        int sourceTypeTag = sourceType.getTag();
+        int targetTypeTag = targetType.getTag();
+
+        if (sourceTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, ((BIntersectionType) sourceType).getEffectiveType(),
+                                      targetTypeTag != TypeTags.INTERSECTION_TAG ? targetType :
+                                              ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
+        }
+
+        if (targetTypeTag == TypeTags.INTERSECTION_TAG) {
+            return checkIsLikeOnValue(sourceValue, sourceType, ((BIntersectionType) targetType).getEffectiveType(),
+                                      unresolvedValues, allowNumericConversion);
+        }
+
+        switch (targetTypeTag) {
             case TypeTags.READONLY_TAG:
                 return true;
             case TypeTags.BYTE_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag())) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag)) {
                     return isByteLiteral((Long) sourceValue);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToByte(sourceValue);
@@ -1383,7 +1442,7 @@ public class TypeChecker {
             case TypeTags.UNSIGNED32_INT_TAG:
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
-                if (TypeTags.isIntegerTypeTag(sourceType.getTag()) || targetType.getTag() == TypeTags.BYTE_TAG) {
+                if (TypeTags.isIntegerTypeTag(sourceTypeTag) || targetTypeTag == TypeTags.BYTE_TAG) {
                     return TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
                 }
                 return allowNumericConversion && TypeConverter.isConvertibleToIntSubType(sourceValue, targetType);
@@ -1416,7 +1475,7 @@ public class TypeChecker {
             case TypeTags.FINITE_TYPE_TAG:
                 return checkFiniteTypeAssignable(sourceValue, sourceType, (BFiniteType) targetType);
             case TypeTags.XML_ELEMENT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     XMLValue xmlSource = (XMLValue) sourceValue;
                     return xmlSource.isSingleton();
                 }
@@ -1424,12 +1483,12 @@ public class TypeChecker {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeNonElementSingleton((XMLValue) sourceValue, targetType);
                 }
                 return false;
             case TypeTags.XML_TAG:
-                if (sourceType.getTag() == TypeTags.XML_TAG) {
+                if (sourceTypeTag == TypeTags.XML_TAG) {
                     return checkIsLikeXMLSequenceType((XMLValue) sourceValue, targetType);
                 }
                 return false;
@@ -1893,9 +1952,17 @@ public class TypeChecker {
         }
         unresolvedTypes.add(pair);
         BErrorType bErrorType = (BErrorType) sourceType;
-        boolean reasonTypeMatched = checkIsType(bErrorType.reasonType, targetType.reasonType, unresolvedTypes);
 
-        return reasonTypeMatched && checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        if (targetType.typeIdSet == null) {
+            return checkIsType(bErrorType.detailType, targetType.detailType, unresolvedTypes);
+        }
+
+        BTypeIdSet sourceTypeIdSet = bErrorType.typeIdSet;
+        if (sourceTypeIdSet == null) {
+            return false;
+        }
+
+        return sourceTypeIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean checkIsLikeErrorType(Object sourceValue, BErrorType targetType,
@@ -1904,10 +1971,18 @@ public class TypeChecker {
         if (sourceValue == null || sourceType.getTag() != TypeTags.ERROR_TAG) {
             return false;
         }
-        return checkIsLikeType(((ErrorValue) sourceValue).getReason(),
-                               targetType.reasonType, unresolvedValues, allowNumericConversion) &&
-                checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
-                                allowNumericConversion);
+
+        if (targetType.typeIdSet == null) {
+            return checkIsLikeType(((ErrorValue) sourceValue).getDetails(), targetType.detailType, unresolvedValues,
+                    allowNumericConversion);
+        }
+
+        BTypeIdSet sourceIdSet = ((BErrorType) sourceType).typeIdSet;
+        if (sourceIdSet == null) {
+            return false;
+        }
+
+        return sourceIdSet.containsAll(targetType.typeIdSet);
     }
 
     private static boolean isSimpleBasicType(BType type) {
@@ -1984,6 +2059,9 @@ public class TypeChecker {
                         isEqual((ErrorValue) lhsValue, (ErrorValue) rhsValue, checkedValues);
             case TypeTags.SERVICE_TAG:
                 break;
+            case TypeTags.TABLE_TAG:
+                return rhsValTypeTag == TypeTags.TABLE_TAG &&
+                        isEqual((TableValueImpl) lhsValue, (TableValueImpl) rhsValue, checkedValues);
         }
         return false;
     }
@@ -2057,6 +2135,41 @@ public class TypeChecker {
     }
 
     /**
+     * Deep equality check for a table.
+     *
+     * @param lhsTable      Table on the left hand side
+     * @param rhsTable      Table on the right hand side
+     * @param checkedValues Structured value pairs already compared or being compared
+     * @return True if the table values are equal, else false.
+     */
+    private static boolean isEqual(TableValueImpl lhsTable, TableValueImpl rhsTable, List<ValuePair> checkedValues) {
+        ValuePair compValuePair = new ValuePair(lhsTable, rhsTable);
+        if (checkedValues.contains(compValuePair)) {
+            return true;
+        }
+        checkedValues.add(compValuePair);
+
+        if (lhsTable.size() != rhsTable.size()) {
+            return false;
+        }
+
+        if (((BTableType) lhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) lhsTable.getType()).getFieldNames().length > 0) {
+            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
+                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
+                if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return lhsTable.entrySet().equals(rhsTable.entrySet());
+    }
+
+
+    /**
      * Deep equality check for error.
      *
      * @param lhsError The error on the left hand side
@@ -2071,8 +2184,9 @@ public class TypeChecker {
         }
         checkedValues.add(compValuePair);
 
-        return isEqual(lhsError.getReason(), rhsError.getReason(), checkedValues) &&
-                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues);
+        return isEqual(lhsError.getMessage(), rhsError.getMessage(), checkedValues) &&
+                isEqual((MapValueImpl) lhsError.getDetails(), (MapValueImpl) rhsError.getDetails(), checkedValues) &&
+                isEqual(lhsError.getCause(), rhsError.getCause(), checkedValues);
     }
 
     /**

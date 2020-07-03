@@ -70,7 +70,35 @@ public class STXMLElementNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLElementNode modify(
+            STNode startTag,
+            STNode content,
+            STNode endTag) {
+        if (checkForReferenceEquality(
+                startTag,
+                content,
+                endTag)) {
+            return this;
+        }
+
+        return new STXMLElementNode(
+                startTag,
+                content,
+                endTag,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLElementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

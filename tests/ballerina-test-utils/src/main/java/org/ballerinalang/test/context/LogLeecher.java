@@ -107,15 +107,6 @@ public class LogLeecher {
                 }
             }
 
-            // Makes it graceful. Otherwise Leecher could exit before the printed logs are read.
-            if (forcedExit) {
-                try {
-                    this.wait(5000);
-                } catch (InterruptedException e) {
-                    throw new BallerinaTestException("Error while graceful exit of Leecher", e);
-                }
-            }
-
             if (!textFound) {
                 throw new BallerinaTestException("Matching log not found prior to server shutdown for: " + text);
             }

@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 /**
  * Testing global variables in services with package.
  */
+@Test
 public class GlobalVarServicePkgTest {
 
     CompileResult result;

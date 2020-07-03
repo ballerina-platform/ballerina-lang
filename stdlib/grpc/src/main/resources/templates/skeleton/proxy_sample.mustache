@@ -1,3 +1,4 @@
+import ballerina/grpc;
 import ballerina/http;
 import ballerina/lang.'int as intCaster;
 import ballerina/lang.'float as floatCaster;
@@ -52,31 +53,25 @@ public function arrayCaster (string[] fieldArray, string fieldType) returns any 
 }
 
 public function sendResponse (http:Caller caller, any | error responseData) {
-    match responseData {
-        var [response, header] => {
-            if response is anydata {
-                json | error responseJson = response.cloneWithType(json);
-                if responseJson is json {
-                http:Response res = new;
-                res.statusCode = 200;
-                res.setJsonPayload(responseJson);
-                var sent = caller->respond(res);
-                if sent is error {
-                    log:printInfo("Error when responding : " + sent.reason());
-                }
+    if (responseData is [anydata, grpc:Headers]) {
+        [anydata, grpc:Headers] [response, header] = responseData;
+        json | error responseJson = response.cloneWithType(json);
+        if responseJson is json {
+            http:Response res = new;
+            res.statusCode = 200;
+            res.setJsonPayload(responseJson);
+            var sent = caller->respond(res);
+            if sent is error {
+                log:printInfo("Error when responding : " + sent.message());
             }
         }
-    }
-        var noPayload => {
-            if noPayload is error {
-                http:Response res = new;
-                res.statusCode = 500;
-                res.setPayload(noPayload.reason());
-                var sent = caller->respond(res);
-                if sent is error {
-                    log:printInfo("Error when responding : " + sent.reason());
-                }
-            }
+    } else if (responseData is error) {
+        http:Response res = new;
+        res.statusCode = 500;
+        res.setPayload(responseData.message());
+        var sent = caller->respond(res);
+        if sent is error {
+            log:printInfo("Error when responding : " + sent.message());
         }
     }
 }

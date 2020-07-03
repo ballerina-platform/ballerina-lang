@@ -22,6 +22,7 @@ import io.nats.client.Message;
 import io.nats.client.MessageHandler;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
@@ -75,8 +76,9 @@ public class DefaultMessageHandler implements MessageHandler {
         natsMetricsReporter.reportConsume(message.getSubject(), message.getData().length);
         ArrayValue msgData = new ArrayValueImpl(message.getData());
         ObjectValue msgObj = BallerinaValues.createObjectValue(Constants.NATS_PACKAGE_ID,
-                                                               Constants.NATS_MESSAGE_OBJ_NAME, message.getSubject(),
-                                                               msgData, message.getReplyTo());
+                                                               Constants.NATS_MESSAGE_OBJ_NAME,
+                                                               StringUtils.fromString(message.getSubject()),
+                                                               msgData, StringUtils.fromString(message.getReplyTo()));
         AttachedFunction onMessage = getAttachedFunction(serviceObject, ON_MESSAGE_RESOURCE);
         BType[] parameterTypes = onMessage.getParameterType();
         if (parameterTypes.length == 1) {

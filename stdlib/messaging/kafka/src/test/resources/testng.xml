@@ -44,7 +44,7 @@
     <test name="ballerina-kafka-security-tests">
         <classes>
             <class name="org.ballerinalang.messaging.kafka.security.SaslPlainAuthenticationTest" />
-            <class name="org.ballerinalang.messaging.kafka.security.SslConsumerAndProducerTest" />
+<!--            <class name="org.ballerinalang.messaging.kafka.security.SslConsumerAndProducerTest" />-->
         </classes>
     </test>
     <test name="ballerina-kafka-serializer-deserializer-tests">

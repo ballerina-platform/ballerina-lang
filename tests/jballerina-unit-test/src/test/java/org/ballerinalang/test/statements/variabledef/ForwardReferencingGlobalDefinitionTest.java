@@ -35,7 +35,8 @@ import org.testng.annotations.Test;
  */
 public class ForwardReferencingGlobalDefinitionTest {
 
-    @Test(description = "Test compiler rejecting cyclic references in global variable definitions")
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions",
+            groups = "brokenOnErrorChange")
     public void globalDefinitionsWithCyclicReferences() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile("test-src/statements/variabledef/globalcycle/",
                 "simple");
@@ -94,7 +95,8 @@ public class ForwardReferencingGlobalDefinitionTest {
                 "getPersonInner, getfromFuncA]'", 22, 1);
     }
 
-    @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def")
+    @Test(description = "Test compiler rejecting cyclic references in global variable definitions via object def",
+            groups = "brokenOnErrorChange")
     public void globalDefinitionsListenerDef() {
         CompileResult resultNegativeCycleFound = BCompileUtil.compile(this,
                 "test-src/statements/variabledef/globalcycle/", "viaservice");

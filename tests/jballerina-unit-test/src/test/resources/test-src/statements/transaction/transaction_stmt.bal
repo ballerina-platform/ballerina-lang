@@ -1,430 +1,273 @@
-public type TrxErrorData record {|
-    string message = "";
-    error cause?;
-    string data = "";
-|};
+import ballerina/io;
+import ballerina/lang.'transaction as transactions;
 
-public type TrxError error<string, TrxErrorData>;
-
-final int RETRYCOUNT = 4;
-final int RETRYCOUNT_2 = -4;
-
-string workerTest = "";
-
-int attemptCount = 0;
-function testTransactionStmt(int i) returns (string) {
-    string a = "start";
-    var result = trap testTransactionStmtHelper2(a, i);
-    if (result is string) {
-        a = result;
-    } else {
-        a = a + <string>result.reason();
+function testRollback() {
+    string|error x =  trap actualCode(0, false);
+    if(x is string) {
+        assertEquality("start fc-0 inTrx Commit endTrx end", x);
     }
-    a = a + " rc:" + attemptCount.toString() + " end";
-    return a;
 }
 
-function testTransactionStmtHelper1(string status, int i) returns string {
-    string a = status;
-    if (i == -1) {
-        error err = error(" err" );
-        panic err;
-    } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
-        panic err;
+function testCommit() {
+    string|error x =  trap actualCode(0, false);
+    if(x is string) {
+        assertEquality("start fc-0 inTrx Commit endTrx end", x);
     }
-    return a;
 }
 
-function testTransactionStmtHelper2(string status, int i) returns string {
-    string a = status;
-    attemptCount = 0;
+function testPanic() {
+    string|error x =  trap actualCode(1, false);
+    if(x is string) {
+        assertEquality("start fc-1 inTrx blowUp", x);
+    }
+}
+
+function actualCode(int failureCutOff, boolean requestRollback) returns (string) {
+    string a = "";
+    a = a + "start";
+    a = a + " fc-" + failureCutOff.toString();
+    int count = 0;
+
     transaction {
-        attemptCount += 1;
         a = a + " inTrx";
-        if (i == 0) {
-            a = a + " abort";
-            abort;
+        count = count + 1;
+        if transactional {
+            io:println("Transactional mode");
+        }
+        if (count <= failureCutOff) {
+            a = a + " blowUp"; // transaction block panic scenario, Set failure cutoff to 0, for not blowing up.
+            int bV = blowUp();
+        }
+        if (requestRollback) { // Set requestRollback to true if you want to try rollback scenario, otherwise commit
+            a = a + " Rollback";
+            rollback;
         } else {
-            var result = testTransactionStmtHelper1(a, i);
-            a = result;
+            a = a + " Commit";
+            var i = commit;
         }
         a = a + " endTrx";
-    } onretry {
-        a = a + " inFailed";
+        a = (a + " end");
     }
+
+    io:println("## Transaction execution completed ##");
     return a;
 }
 
-function testAbortStatement() returns (string) {
-    string str = "BeforeTR ";
-    int i = 0;
+function blowUp()  returns int {
+    if (5 == 5) {
+        error err = error("TransactionError");
+        panic err;
+    }
+    return 5;
+}
+
+function testLocalTransaction1(int i) returns int|error {
+    int x = i;
+
     transaction {
-        str = str + "WithinTR ";
-        if (i == 0) {
-            str = str + "BeforAbort ";
-            abort;
+        x += 1;
+        check commit;
+    }
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+    return x;
+}
+
+function testLocalTransaction2(int i) returns int|error {
+    int x = i;
+
+    transaction {
+        x += 1;
+        check commit;
+    }
+
+    return x;
+}
+
+function testMultipleTrxBlocks() returns error? {
+    int i = check testLocalTransaction1(1);
+    int j = check testLocalTransaction2(i);
+
+    assertEquality(4, j);
+}
+
+string ss = "";
+function testTrxHandlers() returns string {
+    ss = ss + "started";
+    transactions:Info transInfo;
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        ss = ss + " trxAborted";
+    };
+
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " trxCommited";
+    };
+
+    transaction {
+        transInfo = transactions:info();
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        trxfunction();
+        var commitRes = commit;
+    }
+    ss += " endTrx";
+    return ss;
+}
+
+transactional function trxfunction() {
+    ss = ss + " within transactional func";
+}
+
+public function testTransactionInsideIfStmt() returns int {
+    int a = 10;
+    if (a == 10) {
+        int c = 8;
+        transaction {
+            int b = a + c;
+            a = b;
+            var commitRes = commit;
         }
-        str = str + "AfterIf ";
-    }
-    str = str + "AfterTR ";
-    return str;
-}
-
-
-function testOptionalFailed(int i) returns (string) {
-    string a = "start";
-    var result = trap testOptionalFailedHelper2(i, a);
-    if (result is string) {
-        a = result;
-    } else if (result is TrxError) {
-        a += <string>result.reason();
-    }
-    a = a + " end";
-    return a;
-}
-
-function testOptionalFailedHelper1(int i, string status) returns string {
-    string a = status;
-    if (i == -1) {
-        error err = error(" err" );
-        panic err;
-    } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
-        panic err;
     }
     return a;
 }
 
-function testOptionalFailedHelper2(int i, string status) returns string {
-    string a = status;
+public function testArrowFunctionInsideTransaction() returns int {
+    int a = 10;
+    int b = 11;
     transaction {
-        a = a + " inTrx";
-        if (i == 0) {
-            a = a + " abort";
-            abort;
+        int c = a + b;
+        function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
+        a = arrow(1, 1);
+        var commitRes = commit;
+    }
+    return a;
+}
+
+public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() returns int|string {
+    int|string s;
+    transaction {
+        s = "init-in-transaction-block";
+        var commitRes = commit;
+    }
+    return s;
+}
+
+function testTrxReturnVal() returns string {
+    string str = "start";
+    transaction {
+        str = str + " within transaction";
+        var commitRes = commit;
+        str = str + " end.";
+        return str;
+    }
+}
+
+function testInvokingTrxFunc() returns string {
+    string str = "start";
+    string res = funcWithTrx(str);
+    return res + " end.";
+
+}
+
+function funcWithTrx(string str) returns string {
+    transaction {
+        string res = str + " within transaction";
+        var commitRes = commit;
+        return res;
+    }
+}
+
+function testTransactionLangLib() returns error? {
+    string str = "";
+    var rollbackFunc = function (transactions:Info info, error? cause, boolean willRetry) {
+        if (cause is error) {
+            str += " " + cause.message();
+        }
+    };
+
+    transaction {
+        readonly d = 123;
+        transactions:setData(d);
+        transactions:Info transInfo = transactions:info();
+        transactions:Info? newTransInfo = transactions:getInfo(transInfo.xid);
+        if(newTransInfo is transactions:Info) {
+            assertEquality(transInfo.xid, newTransInfo.xid);
         } else {
-            var result = trap testOptionalFailedHelper1(i, a);
-            if (result is string) {
-                a = result;
-            } else {
-                a += <string>result.reason();
-            }
+            panic AssertionError(ASSERTION_ERROR_REASON, message = "unexpected output from getInfo");
         }
-        a = a + " endTrx";
-    }
-    return a;
-}
-
-function testTransactionStmtWithFailedAndNonDefaultRetries(int i) returns (string) {
-    string a = "start";
-    attemptCount = 0;
-    var result = trap testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(i, a);
-    if (result is string) {
-        a = result;
-    } else {
-        a = a + result.reason();
-    }
-    a = a + " rc:" + attemptCount.toString() + " end";
-    return a;
-}
-
-function testTransactionStmtWithFailedAndNonDefaultRetriesHelper1(int i, string status) returns string {
-    string a = status;
-    transaction with retries = 4 {
-        attemptCount += 1;
-        a = a + " inTrx";
-        if (i == 0) {
-            a = a + " abort";
-            abort;
-        } else {
-            var result = testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(i, a);
-            a += result;
-        }
-        a = a + " endTrx";
-    } onretry {
-        a = a + " inFailed";
-    }
-    return a;
-}
-
-function testTransactionStmtWithFailedAndNonDefaultRetriesHelper2(int i, string status) returns string {
-    string a = status;
-    if (i == -1) {
-        error err = error(" err" );
-        panic err;
-    } else if (i < -1) {
-        TrxError err = error(" trxErr", data = "test");
-        panic err;
-    } else {
-        a = a + " success";
-    }
-    return a;
-}
-
-function testTransactionStmtWithRetryOff(int i) returns (string) {
-    string a = "start";
-    var result = trap testTransactionStmtWithRetryOffHelper2(i, a);
-    if (result is string) {
-        a = result;
-    } else {
-        a += <string>result.reason();
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionStmtWithRetryOffHelper1(int i) {
-    if (i == -1) {
-        error err = error(" err" );
-        panic err;
+        transactions:onRollback(rollbackFunc);
+        str += "In Trx";
+        assertEquality(d, transactions:getData());
+        check commit;
+        str += " commit";
     }
 }
 
-function testTransactionStmtWithRetryOffHelper2(int i, string status) returns string {
-    string a = status;
-    transaction with retries = 0 {
-        a = a + " inTrx";
-        var result = trap testTransactionStmtWithRetryOffHelper1(i);
-        if (result is error) {
-            a += <string>result.reason();
-        }
-        a = a + " endTrx";
-    } onretry {
-        a = a + " inFailed";
+type AssertionError error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
     }
-    return a;
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
-function testTransactionStmtWithConstRetryFailed() returns (string) {
-    string a = "start";
-    attemptCount = 0;
-    var result = trap testTransactionStmtWithConstRetryFailedHelper(a);
-    if (result is string) {
-        a = result;
-    } else {
-        a += result.reason();
-    }
-    a = a + " rc:" + attemptCount.toString() + " end";
-    return a;
-}
+function testWithinTrxMode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
 
-function testTransactionStmtWithConstRetryFailedHelper(string status) returns string {
-    string a = status;
-    int i = 0;
-    transaction with retries = RETRYCOUNT {
-        attemptCount += 1;
-        a = a + " inTrx";
-        if (i == 0) {
-            error err = error(" err" );
-            panic err;
-        }
-    } onretry {
-        a = a + " inFailed";
-    }
-    return a;
-}
-
-function testTransactionStmtWithConstRetryFailed2() returns (string) {
-    string a = "start ";
-    var result = trap testTransactionStmtWithConstRetryFailed2Helper(a);
-    if (result is string) {
-        a = result;
-    } else {
-        a = a + <string>result.detail()["message"];
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionStmtWithConstRetryFailed2Helper(string status) returns string {
-    string a = status;
-    int i = 0;
-    transaction with retries = RETRYCOUNT_2 {
-        a = a + " inTrx";
-        if (i == 0) {
-            error err = error(" err" );
-            panic err;
-        }
-    } onretry {
-        a = a + " inFailed";
-    }
-    return a;
-}
-
-function testTransactionStmtWithConstRetrySuccess() returns (string) {
-    string a = "start";
-    var result = trap testTransactionStmtWithConstRetrySuccessHelper(a);
-    if (result is string) {
-        a = result;
-    } else {
-        a += result.reason();
-    }
-    a = a + " end";
-    return a;
-}
-
-function testTransactionStmtWithConstRetrySuccessHelper(string status) returns string {
-    string a = status;
-    transaction with retries = RETRYCOUNT {
-        a = a + " inTrx";
-    } onretry {
-        a = a + " inFailed";
-    }
-    return a;
-}
-
-function testMultipleTransactionStmtSuccess() returns (string) {
-    string a = "start";
-    var result = trap testMultipleTransactionStmtSuccessHelper(a);
-    if (result is string) {
-        a = result;
-    } else {
-        a += result.reason();
-    }
-    a = a + " end";
-    return a;
-}
-
-function testMultipleTransactionStmtSuccessHelper(string status) returns string {
-    string a = status;
     transaction {
-        a = a + " inFirstTrxBlock";
-    } onretry {
-        a = a + " inFirstTrxFailed";
-    }
-    a = a + " inFirstTrxEnd";
-    transaction {
-        a = a + " inSecTrxBlock";
-    } onretry {
-        a = a + " inSecTrxFailed";
-    }
-    a = a + " inFSecTrxEnd";
-    return a;
-}
-
-string failingTrxLog = "";
-function testMultipleTransactionStmtFailed1() returns (string) {
-    string a = "start";
-    var result = trap testMultipleTransactionStmtFailed1Helper(a);
-    if (result is string) {
-        a = failingTrxLog;
-    } else {
-        a = failingTrxLog + result.reason();
-    }
-    a = a + " end";
-    return a;
-}
-
-function testMultipleTransactionStmtFailed1Helper(string status) returns string {
-    failingTrxLog = status;
-    int i = 0;
-    transaction with retries = 2 {
-        failingTrxLog = failingTrxLog + " inFirstTrxBlock";
-        if (i == 0) {
-            error err = error(" err" );
-            panic err;
+        ss = "trxStarted";
+        string invoRes = testFuncInvocation();
+        ss = ss + invoRes + " -> invoked function returned";
+        transactions:onCommit(onCommitFunc);
+        if (transactional) {
+            ss = ss + " -> strand in transactional mode";
         }
-    } onretry {
-        failingTrxLog = failingTrxLog + " inFirstTrxFld";
-    } aborted {
-        failingTrxLog += " aborted";
-    }
-    failingTrxLog = failingTrxLog + " inFirstTrxEnd";
-    transaction {
-        failingTrxLog = failingTrxLog + " inSecTrxBlock";
-    }
-    failingTrxLog = failingTrxLog + " inFSecTrxEnd";
-    return failingTrxLog;
-}
-
-string log2 = "";
-function testMultipleTransactionStmtFailed2() returns (string) {
-    log2 = "start";
-    int i = 0;
-    var result = trap testMultipleTransactionStmtFailed2Helper(log2);
-    if (result is string) {
-        log2 = result;
-    } else {
-        log2 += result.reason();
-    }
-    transaction {
-        log2 = log2 + " inSecTrxBlock";
-    }
-    log2 = log2 + " inFSecTrxEnd";
-    log2 = log2 + " end";
-    return log2;
-}
-
-function testMultipleTransactionStmtFailed2Helper(string status) returns string {
-    int i = 0;
-    log2 = status;
-    transaction with retries = 2 {
-        log2 = log2 + " inFirstTrxBlock";
-        if (i == 0) {
-            error err = error(" err" );
-            panic err;
+        var commitRes = commit;
+        if (!transactional) {
+            ss = ss + " -> strand in non-transactional mode";
         }
-    } onretry {
-        log2 = log2 + " inFirstTrxFld";
+        ss += " -> trxEnded.";
     }
-    log2 = log2 + " inFirstTrxEnd";
-    return log2;
+    return ss;
 }
 
-function transactionWithBreak() returns (string) {
-    int i = 0;
+function testFuncInvocation() returns string {
+    string ss = " -> within invoked function";
+    if (transactional) {
+        ss = ss + " -> strand in transactional mode";
+    }
+    return ss;
+}
+
+function testUnreachableCode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
+
     transaction {
-        while (i < 5) {
-            i = i + 1;
-            if (i == 2) {
-                break;
-            }
+        ss = "trxStarted";
+        transactions:onCommit(onCommitFunc);
+        var commitRes = commit;
+        if (transactional) {
+            //only reached when commit fails
+            ss = ss + " -> strand in transactional mode";
         }
+        ss += " -> trxEnded.";
     }
-    return "done";
-}
-
-function transactionWithContinue() returns (string) {
-    int i = 0;
-    transaction {
-        while (i < 5) {
-            i = i + 1;
-            if (i == 2) {
-                continue;
-            }
-        }
-    }
-    return "done";
-}
-
-function testTransactionStmtWithFail() returns (string) {
-    string a = "start ";
-    int i = 0;
-
-    transaction with retries = 4 {
-        a = a + " inTrx";
-        if (i == 0) {
-            retry;
-        }
-    } onretry {
-        a = a + " inFailed";
-    }
-    a = a + " end";
-    return a;
-}
-
-function testValidReturn() returns (string) {
-    string a = "start ";
-    int i = 0;
-    transaction with retries = 4 {
-        a = a + " inOuterTxstart ";
-        a = a + testReturn();
-        a = a + " endOuterTx";
-    }
-    return a;
-}
-
-function testReturn() returns (string) {
-    return " foo";
+    return ss;
 }

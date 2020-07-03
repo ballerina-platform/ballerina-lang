@@ -43,7 +43,7 @@ public class ClosedRecordOptionalFieldsTest {
         compileResult = BCompileUtil.compile("test-src/record/closed_record_optional_fields.bal");
     }
 
-    @Test(description = "Test for the compile errors")
+    @Test(description = "Test for the compile errors", groups = { "brokenOnNewParser" })
     public void testNegatives() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/closed_record_optional_fields_negatives.bal");
