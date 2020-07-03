@@ -216,3 +216,35 @@ type GHI object {
 type JKL abstract object {
     future<int> fr;
 };
+
+function testInvalidMemberWithConstructorReadOnlyCast() {
+    int[] w = [1, 2];
+    int[] x = [];
+
+    record {|int[]...;|} y = {
+        "c": [56, 78, 4456]
+    };
+
+    map<int[]> z = <readonly> {
+        a: [22, 12123],
+        b: w,
+        x,
+        ...y
+    };
+}
+
+function testInvalidValueForEffectiveReadOnlyCast() {
+    NeverImmutable|map<int> w = <readonly> {x: start getInt()};
+
+    float[] f = [11.2, 12.122];
+    stream<float> str = f.toStream();
+    string[]|stream<float>[] x = <readonly> [str, f.toStream()];
+
+    NeverImmutable ni = <readonly> {x: start getInt()};
+}
+
+type NeverImmutable record {
+    future<int> x;
+};
+
+function getInt() returns int => 1;
