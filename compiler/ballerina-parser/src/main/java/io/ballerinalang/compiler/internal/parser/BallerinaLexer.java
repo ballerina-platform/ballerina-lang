@@ -434,14 +434,6 @@ public class BallerinaLexer extends AbstractLexer {
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                // Ballerina spec 2020R1/#lexical_structure section says that you should
-                // normalize newline chars as follows.
-                // - the two character sequence 0xD 0xA is replaced by 0xA
-                // - a single 0xD character that is not followed by 0xD is replaced by 0xA
-                //
-                // This implementation does not replace any characters to maintain
-                // the exact source text as it is, but it does not count \r\n as two characters.
-                // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
                 return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             default:
                 throw new IllegalStateException();
