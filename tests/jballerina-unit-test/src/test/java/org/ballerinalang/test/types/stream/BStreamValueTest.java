@@ -95,6 +95,18 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test stream construct within never")
+    public void testStreamConstructWithNever() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNever", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test stream of streams")
+    public void testStreamOfStreams() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamOfStreams", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative test scenarios of stream type",
             groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testStreamTypeNegative() {

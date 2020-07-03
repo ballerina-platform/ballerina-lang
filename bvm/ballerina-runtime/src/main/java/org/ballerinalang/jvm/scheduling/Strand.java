@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -78,7 +79,8 @@ public class Strand {
     ItemGroup strandGroup;
 
     private Map<String, Object> globalProps;
-    public TransactionLocalContext transactionLocalContext;
+    public TransactionLocalContext currentTrxContext;
+    public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
 
@@ -95,6 +97,7 @@ public class Strand {
         this.waitingContexts = new ArrayList<>();
         this.name = name;
         this.metadata = metadata;
+        this.trxContexts = new Stack<>();
         this.parent = parent;
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
@@ -121,11 +124,27 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return this.transactionLocalContext != null;
+        return this.currentTrxContext != null;
     }
 
+    @Deprecated
     public void removeLocalTransactionContext() {
-        this.transactionLocalContext = null;
+        this.currentTrxContext = null;
+    }
+
+    public void removeCurrentTrxContext() {
+        if (!this.trxContexts.isEmpty()) {
+            this.currentTrxContext = this.trxContexts.pop();
+            return;
+        }
+        this.currentTrxContext = null;
+    }
+
+    public void setCurrentTransactionContext(TransactionLocalContext ctx) {
+        if (this.currentTrxContext != null) {
+            this.trxContexts.push(this.currentTrxContext);
+        }
+        this.currentTrxContext = ctx;
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {

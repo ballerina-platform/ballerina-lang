@@ -48,10 +48,10 @@ public class ResolveMavenDependenciesTask implements Task {
                 + "platform-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
 
-        buildContext.out().println();
+        buildContext.out().println("\nResolving maven dependencies...\n" +
+                "Downloading dependencies into " + targetRepo);
         for (Library library : manifest.getPlatform().getLibraries()) {
             if (library.getPath() == null) {
-                buildContext.out().println("Resolving " + library.getArtifactId());
                 try {
                     Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
                             library.getVersion(), false);
