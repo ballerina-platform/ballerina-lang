@@ -188,7 +188,6 @@ public class Type {
         } else if (type instanceof BLangConstrainedType) {
             typeModel = new Type(type, currentModule);
             typeModel.constraint = Type.fromTypeNode(((BLangConstrainedType) type).constraint, currentModule);
-            typeModel.moduleName = null;
         }
         if (typeModel == null) {
             typeModel = new Type(type, currentModule);
