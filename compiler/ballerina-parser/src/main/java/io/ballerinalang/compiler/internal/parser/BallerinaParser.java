@@ -12430,6 +12430,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseListMatchPattern();
             case OPEN_BRACE_TOKEN:
                 return parseMappingMatchPattern();
+            case ERROR_KEYWORD:
+                return parseFunctionalMatchPattern();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
@@ -12701,6 +12703,22 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseFieldMatchPatternRhs(solution.tokenKind);
         }
+    }
+
+    /**
+     * Parse functional match pattern.
+     *<p>
+     *     functional-match-pattern := functionally-constructible-type-reference ( arg-list-match-pattern )
+     *     functionally-constructible-type-reference := error | type-reference
+     *     type-reference := identifier | qualified-identifier
+     *     arg-list-match-pattern := positional-arg-match-patterns [, other-arg-match-patterns]
+     *    | other-arg-match-patterns
+     *</p>
+     *
+     * @return Parsed functional match pattern node.
+     */
+    private STNode parseFunctionalMatchPattern() {
+
     }
     // ------------------------ Ambiguity resolution at statement start ---------------------------
 
