@@ -112,7 +112,7 @@ class JvmObservabilityGen {
 
     private Map<Object, BIROperand> compileTimeConstants;
 
-    public JvmObservabilityGen(JvmPackageGen pkgGen) {
+    JvmObservabilityGen(JvmPackageGen pkgGen) {
         compileTimeConstants = new HashMap<>();
         packageCache = pkgGen.packageCache;
         symbolTable = pkgGen.symbolTable;
@@ -126,7 +126,7 @@ class JvmObservabilityGen {
      *
      * @param pkg The package to instrument
      */
-    public void rewriteObservableFunctions(BIRPackage pkg) {
+    void rewriteObservableFunctions(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
@@ -176,7 +176,7 @@ class JvmObservabilityGen {
      * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
