@@ -248,7 +248,6 @@ public class JvmCastGen {
         }
         switch (sourceType.tag) {
             case TypeTags.BYTE:
-                // do nothing
                 break;
             case TypeTags.FLOAT:
                 mv.visitInsn(D2I);
@@ -349,6 +348,10 @@ public class JvmCastGen {
 
     private static void generateCheckCastBToJRef(MethodVisitor mv, BType sourceType, JType targetType) {
 
+        if (sourceType.tag == TypeTags.DECIMAL) {
+            return;
+        }
+
         if (sourceType.tag == TypeTags.HANDLE) {
             if (targetType.jTag == JTypeTags.JREF) {
                 JType.JRefType jRefType = (JType.JRefType) targetType;
@@ -360,9 +363,6 @@ public class JvmCastGen {
             mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
             String sig = getSignatureForJType(targetType);
             mv.visitTypeInsn(CHECKCAST, sig);
-        } else if (sourceType.tag == TypeTags.DECIMAL) {
-            // do nothing
-            return;
         } else {
             if (targetType.jTag == JTypeTags.JREF) {
                 addBoxInsn(mv, sourceType);
@@ -397,7 +397,6 @@ public class JvmCastGen {
                 break;
             case TypeTags.NIL:
             case TypeTags.NEVER:
-                // Do nothing
                 break;
             default:
                 switch (targetType.tag) {
@@ -408,7 +407,7 @@ public class JvmCastGen {
                         generateCheckCastJToBAnyData(mv, indexMap, sourceType);
                         break;
                     case TypeTags.HANDLE:
-                        generateJCastToBHandle(mv, sourceType);
+                        generateJCastToBHandle(mv);
                         break;
                     case TypeTags.ANY:
                         generateJCastToBAny(mv, indexMap, sourceType, targetType);
@@ -418,17 +417,6 @@ public class JvmCastGen {
                         break;
                     case TypeTags.FINITE:
                         generateCheckCastJToBFiniteType(mv, indexMap, sourceType, targetType);
-                        // TODO fix below properly - rajith
-                        //} else if (sourceType is bir:BXMLType && targetType is bir:BMapType) {
-                        //    generateXMLToAttributesMap(mv, sourceType);
-                        //    return;
-                        //} else if (targetType is bir:BFiniteType) {
-                        //    generateCheckCastToFiniteType(mv, sourceType, targetType);
-                        //    return;
-                        //} else if (sourceType is bir:BRecordType && (targetType is bir:BMapType &&
-                        // targetType.constraint
-                        // is bir:BTypeAny)) {
-                        //    // do nothing
                         break;
                 }
 
@@ -459,12 +447,6 @@ public class JvmCastGen {
                 mv.visitInsn(I2L);
                 break;
             case JTypeTags.JLONG:
-                // do nothing
-                // According to the spec doc, below two are not needed
-                // } else if (sourceType is jvm:JFloat) {
-                //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jFloatToBInt", "(F)J", false);
-                // } else if (sourceType is jvm:JDouble) {
-                //     mv.visitMethodInsn(INVOKESTATIC, TYPE_CONVERTER, "jDoubleToBInt", "(D)J", false);
                 break;
             case JTypeTags.JREF:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJLong", String.format("(L%s;)J", OBJECT), false);
@@ -499,7 +481,6 @@ public class JvmCastGen {
                 mv.visitInsn(F2D);
                 break;
             case JTypeTags.JDOUBLE:
-                // do nothing
                 break;
             case JTypeTags.JREF:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToJDouble", String.format("(L%s;)D", OBJECT), false);
@@ -553,8 +534,10 @@ public class JvmCastGen {
     private static void generateCheckCastJToBBoolean(MethodVisitor mv, JType sourceType) {
 
         if (sourceType.jTag == JTypeTags.JBOOLEAN) {
-            // do nothing
-        } else if (sourceType.jTag == JTypeTags.JREF) {
+            return;
+        }
+
+        if (sourceType.jTag == JTypeTags.JREF) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToBoolean", String.format("(L%s;)Z", OBJECT), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'boolean'",
@@ -565,8 +548,10 @@ public class JvmCastGen {
     private static void generateCheckCastJToBByte(MethodVisitor mv, JType sourceType) {
 
         if (sourceType.jTag == JTypeTags.JBYTE) {
-            // do nothing
-        } else if (sourceType.jTag == JTypeTags.JREF) {
+            return;
+        }
+
+        if (sourceType.jTag == JTypeTags.JREF) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, "anyToByte", String.format("(L%s;)I", OBJECT), false);
         } else {
             throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'byte'", sourceType));
@@ -587,24 +572,7 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateJCastToBHandle(MethodVisitor mv, JType sourceType) {
-        //  TODO do we need to support below? - rajith
-        //if (sourceType is jvm:JByte) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(B)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JChar) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(C)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JShort) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(S)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JInt) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(I)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JLong) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(J)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JFloat) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(F)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JDouble) {
-        //    mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", io:sprintf("(D)L%s;", HANDLE_VALUE), false);
-        //} else if (sourceType is jvm:JRefType || sourceType is jvm:JArrayType) {
-        // Here the corresponding Java method parameter type is 'jvm:JRefType'. This has been verified before
+    private static void generateJCastToBHandle(MethodVisitor mv) {
 
         // If the returned value is a HandleValue, do nothing
         LabelGenerator labelGen = new LabelGenerator();
@@ -617,11 +585,6 @@ public class JvmCastGen {
         mv.visitMethodInsn(INVOKESTATIC, HANDLE_VALUE, "valueOfJ", String.format("(L%s;)L%s;", OBJECT, HANDLE_VALUE),
                 false);
         mv.visitLabel(afterHandle);
-
-        //} else {
-        //    error err = error(io:sprintf("Casting is not supported from '%s' to 'int'", sourceType));
-        //    panic err;
-        //}
     }
 
     private static void generateJCastToBAny(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType,
@@ -729,12 +692,11 @@ public class JvmCastGen {
     private static void generateCheckCastJToBJSON(MethodVisitor mv, BIRVarToJVMIndexMap indexMap, JType sourceType) {
 
         if (sourceType.jTag == JTypeTags.JREF || sourceType.jTag == JTypeTags.JARRAY) {
-            // TODO fix properly - rajith
-            //checkCast(mv, bir:TYPE_JSON);
-        } else {
-            // if value types, then ad box instruction
-            generateJCastToBAny(mv, indexMap, sourceType, symbolTable.jsonType);
+            return;
         }
+
+        // if value types, then ad box instruction
+        generateJCastToBAny(mv, indexMap, sourceType, symbolTable.jsonType);
     }
 
     private static void generateCheckCastJToBFiniteType(MethodVisitor mv, BIRVarToJVMIndexMap indexMap,
@@ -749,7 +711,7 @@ public class JvmCastGen {
     static void generateCheckCast(MethodVisitor mv, BType sourceType, BType targetType, BIRVarToJVMIndexMap indexMap) {
 
         if (TypeTags.isXMLTypeTag(sourceType.tag) && targetType.tag == TypeTags.MAP) {
-            generateXMLToAttributesMap(mv, sourceType);
+            generateXMLToAttributesMap(mv);
             return;
         } else if (sourceType.tag == TypeTags.RECORD && (targetType.tag == TypeTags.MAP
                 && ((BMapType) targetType).constraint.tag == TypeTags.ANY)) {
@@ -1115,7 +1077,6 @@ public class JvmCastGen {
     private static void generateCheckCastToString(MethodVisitor mv, BType sourceType, BIRVarToJVMIndexMap indexMap) {
 
         if (TypeTags.isStringTypeTag(sourceType.tag)) {
-            // do nothing
             return;
         } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "toString", String.format("(J)L%s;", STRING_VALUE), false);
@@ -1189,8 +1150,10 @@ public class JvmCastGen {
     private static void generateCheckCastToBoolean(MethodVisitor mv, BType sourceType) {
 
         if (sourceType.tag == TypeTags.BOOLEAN) {
-            // do nothing
-        } else if (sourceType.tag == TypeTags.ANY ||
+            return;
+        }
+
+        if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
@@ -1410,8 +1373,10 @@ public class JvmCastGen {
     private static void generateCastToFloat(MethodVisitor mv, BType sourceType) {
 
         if (sourceType.tag == TypeTags.FLOAT) {
-            // do nothing
-        } else if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
+            return;
+        }
+
+        if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2D);
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
@@ -1485,8 +1450,10 @@ public class JvmCastGen {
     private static void generateCastToBoolean(MethodVisitor mv, BType sourceType) {
 
         if (sourceType.tag == TypeTags.BOOLEAN) {
-            // do nothing
-        } else if (sourceType.tag == TypeTags.ANY ||
+            return;
+        }
+
+        if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON) {
@@ -1500,10 +1467,12 @@ public class JvmCastGen {
 
     private static void generateCastToByte(MethodVisitor mv, BType sourceType) {
 
+        if (sourceType.tag == TypeTags.BYTE) {
+            return;
+        }
+
         if (TypeTags.isIntegerTypeTag(sourceType.tag)) {
             mv.visitInsn(L2I);
-        } else if (sourceType.tag == TypeTags.BYTE) {
-            // do nothing
         } else if (sourceType.tag == TypeTags.ANY ||
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
@@ -1536,9 +1505,8 @@ public class JvmCastGen {
         }
     }
 
-    private static void generateXMLToAttributesMap(MethodVisitor mv, BType sourceType) {
+    private static void generateXMLToAttributesMap(MethodVisitor mv) {
 
-        mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap",
-                String.format("()L%s;", MAP_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, XML_VALUE, "getAttributesMap", String.format("()L%s;", MAP_VALUE), false);
     }
 }
