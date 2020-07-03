@@ -184,6 +184,13 @@ public class JsonUtilsTest {
                         "\"@ns:attr\":\"ns-attr-val\", \"@ns\":\"ns.com\", \"@\":\"example.com\"}}");
     }
 
+    @Test
+    public void testXMLWithEmptyChildren() {
+        BValue[] returns = BRunUtil.invoke(result, "testXMLWithEmptyChildren");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(returns[0].stringValue(), "{\"foo\":{\"bar\":\"2\", \"car\":\"\"}}");
+    }
+
     private void convertToJsonAndAssert(String xmlStr, String jsonStr) {
         XMLValue parse = XMLFactory.parse(xmlStr);
         Object json = XmlToJsonConverter.convertToJSON(parse, "@", true);
