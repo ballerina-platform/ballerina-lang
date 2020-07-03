@@ -44,7 +44,6 @@ public class MockTest extends BaseTestCase {
     public void testFunctionMocking() throws BallerinaTestException {
         String msg1 = "4 passing";
         String msg2 = "3 failing";
-        String msg3 = "1 passing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
         balClient.runMain("test", new String[]{"Mock"}, null,

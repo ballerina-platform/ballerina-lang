@@ -457,16 +457,13 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                                             "\' defined within the tests folder cannot be mocked");
                         }
 
-                        //Exit validate function if the function exists in the entry
+                        // Exit validate function if the function exists in the entry
                         return;
-                    } else {
-                        // We need to continue to make sure both packages are checked
-                        continue;
                     }
                 }
             }
 
-            // If it reaches this part, then the function hasnt been found in both packages
+            // If it reaches this part, then the function has'nt been found in both packages
             diagnosticLog.logDiagnostic(Diagnostic.Kind.ERROR, attachmentNode.getPosition(),
                     "Function \'" + functionName + "\' cannot be found in the current package");
         }

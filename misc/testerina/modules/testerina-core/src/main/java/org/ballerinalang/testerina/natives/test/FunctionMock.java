@@ -124,50 +124,46 @@ public class FunctionMock {
                 if (mockMethod != null && originalMethod != null) {
                     break;
                 }
+            }
+            validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
+            return  mockMethod.getDeclaringClass().getSimpleName();
+        }
+    }
 
+    private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
+        // Validation
+        if (mockMethod != null && originalMethod != null) {
+            // Methods type and parameters
+            Class<?> mockMethodType = mockMethod.getReturnType();
+            Class<?>[] mockMethodParameters = mockMethod.getParameterTypes();
+            Class<?> originalMethodType = originalMethod.getReturnType();
+            Class<?>[] originalMethodParameters = originalMethod.getParameterTypes();
+
+            // Validate Return types
+            if (mockMethodType != originalMethodType) {
+                throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        MockConstants.TEST_PACKAGE_ID, "Return Types do not match");
             }
 
-            // Validation
-            if (mockMethod != null && originalMethod != null) {
+            // Validate if param number is the same
+            if (mockMethodParameters.length != originalMethodParameters.length) {
+                throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
+            }
 
-                // Methods type and paramters
-                Class<?> mockMethodType = mockMethod.getReturnType();
-                Class<?>[] mockMethodParameters = mockMethod.getParameterTypes();
-
-                Class<?> originalMethodType = originalMethod.getReturnType();
-                Class<?>[] originalMethodParameters = originalMethod.getParameterTypes();
-
-                // Validate Return types
-                if (mockMethodType != originalMethodType) {
-                    throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                            MockConstants.TEST_PACKAGE_ID, "Return Types do not match");
-                }
-
-                // Validate if param number is the same
-                if (mockMethodParameters.length != originalMethodParameters.length) {
+            // Validate each param
+            for (int i = 0; i < mockMethodParameters.length; i++) {
+                if (mockMethodParameters [i] != originalMethodParameters[i]) {
                     throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
                             MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
                 }
-
-                // Validate each param
-                for (int i = 0; i < mockMethodParameters.length; i++) {
-                    if (mockMethodParameters [i] != originalMethodParameters[i]) {
-                        throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-                                MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
-                    }
-                }
-
-                // If it reaches this point, then all the validations have passed. We can return the class name
-                return mockMethod.getDeclaringClass().getSimpleName();
-
-            } else {
-                throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
-                        MockConstants.TEST_PACKAGE_ID,
-                        "Specified Mock function \'" + mockMethodName + "\' cannot be found");
             }
 
+        } else {
+            throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                    MockConstants.TEST_PACKAGE_ID,
+                    "Specified Mock function \'" + mockMethodName + "\' cannot be found");
         }
-
     }
 
     private static Method getClassDeclaredMethod(String file, String methodName) throws ClassNotFoundException {
