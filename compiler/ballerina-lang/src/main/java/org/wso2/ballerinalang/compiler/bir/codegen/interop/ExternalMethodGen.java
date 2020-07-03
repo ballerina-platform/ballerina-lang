@@ -196,7 +196,6 @@ public class ExternalMethodGen {
                                                                                         SymbolTable symbolTable) {
 
         List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
-        /*birFunc.type.paramTypes.clone();*/
         if (isEntryModule) {
             addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
         }

@@ -621,7 +621,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
         mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(recordType.tsymbol.flags);
@@ -693,9 +693,7 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
-                String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>", String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE), false);
     }
 
     private static int typeFlag(BType type) {
@@ -746,7 +744,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
         mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
@@ -781,7 +779,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
         mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
@@ -882,9 +880,7 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
-                String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>", String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE), false);
     }
 
     /**
@@ -1172,7 +1168,6 @@ class JvmTypeGen {
                     typeFieldName = "typeReadonly";
                     break;
                 default:
-                    // TODO Fix properly - rajith
                     return;
             }
         }
@@ -1647,14 +1642,21 @@ class JvmTypeGen {
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
                 mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-            } else if (valueType.tag == TypeTags.BOOLEAN) {
-                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),
-                        false);
-            } else if (valueType.tag == TypeTags.FLOAT) {
-                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE),
-                        false);
-            } else if (valueType.tag == TypeTags.BYTE) {
-                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
+            } else {
+                switch (valueType.tag) {
+                    case TypeTags.BOOLEAN:
+                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf",
+                                String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+                        break;
+                    case TypeTags.FLOAT:
+                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf",
+                                String.format("(D)L%s;", DOUBLE_VALUE), false);
+                        break;
+                    case TypeTags.BYTE:
+                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf",
+                                String.format("(I)L%s;", INT_VALUE), false);
+                        break;
+                }
             }
 
             // Add the value to the set

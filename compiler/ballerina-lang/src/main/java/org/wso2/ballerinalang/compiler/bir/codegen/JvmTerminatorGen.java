@@ -105,6 +105,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_STORE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LOCK_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
@@ -304,9 +305,9 @@ public class JvmTerminatorGen {
 
         Label gotoLabel = this.labelGen.getLabel(funcName + lockIns.lockedBB.id.value);
         String lockStore = "L" + LOCK_STORE + ";";
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
+        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
         String lockName = GLOBAL_LOCK_NAME + lockIns.lockId;
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
         this.mv.visitLdcInsn(lockName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap",
                 String.format("(L%s;)L%s;", STRING_VALUE, LOCK_VALUE), false);
@@ -324,8 +325,8 @@ public class JvmTerminatorGen {
         // unlocked in the same order https://yarchive.net/comp/linux/lock_ordering.html
         String lockStore = "L" + LOCK_STORE + ";";
         String lockName = GLOBAL_LOCK_NAME + unlockIns.relatedLock.lockId;
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
         this.mv.visitLdcInsn(lockName);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "getLockFromMap", String.format("(L%s;)L%s;",
                 STRING_VALUE, LOCK_VALUE), false);
@@ -407,7 +408,7 @@ public class JvmTerminatorGen {
 
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
+            this.mv.visitFieldInsn(GETFIELD, STRAND, "returnValue",
                                    "Ljava/lang/Object;");
             JvmInstructionGen.addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type); // store return
             this.storeToVar(callIns.lhsOp.variableDcl);
@@ -438,7 +439,7 @@ public class JvmTerminatorGen {
         }
 
         String jClassName = callIns.jClassName;
-            this.mv.visitMethodInsn(INVOKESTATIC, jClassName, callIns.name, callIns.jMethodVMSig, false);
+        this.mv.visitMethodInsn(INVOKESTATIC, jClassName, callIns.name, callIns.jMethodVMSig, false);
 
         if (callIns.lhsOp != null && callIns.lhsOp.variableDcl != null) {
             this.storeToVar(callIns.lhsOp.variableDcl);
@@ -455,7 +456,7 @@ public class JvmTerminatorGen {
         genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
+            this.mv.visitFieldInsn(GETFIELD, STRAND, "returnValue",
                     "Ljava/lang/Object;");
             // store return
             BIROperand lhsOpVarDcl = callIns.lhsOp;
@@ -529,7 +530,7 @@ public class JvmTerminatorGen {
         genHandlingBlockedOnExternal(localVarOffset, blockedOnExternLabel);
         if (callIns.lhsOp.variableDcl != null) {
             this.mv.visitVarInsn(ALOAD, localVarOffset);
-            this.mv.visitFieldInsn(GETFIELD, "org/ballerinalang/jvm/scheduling/Strand", "returnValue",
+            this.mv.visitFieldInsn(GETFIELD, STRAND, "returnValue",
                     "Ljava/lang/Object;");
             JvmInstructionGen.addUnboxInsn(this.mv, callIns.lhsOp.variableDcl.type);
             // store return
@@ -773,8 +774,8 @@ public class JvmTerminatorGen {
 
         // Check if already locked before submitting to scheduler.
         String lockStore = "L" + LOCK_STORE + ";";
-        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
-        this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+        String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+        this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
         this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
         this.mv.visitVarInsn(ALOAD, localVarOffset);
         this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",
@@ -932,8 +933,8 @@ public class JvmTerminatorGen {
         if (fpCall.isAsync) {
             // Check if already locked before submitting to scheduler.
             String lockStore = "L" + LOCK_STORE + ";";
-            String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, "LOCK_STORE");
-            this.mv.visitFieldInsn(GETSTATIC, initClassName, "LOCK_STORE", lockStore);
+            String initClassName = jvmPackageGen.lookupGlobalVarClassName(this.currentPackageName, LOCK_STORE_VAR_NAME);
+            this.mv.visitFieldInsn(GETSTATIC, initClassName, LOCK_STORE_VAR_NAME, lockStore);
             this.mv.visitLdcInsn(GLOBAL_LOCK_NAME);
             this.mv.visitVarInsn(ALOAD, localVarOffset);
             this.mv.visitMethodInsn(INVOKEVIRTUAL, LOCK_STORE, "panicIfInLock",

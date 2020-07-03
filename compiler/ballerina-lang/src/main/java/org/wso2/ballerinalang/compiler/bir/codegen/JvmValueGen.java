@@ -358,15 +358,17 @@ class JvmValueGen {
 
         String lockClass = "L" + LOCK_VALUE + ";";
         for (BField field : fields.values()) {
-            if (field != null) {
-                Label fLabel = new Label();
-                mv.visitLabel(fLabel);
-                mv.visitVarInsn(ALOAD, 0);
-                mv.visitTypeInsn(NEW, LOCK_VALUE);
-                mv.visitInsn(DUP);
-                mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
-                mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
+            if (field == null) {
+                continue;
             }
+
+            Label fLabel = new Label();
+            mv.visitLabel(fLabel);
+            mv.visitVarInsn(ALOAD, 0);
+            mv.visitTypeInsn(NEW, LOCK_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_VALUE, "<init>", "()V", false);
+            mv.visitFieldInsn(PUTFIELD, className, computeLockNameFromString(field.name.value), lockClass);
         }
 
         mv.visitInsn(RETURN);
@@ -760,13 +762,15 @@ class JvmValueGen {
         // Invoke the init-functions of referenced types. This is done to initialize the
         // defualt values of the fields coming from the referenced types.
         for (BType typeRef : typeDef.referencedTypes) {
-            if (typeRef.tag == TypeTags.RECORD) {
-                String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
-                                                                toNameString(typeRef));
-                mv.visitInsn(DUP2);
-                mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
-                                   String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
+            if (typeRef.tag != TypeTags.RECORD) {
+                continue;
             }
+
+            String refTypeClassName = getTypeValueClassName(typeRef.tsymbol.pkgID,
+                                                            toNameString(typeRef));
+            mv.visitInsn(DUP2);
+            mv.visitMethodInsn(INVOKESTATIC, refTypeClassName, "$init",
+                               String.format("(L%s;L%s;)V", STRAND, MAP_VALUE), false);
         }
 
         // Invoke the init-function of this type.
@@ -774,10 +778,9 @@ class JvmValueGen {
         String valueClassName;
         List<BIRNode.BIRFunction> attachedFuncs = typeDef.attachedFuncs;
 
-        // Attached functions are empty for type-labeling. In such cases, call the init() of
-        // the original type value;
-            if (!attachedFuncs.isEmpty()) {
-            initFuncName = attachedFuncs.get(0).name.value; /*?.name ?.value;*/
+        // Attached functions are empty for type-labeling. In such cases, call the init() of the original type value
+        if (!attachedFuncs.isEmpty()) {
+            initFuncName = attachedFuncs.get(0).name.value;
             valueClassName = className;
         } else {
             // record type is the original record-type of this type-label
@@ -1035,9 +1038,9 @@ class JvmValueGen {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
-                               true);
+        mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE),
+                true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         // sort the fields before generating switch case
@@ -1185,9 +1188,8 @@ class JvmValueGen {
 
         // cast key to java.lang.String
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
-            mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
-            mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue",
-                               String.format("()L%s;", STRING_VALUE), true);
+        mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, "getValue", String.format("()L%s;", STRING_VALUE), true);
         mv.visitVarInsn(ASTORE, strKeyVarIndex);
 
         mv.visitVarInsn(ALOAD, 0);
