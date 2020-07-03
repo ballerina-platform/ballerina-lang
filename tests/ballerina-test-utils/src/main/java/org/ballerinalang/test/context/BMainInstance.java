@@ -287,10 +287,13 @@ public class BMainInstance implements BMain {
      * @param leechers      log leechers to check the log if any
      * @param commandDir    where to execute the command
      * @param timeout       timeout for the process waiting time, in seconds.
+     * @param isAttachMode  check debuggee started on attach mode
      * @throws BallerinaTestException if starting services failed
+     * @return parent instance process
      */
-    public void debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                          LogLeecher[] leechers, String commandDir, int timeout) throws BallerinaTestException {
+    public Process debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                             LogLeecher[] leechers, String commandDir, int timeout, boolean isAttachMode)
+            throws BallerinaTestException {
         String scriptName;
         if (BCompileUtil.jBallerinaTestsEnabled()) {
             scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
@@ -355,14 +358,17 @@ public class BMainInstance implements BMain {
                 elapsedTime++;
             }
 
-            // If the process is still alive, either the program is suspended in debug mode (as expected), or still
-            // being executed.
-            terminateProcess(process, cmdArgs);
-
             infoReader.stop();
             infoReader.removeAllLeechers();
             errorReader.stop();
             errorReader.removeAllLeechers();
+
+            // Terminate the process if it is still alive, or either the program is suspended in debug mode
+            // (as expected), or still being executed, in launch mode. Do not terminate if the debuggee is in attach
+            // mode at this point.
+            if (!isAttachMode) {
+                terminateProcess(process, cmdArgs);
+            }
 
             if (elapsedTime >= timeout) {
                 throw new BallerinaTestException("Timeout expired waiting for matching logs in debug mode.");
@@ -379,10 +385,32 @@ public class BMainInstance implements BMain {
         } catch (InterruptedException e) {
             throw new BallerinaTestException("Error waiting for execution to finish", e);
         } finally {
-            // If the process is still alive, either the program is suspended in debug mode (as expected), or still
-            // being executed.
-            terminateProcess(process, cmdArgs);
+            // Terminate the process if it is still alive, or either the program is suspended in debug mode
+            // (as expected), or still being executed, in launch mode. Do not terminate if the debuggee is in attach
+            // mode at this point.
+            if (!isAttachMode) {
+                terminateProcess(process, cmdArgs);
+            }
         }
+        return process;
+    }
+
+    /**
+     * Executing the sh or bat file to start the server in debug mode.
+     *
+     * @param command       command to run
+     * @param args          command line arguments to pass when executing the sh or bat file
+     * @param envProperties environmental properties to be appended to the environment
+     * @param clientArgs    arguments which program expects
+     * @param leechers      log leechers to check the log if any
+     * @param commandDir    where to execute the command
+     * @param timeout       timeout for the process waiting time, in seconds.
+     * @throws BallerinaTestException if starting services failed
+     */
+    public void debugMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
+                          LogLeecher[] leechers, String commandDir, int timeout) throws BallerinaTestException {
+        boolean isAttachMode = false;
+        debugMain(command, args, envProperties, clientArgs, leechers, commandDir, timeout, isAttachMode);
     }
 
     /**
@@ -413,21 +441,47 @@ public class BMainInstance implements BMain {
      * @param cmdArgs ballerina command args.
      */
     private void terminateProcess(Process process, String[] cmdArgs) {
-
-        // Kills the bash process.
-        if (process != null && process.isAlive()) {
-            process.destroyForcibly();
-            process = null;
-        }
-
         // Extracts the debug port from the command arguments.
         String port = "";
         for (int i = 0; i < cmdArgs.length; i++) {
             if (cmdArgs[i].equals("--debug")) {
                 port = cmdArgs[i + 1];
+                terminateProcess(process, port);
                 break;
             }
         }
+    }
+
+    /**
+     * Cleans up all the (sub)processes spawn during ballerina command execution.
+     *
+     * @param process     parent process instance.
+     * @param programPort program port.
+     */
+    public void terminateProcess(Process process, String programPort) {
+        killBashProcess(process);
+        terminateJVMProcess(programPort);
+    }
+
+    /**
+     * Kill the bach process spawn during ballerina command execution.
+     *
+     * @param process parent process instance.
+     */
+    private void killBashProcess(Process process) {
+        // Kill the bash process.
+        if (process != null && process.isAlive()) {
+            process.destroyForcibly();
+            process = null;
+        }
+    }
+
+    /**
+     * Kill the JVM process spawn during ballerina command execution.
+     *
+     * @param port program port.
+     */
+    private void terminateJVMProcess(String port) {
         if (port.isEmpty()) {
             return;
         }

@@ -30,6 +30,7 @@ public function main() {
     }
    
     printHello();
+    printMyName();
 }
 
 // Prints hello
