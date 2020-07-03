@@ -12422,8 +12422,10 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
             case STRING_LITERAL:
-            case IDENTIFIER_TOKEN:
                 return parseSimpleConstExpr();
+            case IDENTIFIER_TOKEN:
+                STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
+                return parseFunctionalMatchPatternOrConsPattern(peek().kind, typeRefOrConstExpr);
             case VAR_KEYWORD:
                 return parseVarTypedBindingPattern();
             case OPEN_BRACKET_TOKEN:
@@ -12705,6 +12707,26 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseFunctionalMatchPatternOrConsPattern(SyntaxKind nextToken, STNode typeRefOrConstExpr) {
+        switch (nextToken) {
+            case OPEN_PAREN_TOKEN:
+                return parseFunctionalMatchPattern(typeRefOrConstExpr);
+            case RIGHT_DOUBLE_ARROW_TOKEN:
+                return typeRefOrConstExpr;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFunctionalMatchPatternOrConsPattern(solution.tokenKind, typeRefOrConstExpr);
+        }
+    }
+
     /**
      * Parse functional match pattern.
      *<p>
@@ -12717,7 +12739,7 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed functional match pattern node.
      */
-    private STNode parseFunctionalMatchPattern() {
+    private STNode parseFunctionalMatchPattern(STNode typeRef) {
 
     }
     // ------------------------ Ambiguity resolution at statement start ---------------------------
