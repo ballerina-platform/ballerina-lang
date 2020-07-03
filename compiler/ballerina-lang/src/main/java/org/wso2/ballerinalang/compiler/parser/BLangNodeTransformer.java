@@ -17,193 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
-import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.AnnotationNode;
-import io.ballerinalang.compiler.syntax.tree.ArrayTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.AssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.AsyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.BreakStatementNode;
-import io.ballerinalang.compiler.syntax.tree.BuiltinSimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
-import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ConditionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
-import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
-import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
-import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
-import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ErrorTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
-import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternVarnameNode;
-import io.ballerinalang.compiler.syntax.tree.FlushActionNode;
-import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ForkStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FromClauseNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
-import io.ballerinalang.compiler.syntax.tree.IfElseStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitAnonymousFunctionParameters;
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
-import io.ballerinalang.compiler.syntax.tree.ImportPrefixNode;
-import io.ballerinalang.compiler.syntax.tree.ImportSubVersionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportVersionNode;
-import io.ballerinalang.compiler.syntax.tree.IndexedExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.InterpolationNode;
-import io.ballerinalang.compiler.syntax.tree.IntersectionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.JoinClauseNode;
-import io.ballerinalang.compiler.syntax.tree.KeySpecifierNode;
-import io.ballerinalang.compiler.syntax.tree.KeyTypeConstraintNode;
-import io.ballerinalang.compiler.syntax.tree.LetClauseNode;
-import io.ballerinalang.compiler.syntax.tree.LetExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.LetVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LimitClauseNode;
-import io.ballerinalang.compiler.syntax.tree.ListBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.ListConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
-import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
-import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
-import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.MethodDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.NamedWorkerDeclarator;
-import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeList;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.ParenthesizedArgList;
-import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
-import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
-import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
-import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
-import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RecordTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RemoteMethodCallActionNode;
-import io.ballerinalang.compiler.syntax.tree.RequiredParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
-import io.ballerinalang.compiler.syntax.tree.RestBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.RestDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RestParameterNode;
-import io.ballerinalang.compiler.syntax.tree.RetryStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ReturnTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.RollbackStatementNode;
-import io.ballerinalang.compiler.syntax.tree.SelectClauseNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.syntax.tree.ServiceBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SingletonTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
-import io.ballerinalang.compiler.syntax.tree.SpreadFieldNode;
-import io.ballerinalang.compiler.syntax.tree.StartActionNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.StreamTypeParamsNode;
-import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.TableConstructorExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TableTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
-import io.ballerinalang.compiler.syntax.tree.Token;
-import io.ballerinalang.compiler.syntax.tree.TransactionStatementNode;
-import io.ballerinalang.compiler.syntax.tree.TransactionalExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TrapExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TupleTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeCastParamNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDefinitionNode;
-import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
-import io.ballerinalang.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.TypeofExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnaryExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldNode;
-import io.ballerinalang.compiler.syntax.tree.WaitFieldsListNode;
-import io.ballerinalang.compiler.syntax.tree.WhereClauseNode;
-import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
-import io.ballerinalang.compiler.syntax.tree.WildcardBindingPatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
-import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
-import io.ballerinalang.compiler.syntax.tree.XMLComment;
-import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
-import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
-import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
-import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
-import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
-import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.*;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -4125,137 +3939,65 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LinkedList<BLangMarkdownParameterDocumentation> parameters = new LinkedList<>();
         LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
 
-        NodeList<Token> tokens = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
-        List<String> previousParamLines = null;
-        StringBuilder threeTickContent = new StringBuilder();
-        boolean needToAppendThreeTickContent = false;
-        boolean inThreeTicks = false;
-        for (Token token : tokens) {
-            String text = token.text();
-            text = text.substring(1);
-
-            boolean inThreeTicksPreviousLine = inThreeTicks;
-            inThreeTicks = addReferences(text, references, inThreeTicks);
-
-            if (inThreeTicksPreviousLine) {
-                threeTickContent.append(token.leadingMinutiae())
-                                .append(token.text());
-                if (inThreeTicks) {
-                    threeTickContent.append(token.trailingMinutiae());
-                }
-                needToAppendThreeTickContent = true;
-                continue;
-            }
-
-            if (inThreeTicks) { // inThreeTicksPreviousLine == true && inThreeTicks == false means quote just started
-                threeTickContent.setLength(0);
-            }
-
-            if (text.startsWith(" +")) { // '+' indicates a param
-                text = text.substring(2);
-                int nameSeparator = text.indexOf('-'); // '-' is the param separate
-                String value = text.substring(0, nameSeparator).trim();
-
-                if ("return".equals(value)) { // spacial param name to mark return
-                    BLangMarkdownReturnParameterDocumentation returnParameter =
-                            new BLangMarkdownReturnParameterDocumentation();
-                    previousParamLines = returnParameter.returnParameterDocumentationLines;
-                    doc.returnParameter = returnParameter;
-                } else {
+        NodeList<Node> docLineList = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
+        for (Node singleDocLine : docLineList) {
+            switch (singleDocLine.kind()) {
+                case DOCUMENTATION_LINE:
+                    DocumentationLineNode docLineNode = (DocumentationLineNode) singleDocLine;
+                    BLangMarkdownDocumentationLine docLine =
+                            (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+                    NodeList<Node> docElementList = docLineNode.documentElements();
+                    String docDescription;
+                    if (docElementList.size() == 0) {
+                        docDescription = "";
+                    } else {
+                        docDescription = ((Token)docElementList.get(0)).text();
+                    }
+                    docLine.text = docDescription;
+                    documentationLines.add(docLine);
+                    break;
+                case PARAMETER_DOCUMENTATION_LINE:
+                    ParameterDocumentationLineNode parameterDocLineNode = (ParameterDocumentationLineNode)singleDocLine;
                     BLangMarkdownParameterDocumentation parameterDoc = new BLangMarkdownParameterDocumentation();
-                    previousParamLines = parameterDoc.parameterDocumentationLines;
                     BLangIdentifier parameterName = new BLangIdentifier();
                     parameterDoc.parameterName = parameterName;
-                    parameterName.value = value;
+                    parameterName.value = parameterDocLineNode.parameterName().text();
+
+                    NodeList<Node> docele = parameterDocLineNode.documentElements();
+                    StringBuilder a = new StringBuilder();
+                    for (Node ele : docele ) {
+                        a.append(ele.toString());
+                        if (ele.kind() == SyntaxKind.DOCUMENTATION_REFERENCE) {
+                            BLangMarkdownReferenceDocumentation ref = new BLangMarkdownReferenceDocumentation();
+                            ref.type = DocumentationReferenceType.BACKTICK_CONTENT;
+                            ((DocumentationReferenceNode)ele).referenceType().ifPresent(
+                                    r -> ref.type = stringToRefType(r.text())
+                            );
+                            references.add(ref);
+                        }
+                    }
+                    String text = a.toString();
+                    if (text.endsWith("\n")) {
+                        text = text.substring(0,text.length()-1);
+                    }
+                    parameterDoc.parameterDocumentationLines.add(text);
                     parameters.add(parameterDoc);
-                }
-
-                previousParamLines.add(trimLeftAtMostOne(text.substring(nameSeparator + 1)));
-
-            } else if (text.startsWith(" # Deprecated")) {
-                doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
-            } else if (previousParamLines != null) {
-                previousParamLines.add(trimLeftAtMostOne(text));
-            } else {
-                if (needToAppendThreeTickContent) {
-                    documentationLines.getLast().text += threeTickContent.toString();
-                    threeTickContent.setLength(0);
-                    needToAppendThreeTickContent = false;
-                }
-
-                BLangMarkdownDocumentationLine docLine =
-                        (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
-                docLine.text = trimLeftAtMostOne(text);
-                documentationLines.add(docLine);
-                threeTickContent.append(token.trailingMinutiae());
+                    break;
+                case RETURN_PARAMETER_DOCUMENTATION_LINE:
+                    doc.returnParameter = new BLangMarkdownReturnParameterDocumentation();
+                    break;
+                case DEPRECATION_DOCUMENTATION_LINE:
+                    doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
+                    break;
+                default:
+                    break;
             }
-        }
-
-        if (needToAppendThreeTickContent) {
-            documentationLines.getLast().text += threeTickContent.toString();
         }
 
         doc.documentationLines = documentationLines;
         doc.parameters = parameters;
         doc.references = references;
         return doc;
-    }
-
-    private String trimLeftAtMostOne(String text) {
-        int countToStrip = 0;
-        if (!text.isEmpty() && Character.isWhitespace(text.charAt(0))) {
-            countToStrip = 1;
-        }
-        return text.substring(countToStrip);
-    }
-
-    private boolean addReferences(String text, LinkedList<BLangMarkdownReferenceDocumentation> references,
-                                  boolean startsInsideQuotes) {
-//              _
-//             / \ non-tick (in single quote)
-//             v /
-//            --4<----.                 _____
-//      tick /         \non-tick       /     \ non-tick
-//          v     tick  \       tick  v tick  \        tick
-//     .-> 0-------------->1--------->2--------->3-----------------.
-//    /   ^ \                        ^ \                           |
-//    |   | |                        | |                           |
-//    |   \_/non-tick (un-quoted)    \_/non-tick (in double quote) |
-//    \____________________________________________________________/
-//
-// note this state machine is only design to distinguish single tick and double tick quoted string
-// for simplicity are assuming three tick case is just a subset of double tick case
-
-        int length = text.length();
-        int state = startsInsideQuotes ? 2 : 0;
-        int lastWhiteSpace = 0;
-        int secondToLastWhiteSpace = 0;
-
-        //                0  1  2  3  4
-        int[][] table = {{0, 4, 2, 2, 4},  // non-tick
-                         {1, 2, 3, 0, 0}}; // tick
-
-        for (int i = 0; i < length; i++) {
-            char c = text.charAt(i);
-            int isTick = c == '`' ? 1 : 0;
-            int newState = table[isTick][state];
-
-            if (newState == 0 && c == ' ') {
-                secondToLastWhiteSpace = lastWhiteSpace;
-                lastWhiteSpace = i;
-            }
-
-            if (state == 4 && newState == 0) { // we are coming out of a single quoted string
-                BLangMarkdownReferenceDocumentation ref = new BLangMarkdownReferenceDocumentation();
-                ref.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                if (secondToLastWhiteSpace + 1 < lastWhiteSpace) {
-                    ref.type = stringToRefType(text.substring(secondToLastWhiteSpace + 1, lastWhiteSpace));
-                }
-                references.add(ref);
-            }
-            state = newState;
-        }
-        return state == 2 || state == 3;
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {

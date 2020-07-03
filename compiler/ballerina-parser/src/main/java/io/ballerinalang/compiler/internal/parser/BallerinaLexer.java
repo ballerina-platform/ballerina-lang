@@ -1579,53 +1579,57 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken readDocumentationToken() {
         reader.mark();
         int nextChar = peek();
-        if (nextChar == LexerTerminals.PLUS) {
-            reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_PARAMETER);
-            return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
-        } else if (nextChar == LexerTerminals.BACKTICK) {
-            reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_REFERENCE_NAME);
-            return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-        } else {
-            while (!reader.isEOF()) {
-                switch (nextChar) {
-                    case LexerTerminals.NEWLINE:
-                    case LexerTerminals.CARRIAGE_RETURN:
-                        endMode();
-                        break;
-                    case LexerTerminals.BACKTICK:
-                        if (reader.peek(1) != LexerTerminals.BACKTICK) {
-                            break;
-                        } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
-                            // Double backtick detected
-                            reader.advance(2);
-                            processDoubleBacktickContent();
-                        } else {
-                            // Triple backtick detected
-                            reader.advance(3);
-                            processTripleBacktickContent();
-                        }
-                        // Fall through
-                    default:
-                        if (isIdentifierInitialChar(nextChar)) {
-                            // Look ahead and see if next characters belong to a documentation reference.
-                            // If they do, switch the mode and return.
-                            // Otherwise advance the reader for checked characters.
-                            int readerAdvanceCount = lookAheadForDocumentationReference(nextChar);
-                            if (readerAdvanceCount == 0) {
-                                switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
-                                break;
-                            }
-                            reader.advance(readerAdvanceCount);
-                        } else {
-                            reader.advance();
-                        }
-                        nextChar = peek();
-                        continue;
+        switch (nextChar) {
+            case LexerTerminals.PLUS:
+                reader.advance();
+                switchMode(ParserMode.DOCUMENTATION_PARAMETER);
+                return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+            case LexerTerminals.BACKTICK:
+                if (reader.peek(1) != LexerTerminals.BACKTICK) {
+                    reader.advance();
+                    switchMode(ParserMode.DOCUMENTATION_REFERENCE_NAME);
+                    return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 }
-                break;
-            }
+                // Fall through
+            default:
+                while (!reader.isEOF()) {
+                    switch (nextChar) {
+                        case LexerTerminals.NEWLINE:
+                        case LexerTerminals.CARRIAGE_RETURN:
+                            endMode();
+                            break;
+                        case LexerTerminals.BACKTICK:
+                            if (reader.peek(1) != LexerTerminals.BACKTICK) {
+                                break;
+                            } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
+                                // Double backtick detected
+                                reader.advance(2);
+                                processDoubleBacktickContent();
+                            } else {
+                                // Triple backtick detected
+                                reader.advance(3);
+                                processTripleBacktickContent();
+                            }
+                            // Fall through
+                        default:
+                            if (isIdentifierInitialChar(nextChar)) {
+                                // Look ahead and see if next characters belong to a documentation reference.
+                                // If they do, switch the mode and return.
+                                // Otherwise advance the reader for checked characters.
+                                int readerAdvanceCount = lookAheadForDocumentationReference(nextChar);
+                                if (readerAdvanceCount == 0) {
+                                    switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
+                                    break;
+                                }
+                                reader.advance(readerAdvanceCount);
+                            } else {
+                                reader.advance();
+                            }
+                            nextChar = peek();
+                            continue;
+                    }
+                    break;
+                }
         }
 
         return getTemplateString(SyntaxKind.DOCUMENTATION_DESCRIPTION);
