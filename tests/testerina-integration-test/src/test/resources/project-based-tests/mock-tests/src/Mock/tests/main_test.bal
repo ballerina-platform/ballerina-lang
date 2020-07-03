@@ -20,7 +20,6 @@ test:MockFunction mock_stringAdd = new();
 }
 test:MockFunction mock_floatAdd = new();
 
-
 //
 //  MOCK FUNCTIONS
 //
@@ -49,11 +48,9 @@ public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
 }
 
-
 //
 // TESTS
 //
-
 
 @test:Config {
 }

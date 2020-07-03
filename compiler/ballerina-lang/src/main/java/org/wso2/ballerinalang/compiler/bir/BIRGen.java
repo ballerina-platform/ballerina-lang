@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -305,21 +306,33 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-
-    // If the Function in the Basic block exists in the MockFunctionMap
-    // Replace the function call with the equivalent '$MOCK_' substitute
     private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
-        for (BIRFunction function : birPkg.functions) {
-            List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
-            for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
-                BIRTerminator bbTerminator = functionBasicBlock.terminator;
+        // Replace Mocked function calls in every function
+        replaceFunctions(birPkg.functions, mockFunctionMap);
+
+        // Replace Mocked Function calls in every service
+        if (birPkg.typeDefs.size() != 0) {
+            for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
+                if (typeDef.type instanceof BServiceType) {
+                    // Replace Mocked function calls in every service function
+                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap);
+                }
+            }
+        }
+    }
+
+    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap) {
+        // Loop through all defined BIRFunctions in functionList
+        for (BIRFunction function : functionList) {
+            List<BIRBasicBlock> basicBlocks = function.basicBlocks;
+            for (BIRBasicBlock basicBlock : basicBlocks) {
+                BIRTerminator bbTerminator = basicBlock.terminator;
                 if (bbTerminator.kind.equals(InstructionKind.CALL)) {
                     //We get the callee and the name and generate 'calleepackage#name'
                     BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
 
                     String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
                             + callTerminator.name.toString();
-
                     // If the generated Key exists in the map, then use the old implementation
                     if (mockFunctionMap.get(functionKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
@@ -328,15 +341,11 @@ public class BIRGen extends BLangNodeVisitor {
                         callTerminator.calleePkg = function.pos.src.pkgID;
                     }
 
-
                     // If function in basic block exists in the MockFunctionMap
                     if (mockFunctionMap.containsKey(callTerminator.name.getValue())) {
                         // Replace the function call with the equivalent $MOCK_ substitiute
-                        // TODO : Change MOCK_ to $MOCK_ when replacing with Desugar mock function.
                         String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
-
-                        // TODO : Change this to package where the desugar mock function resides.
                         callTerminator.calleePkg = function.pos.src.pkgID;
                     }
                 }

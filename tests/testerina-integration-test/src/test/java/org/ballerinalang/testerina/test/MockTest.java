@@ -47,13 +47,19 @@ public class MockTest extends BaseTestCase {
         String msg3 = "1 passing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         LogLeecher clientLeecher2 = new LogLeecher(msg2);
-        LogLeecher clientLeecher3 = new LogLeecher(msg3);
         balClient.runMain("test", new String[]{"Mock"}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
         clientLeecher1.waitForText(20000);
         clientLeecher2.waitForText(20000);
-        balClient.runMain("test", new String[]{"Mock2"}, null,
-                new String[]{}, new LogLeecher[]{clientLeecher3}, projectPath);
+    }
+
+    @Test
+    public void testFunctionMocking2() throws BallerinaTestException {
+        String msg1 = "2 passing";
+        LogLeecher clientLeecher1 = new LogLeecher(msg1);
+        balClient.runMain("test", new String[] {"Mock2"}, null,
+                new String[] {}, new LogLeecher[]{clientLeecher1}, projectPath);
+        clientLeecher1.waitForText(20000);
     }
 
     @Test
