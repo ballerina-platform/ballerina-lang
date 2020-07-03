@@ -2866,12 +2866,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(joinClauseNode.inKeyword());
         ExpressionNode expression =
                 modifyNode(joinClauseNode.expression());
+        OnClauseNode onCondition =
+                modifyNode(joinClauseNode.onCondition().orElse(null));
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     @Override

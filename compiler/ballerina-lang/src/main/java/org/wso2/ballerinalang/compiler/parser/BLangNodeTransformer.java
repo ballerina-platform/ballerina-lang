@@ -3226,13 +3226,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangJoinClause joinClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
         joinClause.pos = getPosition(joinClauseNode);
         TypedBindingPatternNode typedBindingPattern = joinClauseNode.typedBindingPattern();
-        joinClause.variableDefinitionNode =
-                createBLangVarDef(getPosition(joinClauseNode), typedBindingPattern, Optional.empty(), Optional.empty());
+        joinClause.variableDefinitionNode = createBLangVarDef(getPosition(joinClauseNode),
+                typedBindingPattern, Optional.empty(), Optional.empty());
         joinClause.collection = createExpression(joinClauseNode.expression());
-
-        boolean isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
-        joinClause.isDeclaredWithVar = isDeclaredWithVar;
-
+        joinClause.isDeclaredWithVar = typedBindingPattern.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        joinClause.isOuterJoin = joinClauseNode.outerKeyword().isPresent();
+        if (joinClauseNode.onCondition().isPresent()) {
+            OnClauseNode onClauseNode = joinClauseNode.onCondition().get();
+            BLangOnClause onClause = (BLangOnClause) TreeBuilder.createOnClauseNode();
+            onClause.pos = getPosition(onClauseNode);
+            onClause.expression = createExpression(onClauseNode.expression());
+            joinClause.onClause = onClause;
+        }
         return joinClause;
     }
 
