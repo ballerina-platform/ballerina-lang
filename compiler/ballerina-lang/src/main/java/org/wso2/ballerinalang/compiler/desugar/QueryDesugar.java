@@ -473,15 +473,15 @@ public class QueryDesugar extends BLangNodeVisitor {
         //      return ...;
         // });
         DiagnosticPos joinPos = joinClause.pos;
-        boolean filtered = joinClause.onClauseNode != null;
-        DiagnosticPos filterPos = filtered ? (DiagnosticPos) joinClause.onClauseNode.getPosition() : joinPos;
+        boolean filtered = joinClause.onClause != null;
+        DiagnosticPos filterPos = filtered ? (DiagnosticPos) joinClause.onClause.getPosition() : joinPos;
         BLangLambdaFunction filterLambda = createFilterLambda(filterPos);
         BLangBlockFunctionBody filterBody = (BLangBlockFunctionBody) filterLambda.function.body;
         BLangReturn filterReturnNode = (BLangReturn) TreeBuilder.createReturnNode();
         filterReturnNode.pos = filterPos;
         if (filtered) {
             // return <int>frame["x"] > 0;
-            filterReturnNode.setExpression(joinClause.onClauseNode.getExpression());
+            filterReturnNode.setExpression(joinClause.onClause.getExpression());
         } else {
             // return true;
             filterReturnNode.setExpression(ASTBuilderUtil.createLiteral(filterPos, symTable.booleanType, true));

@@ -1358,7 +1358,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.resultType = source.resultType;
         clone.nillableResultType = source.nillableResultType;
         clone.isOuterJoin = source.isOuterJoin;
-        clone.onClauseNode = (OnClauseNode) clone((BLangNode) source.onClauseNode);
+        clone.onClause = (OnClauseNode) clone((BLangNode) source.onClause);
 
     }
 

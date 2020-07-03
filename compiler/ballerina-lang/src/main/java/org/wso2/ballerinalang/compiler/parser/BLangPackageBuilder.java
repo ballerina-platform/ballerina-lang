@@ -2079,7 +2079,7 @@ public class BLangPackageBuilder {
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
         BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
-        joinClause.onClauseNode = onClause;
+        joinClause.onClause = onClause;
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

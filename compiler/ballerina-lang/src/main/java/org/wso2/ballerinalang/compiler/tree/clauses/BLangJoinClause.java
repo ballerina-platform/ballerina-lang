@@ -29,18 +29,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangJoinClause extends BLangInputClause {
 
     public boolean isOuterJoin;
-    public OnClauseNode onClauseNode;
+    public OnClauseNode onClause;
 
     public void setOuterJoin(boolean outerJoin) {
         isOuterJoin = outerJoin;
     }
 
-    public OnClauseNode getOnClauseNode() {
-        return onClauseNode;
+    public OnClauseNode getOnClause() {
+        return onClause;
     }
 
-    public void setOnClauseNode(OnClauseNode onClauseNode) {
-        this.onClauseNode = onClauseNode;
+    public void setOnClause(OnClauseNode onClause) {
+        this.onClause = onClause;
     }
 
     public boolean isOuterJoin() {
