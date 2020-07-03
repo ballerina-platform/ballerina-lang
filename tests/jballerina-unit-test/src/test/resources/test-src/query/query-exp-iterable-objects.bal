@@ -133,3 +133,31 @@ function liftError (int[]|error arrayData) returns int[] {
     }
     return [];
 }
+
+public function testIteratorInStream() returns int[]|error {
+    int[] intArray = [1, 2, 3, 4, 5];
+    stream<int> numberStream = intArray.toStream();
+    int[]|error integers = from var num in getIterableObject(numberStream.iterator())
+                     select <int>num;
+
+    return integers;
+}
+
+public type _Iterator abstract object {
+    public function next() returns record {|any|error value;|}|error?;
+};
+
+type IterableFromIterator object {
+        _Iterator itr;
+        public function init(_Iterator itr) {
+            self.itr = itr;
+        }
+
+        public function __iterator() returns _Iterator {
+            return self.itr;
+        }
+};
+
+function getIterableObject(_Iterator iterator) returns IterableFromIterator {
+    return new IterableFromIterator(iterator);
+}

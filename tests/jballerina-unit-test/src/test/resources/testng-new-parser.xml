@@ -137,6 +137,7 @@
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
             <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
             <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />

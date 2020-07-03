@@ -104,4 +104,16 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(((BInteger) returns[i++]).intValue(), 3);
         Assert.assertEquals(((BInteger) returns[i++]).intValue(), 4);
     }
+
+    @Test
+    public void testIteratorInStream() {
+        BValue[] returns = BRunUtil.invoke(program, "testIteratorInStream");
+        Assert.assertEquals(returns.length, 5);
+        int i = 0;
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 3);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 4);
+        Assert.assertEquals(((BInteger) returns[i++]).intValue(), 5);
+    }
 }

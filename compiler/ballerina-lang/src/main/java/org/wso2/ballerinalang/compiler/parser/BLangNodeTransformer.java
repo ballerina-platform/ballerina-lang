@@ -4023,6 +4023,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             BuiltinSimpleNameReferenceNode simpleNameRef = (BuiltinSimpleNameReferenceNode) type;
             if (simpleNameRef.kind() == SyntaxKind.VAR_TYPE_DESC) {
                 return null;
+            } else if (simpleNameRef.name().isMissing()) {
+                String name = missingNodesHelper.getNextMissingNodeName(diagnosticSource.pkgID);
+                BLangIdentifier identifier = createIdentifier(getPosition(simpleNameRef.name()), name);
+                BLangIdentifier pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                return createUserDefinedType(getPosition(type), pkgAlias, identifier);
             }
             typeText = simpleNameRef.name().text();
         } else {
