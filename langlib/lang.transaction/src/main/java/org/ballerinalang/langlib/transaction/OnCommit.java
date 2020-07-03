@@ -44,7 +44,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class OnCommit {
 
     public static void onCommit(Strand strand, FPValue fpValue) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);

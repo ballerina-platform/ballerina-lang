@@ -324,8 +324,8 @@ public class Scheduler {
                 if (item.future.callback != null) {
                     if (item.future.panic != null) {
                         item.future.callback.notifyFailure(BallerinaErrors.createError(panic));
-                        if (item.future.strand.transactionLocalContext != null) {
-                            item.future.strand.transactionLocalContext.notifyLocalRemoteParticipantFailure();
+                        if (item.future.strand.currentTrxContext != null) {
+                            item.future.strand.currentTrxContext.notifyLocalRemoteParticipantFailure();
                         }
                     } else {
                         item.future.callback.notifySuccess();

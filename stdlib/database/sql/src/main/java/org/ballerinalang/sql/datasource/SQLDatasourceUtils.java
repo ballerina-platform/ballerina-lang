@@ -88,14 +88,14 @@ public class SQLDatasourceUtils {
             } else {
                 //This is when there is an infected transaction block. But this is not participated to the transaction
                 //since the action call is outside of the transaction block.
-                if (!strand.transactionLocalContext.hasTransactionBlock()) {
+                if (!strand.currentTrxContext.hasTransactionBlock()) {
                     conn = datasource.getConnection();
                     return conn;
                 }
             }
             String connectorId = (String) client.getNativeData(Constants.SQL_CONNECTOR_TRANSACTION_ID);
             boolean isXAConnection = datasource.isXADataSource();
-            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+            TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
             String globalTxId = transactionLocalContext.getGlobalTransactionId();
             String currentTxBlockId = transactionLocalContext.getCurrentTransactionBlockId();
             BallerinaTransactionContext txContext = transactionLocalContext.getTransactionContext(connectorId);

@@ -42,7 +42,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class SetRollbackOnly {
 
     public static void setRollbackOnly(Strand strand, Object error) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.setRollbackOnlyError(error);
     }
 }
