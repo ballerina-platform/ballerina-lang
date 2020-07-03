@@ -62,14 +62,6 @@ public enum OperatorPrecedence {
                 return false;
             }
         }
-        if (this.level == opPrecedence.level && isRightAssociative(opPrecedence)) {
-            return false;
-        }
         return this.level <= opPrecedence.level;
-    }
-
-    private boolean isRightAssociative(OperatorPrecedence operatorPrecedence) {
-        return operatorPrecedence == ELVIS_CONDITIONAL || operatorPrecedence == ANON_FUNC_OR_LET ||
-                operatorPrecedence == CONDITIONAL;
     }
 }
