@@ -1661,7 +1661,7 @@ public class BallerinaLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                     // Reaching here means ending backticks were not found within the same line.
                     // Therefore, look ahead see if next line is a documentation line and if so,
-                    // look for a ending in that line. Otherwise terminate backtick content at new line.
+                    // look for a ending in that line. Otherwise terminate backtick content at the new line.
                     int lookAheadCount = 1;
                     int lookAheadChar = reader.peek(lookAheadCount);
                     while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {

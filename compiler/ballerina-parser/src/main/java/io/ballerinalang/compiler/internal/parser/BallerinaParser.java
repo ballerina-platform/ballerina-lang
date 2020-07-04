@@ -12603,9 +12603,9 @@ public class BallerinaParser extends AbstractParser {
      * This section parses documentation.
      * Ballerina flavored markdown (BFM) is supported by the documentation.
      *
-     * During parsing, parser will never go to the error handler.
-     * In case of an error, all tokens belong to the same documentation line,
-     * are parsed as an InvalidDocumentationLineNode.
+     * During the parsing, parser will never go to the error handler.
+     * In case of an error, all the tokens belong to the same documentation line,
+     * are parsed as a single invalid documentation line node.
      * Refer {@link #parseInvalidDocumentationLine}
      */
 
@@ -12757,10 +12757,11 @@ public class BallerinaParser extends AbstractParser {
         boolean isErroneous;
         if (hasMissingDocumentationTokens(startBacktick, backtickContent, endBacktick)) {
             isErroneous = true;
-            appendNonMissingDocumentationTokens(docElements, referenceType, startBacktick, backtickContent, endBacktick);
-        } else {
-            STNode docElement = STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
+            appendNonMissingDocumentationTokens(docElements, referenceType, startBacktick, backtickContent,
                     endBacktick);
+        } else {
+            STNode docElement = STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick,
+                    backtickContent, endBacktick);
             docElements.add(docElement);
             isErroneous = false;
         }
