@@ -2290,45 +2290,29 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STParameterDocumentationLineNode transform(
-            STParameterDocumentationLineNode parameterDocumentationLineNode) {
-        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
-        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
-        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
-        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
-        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
-        return parameterDocumentationLineNode.modify(
-                parameterDocumentationLineNode.kind,
-                hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
-                documentElements);
+    public STListMatchPatternNode transform(
+            STListMatchPatternNode listMatchPatternNode) {
+        STNode openBracket = modifyNode(listMatchPatternNode.openBracket);
+        STNode matchPatterns = modifyNode(listMatchPatternNode.matchPatterns);
+        STNode restMatchPattern = modifyNode(listMatchPatternNode.restMatchPattern);
+        STNode closeBracket = modifyNode(listMatchPatternNode.closeBracket);
+        return listMatchPatternNode.modify(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
     }
 
     @Override
-    public STDocumentationReferenceNode transform(
-            STDocumentationReferenceNode documentationReferenceNode) {
-        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
-        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
-        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
-        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
-        return documentationReferenceNode.modify(
-                referenceType,
-                startBacktick,
-                backtickContent,
-                endBacktick);
-    }
-
-    @Override
-    public STDocumentationLineNode transform(
-            STDocumentationLineNode documentationLineNode) {
-        STNode hashToken = modifyNode(documentationLineNode.hashToken);
-        STNode documentElements = modifyNode(documentationLineNode.documentElements);
-        return documentationLineNode.modify(
-                documentationLineNode.kind,
-                hashToken,
-                documentElements);
+    public STRestMatchPatternNode transform(
+            STRestMatchPatternNode restMatchPatternNode) {
+        STNode ellipsisToken = modifyNode(restMatchPatternNode.ellipsisToken);
+        STNode varKeywordToken = modifyNode(restMatchPatternNode.varKeywordToken);
+        STNode variableName = modifyNode(restMatchPatternNode.variableName);
+        return restMatchPatternNode.modify(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
     }
 
     // Tokens

@@ -416,6 +416,8 @@ public enum SyntaxKind {
     LIMIT_CLAUSE(3072),
     JOIN_CLAUSE(3073),
     ON_CLAUSE(3074),
+    LIST_MATCH_PATTERN(3075),
+    REST_MATCH_PATTERN(3076),
 
     // XML
     XML_ELEMENT(4000),

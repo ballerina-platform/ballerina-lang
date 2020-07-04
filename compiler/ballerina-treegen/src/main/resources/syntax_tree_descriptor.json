@@ -3846,6 +3846,50 @@
             ]
         },
         {
+            "name": "ListMatchPatternNode",
+            "base": "Node",
+            "kind": "LIST_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPatterns",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restMatchPattern",
+                    "type": "RestMatchPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestMatchPatternNode",
+            "base": "Node",
+            "kind": "REST_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "varKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
             "name": "DocumentationNode",
             "base": "Node",
             "isAbstract": true

@@ -2128,45 +2128,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
-    public static STNode createParameterDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode plusToken,
-            STNode parameterName,
-            STNode minusToken,
-            STNode documentElements) {
+    public static STNode createListMatchPatternNode(
+            STNode openBracket,
+            STNode matchPatterns,
+            STNode restMatchPattern,
+            STNode closeBracket) {
 
-        return new STParameterDocumentationLineNode(
-                kind,
-                hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
-                documentElements);
+        return new STListMatchPatternNode(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
     }
 
-    public static STNode createDocumentationReferenceNode(
-            STNode referenceType,
-            STNode startBacktick,
-            STNode backtickContent,
-            STNode endBacktick) {
+    public static STNode createRestMatchPatternNode(
+            STNode ellipsisToken,
+            STNode varKeywordToken,
+            STNode variableName) {
 
-        return new STDocumentationReferenceNode(
-                referenceType,
-                startBacktick,
-                backtickContent,
-                endBacktick);
-    }
-
-    public static STNode createDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode documentElements) {
-
-        return new STDocumentationLineNode(
-                kind,
-                hashToken,
-                documentElements);
+        return new STRestMatchPatternNode(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
     }
 }
 

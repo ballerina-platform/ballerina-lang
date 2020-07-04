@@ -20,7 +20,6 @@ package org.ballerinalang.jvm;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
-import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
@@ -91,32 +90,14 @@ public class JSONParser {
      * @throws BallerinaException for any parsing error
      */
     public static Object parse(String jsonStr) throws BallerinaException {
-        Object jsonObj = parse(new StringReader(jsonStr));
-        return changeForBString(jsonObj);
+        return parse(new StringReader(jsonStr));
     }
 
     private static Object changeForBString(Object jsonObj) {
-        BType type = TypeChecker.getType(jsonObj);
-        switch (type.getTag()) {
-            case TypeTags.STRING_TAG:
-                if (jsonObj instanceof String) {
-                    return StringUtils.fromString((String) jsonObj);
-                }
-                break;
-            case TypeTags.MAP_TAG:
-                MapValueImpl<BString, Object> map = (MapValueImpl<BString, Object>) jsonObj;
-                MapValueImpl<BString, Object> resultMap = new MapValueImpl<>(type);
-                map.forEach((key, value) -> resultMap.put(key, changeForBString(value)));
-                return resultMap;
-            case TypeTags.ARRAY_TAG:
-                ArrayValue arrayValue = (ArrayValue) jsonObj;
-                ArrayValue resultArrayValue = new ArrayValueImpl((BArrayType) type);
-                for (int i = 0; i < arrayValue.size(); i++) {
-                    resultArrayValue.add(i, changeForBString(arrayValue.get(i)));
-                }
-                return resultArrayValue;
+        if (jsonObj instanceof String) {
+            return StringUtils.fromString((String) jsonObj);
         }
-    return jsonObj;
+        return jsonObj;
     }
 
     /**
@@ -296,7 +277,7 @@ public class JSONParser {
                 currentJsonNode = parentNode;
                 return FIELD_END_STATE;
             }
-            ((ArrayValue) parentNode).append(currentJsonNode);
+            ((ArrayValue) parentNode).append(changeForBString(currentJsonNode));
             currentJsonNode = parentNode;
             return ARRAY_ELEMENT_END_STATE;
         }
@@ -687,7 +668,7 @@ public class JSONParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        ((ArrayValue) sm.currentJsonNode).append(sm.value());
+                        ((ArrayValue) sm.currentJsonNode).append(changeForBString(sm.value()));
                         state = ARRAY_ELEMENT_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_AE_ESC_CHAR_PROCESSING_STATE;
@@ -799,7 +780,7 @@ public class JSONParser {
                     ch = buff[i];
                     sm.processLocation(ch);
                     if (ch == sm.currentQuoteChar) {
-                        sm.currentJsonNode = sm.value();
+                        sm.currentJsonNode = changeForBString(sm.value());
                         state = DOC_END_STATE;
                     } else if (ch == REV_SOL) {
                         state = STRING_VAL_ESC_CHAR_PROCESSING_STATE;
