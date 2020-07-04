@@ -4156,7 +4156,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     break;
                 case PARAMETER_DOCUMENTATION_LINE:
                     BLangMarkdownParameterDocumentation bLangParameterDoc = new BLangMarkdownParameterDocumentation();
-                    ParameterDocumentationLineNode parameterDocLineNode = (ParameterDocumentationLineNode)singleDocLine;
+                    ParameterDocumentationLineNode parameterDocLineNode =
+                            (ParameterDocumentationLineNode) singleDocLine;
 
                     BLangIdentifier parameterName = new BLangIdentifier();
                     parameterName.value = parameterDocLineNode.parameterName().text();
@@ -4171,7 +4172,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case RETURN_PARAMETER_DOCUMENTATION_LINE:
                     BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc =
                             new BLangMarkdownReturnParameterDocumentation();
-                    ParameterDocumentationLineNode returnParaDocLineNode = (ParameterDocumentationLineNode)singleDocLine;
+                    ParameterDocumentationLineNode returnParaDocLineNode =
+                            (ParameterDocumentationLineNode) singleDocLine;
 
                     NodeList<Node> returnParaDocElements = returnParaDocLineNode.documentElements();
                     String returnParaDocText =
@@ -4198,7 +4200,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private String addReferencesAndReturnDocumentationText(LinkedList<BLangMarkdownReferenceDocumentation> references,
                                                            NodeList<Node> docElements) {
         StringBuilder docText = new StringBuilder();
-        for (Node element : docElements ) {
+        for (Node element : docElements) {
             docText.append(element.toString());
 
             // Add references if available
@@ -4206,7 +4208,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
 
                 bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                ((DocumentationReferenceNode)element).referenceType().ifPresent(
+                ((DocumentationReferenceNode) element).referenceType().ifPresent(
                         refType -> bLangRefDoc.type = stringToRefType(refType.text())
                 );
                 references.add(bLangRefDoc);
@@ -4215,7 +4217,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         String text = docText.toString();
         if (text.endsWith("\n")) {
-            text = text.substring(0,text.length()-1);
+            text = text.substring(0, text.length() - 1);
         }
 
         return text;
