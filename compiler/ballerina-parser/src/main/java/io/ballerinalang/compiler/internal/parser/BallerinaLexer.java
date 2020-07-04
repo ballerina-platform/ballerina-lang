@@ -69,9 +69,9 @@ public class BallerinaLexer extends AbstractLexer {
                 processLeadingTrivia();
                 token = readDocumentationReferenceTypeToken();
                 break;
-            case DOCUMENTATION_REFERENCE_NAME:
+            case DOCUMENTATION_BACKTICK_CONTENT:
                 processLeadingTrivia();
-                token = readDocumentationReferenceNameToken();
+                token = readDocumentationBacktickContentToken();
                 break;
             case DEFAULT:
             case IMPORT:
@@ -98,8 +98,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return readDocumentationParameterToken();
             case DOCUMENTATION_REFERENCE_TYPE:
                 return readDocumentationReferenceTypeToken();
-            case DOCUMENTATION_REFERENCE_NAME:
-                return readDocumentationReferenceNameToken();
+            case DOCUMENTATION_BACKTICK_CONTENT:
+                return readDocumentationBacktickContentToken();
             case DEFAULT:
             case IMPORT:
             default:
@@ -1587,7 +1587,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.BACKTICK:
                 if (reader.peek(1) != LexerTerminals.BACKTICK) {
                     reader.advance();
-                    switchMode(ParserMode.DOCUMENTATION_REFERENCE_NAME);
+                    switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
                     return getSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
                 }
                 // Fall through
@@ -1604,22 +1604,27 @@ public class BallerinaLexer extends AbstractLexer {
                             } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
                                 // Double backtick detected
                                 reader.advance(2);
-                                processDoubleBacktickContent();
+                                advanceReaderForBacktickContent(false);
                             } else {
                                 // Triple backtick detected
                                 reader.advance(3);
-                                processTripleBacktickContent();
+                                advanceReaderForBacktickContent(true);
                             }
                             nextChar = peek();
                             continue;
                         default:
                             if (isIdentifierInitialChar(nextChar)) {
                                 // Look ahead and see if next characters belong to a documentation reference.
-                                // If they do, switch the mode and return.
+                                // If they do, switch the mode immediately and return.
                                 // Otherwise advance the reader for checked characters.
                                 int readerAdvanceCount = lookAheadForDocumentationReference(nextChar);
                                 if (readerAdvanceCount == 0) {
                                     switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
+                                    if (getLexeme().equals("")) {
+                                        // Reaching here means,
+                                        // first immediate character also belong to a documentation reference.
+                                        return readDocumentationReferenceTypeToken();
+                                    }
                                     break;
                                 }
                                 reader.advance(readerAdvanceCount);
@@ -1636,47 +1641,20 @@ public class BallerinaLexer extends AbstractLexer {
         return getTemplateString(SyntaxKind.DOCUMENTATION_DESCRIPTION);
     }
 
-    // TODO: Refactor
-    private void processDoubleBacktickContent() {
+    private void advanceReaderForBacktickContent(boolean isTripleBacktick) {
         int nextChar = peek();
         while (!reader.isEOF()) {
             switch (nextChar) {
                 case LexerTerminals.BACKTICK:
-                    reader.advance();
-                    if (peek() == LexerTerminals.BACKTICK && reader.peek(1) != LexerTerminals.BACKTICK) {
+                    // Look for a double backtick or a triple backtick
+                    // depend on the `isTripleBacktick` boolean value.
+                    if (isTripleBacktick) {
                         reader.advance();
-                        return;
-                    } else if (peek() != LexerTerminals.NEWLINE) {
-                        reader.advance();
+                        if (peek() != LexerTerminals.BACKTICK) {
+                            nextChar = peek();
+                            continue;
+                        }
                     }
-                    nextChar = peek();
-                    continue;
-                case LexerTerminals.NEWLINE:
-                    int lookAheadCount = 1;
-                    int lookAheadChar = reader.peek(lookAheadCount);
-                    while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
-                        lookAheadCount++;
-                        lookAheadChar = reader.peek(lookAheadCount);
-                    }
-                    if (lookAheadChar != LexerTerminals.HASH) {
-                        return;
-                    }
-                    reader.advance(lookAheadCount);
-                    nextChar = peek();
-                    continue;
-                default:
-                    reader.advance();
-                    nextChar = peek();
-            }
-        }
-    }
-
-    // TODO: Refactor
-    private void processTripleBacktickContent() {
-        int nextChar = peek();
-        while (!reader.isEOF()) {
-            switch (nextChar) {
-                case LexerTerminals.BACKTICK:
                     reader.advance();
                     if (peek() != LexerTerminals.BACKTICK) {
                         nextChar = peek();
@@ -1684,12 +1662,14 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     reader.advance();
                     if (peek() != LexerTerminals.BACKTICK) {
-                        nextChar = peek();
-                        continue;
+                        return;
                     }
-                    reader.advance();
-                    return;
+                    nextChar = peek();
+                    continue;
                 case LexerTerminals.NEWLINE:
+                    // Reaching here means ending backticks were not found within the same line.
+                    // Therefore, look ahead see if next line is a documentation line and if so,
+                    // look for a ending in that line. Otherwise terminate backtick content at new line.
                     int lookAheadCount = 1;
                     int lookAheadChar = reader.peek(lookAheadCount);
                     while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
@@ -1729,7 +1709,8 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.MODULE:
             case LexerTerminals.FUNCTION:
             case LexerTerminals.PARAMETER:
-                // Look ahead for a single backtick
+                // Look ahead for a single backtick.
+                // There could be spaces in between.
                 while (true) {
                     switch (lookAheadChar) {
                         case LexerTerminals.SPACE:
@@ -1740,7 +1721,7 @@ public class BallerinaLexer extends AbstractLexer {
                             // Make sure backtick is a single backtick
                             if (reader.peek(lookAheadCount + 1) != LexerTerminals.BACKTICK) {
                                 // Reaching here means checked characters belong to a documentation reference.
-                                // Hence return 0, as reader should not be advanced.
+                                // Hence return 0, as the reader should not be advanced.
                                 return 0;
                             }
                             // Fall through
@@ -1790,13 +1771,14 @@ public class BallerinaLexer extends AbstractLexer {
         int nextChar = peek();
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_REFERENCE_NAME);
+            switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
             return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
         }
 
         while (isIdentifierInitialChar(peek())) {
             reader.advance();
         }
+
         return processReferenceType();
     }
 
@@ -1826,11 +1808,11 @@ public class BallerinaLexer extends AbstractLexer {
 
     /*
      * ------------------------------------------------------------------------------------------------------------
-     * DOCUMENTATION_REFERENCE_NAME Mode
+     * DOCUMENTATION_BACKTICK_CONTENT Mode
      * ------------------------------------------------------------------------------------------------------------
      */
 
-    private STToken readDocumentationReferenceNameToken() {
+    private STToken readDocumentationBacktickContentToken() {
         reader.mark();
         int nextToken = peek();
         if (nextToken == LexerTerminals.BACKTICK) {
@@ -1842,13 +1824,8 @@ public class BallerinaLexer extends AbstractLexer {
         while (!reader.isEOF()) {
             switch (nextToken) {
                 case LexerTerminals.BACKTICK:
-                    break;
                 case LexerTerminals.NEWLINE:
-                    if (reader.peek(1) != LexerTerminals.HASH) {
-                        switchMode(ParserMode.DOCUMENTATION);
-                        break;
-                    }
-                    // Fall through
+                    break;
                 default:
                     reader.advance();
                     nextToken = peek();
@@ -1856,6 +1833,7 @@ public class BallerinaLexer extends AbstractLexer {
             }
             break;
         }
+
         return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
     }
 }

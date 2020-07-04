@@ -12558,11 +12558,6 @@ public class BallerinaParser extends AbstractParser {
             case BACKTICK_TOKEN:
             default:
                 return parseDocumentationLine(hashToken);
-//                if (isDocumentReferenceType(nextToken.kind)) {
-//                    return parseDocumentationLine(hashToken);
-//                }
-//                // Unexpected order of documentation tokens, hence parse as a invalid documentation line
-//                return parseInvalidDocumentationLine(hashToken, new ArrayList<>());
         }
     }
 
