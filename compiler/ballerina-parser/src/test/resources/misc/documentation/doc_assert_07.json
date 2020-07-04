@@ -37,7 +37,51 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "This function depends on "
+                                  "value": "test backtick reference "
+                                },
+                                {
+                                  "kind": "DOCUMENTATION_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "BACKTICK_TOKEN"
+                                    },
+                                    {
+                                      "kind": "BACKTICK_CONTENT",
+                                      "value": "dummy content"
+                                    },
+                                    {
+                                      "kind": "BACKTICK_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "REFERENCE_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "test reference with special keyword: "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",

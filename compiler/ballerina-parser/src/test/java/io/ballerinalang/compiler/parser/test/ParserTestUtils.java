@@ -1183,6 +1183,8 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_NAME;
             case "BACKTICK_CONTENT":
                 return SyntaxKind.BACKTICK_CONTENT;
+            case "INVALID_DOCUMENTATION_LINE":
+                return SyntaxKind.INVALID_DOCUMENTATION_LINE;
 
             // Trivia
             case "EOF_TOKEN":

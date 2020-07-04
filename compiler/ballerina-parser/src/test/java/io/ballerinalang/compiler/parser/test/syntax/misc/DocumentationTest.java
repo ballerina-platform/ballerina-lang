@@ -26,6 +26,8 @@ import org.testng.annotations.Test;
  */
 public class DocumentationTest extends AbstractMiscTest {
 
+    // Valid syntax
+
     @Test
     public void testSimpleDocumentationLine() {
         testFile("documentation/doc_source_03.bal", "documentation/doc_assert_03.json");
@@ -80,5 +82,12 @@ public class DocumentationTest extends AbstractMiscTest {
     @Test
     public void testDoubleBacktickDocumentation() {
         testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
+    }
+
+    // Invalid Syntax
+
+    @Test
+    public void testInvalidDocumentation() {
+        testFile("documentation/doc_source_13.bal", "documentation/doc_assert_13.json");
     }
 }

@@ -9,7 +9,7 @@
       "kind": "LIST",
       "children": [
         {
-          "kind": "TYPE_DEFINITION",
+          "kind": "FUNCTION_DEFINITION",
           "children": [
             {
               "kind": "METADATA",
@@ -37,7 +37,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Documentation for Test annotation",
+                                  "value": "test erroneous parameter documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -68,7 +68,7 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "INVALID_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -80,69 +80,40 @@
                               ]
                             },
                             {
-                              "kind": "PLUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PARAMETER_NAME",
-                              "value": "a",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
-                                  "children": [
+                                  "kind": "PLUS_TOKEN",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "field a"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
                                 },
                                 {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
+                                  "kind": "PARAMETER_NAME",
+                                  "value": "no",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PARAMETER_NAME",
+                                  "value": "dash",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "PARAMETER_NAME",
+                                  "value": "test",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -155,7 +126,7 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "INVALID_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -167,69 +138,20 @@
                               ]
                             },
                             {
-                              "kind": "PLUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PARAMETER_NAME",
-                              "value": "b",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_REFERENCE",
-                                  "children": [
+                                  "kind": "PLUS_TOKEN",
+                                  "trailingMinutiae": [
                                     {
-                                      "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "field b"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
                                 },
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
+                                  "value": "123wrongIdentifier - test",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -242,235 +164,20 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
                               "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PLUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "PARAMETER_NAME",
-                              "value": "c",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "MINUS_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "ANNOTATION_DOC_REFERENCE_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "field c"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "documentation",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "TYPE_KEYWORD",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "Tst",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "OBJECT_TYPE_DESC",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "OBJECT_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "OPEN_BRACE_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_BRACE_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "kind": "FUNCTION_DEFINITION",
-          "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "DOCUMENTATION_STRING",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": [
-                        {
-                          "kind": "REFERENCE_DOCUMENTATION_LINE",
-                          "children": [
-                            {
-                              "kind": "HASH_TOKEN",
-                              "leadingMinutiae": [
                                 {
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
                               ]
                             },
                             {
                               "kind": "LIST",
-                              "children": [
-                                {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "BFM also recognizes "
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "BACKTICK_TOKEN"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_CONTENT",
-                                      "value": "bar()"
-                                    },
-                                    {
-                                      "kind": "BACKTICK_TOKEN",
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "as an alternative to `` function `bar` ``",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
-                                }
-                              ]
+                              "children": []
                             }
                           ]
                         }
@@ -495,7 +202,320 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "bar"
+              "value": "foo"
+            },
+            {
+              "kind": "FUNCTION_SIGNATURE",
+              "children": [
+                {
+                  "kind": "OPEN_PAREN_TOKEN"
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_BODY_BLOCK",
+              "children": [
+                {
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "FUNCTION_DEFINITION",
+          "children": [
+            {
+              "kind": "METADATA",
+              "children": [
+                {
+                  "kind": "DOCUMENTATION_STRING",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": [
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ],
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "test erroneous reference documentatoin",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "INVALID_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "test bakctick content "
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "BACKTICK_CONTENT",
+                                  "value": "with no ending backtick",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "This line will captured as a correct documentation line",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "INVALID_DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "test parameter reference "
+                                },
+                                {
+                                  "kind": "PARAMETER_DOC_REFERENCE_TOKEN",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "BACKTICK_TOKEN"
+                                },
+                                {
+                                  "kind": "BACKTICK_CONTENT",
+                                  "value": "with no ending backtick",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "This line will captured as a correct documentation line",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "DOCUMENTATION_LINE",
+                          "children": [
+                            {
+                              "kind": "HASH_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "FUNCTION_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
             },
             {
               "kind": "FUNCTION_SIGNATURE",
