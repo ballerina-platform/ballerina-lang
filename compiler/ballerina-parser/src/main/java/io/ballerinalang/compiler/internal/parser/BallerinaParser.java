@@ -8233,270 +8233,6 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse documentation string.
-     * <p>
-     * <code>DocumentationString := (DocumentationLine | ParameterDocumentationLine)+ </code>
-     * <p>
-     * Refer {@link BallerinaLexer#readDocumentationToken}
-     *
-     * @return Parsed node
-     */
-    private STNode parseDocumentationString() {
-        List<STNode> docLines = new ArrayList<>();
-        STToken nextToken = peek();
-        while (!isEndOfDocumentation(nextToken.kind)) {
-            docLines.add(parseSingleDocumentationLine());
-            nextToken = peek();
-        }
-
-        STNode documentationLines = STNodeFactory.createNodeList(docLines);
-        return STNodeFactory.createDocumentationStringNode(documentationLines);
-    }
-
-    private boolean isEndOfDocumentation(SyntaxKind kind) {
-        switch (kind) {
-            case HASH_TOKEN:
-            case DOCUMENTATION_DESCRIPTION:
-            case PLUS_TOKEN:
-            case PARAMETER_NAME:
-            case MINUS_TOKEN:
-            case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
-                return false;
-            default:
-                if (isDocumentReferenceType(kind)) {
-                    return false;
-                }
-                return true;
-        }
-    }
-
-    private boolean isDocumentReferenceType(SyntaxKind kind) {
-        switch (kind) {
-            case TYPE_DOC_REFERENCE_TOKEN:
-            case SERVICE_DOC_REFERENCE_TOKEN:
-            case VARIABLE_DOC_REFERENCE_TOKEN:
-            case VAR_DOC_REFERENCE_TOKEN:
-            case ANNOTATION_DOC_REFERENCE_TOKEN:
-            case MODULE_DOC_REFERENCE_TOKEN:
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-            case PARAMETER_DOC_REFERENCE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private STNode parseSingleDocumentationLine() {
-        STNode hashToken = parseHashToken();
-        STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case PLUS_TOKEN:
-                return parseParameterDocumentationLine(hashToken);
-            case DOCUMENTATION_DESCRIPTION:
-            case HASH_TOKEN:
-                return parseDocumentationLine(hashToken);
-            default:
-                if (isDocumentReferenceType(nextToken.kind) || nextToken.kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseDocumentationLine(hashToken);
-                }
-                throw new IllegalStateException();
-        }
-    }
-
-    /**
-     * Parse '#' token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseHashToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.HASH_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseParameterDocumentationLine(STNode hashToken) {
-        STNode plusToken = parsePlusToken();
-        STNode parameterName = parseParameterName();
-        STNode minusToken = parseMinusToken();
-
-        STNode docElement;
-        List<STNode> docElements = new ArrayList<>();
-        while (true) {
-            SyntaxKind nextTokenKind = peek().kind;
-            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                docElement = parseDocumentationDescription();
-                docElements.add(docElement);
-                continue;
-            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
-                docElement = parseDocumentationReference();
-                docElements.add(docElement);
-                continue;
-            }
-            break;
-        }
-
-        STNode docElementList = STNodeFactory.createNodeList(docElements);
-
-        SyntaxKind kind;
-        if (((STToken) parameterName).text().equals("return")) {
-            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-        } else {
-            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
-        }
-
-        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
-                docElementList);
-    }
-
-    /**
-     * Parse '+' token.
-     *
-     * @return Parsed node
-     */
-    private STNode parsePlusToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PLUS_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse parameter name token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseParameterName() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PARAMETER_NAME) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse '-' token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseMinusToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MINUS_TOKEN) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    /**
-     * Parse documentation description token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseDocumentationDescription() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseDocumentationLine(STNode hashToken) {
-        STNode docElement;
-        List<STNode> docElements = new ArrayList<>();
-        while (true) {
-            SyntaxKind nextTokenKind = peek().kind;
-            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                docElement = parseDocumentationDescription();
-                docElements.add(docElement);
-                continue;
-            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
-                docElement = parseDocumentationReference();
-                docElements.add(docElement);
-                continue;
-            }
-            break;
-        }
-
-        STNode docElementList = STNodeFactory.createNodeList(docElements);
-
-        switch (docElements.size()) {
-            case 0:
-                return createDocumentationLineNode(hashToken, docElementList);
-            case 1:
-                docElement = docElements.get(0);
-                if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    if (((STToken) docElement).text().startsWith("# Deprecated")) {
-                        return createDeprecationDocumentationLineNode(hashToken, docElementList);
-                    }
-                    return createDocumentationLineNode(hashToken, docElementList);
-                }
-                // Else fall through
-            default:
-                return createReferenceDocumentationLineNode(hashToken, docElementList);
-        }
-    }
-
-    private STNode parseDocumentationReference() {
-        STNode referenceType = STNodeFactory.createEmptyNode();
-        if (peek().kind != SyntaxKind.BACKTICK_TOKEN) {
-            referenceType = parseReferenceType();
-        }
-        STNode startBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
-        STNode backtickContent = parseBacktickContent();
-        STNode endBacktick = parseBacktickToken(ParserRuleContext.TEMPLATE_END);
-        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
-                endBacktick);
-    }
-
-    private STNode parseReferenceType() {
-        STToken token = peek();
-        if (isDocumentReferenceType(token.kind)) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PIPE); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode parseBacktickContent() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.TEMPLATE_START); // change
-            return sol.recoveredNode;
-        }
-    }
-
-    private STNode createDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
-                documentationDescription);
-    }
-
-    private STNode createDeprecationDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DEPRECATION_DOCUMENTATION_LINE, hashToken,
-                documentationDescription);
-    }
-
-    private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationDescription) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
-                documentationDescription);
-    }
-
-    /**
      * Parse lock statement.
      * <code>lock-stmt := lock block-stmt ;</code>
      *
@@ -12732,6 +12468,349 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(nextToken, ParserRuleContext.VAR_KEYWORD);
             return sol.recoveredNode;
         }
+    }
+
+    // --------------------------------- Documentation ---------------------------------
+
+    /*
+     * This section parses documentation.
+     * Ballerina flavored markdown (BFM) is supported by the documentation.
+     *
+     * During parsing, parser will never go to the error handler.
+     * In case of an error, all tokens belong to the same documentation line,
+     * are parsed as an InvalidDocumentationLineNode.
+     * Refer {@link #parseInvalidDocumentationLine}
+     */
+
+    /**
+     * Parse documentation string.
+     * <p>
+     * <code>
+     * DocumentationString :=
+     *          ( DocumentationLine
+     *          | ReferenceDocumentationLine
+     *          | DeprecationDocumentationLine
+     *          | ParameterDocumentationLine
+     *          | ReturnParameterDocumentationLine
+     *          | InvalidDocumentationLine ) +
+     * </code>
+     * <p>
+     * Refer {@link BallerinaLexer#readDocumentationToken}
+     *
+     * @return Parsed node
+     */
+    private STNode parseDocumentationString() {
+        List<STNode> docLines = new ArrayList<>();
+        STToken nextToken = peek();
+        while (!isEndOfDocumentation(nextToken.kind)) {
+            docLines.add(parseSingleDocumentationLine());
+            nextToken = peek();
+        }
+
+        STNode documentationLines = STNodeFactory.createNodeList(docLines);
+        return STNodeFactory.createDocumentationStringNode(documentationLines);
+    }
+
+    private boolean isEndOfDocumentation(SyntaxKind kind) {
+        switch (kind) {
+            case HASH_TOKEN:
+            case DOCUMENTATION_DESCRIPTION:
+            case PLUS_TOKEN:
+            case PARAMETER_NAME:
+            case MINUS_TOKEN:
+            case BACKTICK_TOKEN:
+            case BACKTICK_CONTENT:
+                return false;
+            default:
+                return !isDocumentReferenceType(kind);
+        }
+    }
+
+    private boolean isDocumentReferenceType(SyntaxKind kind) {
+        switch (kind) {
+            case TYPE_DOC_REFERENCE_TOKEN:
+            case SERVICE_DOC_REFERENCE_TOKEN:
+            case VARIABLE_DOC_REFERENCE_TOKEN:
+            case VAR_DOC_REFERENCE_TOKEN:
+            case ANNOTATION_DOC_REFERENCE_TOKEN:
+            case MODULE_DOC_REFERENCE_TOKEN:
+            case FUNCTION_DOC_REFERENCE_TOKEN:
+            case PARAMETER_DOC_REFERENCE_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Parse a single documentation line.
+     *
+     * @return Parsed node
+     */
+    private STNode parseSingleDocumentationLine() {
+        STNode hashToken = parseHashToken();
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case PLUS_TOKEN:
+                return parseParameterDocumentationLine(hashToken);
+            case DOCUMENTATION_DESCRIPTION:
+            case HASH_TOKEN:
+            case BACKTICK_TOKEN:
+            default:
+                return parseDocumentationLine(hashToken);
+//                if (isDocumentReferenceType(nextToken.kind)) {
+//                    return parseDocumentationLine(hashToken);
+//                }
+//                // Unexpected order of documentation tokens, hence parse as a invalid documentation line
+//                return parseInvalidDocumentationLine(hashToken, new ArrayList<>());
+        }
+    }
+
+    /**
+     * Parse documentation line, deprecation documentation line and reference documentation line.
+     *
+     * @param hashToken Hash token at the beginning of the line
+     * @return Parsed node
+     */
+    private STNode parseDocumentationLine(STNode hashToken) {
+        List<STNode> docElements = new ArrayList<>();
+        boolean isErroneous = appendDocumentationElements(docElements);
+        if (isErroneous) {
+            return parseInvalidDocumentationLine(hashToken, docElements);
+        }
+
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
+
+        switch (docElements.size()) {
+            case 0:
+                // When documentation line is only a `#` token
+                return createDocumentationLineNode(hashToken, docElementList);
+            case 1:
+                STNode docElement = docElements.get(0);
+                if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                    if (((STToken) docElement).text().startsWith("# Deprecated")) {
+                        return createDeprecationDocumentationLineNode(hashToken, docElementList);
+                    }
+                    return createDocumentationLineNode(hashToken, docElementList);
+                }
+                // Else fall through
+            default:
+                return createReferenceDocumentationLineNode(hashToken, docElementList);
+        }
+    }
+
+    private boolean appendDocumentationElements(List<STNode> docElements) {
+        boolean isErroneous = false;
+        STNode docElement;
+        SyntaxKind nextTokenKind = peek().kind;
+        while (!isEndOfIntermediateDocumentation(nextTokenKind)) {
+            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                docElement = consume();
+                docElements.add(docElement);
+
+            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
+                if (appendDocumentationReference(docElements)) {
+                    isErroneous = true;
+                }
+            } else {
+                docElement = consume();
+                docElements.add(docElement);
+                isErroneous = true;
+            }
+            nextTokenKind = peek().kind;
+        }
+        return isErroneous;
+    }
+
+    private boolean appendDocumentationReference(List<STNode> docElements) {
+        STNode referenceType = STNodeFactory.createEmptyNode();
+        if (isDocumentReferenceType(peek().kind)) {
+            referenceType = consume();
+        }
+
+        STNode startBacktick = parseDocumentationBacktickToken();
+        STNode backtickContent = parseBacktickContent();
+        STNode endBacktick = parseDocumentationBacktickToken();
+
+        boolean isErroneous;
+        if (hasMissingDocumentationTokens(startBacktick, backtickContent, endBacktick)) {
+            isErroneous = true;
+            appendNonMissingDocumentationTokens(docElements, referenceType, startBacktick, backtickContent, endBacktick);
+        } else {
+            STNode docElement = STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
+                    endBacktick);
+            docElements.add(docElement);
+            isErroneous = false;
+        }
+
+        return isErroneous;
+    }
+
+    private boolean hasMissingDocumentationTokens(STNode ... nodes) {
+        for (STNode node : nodes) {
+            if (node != null && node.isMissing()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void appendNonMissingDocumentationTokens(List<STNode> docElements, STNode ... nodes) {
+        for (STNode node : nodes) {
+            if (node != null && !node.isMissing()) {
+                docElements.add(node);
+            }
+        }
+    }
+
+    /**
+     * Parse parameter documentation line and return parameter documentation line.
+     *
+     * @param hashToken Hash token at the beginning of the line
+     * @return Parsed node
+     */
+    private STNode parseParameterDocumentationLine(STNode hashToken) {
+        STNode plusToken = consume();
+        STNode parameterName = parseParameterName();
+        STNode minusToken = parseDashToken();
+
+        List<STNode> docElements = new ArrayList<>();
+        if (hasMissingDocumentationTokens(parameterName, minusToken)) {
+            appendNonMissingDocumentationTokens(docElements, plusToken, parameterName, minusToken);
+            return parseInvalidDocumentationLine(hashToken, docElements);
+        }
+
+        boolean isErroneous = appendDocumentationElements(docElements);
+        if (isErroneous) {
+            return parseInvalidDocumentationLine(hashToken, docElements);
+        }
+
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
+
+        SyntaxKind kind;
+        if (((STToken) parameterName).text().equals("return")) {
+            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
+        } else {
+            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
+        }
+
+        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
+                docElementList);
+    }
+
+    /**
+     * Parse invalid documentation line node.
+     *
+     * @param hashToken Hash token at the beginning of the line
+     * @param docElements List to add the invalid tokens
+     * @return Parsed node
+     */
+    private STNode parseInvalidDocumentationLine(STNode hashToken, List<STNode> docElements) {
+        STToken invalidToken = peek();
+        while (!isEndOfIntermediateDocumentation(invalidToken.kind)) {
+            docElements.add(consume());
+            invalidToken = peek();
+        }
+
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
+        return createInvalidDocumentationLineNode(hashToken, docElementList);
+    }
+
+    private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
+        if (kind == SyntaxKind.HASH_TOKEN) {
+            return true;
+        }
+        return isEndOfDocumentation(kind);
+    }
+
+    /**
+     * Parse hash token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseHashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.HASH_TOKEN) {
+            return consume();
+        } else {
+            throw new IllegalStateException("documentation always start with a `#`");
+        }
+    }
+
+    /**
+     * Parse parameter name token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseParameterName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PARAMETER_NAME) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
+        }
+    }
+
+    /**
+     * Parse dash token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDashToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.MINUS_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.MINUS_TOKEN);
+        }
+    }
+
+    /**
+     * Parse back-tick token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseDocumentationBacktickToken() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+        }
+    }
+
+    /**
+     * Parse back-tick content token.
+     *
+     * @return Parsed node
+     */
+    private STNode parseBacktickContent() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
+            return consume();
+        } else {
+            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
+        }
+    }
+
+    private STNode createDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
+                documentationElements);
+    }
+
+    private STNode createDeprecationDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DEPRECATION_DOCUMENTATION_LINE, hashToken,
+                documentationElements);
+    }
+
+    private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
+                documentationElements);
+    }
+
+    private STNode createInvalidDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createDocumentationLineNode(SyntaxKind.INVALID_DOCUMENTATION_LINE, hashToken,
+                documentationElements);
     }
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------
