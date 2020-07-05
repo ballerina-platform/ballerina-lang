@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 public type Info record {|
    // unique identifier
    byte[] xid;
@@ -55,18 +57,42 @@ public type CommitHandler function(Info info);
 public type RollbackHandler function(Info info, error? cause, boolean willRetry);
 
 
-public transactional function onCommit(CommitHandler handler) = external;
+public transactional function onCommit(CommitHandler handler) = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.OnCommit",
+    name: "onCommit"
+} external;
 
-public transactional function onRollback(RollbackHandler handler) = external;
+public transactional function onRollback(RollbackHandler handler) = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.OnRollback",
+    name: "onRollback"
+} external;
 
-public transactional function info() returns Info = external;
+public transactional function info() returns Info = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.Info",
+    name: "info"
+} external;
 
-public transactional function setRollbackOnly(error? e) = external;
+public transactional function setRollbackOnly(error? e) = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.SetRollbackOnly",
+    name: "setRollbackOnly"
+} external;
 
-public transactional function getRollbackOnly() returns boolean = external;
+public transactional function getRollbackOnly() returns boolean = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.GetRollbackOnly",
+    name: "getRollbackOnly"
+} external;
 
-public transactional function setData(readonly e) = external;
+public transactional function setData(readonly e) = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.SetData",
+    name: "setData"
+} external;
 
-public transactional function getData() returns readonly = external;
+public transactional function getData() returns readonly = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.GetData",
+    name: "getData"
+} external;
 
-public function getInfo(byte[] xid) returns Info? = external;
+public function getInfo(byte[] xid) returns Info? = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.GetInfo",
+    name: "getInfo"
+} external;

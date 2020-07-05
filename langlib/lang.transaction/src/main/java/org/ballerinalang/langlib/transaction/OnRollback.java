@@ -18,33 +18,20 @@
 
 package org.ballerinalang.langlib.transaction;
 
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.transactions.TransactionResourceManager;
 import org.ballerinalang.jvm.values.FPValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
  * Extern function transaction:onRollback.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "onRollback",
-        args = {@Argument(name = "handler", type = TypeKind.FUNCTION)},
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
 public class OnRollback {
 
-    public static void onRollback(Strand strand, FPValue fpValue) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+    public static void onRollback(FPValue fpValue) {
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().transactionLocalContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);

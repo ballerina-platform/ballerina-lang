@@ -26,13 +26,6 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.value",
-//        functionName = "toString",
-//        args = {@Argument(name = "value", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class ToString {
     public static BString toString(Object value) {
         return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getStringValue(value));

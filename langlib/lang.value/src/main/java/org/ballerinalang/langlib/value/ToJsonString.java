@@ -26,13 +26,6 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.value",
-//        functionName = "toJsonString",
-//        args = {@Argument(name = "v", type = TypeKind.JSON)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
 public class ToJsonString {
 
     public static BString toJsonString(Object value) {

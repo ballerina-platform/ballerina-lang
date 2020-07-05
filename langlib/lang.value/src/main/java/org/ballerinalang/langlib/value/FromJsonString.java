@@ -31,13 +31,6 @@ import java.io.StringReader;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.value",
-//        functionName = "fromJsonString",
-//        args = {@Argument(name = "str", type = TypeKind.STRING)},
-//        returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.ERROR)},
-//        isPublic = true
-//)
 public class FromJsonString {
 
     public static Object fromJsonString(BString value) {

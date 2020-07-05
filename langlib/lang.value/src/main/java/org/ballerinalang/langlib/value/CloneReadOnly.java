@@ -25,13 +25,6 @@ import org.ballerinalang.jvm.values.CloneUtils;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value",
-//        functionName = "cloneReadOnly",
-//        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-//        returnType = { @ReturnType(type = TypeKind.ANYDATA) }
-//)
 public class CloneReadOnly {
 
     public static Object cloneReadOnly(Object value) {

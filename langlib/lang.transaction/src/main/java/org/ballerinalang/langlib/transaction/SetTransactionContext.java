@@ -20,41 +20,26 @@ package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.transactions.TransactionConstants;
 import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.charset.Charset;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
-import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
  * Extern function transaction:setTransactionContext.
  *
  * @since 2.0.0-preview1
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "setTransactionContext",
-        args = {
-                @Argument(name = "transactionContext", type = TypeKind.RECORD),
-                @Argument(name = "prevAttempt", type = TypeKind.UNION)
-        },
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
-)
 public class SetTransactionContext {
 
-    public static void setTransactionContext(Strand strand, MapValue txDataStruct, Object prevAttemptInfo) {
+    public static void setTransactionContext(MapValue txDataStruct, Object prevAttemptInfo) {
         String globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).toString();
         String transactionBlockId = txDataStruct.get(TransactionConstants.TRANSACTION_BLOCK_ID).toString();
         String url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).toString();
@@ -70,7 +55,7 @@ public class SetTransactionContext {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        strand.transactionLocalContext = trxCtx;
+        Scheduler.getStrand().transactionLocalContext = trxCtx;
     }
 
     private static long getRetryNumber(Object prevAttemptInfo) {
