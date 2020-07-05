@@ -232,19 +232,19 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
         match (key) {
             ISS => {
                 jwtPayload.iss = jwtPayloadJson[key].toJsonString();
-                customClaims[ISS] = jwtPayload.iss;
+                customClaims[ISS] = jwtPayload?.iss;
             }
             SUB => {
                 jwtPayload.sub = jwtPayloadJson[key].toJsonString();
-                customClaims[SUB] = jwtPayload.sub;
+                customClaims[SUB] = jwtPayload?.sub;
             }
             AUD => {
                 jwtPayload.aud = check convertToStringArray(jwtPayloadJson[key]);
-                customClaims[AUD] = jwtPayload.aud;
+                customClaims[AUD] = jwtPayload?.aud;
             }
             JTI => {
                 jwtPayload.jti = jwtPayloadJson[key].toJsonString();
-                customClaims[JTI] = jwtPayload.jti;
+                customClaims[JTI] = jwtPayload?.jti;
             }
             EXP => {
                 string exp = jwtPayloadJson[key].toJsonString();
