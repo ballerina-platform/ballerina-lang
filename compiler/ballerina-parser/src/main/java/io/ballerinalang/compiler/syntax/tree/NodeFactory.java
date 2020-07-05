@@ -2897,5 +2897,52 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 matchPattern.internalNode());
         return stFieldMatchPatternNode.createUnlinkedFacade();
     }
+
+    public static FunctionalMatchPatternNode createFunctionalMatchPatternNode(
+            Node typeRef,
+            Token openParenthesisToken,
+            SeparatedNodeList<Node> argMatchPatternListNode,
+            NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode,
+            Token closeParenthesisToken) {
+        Objects.requireNonNull(typeRef, "typeRef must not be null");
+        Objects.requireNonNull(openParenthesisToken, "openParenthesisToken must not be null");
+        Objects.requireNonNull(argMatchPatternListNode, "argMatchPatternListNode must not be null");
+        Objects.requireNonNull(namedArgMatchPatternsNode, "namedArgMatchPatternsNode must not be null");
+        Objects.requireNonNull(closeParenthesisToken, "closeParenthesisToken must not be null");
+
+        STNode stFunctionalMatchPatternNode = STNodeFactory.createFunctionalMatchPatternNode(
+                typeRef.internalNode(),
+                openParenthesisToken.internalNode(),
+                argMatchPatternListNode.underlyingListNode().internalNode(),
+                namedArgMatchPatternsNode.internalNode(),
+                closeParenthesisToken.internalNode());
+        return stFunctionalMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static NamedArgMatchPatternsNode createNamedArgMatchPatternsNode(
+            SeparatedNodeList<Node> namedArgMatchPatternListNode,
+            RestMatchPatternNode restMatchPattern) {
+        Objects.requireNonNull(namedArgMatchPatternListNode, "namedArgMatchPatternListNode must not be null");
+
+        STNode stNamedArgMatchPatternsNode = STNodeFactory.createNamedArgMatchPatternsNode(
+                namedArgMatchPatternListNode.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern));
+        return stNamedArgMatchPatternsNode.createUnlinkedFacade();
+    }
+
+    public static NamedArgMatchPatternNode createNamedArgMatchPatternNode(
+            IdentifierToken identifier,
+            Token equalToken,
+            Node matchPattern) {
+        Objects.requireNonNull(identifier, "identifier must not be null");
+        Objects.requireNonNull(equalToken, "equalToken must not be null");
+        Objects.requireNonNull(matchPattern, "matchPattern must not be null");
+
+        STNode stNamedArgMatchPatternNode = STNodeFactory.createNamedArgMatchPatternNode(
+                identifier.internalNode(),
+                equalToken.internalNode(),
+                matchPattern.internalNode());
+        return stNamedArgMatchPatternNode.createUnlinkedFacade();
+    }
 }
 

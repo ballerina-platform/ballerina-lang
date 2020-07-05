@@ -3932,6 +3932,70 @@
                     "type": "Node"
                 }
             ]
+        },
+        {
+            "name": "FunctionalMatchPatternNode",
+            "base": "Node",
+            "kind": "FUNCTIONAL_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeRef",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "argMatchPatternListNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "namedArgMatchPatternsNode",
+                    "type": "NAMED_ARG_MATCH_PATTERNS"
+                },
+                {
+                    "name": "closeParenthesisToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgMatchPatternsNode",
+            "base": "Node",
+            "kind": "NAMED_ARG_MATCH_PATTERNS",
+            "attributes": [
+                {
+                    "name": "namedArgMatchPatternListNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restMatchPattern",
+                    "type": "RestMatchPatternNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "NamedArgMatchPatternNode",
+            "base": "Node",
+            "kind": "NAMED_ARG_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
         }
     ]
 }

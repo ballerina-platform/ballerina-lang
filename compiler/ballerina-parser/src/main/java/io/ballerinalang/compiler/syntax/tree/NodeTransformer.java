@@ -768,6 +768,18 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(fieldMatchPatternNode);
     }
 
+    public T transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(NamedArgMatchPatternsNode namedArgMatchPatternsNode) {
+        return transformSyntaxNode(namedArgMatchPatternsNode);
+    }
+
+    public T transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

@@ -2341,6 +2341,44 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 matchPattern);
     }
 
+    @Override
+    public STFunctionalMatchPatternNode transform(
+            STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
+        STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
+        STNode argMatchPatternListNode = modifyNode(functionalMatchPatternNode.argMatchPatternListNode);
+        STNode namedArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.namedArgMatchPatternsNode);
+        STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argMatchPatternListNode,
+                namedArgMatchPatternsNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public STNamedArgMatchPatternsNode transform(
+            STNamedArgMatchPatternsNode namedArgMatchPatternsNode) {
+        STNode namedArgMatchPatternListNode = modifyNode(namedArgMatchPatternsNode.namedArgMatchPatternListNode);
+        STNode restMatchPattern = modifyNode(namedArgMatchPatternsNode.restMatchPattern);
+        return namedArgMatchPatternsNode.modify(
+                namedArgMatchPatternListNode,
+                restMatchPattern);
+    }
+
+    @Override
+    public STNamedArgMatchPatternNode transform(
+            STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        STNode identifier = modifyNode(namedArgMatchPatternNode.identifier);
+        STNode equalToken = modifyNode(namedArgMatchPatternNode.equalToken);
+        STNode matchPattern = modifyNode(namedArgMatchPatternNode.matchPattern);
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

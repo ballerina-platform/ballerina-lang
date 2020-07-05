@@ -767,6 +767,18 @@ public abstract class NodeVisitor {
         visitSyntaxNode(fieldMatchPatternNode);
     }
 
+    public void visit(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(NamedArgMatchPatternsNode namedArgMatchPatternsNode) {
+        visitSyntaxNode(namedArgMatchPatternsNode);
+    }
+
+    public void visit(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

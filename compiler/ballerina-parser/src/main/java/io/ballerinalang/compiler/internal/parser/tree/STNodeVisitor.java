@@ -757,6 +757,18 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(fieldMatchPatternNode);
     }
 
+    public void visit(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(STNamedArgMatchPatternsNode namedArgMatchPatternsNode) {
+        visitSyntaxNode(namedArgMatchPatternsNode);
+    }
+
+    public void visit(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

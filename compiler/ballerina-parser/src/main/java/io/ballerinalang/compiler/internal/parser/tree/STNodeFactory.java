@@ -2175,5 +2175,40 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 colonToken,
                 matchPattern);
     }
+
+    public static STNode createFunctionalMatchPatternNode(
+            STNode typeRef,
+            STNode openParenthesisToken,
+            STNode argMatchPatternListNode,
+            STNode namedArgMatchPatternsNode,
+            STNode closeParenthesisToken) {
+
+        return new STFunctionalMatchPatternNode(
+                typeRef,
+                openParenthesisToken,
+                argMatchPatternListNode,
+                namedArgMatchPatternsNode,
+                closeParenthesisToken);
+    }
+
+    public static STNode createNamedArgMatchPatternsNode(
+            STNode namedArgMatchPatternListNode,
+            STNode restMatchPattern) {
+
+        return new STNamedArgMatchPatternsNode(
+                namedArgMatchPatternListNode,
+                restMatchPattern);
+    }
+
+    public static STNode createNamedArgMatchPatternNode(
+            STNode identifier,
+            STNode equalToken,
+            STNode matchPattern) {
+
+        return new STNamedArgMatchPatternNode(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
 }
 

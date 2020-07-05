@@ -2952,6 +2952,54 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 matchPattern);
     }
 
+    @Override
+    public FunctionalMatchPatternNode transform(
+            FunctionalMatchPatternNode functionalMatchPatternNode) {
+        Node typeRef =
+                modifyNode(functionalMatchPatternNode.typeRef());
+        Token openParenthesisToken =
+                modifyToken(functionalMatchPatternNode.openParenthesisToken());
+        SeparatedNodeList<Node> argMatchPatternListNode =
+                modifySeparatedNodeList(functionalMatchPatternNode.argMatchPatternListNode());
+        NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode =
+                modifyNode(functionalMatchPatternNode.namedArgMatchPatternsNode());
+        Token closeParenthesisToken =
+                modifyToken(functionalMatchPatternNode.closeParenthesisToken());
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argMatchPatternListNode,
+                namedArgMatchPatternsNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public NamedArgMatchPatternsNode transform(
+            NamedArgMatchPatternsNode namedArgMatchPatternsNode) {
+        SeparatedNodeList<Node> namedArgMatchPatternListNode =
+                modifySeparatedNodeList(namedArgMatchPatternsNode.namedArgMatchPatternListNode());
+        RestMatchPatternNode restMatchPattern =
+                modifyNode(namedArgMatchPatternsNode.restMatchPattern().orElse(null));
+        return namedArgMatchPatternsNode.modify(
+                namedArgMatchPatternListNode,
+                restMatchPattern);
+    }
+
+    @Override
+    public NamedArgMatchPatternNode transform(
+            NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        IdentifierToken identifier =
+                modifyNode(namedArgMatchPatternNode.identifier());
+        Token equalToken =
+                modifyToken(namedArgMatchPatternNode.equalToken());
+        Node matchPattern =
+                modifyNode(namedArgMatchPatternNode.matchPattern());
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
     // Tokens
 
     @Override

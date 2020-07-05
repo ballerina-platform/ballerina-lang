@@ -12433,7 +12433,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACE_TOKEN:
                 return parseMappingMatchPattern();
             case ERROR_KEYWORD:
-                return parseFunctionalMatchPattern();
+                return parseFunctionalMatchPattern(consume());
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
@@ -12573,8 +12573,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseRestMatchPattern() {
         startContext(ParserRuleContext.REST_MATCH_PATTERN);
-        //We approach here only after seeing ellipsis token hence consume.
-        STNode ellipsisToken = consume();
+        STNode ellipsisToken = parseEllipsis();
         STNode varKeywordToken = parseVarKeyword();
         STNode variableName = parseVariableName();
         endContext();
@@ -12714,7 +12713,7 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return typeRefOrConstExpr;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.);
+                Solution solution = recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12740,7 +12739,118 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed functional match pattern node.
      */
     private STNode parseFunctionalMatchPattern(STNode typeRef) {
+        startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTREN);
+        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.FUNCTIONAL_MATCH_PATTREN);
+        List<STNode> argMatchPatternList = new ArrayList<>();
+        STNode namedArgMatchPatternsNode = STNodeFactory.createEmptyNodeList();
 
+        while (!isEndOfFunctionalMatchPattern()) {
+            STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+                STNode nextNextToken = peek(2);
+                if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
+                    namedArgMatchPatternsNode = parseNamedArgMatchPatterns(peek().kind, new ArrayList<>());
+                }
+            }
+            STNode positionalArgMatchPattern = parseMatchPattern();
+            argMatchPatternList.add(positionalArgMatchPattern);
+            STNode positionalArgMatchPatternRhs = parseArgListMatchPatternMemberRhs();
+
+            if (positionalArgMatchPatternRhs != null) {
+                argMatchPatternList.add(positionalArgMatchPatternRhs);
+            } else {
+                break;
+            }
+        }
+
+        STNode argMatchPatternListNode =  STNodeFactory.createNodeList(argMatchPatternList);
+        STNode closeParenthesisToken = parseCloseParenthesis();
+        endContext();
+
+        return STNodeFactory.createFunctionalMatchPatternNode(typeRef, openParenthesisToken, argMatchPatternListNode,
+                namedArgMatchPatternsNode, closeParenthesisToken);
+    }
+
+    private boolean isEndOfFunctionalMatchPattern() {
+        switch (peek().kind) {
+            case CLOSE_PAREN_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseNamedArgMatchPatterns(SyntaxKind nextToken, List<STNode> namedArgMatchPatternList) {
+        STNode namedArgMatchPatternListNode;
+        while (!isEndOfFunctionalMatchPattern()) {
+            switch (nextToken) {
+                case IDENTIFIER_TOKEN:
+                    namedArgMatchPatternList.add(parseNamedArgMatchPattern());
+                    break;
+                case ELLIPSIS_TOKEN:
+                    STNode restMatchPattern  = parseRestMatchPattern();
+                    namedArgMatchPatternListNode = STNodeFactory.createNodeList(namedArgMatchPatternList);
+                    return STNodeFactory.createNamedArgMatchPatternsNode(namedArgMatchPatternListNode,
+                            restMatchPattern);
+                default:
+                    Solution solution = recover(peek(), ParserRuleContext.NAMED_ARG_MATCH_PATTERN_START,
+                            namedArgMatchPatternList);
+
+                    // If the parser recovered by inserting a token, then try to re-parse the same
+                    // rule with the inserted token. This is done to pick the correct branch
+                    // to continue the parsing.
+                    if (solution.action == Action.REMOVE) {
+                        return solution.recoveredNode;
+                    }
+
+                    return parseNamedArgMatchPatterns(solution.tokenKind, namedArgMatchPatternList);
+            }
+
+            STNode namedArgMatchPatternRhs = parseArgListMatchPatternMemberRhs();
+            if (namedArgMatchPatternRhs != null) {
+                namedArgMatchPatternList.add(namedArgMatchPatternRhs);
+            } else {
+                break;
+            }
+        }
+        namedArgMatchPatternListNode = STNodeFactory.createNodeList(namedArgMatchPatternList);
+        return STNodeFactory.createNamedArgMatchPatternsNode(namedArgMatchPatternListNode, null);
+    }
+
+    private STNode parseNamedArgMatchPattern() {
+        startContext(ParserRuleContext.NAMED_ARG_MATCH_PATTERN);
+        STNode identifier = parseIdentifier(ParserRuleContext.NAMED_ARG_MATCH_PATTERN);
+        STNode equalToken = parseAssignOp();
+        STNode matchPattern = parseMatchPattern();
+
+        endContext();
+        return STNodeFactory.createNamedArgMatchPatternNode(identifier, equalToken, matchPattern);
+    }
+
+    private STNode parseArgListMatchPatternMemberRhs() {
+        return parseArgListMatchPatternMemberRhs(peek().kind);
+    }
+
+    private STNode parseArgListMatchPatternMemberRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_PAREN_TOKEN:
+            case EOF_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ARG_LIST_MATCH_PATTERN_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseArgListMatchPatternMemberRhs(solution.tokenKind);
+        }
     }
     // ------------------------ Ambiguity resolution at statement start ---------------------------
 
