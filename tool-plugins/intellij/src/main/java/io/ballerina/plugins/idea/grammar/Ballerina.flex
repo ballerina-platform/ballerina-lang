@@ -74,10 +74,10 @@ BOOLEAN_LITERAL = "true" | "false"
 // Note - Invalid escaped characters should be annotated at runtime.
 // This is done becuase otherwise the string wont be identified correctly.
 // Also the strings can either be enclosed in single or double quotes or no quotes at all.
-ESCAPE_SEQUENCE = \\ [btnfr\"'\\] | {UnicodeEscape}
-STRING_CHARACTER =  [^\\\u000A\u000D] | {ESCAPE_SEQUENCE}
-STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = {DOUBLE_QUOTE} {STRING_CHARACTERS}? {DOUBLE_QUOTE}
+STRING_CHARACTERS = {STRING_CHARACTER}+
+STRING_CHARACTER =  [^\"\\\u000A\u000D] | {ESCAPE_SEQUENCE}
+ESCAPE_SEQUENCE = \\ [btnfr\"\'\\] | {UnicodeEscape}
 
 // Blob Literal
 BASE_16_BLOB_LITERAL = "base16" {WHITE_SPACE}* {BACKTICK} {HEX_GROUP}* {WHITE_SPACE}* {BACKTICK}
@@ -123,9 +123,6 @@ LINE_COMMENT = "/" "/" [^\r\n]*
 XML_LITERAL_START = xml[ \t\n\x0B\f\r]*`
 
 INTERPOLATION_START = "${"
-
-HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
-HEX_DIGIT_OR_UNDERSCORE = {HEX_DIGIT} | "_"
 
 //Todo - Remove after restoring xml grammar support
 // XML
