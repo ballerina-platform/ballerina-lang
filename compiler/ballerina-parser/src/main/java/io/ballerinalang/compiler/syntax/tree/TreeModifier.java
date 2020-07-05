@@ -2961,7 +2961,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(functionalMatchPatternNode.openParenthesisToken());
         SeparatedNodeList<Node> argMatchPatternListNode =
                 modifySeparatedNodeList(functionalMatchPatternNode.argMatchPatternListNode());
-        NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode =
+        NamedArgMatchPatternsNode namedArgMatchPatternsNode =
                 modifyNode(functionalMatchPatternNode.namedArgMatchPatternsNode());
         Token closeParenthesisToken =
                 modifyToken(functionalMatchPatternNode.closeParenthesisToken());

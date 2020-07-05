@@ -3953,7 +3953,7 @@
                 },
                 {
                     "name": "namedArgMatchPatternsNode",
-                    "type": "NAMED_ARG_MATCH_PATTERNS"
+                    "type": "NamedArgMatchPatternsNode"
                 },
                 {
                     "name": "closeParenthesisToken",

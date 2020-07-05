@@ -44,7 +44,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
-    public NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode() {
+    public NamedArgMatchPatternsNode namedArgMatchPatternsNode() {
         return childInBucket(3);
     }
 
@@ -76,7 +76,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
             Node typeRef,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argMatchPatternListNode,
-            NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode,
+            NamedArgMatchPatternsNode namedArgMatchPatternsNode,
             Token closeParenthesisToken) {
         if (checkForReferenceEquality(
                 typeRef,
@@ -109,7 +109,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         private Node typeRef;
         private Token openParenthesisToken;
         private SeparatedNodeList<Node> argMatchPatternListNode;
-        private NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode;
+        private NamedArgMatchPatternsNode namedArgMatchPatternsNode;
         private Token closeParenthesisToken;
 
         public FunctionalMatchPatternNodeModifier(FunctionalMatchPatternNode oldNode) {
@@ -143,7 +143,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         }
 
         public FunctionalMatchPatternNodeModifier withNamedArgMatchPatternsNode(
-                NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode) {
+                NamedArgMatchPatternsNode namedArgMatchPatternsNode) {
             Objects.requireNonNull(namedArgMatchPatternsNode, "namedArgMatchPatternsNode must not be null");
             this.namedArgMatchPatternsNode = namedArgMatchPatternsNode;
             return this;

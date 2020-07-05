@@ -2902,7 +2902,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Node typeRef,
             Token openParenthesisToken,
             SeparatedNodeList<Node> argMatchPatternListNode,
-            NAMED_ARG_MATCH_PATTERNS namedArgMatchPatternsNode,
+            NamedArgMatchPatternsNode namedArgMatchPatternsNode,
             Token closeParenthesisToken) {
         Objects.requireNonNull(typeRef, "typeRef must not be null");
         Objects.requireNonNull(openParenthesisToken, "openParenthesisToken must not be null");
