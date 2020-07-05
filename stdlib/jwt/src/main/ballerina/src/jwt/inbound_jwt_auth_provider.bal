@@ -87,11 +87,5 @@ function setPrincipal(JwtPayload jwtPayload) {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
         }
-        if (claims.hasKey("name")) {
-            json name = claims["name"];
-            if (name is string) {
-                auth:setPrincipal(username = name);
-            }
-        }
     }
 }
