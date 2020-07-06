@@ -28,4 +28,5 @@ module io.ballerina.jvm {
     exports org.ballerinalang.jvm.observability.metrics;
     exports org.ballerinalang.jvm.commons;
     exports org.ballerinalang.jvm.observability.tracer;
+    exports org.ballerinalang.jvm.observability.metrics.spi;
 }

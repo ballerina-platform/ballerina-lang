@@ -19,7 +19,6 @@
 package org.ballerinalang.nativeimpl.java;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BObjectType;
 import org.ballerinalang.jvm.types.BType;
@@ -30,10 +29,6 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
@@ -43,18 +38,6 @@ import static org.ballerinalang.jvm.values.api.BValueCreator.createObjectValue;
  *
  * @since 1.2.5
  */
-@BallerinaFunction(
-        orgName = "ballerina", packageName = "java", version = "0.9.0", functionName = "cast",
-        args = {
-                @Argument(name = "value", type = TypeKind.ANY),
-                @Argument(name = "castType", type = TypeKind.TYPEDESC)
-        },
-        returnType = {
-                @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.ERROR)
-        },
-        isPublic = true
-)
 public class Cast {
 
     private static final String moduleName = "{ballerina/java}";
@@ -63,7 +46,7 @@ public class Cast {
     private static final String classAttribute = "class";
     private static final String jObjField = "jObj";
 
-    public static Object cast(Strand strand, ObjectValue value, TypedescValue castType) {
+    public static Object cast(ObjectValue value, TypedescValue castType) {
         HandleValue handleObj;
         BObjectType objType = value.getType();
         String valueObjName = objType.getName();

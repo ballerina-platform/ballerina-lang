@@ -101,4 +101,7 @@ public function getClass(string name) returns handle | error = @Method {
 # + value - The `JObject` instance which is to be casted
 # + castType - The `JObject` implementation type `typedesc<JObject>` to which the given object is casted to if assignable
 # + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
-public function cast(JObject value, typedesc<JObject> castType) returns JObject|error = external;
+public function cast(JObject value, typedesc<JObject> castType) returns JObject|error = @Method {
+    class: "org.ballerinalang.nativeimpl.java.Cast",
+    name: "cast"
+} external;

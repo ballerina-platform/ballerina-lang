@@ -14,9 +14,9 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.ballerinalang.model.types;
+package org.ballerinalang.core.model.types;
 
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.core.model.values.BValue;
 
 /**
  * Mock type representing readonly type used for writing unit tests.
