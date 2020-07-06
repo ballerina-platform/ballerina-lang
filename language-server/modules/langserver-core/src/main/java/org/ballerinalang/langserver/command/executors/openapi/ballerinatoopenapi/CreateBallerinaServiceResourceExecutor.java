@@ -54,6 +54,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
@@ -266,7 +267,8 @@ public class CreateBallerinaServiceResourceExecutor implements LSCommandExecutor
                 writeFile(Paths.get(contractURI), openApiResourceNew);
 
             }
-        } catch (CompilationFailedException | IOException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | CompilationFailedException | IOException |
+                TokenOrSymbolNotFoundException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
         }
         return null;

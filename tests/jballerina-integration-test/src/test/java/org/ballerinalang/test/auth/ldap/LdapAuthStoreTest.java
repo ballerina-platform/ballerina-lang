@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Test cases for LDAP user store based authentication/authorization scenarios.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  *
  * @since 0.983.0
  */

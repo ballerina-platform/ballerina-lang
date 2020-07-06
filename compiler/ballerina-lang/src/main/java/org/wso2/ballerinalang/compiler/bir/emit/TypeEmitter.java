@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BHandleType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -38,6 +39,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitFlags;
 import static org.wso2.ballerinalang.compiler.bir.emit.EmitterUtils.emitLBreaks;
@@ -76,6 +78,8 @@ class TypeEmitter {
                 return "string";
             case TypeTags.ANYDATA:
                 return "anydata";
+            case TypeTags.READONLY:
+                return "readonly";
             case TypeTags.NONE:
                 return "none";
             case TypeTags.JSON:
@@ -86,6 +90,8 @@ class TypeEmitter {
                 return "decimal";
             case TypeTags.UNION:
                 return emitBUnionType((BUnionType) bType, tabs);
+            case TypeTags.INTERSECTION:
+                return emitBIntersectionType((BIntersectionType) bType, tabs);
             case TypeTags.TUPLE:
                 return emitBTupleType((BTupleType) bType, tabs);
             case TypeTags.INVOKABLE:
@@ -133,6 +139,15 @@ class TypeEmitter {
             }
         }
         return unionStr.toString();
+    }
+
+    private static String emitBIntersectionType(BIntersectionType bType, int tabs) {
+
+        StringJoiner strJoiner = new StringJoiner(" & ");
+        for (BType type : bType.getConstituentTypes()) {
+            strJoiner.add(emitTypeRef(type, tabs));
+        }
+        return strJoiner.toString();
     }
 
     private static String emitBTupleType(BTupleType bType, int tabs) {

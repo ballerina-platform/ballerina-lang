@@ -19,10 +19,12 @@ import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * Represents the Code Action provider factory.
@@ -85,20 +87,28 @@ public class CodeActionProvidersHolder {
     }
 
     /**
-     * Returns node based providers.
+     * Returns active node based providers for this node type.
      *
+     * @param nodeType node type
      * @return node based providers
      */
-    Map<CodeActionNodeType, List<LSCodeActionProvider>> getNodeBasedProviders() {
-        return nodeBasedProviders;
+    List<LSCodeActionProvider> getActiveNodeBasedProviders(CodeActionNodeType nodeType) {
+        if (nodeBasedProviders.containsKey(nodeType)) {
+            return nodeBasedProviders.get(nodeType).stream()
+                    .filter(LSCodeActionProvider::isEnabled)
+                    .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     /**
-     * Returns diagnostic based providers.
+     * Returns active diagnostic based providers.
      *
      * @return diagnostic based providers
      */
-    List<LSCodeActionProvider> getDiagnosticsBasedProviders() {
-        return diagnosticsBasedProviders;
+    List<LSCodeActionProvider> getActiveDiagnosticsBasedProviders() {
+        return diagnosticsBasedProviders.stream()
+                .filter(LSCodeActionProvider::isEnabled)
+                .collect(Collectors.toList());
     }
 }

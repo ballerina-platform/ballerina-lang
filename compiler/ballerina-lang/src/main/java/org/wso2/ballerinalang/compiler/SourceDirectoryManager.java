@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.project.InvalidModuleException;
+import org.ballerinalang.project.Project;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -29,6 +31,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -38,19 +41,22 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+
 /**
  * This class is responsible for finding packages with entry points
  * inside the project directory.
  *
  * @since 0.965.0
  */
-public class SourceDirectoryManager {
+public class SourceDirectoryManager implements Project {
     private static final CompilerContext.Key<SourceDirectoryManager> PROJECT_DIR_KEY =
             new CompilerContext.Key<>();
 
     private final CompilerOptions options;
     private final Names names;
     private final SourceDirectory sourceDirectory;
+    private Manifest manifest;
 
     public static SourceDirectoryManager getInstance(CompilerContext context) {
         SourceDirectoryManager sourceDirectoryManager = context.get(PROJECT_DIR_KEY);
@@ -62,10 +68,15 @@ public class SourceDirectoryManager {
 
     private SourceDirectoryManager(CompilerContext context) {
         context.put(PROJECT_DIR_KEY, this);
+        // We will add the source directory manager as the project API to the context
+        // This has to be further refactored with ProjectAPI Implementation
+        context.put(PROJECT_KEY, this);
 
         this.names = Names.getInstance(context);
         this.options = CompilerOptions.getInstance(context);
         this.sourceDirectory = initializeAndGetSourceDirectory(context);
+        // load manifest only once
+        this.manifest = getManifest();
     }
 
     public Stream<PackageID> listSourceFilesAndPackages() {
@@ -94,9 +105,8 @@ public class SourceDirectoryManager {
 
     public PackageID getPackageID(String sourcePackage) {
         List<String> sourceFileNames = this.sourceDirectory.getSourceFileNames();
-        Manifest manifest = getManifest();
-        Name orgName = getOrgName(manifest);
-        Name version = new Name(manifest.getProject().getVersion());
+        Name orgName = getOrgName(this.manifest);
+        Name version = new Name(this.manifest.getProject().getVersion());
 
         //Check for built-in packages
         if (orgName.equals(Names.BUILTIN_ORG)) {
@@ -216,5 +226,39 @@ public class SourceDirectoryManager {
         } else {
             return ProjectDirs.containsSourceFiles(this.sourceDirectory.getPath().resolve(pkg));
         }
+    }
+
+    @Override
+    public boolean isModuleExists(PackageID moduleId) {
+        if (this.sourceDirectory.getSourcePackageNames().contains(moduleId.name.value) &&
+            this.manifest.getProject().getOrgName().equals(moduleId.orgName.value) &&
+            this.manifest.getProject().getVersion().equals(moduleId.version.value)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public Path getBaloPath(PackageID moduleId) throws InvalidModuleException {
+        if (!isModuleExists(moduleId)) {
+            throw new InvalidModuleException();
+        }
+        // Get the version of the project.
+        String versionNo = manifest.getProject().getVersion();
+        // Identify the platform version
+        String platform = manifest.getTargetPlatform(moduleId.name.value);
+        // {module}-{lang spec version}-{platform}-{version}.balo
+        //+ "2019R2" + ProjectDirConstants.FILE_NAME_DELIMITER
+        String baloFileName = moduleId.name.value + "-"
+                + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
+                + platform + "-"
+                + versionNo
+                + BLANG_COMPILED_PKG_BINARY_EXT;
+
+        return sourceDirectory.getPath()
+                .resolve(ProjectDirConstants.TARGET_DIR_NAME)
+                .resolve(ProjectDirConstants.TARGET_BALO_DIRECTORY)
+                .resolve(baloFileName);
     }
 }

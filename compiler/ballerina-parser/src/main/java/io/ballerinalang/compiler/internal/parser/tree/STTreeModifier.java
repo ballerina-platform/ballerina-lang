@@ -2289,6 +2289,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 expression);
     }
 
+    @Override
+    public STListMatchPatternNode transform(
+            STListMatchPatternNode listMatchPatternNode) {
+        STNode openBracket = modifyNode(listMatchPatternNode.openBracket);
+        STNode matchPatterns = modifyNode(listMatchPatternNode.matchPatterns);
+        STNode restMatchPattern = modifyNode(listMatchPatternNode.restMatchPattern);
+        STNode closeBracket = modifyNode(listMatchPatternNode.closeBracket);
+        return listMatchPatternNode.modify(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    @Override
+    public STRestMatchPatternNode transform(
+            STRestMatchPatternNode restMatchPatternNode) {
+        STNode ellipsisToken = modifyNode(restMatchPatternNode.ellipsisToken);
+        STNode varKeywordToken = modifyNode(restMatchPatternNode.varKeywordToken);
+        STNode variableName = modifyNode(restMatchPatternNode.variableName);
+        return restMatchPatternNode.modify(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
