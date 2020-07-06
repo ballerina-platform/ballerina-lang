@@ -14,22 +14,38 @@
       "kind": "TYPED_BINDING_PATTERN",
       "children": [
         {
-          "kind": "PARAMETERIZED_TYPE_DESC",
+          "kind": "TYPEDESC_TYPE_DESC",
           "children": [
             {
               "kind": "TYPEDESC_KEYWORD"
             },
             {
-              "kind": "LT_TOKEN"
-            },
-            {
-              "kind": "ARRAY_TYPE_DESC",
+              "kind": "TYPE_PARAMETER",
               "children": [
+                {
+                  "kind": "LT_TOKEN"
+                },
                 {
                   "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
+                      "kind": "ARRAY_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_TYPE_DESC",
+                          "children": [
+                            {
+                              "kind": "INT_KEYWORD"
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_BRACKET_TOKEN"
@@ -40,15 +56,15 @@
                   ]
                 },
                 {
-                  "kind": "OPEN_BRACKET_TOKEN"
-                },
-                {
-                  "kind": "CLOSE_BRACKET_TOKEN"
+                  "kind": "GT_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
-            },
-            {
-              "kind": "GT_TOKEN"
             }
           ]
         },

@@ -26,7 +26,7 @@ public type PopClient client object {
     # + password - Password of the POP Client
     # + clientConfig - Configurations for the POP Client
     # + return - An `email:Error` if creating the client failed or else `()`
-    public function __init(@untainted string host, @untainted string username, @untainted string password,
+    public function init(@untainted string host, @untainted string username, @untainted string password,
             PopConfig clientConfig = {}) returns Error? {
         return initPopClientEndpoint(self, host, username, password, clientConfig);
     }

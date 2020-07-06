@@ -274,7 +274,7 @@ function testEmptyString() returns string {
     output = "";
     var result = trap testEmptyStringCallee();
     if (result is error) {
-        output = output + result.reason();
+        output = output + result.message();
     }
     return output;
 }

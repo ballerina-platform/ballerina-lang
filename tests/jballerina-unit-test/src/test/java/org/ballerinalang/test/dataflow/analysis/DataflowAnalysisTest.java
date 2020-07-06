@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
+@Test
 public class DataflowAnalysisTest {
 
     @Test(description = "Test uninitialized variables")

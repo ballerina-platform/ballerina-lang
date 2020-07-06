@@ -24,7 +24,7 @@ type BinaryInsGenrator object {
     llvm:LLVMValueRef rhsOp1;
     llvm:LLVMValueRef rhsOp2;
 
-    function __init(llvm:LLVMBuilderRef builder, string lhsTmpName, llvm:LLVMValueRef lhsRef, llvm:LLVMValueRef rhsOp1,
+    function init(llvm:LLVMBuilderRef builder, string lhsTmpName, llvm:LLVMValueRef lhsRef, llvm:LLVMValueRef rhsOp1,
                     llvm:LLVMValueRef rhsOp2) {
         self.builder = builder;
         self.lhsTmpName = lhsTmpName;

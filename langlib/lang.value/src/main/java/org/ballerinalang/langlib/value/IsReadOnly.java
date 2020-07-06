@@ -25,13 +25,6 @@ import org.ballerinalang.jvm.values.RefValue;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value",
-//        functionName = "isReadOnly",
-//        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-//        returnType = { @ReturnType(type = TypeKind.BOOLEAN) }
-//)
 public class IsReadOnly {
 
     public static boolean isReadOnly(Object value) {

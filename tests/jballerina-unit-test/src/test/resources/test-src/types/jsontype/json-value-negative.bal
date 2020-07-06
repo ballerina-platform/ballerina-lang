@@ -45,7 +45,7 @@ type PersonWithTypedesc record {
 type Obj object {
     int i;
 
-    function __init() {
+    function init() {
         self.i = 0;
     }
 };

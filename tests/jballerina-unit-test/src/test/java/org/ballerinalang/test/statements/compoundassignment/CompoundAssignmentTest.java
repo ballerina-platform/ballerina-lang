@@ -417,7 +417,7 @@ public class CompoundAssignmentTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 305);
     }
 
-    @Test(description = "Test compound operator negative cases.")
+    @Test(description = "Test compound operator negative cases.", groups = "brokenOnNewParser")
     public void testCompoundAssignmentNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/statements/compoundassignment/compound_assignment_negative.bal");

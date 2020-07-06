@@ -71,7 +71,7 @@ createBalo {
     jvmTarget = 'true'
 }
 
-description = 'Ballerina - sql'
+description = 'Ballerina - SQL'
 //ext.moduleName = 'sql'
 //
 //compileJava {

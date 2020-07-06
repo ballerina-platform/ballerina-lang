@@ -64,30 +64,30 @@ function divideNumbers(int a, int b) returns int|error {
     return a / b;
 }
 
-function initiateNestedTransactionInRemote(string nestingMethod) returns @tainted string {
+function initiateNestedTransactionInRemote(string nestingMethod, int failureCutOff, boolean requestRollback) returns @tainted string {
    http:Client remoteEp = new("http://localhost:8889");
     string s = "";
     transaction {
-        s += " in initiator-trx";
-        int transactionVar = 12;
-        
-        io:println("within transaction");
-    } onretry {
-        s += " onretry";
-        int onRetryVar = 12;
-        
-        io:println("within on retry");
-    } committed {
-        s += " committed";
-        int onCommitedVar = 12;
-        
-        io:println("within on commited");
-    } aborted {
-        s += " aborted";
-        int abortedVar = 12;
-        
-        io:println("within aborted");
-    }
+            s = s + " inTrx";
+            count = count + 1;
+            if (transactional) {
+                int booooo = 12;
+            }
+            if (count <= failureCutOff) {
+                s = s + " blowUp"; // transaction block panic scenario, Set failure cutoff to 0, for not blowing up.
+                int bV = blowUp();
+            }
+            if (requestRollback) { // Set requestRollback to true if you want to try rollback scenario, otherwise commit
+                s = s + " Rollback";
+                
+                rollback;
+            } else {
+                a = a + " Commit";
+                var i = commit;
+            }
+            s = s + " endTrx";
+            s = (s + " end");
+        }
     return s;
 }
 

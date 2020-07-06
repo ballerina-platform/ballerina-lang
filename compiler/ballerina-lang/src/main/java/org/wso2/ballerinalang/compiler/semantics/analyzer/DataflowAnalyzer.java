@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -98,6 +99,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLa
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryAction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangQueryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRawTemplateLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRestArgsExpression;
@@ -107,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangStringTemplateLiter
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTableMultiKeyExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTransactionalExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTrapExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -131,7 +134,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -152,7 +154,9 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetryTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRollback;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangSimpleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -580,14 +584,26 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         analyzeNode(transactionNode.transactionBody, env);
-        analyzeNode(transactionNode.onRetryBody, env);
-        analyzeNode(transactionNode.committedBody, env);
-        analyzeNode(transactionNode.abortedBody, env);
 
         // marks the injected import as used
         Name transactionPkgName = names.fromString(Names.DOT.value + Names.TRANSACTION_PACKAGE.value);
         Name compUnitName = names.fromString(transactionNode.pos.getSource().getCompilationUnitName());
         this.symResolver.resolvePrefixSymbol(env, transactionPkgName, compUnitName);
+    }
+
+    @Override
+    public void visit(BLangTransactionalExpr transactionalExpr) {
+
+    }
+
+    @Override
+    public void visit(BLangCommitExpr commitExpr) {
+
+    }
+
+    @Override
+    public void visit(BLangRollback rollbackNode) {
+        analyzeNode(rollbackNode.expr, env);
     }
 
     @Override
@@ -724,6 +740,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         } else if (node.getKind() == NodeKind.IDENTIFIER) {
             BLangIdentifier identifier = (BLangIdentifier) node;
             result = identifier.value.hashCode();
+        } else if (node.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) node;
+            result = simpleVarRef.variableName.hashCode();
         } else {
             dlog.error(((BLangExpression) node).pos, DiagnosticCode.EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION);
         }
@@ -749,8 +768,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (constructorExpr.tableKeySpecifier != null &&
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
-            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(fieldName -> fieldName.value)
-                    .collect(Collectors.toList());
+            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
+                    ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
@@ -1136,6 +1155,17 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangRawTemplateLiteral rawTemplateLiteral) {
+        for (BLangLiteral string : rawTemplateLiteral.strings) {
+            analyzeNode(string, env);
+        }
+
+        for (BLangExpression expr : rawTemplateLiteral.insertions) {
+            analyzeNode(expr, env);
+        }
+    }
+
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         Map<BSymbol, InitStatus> prevUninitializedVars = this.uninitializedVars;
 
@@ -1220,11 +1250,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangAbort abortNode) {
+    public void visit(BLangRetry retryNode) {
+        analyzeNode(retryNode.retryBody, env);
     }
 
     @Override
-    public void visit(BLangRetry retryNode) {
+    public void visit(BLangRetryTransaction retryTransaction) {
+        analyzeNode(retryTransaction.transaction, env);
     }
 
     @Override
@@ -1335,7 +1367,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         // Visit the constructor with the same scope as the object
         if (objectTypeNode.initFunction != null) {
             if (objectTypeNode.initFunction.body == null) {
-                // if the __init() function is defined as an outside function definition
+                // if the init() function is defined as an outside function definition
                 Optional<BLangFunction> outerFuncDef =
                         objectEnv.enclPkg.functions.stream()
                                 .filter(f -> f.symbol.name.equals((objectTypeNode.initFunction).symbol.name))
@@ -1475,7 +1507,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangErrorVarRef varRefExpr) {
-        analyzeNode(varRefExpr.reason, env);
+        analyzeNode(varRefExpr.message, env);
+        if (varRefExpr.cause != null) {
+            analyzeNode(varRefExpr.cause, env);
+        }
         for (BLangNamedArgsExpression args : varRefExpr.detail) {
             analyzeNode(args.expr, env);
         }
@@ -1628,7 +1663,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
             addDependency(invokableOwnerSymbol, symbol);
         } else if (ownerSymbol.kind == SymbolKind.OBJECT && isGlobalVarSymbol(symbol)) {
             // Global variable reference from a field assignment of an object or a service.
-            // Or global variable reference from a __init function of an object or a service.
+            // Or global variable reference from a init function of an object or a service.
             addDependency(ownerSymbol, symbol);
         }
     }
@@ -1658,8 +1693,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 return;
             case ERROR_VARIABLE_REF:
                 BLangErrorVarRef errorVarRef = (BLangErrorVarRef) varRef;
-                if (errorVarRef.reason != null) {
-                    checkAssignment(errorVarRef.reason);
+                if (errorVarRef.message != null) {
+                    checkAssignment(errorVarRef.message);
+                }
+                if (errorVarRef.cause != null) {
+                    checkAssignment(errorVarRef.cause);
                 }
                 for (BLangNamedArgsExpression expression : errorVarRef.detail) {
                     checkAssignment(expression);

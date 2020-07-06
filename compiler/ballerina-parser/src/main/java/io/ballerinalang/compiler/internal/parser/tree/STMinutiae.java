@@ -21,6 +21,8 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.Collection;
+
 /**
  * Represents whitespaces, comments, newline characters attached to a {@code STToken}.
  *
@@ -44,8 +46,25 @@ public class STMinutiae extends STNode {
     }
 
     @Override
+    public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public Node createFacade(int position, NonTerminalNode parent) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        // TODO visiting minutiae is not yet supported
+        throw new IllegalStateException();
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        // TODO transforming minutiae is not yet supported
+        throw new IllegalStateException();
     }
 
     public String text() {
@@ -55,5 +74,10 @@ public class STMinutiae extends STNode {
     @Override
     public String toString() {
         return text;
+    }
+
+    @Override
+    public void writeTo(StringBuilder builder) {
+        builder.append(text);
     }
 }

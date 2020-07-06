@@ -36,9 +36,6 @@ import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -54,13 +51,7 @@ import static org.ballerinalang.observe.nativeimpl.ObserveNativeImplConstants.OB
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "lookupMetric",
-        returnType = @ReturnType(type = TypeKind.ARRAY),
-        isPublic = true
-)
+
 public class LookupMetric {
 
     public static Object lookupMetric(Strand strand, BString metricName, Object tags) {

@@ -48,9 +48,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * The runtime representation of table.
@@ -77,8 +79,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public TableValueImpl(BTableType type) {
         this.type = type;
@@ -215,6 +215,9 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         entries.clear();
         keys.clear();
         values.clear();
+        keyToIndexMap.clear();
+        indexToKeyMap.clear();
+        noOfAddedEntries = 0;
     }
 
     @Override
@@ -285,7 +288,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             return;
         }
 
-        this.type = (BTableType) ReadOnlyUtils.setImmutableType(this.type);
+        this.type = (BTableType) ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(this.type);
         //we know that values are always RefValues
         this.values().forEach(val -> ((RefValue) val).freezeDirect());
     }
@@ -337,20 +340,25 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         @Override
         public Object next() {
             Long hash = indexToKeyMap.get(cursor);
-            Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
-            V value = next.getValue();
-            K key = next.getKey();
+            if (hash != null) {
+                Map.Entry<K, V> next = (Map.Entry<K, V>) entries.get(hash);
+                V value = next.getValue();
+                K key = next.getKey();
 
-            List<BType> types = new ArrayList<>();
-            types.add(TypeChecker.getType(key));
-            types.add(TypeChecker.getType(value));
-            BTupleType tupleType = new BTupleType(types);
+                List<BType> types = new ArrayList<>();
+                types.add(TypeChecker.getType(key));
+                types.add(TypeChecker.getType(value));
+                BTupleType tupleType = new BTupleType(types);
 
-            TupleValueImpl tuple = new TupleValueImpl(tupleType);
-            tuple.add(0, key);
-            tuple.add(1, value);
-            cursor++;
-            return tuple;
+                TupleValueImpl tuple = new TupleValueImpl(tupleType);
+                tuple.add(0, key);
+                tuple.add(1, value);
+                cursor++;
+                return tuple;
+            } else {
+                cursor++;
+                return next();
+            }
         }
 
         @Override
@@ -362,10 +370,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private class ValueHolder {
 
         public void addData(V data) {
-            Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
-            UUID uuid = UUID.randomUUID();
-            entries.put((long) uuid.hashCode(), entry);
-            values.put((long) uuid.hashCode(), data);
+            putData(data);
         }
 
         public V getData(K key) {
@@ -377,9 +382,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
+            checkInherentTypeViolation((MapValue) data, type);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
+            updateIndexKeyMappings((long) uuid.hashCode());
             return values.put((long) uuid.hashCode(), data);
         }
 
@@ -411,6 +418,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
@@ -454,6 +462,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
@@ -464,7 +473,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
             entries.remove(hash);
             keys.remove(hash);
-            indexToKeyMap.remove(keyToIndexMap.remove(hash));
+            Long index = keyToIndexMap.remove(hash);
+            indexToKeyMap.remove(index);
+            if (index != null && index == noOfAddedEntries - 1) {
+                noOfAddedEntries--;
+            }
             return values.remove(hash);
         }
 
@@ -526,5 +539,43 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
         }
+    }
+
+    // This method checks for inherent table type violation
+    private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
+        if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
+            String reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            String detail = "value type '" + dataMap.getType() + "' inconsistent with the inherent table type '"
+                    + type + "'";
+            throw BallerinaErrors.createError(reason, detail);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        TableValueImpl<?, ?> tableValue = (TableValueImpl<?, ?>) o;
+
+        if (tableValue.type.getTag() != this.type.getTag()) {
+            return false;
+        }
+
+        if (this.entrySet().size() != tableValue.entrySet().size()) {
+            return false;
+        }
+
+        return entrySet().equals(tableValue.entrySet());
+    }
+
+    @Override
+    public int hashCode() {
+        return System.identityHashCode(this);
     }
 }

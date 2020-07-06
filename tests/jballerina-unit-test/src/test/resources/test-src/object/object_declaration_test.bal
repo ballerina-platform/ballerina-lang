@@ -21,7 +21,7 @@ type Employee object {
     public int age = 0;
     public string name = "";
 
-    function __init (int age = 6, string key = "abc") {
+    function init (int age = 6, string key = "abc") {
         self.age = age;
         self.name = "sample value";
     }
@@ -31,7 +31,7 @@ type Foo object {
     public int key = 0;
     public string value = "";
 
-    function __init () {
+    function init () {
     }
 };
 

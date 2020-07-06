@@ -30,7 +30,6 @@ public class LineRange {
     private final LinePosition endLine;
 
     private LineRange(String filePath, LinePosition startLine, LinePosition endLine) {
-        Objects.requireNonNull(filePath, "filePath cannot be null");
         this.filePath = filePath;
         this.startLine = startLine;
         this.endLine = endLine;

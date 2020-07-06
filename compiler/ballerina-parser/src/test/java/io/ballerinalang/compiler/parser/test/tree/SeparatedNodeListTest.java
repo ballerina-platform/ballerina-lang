@@ -19,6 +19,7 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -39,7 +40,8 @@ public class SeparatedNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testModuleNameCountInImportDeclaration() {
         SyntaxTree syntaxTree = parseFile("separated_node_list_import_decl.bal");
-        NodeList<ImportDeclarationNode> imports = syntaxTree.modulePart().imports();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
 
         SeparatedNodeList<IdentifierToken> moduleName = imports.get(0).moduleName();
         Assert.assertEquals(moduleName.size(), 1, "Module name part size does not match");
@@ -57,7 +59,8 @@ public class SeparatedNodeListTest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testModuleNamePartsInImportDeclaration() {
         SyntaxTree syntaxTree = parseFile("separated_node_list_import_decl.bal");
-        NodeList<ImportDeclarationNode> imports = syntaxTree.modulePart().imports();
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
 
         SeparatedNodeList<IdentifierToken> moduleName = imports.get(0).moduleName();
         Assert.assertEquals(moduleName.get(0).text(), "foo", "Module name parts do not match");

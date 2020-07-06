@@ -44,7 +44,7 @@ import java.util.LinkedHashMap;
  */
 public class ExecuteTest {
     private CompileResult result;
-    private static final String DB_NAME = "TEST_SQL_EXCUTE_QUERY";
+    private static final String DB_NAME = "TEST_SQL_EXECUTE_QUERY";
     private static final String URL = SQLDBUtils.URL_PREFIX + DB_NAME;
     private BValue[] args = {new BString(URL), new BString(SQLDBUtils.DB_USER), new BString(SQLDBUtils.DB_PASSWORD)};
 
@@ -218,11 +218,9 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDatabaseError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("object not found: NUMERICTYPESNONEXISTTABLE"));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("object not found: NUMERICTYPESNONEXISTTABLE"));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(),
                 -5501);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "42501");
@@ -233,12 +231,10 @@ public class ExecuteTest {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testInsertTableWithDataTypeError", args);
         Assert.assertTrue(returnVal[0] instanceof BError);
         BError error = (BError) returnVal[0];
-        Assert.assertEquals(error.getReason(), "{ballerina/sql}DatabaseError");
+        Assert.assertTrue(error.getMessage().contains("Insert into NumericTypes (int_type) values " +
+                "('This is wrong type'). data exception: invalid character value for cast."));
         Assert.assertTrue(error.getDetails() instanceof BMap);
         BMap<String, BValue> errorDetails = (BMap<String, BValue>) error.getDetails();
-        Assert.assertTrue(errorDetails.get(Constants.ErrorRecordFields.MESSAGE).stringValue()
-                .contains("Insert into NumericTypes (int_type) values ('This is wrong type'). " +
-                        "data exception: invalid character value for cast."));
         Assert.assertEquals(((BInteger) errorDetails.get(Constants.ErrorRecordFields.ERROR_CODE)).intValue(), -3438);
         Assert.assertEquals(errorDetails.get(Constants.ErrorRecordFields.SQL_STATE).stringValue(), "22018");
     }

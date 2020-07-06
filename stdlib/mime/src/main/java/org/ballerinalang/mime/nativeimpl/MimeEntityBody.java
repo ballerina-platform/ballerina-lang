@@ -46,14 +46,14 @@ import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_TYPE_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MESSAGE_DATA_SOURCE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
-import static org.ballerinalang.mime.util.MimeConstants.PARSING_ENTITY_BODY_FAILED;
+import static org.ballerinalang.mime.util.MimeConstants.PARSER_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_IO_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.PROTOCOL_MIME_PKG_ID;
 import static org.ballerinalang.mime.util.MimeConstants.READABLE_BYTE_CHANNEL_STRUCT;
@@ -92,11 +92,11 @@ public class MimeEntityBody {
                 }
                 return partsArray;
             } else {
-                return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Entity body is not a type of " +
+                return MimeUtil.createError(PARSER_ERROR, "Entity body is not a type of " +
                         "composite media type. Received content-type : " + baseType);
             }
         } catch (Throwable err) {
-            return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+            return MimeUtil.createError(PARSER_ERROR,
                                         "Error occurred while extracting body parts from entity: " + getErrorMsg(err));
         }
     }
@@ -118,11 +118,11 @@ public class MimeEntityBody {
                 byteChannelObj.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new EntityWrapper(entityBodyChannel));
                 return byteChannelObj;
             } else {
-                return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Entity doesn't contain body parts");
+                return MimeUtil.createError(PARSER_ERROR, "Entity doesn't contain body parts");
             }
         } catch (Throwable err) {
             log.error("Error occurred while constructing a byte channel out of body parts", err);
-            return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Error occurred while constructing a byte " +
+            return MimeUtil.createError(PARSER_ERROR, "Error occurred while constructing a byte " +
                     "channel out of body parts : " + getErrorMsg(err));
         }
     }
@@ -138,20 +138,20 @@ public class MimeEntityBody {
                 return byteChannelObj;
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityObj) != null) {
-                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available but " +
+                    return MimeUtil.createError(PARSER_ERROR, "Byte channel is not available but " +
                             "payload can be obtain either as xml, json, string or byte[] " +
                             "type");
                 } else if (EntityBodyHandler.getBodyPartArray(entityObj) != null && EntityBodyHandler.
                         getBodyPartArray(entityObj).size() != 0) {
-                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+                    return MimeUtil.createError(PARSER_ERROR,
                                                 "Byte channel is not available since payload contains a set of body " +
                                                         "parts");
                 } else {
-                    return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED, "Byte channel is not available as payload");
+                    return MimeUtil.createError(PARSER_ERROR, "Byte channel is not available as payload");
                 }
             }
         } catch (Throwable err) {
-            return MimeUtil.createError(PARSING_ENTITY_BODY_FAILED,
+            return MimeUtil.createError(PARSER_ERROR,
                                         "Error occurred while constructing byte channel from entity body : " +
                                                 getErrorMsg(err));
         }
@@ -171,24 +171,23 @@ public class MimeEntityBody {
         }
     }
 
-    public static Object getMediaType(String contentType) {
+    public static Object getMediaType(BString contentType) {
         try {
             ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
-            mediaType = MimeUtil.parseMediaType(mediaType, contentType);
-            return mediaType;
+            return MimeUtil.parseMediaType(mediaType, contentType.getValue());
         } catch (Throwable err) {
-            return MimeUtil.createError(INVALID_CONTENT_TYPE, getErrorMsg(err));
+            return MimeUtil.createError(INVALID_CONTENT_TYPE_ERROR, getErrorMsg(err));
         }
     }
 
-    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, String contentType) {
+    public static void setBodyParts(ObjectValue entityObj, ArrayValue bodyParts, BString contentType) {
         entityObj.addNativeData(BODY_PARTS, bodyParts);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : MULTIPART_FORM_DATA);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : MULTIPART_FORM_DATA);
     }
 
-    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, String contentType) {
+    public static void setByteArray(ObjectValue entityObj, ArrayValue payload, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, payload);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : OCTET_STREAM);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
     public static void setByteChannel(ObjectValue entityObj, ObjectValue byteChannel,
@@ -201,18 +200,18 @@ public class MimeEntityBody {
         MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : OCTET_STREAM);
     }
 
-    public static void setJson(ObjectValue entityObj, Object jsonContent, String contentType) {
+    public static void setJson(ObjectValue entityObj, Object jsonContent, BString contentType) {
         EntityBodyHandler.addJsonMessageDataSource(entityObj, jsonContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_JSON);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_JSON);
     }
 
-    public static void setText(ObjectValue entityObj, String textContent, String contentType) {
-        EntityBodyHandler.addMessageDataSource(entityObj, textContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : TEXT_PLAIN);
+    public static void setText(ObjectValue entityObj, BString textContent, BString contentType) {
+        EntityBodyHandler.addMessageDataSource(entityObj, textContent.getValue());
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : TEXT_PLAIN);
     }
 
-    public static void setXml(ObjectValue entityObj, XMLValue xmlContent, String contentType) {
+    public static void setXml(ObjectValue entityObj, XMLValue xmlContent, BString contentType) {
         EntityBodyHandler.addMessageDataSource(entityObj, xmlContent);
-        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType : APPLICATION_XML);
+        MimeUtil.setMediaTypeToEntity(entityObj, contentType != null ? contentType.getValue() : APPLICATION_XML);
     }
 }

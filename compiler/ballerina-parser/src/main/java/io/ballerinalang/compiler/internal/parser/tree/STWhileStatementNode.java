@@ -70,7 +70,35 @@ public class STWhileStatementNode extends STStatementNode {
                 diagnostics);
     }
 
+    public STWhileStatementNode modify(
+            STNode whileKeyword,
+            STNode condition,
+            STNode whileBody) {
+        if (checkForReferenceEquality(
+                whileKeyword,
+                condition,
+                whileBody)) {
+            return this;
+        }
+
+        return new STWhileStatementNode(
+                whileKeyword,
+                condition,
+                whileBody,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new WhileStatementNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

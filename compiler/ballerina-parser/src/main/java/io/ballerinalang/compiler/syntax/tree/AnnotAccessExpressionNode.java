@@ -40,7 +40,7 @@ public class AnnotAccessExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public Node annotTagReference() {
+    public NameReferenceNode annotTagReference() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class AnnotAccessExpressionNode extends ExpressionNode {
     public AnnotAccessExpressionNode modify(
             ExpressionNode expression,
             Token annotChainingToken,
-            Node annotTagReference) {
+            NameReferenceNode annotTagReference) {
         if (checkForReferenceEquality(
                 expression,
                 annotChainingToken,
@@ -92,7 +92,7 @@ public class AnnotAccessExpressionNode extends ExpressionNode {
         private final AnnotAccessExpressionNode oldNode;
         private ExpressionNode expression;
         private Token annotChainingToken;
-        private Node annotTagReference;
+        private NameReferenceNode annotTagReference;
 
         public AnnotAccessExpressionNodeModifier(AnnotAccessExpressionNode oldNode) {
             this.oldNode = oldNode;
@@ -116,7 +116,7 @@ public class AnnotAccessExpressionNode extends ExpressionNode {
         }
 
         public AnnotAccessExpressionNodeModifier withAnnotTagReference(
-                Node annotTagReference) {
+                NameReferenceNode annotTagReference) {
             Objects.requireNonNull(annotTagReference, "annotTagReference must not be null");
             this.annotTagReference = annotTagReference;
             return this;

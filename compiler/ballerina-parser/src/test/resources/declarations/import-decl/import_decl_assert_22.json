@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -8,7 +9,13 @@
           "kind": "IMPORT_DECLARATION",
           "children": [
             {
-              "kind": "IMPORT_KEYWORD"
+              "kind": "IMPORT_KEYWORD",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IMPORT_ORG_NAME",
@@ -32,7 +39,13 @@
               ]
             },
             {
-              "kind": "SEMICOLON_TOKEN"
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
         }
@@ -40,9 +53,14 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FUNCTION_DEFINITION",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_IMPORT_DECLARATION_AFTER_OTHER_DECLARATIONS"
+          ],
           "children": [
             {
               "kind": "METADATA",
@@ -54,7 +72,19 @@
               ]
             },
             {
-              "kind": "FUNCTION_KEYWORD"
+              "kind": "FUNCTION_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
@@ -71,7 +101,13 @@
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_PAREN_TOKEN"
+                  "kind": "CLOSE_PAREN_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -79,48 +115,87 @@
               "kind": "FUNCTION_BODY_BLOCK",
               "children": [
                 {
-                  "kind": "OPEN_BRACE_TOKEN"
+                  "kind": "OPEN_BRACE_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ]
                 },
                 {
                   "kind": "LIST",
                   "children": []
                 },
                 {
-                  "kind": "CLOSE_BRACE_TOKEN"
+                  "kind": "CLOSE_BRACE_TOKEN",
+                  "leadingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    }
+                  ],
+                  "trailingMinutiae": [
+                    {
+                      "kind": "END_OF_LINE_MINUTIAE",
+                      "value": "\n"
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "IMPORT_DECLARATION",
+                        "children": [
+                          {
+                            "kind": "IMPORT_KEYWORD",
+                            "leadingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ],
+                            "trailingMinutiae": [
+                              {
+                                "kind": "WHITESPACE_MINUTIAE",
+                                "value": " "
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "IMPORT_ORG_NAME",
+                            "children": [
+                              {
+                                "kind": "IDENTIFIER_TOKEN",
+                                "value": "ballerina"
+                              },
+                              {
+                                "kind": "SLASH_TOKEN"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "LIST",
+                            "children": [
+                              {
+                                "kind": "IDENTIFIER_TOKEN",
+                                "value": "http"
+                              }
+                            ]
+                          },
+                          {
+                            "kind": "SEMICOLON_TOKEN",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "IMPORT_DECLARATION",
-          "children": [
-            {
-              "kind": "IMPORT_KEYWORD"
-            },
-            {
-              "kind": "IMPORT_ORG_NAME",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "ballerina"
-                },
-                {
-                  "kind": "SLASH_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "http"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN"
             }
           ]
         }

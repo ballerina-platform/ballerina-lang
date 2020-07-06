@@ -91,12 +91,12 @@ service ser3 on ex {
 const R1 = "reason 1";
 const R2 = "reason 2";
 
-type FooErr error<R1>;
-type BarErr error<R2, record { string message?; error cause?; int code; }>;
+type FooErr distinct error;
+type BarErr error<record { string message?; error cause?; int code; }>;
 
 service ser4 = service {
     resource function foo() returns FooErr|BarErr {
-        return FooErr();
+        return FooErr(R1);
     }
 };
 

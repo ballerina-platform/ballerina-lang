@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -187,6 +188,15 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createTransactionEnv(BLangTransaction node, SymbolEnv env) {
+        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
+        symbolEnv.enclEnv = env;
+        symbolEnv.enclInvokable = env.enclInvokable;
+        symbolEnv.node = node;
+        symbolEnv.enclPkg = env.enclPkg;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createRetryEnv(BLangRetry node, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
         symbolEnv.enclEnv = env;
         symbolEnv.enclInvokable = env.enclInvokable;

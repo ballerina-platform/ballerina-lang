@@ -76,6 +76,12 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     protected BLangDiagnosticLog() {
     }
 
+    // Please node that, this method exist only to report syntax errors coming from the new parser
+    // We will remove this method once we merge diagnostic reporting approaches in the new parser and semantic analyzer
+    public void error(DiagnosticPos pos, String message, DiagnosticCode code) {
+        reportDiagnostic(new BDiagnostic(Diagnostic.Kind.ERROR, pos, code, message));
+    }
+
     public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         String msg = formatMessage(errMsgKeyPrefix, code, args);
         reportDiagnostic(new BDiagnostic(Diagnostic.Kind.ERROR, pos, code, msg));

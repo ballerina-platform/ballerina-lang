@@ -39,6 +39,7 @@ class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
     private int pendingLeftBrace;
     private boolean forcedProcessedToken;
     private boolean capturedLastRightParenthesis;
+    private boolean isCapturingEnabled = true;
 
     RHSSignatureTokenTraverser(SourcePruneContext sourcePruneContext, boolean pruneTokens) {
         super(pruneTokens);
@@ -93,11 +94,21 @@ class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
                 result = true;
             }
             if (this.pendingRightParenthesis == 0) {
+                processToken(token);
+                this.forcedProcessedToken = true;
                 this.capturedLastRightParenthesis = true;
+                this.isCapturingEnabled = false;
             }
             return result;
         } else if (type == BallerinaParser.RIGHT_BRACE && this.pendingLeftBrace > 0) {
             this.pendingLeftBrace--;
+            if (this.pendingRightParenthesis == 0 && this.pendingLeftBrace == 0) {
+                processToken(token);
+                this.forcedProcessedToken = true;
+                this.capturedLastRightParenthesis = true;
+                this.isCapturingEnabled = false;
+                return true;
+            }
             return false;
         } else if (type == BallerinaParser.AT &&
                 this.lastProcessedToken.getType() == BallerinaParser.RIGHT_PARENTHESIS) {
@@ -131,6 +142,26 @@ class RHSSignatureTokenTraverser extends AbstractTokenTraverser {
             lastProcessedToken.setText(";");
             lastProcessedToken.setType(BallerinaParser.SEMICOLON);
             lastProcessedToken.setChannel(Token.DEFAULT_CHANNEL);
+        }
+    }
+
+    protected boolean processToken(Token token) {
+        if (this.isCapturingEnabled) {
+            return super.processToken(token);
+        } else {
+            // Not added to processed tokens
+            if (token.getType() == BallerinaParser.NEW_LINE || token.getType() == BallerinaParser.EOF ||
+                    token.getChannel() != Token.DEFAULT_CHANNEL || token.getType() == BallerinaParser.WS) {
+                return false;
+            }
+            this.lastProcessedToken = token;
+            if (pruneTokens) {
+                // If the pruneTokens flag is true, replace the token text with empty spaces
+                ((CommonToken) token).setText(getNCharLengthEmptyLine(token.getText().length()));
+                ((CommonToken) token).setType(BallerinaParser.WS);
+                return true;
+            }
+            return false;
         }
     }
 }

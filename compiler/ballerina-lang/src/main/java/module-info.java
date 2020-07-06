@@ -9,6 +9,7 @@ module io.ballerina.lang {
     requires io.netty.buffer;
     requires antlr4.runtime;
     requires io.ballerina.cli.module;
+    requires io.ballerina.parser;
     exports org.wso2.ballerinalang.compiler.util;
     exports org.ballerinalang.toml.model;
     exports org.wso2.ballerinalang.util;
@@ -49,4 +50,5 @@ module io.ballerina.lang {
     exports org.wso2.ballerinalang.compiler.parser;
     exports org.ballerinalang.model.symbols;
     exports org.ballerinalang.repository.fs;
+    exports org.wso2.ballerinalang.compiler.spi;
 }

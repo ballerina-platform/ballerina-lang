@@ -18,12 +18,7 @@
 package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.jvm.observability.metrics.Counter;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 
 /**
  * This is the native increment function implementation of the Counter object.
@@ -31,20 +26,9 @@ import org.ballerinalang.natives.annotations.Receiver;
  * @since 0.980.0
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "increment",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.COUNTER,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        args = {
-                @Argument(name = "amount", type = TypeKind.INT)
-        },
-        isPublic = true
-)
 public class CounterIncrement {
 
-    public static void increment(Strand strand, ObjectValue counterObj, long amount) {
+    public static void increment(ObjectValue counterObj, long amount) {
         Counter counter = (Counter) counterObj.getNativeData(ObserveNativeImplConstants.METRIC_NATIVE_INSTANCE_KEY);
         counter.increment(amount);
     }

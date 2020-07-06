@@ -25,13 +25,6 @@ import org.ballerinalang.jvm.values.CloneUtils;
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina",
-//        packageName = "lang.value",
-//        functionName = "clone",
-//        args = {@Argument(name = "value", type = TypeKind.ANYDATA)},
-//        returnType = {@ReturnType(type = TypeKind.ANYDATA)}
-//)
 public class Clone {
 
     public static Object clone(Object value) {

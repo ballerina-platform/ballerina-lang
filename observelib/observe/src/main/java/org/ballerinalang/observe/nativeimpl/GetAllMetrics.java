@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.observability.metrics.MetricConstants;
 import org.ballerinalang.jvm.observability.metrics.MetricId;
 import org.ballerinalang.jvm.observability.metrics.PolledGauge;
 import org.ballerinalang.jvm.observability.metrics.Tag;
-import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
@@ -38,9 +38,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Set;
 
@@ -50,20 +47,14 @@ import java.util.Set;
  *
  * @since 0.980.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "getAllMetrics",
-        returnType = @ReturnType(type = TypeKind.ARRAY),
-        isPublic = true
-)
+
 public class GetAllMetrics {
 
     private static final BType METRIC_TYPE = BallerinaValues
             .createRecordValue(ObserveNativeImplConstants.OBSERVE_PACKAGE_ID, ObserveNativeImplConstants.METRIC)
             .getType();
 
-    public static ArrayValue getAllMetrics(Strand strand) {
+    public static ArrayValue getAllMetrics() {
         Metric[] metrics = DefaultMetricRegistry.getInstance().getAllMetrics();
 
         ArrayValue bMetrics = new ArrayValueImpl(new BArrayType(METRIC_TYPE));
@@ -80,7 +71,7 @@ public class GetAllMetrics {
                 Gauge gauge = (Gauge) metric;
                 metricValue = gauge.getValue();
                 metricType = MetricConstants.GAUGE;
-                summary = Utils.createBSnapshots(gauge.getSnapshots(), strand);
+                summary = Utils.createBSnapshots(gauge.getSnapshots(), Scheduler.getStrand());
             } else if (metric instanceof PolledGauge) {
                 PolledGauge gauge = (PolledGauge) metric;
                 metricValue = gauge.getValue();

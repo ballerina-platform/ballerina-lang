@@ -166,8 +166,14 @@ public class Executor {
             return boolean.class;
         } else if (paramValue instanceof BString) {
             return BString.class;
+        } else if (paramValue instanceof String) {
+            return String.class;
         } else if (paramValue instanceof Integer) {
             return int.class;
+        } else if (paramValue instanceof Long) {
+            return long.class;
+        } else if (paramValue instanceof Double) {
+            return double.class;
         } else if (paramValue instanceof Float) {
             return double.class;
         } else {

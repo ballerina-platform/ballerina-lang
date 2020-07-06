@@ -41,7 +41,7 @@ public class FunctionPointersWithOptionalArgsTest {
         result = BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-optional-args.bal");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser" })
     public void testFunctionPointersWithNamedArgs() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-named-args-negative.bal");

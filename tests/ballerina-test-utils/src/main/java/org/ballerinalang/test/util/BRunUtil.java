@@ -27,6 +27,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.commons.ArrayState;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.types.BIntersectionType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTypedescType;
 import org.ballerinalang.jvm.types.TypeFlags;
@@ -916,10 +917,11 @@ public class BRunUtil {
                 return bmap;
             case org.ballerinalang.jvm.types.TypeTags.ERROR_TAG:
                 ErrorValue errorValue = (ErrorValue) value;
+                BError cause = (BError) getBVMValue(errorValue.getCause(), bvmValueMap);
                 BRefType<?> details = getBVMValue(errorValue.getDetails(), bvmValueMap);
                 bvmValue = new BError(getBVMType(errorValue.getType(), new Stack<>()),
-                                      errorValue.getReason().getValue(), details);
-                break;
+                                      errorValue.getErrorMessage().getValue(), cause, details);
+                return bvmValue;
             case org.ballerinalang.jvm.types.TypeTags.NULL_TAG:
                 bvmValue = null;
                 break;
@@ -1036,10 +1038,11 @@ public class BRunUtil {
                     return BTypes.typeError;
                 }
 
-                BType reasonType = getBVMType(errorType.reasonType, selfTypeStack);
                 BType detailType = getBVMType(errorType.detailType, selfTypeStack);
                 BErrorType bvmErrorType =
-                        new BErrorType(errorType.getName(), reasonType, detailType, errorType.getPackage().name);
+                        // todo: using reason type as string is just a hack to get the code compile
+                        //  after removing error reason type.
+                        new BErrorType(errorType.getName(), BTypes.typeString, detailType, errorType.getPackage().name);
                 return bvmErrorType;
             case org.ballerinalang.jvm.types.TypeTags.RECORD_TYPE_TAG:
                 org.ballerinalang.jvm.types.BRecordType recordType = (org.ballerinalang.jvm.types.BRecordType) jvmType;
@@ -1071,6 +1074,8 @@ public class BRunUtil {
                     memberTypes.add(getBVMType(type, selfTypeStack));
                 }
                 return new BUnionType(memberTypes);
+            case org.ballerinalang.jvm.types.TypeTags.INTERSECTION_TAG:
+                return getBVMType(((BIntersectionType) jvmType).getEffectiveType(), selfTypeStack);
             case org.ballerinalang.jvm.types.TypeTags.OBJECT_TYPE_TAG:
                 org.ballerinalang.jvm.types.BObjectType objectType = (org.ballerinalang.jvm.types.BObjectType) jvmType;
                 BObjectType bvmObjectType =
@@ -1120,6 +1125,8 @@ public class BRunUtil {
                 return BTypes.typeHandle;
             case org.ballerinalang.jvm.types.TypeTags.SERVICE_TAG:
                 return new BServiceType(jvmType.getName(), null, 0);
+            case org.ballerinalang.jvm.types.TypeTags.READONLY_TAG:
+                return BTypes.typeReadonly;
             default:
                 throw new RuntimeException("Unsupported jvm type: '" + jvmType + "' ");
         }

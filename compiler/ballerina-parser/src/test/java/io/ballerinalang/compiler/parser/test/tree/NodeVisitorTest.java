@@ -46,7 +46,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
 
         SyntaxTree syntaxTree = parseFile("token_traversal.bal");
         TokenVisitor tokenVisitor = new TokenVisitor();
-        syntaxTree.modulePart().accept(tokenVisitor);
+        syntaxTree.rootNode().accept(tokenVisitor);
         SyntaxKind[] actualKinds = tokenVisitor.tokenList.toArray(new SyntaxKind[0]);
 
         Assert.assertEquals(actualKinds, expectedKinds);
@@ -56,7 +56,7 @@ public class NodeVisitorTest extends AbstractSyntaxTreeAPITest {
     public void testAssignmentStmtNodeVisit() {
         SyntaxTree syntaxTree = parseFile("assignment_stmt_traversal.bal");
         AssignmentStmtVisitor visitor = new AssignmentStmtVisitor();
-        syntaxTree.modulePart().accept(visitor);
+        syntaxTree.rootNode().accept(visitor);
         int actualStmtCount = visitor.stmtList.size();
 
         Assert.assertEquals(actualStmtCount, 12);

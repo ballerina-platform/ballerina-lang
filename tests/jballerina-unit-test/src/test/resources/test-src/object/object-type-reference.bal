@@ -38,7 +38,7 @@ type Manager1 object {
         return self.name + " from inner function";
     }
     
-    function __init() {
+    function init() {
         self.age = 99;
         self.name = "sample name 2";
         self.salary = 8.0;
@@ -65,7 +65,7 @@ type Manager2 object {
         return self.name + " from inner function";
     }
 
-    function __init(int age=20) {
+    function init(int age=20) {
         self.age = age;
         self.name = "John";
         self.salary = 1000.0;
@@ -86,7 +86,7 @@ type Manager3 object {
 
     *Employee2;
 
-    function __init(int age=20) {
+    function init(int age=20) {
         self.age = age;
         self.salary = 2500.0;
         self.name = "Doe";
@@ -120,7 +120,7 @@ type Manager4 object {
 
     *Employee3;
 
-    function __init(string name, int age=25) {
+    function init(string name, int age=25) {
         self.name = name;
         self.age = age;
         self.salary = 3000.0;
@@ -152,4 +152,126 @@ type Person3 abstract object {
 public function testAbstractObjectFuncWithDefaultVal() returns [string, float] {
     Manager4 mgr = new Manager4("Jane");
     return [mgr.getName(), mgr.getBonus(0.1)];
+}
+
+// non abstract object inclusion
+type Ant object {
+    int id;
+
+    public function init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int|() {
+        if (self.id > 0) {
+            return self.id;
+        } else {
+            return ();
+        }
+    }
+};
+
+type FireAnt object {
+    *Ant;
+
+    public function init(int id) {
+        self.id = id;
+    }
+
+    public function getId() returns int {
+        return self.id;
+    }
+};
+
+public function testNonAbstractObjectInclusion() {
+    FireAnt notoriousFireAnt = new FireAnt(7);
+    assertEquality(notoriousFireAnt.getId(), 7);
+
+    Ant dullAnt = new FireAnt(0);
+    assertEquality(dullAnt.getId(), 0);
+
+    Ant nullAnt = new Ant(0);
+    assertEquality(nullAnt.getId(), ());
+}
+
+// Type inclusion tests
+
+type AgeDataObject abstract object {
+    int|float age;
+};
+
+type DefaultPerson object {
+    *AgeDataObject;
+    int age;
+    string name;
+
+    function init(int age=18, string name = "UNKNOWN") {
+       self.age = age;
+       self.name = name;
+    }
+};
+
+function testCreatingObjectWithOverriddenFields() {
+    DefaultPerson dummyPerson = new DefaultPerson();
+    assertEquality(dummyPerson.age, 18);
+    dummyPerson.age = 400;
+    assertEquality(dummyPerson.age, 400);
+    assertEquality(dummyPerson.name, "UNKNOWN");
+}
+
+type NameInterface abstract object {
+    public function getName(string greeting = "Hi") returns string;
+};
+
+type AgeInterface abstract object {
+    *AgeDataObject;
+    public function setAge(int age = 0) returns int;
+};
+
+type DefaultPersonGreetedName object {
+    *NameInterface;
+    *AgeInterface;
+    string name;
+    int age;
+
+    function init(int age = 18, string name = "UNKNOWN") {
+       self.age = age;
+       self.name = name;
+    }
+
+    public function getName(string greeting = "Hello") returns string {
+        return greeting + " " + self.name;
+    }
+
+    public function setAge(int|float age = 0) returns int {
+        if (age is int) {
+            self.age = age;
+            return self.age;
+        }
+        self.age = <int>age;
+        return -1;
+    }
+};
+
+function testCreatingObjectWithOverriddenMethods() {
+    DefaultPersonGreetedName dummyPerson = new DefaultPersonGreetedName(name="Doe");
+    assertEquality(dummyPerson.age, 18);
+    int age = dummyPerson.setAge(80);
+    assertEquality(dummyPerson.age, 80);
+    assertEquality(dummyPerson.getName(), "Hello Doe");
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

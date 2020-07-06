@@ -74,7 +74,7 @@ public class UnaryBlockingOneofFieldTestCase extends GrpcBaseTest {
         Assert.assertEquals(responses[0].stringValue(), serverMsg);
     }
 
-    @Test(description = "Testing one of int64 field value using blocking client")
+    @Test(description = "Testing one of int64 field value using blocking client", enabled = false)
     public void testInt64FieldValueClient() {
         final String serverMsg = "-9223372036854775808";
         BValue[] responses = BRunUtil.invoke(result, "testInt64FieldValue");

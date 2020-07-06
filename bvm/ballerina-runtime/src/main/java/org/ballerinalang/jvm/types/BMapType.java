@@ -35,7 +35,7 @@ public class BMapType extends BType {
 
     private BType constraint;
     private final boolean readonly;
-    private BMapType immutableType;
+    private BIntersectionType immutableType;
 
     /**
      * Create a type from the given name.
@@ -51,14 +51,13 @@ public class BMapType extends BType {
     }
 
     public BMapType(BType constraint) {
-        this(constraint, false, null);
+        this(constraint, false);
     }
 
-    public BMapType(BType constraint, boolean readonly, BMapType immutableType) {
+    public BMapType(BType constraint, boolean readonly) {
         super(TypeConstants.MAP_TNAME, null, MapValueImpl.class);
         this.constraint = constraint;
         this.readonly = readonly;
-        this.immutableType = immutableType;
     }
 
     /**
@@ -144,7 +143,7 @@ public class BMapType extends BType {
     }
 
     @Override
-    public void setImmutableType(BType immutableType) {
-        this.immutableType = (BMapType) immutableType;
+    public void setImmutableType(BIntersectionType immutableType) {
+        this.immutableType = immutableType;
     }
 }

@@ -77,7 +77,38 @@ public class STIndexedExpressionNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STIndexedExpressionNode modify(
+            STNode containerExpression,
+            STNode openBracket,
+            STNode keyExpression,
+            STNode closeBracket) {
+        if (checkForReferenceEquality(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket)) {
+            return this;
+        }
+
+        return new STIndexedExpressionNode(
+                containerExpression,
+                openBracket,
+                keyExpression,
+                closeBracket,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new IndexedExpressionNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

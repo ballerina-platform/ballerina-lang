@@ -72,13 +72,16 @@ function stampUnionToXML() returns xml|error  {
     return xmlValue;
 }
 
+type IntMap map<int>;
 
 function stampUnionToIntMap() returns map<int>|error  {
     int|float|map<int> unionVar = { "a": 1, "b": 2 };
 
-    map<int>|error  mapValue = unionVar.cloneWithType(map<int>);
+    map<int>|error  mapValue = unionVar.cloneWithType(IntMap);
     return mapValue;
 }
+
+type EmployeeMap map<Employee>;
 
 function stampUnionToConstraintMap() returns map<Employee>|error  {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -88,7 +91,7 @@ function stampUnionToConstraintMap() returns map<Employee>|error  {
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    map<Employee>|error  mapValue = unionVar.cloneWithType(map<Employee>);
+    map<Employee>|error  mapValue = unionVar.cloneWithType(EmployeeMap);
     return mapValue;
 }
 
@@ -99,9 +102,11 @@ function stampUnionToAnydata() returns anydata|error {
     return anydataValue;
 }
 
+type StringString [string, string];
+
 function stampUnionToTuple() returns [string, string]|error  {
     int|float|[string, string] unionVar = ["mohan", "LK2014"];
-    [string, string]|error  tupleValue = unionVar.cloneWithType([string, string]);
+    [string, string]|error  tupleValue = unionVar.cloneWithType(StringString);
 
     return tupleValue;
 }
@@ -113,6 +118,8 @@ function stampUnionToAnydataV2() returns anydata|error {
     return anydataValue;
 }
 
+type UnionTypedesc typedesc<int|float|map<Teacher>>;
+
 function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error  {
     Teacher p1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
     Teacher p2 = { name: "Mohan", age: 30, status: "single", batch: "LK2014", school: "Hindu College" };
@@ -121,6 +128,6 @@ function stampUnionToConstraintMapToUnion() returns int|float|map<Teacher>|error
 
     int|float|map<Teacher> unionVar = teacherMap;
 
-    int|float|map<Teacher>|error  mapValue = unionVar.cloneWithType(typedesc<int|float|map<Teacher>>);
+    int|float|map<Teacher>|error  mapValue = unionVar.cloneWithType(UnionTypedesc);
     return mapValue;
 }

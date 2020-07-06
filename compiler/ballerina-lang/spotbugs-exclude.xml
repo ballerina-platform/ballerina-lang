@@ -176,6 +176,10 @@
         <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
     </Match>
     <Match>
+        <Class name="org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol"/>
+        <Bug pattern="URF_UNREAD_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+    <Match>
         <Class name="org.wso2.ballerinalang.compiler.semantics.analyzer.cyclefind.GlobalVariableRefAnalyzer"/>
         <Bug pattern="BC_UNCONFIRMED_CAST, BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
     </Match>

@@ -137,4 +137,14 @@ public class TypeDefinitionsTest {
     public void testAnonExclusiveRecordUnionTypeDef() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnonExclusiveRecordUnionTypeDef");
     }
+
+    @Test
+    public void testIntArrayTypeDef() {
+        BRunUtil.invoke(compileResult, "testIntArrayTypeDef");
+    }
+
+    @Test
+    public void testTupleTypeDef() {
+        BRunUtil.invoke(compileResult, "testTupleTypeDef");
+    }
 }

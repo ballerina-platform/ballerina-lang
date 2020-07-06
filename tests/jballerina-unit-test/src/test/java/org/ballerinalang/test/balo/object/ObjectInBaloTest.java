@@ -44,6 +44,7 @@ public class ObjectInBaloTest {
     public void setup() {
         BaloCreator.cleanCacheDirectories();
         BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "utils");
         result = BCompileUtil.compile("test-src/balo/test_balo/object/test_objects.bal");
     }
 
@@ -564,18 +565,40 @@ public class ObjectInBaloTest {
     }
 
     @Test
+    public void testObjectReferingNonAbstractObjFromBalo() {
+        BRunUtil.invoke(result, "testObjectReferingNonAbstractObjFromBalo");
+    }
+
+    @Test
+    public void testObjectReferingNonAbstractObjLoadedFromBalo() {
+        BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
+    }
+
+    @Test
     public void testObjectReferingTypeFromBaloNegative() {
         CompileResult result =
                 BCompileUtil.compile("test-src/balo/test_balo/object/test_objects_type_reference_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 5);
         int i = 0;
         BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
         BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
-        BAssertUtil.validateError(result, i, "incompatible types: 'foo:Manager1' is not an abstract object", 38, 6);
+        BAssertUtil.validateError(result, i++,
+                                  "no implementation found for the function 'getBonus' of non-abstract object " +
+                                          "'Manager2'",
+                                  36, 5);
+        BAssertUtil.validateError(result, i++,
+                                  "no implementation found for the function 'getName' of non-abstract object " +
+                                          "'Manager2'",
+                                  36, 5);
+        BAssertUtil.validateError(result, i,
+                                  "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
+                                          "non-public fields or methods",
+                                  42, 6);
     }
 
     @AfterClass
     public void tearDown() {
         BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "foo");
+        BaloCreator.clearPackageFromRepository("test-src/balo/test_projects/test_project", "testorg", "utils");
     }
 }

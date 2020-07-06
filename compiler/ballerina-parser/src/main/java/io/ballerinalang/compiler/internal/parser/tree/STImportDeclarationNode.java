@@ -91,7 +91,44 @@ public class STImportDeclarationNode extends STNode {
                 diagnostics);
     }
 
+    public STImportDeclarationNode modify(
+            STNode importKeyword,
+            STNode orgName,
+            STNode moduleName,
+            STNode version,
+            STNode prefix,
+            STNode semicolon) {
+        if (checkForReferenceEquality(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon)) {
+            return this;
+        }
+
+        return new STImportDeclarationNode(
+                importKeyword,
+                orgName,
+                moduleName,
+                version,
+                prefix,
+                semicolon,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new ImportDeclarationNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

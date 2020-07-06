@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Test cases for inbound authentication with OAuth2.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  */
 @Test(groups = "auth-test")
 public class OAuth2ServiceTest extends AuthBaseTest {

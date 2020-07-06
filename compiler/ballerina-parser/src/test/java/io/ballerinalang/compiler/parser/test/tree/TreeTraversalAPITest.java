@@ -40,12 +40,12 @@ import java.util.List;
  */
 public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
-    @Test
+    @Test(enabled = false)
     public void testFindTokenFromPosition() {
         String sourceFilePath = "find_token_test_1.bal";
         String sourceText = getFileContentAsString(sourceFilePath);
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
-        ModulePartNode modulePart = syntaxTree.modulePart();
+        ModulePartNode modulePart = syntaxTree.rootNode();
 
         // Get the expected lexemes from the TextDocument itself
         // You will get text lines with normalized newline characters
@@ -64,7 +64,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test(enabled = false)
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.modulePart();
+        ModulePartNode modulePart = syntaxTree.rootNode();
         Token token = modulePart.findToken(115);
 
         Node parent = token.parent();
@@ -77,7 +77,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGetParentOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.modulePart();
+        ModulePartNode modulePart = syntaxTree.rootNode();
         Token funcToken = modulePart.findToken(50);
 
         Node funcDef = funcToken.parent();
@@ -88,7 +88,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     @Test
     public void testGenChildrenOfFunctionDef() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
-        ModulePartNode modulePart = syntaxTree.modulePart();
+        ModulePartNode modulePart = syntaxTree.rootNode();
         Token funcToken = modulePart.findToken(50);
         NonTerminalNode funcDef = funcToken.parent();
 

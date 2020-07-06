@@ -50,6 +50,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createFunctionDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode transactionalKeyword,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -58,6 +59,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STFunctionDefinitionNode(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -592,11 +594,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createSpecificFieldNode(
+            STNode readonlyKeyword,
             STNode fieldName,
             STNode colon,
             STNode valueExpr) {
 
         return new STSpecificFieldNode(
+                readonlyKeyword,
                 fieldName,
                 colon,
                 valueExpr);
@@ -704,6 +708,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createObjectFieldNode(
             STNode metadata,
             STNode visibilityQualifier,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -713,6 +718,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STObjectFieldNode(
                 metadata,
                 visibilityQualifier,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -722,6 +728,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode questionMarkToken,
@@ -729,6 +736,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STRecordFieldNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 questionMarkToken,
@@ -737,6 +745,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createRecordFieldWithDefaultValueNode(
             STNode metadata,
+            STNode readonlyKeyword,
             STNode typeName,
             STNode fieldName,
             STNode equalsToken,
@@ -745,6 +754,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STRecordFieldWithDefaultValueNode(
                 metadata,
+                readonlyKeyword,
                 typeName,
                 fieldName,
                 equalsToken,
@@ -914,6 +924,21 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode semicolonToken) {
 
         return new STXMLNamespaceDeclarationNode(
+                xmlnsKeyword,
+                namespaceuri,
+                asKeyword,
+                namespacePrefix,
+                semicolonToken);
+    }
+
+    public static STNode createModuleXMLNamespaceDeclarationNode(
+            STNode xmlnsKeyword,
+            STNode namespaceuri,
+            STNode asKeyword,
+            STNode namespacePrefix,
+            STNode semicolonToken) {
+
+        return new STModuleXMLNamespaceDeclarationNode(
                 xmlnsKeyword,
                 namespaceuri,
                 asKeyword,
@@ -1128,6 +1153,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 gtToken);
     }
 
+    public static STNode createTypedescTypeDescriptorNode(
+            STNode typedescKeywordToken,
+            STNode typedescTypeParamsNode) {
+
+        return new STTypedescTypeDescriptorNode(
+                typedescKeywordToken,
+                typedescTypeParamsNode);
+    }
+
     public static STNode createLetExpressionNode(
             STNode letKeyword,
             STNode letVarDeclarations,
@@ -1139,6 +1173,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 letVarDeclarations,
                 inKeyword,
                 expression);
+    }
+
+    public static STNode createXmlTypeDescriptorNode(
+            STNode xmlKeywordToken,
+            STNode xmlTypeParamsNode) {
+
+        return new STXmlTypeDescriptorNode(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
     }
 
     public static STNode createLetVariableDeclarationNode(
@@ -1434,25 +1477,23 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createQueryConstructTypeNode(
-            STNode tableKeyword,
+            STNode keyword,
             STNode keySpecifier) {
 
         return new STQueryConstructTypeNode(
-                tableKeyword,
+                keyword,
                 keySpecifier);
     }
 
     public static STNode createFromClauseNode(
             STNode fromKeyword,
-            STNode typeName,
-            STNode variableName,
+            STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression) {
 
         return new STFromClauseNode(
                 fromKeyword,
-                typeName,
-                variableName,
+                typedBindingPattern,
                 inKeyword,
                 expression);
     }
@@ -1496,12 +1537,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryExpressionNode(
             STNode queryConstructType,
             STNode queryPipeline,
-            STNode selectClause) {
+            STNode selectClause,
+            STNode onConflictClause,
+            STNode limitClause) {
 
         return new STQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     public static STNode createIntersectionTypeDescriptorNode(
@@ -1564,20 +1609,20 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 simpleContExprNode);
     }
 
-    public static STNode createFunctionDeclarationNode(
+    public static STNode createMethodDeclarationNode(
             STNode metadata,
             STNode visibilityQualifier,
             STNode functionKeyword,
-            STNode functionName,
-            STNode functionSignature,
+            STNode methodName,
+            STNode methodSignature,
             STNode semicolon) {
 
-        return new STFunctionDeclarationNode(
+        return new STMethodDeclarationNode(
                 metadata,
                 visibilityQualifier,
                 functionKeyword,
-                functionName,
-                functionSignature,
+                methodName,
+                methodSignature,
                 semicolon);
     }
 
@@ -1595,6 +1640,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STCaptureBindingPatternNode(
                 variableName);
+    }
+
+    public static STNode createWildcardBindingPatternNode(
+            STNode underscoreToken) {
+
+        return new STWildcardBindingPatternNode(
+                underscoreToken);
     }
 
     public static STNode createListBindingPatternNode(
@@ -1766,12 +1818,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createQueryActionNode(
             STNode queryPipeline,
             STNode doKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode limitClause) {
 
         return new STQueryActionNode(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     public static STNode createOptionalFieldAccessExpressionNode(
@@ -1914,6 +1968,188 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 content,
                 endBacktick);
+    }
+
+    public static STNode createXMLFilterExpressionNode(
+            STNode expression,
+            STNode xmlPatternChain) {
+
+        return new STXMLFilterExpressionNode(
+                expression,
+                xmlPatternChain);
+    }
+
+    public static STNode createXMLStepExpressionNode(
+            STNode expression,
+            STNode xmlStepStart) {
+
+        return new STXMLStepExpressionNode(
+                expression,
+                xmlStepStart);
+    }
+
+    public static STNode createXMLNamePatternChainingNode(
+            STNode startToken,
+            STNode xmlNamePattern,
+            STNode gtToken) {
+
+        return new STXMLNamePatternChainingNode(
+                startToken,
+                xmlNamePattern,
+                gtToken);
+    }
+
+    public static STNode createXMLAtomicNamePatternNode(
+            STNode prefix,
+            STNode colon,
+            STNode name) {
+
+        return new STXMLAtomicNamePatternNode(
+                prefix,
+                colon,
+                name);
+    }
+
+    public static STNode createTypeReferenceTypeDescNode(
+            STNode typeRef) {
+
+        return new STTypeReferenceTypeDescNode(
+                typeRef);
+    }
+
+    public static STNode createMatchStatementNode(
+            STNode matchKeyword,
+            STNode condition,
+            STNode openBrace,
+            STNode matchClauses,
+            STNode closeBrace) {
+
+        return new STMatchStatementNode(
+                matchKeyword,
+                condition,
+                openBrace,
+                matchClauses,
+                closeBrace);
+    }
+
+    public static STNode createMatchClauseNode(
+            STNode matchPatterns,
+            STNode matchGuard,
+            STNode rightDoubleArrow,
+            STNode blockStatement) {
+
+        return new STMatchClauseNode(
+                matchPatterns,
+                matchGuard,
+                rightDoubleArrow,
+                blockStatement);
+    }
+
+    public static STNode createMatchGuardNode(
+            STNode ifKeyword,
+            STNode expression) {
+
+        return new STMatchGuardNode(
+                ifKeyword,
+                expression);
+    }
+
+    public static STNode createObjectMethodDefinitionNode(
+            STNode metadata,
+            STNode visibilityQualifier,
+            STNode remoteKeyword,
+            STNode transactionalKeyword,
+            STNode functionKeyword,
+            STNode methodName,
+            STNode methodSignature,
+            STNode functionBody) {
+
+        return new STObjectMethodDefinitionNode(
+                metadata,
+                visibilityQualifier,
+                remoteKeyword,
+                transactionalKeyword,
+                functionKeyword,
+                methodName,
+                methodSignature,
+                functionBody);
+    }
+
+    public static STNode createDistinctTypeDescriptorNode(
+            STNode distinctKeyword,
+            STNode typeDescriptor) {
+
+        return new STDistinctTypeDescriptorNode(
+                distinctKeyword,
+                typeDescriptor);
+    }
+
+    public static STNode createOnConflictClauseNode(
+            STNode onKeyword,
+            STNode conflictKeyword,
+            STNode expression) {
+
+        return new STOnConflictClauseNode(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    public static STNode createLimitClauseNode(
+            STNode limitKeyword,
+            STNode expression) {
+
+        return new STLimitClauseNode(
+                limitKeyword,
+                expression);
+    }
+
+    public static STNode createJoinClauseNode(
+            STNode outerKeyword,
+            STNode joinKeyword,
+            STNode typedBindingPattern,
+            STNode inKeyword,
+            STNode expression) {
+
+        return new STJoinClauseNode(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression);
+    }
+
+    public static STNode createOnClauseNode(
+            STNode onKeyword,
+            STNode expression) {
+
+        return new STOnClauseNode(
+                onKeyword,
+                expression);
+    }
+
+    public static STNode createListMatchPatternNode(
+            STNode openBracket,
+            STNode matchPatterns,
+            STNode restMatchPattern,
+            STNode closeBracket) {
+
+        return new STListMatchPatternNode(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    public static STNode createRestMatchPatternNode(
+            STNode ellipsisToken,
+            STNode varKeywordToken,
+            STNode variableName) {
+
+        return new STRestMatchPatternNode(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
     }
 }
 

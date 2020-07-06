@@ -5,4 +5,5 @@ module io.ballerina.testerina.core {
     requires io.ballerina.tool;
     requires io.ballerina.openapi.generator;
     requires io.ballerina.testerina.runtime;
+    requires io.ballerina.jvm;
 }

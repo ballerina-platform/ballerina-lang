@@ -36,7 +36,9 @@ configurations {
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-runtime')
+    implementation project(':ballerina-parser')
     implementation project(':language-server:language-server-commons')
     implementation project(':language-server:language-server-compiler')
     implementation project(':openapi-ballerina:openapi-validator')
@@ -49,15 +51,12 @@ dependencies {
     implementation project(':ballerina-cache')
     implementation project(':ballerina-config-api')
     implementation project(':ballerina-crypto')
-
-    implementation project(':ballerina-encoding')
     implementation project(':ballerina-email')
     implementation project(':ballerina-file')
     implementation project(':ballerina-filepath')
     implementation project(':ballerina-grpc')
     implementation project(':ballerina-http')
     implementation project(':ballerina-io')
-    implementation project(':ballerina-jwt')
     implementation project(':ballerina-ldap')
     implementation project(':ballerina-log-api')
     implementation project(':ballerina-math')
@@ -74,7 +73,6 @@ dependencies {
     implementation project(':ballerina-transactions')
     implementation project(':ballerina-sql')
     implementation project(':ballerina-mysql')
-//    implementation project(':ballerina-websub')
     implementation project(':testerina:testerina-core')
     implementation project(':ballerina-tool')
 
@@ -89,31 +87,57 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'commons-io:commons-io'
-    implementation 'io.swagger:swagger-core'
+    implementation ('io.swagger:swagger-core')  {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.yaml', module: 'snakeyaml'
+        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-joda'
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'io.swagger', module: 'swagger-models'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'io.swagger:swagger-models'
-    implementation 'io.swagger:swagger-parser'
-    implementation 'io.swagger.core.v3:swagger-core'
-    implementation 'io.swagger.core.v3:swagger-models'
-    implementation 'io.swagger.parser.v3:swagger-parser'
+    implementation ('io.swagger:swagger-parser') {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.core.v3:swagger-core') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotation'
+    }
+    implementation ('io.swagger.core.v3:swagger-models') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser') {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-models'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-core'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-v3'
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'io.swagger.parser.v3:swagger-parser-core'
-    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
-    implementation 'io.swagger.parser.v3:swagger-parser-v3'
-    implementation 'com.github.jknack:handlebars'
+    implementation ('io.swagger.parser.v3:swagger-parser-v2-converter')  {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser-v3')  {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation 'com.github.jknack:handlebars:4.0.6'
+    implementation 'com.moandjiezana.toml:toml4j'
+    //implementation "javax.annotation:javax.annotation-api:1.3.2"
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-config-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-crypto', configuration: 'baloImplementation')
-    
-    baloImplementation project(path: ':ballerina-encoding', configuration: 'baloImplementation')
+
     baloImplementation project(path: ':ballerina-email', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-file', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-filepath', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-grpc', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-http', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-io', configuration: 'baloImplementation')
-    baloImplementation project(path: ':ballerina-jwt', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-ldap', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-log-api', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-math', configuration: 'baloImplementation')
@@ -133,7 +157,6 @@ dependencies {
     
     baloImplementation project(path: ':ballerina-sql', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-mysql', configuration: 'baloImplementation')
-//    baloImplementation project(path: ':ballerina-websub', configuration: 'baloImplementation')
     baloImplementation project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
 
     dependency 'com.h2database:h2:1.4.199'

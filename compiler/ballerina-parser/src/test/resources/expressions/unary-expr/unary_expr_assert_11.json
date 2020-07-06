@@ -1,30 +1,65 @@
 {
   "kind": "BINARY_EXPRESSION",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "UNARY_EXPRESSION",
       "children": [
         {
-          "kind": "NEGATION_TOKEN"
+          "kind": "NEGATION_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         },
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "3"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "3",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
-      "kind": "PLUS_TOKEN"
+      "kind": "PLUS_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "UNARY_EXPRESSION",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "PLUS_TOKEN"
         },
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "isMissing": true
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_IDENTIFIER"
+              ]
+            }
+          ]
         }
       ]
     }

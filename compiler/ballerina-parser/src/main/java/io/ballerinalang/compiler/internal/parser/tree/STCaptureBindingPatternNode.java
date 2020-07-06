@@ -56,7 +56,29 @@ public class STCaptureBindingPatternNode extends STBindingPatternNode {
                 diagnostics);
     }
 
+    public STCaptureBindingPatternNode modify(
+            STNode variableName) {
+        if (checkForReferenceEquality(
+                variableName)) {
+            return this;
+        }
+
+        return new STCaptureBindingPatternNode(
+                variableName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new CaptureBindingPatternNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

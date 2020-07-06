@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/email;
+import ballerina/runtime;
 
 email:ImapConfig imapConfig = {
      port: 3993,
@@ -38,29 +39,51 @@ string receivedError = "";
 service emailObserver on emailServer {
 
     resource function onMessage(email:Email emailMessage) {
-        onMessageInvoked = true;
         receivedMessage = <@untainted>emailMessage.subject;
+        onMessageInvoked = true;
+        error? res = emailServer.__stop();
     }
 
     resource function onError(email:Error emailError) {
+        receivedError = <@untainted>emailError.message();
         onErrorInvoked = true;
-        receivedError = <@untainted>emailError.detail().toString();
+        error? res = emailServer.__stop();
     }
 
 }
 
 function isOnMessageInvoked() returns boolean {
+    int i = 0;
+    while ((!onMessageInvoked) && (i < 10)) {
+    	 runtime:sleep(1000);
+    	 i += 1;
+    }
     return onMessageInvoked;
 }
 
 function isOnErrorInvoked() returns boolean {
+    int i = 0;
+    while ((!onErrorInvoked) && (i < 10)) {
+         runtime:sleep(1000);
+         i += 1;
+    }
     return onErrorInvoked;
 }
 
 function getReceivedMessage() returns string {
+    int i = 0;
+    while ((!onMessageInvoked) && (i < 10)) {
+         runtime:sleep(1000);
+         i += 1;
+    }
     return <@untainted>receivedMessage;
 }
 
 function getReceivedError() returns string {
+    int i = 0;
+    while ((!onErrorInvoked) && (i < 10)) {
+         runtime:sleep(1000);
+         i += 1;
+    }
     return <@untainted>receivedError;
 }

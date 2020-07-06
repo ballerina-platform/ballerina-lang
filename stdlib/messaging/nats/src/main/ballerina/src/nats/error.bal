@@ -14,20 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Holds the details of an error.
-#
-# + message - Specific error message of the error
-# + cause - Any other error, which causes this error
-public type Detail record {
-    string message;
-    error cause?;
-};
-
-# Represents the reason for the NATS module related errors.
-public const NATS_ERROR = "{ballerina/nats}Error";
-
 # Represents the NATS module related errors.
-public type Error error<NATS_ERROR, Detail>;
+public type NatsError distinct error;
+
+# The union of the NATS module related errors.
+public type Error NatsError;
 
 # Prepare the `error` as a `Error`.
 #
@@ -35,11 +26,11 @@ public type Error error<NATS_ERROR, Detail>;
 # + err - The `error` instance
 # + return - Prepared `nats:Error` instance
 function prepareError(string message, error? err = ()) returns Error {
-    Error natsError;
+    NatsError natsError;
     if (err is error) {
-        natsError = error(NATS_ERROR, message = message, cause = err);
+        natsError = NatsError(message, err);
     } else {
-        natsError = error(NATS_ERROR, message = message);
+        natsError = NatsError(message);
     }
     return natsError;
 }

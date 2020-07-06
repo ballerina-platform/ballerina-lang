@@ -15,8 +15,8 @@
 // under the License.
 
 type Foo object {
-    public function __init() {
-        self.__init();
+    public function init() {
+        self.init();
     }
 };
 

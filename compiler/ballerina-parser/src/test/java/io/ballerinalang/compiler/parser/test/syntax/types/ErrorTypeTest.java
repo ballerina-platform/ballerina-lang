@@ -24,7 +24,7 @@ import org.testng.annotations.Test;
  */
 public class ErrorTypeTest extends AbstractTypesTest {
 
-    //Valid source tests
+    // Valid source tests
     @Test
     public void testValidLocalLevelErrorType() {
         testTopLevelNode("error-type/error_type_assert_01.bal", "error-type/error_type_assert_01.json");
@@ -50,11 +50,7 @@ public class ErrorTypeTest extends AbstractTypesTest {
         testTopLevelNode("error-type/error_type_assert_03.bal", "error-type/error_type_assert_05.json");
     }
 
-    //Recovery tests
-    @Test
-    public void testInValidErrorTypeMissingErrorKeyword() {
-        test("<NO_MATCHING_OBJECT> a;", "error-type/error_type_assert_06.json");
-    }
+    // Recovery tests
 
     @Test
     public void testInValidErrorTypeMissingLtToken() {
@@ -78,6 +74,6 @@ public class ErrorTypeTest extends AbstractTypesTest {
 
     @Test
     public void testInValidErrorTypeExtraSymbol() {
-        test("error<NO_MATCHING_OBJECT%> a;", "error-type/error_type_assert_02.json");
+        test("error<NO_MATCHING_OBJECT%> a;", "error-type/error_type_assert_11.json");
     }
 }

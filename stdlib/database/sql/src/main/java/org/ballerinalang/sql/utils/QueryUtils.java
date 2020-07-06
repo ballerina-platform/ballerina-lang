@@ -18,6 +18,8 @@
 package org.ballerinalang.sql.utils;
 
 import org.ballerinalang.jvm.BallerinaValues;
+import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
 import org.ballerinalang.jvm.types.BPackage;
@@ -28,14 +30,15 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.util.Flags;
+import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
+import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TypedescValue;
-import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.datasource.SQLDatasource;
+import org.ballerinalang.sql.datasource.SQLDatasourceUtils;
 import org.ballerinalang.sql.exception.ApplicationError;
 
 import java.sql.Connection;
@@ -60,9 +63,10 @@ import java.util.Set;
  */
 public class QueryUtils {
 
-    public static StreamValue nativeQuery(ObjectValue client, MapValue<BString, Object> paramSQLString,
+    public static StreamValue nativeQuery(ObjectValue client, Object paramSQLString,
                                           Object recordType) {
         Object dbClient = client.getNativeData(Constants.DATABASE_CLIENT);
+        Strand strand = Scheduler.getStrand();
         if (dbClient != null) {
             SQLDatasource sqlDatasource = (SQLDatasource) dbClient;
             Connection connection = null;
@@ -70,10 +74,16 @@ public class QueryUtils {
             ResultSet resultSet = null;
             String sqlQuery = null;
             try {
-                sqlQuery = Utils.getSqlQuery(paramSQLString);
-                connection = sqlDatasource.getSQLConnection();
+                if (paramSQLString instanceof StringValue) {
+                    sqlQuery = ((StringValue) paramSQLString).getValue();
+                } else {
+                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                }
+                connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery);
-                Utils.setParams(connection, statement, paramSQLString);
+                if (paramSQLString instanceof AbstractObjectValue) {
+                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                }
                 resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
@@ -100,16 +110,16 @@ public class QueryUtils {
                 return new StreamValue(new BStreamType(streamConstraint), createRecordIterator(resultSet,
                         statement, connection, columnDefinitions, streamConstraint));
             } catch (SQLException e) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
                 return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
                 return getErrorStream(recordType, errorValue);
             } catch (Throwable e) {
-                Utils.closeResources(resultSet, statement, connection);
+                Utils.closeResources(strand, resultSet, statement, connection);
                 String message = e.getMessage();
                 if (message == null) {
                     message = e.getClass().getName();

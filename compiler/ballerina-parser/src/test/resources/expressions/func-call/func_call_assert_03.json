@@ -2,8 +2,13 @@
   "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -16,7 +21,12 @@
           "children": [
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "5"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "5"
+                }
+              ]
             }
           ]
         },
@@ -24,10 +34,21 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN"
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
-              "kind": "TRUE_KEYWORD"
+              "kind": "TRUE_KEYWORD",
+              "children": [
+                {
+                  "kind": "TRUE_KEYWORD"
+                }
+              ]
             }
           ]
         }

@@ -65,6 +65,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "Never",
+      "sortText": "230",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "null",
       "kind": "Unit",
       "detail": "Nil",
@@ -86,17 +94,6 @@
       "detail": "String",
       "sortText": "230",
       "insertText": "string",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "error",
-      "kind": "Event",
-      "detail": "Error",
-      "documentation": {
-        "left": "Default error type.\nThe first type parameter describe reason type which must be a subtype of string,\nand the second type parameter is for the error detail.\nThe error detail record type may contain an optional message, optional cause,\nand any other pure constrained mapping values."
-      },
-      "sortText": "200",
-      "insertText": "error",
       "insertTextFormat": "Snippet"
     },
     {
@@ -234,29 +231,6 @@
             }
           },
           "newText": "import ballerina/lang.'object;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "jwt",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/jwt;\n"
         }
       ]
     },
@@ -418,6 +392,29 @@
             }
           },
           "newText": "import ballerina/test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "'transaction",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.'transaction;\n"
         }
       ]
     },
@@ -671,29 +668,6 @@
             }
           },
           "newText": "import ballerina/oauth2;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/encoding",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "140",
-      "insertText": "encoding",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/encoding;\n"
         }
       ]
     },
@@ -1319,6 +1293,14 @@
       ]
     },
     {
+      "label": "error",
+      "kind": "Event",
+      "detail": "error",
+      "sortText": "200",
+      "insertText": "error",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "function signature",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -1347,7 +1329,7 @@
       "kind": "Snippet",
       "detail": "Snippet",
       "sortText": "240",
-      "insertText": "public function __init(${1:any arg}) {\n\t${2}\n}",
+      "insertText": "public function init(${1:any arg}) {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {

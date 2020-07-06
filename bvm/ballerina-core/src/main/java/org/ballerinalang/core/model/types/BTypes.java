@@ -47,6 +47,7 @@ public class BTypes {
     public static BType typeAnyService = new BServiceType(TypeConstants.SERVICE, null, 0);
     public static BType typePureType = new BUnionType(new ArrayList<>(Arrays.asList(typeAnydata, typeError)));
     public static BType typeHandle = new BHandleType("handle", null, null);
+    public static BType typeReadonly = new BReadonlyType();
 
     static {
         typeError.detailType = new BMapType(typePureType);

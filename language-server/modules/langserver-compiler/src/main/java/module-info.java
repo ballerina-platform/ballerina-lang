@@ -17,4 +17,5 @@ module io.ballerina.language.server.compiler {
     requires jsr305;
     requires gson;
     requires org.apache.commons.lang3;
+    requires io.ballerina.parser;
 }

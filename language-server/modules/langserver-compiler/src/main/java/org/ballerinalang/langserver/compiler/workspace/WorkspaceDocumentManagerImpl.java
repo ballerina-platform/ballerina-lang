@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.langserver.compiler.workspace;
 
+import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
+import io.ballerinalang.compiler.text.TextDocuments;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -230,6 +232,29 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void clearAllFilePaths() {
         documentList.clear();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SyntaxTree getTree(Path filePath) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath) && documentList.get(filePath) != null) {
+            return documentList.get(filePath).getDocument().map(WorkspaceDocument::getTree).orElse(null);
+        }
+        return SyntaxTree.from(TextDocuments.from(readFromFileSystem(filePath)));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setTree(Path filePath, SyntaxTree newTree) throws WorkspaceDocumentException {
+        if (isFileOpen(filePath)) {
+            documentList.get(filePath).getDocument().ifPresent(document -> document.setTree(newTree));
+        } else {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
     }
 
     private String readFromFileSystem(Path filePath) throws WorkspaceDocumentException {

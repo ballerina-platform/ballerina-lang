@@ -33,7 +33,7 @@ type Inner2Rec record {
 };
 
 type TestObject object {
-    public function __init(OuterRec arg) {
+    public function init(OuterRec arg) {
         
     }
 };

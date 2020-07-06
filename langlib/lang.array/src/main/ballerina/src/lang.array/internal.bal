@@ -21,7 +21,7 @@ type ArrayIterator object {
 
     private Type[] m;
 
-    public function __init(Type[] m) {
+    public function init(Type[] m) {
         self.m = m;
     }
 
@@ -32,7 +32,7 @@ type ArrayIterator object {
     }
 };
 
-function externNext(ArrayIterator iterator) record {| Type value; |}? = @java:Method {
+function externNext(ArrayIterator iterator) returns record {| Type value; |}? = @java:Method {
     class: "org.ballerinalang.langlib.array.Next",
     name: "next"
 } external;

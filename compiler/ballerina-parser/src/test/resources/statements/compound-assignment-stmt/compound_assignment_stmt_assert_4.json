@@ -1,9 +1,21 @@
 {
   "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
+  "hasDiagnostics": true,
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "a"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "a",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        }
+      ]
     },
     {
       "kind": "PLUS_TOKEN"
@@ -12,8 +24,18 @@
       "kind": "EQUAL_TOKEN"
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "isMissing": true
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_IDENTIFIER"
+          ]
+        }
+      ]
     },
     {
       "kind": "SEMICOLON_TOKEN"

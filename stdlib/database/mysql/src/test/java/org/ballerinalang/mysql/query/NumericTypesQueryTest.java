@@ -105,8 +105,7 @@ public class NumericTypesQueryTest {
     public void testQueryNumericInvalidColumnRecord() {
         BValue[] returnVal = BRunUtil.invokeFunction(result, "testQueryNumericInvalidColumnRecord");
         Assert.assertEquals(returnVal[0].getType().getTag(), TypeTags.ERROR);
-        String errMessage = ((BMap) ((BError) returnVal[0]).getDetails())
-                .get(SQLDBUtils.SQL_ERROR_MESSAGE).stringValue();
+        String errMessage = ((BError) returnVal[0]).getMessage();
         Assert.assertTrue(errMessage.contains("No mapping field found for SQL table column"),
                 "Found error message:" + errMessage);
     }

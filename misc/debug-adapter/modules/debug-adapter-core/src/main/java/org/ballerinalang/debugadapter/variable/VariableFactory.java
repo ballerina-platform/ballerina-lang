@@ -69,8 +69,11 @@ public class VariableFactory {
 
         Type valueType = value.type();
         String valueTypeName = valueType.name();
-        if (valueTypeName.equals(JVMValueType.LONG.getString())
-                || valueTypeName.equals(JVMValueType.J_LONG.getString())) {
+        if (valueTypeName.equals(JVMValueType.INT.getString())
+                || valueTypeName.equals(JVMValueType.J_INT.getString())
+                || valueTypeName.equals(JVMValueType.LONG.getString())
+                || valueTypeName.equals(JVMValueType.J_LONG.getString())
+        ) {
             return new BInt(value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.BOOLEAN.getString())
                 || valueTypeName.equals(JVMValueType.J_BOOLEAN.getString())) {
@@ -80,7 +83,9 @@ public class VariableFactory {
             return new BFloat(value, dapVariable);
         } else if (parentTypeName.equals(JVMValueType.DECIMAL.getString())) {
             return new BDecimal(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.J_STRING.getString())) {
+        } else if (parentTypeName.equals(JVMValueType.BMPSTRING.getString())
+                || parentTypeName.equals(JVMValueType.NONBMPSTRING.getString())
+                || parentTypeName.equals(JVMValueType.J_STRING.getString())) {
             return new BString(value, dapVariable);
         } else if (parentTypeName.equals(JVMValueType.OBJECT_TYPE.getString())) {
             return new BObjectType(value, dapVariable);

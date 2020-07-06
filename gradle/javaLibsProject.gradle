@@ -38,7 +38,7 @@ dependencies {
     dist 'org.wso2.carbon:org.wso2.carbon.core:5.1.0'
     dist 'org.wso2.securevault:org.wso2.securevault:1.0.0-wso2v2'
     dist 'org.wso2.transport.file:org.wso2.transport.local-file-system:6.0.55'
-    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.8'
+    dist 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.9'
     dist 'org.bouncycastle:bcprov-jdk15on:1.61'
     dist 'org.bouncycastle:bcpkix-jdk15on:1.61'
 
@@ -87,8 +87,6 @@ dependencies {
     dist 'io.netty:netty-transport-native-kqueue:4.1.39.Final'
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.22'
     dist 'org.apache.ws.commons.axiom:axiom-impl:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-c14n:1.2.22'
-    dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-codec:commons-codec:1.9'
 //    dist 'org.codehaus.woodstox:woodstox-core-asl:4.2.0'
 //    dist 'org.codehaus.woodstox:stax2-api:3.1.1'
@@ -98,23 +96,22 @@ dependencies {
     dist project(':ballerina-config-api')
     dist project(':ballerina-core')
     dist project(':ballerina-crypto')
+    dist project(':ballerina-cache')
     dist project(':ballerina-email')
     dist project(':ballerina-file')
     dist project(':ballerina-filepath')
     dist project(':ballerina-grpc')
     dist project(':ballerina-sql')
-    dist project(':ballerina-jdbc2')
+    dist project(':ballerina-jdbc')
     dist project(':ballerina-mysql')
     dist project(':ballerina-http')
     dist project(':ballerina-openapi')
-    dist project(':ballerina-encoding')
     dist project(':ballerina-io')
     dist project(':ballerina-lang')
     dist project(':ballerina-log-api')
     dist project(':ballerina-logging')
     dist project(':ballerina-math')
     dist project(':ballerina-mime')
-    dist project(':ballerina-websub')
     dist project(':ballerina-observability')
     dist project(':ballerina-reflect')
     dist project(':ballerina-runtime-api')
@@ -132,7 +129,6 @@ dependencies {
     dist project(':ballerina-nats')
     dist project(':ballerina-rabbitmq')
     dist project(':ballerina-stringutils')
-    dist project(':ballerina-jwt')
     dist project(':ballerina-ldap')
     dist project(':ballerina-oauth2')
     dist project(':ballerina-xmlutils')
@@ -159,5 +155,6 @@ dependencies {
     dist project(':ballerina-lang:xml')
     dist project(':ballerina-lang:bool')
     dist project(':ballerina-lang:query')
+    dist project(':ballerina-lang:transaction')
 
 }

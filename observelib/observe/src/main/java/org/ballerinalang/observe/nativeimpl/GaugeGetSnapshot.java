@@ -22,10 +22,6 @@ import org.ballerinalang.jvm.observability.metrics.Snapshot;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
  * This is the getSnapshot extern function implementation of the Gauge object.
@@ -33,15 +29,6 @@ import org.ballerinalang.natives.annotations.ReturnType;
  * @since 0.980.0
  */
 
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "observe", version = "0.8.0",
-        functionName = "getSnapshot",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = ObserveNativeImplConstants.GAUGE,
-                structPackage = ObserveNativeImplConstants.OBSERVE_PACKAGE_PATH),
-        isPublic = true,
-        returnType = @ReturnType(type = TypeKind.ARRAY)
-)
 public class GaugeGetSnapshot {
 
     public static Object getSnapshot(Strand strand, ObjectValue guageObj) {

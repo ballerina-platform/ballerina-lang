@@ -46,10 +46,16 @@ public abstract class STAbstractNodeFactory {
     }
 
     public static STNode createNodeList(Collection<STNode> children) {
+        if (children.isEmpty()) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
     public static STNode createNodeList(STNode... children) {
+        if (children.length == 0) {
+            return EMPTY_LIST;
+        }
         return new STNodeList(children);
     }
 
@@ -71,8 +77,19 @@ public abstract class STAbstractNodeFactory {
         return new STMissingToken(kind, diagnostics);
     }
 
+    public static STToken createInvalidToken(String tokenText) {
+        return new STInvalidToken(tokenText);
+    }
+
     public static STToken createToken(SyntaxKind kind, STNode leadingTrivia, STNode trailingTrivia) {
         return new STToken(kind, leadingTrivia, trailingTrivia);
+    }
+
+    public static STToken createToken(SyntaxKind kind,
+                                      STNode leadingTrivia,
+                                      STNode trailingTrivia,
+                                      Collection<STNodeDiagnostic> diagnostics) {
+        return new STToken(kind, kind.stringValue().length(), leadingTrivia, trailingTrivia, diagnostics);
     }
 
     public static STToken createLiteralValueToken(SyntaxKind kind,
@@ -106,6 +123,10 @@ public abstract class STAbstractNodeFactory {
      */
     public static STNode createMinutiae(SyntaxKind kind, String text, int width) {
         return new STMinutiae(kind, text, width);
+    }
+
+    public static STNode createInvalidNodeMinutiae(STNode invalidNode) {
+        return new STInvalidNodeMinutiae(invalidNode);
     }
 
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {

@@ -1,5 +1,6 @@
 {
   "kind": "LOCAL_VAR_DECL",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,20 +8,47 @@
     },
     {
       "kind": "TYPED_BINDING_PATTERN",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "QUALIFIED_NAME_REFERENCE",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
               "value": "pkg"
             },
             {
-              "kind": "COLON_TOKEN"
+              "kind": "COLON_TOKEN",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN",
+                "ERROR_INVALID_TOKEN"
+              ],
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "COLON_TOKEN"
+                  }
+                },
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "COLON_TOKEN"
+                  }
+                }
+              ]
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "Person"
+              "value": "Person",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             }
           ]
         },

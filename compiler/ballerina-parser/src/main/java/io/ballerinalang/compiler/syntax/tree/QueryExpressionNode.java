@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,8 +33,8 @@ public class QueryExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public QueryConstructTypeNode queryConstructType() {
-        return childInBucket(0);
+    public Optional<QueryConstructTypeNode> queryConstructType() {
+        return optionalChildInBucket(0);
     }
 
     public QueryPipelineNode queryPipeline() {
@@ -42,6 +43,14 @@ public class QueryExpressionNode extends ExpressionNode {
 
     public SelectClauseNode selectClause() {
         return childInBucket(2);
+    }
+
+    public Optional<OnConflictClauseNode> onConflictClause() {
+        return optionalChildInBucket(3);
+    }
+
+    public Optional<LimitClauseNode> limitClause() {
+        return optionalChildInBucket(4);
     }
 
     @Override
@@ -59,24 +68,32 @@ public class QueryExpressionNode extends ExpressionNode {
         return new String[]{
                 "queryConstructType",
                 "queryPipeline",
-                "selectClause"};
+                "selectClause",
+                "onConflictClause",
+                "limitClause"};
     }
 
     public QueryExpressionNode modify(
             QueryConstructTypeNode queryConstructType,
             QueryPipelineNode queryPipeline,
-            SelectClauseNode selectClause) {
+            SelectClauseNode selectClause,
+            OnConflictClauseNode onConflictClause,
+            LimitClauseNode limitClause) {
         if (checkForReferenceEquality(
                 queryConstructType,
                 queryPipeline,
-                selectClause)) {
+                selectClause,
+                onConflictClause,
+                limitClause)) {
             return this;
         }
 
         return NodeFactory.createQueryExpressionNode(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     public QueryExpressionNodeModifier modify() {
@@ -93,12 +110,16 @@ public class QueryExpressionNode extends ExpressionNode {
         private QueryConstructTypeNode queryConstructType;
         private QueryPipelineNode queryPipeline;
         private SelectClauseNode selectClause;
+        private OnConflictClauseNode onConflictClause;
+        private LimitClauseNode limitClause;
 
         public QueryExpressionNodeModifier(QueryExpressionNode oldNode) {
             this.oldNode = oldNode;
-            this.queryConstructType = oldNode.queryConstructType();
+            this.queryConstructType = oldNode.queryConstructType().orElse(null);
             this.queryPipeline = oldNode.queryPipeline();
             this.selectClause = oldNode.selectClause();
+            this.onConflictClause = oldNode.onConflictClause().orElse(null);
+            this.limitClause = oldNode.limitClause().orElse(null);
         }
 
         public QueryExpressionNodeModifier withQueryConstructType(
@@ -122,11 +143,27 @@ public class QueryExpressionNode extends ExpressionNode {
             return this;
         }
 
+        public QueryExpressionNodeModifier withOnConflictClause(
+                OnConflictClauseNode onConflictClause) {
+            Objects.requireNonNull(onConflictClause, "onConflictClause must not be null");
+            this.onConflictClause = onConflictClause;
+            return this;
+        }
+
+        public QueryExpressionNodeModifier withLimitClause(
+                LimitClauseNode limitClause) {
+            Objects.requireNonNull(limitClause, "limitClause must not be null");
+            this.limitClause = limitClause;
+            return this;
+        }
+
         public QueryExpressionNode apply() {
             return oldNode.modify(
                     queryConstructType,
                     queryPipeline,
-                    selectClause);
+                    selectClause,
+                    onConflictClause,
+                    limitClause);
         }
     }
 }

@@ -310,7 +310,7 @@ type Animal object {
     public string kind = "";
     public string name = "";
 
-    function __init(string name, string kind) {
+    function init(string name, string kind) {
         self.name = name;
         self.kind = kind;
     }
@@ -480,10 +480,10 @@ public type CustomDetail record {
 };
 
 const FOO_REASON = "FooError";
-type FooError error<FOO_REASON, CustomDetail>;
+type FooError distinct error<CustomDetail>;
 
 const BAR_REASON = "BarError";
-type BarError error<BAR_REASON, CustomDetail>;
+type BarError error<CustomDetail>;
 
 type Error FooError|BarError;
 

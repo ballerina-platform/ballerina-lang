@@ -70,7 +70,35 @@ public class STTableTypeDescriptorNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTableTypeDescriptorNode modify(
+            STNode tableKeywordToken,
+            STNode rowTypeParameterNode,
+            STNode keyConstraintNode) {
+        if (checkForReferenceEquality(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode)) {
+            return this;
+        }
+
+        return new STTableTypeDescriptorNode(
+                tableKeywordToken,
+                rowTypeParameterNode,
+                keyConstraintNode,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TableTypeDescriptorNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

@@ -63,20 +63,17 @@ type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectToke
 #     }
 # });
 # ```
-#
-# + oauth2ProviderConfig - Outbound OAuth2 provider configurations
-# + oauth2CacheEntry - Outbound OAuth2 cache entry
 public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public GrantTypeConfig? oauth2ProviderConfig;
-    public OutboundOAuth2CacheEntry oauth2CacheEntry;
+    GrantTypeConfig? oauth2ProviderConfig;
+    OutboundOAuth2CacheEntry oauth2CacheEntry;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
     # + oauth2ProviderConfig - Outbound OAuth2 provider configurations
-    public function __init(GrantTypeConfig? oauth2ProviderConfig = ()) {
+    public function init(GrantTypeConfig? oauth2ProviderConfig = ()) {
         self.oauth2ProviderConfig = oauth2ProviderConfig;
         self.oauth2CacheEntry = {
             accessToken: "",

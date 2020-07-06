@@ -2,8 +2,13 @@
   "kind": "FUNCTION_CALL",
   "children": [
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "foo"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN"
@@ -15,15 +20,37 @@
           "kind": "NAMED_ARG",
           "children": [
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "age"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "age",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                }
+              ]
             },
             {
-              "kind": "EQUAL_TOKEN"
+              "kind": "EQUAL_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
             },
             {
               "kind": "DECIMAL_INTEGER_LITERAL",
-              "value": "18"
+              "children": [
+                {
+                  "kind": "DECIMAL_INTEGER_LITERAL",
+                  "value": "18"
+                }
+              ]
             }
           ]
         }

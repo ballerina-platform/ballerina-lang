@@ -1,28 +1,31 @@
 {
-  "kind": "TYPE_CAST_EXPRESSION",
+  "kind": "BINARY_EXPRESSION",
   "children": [
     {
-      "kind": "LT_TOKEN",
-      "isMissing": true
-    },
-    {
-      "kind": "TYPE_CAST_PARAM",
+      "kind": "INT_TYPE_DESC",
       "children": [
         {
-            "kind": "LIST",
-            "children": []
-        },
-          {
           "kind": "INT_KEYWORD"
         }
       ]
     },
     {
-      "kind": "GT_TOKEN"
+      "kind": "GT_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "b"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "b"
+        }
+      ]
     }
   ]
 }

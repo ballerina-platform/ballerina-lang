@@ -2,11 +2,22 @@
   "kind": "EXPLICIT_NEW_EXPRESSION",
   "children": [
     {
-      "kind": "NEW_KEYWORD"
+      "kind": "NEW_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo"
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
+        {
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo"
+        }
+      ]
     },
     {
       "kind": "PARENTHESIZED_ARG_LIST",
@@ -22,7 +33,12 @@
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "10"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "10"
+                    }
+                  ]
                 }
               ]
             }

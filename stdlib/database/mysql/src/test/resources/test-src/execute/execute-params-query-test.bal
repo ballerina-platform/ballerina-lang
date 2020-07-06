@@ -24,36 +24,45 @@ string password = "test123";
 string database = "TEST_SQL_PARAMS_EXECUTE";
 int port = 3305;
 
-function insertIntoDataTable() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
-                "float_type, double_type, boolean_type, string_type, decimal_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", " ,", ")" ],
-                insertions: [4, 1, 9223372036854774807, 123.34, 2139095039, true, "Hello", 23.45]
-    };
+function insertIntoDataTable() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 4;
+    int intType = 1;
+    int longType = 9223372036854774807;
+    float floatType = 123.34;
+    int doubleType = 2139095039;
+    boolean boolType = true;
+    string stringType = "Hello";
+    decimal decimalType = 23.45;
+
+    sql:ParameterizedQuery sqlQuery =
+      `INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type)
+        VALUES(${rowId}, ${intType}, ${longType}, ${floatType}, ${doubleType}, ${boolType}, ${stringType}, ${decimalType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDataTable2() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO DataTable (row_id) " +
-                "VALUES(", ")"],
-                insertions: [5]
-    };
+function insertIntoDataTable2() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 5;
+    sql:ParameterizedQuery sqlQuery = `INSERT INTO DataTable (row_id) VALUES(${rowId})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDataTable3() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
-                "float_type, double_type, boolean_type, string_type, decimal_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", " ,", ")" ],
-                insertions: [6, 1, 9372036854774807, 124.34, 29095039, false, "1", 25.45]
-    };
+function insertIntoDataTable3() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 6;
+    int intType = 1;
+    int longType = 9223372036854774807;
+    float floatType = 123.34;
+    int doubleType = 2139095039;
+    boolean boolType = false;
+    string stringType = "1";
+    decimal decimalType = 23.45;
+
+    sql:ParameterizedQuery sqlQuery =
+      `INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type)
+        VALUES(${rowId}, ${intType}, ${longType}, ${floatType}, ${doubleType}, ${boolType}, ${stringType}, ${decimalType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDataTable4() returns sql:ExecuteResult|sql:Error? {
+function insertIntoDataTable4() returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue rowId = new (7);
     sql:IntegerValue intType = new (2);
     sql:BigIntValue longType = new (9372036854774807);
@@ -64,34 +73,36 @@ function insertIntoDataTable4() returns sql:ExecuteResult|sql:Error? {
     decimal decimalVal = 25.45;
     sql:DecimalValue decimalType = new (decimalVal);
 
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO DataTable (row_id, int_type, long_type, " +
-                "float_type, double_type, boolean_type, string_type, decimal_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", " ,", ")" ],
-                insertions: [rowId, intType, longType, floatType, doubleType, boolType, stringType, decimalType]
-    };
+    sql:ParameterizedQuery sqlQuery =
+      `INSERT INTO DataTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type, decimal_type)
+        VALUES(${rowId}, ${intType}, ${longType}, ${floatType}, ${doubleType}, ${boolType}, ${stringType}, ${decimalType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function deleteDataTable1() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["DELETE FROM DataTable where row_id=" , "AND int_type=", " AND long_type=",
-                "AND double_type=", "AND boolean_type=", "AND string_type=", "AND decimal_type=",
-                 ""],
-                insertions: [1, 1, 9223372036854774807, 2139095039, true, "Hello", 23.45]
-    };
+function deleteDataTable1() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 1;
+    int intType = 1;
+    int longType = 9223372036854774807;
+    float floatType = 123.34;
+    int doubleType = 2139095039;
+    boolean boolType = true;
+    string stringType = "Hello";
+    decimal decimalType = 23.45;
+
+    sql:ParameterizedQuery sqlQuery =
+            `DELETE FROM DataTable where row_id=${rowId} AND int_type=${intType} AND long_type=${longType}
+              AND double_type=${doubleType} AND boolean_type=${boolType}
+              AND string_type=${stringType} AND decimal_type=${decimalType}`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function deleteDataTable2() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["DELETE FROM DataTable where row_id=", ""],
-                insertions: [2]
-    };
+function deleteDataTable2() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 2;
+    sql:ParameterizedQuery sqlQuery = `DELETE FROM DataTable where row_id = ${rowId}`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function deleteDataTable3() returns sql:ExecuteResult|sql:Error? {
+function deleteDataTable3() returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue rowId = new (3);
     sql:IntegerValue intType = new (1);
     sql:BigIntValue longType = new (9372036854774807);
@@ -102,27 +113,25 @@ function deleteDataTable3() returns sql:ExecuteResult|sql:Error? {
     decimal decimalVal = 25.45;
     sql:DecimalValue decimalType = new (decimalVal);
 
-    sql:ParameterizedString sqlQuery = {
-        parts: ["DELETE FROM DataTable where row_id=" , "AND int_type=", " AND long_type=", " AND double_type=",
-                " AND boolean_type=", " AND string_type=",  " AND decimal_type=", ""],
-        insertions: [rowId, intType, longType, doubleType, boolType, stringType, decimalType]
-    };
+    sql:ParameterizedQuery sqlQuery =
+            `DELETE FROM DataTable where row_id=${rowId} AND int_type=${intType} AND long_type=${longType}
+              AND double_type=${doubleType} AND boolean_type=${boolType}
+              AND string_type=${stringType} AND decimal_type=${decimalType}`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoComplexTable() returns sql:ExecuteResult|sql:Error? {
+function insertIntoComplexTable() returns sql:ExecutionResult|sql:Error? {
     record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "blob_type");
-    
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) " + 
-                "VALUES (", ", ", " , ", ", ", ", ", ")" ],
-                insertions: [5, binaryData, "very long text",binaryData, binaryData]
-    };
+    int rowId = 5;
+    string stringType = "very long text";
+    sql:ParameterizedQuery sqlQuery =
+        `INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) VALUES (
+        ${rowId}, ${binaryData}, ${stringType}, ${binaryData}, ${binaryData})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoComplexTable2() returns sql:ExecuteResult|error? {
+function insertIntoComplexTable2() returns sql:ExecutionResult|error? {
     io:ReadableByteChannel blobChannel = check getBlobColumnChannel();
     io:ReadableCharacterChannel clobChannel = check getClobColumnChannel();
     io:ReadableByteChannel byteChannel = check getByteColumnChannel();
@@ -130,70 +139,72 @@ function insertIntoComplexTable2() returns sql:ExecuteResult|error? {
     sql:BlobValue blobType = new (blobChannel);
     sql:TextValue textType = new (clobChannel);
     sql:BlobValue binaryType = new (byteChannel);
+    int rowId = 6;
 
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) " +
-                "VALUES (", ", ", " , ", ", ", ", ", ")" ],
-                insertions: [6, blobType, textType, binaryType, binaryType]
-    };
+    sql:ParameterizedQuery sqlQuery =
+        `INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) VALUES (
+        ${rowId}, ${blobType}, ${textType}, ${binaryType}, ${binaryType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoComplexTable3() returns sql:ExecuteResult|sql:Error|error? {
-    sql:ParameterizedString sqlQuery = {
-                parts: ["INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) " +
-                "VALUES (", ", " , ", " , " ," , ", ", ")" ],
-                insertions: [7, (), (), (), ()]
-    };
+function insertIntoComplexTable3() returns sql:ExecutionResult|sql:Error|error? {
+    int rowId = 7;
+    var nilType = ();
+    sql:ParameterizedQuery sqlQuery =
+            `INSERT INTO ComplexTypes (row_id, blob_type, text_type, binary_type, var_binary_type) VALUES (
+            ${rowId}, ${nilType}, ${nilType}, ${nilType}, ${nilType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function deleteComplexTable() returns sql:ExecuteResult|sql:Error? {
+function deleteComplexTable() returns sql:ExecutionResult|sql:Error? {
     record {}|error? value = queryMysqlClient("Select * from ComplexTypes where row_id = 1");
     byte[] binaryData = <byte[]>getUntaintedData(value, "blob_type");
 
-    sql:ParameterizedString sqlQuery = {
-                parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , ""],
-                insertions: [2, binaryData]
-    };
+    int rowId = 2;
+    sql:ParameterizedQuery sqlQuery =
+            `DELETE FROM ComplexTypes where row_id = ${rowId} AND blob_type= ${binaryData}`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function deleteComplexTable2() returns sql:ExecuteResult|sql:Error|error? {
+function deleteComplexTable2() returns sql:ExecutionResult|sql:Error|error? {
     sql:BlobValue blobType = new ();
     sql:TextValue textType = new ();
     sql:BinaryValue binaryType = new ();
     sql:VarBinaryValue varBinaryType = new ();
 
-    sql:ParameterizedString sqlQuery = {
-       parts: ["DELETE FROM ComplexTypes where row_id = " , " AND blob_type= " , " AND text_type=", ""],
-       insertions: [3, blobType, textType]
-    };
+    int rowId = 4;
+    sql:ParameterizedQuery sqlQuery =
+            `DELETE FROM ComplexTypes where row_id = ${rowId} AND blob_type= ${blobType} AND text_type=${textType}`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoNumericTable() returns sql:ExecuteResult|sql:Error? {
+function insertIntoNumericTable() returns sql:ExecutionResult|sql:Error? {
     sql:BitValue bitType = new (1);
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
-                " decimal_type, numeric_type, float_type, real_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
-        insertions: [3, 2147483647, 9223372036854774807, 32767, 127, bitType, 1234.567, 1234.567, 1234.567, 1234.567]
-    };
+    int rowId = 3;
+    int intType = 2147483647;
+    int bigIntType = 9223372036854774807;
+    int smallIntType = 32767;
+    int tinyIntType = 127;
+    decimal decimalType = 1234.567;
+
+    sql:ParameterizedQuery sqlQuery =
+        `INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type,
+        numeric_type, float_type, real_type) VALUES(${rowId},${intType},${bigIntType},${smallIntType},${tinyIntType},
+        ${bitType},${decimalType},${decimalType},${decimalType},${decimalType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoNumericTable2() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
-                " decimal_type, numeric_type, float_type, real_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
-        insertions: [4, (), (), (), (), (), (), (), (), ()]
-    };
+function insertIntoNumericTable2() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 4;
+    var nilType = ();
+    sql:ParameterizedQuery sqlQuery =
+            `INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type,
+            numeric_type, float_type, real_type) VALUES(${rowId},${nilType},${nilType},${nilType},${nilType},
+            ${nilType},${nilType},${nilType},${nilType},${nilType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoNumericTable3() returns sql:ExecuteResult|sql:Error? {
+function insertIntoNumericTable3() returns sql:ExecutionResult|sql:Error? {
     sql:IntegerValue id = new (5);
     sql:IntegerValue intType = new (2147483647);
     sql:BigIntValue bigIntType = new (9223372036854774807);
@@ -206,64 +217,69 @@ function insertIntoNumericTable3() returns sql:ExecuteResult|sql:Error? {
     sql:FloatValue floatType = new (1234.567);
     sql:RealValue realType = new (1234.567);
 
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type," +
-                " decimal_type, numeric_type, float_type, real_type) " +
-                "VALUES(", ", ", ", ", ", ", " ,", " , ", ", ", ", ", ", ", ",", ")"],
-        insertions: [id, intType, bigIntType, smallIntType, tinyIntType, bitType, decimalType,
-                    numbericType, floatType, realType]
-    };
+    sql:ParameterizedQuery sqlQuery =
+        `INSERT INTO NumericTypes (id, int_type, bigint_type, smallint_type, tinyint_type, bit_type, decimal_type,
+        numeric_type, float_type, real_type) VALUES(${id},${intType},${bigIntType},${smallIntType},${tinyIntType},
+        ${bitType},${decimalType},${numbericType},${floatType},${realType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDateTimeTable() returns sql:ExecuteResult|sql:Error? {
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
-                " VALUES(", ", ", ", ", ", ", " ,", ")"],
-        insertions: [2,"2017-02-03", "11:35:45", "2017-02-03 11:53:00", "2017-02-03 11:53:00"]
-    };
+function insertIntoDateTimeTable() returns sql:ExecutionResult|sql:Error? {
+    int rowId = 2;
+    string dateType = "2017-02-03";
+    string timeType = "11:35:45";
+    string dateTimeType = "2017-02-03 11:53:00";
+    string timeStampType = "2017-02-03 11:53:00";
+    string timeType2 = "20:08:08-8:00";
+    string timeStampType2 = "2008-08-08 20:08:08+8:00";
+
+    sql:ParameterizedQuery sqlQuery =
+        `INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)
+        VALUES(${rowId}, ${dateType}, ${timeType}, ${dateTimeType}, ${timeStampType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDateTimeTable2() returns sql:ExecuteResult|error? {
+function insertIntoDateTimeTable2() returns sql:ExecutionResult|error? {
     sql:DateValue dateVal = new ("2017-02-03");
     sql:TimeValue timeVal = new ("11:35:45");
     sql:DateTimeValue dateTimeVal = new ("2017-02-03 11:53:00");
     sql:TimestampValue timestampVal = new ("2017-02-03 11:53:00");
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
-                " VALUES(", ", ", ", ", ", ", " ,", ")"],
-        insertions: [3, dateVal, timeVal, dateTimeVal, timestampVal]
-    };
+    int rowId = 3;
+
+    sql:ParameterizedQuery sqlQuery =
+            `INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)
+            VALUES(${rowId}, ${dateVal}, ${timeVal}, ${dateTimeVal}, ${timestampVal})`;
+
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDateTimeTable3() returns sql:ExecuteResult|error? {
+function insertIntoDateTimeTable3() returns sql:ExecutionResult|error? {
     sql:DateValue dateVal = new ();
     sql:TimeValue timeVal = new ();
     sql:DateTimeValue dateTimeVal = new ();
     sql:TimestampValue timestampVal = new ();
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
-                "VALUES(", ", ", ", ", ", ", " ,", ")"],
-        insertions: [4, dateVal, timeVal, dateTimeVal, timestampVal]
-    };
+    int rowId = 4;
+
+    sql:ParameterizedQuery sqlQuery =
+                `INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)
+                VALUES(${rowId}, ${dateVal}, ${timeVal}, ${dateTimeVal}, ${timestampVal})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function insertIntoDateTimeTable4() returns sql:ExecuteResult|error? {
-    sql:ParameterizedString sqlQuery = {
-        parts: ["INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)" +
-                " VALUES(", ", ", ", ", ", ", " ,", ")"],
-        insertions: [5, (), (), (), ()]
-    };
+function insertIntoDateTimeTable4() returns sql:ExecutionResult|error? {
+    int rowId = 5;
+    var nilType = ();
+
+    sql:ParameterizedQuery sqlQuery =
+            `INSERT INTO DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type)
+            VALUES(${rowId}, ${nilType}, ${nilType}, ${nilType}, ${nilType})`;
     return executeQueryMysqlClient(sqlQuery);
 }
 
-function executeQueryMysqlClient(sql:ParameterizedString sqlQuery)
-returns sql:ExecuteResult|sql:Error? {
+function executeQueryMysqlClient(sql:ParameterizedQuery sqlQuery)
+returns sql:ExecutionResult|sql:Error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
-    sql:ExecuteResult? result = check dbClient->execute(sqlQuery);
+    sql:ExecutionResult? result = check dbClient->execute(sqlQuery);
     check dbClient.close();
     return result;
 }
@@ -291,7 +307,7 @@ function getClobColumnChannel() returns @untainted io:ReadableCharacterChannel|e
     return sourceChannel;
 }
 
-function queryMysqlClient(@untainted string|sql:ParameterizedString sqlQuery)
+function queryMysqlClient(@untainted string|sql:ParameterizedQuery sqlQuery)
 returns @tainted record {}|error? {
     mysql:Client dbClient = check new (host, user, password, database, port);
     stream<record{}, error> streamData = dbClient->query(sqlQuery);

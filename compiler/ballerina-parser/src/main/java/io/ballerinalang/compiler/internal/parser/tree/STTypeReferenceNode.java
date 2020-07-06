@@ -70,7 +70,35 @@ public class STTypeReferenceNode extends STTypeDescriptorNode {
                 diagnostics);
     }
 
+    public STTypeReferenceNode modify(
+            STNode asteriskToken,
+            STNode typeName,
+            STNode semicolonToken) {
+        if (checkForReferenceEquality(
+                asteriskToken,
+                typeName,
+                semicolonToken)) {
+            return this;
+        }
+
+        return new STTypeReferenceNode(
+                asteriskToken,
+                typeName,
+                semicolonToken,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new TypeReferenceNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

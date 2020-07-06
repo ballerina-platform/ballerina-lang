@@ -56,7 +56,29 @@ public class STXMLTextNode extends STXMLItemNode {
                 diagnostics);
     }
 
+    public STXMLTextNode modify(
+            STNode content) {
+        if (checkForReferenceEquality(
+                content)) {
+            return this;
+        }
+
+        return new STXMLTextNode(
+                content,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new XMLTextNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

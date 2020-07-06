@@ -97,7 +97,7 @@ public type BarRecordNine record {|
 public type FooObjectNine object {
     public string fooFieldOne;
 
-    public function __init(string fooFieldOne) {
+    public function init(string fooFieldOne) {
         self.fooFieldOne = fooFieldOne;
     }
 
@@ -109,7 +109,7 @@ public type FooObjectNine object {
 public type BarObjectNine object {
     public int barFieldOne;
 
-    public function __init(int barFieldOne) {
+    public function init(int barFieldOne) {
         self.barFieldOne = barFieldOne;
     }
 

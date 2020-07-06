@@ -22,8 +22,6 @@ import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
-import java.util.UUID;
-
 /**
  * Constants for SQL client.
  *
@@ -31,17 +29,17 @@ import java.util.UUID;
  */
 public final class Constants {
 
-    public static final String CONNECTOR_NAME = "ClientConnector";
+    public static final String CONNECTOR_NAME = "SQLClientConnector";
     public static final BPackage SQL_PACKAGE_ID = new BPackage("ballerina", "sql", "0.5.0");
     public static final String DATABASE_CLIENT = "Client";
-    public static final String CONNECTOR_ID_KEY = UUID.randomUUID().toString();
+    public static final String SQL_CONNECTOR_TRANSACTION_ID = "sql-transaction-id";
 
-    public static final String DATABASE_ERROR_DATA = "DatabaseErrorData";
-    public static final String DATABASE_ERROR_CODE = "{ballerina/sql}DatabaseError";
-
-    public static final String APPLICATION_ERROR_DATA = "ApplicationErrorData";
-    public static final String APPLICATION_ERROR_CODE = "{ballerina/sql}ApplicationError";
-
+    public static final String BATCH_EXECUTE_ERROR_DETAIL = "BatchExecuteErrorDetail";
+    public static final String BATCH_EXECUTE_ERROR = "BatchExecuteError";
+    public static final String BATCH_EXECUTE_ERROR_MESSAGE = "Error occurred when batch executing commands.";
+    public static final String DATABASE_ERROR_DETAILS = "DatabaseErrorDetail";
+    public static final String DATABASE_ERROR = "DatabaseError";
+    public static final String APPLICATION_ERROR = "ApplicationError";
     public static final String DATABASE_ERROR_MESSAGE = "Database Error Occurred";
 
     public static final String RESULT_ITERATOR_OBJECT = "ResultIterator";
@@ -53,12 +51,15 @@ public final class Constants {
 
     public static final BString TIMEZONE_UTC = StringUtils.fromString("UTC");
 
-    public static final String EXCUTE_RESULT_RECORD = "ExecuteResult";
+    public static final String EXECUTION_RESULT_RECORD = "ExecutionResult";
     public static final String AFFECTED_ROW_COUNT_FIELD = "affectedRowCount";
     public static final String LAST_INSERTED_ID_FIELD = "lastInsertId";
 
     public static final String READ_BYTE_CHANNEL_STRUCT = "ReadableByteChannel";
     public static final String READ_CHAR_CHANNEL_STRUCT = "ReadableCharacterChannel";
+
+    public static final String USERNAME = "user";
+    public static final String PASSWORD = "password";
 
     /**
      * Constants related connection pool.
@@ -84,14 +85,15 @@ public final class Constants {
         public static final String MESSAGE = "message";
         public static final String ERROR_CODE = "errorCode";
         public static final String SQL_STATE = "sqlState";
+        public static final String EXECUTION_RESULTS = "executionResults";
 
     }
 
     /**
      * Constants related to parameterized string fields.
      */
-    public static final class ParameterizedStingFields {
-        public static final BString PARTS = StringUtils.fromString("parts");
+    public static final class ParameterizedQueryFields {
+        public static final BString STRINGS = StringUtils.fromString("strings");
         public static final BString INSERTIONS = StringUtils.fromString("insertions");
     }
 

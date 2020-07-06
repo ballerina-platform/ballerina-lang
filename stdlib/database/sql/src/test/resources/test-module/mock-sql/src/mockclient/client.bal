@@ -6,7 +6,7 @@ public type Client client object {
     *sql:Client;
     private boolean clientActive = true;
 
-    public function __init(public string url, public string? user = (), public string? password = (),
+    public function init(public string url, public string? user = (), public string? password = (),
         public string? datasourceName = (), public map<anydata>? options = (),
         public sql:ConnectionPool? connectionPool = (), public map<anydata>? connectionPoolOptions = ()) returns sql:Error? {
         SQLParams sqlParams = {
@@ -21,60 +21,35 @@ public type Client client object {
         return createSqlClient(self, sqlParams, sql:getGlobalConnectionPool());
     }
 
-    # Executes the sql query provided by the user, and returns the result as stream.
-    #
-    # + sqlQuery - The query which needs to be executed as `string` or `ParameterizedString` if the SQL query has
-    #              params to be passed in.
-    # + rowType - The `typedesc` of the record that should be returned as a result. If this is not provided the default
-    #             column names of the query result set be used for the record attributes
-    # + return - Stream of records in the type of `rowType`
-    public remote function query(@untainted string|sql:ParameterizedString sqlQuery, typedesc<record {}>? rowType = ())
+    public remote function query(@untainted string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType = ())
     returns @tainted stream<record{}, sql:Error> {
         if (self.clientActive) {
-            sql:ParameterizedString sqlParamString;
-            if (sqlQuery is string) {
-                sqlParamString = {
-                    parts: [sqlQuery],
-                    insertions: []
-                };
-            } else {
-                sqlParamString = sqlQuery;
-            }
-            return nativeQuery(self, sqlParamString, rowType);
+            return nativeQuery(self, sqlQuery, rowType);
         } else {
             return sql:generateApplicationErrorStream("SQL Client is already closed,"
                 + "hence further operations are not allowed");
         }
     }
 
-    # Executes the DDL or DML sql queries provided by the user, and returns summary of the execution.
-    #
-    # + sqlQuery - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `string` or `ParameterizedString`
-    #              when the query has params to be passed in
-    # + return - Summary of the sql update query as `ExecuteResult` or returns `Error`
-    #           if any error occured when executing the query
-    public remote function execute(@untainted string|sql:ParameterizedString sqlQuery) returns sql:ExecuteResult|sql:Error? {
+    public remote function execute(@untainted string|sql:ParameterizedQuery sqlQuery) returns sql:ExecutionResult|sql:Error {
         if (self.clientActive) {
-            sql:ParameterizedString sqlParamString;
-            if (sqlQuery is string) {
-                sqlParamString = {
-                    parts: [sqlQuery],
-                    insertions: []
-                };
-            } else {
-                sqlParamString = sqlQuery;
-            }
-            return nativeExecute(self, sqlParamString);
+            return nativeExecute(self, sqlQuery);
         } else {
-            return sql:ApplicationError( message = "SQL Client is already closed,"
-                            + " hence further operations are not allowed");
+            return sql:ApplicationError("SQL Client is already closed, hence further operations are not allowed");
         }
     }
 
+    public remote function batchExecute(@untainted sql:ParameterizedQuery[] sqlQueries) returns sql:ExecutionResult[]|sql:Error {
+        if (sqlQueries.length() == 0) {
+            return sql:ApplicationError(" Parameter 'sqlQueries' cannot be empty array");
+        }
+        if (self.clientActive) {
+            return nativeBatchExecute(self, sqlQueries);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
 
-    # Close the SQL client.
-    #
-    # + return - Possible error during closing the client
     public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
@@ -96,13 +71,18 @@ returns sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ClientUtils"
 } external;
 
-function nativeQuery(Client sqlClient, sql:ParameterizedString sqlQuery, typedesc<record {}>? rowtype)
+function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowtype)
 returns stream<record{}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 
-function nativeExecute(Client sqlClient, sql:ParameterizedString sqlQuery)
-returns sql:ExecuteResult|sql:Error? = @java:Method {
+function nativeExecute(Client sqlClient, string|sql:ParameterizedQuery sqlQuery)
+returns sql:ExecutionResult|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function nativeBatchExecute(Client sqlClient, sql:ParameterizedQuery[] sqlQueries)
+returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
 } external;
 

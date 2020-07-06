@@ -2,7 +2,13 @@
   "kind": "TABLE_CONSTRUCTOR",
   "children": [
     {
-      "kind": "TABLE_KEYWORD"
+      "kind": "TABLE_KEYWORD",
+      "trailingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        }
+      ]
     },
     {
       "kind": "OPEN_BRACKET_TOKEN"
@@ -31,12 +37,23 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "Lochana"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "Lochana"
+                        }
+                      ]
                     }
                   ]
                 },
                 {
-                  "kind": "COMMA_TOKEN"
+                  "kind": "COMMA_TOKEN",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 },
                 {
                   "kind": "SPECIFIC_FIELD",
@@ -50,7 +67,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "24"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "24"
+                        }
+                      ]
                     }
                   ]
                 }

@@ -215,7 +215,7 @@ public class BasicTupleTest {
                 resultNegative, i, "incompatible types: expected '[int,int]', found 'int[3]'", 101, 20);
     }
 
-    @Test(description = "Test negatives of index based access of tuple type")
+    @Test(description = "Test negatives of index based access of tuple type", groups = { "brokenOnNewParser" })
     public void testNegativesOfTupleType() {
         int i = 16;
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match", 114, 38);

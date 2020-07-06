@@ -70,4 +70,10 @@ public abstract class AbstractTokenReader {
      * Switch the mode of the token read to {@link ParserMode#DEFAULT}.
      */
     public abstract void endMode();
+
+    /**
+     *
+     * @return current token index
+     */
+    public abstract int getCurrentTokenIndex();
 }

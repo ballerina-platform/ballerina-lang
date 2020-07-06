@@ -84,7 +84,41 @@ public class STRestParameterNode extends STParameterNode {
                 diagnostics);
     }
 
+    public STRestParameterNode modify(
+            STNode leadingComma,
+            STNode annotations,
+            STNode typeName,
+            STNode ellipsisToken,
+            STNode paramName) {
+        if (checkForReferenceEquality(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName)) {
+            return this;
+        }
+
+        return new STRestParameterNode(
+                leadingComma,
+                annotations,
+                typeName,
+                ellipsisToken,
+                paramName,
+                diagnostics);
+    }
+
     public Node createFacade(int position, NonTerminalNode parent) {
         return new RestParameterNode(this, position, parent);
+    }
+
+    @Override
+    public void accept(STNodeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T> T apply(STNodeTransformer<T> transformer) {
+        return transformer.transform(this);
     }
 }

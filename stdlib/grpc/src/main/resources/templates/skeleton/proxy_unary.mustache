@@ -7,7 +7,7 @@
         {{#isNotNull inputType}}{{#if primitiveInput}}{{inputType}} new{{inputType}};{{else}}{{inputType}} new{{inputType}} = {};{{/if}}
         {{#equals httpBody "*"}}{{inputType}} | error bodyExtracted{{inputType}} = requestBody.cloneWithType({{inputType}});
         if bodyExtracted{{inputType}} is error {
-            sendResponse(caller, bodyExtracted{{inputType}});
+            sendResponse(caller, <@untainted>bodyExtracted{{inputType}});
             return;
         } else {
         {{#if primitiveInput}}new{{inputType}}{{else}}new{{inputType}}{{/if}} = bodyExtracted{{inputType}};
@@ -23,25 +23,25 @@
             if paramReader is {{fieldType}}[] {
                 {{parentName}}.{{fieldName}} = paramReader;
             } else {
-                sendResponse(caller, paramReader);
+                sendResponse(caller, <@untainted>paramReader);
                 return;
             }
         }{{else}}paramReader = castFunction(req.getQueryParamValue("{{queryAccessName}}{{fieldName}}"), "{{fieldType}}");
         if paramReader is {{fieldType}} {
             {{#if ../primitiveInput}}new{{../inputType}}{{else}}{{parentName}}.{{fieldName}}{{/if}} = paramReader;
         } else {
-            sendResponse(caller, paramReader);
+            sendResponse(caller, <@untainted>paramReader);
             return;
         }{{/if}}
         {{/equals}}{{#equals paramSource "body"}}{{fieldType}} | error {{fieldName}} = requestBody.cloneWithType({{fieldType}});
         if {{fieldName}} is {{fieldType}} {
             {{#if ../primitiveInput}}new{{../inputType}}{{else}}{{parentName}}.{{fieldName}}{{/if}} = {{fieldName}};
         } else {
-            sendResponse(caller, {{fieldName}});
+            sendResponse(caller, <@untainted>{{fieldName}});
             return;
         }
         {{/equals}}{{#equals paramSource "message"}}{{parentName}}.{{fieldName}} = {{fieldName}};
         {{/equals}}{{/paramSet}}{{/not_equal}}var response = {{service}}BlockingEp ->{{methodName}}(new{{inputType}});{{/isNotNull}}{{#isNull inputType}}var response = {{service}}BlockingEp ->{{methodName}}();{{/isNull}}
-        sendResponse(caller, response);
+        sendResponse(caller, <@untainted>response);
         return;
     }{{/not_equal}}

@@ -30,6 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of integer range operators.
  */
+@Test(groups = { "brokenOnNewParser" })
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;

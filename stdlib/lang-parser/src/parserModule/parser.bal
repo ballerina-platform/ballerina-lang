@@ -44,7 +44,7 @@ type Parser object {
 	//buffer which store the tokens
     private ParserBufferReader parserBuffer;
 
-    public function __init(ParserBufferReader parserBuffer) {
+    public function init(ParserBufferReader parserBuffer) {
         self.parserBuffer = parserBuffer;
     }
 
@@ -1135,7 +1135,7 @@ type OperatorStack object {
     Token[] oprStack = [];
     int top;
 
-    public function __init(int top = 0) {
+    public function init(int top = 0) {
         self.top = top;
     }
 
@@ -1208,7 +1208,7 @@ type ExpressionStack object {
     ExpressionNode[] exprStack = [()];
     int top;
 
-    public function __init(int top = 0) {
+    public function init(int top = 0) {
         self.top = top;
     }
 
