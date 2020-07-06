@@ -2470,7 +2470,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         checkExpr(aInv.expr, this.env, symTable.noType);
-        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
+        BLangExpression varRef = aInv.expr;
 
         switch (varRef.type.tag) {
             case TypeTags.OBJECT:
@@ -4020,6 +4020,9 @@ public class TypeChecker extends BLangNodeVisitor {
         types.setInputClauseTypedBindingPatternType(joinClause);
         narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
+        if (joinClause.onClause != null) {
+            ((BLangOnClause) joinClause.onClause).accept(this);
+        }
     }
 
     @Override

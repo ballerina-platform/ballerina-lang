@@ -2109,14 +2109,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
 
         return new STJoinClauseNode(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public static STNode createOnClauseNode(

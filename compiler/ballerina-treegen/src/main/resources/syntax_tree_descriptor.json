@@ -3827,6 +3827,11 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                },
+                {
+                    "name": "onCondition",
+                    "type": "OnClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3899,8 +3904,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "mappingMatchPatternListNode",
-                    "type": "Node",
+                    "name": "fieldMatchPatterns",
+                    "type": "FieldMatchPatternNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {

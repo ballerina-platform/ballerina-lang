@@ -70,7 +70,8 @@ public class SetTransactionContext {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        strand.transactionLocalContext = trxCtx;
+        strand.setCurrentTransactionContext(trxCtx);
+
     }
 
     private static long getRetryNumber(Object prevAttemptInfo) {
