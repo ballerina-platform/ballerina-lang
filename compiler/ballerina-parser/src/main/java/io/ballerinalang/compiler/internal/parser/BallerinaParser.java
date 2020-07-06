@@ -12604,9 +12604,7 @@ public class BallerinaParser extends AbstractParser {
      * Ballerina flavored markdown (BFM) is supported by the documentation.
      *
      * During the parsing, parser will never go to the error handler.
-     * In case of an error, all the tokens belong to the same documentation line,
-     * are parsed as a single invalid documentation line node.
-     * Refer {@link #parseInvalidDocumentationLine}
+     * In case of an error, simply missing token will be returned.
      */
 
     /**
@@ -12629,7 +12627,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseDocumentationString() {
         List<STNode> docLines = new ArrayList<>();
         STToken nextToken = peek();
-        while (!isEndOfDocumentation(nextToken.kind)) {
+        while (nextToken.kind == SyntaxKind.HASH_TOKEN) {
             docLines.add(parseSingleDocumentationLine());
             nextToken = peek();
         }
@@ -12638,54 +12636,18 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createDocumentationStringNode(documentationLines);
     }
 
-    private boolean isEndOfDocumentation(SyntaxKind kind) {
-        switch (kind) {
-            case HASH_TOKEN:
-            case DOCUMENTATION_DESCRIPTION:
-            case PLUS_TOKEN:
-            case PARAMETER_NAME:
-            case MINUS_TOKEN:
-            case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
-                return false;
-            default:
-                return !isDocumentReferenceType(kind);
-        }
-    }
-
-    private boolean isDocumentReferenceType(SyntaxKind kind) {
-        switch (kind) {
-            case TYPE_DOC_REFERENCE_TOKEN:
-            case SERVICE_DOC_REFERENCE_TOKEN:
-            case VARIABLE_DOC_REFERENCE_TOKEN:
-            case VAR_DOC_REFERENCE_TOKEN:
-            case ANNOTATION_DOC_REFERENCE_TOKEN:
-            case MODULE_DOC_REFERENCE_TOKEN:
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-            case PARAMETER_DOC_REFERENCE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     /**
      * Parse a single documentation line.
      *
      * @return Parsed node
      */
     private STNode parseSingleDocumentationLine() {
-        STNode hashToken = parseHashToken();
+        STNode hashToken = consume();
         STToken nextToken = peek();
-        switch (nextToken.kind) {
-            case PLUS_TOKEN:
-                return parseParameterDocumentationLine(hashToken);
-            case DOCUMENTATION_DESCRIPTION:
-            case HASH_TOKEN:
-            case BACKTICK_TOKEN:
-            default:
-                return parseDocumentationLine(hashToken);
+        if (nextToken.kind == SyntaxKind.PLUS_TOKEN) {
+            return parseParameterDocumentationLine(hashToken);
         }
+        return parseDocumentationLine(hashToken);
     }
 
     /**
@@ -12695,12 +12657,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseDocumentationLine(STNode hashToken) {
-        List<STNode> docElements = new ArrayList<>();
-        boolean isErroneous = appendDocumentationElements(docElements);
-        if (isErroneous) {
-            return parseInvalidDocumentationLine(hashToken, docElements);
-        }
-
+        List<STNode> docElements = parseDocumentationElements();
         STNode docElementList = STNodeFactory.createNodeList(docElements);
 
         switch (docElements.size()) {
@@ -12721,30 +12678,24 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean appendDocumentationElements(List<STNode> docElements) {
-        boolean isErroneous = false;
+    private List<STNode> parseDocumentationElements() {
+        List<STNode> docElements = new ArrayList<>();
         STNode docElement;
         SyntaxKind nextTokenKind = peek().kind;
         while (!isEndOfIntermediateDocumentation(nextTokenKind)) {
             if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 docElement = consume();
-                docElements.add(docElement);
 
-            } else if (isDocumentReferenceType(nextTokenKind) || nextTokenKind == SyntaxKind.BACKTICK_TOKEN) {
-                if (appendDocumentationReference(docElements)) {
-                    isErroneous = true;
-                }
             } else {
-                docElement = consume();
-                docElements.add(docElement);
-                isErroneous = true;
+                docElement = parseDocumentationReference();
             }
+            docElements.add(docElement);
             nextTokenKind = peek().kind;
         }
-        return isErroneous;
+        return docElements;
     }
 
-    private boolean appendDocumentationReference(List<STNode> docElements) {
+    private STNode parseDocumentationReference() {
         STNode referenceType = STNodeFactory.createEmptyNode();
         if (isDocumentReferenceType(peek().kind)) {
             referenceType = consume();
@@ -12754,35 +12705,23 @@ public class BallerinaParser extends AbstractParser {
         STNode backtickContent = parseBacktickContent();
         STNode endBacktick = parseDocumentationBacktickToken();
 
-        boolean isErroneous;
-        if (hasMissingDocumentationTokens(startBacktick, backtickContent, endBacktick)) {
-            isErroneous = true;
-            appendNonMissingDocumentationTokens(docElements, referenceType, startBacktick, backtickContent,
-                    endBacktick);
-        } else {
-            STNode docElement = STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick,
-                    backtickContent, endBacktick);
-            docElements.add(docElement);
-            isErroneous = false;
-        }
-
-        return isErroneous;
+        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick,
+                backtickContent, endBacktick);
     }
 
-    private boolean hasMissingDocumentationTokens(STNode ... nodes) {
-        for (STNode node : nodes) {
-            if (node != null && node.isMissing()) {
+    private boolean isDocumentReferenceType(SyntaxKind kind) {
+        switch (kind) {
+            case TYPE_DOC_REFERENCE_TOKEN:
+            case SERVICE_DOC_REFERENCE_TOKEN:
+            case VARIABLE_DOC_REFERENCE_TOKEN:
+            case VAR_DOC_REFERENCE_TOKEN:
+            case ANNOTATION_DOC_REFERENCE_TOKEN:
+            case MODULE_DOC_REFERENCE_TOKEN:
+            case FUNCTION_DOC_REFERENCE_TOKEN:
+            case PARAMETER_DOC_REFERENCE_TOKEN:
                 return true;
-            }
-        }
-        return false;
-    }
-
-    private void appendNonMissingDocumentationTokens(List<STNode> docElements, STNode ... nodes) {
-        for (STNode node : nodes) {
-            if (node != null && !node.isMissing()) {
-                docElements.add(node);
-            }
+            default:
+                return false;
         }
     }
 
@@ -12795,23 +12734,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseParameterDocumentationLine(STNode hashToken) {
         STNode plusToken = consume();
         STNode parameterName = parseParameterName();
-        STNode minusToken = parseDashToken();
+        STNode minusToken = parseMinusToken();
 
-        List<STNode> docElements = new ArrayList<>();
-        if (hasMissingDocumentationTokens(parameterName, minusToken)) {
-            appendNonMissingDocumentationTokens(docElements, plusToken, parameterName, minusToken);
-            return parseInvalidDocumentationLine(hashToken, docElements);
-        }
-
-        boolean isErroneous = appendDocumentationElements(docElements);
-        if (isErroneous) {
-            return parseInvalidDocumentationLine(hashToken, docElements);
-        }
-
+        List<STNode> docElements = parseDocumentationElements();
         STNode docElementList = STNodeFactory.createNodeList(docElements);
 
         SyntaxKind kind;
-        if (((STToken) parameterName).text().equals("return")) {
+        if (parameterName.kind == SyntaxKind.RETURN_KEYWORD) {
             kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
         } else {
             kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
@@ -12821,42 +12750,17 @@ public class BallerinaParser extends AbstractParser {
                 docElementList);
     }
 
-    /**
-     * Parse invalid documentation line node.
-     *
-     * @param hashToken Hash token at the beginning of the line
-     * @param docElements List to add the invalid tokens
-     * @return Parsed node
-     */
-    private STNode parseInvalidDocumentationLine(STNode hashToken, List<STNode> docElements) {
-        STToken invalidToken = peek();
-        while (!isEndOfIntermediateDocumentation(invalidToken.kind)) {
-            docElements.add(consume());
-            invalidToken = peek();
-        }
-
-        STNode docElementList = STNodeFactory.createNodeList(docElements);
-        return createInvalidDocumentationLineNode(hashToken, docElementList);
-    }
-
     private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
-        if (kind == SyntaxKind.HASH_TOKEN) {
-            return true;
-        }
-        return isEndOfDocumentation(kind);
-    }
-
-    /**
-     * Parse hash token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseHashToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.HASH_TOKEN) {
-            return consume();
-        } else {
-            throw new IllegalStateException("documentation always start with a `#`");
+        switch (kind) {
+            case DOCUMENTATION_DESCRIPTION:
+            case PLUS_TOKEN:
+            case PARAMETER_NAME:
+            case MINUS_TOKEN:
+            case BACKTICK_TOKEN:
+            case BACKTICK_CONTENT:
+                return false;
+            default:
+                return !isDocumentReferenceType(kind);
         }
     }
 
@@ -12866,8 +12770,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseParameterName() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PARAMETER_NAME) {
+        SyntaxKind tokenKind = peek().kind;
+        if (tokenKind == SyntaxKind.PARAMETER_NAME || tokenKind == SyntaxKind.RETURN_KEYWORD) {
             return consume();
         } else {
             return STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
@@ -12875,11 +12779,11 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse dash token.
+     * Parse minus token.
      *
      * @return Parsed node
      */
-    private STNode parseDashToken() {
+    private STNode parseMinusToken() {
         STToken token = peek();
         if (token.kind == SyntaxKind.MINUS_TOKEN) {
             return consume();
@@ -12928,11 +12832,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationElements) {
         return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
-    }
-
-    private STNode createInvalidDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.INVALID_DOCUMENTATION_LINE, hashToken,
                 documentationElements);
     }
 

@@ -1769,7 +1769,7 @@
         },
         {
             "name": "DocumentationStringNode",
-            "base": "Node",
+            "base": "DocumentationNode",
             "kind": "DOCUMENTATION_STRING",
             "attributes": [
                 {

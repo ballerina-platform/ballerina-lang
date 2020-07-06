@@ -365,13 +365,13 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-            case DOCUMENTATION_DESCRIPTION:
+            case BACKTICK_CONTENT:
             case PARAMETER_NAME:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
-            case BACKTICK_CONTENT:
+            case DOCUMENTATION_DESCRIPTION:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -1187,8 +1187,6 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_NAME;
             case "BACKTICK_CONTENT":
                 return SyntaxKind.BACKTICK_CONTENT;
-            case "INVALID_DOCUMENTATION_LINE":
-                return SyntaxKind.INVALID_DOCUMENTATION_LINE;
 
             // Trivia
             case "EOF_TOKEN":

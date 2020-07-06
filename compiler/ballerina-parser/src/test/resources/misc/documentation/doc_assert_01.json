@@ -243,8 +243,7 @@
                               ]
                             },
                             {
-                              "kind": "PARAMETER_NAME",
-                              "value": "return",
+                              "kind": "RETURN_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",

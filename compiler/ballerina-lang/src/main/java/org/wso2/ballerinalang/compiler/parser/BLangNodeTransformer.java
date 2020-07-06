@@ -4159,9 +4159,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     ParameterDocumentationLineNode parameterDocLineNode =
                             (ParameterDocumentationLineNode) singleDocLine;
 
-                    BLangIdentifier parameterName = new BLangIdentifier();
-                    parameterName.value = parameterDocLineNode.parameterName().text();
-                    bLangParameterDoc.parameterName = parameterName;
+                    BLangIdentifier paraName = new BLangIdentifier();
+                    Token parameterName = parameterDocLineNode.parameterName();
+                    paraName.value = parameterName.isMissing() ? "" : parameterName.text();
+                    bLangParameterDoc.parameterName = paraName;
 
                     NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
@@ -4185,7 +4186,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 case DEPRECATION_DOCUMENTATION_LINE:
                     doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
                     break;
-                case INVALID_DOCUMENTATION_LINE:
                 default:
                     break;
             }
@@ -4206,11 +4206,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             // Add references if available
             if (element.kind() == SyntaxKind.DOCUMENTATION_REFERENCE) {
                 BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
+                DocumentationReferenceNode docReferenceNode = (DocumentationReferenceNode) element;
+
+                Token backtickContent = docReferenceNode.backtickContent();
+                bLangRefDoc.referenceName = backtickContent.isMissing() ? "" : backtickContent.text();
 
                 bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                ((DocumentationReferenceNode) element).referenceType().ifPresent(
+                docReferenceNode.referenceType().ifPresent(
                         refType -> bLangRefDoc.type = stringToRefType(refType.text())
                 );
+
                 references.add(bLangRefDoc);
             }
         }
@@ -4224,12 +4229,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
-        for (DocumentationReferenceType type : DocumentationReferenceType.values()) {
-            if (type.getValue().equals(refTypeName)) {
-                return type;
-            }
+        switch (refTypeName) {
+            case "type":
+                return DocumentationReferenceType.TYPE;
+            case "service":
+                return DocumentationReferenceType.SERVICE;
+            case "variable":
+                return DocumentationReferenceType.VARIABLE;
+            case "var":
+                return DocumentationReferenceType.VAR;
+            case "annotation":
+                return DocumentationReferenceType.ANNOTATION;
+            case "module":
+                return DocumentationReferenceType.MODULE;
+            case "function":
+                return DocumentationReferenceType.FUNCTION;
+            case "parameter":
+                return DocumentationReferenceType.PARAMETER;
+            default:
+                return DocumentationReferenceType.BACKTICK_CONTENT;
         }
-        return DocumentationReferenceType.BACKTICK_CONTENT;
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue) {
