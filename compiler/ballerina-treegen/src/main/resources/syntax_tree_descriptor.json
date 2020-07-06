@@ -3899,8 +3899,8 @@
                     "type": "Token"
                 },
                 {
-                    "name": "mappingMatchPatternListNode",
-                    "type": "Node",
+                    "name": "fieldMatchPatterns",
+                    "type": "FieldMatchPatternNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {

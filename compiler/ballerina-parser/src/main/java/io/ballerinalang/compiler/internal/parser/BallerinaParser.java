@@ -12627,11 +12627,10 @@ public class BallerinaParser extends AbstractParser {
      * Parse mapping match pattern.
      * <p>
      *     mapping-match-pattern := { field-match-patterns }
-     *     field-match-patterns :=
-     *    field-match-pattern (, field-match-pattern)* [, rest-match-pattern]
-     *    | [ rest-match-pattern ]
-     *      field-match-pattern := field-name : match-pattern
-     *      rest-match-pattern := ... var variable-name
+     *     field-match-patterns := field-match-pattern (, field-match-pattern)* [, rest-match-pattern]
+     *                              | [ rest-match-pattern ]
+     *     field-match-pattern := field-name : match-pattern
+     *     rest-match-pattern := ... var variable-name
      * </p>
      *
      * @return Parsed Node.
@@ -12639,7 +12638,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseMappingMatchPattern() {
         startContext(ParserRuleContext.MAPPING_MATCH_PATTERN);
         STNode openBraceToken = parseOpenBrace();
-        List<STNode> mappingMatchPatternList = new ArrayList<>();
+        List<STNode> fieldMatchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
 
         while (!isEndOfMappingMatchPattern()) {
@@ -12649,11 +12648,11 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
             STNode fieldMatchPattern = parseFieldMatchPattern();
-            mappingMatchPatternList.add(fieldMatchPattern);
+            fieldMatchPatternList.add(fieldMatchPattern);
             STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
 
             if (fieldMatchPatternRhs != null) {
-                mappingMatchPatternList.add(fieldMatchPatternRhs);
+                fieldMatchPatternList.add(fieldMatchPatternRhs);
             } else {
                 break;
             }
@@ -12663,11 +12662,11 @@ public class BallerinaParser extends AbstractParser {
             restMatchPattern = STNodeFactory.createEmptyNode();
         }
 
-        STNode mappingMatchPatternListNode =  STNodeFactory.createNodeList(mappingMatchPatternList);
+        STNode fieldMatchPatterns =  STNodeFactory.createNodeList(fieldMatchPatternList);
         STNode closeBraceToken = parseCloseBrace();
         endContext();
 
-        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, mappingMatchPatternListNode,
+        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, fieldMatchPatterns,
                 restMatchPattern, closeBraceToken);
     }
 
