@@ -9991,11 +9991,6 @@ public class BallerinaParser extends AbstractParser {
             } else {
                 clauses.add(intermediateClause);
             }
-
-            // TODO: validate any clause after on-cluase
-            if (intermediateClause.kind == SyntaxKind.JOIN_CLAUSE) {
-                clauses.add(parseOnClause(isRhsExpr));
-            }
         }
 
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
@@ -10343,12 +10338,18 @@ public class BallerinaParser extends AbstractParser {
         STNode joinKeyword = parseJoinKeyword();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.JOIN_CLAUSE);
         STNode inKeyword = parseInKeyword();
-
+        STNode onCondition;
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
+            onCondition = parseOnClause(isRhsExpr);
+        } else {
+            onCondition = STNodeFactory.createEmptyNode();
+        }
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword,
-                expression);
+                expression, onCondition);
     }
 
     /**
