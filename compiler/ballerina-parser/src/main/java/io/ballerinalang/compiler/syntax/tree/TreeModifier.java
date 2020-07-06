@@ -1337,7 +1337,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public DocumentationStringNode transform(
             DocumentationStringNode documentationStringNode) {
-        NodeList<Node> documentationLines =
+        NodeList<Token> documentationLines =
                 modifyNodeList(documentationStringNode.documentationLines());
         return documentationStringNode.modify(
                 documentationLines);
@@ -2866,12 +2866,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(joinClauseNode.inKeyword());
         ExpressionNode expression =
                 modifyNode(joinClauseNode.expression());
+        OnClauseNode onCondition =
+                modifyNode(joinClauseNode.onCondition().orElse(null));
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     @Override
@@ -2920,56 +2923,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ParameterDocumentationLineNode transform(
-            ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        Token hashToken =
-                modifyToken(parameterDocumentationLineNode.hashToken());
-        Token plusToken =
-                modifyToken(parameterDocumentationLineNode.plusToken());
-        Token parameterName =
-                modifyToken(parameterDocumentationLineNode.parameterName());
-        Token minusToken =
-                modifyToken(parameterDocumentationLineNode.minusToken());
-        NodeList<Node> documentElements =
-                modifyNodeList(parameterDocumentationLineNode.documentElements());
-        return parameterDocumentationLineNode.modify(
-                parameterDocumentationLineNode.kind(),
-                hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
-                documentElements);
+    public MappingMatchPatternNode transform(
+            MappingMatchPatternNode mappingMatchPatternNode) {
+        Token openBraceToken =
+                modifyToken(mappingMatchPatternNode.openBraceToken());
+        SeparatedNodeList<Node> mappingMatchPatternListNode =
+                modifySeparatedNodeList(mappingMatchPatternNode.mappingMatchPatternListNode());
+        RestMatchPatternNode restMatchPattern =
+                modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
+        Token closeBraceToken =
+                modifyToken(mappingMatchPatternNode.closeBraceToken());
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
     }
 
     @Override
-    public DocumentationReferenceNode transform(
-            DocumentationReferenceNode documentationReferenceNode) {
-        Token referenceType =
-                modifyToken(documentationReferenceNode.referenceType().orElse(null));
-        Token startBacktick =
-                modifyToken(documentationReferenceNode.startBacktick());
-        Token backtickContent =
-                modifyToken(documentationReferenceNode.backtickContent());
-        Token endBacktick =
-                modifyToken(documentationReferenceNode.endBacktick());
-        return documentationReferenceNode.modify(
-                referenceType,
-                startBacktick,
-                backtickContent,
-                endBacktick);
-    }
-
-    @Override
-    public DocumentationLineNode transform(
-            DocumentationLineNode documentationLineNode) {
-        Token hashToken =
-                modifyToken(documentationLineNode.hashToken());
-        NodeList<Node> documentElements =
-                modifyNodeList(documentationLineNode.documentElements());
-        return documentationLineNode.modify(
-                documentationLineNode.kind(),
-                hashToken,
-                documentElements);
+    public FieldMatchPatternNode transform(
+            FieldMatchPatternNode fieldMatchPatternNode) {
+        SimpleNameReferenceNode fieldNameNode =
+                modifyNode(fieldMatchPatternNode.fieldNameNode());
+        Token colonToken =
+                modifyToken(fieldMatchPatternNode.colonToken());
+        Node matchPattern =
+                modifyNode(fieldMatchPatternNode.matchPattern());
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 
     // Tokens

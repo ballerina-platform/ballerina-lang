@@ -760,16 +760,12 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restMatchPatternNode);
     }
 
-    public T transform(ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        return transformSyntaxNode(parameterDocumentationLineNode);
+    public T transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        return transformSyntaxNode(mappingMatchPatternNode);
     }
 
-    public T transform(DocumentationReferenceNode documentationReferenceNode) {
-        return transformSyntaxNode(documentationReferenceNode);
-    }
-
-    public T transform(DocumentationLineNode documentationLineNode) {
-        return transformSyntaxNode(documentationLineNode);
+    public T transform(FieldMatchPatternNode fieldMatchPatternNode) {
+        return transformSyntaxNode(fieldMatchPatternNode);
     }
 
     // Tokens

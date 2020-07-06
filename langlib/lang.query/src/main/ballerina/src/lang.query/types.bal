@@ -49,7 +49,7 @@ public type _StreamFunction abstract object {
 };
 
 public type _Frame record{|
-    (any|error)...;
+    (any|error|())...;
 |};
 
 public type _StreamPipeline object {
@@ -310,23 +310,26 @@ public type _LetFunction object {
     }
 };
 
-public type _JoinFunction object {
+public type _InnerJoinFunction object {
     *_StreamFunction;
 
+    function(_Frame _frame) returns boolean onCondition;
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    public function init(_StreamPipeline pipelineToJoin) {
+    public function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
         self.pipelineToJoin = pipelineToJoin;
+        self.onCondition = onCondition;
         self.prevFunc = ();
         self.currentFrame = ();
     }
 
     # Desugared function to do;
     # from var ... in listA from from var ... in listB
-    # from var ... in streamA join var ... in streamB
+    # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
+        function(_Frame _frame) returns boolean onCondition = self.onCondition;
         _StreamFunction pf = <_StreamFunction> self.prevFunc;
         _StreamPipeline j = self.pipelineToJoin;
         _Frame|error? cf = self.currentFrame;
@@ -338,6 +341,66 @@ public type _JoinFunction object {
             _Frame|error? f = j.next();
             if (f is _Frame) {
                 _Frame jf = {...f, ...cf};
+                if (onCondition(jf)) {
+                    return jf;
+                }
+                return self.process();
+            } else if (f is error) {
+                return f;
+            } else {
+                // Move to next frame
+                self.currentFrame = pf.process();
+                j.reset();
+                return self.process();
+            }
+        }
+        return cf;
+    }
+
+    public function reset() {
+        // Reset the state of currentFrame
+        self.currentFrame = ();
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+};
+
+public type _OuterJoinFunction object {
+    *_StreamFunction;
+
+    function(_Frame _frame) returns boolean onCondition;
+    _StreamPipeline pipelineToJoin;
+    _Frame|error? currentFrame;
+
+    public function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
+        self.pipelineToJoin = pipelineToJoin;
+        self.onCondition = onCondition;
+        self.prevFunc = ();
+        self.currentFrame = ();
+    }
+
+    # Desugared function to do;
+    # from var ... in listA from from var ... in listB
+    # outer join var ... in streamA join var ... in streamB
+    # + return - merged two frames { ...frameA, ...frameB }
+    public function process() returns _Frame|error? {
+        function(_Frame _frame) returns boolean onCondition = self.onCondition;
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        _StreamPipeline j = self.pipelineToJoin;
+        _Frame|error? cf = self.currentFrame;
+        if (cf is ()) {
+            cf = pf.process();
+            self.currentFrame = cf;
+        }
+        if (cf is _Frame) {
+            _Frame|error? f = j.next();
+            if (f is _Frame) {
+                _Frame jf = {...cf, ...f};
+                if (!onCondition(jf)) {
+                    jf = {...cf, ...self.getNilFrame(f)};
+                }
                 return jf;
             } else if (f is error) {
                 return f;
@@ -358,6 +421,18 @@ public type _JoinFunction object {
         if (pf is _StreamFunction) {
             pf.reset();
         }
+    }
+
+    public function getNilFrame(_Frame f) returns _Frame {
+        _Frame nilFrame = {};
+        foreach var e in f.entries() {
+            if (e[1] is _Frame) {
+                nilFrame[e[0]] = self.getNilFrame(<_Frame> e[1]);
+            } else {
+                nilFrame[e[0]] = ();
+            }
+        }
+        return nilFrame;
     }
 };
 

@@ -53,6 +53,10 @@ public class JoinClauseNode extends ClauseNode {
         return childInBucket(4);
     }
 
+    public Optional<OnClauseNode> onCondition() {
+        return optionalChildInBucket(5);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -70,7 +74,8 @@ public class JoinClauseNode extends ClauseNode {
                 "joinKeyword",
                 "typedBindingPattern",
                 "inKeyword",
-                "expression"};
+                "expression",
+                "onCondition"};
     }
 
     public JoinClauseNode modify(
@@ -78,13 +83,15 @@ public class JoinClauseNode extends ClauseNode {
             Token joinKeyword,
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnClauseNode onCondition) {
         if (checkForReferenceEquality(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression)) {
+                expression,
+                onCondition)) {
             return this;
         }
 
@@ -93,7 +100,8 @@ public class JoinClauseNode extends ClauseNode {
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public JoinClauseNodeModifier modify() {
@@ -112,6 +120,7 @@ public class JoinClauseNode extends ClauseNode {
         private TypedBindingPatternNode typedBindingPattern;
         private Token inKeyword;
         private ExpressionNode expression;
+        private OnClauseNode onCondition;
 
         public JoinClauseNodeModifier(JoinClauseNode oldNode) {
             this.oldNode = oldNode;
@@ -120,6 +129,7 @@ public class JoinClauseNode extends ClauseNode {
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.inKeyword = oldNode.inKeyword();
             this.expression = oldNode.expression();
+            this.onCondition = oldNode.onCondition().orElse(null);
         }
 
         public JoinClauseNodeModifier withOuterKeyword(
@@ -157,13 +167,21 @@ public class JoinClauseNode extends ClauseNode {
             return this;
         }
 
+        public JoinClauseNodeModifier withOnCondition(
+                OnClauseNode onCondition) {
+            Objects.requireNonNull(onCondition, "onCondition must not be null");
+            this.onCondition = onCondition;
+            return this;
+        }
+
         public JoinClauseNode apply() {
             return oldNode.modify(
                     outerKeyword,
                     joinKeyword,
                     typedBindingPattern,
                     inKeyword,
-                    expression);
+                    expression,
+                    onCondition);
         }
     }
 }

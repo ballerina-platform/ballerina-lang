@@ -2271,12 +2271,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
         STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
         STNode expression = modifyNode(joinClauseNode.expression);
+        STNode onCondition = modifyNode(joinClauseNode.onCondition);
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     @Override
@@ -2316,45 +2318,29 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STParameterDocumentationLineNode transform(
-            STParameterDocumentationLineNode parameterDocumentationLineNode) {
-        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
-        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
-        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
-        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
-        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
-        return parameterDocumentationLineNode.modify(
-                parameterDocumentationLineNode.kind,
-                hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
-                documentElements);
+    public STMappingMatchPatternNode transform(
+            STMappingMatchPatternNode mappingMatchPatternNode) {
+        STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
+        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
+        STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
     }
 
     @Override
-    public STDocumentationReferenceNode transform(
-            STDocumentationReferenceNode documentationReferenceNode) {
-        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
-        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
-        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
-        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
-        return documentationReferenceNode.modify(
-                referenceType,
-                startBacktick,
-                backtickContent,
-                endBacktick);
-    }
-
-    @Override
-    public STDocumentationLineNode transform(
-            STDocumentationLineNode documentationLineNode) {
-        STNode hashToken = modifyNode(documentationLineNode.hashToken);
-        STNode documentElements = modifyNode(documentationLineNode.documentElements);
-        return documentationLineNode.modify(
-                documentationLineNode.kind,
-                hashToken,
-                documentElements);
+    public STFieldMatchPatternNode transform(
+            STFieldMatchPatternNode fieldMatchPatternNode) {
+        STNode fieldNameNode = modifyNode(fieldMatchPatternNode.fieldNameNode);
+        STNode colonToken = modifyNode(fieldMatchPatternNode.colonToken);
+        STNode matchPattern = modifyNode(fieldMatchPatternNode.matchPattern);
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 
     // Tokens

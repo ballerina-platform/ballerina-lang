@@ -1306,7 +1306,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static DocumentationStringNode createDocumentationStringNode(
-            NodeList<Node> documentationLines) {
+            NodeList<Token> documentationLines) {
         Objects.requireNonNull(documentationLines, "documentationLines must not be null");
 
         STNode stDocumentationStringNode = STNodeFactory.createDocumentationStringNode(
@@ -2807,7 +2807,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token joinKeyword,
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnClauseNode onCondition) {
         Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
@@ -2818,7 +2819,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 joinKeyword.internalNode(),
                 typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(onCondition));
         return stJoinClauseNode.createUnlinkedFacade();
     }
 
@@ -2866,58 +2868,36 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestMatchPatternNode.createUnlinkedFacade();
     }
 
-    public static ParameterDocumentationLineNode createParameterDocumentationLineNode(
-            SyntaxKind kind,
-            Token hashToken,
-            Token plusToken,
-            Token parameterName,
-            Token minusToken,
-            NodeList<Node> documentElements) {
-        Objects.requireNonNull(hashToken, "hashToken must not be null");
-        Objects.requireNonNull(plusToken, "plusToken must not be null");
-        Objects.requireNonNull(parameterName, "parameterName must not be null");
-        Objects.requireNonNull(minusToken, "minusToken must not be null");
-        Objects.requireNonNull(documentElements, "documentElements must not be null");
+    public static MappingMatchPatternNode createMappingMatchPatternNode(
+            Token openBraceToken,
+            SeparatedNodeList<Node> mappingMatchPatternListNode,
+            RestMatchPatternNode restMatchPattern,
+            Token closeBraceToken) {
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(mappingMatchPatternListNode, "mappingMatchPatternListNode must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
 
-        STNode stParameterDocumentationLineNode = STNodeFactory.createParameterDocumentationLineNode(
-                kind,
-                hashToken.internalNode(),
-                plusToken.internalNode(),
-                parameterName.internalNode(),
-                minusToken.internalNode(),
-                documentElements.underlyingListNode().internalNode());
-        return stParameterDocumentationLineNode.createUnlinkedFacade();
+        STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
+                openBraceToken.internalNode(),
+                mappingMatchPatternListNode.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern),
+                closeBraceToken.internalNode());
+        return stMappingMatchPatternNode.createUnlinkedFacade();
     }
 
-    public static DocumentationReferenceNode createDocumentationReferenceNode(
-            Token referenceType,
-            Token startBacktick,
-            Token backtickContent,
-            Token endBacktick) {
-        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
-        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+    public static FieldMatchPatternNode createFieldMatchPatternNode(
+            SimpleNameReferenceNode fieldNameNode,
+            Token colonToken,
+            Node matchPattern) {
+        Objects.requireNonNull(fieldNameNode, "fieldNameNode must not be null");
+        Objects.requireNonNull(colonToken, "colonToken must not be null");
+        Objects.requireNonNull(matchPattern, "matchPattern must not be null");
 
-        STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
-                getOptionalSTNode(referenceType),
-                startBacktick.internalNode(),
-                backtickContent.internalNode(),
-                endBacktick.internalNode());
-        return stDocumentationReferenceNode.createUnlinkedFacade();
-    }
-
-    public static DocumentationLineNode createDocumentationLineNode(
-            SyntaxKind kind,
-            Token hashToken,
-            NodeList<Node> documentElements) {
-        Objects.requireNonNull(hashToken, "hashToken must not be null");
-        Objects.requireNonNull(documentElements, "documentElements must not be null");
-
-        STNode stDocumentationLineNode = STNodeFactory.createDocumentationLineNode(
-                kind,
-                hashToken.internalNode(),
-                documentElements.underlyingListNode().internalNode());
-        return stDocumentationLineNode.createUnlinkedFacade();
+        STNode stFieldMatchPatternNode = STNodeFactory.createFieldMatchPatternNode(
+                fieldNameNode.internalNode(),
+                colonToken.internalNode(),
+                matchPattern.internalNode());
+        return stFieldMatchPatternNode.createUnlinkedFacade();
     }
 }
 
