@@ -358,12 +358,12 @@ public class TypeChecker extends BLangNodeVisitor {
         this.expType = preExpType;
         this.diagCode = preDiagCode;
 
-        validateAndSetExprExpectedType(expr, expType);
+        validateAndSetExprExpectedType(expr);
 
         return resultType;
     }
 
-    private void validateAndSetExprExpectedType(BLangExpression expr, BType origExpType) {
+    private void validateAndSetExprExpectedType(BLangExpression expr) {
         if (resultType.tag == TypeTags.SEMANTIC_ERROR) {
             return;
         }
