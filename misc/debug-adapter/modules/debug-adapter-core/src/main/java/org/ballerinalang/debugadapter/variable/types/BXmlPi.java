@@ -22,17 +22,24 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-/**
- * Ballerina nil variable type.
- */
-public class BNil extends BSimpleVariable {
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+/**
+ * Ballerina xml variable type.
+ */
+public class BXmlPi extends BSimpleVariable {
+
+    public BXmlPi(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.XML, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        return "()";
+        try {
+            return getStringValue(context, jvmValue);
+        } catch (Exception ignored) {
+            return UNKNOWN_VALUE;
+        }
     }
 }

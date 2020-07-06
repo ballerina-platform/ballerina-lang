@@ -22,17 +22,30 @@ import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-/**
- * Ballerina nil variable type.
- */
-public class BNil extends BSimpleVariable {
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+/**
+ * Ballerina function pointer variable type.
+ */
+public class BFunction extends BSimpleVariable {
+
+    public BFunction(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.FUNCTION, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        return "()";
+        try {
+            String stringVal = getStringValue(context, jvmValue);
+            // Todo - remove once the output of "stringValue()" method is fixed in jvm backend.
+            String funcKeyword = BVariableType.FUNCTION.getString();
+            if (stringVal.contains(String.format("%s %s", funcKeyword, funcKeyword))) {
+                return stringVal.replaceFirst(String.format("%s %s", funcKeyword, funcKeyword), funcKeyword);
+            }
+            return stringVal;
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 }

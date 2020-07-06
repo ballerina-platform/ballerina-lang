@@ -23,16 +23,18 @@ import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
- * Ballerina nil variable type.
+ * Ballerina service variable type.
  */
-public class BNil extends BSimpleVariable {
+public class BService extends BSimpleVariable {
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+    private static final String ANON_SERVICE = "anonymous service";
+
+    public BService(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.SERVICE, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        return "()";
+        return ANON_SERVICE;
     }
 }

@@ -14,25 +14,22 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.variable.types;
-
-import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BSimpleVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
-import org.eclipse.lsp4j.debug.Variable;
+package org.ballerinalang.debugadapter.variable;
 
 /**
- * Ballerina nil variable type.
+ * Error type definition for debugger variable implementation related exceptions.
+ *
+ * @since 2.0.0
  */
-public class BNil extends BSimpleVariable {
+public class DebugVariableException extends Exception {
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+    public DebugVariableException(String message) {
+        this(message, null);
     }
 
-    @Override
-    public String computeValue() {
-        return "()";
+    public DebugVariableException(String message, Throwable cause) {
+        super(message, cause);
     }
 }
+
+

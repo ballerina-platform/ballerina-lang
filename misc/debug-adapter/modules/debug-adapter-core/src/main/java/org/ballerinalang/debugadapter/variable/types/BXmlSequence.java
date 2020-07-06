@@ -16,15 +16,19 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
@@ -33,12 +37,12 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringVal
 /**
  * Ballerina xml variable type.
  */
-public class BXmlItem extends BCompoundVariable {
+public class BXmlSequence extends BCompoundVariable {
 
     private static final String FIELD_CHILDREN = "children";
-    private static final String FIELD_ATTRIBUTES = "attributes";
+    private static final String FIELD_ELEMENT_DATA = "elementData";
 
-    public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
+    public BXmlSequence(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.XML, value, dapVariable);
     }
 
@@ -56,9 +60,20 @@ public class BXmlItem extends BCompoundVariable {
         Map<String, Value> childMap = new HashMap<>();
         try {
             Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
-            Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);
-            children.ifPresent(value -> childMap.put(FIELD_CHILDREN, value));
-            attributes.ifPresent(value -> childMap.put(FIELD_ATTRIBUTES, value));
+            if (!children.isPresent()) {
+                return childMap;
+            }
+            Optional<Value> childArray = VariableUtils.getFieldValue(children.get(), FIELD_ELEMENT_DATA);
+            if (!childArray.isPresent()) {
+                return childMap;
+            }
+            List<Value> childrenValues = ((ArrayReference) childArray.get()).getValues();
+            AtomicInteger index = new AtomicInteger();
+            childrenValues.forEach(ref -> {
+                if (ref != null) {
+                    childMap.put(Integer.toString(index.getAndIncrement()), ref);
+                }
+            });
             return childMap;
         } catch (Exception e) {
             return childMap;

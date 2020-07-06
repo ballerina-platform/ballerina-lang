@@ -16,23 +16,37 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
+import com.sun.jdi.Field;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-/**
- * Ballerina nil variable type.
- */
-public class BNil extends BSimpleVariable {
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
-    public BNil(VariableContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+/**
+ * Ballerina typedesc variable type.
+ */
+public class BTypeDesc extends BSimpleVariable {
+
+    public BTypeDesc(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.TYPE_DESC, value, dapVariable);
     }
 
     @Override
     public String computeValue() {
-        return "()";
+        try {
+            ObjectReference valueRef = (ObjectReference) jvmValue;
+            Field bTypeField = valueRef.referenceType().fieldByName("describingType");
+            Value bTypeRef = valueRef.getValue(bTypeField);
+            Field typeNameField = ((ObjectReference) bTypeRef).referenceType().fieldByName("typeName");
+            Value typeNameRef = ((ObjectReference) bTypeRef).getValue(typeNameField);
+            return getStringFrom(typeNameRef);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 }

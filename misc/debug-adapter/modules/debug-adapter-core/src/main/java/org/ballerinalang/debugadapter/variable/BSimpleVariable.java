@@ -19,44 +19,26 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.Value;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Map;
-
 /**
- * Base implementation for ballerina variable types with child variables.
+ * Base implementation for ballerina variable types with no child variables.
  */
-public abstract class BCompoundVariable implements BVariable {
+public abstract class BSimpleVariable implements BVariable {
 
     protected final VariableContext context;
-    protected Value jvmValue;
+    protected final Value jvmValue;
     private final Variable dapVariable;
-    private final Map<String, Value> childVariables;
 
-    public BCompoundVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
-        this(context, bVariableType.getString(), jvmValue, dapVar);
-    }
-
-    public BCompoundVariable(VariableContext context, String bVariableType, Value jvmValue, Variable dapVar) {
+    public BSimpleVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
         this.context = context;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType);
+        dapVar.setType(bVariableType.getString());
         dapVar.setValue(computeValue());
         this.dapVariable = dapVar;
-        this.childVariables = computeChildVariables();
     }
 
     @Override
     public VariableContext getContext() {
         return context;
-    }
-
-    /**
-     * Returns a map of JDI value representations of all the child variables against their indexes. Each
-     * compound variable type must have their own implementation to compute/fetch values.
-     */
-    protected abstract Map<String, Value> computeChildVariables();
-
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
     }
 
     @Override

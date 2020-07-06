@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,15 +31,15 @@ import java.util.Optional;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
- * Ballerina map variable type.
+ * Ballerina xml variable type.
  */
-public class BMap extends BCompoundVariable {
+public class BXmlItemAttributeMap extends BCompoundVariable {
 
     private static final String FIELD_MAP_DATA = "table";
     private static final String FIELD_MAP_KEY = "key";
     private static final String FIELD_MAP_VALUE = "value";
 
-    public BMap(VariableContext context, Value value, Variable dapVariable) {
+    public BXmlItemAttributeMap(VariableContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.MAP, value, dapVariable);
     }
 
