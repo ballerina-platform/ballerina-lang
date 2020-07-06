@@ -1697,7 +1697,7 @@ public class BallerinaLexer extends AbstractLexer {
 
     private boolean processDocumentationReference(int nextChar) {
         // Look ahead and see if next characters belong to a documentation reference.
-        // If they do, do not advance reader and return.
+        // If they do, do not advance the reader and return.
         // Otherwise advance the reader for checked characters and return
 
         int lookAheadChar = nextChar;
