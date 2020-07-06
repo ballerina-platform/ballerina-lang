@@ -96,7 +96,8 @@ public class XmlToJsonConverter {
         Object children = convertXMLSequence(xmlItem.getChildrenSeq(), attributePrefix, preserveNamespaces);
 
         if (attributeMap.isEmpty() && children == null) {
-            return keyValue;
+            rootNode.put(keyValue, "");
+            return rootNode;
         }
         if (children != null) {
             rootNode.put(keyValue, children);

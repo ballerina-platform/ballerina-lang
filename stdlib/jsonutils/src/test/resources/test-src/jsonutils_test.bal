@@ -70,3 +70,9 @@ function testComplexXMLElementToJsonNoPreserveNS() returns string {
     json j = checkpanic jsonutils:fromXML(e, { preserveNamespaces: false });
     return j.toJsonString();
 }
+
+function testXMLWithEmptyChildren() returns string {
+    xml x = xml `<foo><bar>2</bar><car></car></foo>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    return j.toJsonString();
+}
