@@ -84,6 +84,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--fromJSON", "-fromJSON"}, description = "Generate API Docs from a JSON.")
     private String jsonLoc;
 
+    @CommandLine.Option(names = {"--templatePath", "-templatePath"}, description = "Location of the custom templates.")
+    private String templateLoc;
+
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
@@ -146,6 +149,18 @@ public class DocCommand implements BLauncherCmd {
 
             taskExecutor.executeTasks(buildContext);
             Runtime.getRuntime().exit(0);
+        }
+        if (this.templateLoc != null) {
+            Path templatePath = Paths.get(this.templateLoc).toAbsolutePath();
+            if (Files.notExists(templatePath)) {
+                CommandUtil.printError(this.errStream,
+                        "cannot find template folder " + templatePath.toString(),
+                        null,
+                        false);
+                CommandUtil.exitError(true);
+                return;
+            }
+            System.setProperty("CUSTOM_TEMPLATE_PATH", templatePath.toString());
         }
         // Generating API Docs through a JSON file
         if (this.jsonLoc != null) {

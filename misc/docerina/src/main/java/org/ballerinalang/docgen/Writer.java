@@ -56,8 +56,11 @@ public class Writer {
      */
     public static void writeHtmlDocument(Object object, String packageTemplateName, String filePath) throws
             IOException {
-        String templatesFolderPath = System.getProperty("ballerina.home") + File.separator + "lib" + File.separator +
-                "templates";
+        String templatesFolderPath = System.getProperty("CUSTOM_TEMPLATE_PATH");
+        if (templatesFolderPath == null) {
+            templatesFolderPath = System.getProperty("ballerina.home") + File.separator + "lib" + File.separator +
+                    "templates";
+        }
 
         String templatesClassPath = System.getProperty(BallerinaDocConstants.TEMPLATES_FOLDER_PATH_KEY,
                 "/template/html");
