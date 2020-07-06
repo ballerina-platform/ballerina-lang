@@ -110,7 +110,7 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
         this.paths = new LinkedHashSet<>();
         Paths pathList = openAPI.getPaths();
         for (Map.Entry<String, PathItem> path : pathList.entrySet()) {
-            this.pathName = path.getKey();
+            setPathName(path.getKey());
             BallerinaPath balPath = new BallerinaPath().buildContext(path.getValue(), openAPI);
             if (balPath.isNoOperationsForPath()) {
                 balPath.setResourceName(escapeIdentifier(path.getKey()));
@@ -276,6 +276,10 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
 
     public String getDefinitionPath() {
         return definitionPath;
+    }
+
+    public static void setPathName(String pathName) {
+        BallerinaOpenApi.pathName = pathName;
     }
 
     public static String getPathName() {
