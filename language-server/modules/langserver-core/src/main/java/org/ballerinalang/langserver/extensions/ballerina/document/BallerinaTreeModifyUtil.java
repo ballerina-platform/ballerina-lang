@@ -79,7 +79,7 @@ public class BallerinaTreeModifyUtil {
         put("MAIN_END", "}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
-                "@http:ResourceConfig {\n\tmethods: [$METHODS],\nbasePath: \"/$RES_PATH\"\n}\n" +
+                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
                 "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
         put("SERVICE_END",
                 "    }\n" +
