@@ -50,10 +50,6 @@ dependencies {
     implementation ('io.swagger.core.v3:swagger-models') {
         exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
     }
-    implementation ('io.swagger.parser.v3:swagger-parser') {
-        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
-        exclude group: 'org.slf4j', module: 'slf4j-ext'
-    }
     implementation ('io.swagger.parser.v3:swagger-parser-core')
     implementation ('io.swagger.parser.v3:swagger-parser-v2-converter') {
         exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'

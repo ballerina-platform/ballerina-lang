@@ -87,17 +87,44 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3'
     implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation 'commons-io:commons-io'
-    implementation 'io.swagger:swagger-core'
+    implementation ('io.swagger:swagger-core')  {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        exclude group: 'org.yaml', module: 'snakeyaml'
+        exclude group: 'com.fasterxml.jackson.datatype', module: 'jackson-datatype-joda'
+        exclude group: 'io.swagger', module: 'swagger-annotations'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'io.swagger', module: 'swagger-models'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'io.swagger:swagger-models'
-    implementation 'io.swagger:swagger-parser'
-    implementation 'io.swagger.core.v3:swagger-core'
-    implementation 'io.swagger.core.v3:swagger-models'
-    implementation 'io.swagger.parser.v3:swagger-parser'
+    implementation ('io.swagger:swagger-parser') {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.core.v3:swagger-core') {
+        exclude group: 'com.fasterxml.jackson.core', module: 'jackson-annotation'
+    }
+    implementation ('io.swagger.core.v3:swagger-models') {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser') {
+        exclude group: 'io.swagger.core.v3', module: 'swagger-models'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-core'
+        exclude group: 'io.swagger.core.v3', module: 'swagger-parser-v3'
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'io.swagger', module: 'swagger-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'io.swagger.parser.v3:swagger-parser-core'
-    implementation 'io.swagger.parser.v3:swagger-parser-v2-converter'
-    implementation 'io.swagger.parser.v3:swagger-parser-v3'
+    implementation ('io.swagger.parser.v3:swagger-parser-v2-converter')  {
+        exclude group: 'io.swagger', module: 'swagger-compat-spec-parser'
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
+    implementation ('io.swagger.parser.v3:swagger-parser-v3')  {
+        exclude group: 'org.slf4j', module: 'slf4j-ext'
+    }
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
+    //implementation "javax.annotation:javax.annotation-api:1.3.2"
 
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')

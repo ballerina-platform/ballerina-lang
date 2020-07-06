@@ -17,7 +17,6 @@
  **/
 package org.ballerinalang.langlib.error;
 
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 /**
@@ -34,7 +33,7 @@ public class Cause {
 
 
     @Deprecated
-    public static Object cause(Strand strand, ErrorValue value) {
+    public static Object cause(ErrorValue value) {
         return value.getCause();
     }
 }

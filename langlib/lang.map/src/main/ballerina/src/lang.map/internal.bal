@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # Represent the iterator type returned when `iterator` method is invoked.
 type MapIterator object {
 
@@ -33,4 +35,4 @@ type MapIterator object {
 function externNext(MapIterator iterator) returns record {| Type value; |}? = @java:Method {
     class: "org.ballerinalang.langlib.map.Next",
     name: "next"
-} = external;
+} external;

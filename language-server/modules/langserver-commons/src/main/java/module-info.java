@@ -9,7 +9,9 @@ module io.ballerina.language.server.commons {
     exports org.ballerinalang.langserver.commons.codeaction.spi;
     exports org.ballerinalang.langserver.commons.codelenses;
     exports org.ballerinalang.langserver.commons.codelenses.spi;
+    exports org.ballerinalang.langserver.commons.completion.spi;
     requires org.eclipse.lsp4j;
     requires io.ballerina.lang;
     requires antlr4.runtime;
+    requires io.ballerina.parser;
 }
