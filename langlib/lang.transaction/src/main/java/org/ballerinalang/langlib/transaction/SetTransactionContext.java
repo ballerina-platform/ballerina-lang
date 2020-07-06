@@ -55,7 +55,7 @@ public class SetTransactionContext {
         TransactionLocalContext trxCtx = TransactionLocalContext
                 .createTransactionParticipantLocalCtx(globalTransactionId, url, protocol, infoRecord);
         trxCtx.beginTransactionBlock(transactionBlockId);
-        Scheduler.getStrand().transactionLocalContext = trxCtx;
+        Scheduler.getStrand().setCurrentTransactionContext(trxCtx);
     }
 
     private static long getRetryNumber(Object prevAttemptInfo) {

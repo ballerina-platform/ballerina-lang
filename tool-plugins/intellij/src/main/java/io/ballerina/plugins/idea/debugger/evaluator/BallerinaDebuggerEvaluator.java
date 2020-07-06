@@ -16,17 +16,19 @@
 
 package io.ballerina.plugins.idea.debugger.evaluator;
 
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.xdebugger.XSourcePosition;
 import com.intellij.xdebugger.evaluation.XDebuggerEvaluator;
 import io.ballerina.plugins.idea.debugger.BallerinaDebugProcess;
+import io.ballerina.plugins.idea.debugger.BallerinaXValue;
 import org.eclipse.lsp4j.debug.EvaluateArguments;
 import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.Variable;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static io.ballerina.plugins.idea.debugger.BallerinaXValue.getIconFor;
 
 /**
  * Expression evaluator implementation for ballerina debugger.
@@ -57,7 +59,7 @@ public class BallerinaDebuggerEvaluator extends XDebuggerEvaluator {
                 variable.setVariablesReference(response.getVariablesReference());
                 variable.setNamedVariables(response.getNamedVariables());
                 variable.setIndexedVariables(response.getIndexedVariables());
-                callback.evaluated(new BallerinaEvaluationValue(process, variable, AllIcons.Nodes.Field));
+                callback.evaluated(new BallerinaXValue(process, variable, getIconFor(variable)));
             } else {
                 callback.errorOccurred("No value found for the expression: " + expression);
             }

@@ -31,7 +31,7 @@ import org.ballerinalang.jvm.values.FPValue;
 public class OnRollback {
 
     public static void onRollback(FPValue fpValue) {
-        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);

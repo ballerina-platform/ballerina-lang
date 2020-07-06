@@ -30,7 +30,7 @@ public class SetData {
 
     public static void setData(Object data) {
 
-        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         transactionLocalContext.setTransactionData(data);
     }
 }

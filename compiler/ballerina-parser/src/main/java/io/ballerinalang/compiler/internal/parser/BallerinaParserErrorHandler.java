@@ -504,13 +504,25 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private static final ParserRuleContext[] MATCH_PATTERN_START =
             { ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.VAR_KEYWORD,
-                    ParserRuleContext.LIST_MATCH_PATTERN };
+                    ParserRuleContext.LIST_MATCH_PATTERN, ParserRuleContext.MAPPING_MATCH_PATTERN };
 
-    private static final ParserRuleContext[] LIST_MATCH_PATTERN_MEMBER_START =
+    private static final ParserRuleContext[] LIST_MATCH_PATTERNS_START =
+            { ParserRuleContext.LIST_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] LIST_MATCH_PATTERN_MEMBER =
             { ParserRuleContext.MATCH_PATTERN_START, ParserRuleContext.REST_MATCH_PATTERN };
 
     private static final ParserRuleContext[] LIST_MATCH_PATTERN_MEMBER_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACKET };
+
+    private static final ParserRuleContext[] FIELD_MATCH_PATTERNS_START =
+            { ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACE };
+
+    private static final ParserRuleContext[] FIELD_MATCH_PATTERN_MEMBER =
+            { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.REST_MATCH_PATTERN };
+
+    private static final ParserRuleContext[] FIELD_MATCH_PATTERN_MEMBER_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_BRACE };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -605,8 +617,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_MATCH_GUARD:
             case MATCH_PATTERN_RHS:
             case MATCH_PATTERN_START:
-            case LIST_MATCH_PATTERN_MEMBER_START:
+            case LIST_MATCH_PATTERNS_START:
+            case LIST_MATCH_PATTERN_MEMBER:
             case LIST_MATCH_PATTERN_MEMBER_RHS:
+            case FIELD_MATCH_PATTERNS_START:
+            case FIELD_MATCH_PATTERN_MEMBER:
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
                 return true;
             default:
                 return false;
@@ -1166,8 +1182,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPTIONAL_MATCH_GUARD:
             case MATCH_PATTERN_RHS:
             case MATCH_PATTERN_START:
-            case LIST_MATCH_PATTERN_MEMBER_START:
+            case LIST_MATCH_PATTERNS_START:
+            case LIST_MATCH_PATTERN_MEMBER:
             case LIST_MATCH_PATTERN_MEMBER_RHS:
+            case FIELD_MATCH_PATTERNS_START:
+            case FIELD_MATCH_PATTERN_MEMBER:
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
                 return true;
             default:
                 return false;
@@ -1495,11 +1515,23 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_PATTERN_START:
                 alternativeRules = MATCH_PATTERN_START;
                 break;
-            case LIST_MATCH_PATTERN_MEMBER_START:
-                alternativeRules = LIST_MATCH_PATTERN_MEMBER_START;
+            case LIST_MATCH_PATTERNS_START:
+                alternativeRules = LIST_MATCH_PATTERNS_START;
+                break;
+            case LIST_MATCH_PATTERN_MEMBER:
+                alternativeRules = LIST_MATCH_PATTERN_MEMBER;
                 break;
             case LIST_MATCH_PATTERN_MEMBER_RHS:
                 alternativeRules = LIST_MATCH_PATTERN_MEMBER_RHS;
+                break;
+            case FIELD_MATCH_PATTERNS_START:
+                alternativeRules = FIELD_MATCH_PATTERNS_START;
+                break;
+            case FIELD_MATCH_PATTERN_MEMBER:
+                alternativeRules = FIELD_MATCH_PATTERN_MEMBER;
+                break;
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
+                alternativeRules = FIELD_MATCH_PATTERN_MEMBER_RHS;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2371,14 +2403,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_PATTERN:
                 return ParserRuleContext.MATCH_PATTERN_START;
             case MATCH_PATTERN_END:
-                endContext();
-                parentCtx = getParentContext();
-                switch (parentCtx) {
-                    case LIST_MATCH_PATTERN:
-                        return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
-                    default:
-                        return ParserRuleContext.OPTIONAL_MATCH_GUARD;
-                }
+                endContext(); // End match pattern context
+                return getNextRuleForMatchPattern();
             case RIGHT_DOUBLE_ARROW:
                 // Assumption: RIGHT_DOUBLE_ARROW is only occurs in match clauses
                 // in expr-func-body, it is used by a different alias.
@@ -2387,6 +2413,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.OPEN_BRACKET;
             case REST_MATCH_PATTERN:
                 return ParserRuleContext.ELLIPSIS;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.OPEN_BRACE;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -2691,6 +2719,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MATCH_PATTERN:
             case LIST_MATCH_PATTERN:
             case REST_MATCH_PATTERN:
+            case MAPPING_MATCH_PATTERN:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2805,6 +2834,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ENUM_MEMBER_LIST;
             case MAPPING_BINDING_PATTERN:
                 return ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.FIELD_MATCH_PATTERNS_START;
             default:
                 return ParserRuleContext.STATEMENT;
         }
@@ -2901,7 +2932,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BRACKETED_LIST:
                 return ParserRuleContext.BRACKETED_LIST_MEMBER;
             case LIST_MATCH_PATTERN:
-                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_START;
+                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -3208,6 +3241,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end match body
                 endContext(); // end match stmt
                 return ParserRuleContext.STATEMENT;
+            case MAPPING_MATCH_PATTERN:
+                endContext();
+                return getNextRuleForMatchPattern();
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3311,7 +3347,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IN_KEYWORD;
             case REST_MATCH_PATTERN:
                 endContext(); // end rest match pattern context
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.MAPPING_MATCH_PATTERN) {
+                    return ParserRuleContext.CLOSE_BRACE;
+                }
                 return ParserRuleContext.CLOSE_BRACKET;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.COLON;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }
@@ -3440,7 +3482,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BINDING_PATTERN:
                 return ParserRuleContext.LIST_BINDING_PATTERN_CONTENTS;
             case LIST_MATCH_PATTERN:
-                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_START;
+                return ParserRuleContext.LIST_MATCH_PATTERNS_START;
             default:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPE_DESC_IN_TUPLE;
@@ -3485,7 +3527,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.BRACKETED_LIST_RHS;
             case LIST_MATCH_PATTERN:
                 endContext();
-                return ParserRuleContext.MATCH_PATTERN_RHS;
+                return getNextRuleForMatchPattern();
             default:
                 return getNextRuleForExpr();
         }
@@ -3533,15 +3575,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (parentCtx) {
             case XML_NAMESPACE_DECLARATION:
                 return ParserRuleContext.XML_NAMESPACE_PREFIX_DECL;
-            case MATCH_PATTERN:
-                return ParserRuleContext.MATCH_PATTERN_RHS;
-            case LIST_MATCH_PATTERN:
-                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
             default:
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
-                throw new IllegalStateException(parentCtx.toString());
+                return getNextRuleForMatchPattern();
         }
     }
 
@@ -3624,12 +3662,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_EXPR_LET_VAR_DECL:
             case ASSIGNMENT_STMT:
                 return ParserRuleContext.ASSIGN_OP;
-            case MATCH_PATTERN:
-                return ParserRuleContext.MATCH_PATTERN_RHS;
-            case LIST_MATCH_PATTERN:
-                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
             default:
-                throw new IllegalStateException(parentCtx.toString());
+                return getNextRuleForMatchPattern();
         }
     }
 
@@ -3689,8 +3723,24 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.VARIABLE_NAME;
             case XML_ATOMIC_NAME_PATTERN:
                 return ParserRuleContext.XML_ATOMIC_NAME_IDENTIFIER_RHS;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.MATCH_PATTERN;
             default:
                 return ParserRuleContext.IDENTIFIER;
+        }
+    }
+    
+    private ParserRuleContext getNextRuleForMatchPattern() {
+        ParserRuleContext parentCtx = getParentContext();
+        switch (parentCtx) {
+            case LIST_MATCH_PATTERN:
+                return ParserRuleContext.LIST_MATCH_PATTERN_MEMBER_RHS;
+            case MAPPING_MATCH_PATTERN:
+                return ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS;
+            case MATCH_PATTERN:
+                return ParserRuleContext.MATCH_PATTERN_RHS;
+            default:
+                return ParserRuleContext.OPTIONAL_MATCH_GUARD;
         }
     }
 

@@ -32,7 +32,7 @@ public class RollbackTransaction {
 
     public static void rollbackTransaction(BString transactionBlockId, Object err) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.rollbackTransaction(strand, transactionBlockId.getValue(), err);
     }
 }

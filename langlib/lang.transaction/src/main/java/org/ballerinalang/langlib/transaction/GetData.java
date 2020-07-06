@@ -29,6 +29,6 @@ public class GetData {
 
     public static Object getData() {
 
-        return Scheduler.getStrand().transactionLocalContext.getTransactionData();
+        return Scheduler.getStrand().currentTrxContext.getTransactionData();
     }
 }

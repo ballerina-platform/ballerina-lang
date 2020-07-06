@@ -36,7 +36,7 @@ public class Info {
     public static MapValue<BString, Object> info() {
         Strand strand = Scheduler.getStrand();
         if (IsTransactional.isTransactional()) {
-            TransactionLocalContext context = strand.transactionLocalContext;
+            TransactionLocalContext context = strand.currentTrxContext;
             return (MapValue<BString, Object>) context.getInfoRecord();
         }
         throw BallerinaErrors.createError(StringUtils

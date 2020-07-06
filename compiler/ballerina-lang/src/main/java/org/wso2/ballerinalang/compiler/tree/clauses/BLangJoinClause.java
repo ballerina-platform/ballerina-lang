@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -26,6 +27,29 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 1.3.0
  */
 public class BLangJoinClause extends BLangInputClause {
+
+    public boolean isOuterJoin;
+    public OnClauseNode onClause;
+
+    public void setOuterJoin(boolean outerJoin) {
+        isOuterJoin = outerJoin;
+    }
+
+    public OnClauseNode getOnClause() {
+        return onClause;
+    }
+
+    public void setOnClause(OnClauseNode onClause) {
+        this.onClause = onClause;
+    }
+
+    public boolean isOuterJoin() {
+        return isOuterJoin;
+    }
+
+    public void setIsOuterJoin(boolean isOuterJoin) {
+        this.isOuterJoin = isOuterJoin;
+    }
 
     @Override
     public NodeKind getKind() {
