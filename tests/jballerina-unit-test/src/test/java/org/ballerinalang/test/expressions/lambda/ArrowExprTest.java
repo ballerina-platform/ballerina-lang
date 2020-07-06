@@ -250,4 +250,10 @@ public class ArrowExprTest {
         BAssertUtil.validateError(resultNegative, 0, "variable 'i' is not initialized", 20, 54);
         BAssertUtil.validateError(resultNegative, 1, "variable 'm' is not initialized", 20, 58);
     }
+
+    @Test(description = "Test arrow expression chaining with one parameter")
+    public void testNestedArrowExpressionWithOneParameter() {
+        BRunUtil.invoke(basic, "testNestedArrowExpressionWithOneParameter");
+    }
+
 }

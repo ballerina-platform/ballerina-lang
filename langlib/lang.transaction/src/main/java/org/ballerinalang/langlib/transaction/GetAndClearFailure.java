@@ -28,6 +28,6 @@ import org.ballerinalang.jvm.scheduling.Scheduler;
 public class GetAndClearFailure {
 
     public static boolean getAndClearFailure() {
-        return Scheduler.getStrand().transactionLocalContext.getAndClearFailure() != null;
+        return Scheduler.getStrand().currentTrxContext.getAndClearFailure() != null;
     }
 }

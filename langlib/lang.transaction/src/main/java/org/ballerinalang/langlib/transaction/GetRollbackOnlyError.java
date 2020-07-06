@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.transactions.TransactionLocalContext;
 public class GetRollbackOnlyError {
 
     public static Object getRollbackOnlyError() {
-        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         return transactionLocalContext.getRollbackOnly();
     }
 }

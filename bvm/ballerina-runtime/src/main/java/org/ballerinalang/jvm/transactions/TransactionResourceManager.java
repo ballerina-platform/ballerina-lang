@@ -128,7 +128,7 @@ public class TransactionResourceManager {
                                       FPValue aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);
@@ -316,7 +316,7 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<FPValue> fpValueList = committedFuncRegistry.get(transactionId);
-        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true };
+        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);
@@ -331,7 +331,7 @@ public class TransactionResourceManager {
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         List<FPValue> fpValueList = abortedFuncRegistry.get(transactionId);
         //TODO: Need to pass the retryManager to get the willRetry value.
-        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true, error, true, false, true };
+        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);

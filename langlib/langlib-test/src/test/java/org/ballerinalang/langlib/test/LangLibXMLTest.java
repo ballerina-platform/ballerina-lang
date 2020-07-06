@@ -331,7 +331,7 @@ public class LangLibXMLTest {
         BRunUtil.invoke(constrainedTest, "xmlElementToConstraintClassInvalid");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNegativeConstraint() {
         constraintNegative = BCompileUtil.compile("test-src/xmllib_constrained_negative_test.bal");
         int i = 0;

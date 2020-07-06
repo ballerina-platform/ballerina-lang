@@ -124,19 +124,40 @@ public class JoinClauseTest {
         Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Operations");
     }
 
-    @Test(description = "Test outer join clause")
-    public void testSimpleOuterJoinClause() {
-        BValue[] values = BRunUtil.invoke(result, "testSimpleOuterJoinClause");
-        Assert.assertNotNull(values);
+    @Test(description = "Test outer join clause with record variable definition type 1")
+    public void testOuterJoinClauseWithRecordVariable() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
 
-        Assert.assertEquals(values.length, 2, "Expected events are not received");
+    @Test(description = "Test join clause with record variable definition type 2")
+    public void testOuterJoinClauseWithRecordVariable2() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable2");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
 
-        BMap<String, BValue> deptPerson1 = (BMap<String, BValue>) values[0];
-        BMap<String, BValue> deptPerson2 = (BMap<String, BValue>) values[1];
+    @Test(description = "Test join clause with record variable definition type 3")
+    public void testOuterJoinClauseWithRecordVariable3() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithRecordVariable3");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
 
-        Assert.assertEquals(deptPerson1.get("fname").stringValue(), "Alex");
-        Assert.assertEquals(deptPerson1.get("lname").stringValue(), "George");
-        Assert.assertEquals(deptPerson2.get("dept").stringValue(), "Eng");
+    @Test(description = "Test join clause with simple variable definition and stream")
+    public void testOuterJoinClauseWithStream() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithStream", new BValue[]{});
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test query expr with join and limit clause")
+    public void testOuterJoinClauseWithLimit() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinClauseWithLimit");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test on clause with function")
+    public void testOuterJoinWithOnClauseWithFunction() {
+        BValue[] values = BRunUtil.invoke(result, "testOuterJoinWithOnClauseWithFunction");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
     @Test(description = "Test negative scenarios for query expr with join clause")

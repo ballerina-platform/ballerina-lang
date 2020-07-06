@@ -91,7 +91,7 @@ public class LangLibSubTypeTest {
         BRunUtil.invoke(compileResult, "testMapping");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testNegativeIntSubType() {
 
         CompileResult result = BCompileUtil.compile("test-src/subtypes/int_subtype_test_negative.bal");

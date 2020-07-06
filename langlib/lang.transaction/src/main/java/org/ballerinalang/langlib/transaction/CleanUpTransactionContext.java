@@ -32,8 +32,8 @@ public class CleanUpTransactionContext {
 
     public static void cleanupTransactionContext(BString transactionBlockId) {
         Strand strand = Scheduler.getStrand();
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.removeTransactionInfo();
-        strand.removeLocalTransactionContext();
+        strand.removeCurrentTrxContext();
     }
 }

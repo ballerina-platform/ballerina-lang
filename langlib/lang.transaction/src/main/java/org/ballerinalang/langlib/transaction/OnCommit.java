@@ -31,7 +31,7 @@ import org.ballerinalang.jvm.values.FPValue;
 public class OnCommit {
 
     public static void onCommit(FPValue fpValue) {
-        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = Scheduler.getStrand().currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerCommittedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);
