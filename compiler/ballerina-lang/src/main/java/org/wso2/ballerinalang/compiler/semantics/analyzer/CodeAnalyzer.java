@@ -2023,8 +2023,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean isRecord = type != null && type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
 
-        // A record type is inferred for a record literal even if the CET is a map, if the mapping
-        // constructor expression has `readonly` fields.
+        // A record type is inferred for a record literal even if the contextually expected type is a map, if the
+        // mapping constructor expression has `readonly` fields.
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
