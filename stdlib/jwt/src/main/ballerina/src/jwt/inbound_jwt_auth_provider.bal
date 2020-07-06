@@ -86,6 +86,14 @@ function setPrincipal(JwtPayload jwtPayload) {
             if (scopeString is string && scopeString != "") {
                 auth:setPrincipal(scopes = stringutils:split(scopeString, " "));
             }
+        } else if (claims.hasKey("scp")) {
+            json scopeString = claims["scp"];
+            if (scopeString is json[] && scopeString.length() > 0) {
+                string[]|error scopes = string[].constructFrom(scopeString);
+                if (scopes is string[]) {
+                    auth:setPrincipal(scopes = scopes);
+                }
+            }
         }
     }
 }
