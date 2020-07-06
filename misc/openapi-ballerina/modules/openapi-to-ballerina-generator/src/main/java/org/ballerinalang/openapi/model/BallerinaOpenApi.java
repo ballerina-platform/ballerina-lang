@@ -277,6 +277,9 @@ public class BallerinaOpenApi implements BallerinaOpenApiObject<BallerinaOpenApi
     public String getDefinitionPath() {
         return definitionPath;
     }
-    public static String getPathName() { return  pathName; }
+
+    public static String getPathName() {
+        return  pathName;
+    }
 
 }
