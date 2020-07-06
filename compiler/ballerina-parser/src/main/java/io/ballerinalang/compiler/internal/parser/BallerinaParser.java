@@ -9625,7 +9625,9 @@ public class BallerinaParser extends AbstractParser {
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
         }
         STNode rightDoubleArrow = parseDoubleRightArrow();
-        STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
+        // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
+        // operators. That is done by lowering the current precedence.
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
     }
 
