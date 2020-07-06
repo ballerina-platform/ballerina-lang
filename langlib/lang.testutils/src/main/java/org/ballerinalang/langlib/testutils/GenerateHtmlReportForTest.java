@@ -126,22 +126,20 @@ public class GenerateHtmlReportForTest {
 
     public static String getDiff(String message) {
         if (message.contains("expected") && message.contains("but found")) {
-            //skip if string contains xml elements
-            if (message.matches("(?s).*(<(\\w+)[^>]*>.*</\\2>|<(\\w+)[^>]*/>).*") ||
-                    message.matches(".*(<(\\w+)[^>]*>).*")) {
-                message = "<xmp>" + message + "</xmp>";
+            int i1 = message.indexOf("expected: ");
+            int i2 = message.indexOf(" but found: ");
+            String str1 = message.substring(i1 + 10, i2);
+            String str2 = "";
+            if (message.contains("\n")) {
+                str2 = message.substring(i2 + 12, message.indexOf("\n"));
             } else {
-                String str1 = message.substring(message.indexOf("["), message.indexOf("]") + 1);
-                String temp = message.replace(str1, "");
-                if (temp.contains("[") && temp.contains("]")) {
-                    String str2 = temp.substring(temp.indexOf("["), temp.indexOf("]") + 1);
-                    StringsComparator comparator = new StringsComparator(str1, str2);
-                    TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
-                    comparator.getScript().visit(textDiffHighlighter);
-                    message = message.replace(str1, textDiffHighlighter.leftStr);
-                    message = message.replace(str2, textDiffHighlighter.rightStr);
-                }
+                str2 = message.substring(i2 + 12);
             }
+            StringsComparator comparator = new StringsComparator(str1, str2);
+            TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
+            comparator.getScript().visit(textDiffHighlighter);
+            message = message.replace(str1, textDiffHighlighter.leftStr);
+            message = message.replace(str2, textDiffHighlighter.rightStr);
         }
         return message;
     }
@@ -155,8 +153,14 @@ class TextDiffHighlighter implements CommandVisitor<Character> {
     @Override
     public void visitKeepCommand(Character c) {
         // Character is present in both files.
-        leftStr = leftStr + c;
-        rightStr = rightStr + c;
+        // ignore xml tags.
+        if (c == '<') {
+            leftStr = leftStr + "&lt;";
+            rightStr = rightStr + "&lt;";
+        } else {
+            leftStr = leftStr + c;
+            rightStr = rightStr + c;
+        }
     }
 
     @Override
