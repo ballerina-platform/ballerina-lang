@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -143,7 +144,7 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
                     return action;
                 }
             }
-        } catch (CompilationFailedException | WorkspaceDocumentException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException | TokenOrSymbolNotFoundException e) {
             // ignore
         }
         return null;
