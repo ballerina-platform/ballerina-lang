@@ -173,7 +173,7 @@ function isCacheableStatusCode(int statusCode) returns boolean {
 function addEntry(cache:Cache cache, string key, Response inboundResponse) {
     if (cache.hasKey(key)) {
         Response[] existingResponses = <Response[]>cache.get(key);
-        existingResponses[existingResponses.length()] = inboundResponse;
+        existingResponses.push(inboundResponse);
     } else {
         Response[] cachedResponses = [inboundResponse];
         cache:Error? result = cache.put(key, cachedResponses);
