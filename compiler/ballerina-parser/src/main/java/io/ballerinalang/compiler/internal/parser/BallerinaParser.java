@@ -579,7 +579,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseRecordKeyword();
             case LIST_MATCH_PATTERN_MEMBER_RHS:
                 return parseListMatchPatternMemberRhs();
-            case MAPPING_MATCH_PATTERN_MEMBER_RHS:
+            case FIELD_MATCH_PATTERN_MEMBER:
+                return parseFieldMatchPatternMember();
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
                 return parseFieldMatchPatternRhs();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
@@ -12627,9 +12629,12 @@ public class BallerinaParser extends AbstractParser {
      * Parse mapping match pattern.
      * <p>
      *     mapping-match-pattern := { field-match-patterns }
+     *     <br/>
      *     field-match-patterns := field-match-pattern (, field-match-pattern)* [, rest-match-pattern]
      *                              | [ rest-match-pattern ]
+     *     <br/>
      *     field-match-pattern := field-name : match-pattern
+     *     <br/>
      *     rest-match-pattern := ... var variable-name
      * </p>
      *
@@ -12640,15 +12645,16 @@ public class BallerinaParser extends AbstractParser {
         STNode openBraceToken = parseOpenBrace();
         List<STNode> fieldMatchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
+        boolean isEndOfFields = false;
 
         while (!isEndOfMappingMatchPattern()) {
-            STToken nextToken = peek();
-            if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                restMatchPattern = parseRestMatchPattern();
+            STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
+            if (fieldMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
+                restMatchPattern = fieldMatchPatternMember;
+                isEndOfFields = true;
                 break;
             }
-            STNode fieldMatchPattern = parseFieldMatchPattern();
-            fieldMatchPatternList.add(fieldMatchPattern);
+            fieldMatchPatternList.add(fieldMatchPatternMember);
             STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
 
             if (fieldMatchPatternRhs != null) {
@@ -12656,6 +12662,19 @@ public class BallerinaParser extends AbstractParser {
             } else {
                 break;
             }
+        }
+
+        // Following loop will only run if there are more fields after the rest match pattern.
+        // Try to parse them and mark as invalid.
+        STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
+        while (isEndOfFields && fieldMatchPatternRhs != null) {
+            STNode invalidField = parseFieldMatchPatternMember();
+            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern,
+                    fieldMatchPatternRhs);
+            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, invalidField);
+            restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
+                    DiagnosticErrorCode.ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD);
+            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
         }
 
         if (restMatchPattern == null) {
@@ -12668,6 +12687,30 @@ public class BallerinaParser extends AbstractParser {
 
         return STNodeFactory.createMappingMatchPatternNode(openBraceToken, fieldMatchPatterns,
                 restMatchPattern, closeBraceToken);
+    }
+
+    private STNode parseFieldMatchPatternMember() {
+        return parseFieldMatchPatternMember(peek().kind);
+    }
+
+    private STNode parseFieldMatchPatternMember(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseFieldMatchPattern();
+            case ELLIPSIS_TOKEN:
+                return parseRestMatchPattern();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldMatchPatternMember(solution.tokenKind);
+        }
     }
 
     /**
@@ -12707,7 +12750,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.MAPPING_MATCH_PATTERN_MEMBER_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch

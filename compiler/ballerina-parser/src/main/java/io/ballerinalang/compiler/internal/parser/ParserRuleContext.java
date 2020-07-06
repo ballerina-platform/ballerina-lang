@@ -225,9 +225,9 @@ public enum ParserRuleContext {
     LIST_MATCH_PATTERN_MEMBER_RHS("list-match-pattern-member-rhs"),
     REST_MATCH_PATTERN("rest-match-pattern"),
     MAPPING_MATCH_PATTERN("mapping-match-pattern"),
-    MAPPING_MATCH_PATTERNS_START("mapping-match-patterns-start"),
-    MAPPING_MATCH_PATTERN_MEMBER_RHS("mapping-match-pattern-member-rhs"),
-    MAPPING_MATCH_PATTERN_MEMBER("mapping-match-pattern-member"),
+    FIELD_MATCH_PATTERNS_START("field-match-patterns-start"),
+    FIELD_MATCH_PATTERN_MEMBER_RHS("field-match-pattern-member-rhs"),
+    FIELD_MATCH_PATTERN_MEMBER("field-match-pattern-member"),
 
     // Statements
     STATEMENT("statement"),
