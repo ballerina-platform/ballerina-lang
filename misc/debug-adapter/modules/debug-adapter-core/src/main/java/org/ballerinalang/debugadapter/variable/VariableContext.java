@@ -16,22 +16,30 @@
 
 package org.ballerinalang.debugadapter.variable;
 
-import org.eclipse.lsp4j.debug.Variable;
+import com.sun.jdi.StackFrame;
+import com.sun.jdi.ThreadReference;
 
 /**
- * Base implementation for ballerina primitive variable types.
+ * Debug context information for ballerina debug variables.
  */
-public abstract class BPrimitiveVariable implements BVariable {
+public class VariableContext {
+    private final StackFrame frame;
+    private final ThreadReference owningThread;
 
-    private Variable dapVariable;
-
-    @Override
-    public Variable getDapVariable() {
-        return dapVariable;
+    public VariableContext(StackFrame frame) {
+        this(frame, frame.thread());
     }
 
-    @Override
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
+    public VariableContext(StackFrame frame, ThreadReference threadRef) {
+        this.frame = frame;
+        this.owningThread = threadRef;
+    }
+
+    public ThreadReference getOwningThread() {
+        return owningThread;
+    }
+
+    public StackFrame getFrame() {
+        return frame;
     }
 }

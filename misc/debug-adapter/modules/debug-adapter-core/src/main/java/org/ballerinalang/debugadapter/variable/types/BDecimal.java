@@ -17,24 +17,29 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
+
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina decimal variable type.
  */
-public class BDecimal extends BPrimitiveVariable {
+public class BDecimal extends BSimpleVariable {
 
-    public BDecimal(Value value, Variable dapVariable) {
-        dapVariable.setType(BVariableType.DECIMAL.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+    public BDecimal(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.DECIMAL, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        // Todo - how to extract value?
-        return "unknown";
+    public String computeValue() {
+        try {
+            return getStringValue(context, jvmValue);
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
+        }
     }
 }

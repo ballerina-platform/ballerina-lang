@@ -2807,7 +2807,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token joinKeyword,
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnClauseNode onCondition) {
         Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
@@ -2818,7 +2819,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 joinKeyword.internalNode(),
                 typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(onCondition));
         return stJoinClauseNode.createUnlinkedFacade();
     }
 

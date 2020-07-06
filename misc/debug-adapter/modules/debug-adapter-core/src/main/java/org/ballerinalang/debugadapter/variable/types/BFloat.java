@@ -16,41 +16,43 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
+import com.sun.jdi.DoubleValue;
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.DoubleValueImpl;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.stream.Collectors;
+import java.util.Optional;
+
+import static org.ballerinalang.debugadapter.variable.VariableUtils.FIELD_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
 
 /**
  * Ballerina float variable type.
  */
-public class BFloat extends BPrimitiveVariable {
+public class BFloat extends BSimpleVariable {
 
-    private final Value jvmValue;
-
-    public BFloat(Value value, Variable dapVariable) {
-        this.jvmValue = value;
-        dapVariable.setType(BVariableType.FLOAT.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+    public BFloat(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.FLOAT, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        if (jvmValue instanceof DoubleValueImpl) {
-            return jvmValue.toString();
-        } else if (jvmValue instanceof ObjectReferenceImpl) {
-            ObjectReferenceImpl valueObjectRef = ((ObjectReferenceImpl) jvmValue);
-            Field valueField = valueObjectRef.referenceType().allFields().stream().filter(field ->
-                    field.name().equals("value")).collect(Collectors.toList()).get(0);
-            return valueObjectRef.getValue(valueField).toString();
-        } else {
-            return "unknown";
+    public String computeValue() {
+        try {
+            if (jvmValue instanceof DoubleValue) {
+                return jvmValue.toString();
+            } else if (jvmValue instanceof ObjectReference) {
+                Optional<Value> field = VariableUtils.getFieldValue(jvmValue, FIELD_VALUE);
+                if (field.isPresent()) {
+                    return field.get().toString();
+                }
+            }
+            return UNKNOWN_VALUE;
+        } catch (Exception e) {
+            return UNKNOWN_VALUE;
         }
     }
 }
