@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiOperation;
@@ -284,7 +285,8 @@ public class AddMissingParameterInBallerinaExecutor implements LSCommandExecutor
             }
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
-        } catch (BallerinaOpenApiException | IOException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | BallerinaOpenApiException | IOException |
+                TokenOrSymbolNotFoundException e) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
         return null;

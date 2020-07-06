@@ -3372,30 +3372,38 @@ public class BallerinaParser extends AbstractParser {
      * @param identifier Starting identifier
      * @return Parse node
      */
-    private STNode parseQualifiedIdentifier(STNode identifier, boolean isInConditionalExpr) {
+    private STNode parseQualifiedIdentifier(STNode identifier,
+                                            boolean isInConditionalExpr) {
         STToken nextToken = peek(1);
         if (nextToken.kind != SyntaxKind.COLON_TOKEN) {
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STToken nextNextToken = peek(2);
-        if (nextNextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            STToken colon = consume();
-            STToken varOrFuncName = consume();
-            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
-        } else if (nextNextToken.kind == SyntaxKind.MAP_KEYWORD) {
-            STToken colon = consume();
-            STToken mapKeyword = consume();
-            STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
-                    mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
-            return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, refName);
-        } else {
-            if (isInConditionalExpr) {
-                return STNodeFactory.createSimpleNameReferenceNode(identifier);
-            }
+        switch (nextNextToken.kind) {
+            case IDENTIFIER_TOKEN:
+                STToken colon = consume();
+                STNode varOrFuncName = consume();
+                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
+            case MAP_KEYWORD:
+                colon = consume();
+                STToken mapKeyword = consume();
+                STNode refName = STNodeFactory.createIdentifierToken(mapKeyword.text(), mapKeyword.leadingMinutiae(),
+                        mapKeyword.trailingMinutiae(), mapKeyword.diagnostics());
+                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, refName);
+            case COLON_TOKEN:
+                // specially handle cases where there are more than one colon.
+                addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
+                return parseQualifiedIdentifier(identifier, isInConditionalExpr);
+            default:
+                if (isInConditionalExpr) {
+                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                }
 
-            addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
-            return parseQualifiedIdentifier(identifier, isInConditionalExpr);
+                colon = consume();
+                varOrFuncName = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+                return STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, varOrFuncName);
         }
     }
 
@@ -6737,14 +6745,20 @@ public class BallerinaParser extends AbstractParser {
      * is not present.
      *
      * @param qualifier Qualifier that precedes the constant decl
-     * @param constKeyword Const keyword
+     * @param keyword Keyword
      * @param typeOrVarName Identifier that follows the const-keywoord
      * @return Parsed node
      */
-    private STNode parseConstantOrListenerDeclRhs(STNode metadata, STNode qualifier, STNode constKeyword,
+    private STNode parseConstantOrListenerDeclRhs(STNode metadata, STNode qualifier, STNode keyword,
                                                   STNode typeOrVarName, boolean isListener) {
+        if (typeOrVarName.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            STNode type = typeOrVarName;
+            STNode variableName = parseVariableName();
+            return parseListenerOrConstRhs(metadata, qualifier, keyword, isListener, type, variableName);
+        }
+
         STToken token = peek();
-        return parseConstantOrListenerDeclRhs(token.kind, metadata, qualifier, constKeyword, typeOrVarName, isListener);
+        return parseConstantOrListenerDeclRhs(token.kind, metadata, qualifier, keyword, typeOrVarName, isListener);
     }
 
     private STNode parseConstantOrListenerDeclRhs(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier,
@@ -6776,6 +6790,11 @@ public class BallerinaParser extends AbstractParser {
                         isListener);
         }
 
+        return parseListenerOrConstRhs(metadata, qualifier, keyword, isListener, type, variableName);
+    }
+
+    private STNode parseListenerOrConstRhs(STNode metadata, STNode qualifier, STNode keyword, boolean isListener,
+                                           STNode type, STNode variableName) {
         STNode equalsToken = parseAssignOp();
         STNode initializer = parseExpression();
         STNode semicolonToken = parseSemicolon();
@@ -7099,8 +7118,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeTestExpression(STNode lhsExpr, boolean isInConditionalExpr) {
         STNode isKeyword = parseIsKeyword();
-        STNode typeDescriptor = parseTypeDescriptorInExpression(ParserRuleContext.TYPE_DESC_IN_EXPRESSION,
-                isInConditionalExpr);
+        STNode typeDescriptor =
+                parseTypeDescriptorInExpression(ParserRuleContext.TYPE_DESC_IN_EXPRESSION, isInConditionalExpr);
         return STNodeFactory.createTypeTestExpressionNode(lhsExpr, isKeyword, typeDescriptor);
     }
 
@@ -8484,8 +8503,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions,
-                isInConditionalExpr);
+        STNode expr =
+                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
@@ -10556,8 +10575,7 @@ public class BallerinaParser extends AbstractParser {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
                 SyntaxKind nextNextTokenKind = peek(nextTokenIndex).kind;
-                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN ||
-                        nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
+                return nextNextTokenKind == SyntaxKind.SEMICOLON_TOKEN || nextNextTokenKind == SyntaxKind.COMMA_TOKEN ||
                         nextNextTokenKind == SyntaxKind.CLOSE_BRACKET_TOKEN ||
                         isValidExprRhsStart(nextNextTokenKind, SyntaxKind.SIMPLE_NAME_REFERENCE);
             case IDENTIFIER_TOKEN:

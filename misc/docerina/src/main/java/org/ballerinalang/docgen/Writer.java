@@ -119,10 +119,10 @@ public class Writer {
                 return newDescription;
             });
 
-            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
-                //remove paragraph tags
+            handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
+                //remove html tags
                 if (string != null) {
-                    return string.replaceAll("<\\/?p>", "");
+                    return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
                     return "";
                 }
@@ -186,6 +186,9 @@ public class Writer {
         } else if (type.isArrayType) {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
+        } else if ("map".equals(type.category) && type.constraint != null) {
+            label = "<span class=\"builtin-type\">" + type.name + "</span> <" +
+                    getTypeLabel(type.constraint, context) + ">";
         } else if ("builtin".equals(type.category) || "lang.annotations".equals(type.moduleName)
                 || !type.generateUserDefinedTypeLink || "UNKNOWN".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + getSuffixes(type) + "</span>";
