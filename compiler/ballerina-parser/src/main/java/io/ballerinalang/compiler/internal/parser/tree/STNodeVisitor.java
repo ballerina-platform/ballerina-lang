@@ -749,6 +749,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restMatchPatternNode);
     }
 
+    public void visit(STMappingMatchPatternNode mappingMatchPatternNode) {
+        visitSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public void visit(STFieldMatchPatternNode fieldMatchPatternNode) {
+        visitSyntaxNode(fieldMatchPatternNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

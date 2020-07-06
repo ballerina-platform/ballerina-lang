@@ -77,7 +77,7 @@ public class NestedTransactionTest {
     public void testArrowFunctionInsideTransaction() {
         BValue[] returns = BRunUtil.invoke(programFile, "testArrowFunctionInsideTransaction");
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 44L);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 72L);
     }
 
     @Test
@@ -91,6 +91,13 @@ public class NestedTransactionTest {
     public void testTrxReturnVal() {
         BValue[] result = BRunUtil.invoke(programFile, "testTrxReturnVal");
         Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
+    }
+
+    @Test
+    public void testMultipleTrxReturnVal() {
+        BValue[] result = BRunUtil.invoke(programFile, "testMultipleTrxReturnVal");
+        Assert.assertEquals(result[0].stringValue(), "start -> within transaction 1 " +
+                "-> within transaction 2 -> within transaction 3 -> returned.");
     }
 
     @Test

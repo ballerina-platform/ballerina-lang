@@ -17,18 +17,15 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.ArrayReference;
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.JVMValueType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -36,66 +33,39 @@ import java.util.Optional;
  */
 public class BJson extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
+    private static final String FIELD_JSON_DATA = "table";
+    private static final String FIELD_JSON_KEY = "key";
+    private static final String FIELD_JSON_VALUE = "value";
 
-    public BJson(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.JSON.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+    public BJson(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.JSON, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
+    public String computeValue() {
         return "object";
     }
 
     @Override
-    public void computeChildVariables() {
+    public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childMap = new HashMap<>();
         try {
-            List<Field> fields = jvmValueRef.referenceType().allFields();
-            Optional<Field> valueField = fields.stream().filter(field -> field.typeName()
-                    .equals("java.util.HashMap$Node[]")).findFirst();
-            if (!valueField.isPresent()) {
-                return;
+            Optional<Value> jsonValues = VariableUtils.getFieldValue(jvmValue, FIELD_JSON_DATA);
+            if (!jsonValues.isPresent()) {
+                return childMap;
             }
-            Value jsonValue = jvmValueRef.getValue(valueField.get());
-            Map<String, Value> values = new HashMap<>();
-            ((ArrayReference) jsonValue).getValues().stream().filter(Objects::nonNull).forEach(jsonMap -> {
-                List<Field> jsonValueFields = ((ObjectReferenceImpl) jsonMap).referenceType().visibleFields();
-                Optional<Field> jsonKeyField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("key")).findFirst();
-                Optional<Field> jsonValueField = jsonValueFields.stream().filter(field ->
-                        field.name().equals("value")).findFirst();
-
-                if (jsonKeyField.isPresent() && jsonValueField.isPresent()) {
-                    Value jsonKey = ((ObjectReferenceImpl) jsonMap).getValue(jsonKeyField.get());
-                    Value jsonValue1 = ((ObjectReferenceImpl) jsonMap).getValue(jsonValueField.get());
-                    values.put(getJsonKeyString(jsonKey), jsonValue1);
+            for (Value jsonMap : ((ArrayReference) jsonValues.get()).getValues()) {
+                if (jsonMap != null) {
+                    Optional<Value> jsonKey = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_KEY);
+                    Optional<Value> jsonValue = VariableUtils.getFieldValue(jsonMap, FIELD_JSON_VALUE);
+                    if (jsonKey.isPresent() && jsonValue.isPresent()) {
+                        childMap.put(VariableUtils.getStringFrom(jsonKey.get()), jsonValue.get());
+                    }
                 }
-            });
-            this.setChildVariables(values);
-        } catch (Exception ignored) {
-            this.setChildVariables(new HashMap<>());
-        }
-    }
-
-    private String getJsonKeyString(Value key) {
-        ObjectReferenceImpl keyRef = key instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) key : null;
-        if (keyRef == null) {
-            return "unknown";
-        }
-        if (keyRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
-                || keyRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
-            Optional<Field> valueField = keyRef.referenceType().allFields().stream()
-                    .filter(field -> field.name().equals("value")).findAny();
-            if (valueField.isPresent()) {
-                return keyRef.getValue(valueField.get()).toString();
             }
-            return "unknown";
-        } else {
-            return keyRef.toString();
+            return childMap;
+        } catch (Exception ignored) {
+            return childMap;
         }
     }
 }

@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
@@ -130,7 +129,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static final CompilerContext.Key<JvmPackageGen> JVM_PACKAGE_GEN_KEY = new CompilerContext.Key<>();
     private static ResolvedTypeBuilder typeBuilder;
 
     public final SymbolTable symbolTable;
@@ -532,9 +530,9 @@ public class JvmPackageGen {
                 jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
                                                 asyncDataCollector);
                 if (mainFunc != null) {
-                    jvmMethodGen.generateLambdaForMain(mainFunc, cw, module, mainClass, moduleClass);
+                    jvmMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
                 }
-                jvmMethodGen.generateLambdaForPackageInits(cw, module, mainClass, moduleClass, moduleImports);
+                jvmMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
@@ -549,7 +547,7 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, false, moduleClass, workerName,
+                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, moduleClass, workerName,
                                             asyncDataCollector);
             }
             // generate lambdas created during generating methods
@@ -799,6 +797,7 @@ public class JvmPackageGen {
             return objectNewIns.def.type;
         } else {
             PackageID id = objectNewIns.externalPackageId;
+            assert id != null;
             BPackageSymbol symbol = packageCache.getSymbol(id.orgName + "/" + id.name);
             if (symbol != null) {
                 BObjectTypeSymbol objectTypeSymbol =

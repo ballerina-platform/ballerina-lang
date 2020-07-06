@@ -163,7 +163,7 @@ The negatively-acknowledged (rejected) messages can be re-queued.
 For information on the operations, which you can perform with this module, see the below **Functions**. 
 
 For examples on the usage of the connector, see the following.
-* [Producer Example](https://ballerina.io/learn/by-example/rabbitmq-producer.html).
-* [Consumer Example](https://ballerina.io/learn/by-example/rabbitmq-consumer.html)
-* [Client Acknowledgements Example](https://ballerina.io/learn/by-example/rabbitmq-consumer-with-client-acknowledgement.html)
-* [QoS Settings Example](https://ballerina.io/learn/by-example/rabbitmq-consumer-with-qos-settings.html)
+* [Producer Example](https://ballerina.io/swan-lake/learn/by-example/rabbitmq-producer.html).
+* [Consumer Example](https://ballerina.io/swan-lake/learn/by-example/rabbitmq-consumer.html)
+* [Client Acknowledgements Example](https://ballerina.io/swan-lake/learn/by-example/rabbitmq-consumer-with-client-acknowledgement.html)
+* [QoS Settings Example](https://ballerina.io/swan-lake/learn/by-example/rabbitmq-consumer-with-qos-settings.html)
