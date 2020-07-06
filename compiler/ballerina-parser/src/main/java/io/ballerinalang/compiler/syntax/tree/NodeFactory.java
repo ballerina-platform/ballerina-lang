@@ -2867,5 +2867,37 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 variableName.internalNode());
         return stRestMatchPatternNode.createUnlinkedFacade();
     }
+
+    public static MappingMatchPatternNode createMappingMatchPatternNode(
+            Token openBraceToken,
+            SeparatedNodeList<Node> mappingMatchPatternListNode,
+            RestMatchPatternNode restMatchPattern,
+            Token closeBraceToken) {
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(mappingMatchPatternListNode, "mappingMatchPatternListNode must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
+                openBraceToken.internalNode(),
+                mappingMatchPatternListNode.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern),
+                closeBraceToken.internalNode());
+        return stMappingMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static FieldMatchPatternNode createFieldMatchPatternNode(
+            SimpleNameReferenceNode fieldNameNode,
+            Token colonToken,
+            Node matchPattern) {
+        Objects.requireNonNull(fieldNameNode, "fieldNameNode must not be null");
+        Objects.requireNonNull(colonToken, "colonToken must not be null");
+        Objects.requireNonNull(matchPattern, "matchPattern must not be null");
+
+        STNode stFieldMatchPatternNode = STNodeFactory.createFieldMatchPatternNode(
+                fieldNameNode.internalNode(),
+                colonToken.internalNode(),
+                matchPattern.internalNode());
+        return stFieldMatchPatternNode.createUnlinkedFacade();
+    }
 }
 

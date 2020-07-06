@@ -2922,6 +2922,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 variableName);
     }
 
+    @Override
+    public MappingMatchPatternNode transform(
+            MappingMatchPatternNode mappingMatchPatternNode) {
+        Token openBraceToken =
+                modifyToken(mappingMatchPatternNode.openBraceToken());
+        SeparatedNodeList<Node> mappingMatchPatternListNode =
+                modifySeparatedNodeList(mappingMatchPatternNode.mappingMatchPatternListNode());
+        RestMatchPatternNode restMatchPattern =
+                modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
+        Token closeBraceToken =
+                modifyToken(mappingMatchPatternNode.closeBraceToken());
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public FieldMatchPatternNode transform(
+            FieldMatchPatternNode fieldMatchPatternNode) {
+        SimpleNameReferenceNode fieldNameNode =
+                modifyNode(fieldMatchPatternNode.fieldNameNode());
+        Token colonToken =
+                modifyToken(fieldMatchPatternNode.colonToken());
+        Node matchPattern =
+                modifyNode(fieldMatchPatternNode.matchPattern());
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
+    }
+
     // Tokens
 
     @Override

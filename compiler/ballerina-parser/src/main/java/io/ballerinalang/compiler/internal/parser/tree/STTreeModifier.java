@@ -2317,6 +2317,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 variableName);
     }
 
+    @Override
+    public STMappingMatchPatternNode transform(
+            STMappingMatchPatternNode mappingMatchPatternNode) {
+        STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
+        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
+        STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public STFieldMatchPatternNode transform(
+            STFieldMatchPatternNode fieldMatchPatternNode) {
+        STNode fieldNameNode = modifyNode(fieldMatchPatternNode.fieldNameNode);
+        STNode colonToken = modifyNode(fieldMatchPatternNode.colonToken);
+        STNode matchPattern = modifyNode(fieldMatchPatternNode.matchPattern);
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {
