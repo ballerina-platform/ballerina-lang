@@ -2127,5 +2127,29 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 onKeyword,
                 expression);
     }
+
+    public static STNode createListMatchPatternNode(
+            STNode openBracket,
+            STNode matchPatterns,
+            STNode restMatchPattern,
+            STNode closeBracket) {
+
+        return new STListMatchPatternNode(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    public static STNode createRestMatchPatternNode(
+            STNode ellipsisToken,
+            STNode varKeywordToken,
+            STNode variableName) {
+
+        return new STRestMatchPatternNode(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
 }
 

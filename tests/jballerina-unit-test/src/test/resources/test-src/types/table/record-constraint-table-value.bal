@@ -287,6 +287,8 @@ function testTableEquality() {
     testIdenticalTable();
     testUnidenticalTable();
     testInEqualityTableV1();
+    testTableEqualityWithKey();
+    testTableEqualityWithKeyV2();
 }
 
 function testSameTable() {
@@ -352,6 +354,47 @@ function testInEqualityTableV2() {
                             ];
 
     assertEquality(false, t1 != t2);
+}
+
+type Employee record {
+    readonly int id;
+    readonly string name;
+    float salary;
+};
+type EmployeeTable table<Employee> key(id);
+
+function testTableEqualityWithKey() {
+
+    EmployeeTable employeeTab1 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    EmployeeTable employeeTab2 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    assertEquality(true, employeeTab1 == employeeTab2);
+}
+
+function testTableEqualityWithKeyV2() {
+
+    table<Employee> key(id) employeeTab1 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Peter", salary: 750.0}
+    ];
+
+    table<Employee> key(id) employeeTab2 = table [
+      {id: 1, name: "John", salary: 300.50},
+      {id: 2, name: "Bella", salary: 500.50},
+      {id: 3, name: "Ethen", salary: 750.0}
+    ];
+
+    assertEquality(true, employeeTab1 != employeeTab2);
 }
 
 type AssertionError error;
