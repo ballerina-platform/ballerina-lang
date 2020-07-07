@@ -909,6 +909,18 @@ selectClause
     :   SELECT expression
     ;
 
+orderDirection
+    :   ASCENDING|DESCENDING
+    ;
+
+orderKey
+    :   expression orderDirection?
+    ;
+
+orderByClause
+    :   ORDER BY orderKey (COMMA orderKey)*
+    ;
+
 onClause
     :   ON expression
     ;
@@ -942,11 +954,11 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
+    :   queryConstructType? queryPipeline orderByClause? selectClause onConflictClause? limitClause?
     ;
 
 queryAction
-    :   queryPipeline doClause limitClause?
+    :   queryPipeline orderByClause? doClause limitClause?
     ;
 
 //reusable productions
