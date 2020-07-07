@@ -312,15 +312,12 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 
         // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
         // a directive and is explicitly allowed in the request.
-        if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared)) {
-
+        if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared) && !req.hasHeader(PRAGMA)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!isNoCacheSet(reqCache, resCache) && !req.hasHeader(PRAGMA)) {
-                log:printDebug("Serving cached stale response without validating with the origin server");
-                cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                return cachedResponse;
-            }
+            log:printDebug("Serving cached stale response without validating with the origin server");
+            cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+            return cachedResponse;
         }
 
         log:printDebug(function() returns string {

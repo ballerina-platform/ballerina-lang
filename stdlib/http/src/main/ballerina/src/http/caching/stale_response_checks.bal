@@ -14,38 +14,44 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
+// All the functions in this file are based on https://tools.ietf.org/html/rfc7234#section-4.2.4
+
 function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Response cachedResponse,
                                   boolean isSharedCache) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    var responseCacheControl = cachedResponse.cacheControl;
-    if (responseCacheControl is ResponseCacheControl) {
-        if (isServingStaleProhibited(requestCacheControl, responseCacheControl)) {
-            return false;
-        }
-    } else {
+    if (isServingStaleProhibitedInRequestCC(requestCacheControl)) {
         return false;
     }
+
+    if (isServingStaleProhibitedInResponseCC(cachedResponse.cacheControl)) {
+        return false;
+    }
+
     return isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
 }
 
-// Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isServingStaleProhibited(RequestCacheControl? reqCC, ResponseCacheControl resCC) returns boolean {
+function isServingStaleProhibitedInRequestCC(RequestCacheControl? cacheControl) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    if (reqCC is RequestCacheControl) {
-        if (reqCC.noCache || reqCC.noStore) {
-            return true;
-        }
+    if (cacheControl is ()) {
+        return false;
     }
 
-    if (resCC.mustRevalidate || resCC.proxyRevalidate || (resCC.sMaxAge >= 0)) {
-        return true;
-    }
-
-    return false;
+    RequestCacheControl reqCC = <RequestCacheControl>cacheControl;
+    return reqCC.noCache || reqCC.noStore;
 }
 
-// Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
+function isServingStaleProhibitedInResponseCC(ResponseCacheControl? cacheControl) returns boolean {
+    // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
+    if (cacheControl is ()) {
+        return false;
+    }
+
+    ResponseCacheControl resCC = <ResponseCacheControl>cacheControl;
+
+    // No need to worry about no-store directive here since we don't cache responses with no-store directives.
+    return resCC.noCache || resCC.mustRevalidate || resCC.proxyRevalidate || (resCC.sMaxAge >= 0);
+}
+
 function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Response cachedResponse,
                                  boolean isSharedCache) returns boolean {
     if (requestCacheControl is RequestCacheControl) {
