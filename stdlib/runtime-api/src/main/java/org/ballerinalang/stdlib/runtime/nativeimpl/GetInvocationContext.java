@@ -41,7 +41,7 @@ public class GetInvocationContext {
         return getInvocationContextRecord(Scheduler.getStrand());
     }
 
-    private static final String INVOCATION_CONTEXT_PROPERTY = "InvocationContext";
+    private static final String INVOCATION_CONTEXT_PROPERTY = "RuntimeInvocationContext";
     private static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
     private static final String INVOCATION_ID_KEY = "id";
     private static final String INVOCATION_ATTRIBUTES = "attributes";

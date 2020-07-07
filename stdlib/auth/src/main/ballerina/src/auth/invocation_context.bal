@@ -1,4 +1,4 @@
-// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -16,15 +16,20 @@
 
 import ballerina/java;
 
-# Represents the `runtime:InvocationContext`.
+# Represents the `auth:InvocationContext`.
 #
-# + authenticationContext - Authentication context instance
-# + attributes - Map of context attributes
+# + scheme - Authentication scheme
+# + token - Token for the provided `scheme`
+# + userId - User ID of the authenticated user
+# + claims - Claims of the authenticated user
+# + scopes - Scopes of the authenticated user
 public type InvocationContext record {|
-    string id;
-    map<any> attributes;
+    string scheme?;
+    string token?;
+    string userId?;
+    map<any> claims?;
+    string[] scopes?;
 |};
-
 
 # Returns the `runtime:InvocationContext` instance.
 # ```ballerina
@@ -33,5 +38,5 @@ public type InvocationContext record {|
 #
 # + return - The `runtime:InvocationContext` instance
 public function getInvocationContext() returns InvocationContext = @java:Method {
-    class: "org.ballerinalang.stdlib.runtime.nativeimpl.GetInvocationContext"
+    class: "org.ballerinalang.stdlib.auth.nativeimpl.GetInvocationContext"
 } external;
