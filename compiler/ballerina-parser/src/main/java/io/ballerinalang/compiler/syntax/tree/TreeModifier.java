@@ -2305,6 +2305,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FunctionalBindingPatternNode transform(
+            FunctionalBindingPatternNode functionalBindingPatternNode) {
+        Node typeReference =
+                modifyNode(functionalBindingPatternNode.typeReference());
+        Token openParenthesis =
+                modifyToken(functionalBindingPatternNode.openParenthesis());
+        SeparatedNodeList<BindingPatternNode> argListBindingPatterns =
+                modifySeparatedNodeList(functionalBindingPatternNode.argListBindingPatterns());
+        Token closeParenthesis =
+                modifyToken(functionalBindingPatternNode.closeParenthesis());
+        return functionalBindingPatternNode.modify(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    @Override
+    public NamedArgBindingPatternNode transform(
+            NamedArgBindingPatternNode namedArgBindingPatternNode) {
+        IdentifierToken argName =
+                modifyNode(namedArgBindingPatternNode.argName());
+        Token equalsToken =
+                modifyToken(namedArgBindingPatternNode.equalsToken());
+        BindingPatternNode bindingPattern =
+                modifyNode(namedArgBindingPatternNode.bindingPattern());
+        return namedArgBindingPatternNode.modify(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
+    @Override
     public AsyncSendActionNode transform(
             AsyncSendActionNode asyncSendActionNode) {
         ExpressionNode expression =

@@ -1702,6 +1702,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
+    public static STNode createFunctionalBindingPatternNode(
+            STNode typeReference,
+            STNode openParenthesis,
+            STNode argListBindingPatterns,
+            STNode closeParenthesis) {
+
+        return new STFunctionalBindingPatternNode(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    public static STNode createNamedArgBindingPatternNode(
+            STNode argName,
+            STNode equalsToken,
+            STNode bindingPattern) {
+
+        return new STNamedArgBindingPatternNode(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
     public static STNode createAsyncSendActionNode(
             STNode expression,
             STNode rightArrowToken,

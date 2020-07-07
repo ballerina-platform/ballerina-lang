@@ -30,19 +30,26 @@ import io.ballerinalang.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STConditionalExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFieldAccessExpressionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STFunctionArgumentNode;
+import io.ballerinalang.compiler.internal.parser.tree.STFunctionCallExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STFunctionSignatureNode;
 import io.ballerinalang.compiler.internal.parser.tree.STIndexedExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STIntersectionTypeDescriptorNode;
+import io.ballerinalang.compiler.internal.parser.tree.STListConstructorExpressionNode;
+import io.ballerinalang.compiler.internal.parser.tree.STMappingConstructorExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
+import io.ballerinalang.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNilLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.internal.parser.tree.STPositionalArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STQualifiedNameReferenceNode;
 import io.ballerinalang.compiler.internal.parser.tree.STRemoteMethodCallActionNode;
 import io.ballerinalang.compiler.internal.parser.tree.STRequiredParameterNode;
+import io.ballerinalang.compiler.internal.parser.tree.STRestArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STRestBindingPatternNode;
 import io.ballerinalang.compiler.internal.parser.tree.STRestParameterNode;
 import io.ballerinalang.compiler.internal.parser.tree.STSimpleNameReferenceNode;
@@ -417,8 +424,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseNilOrParenthesisedTypeDescRhs((STNode) args[0]);
             case ANON_FUNC_PARAM_RHS:
                 return parseImplicitAnonFuncParamEnd();
-            case CAPTURE_BINDING_PATTERN:
-                return parseCaptureOrWildcardBindingPattern();
             case LIST_BINDING_PATTERN:// revisit
                 return parseListBindingPattern();
             case BINDING_PATTERN:
@@ -12913,8 +12918,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isExpression(SyntaxKind kind) {
-        return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+        switch (kind) {
+            case BASIC_LITERAL:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case STRING_LITERAL:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+                return true;
+            default:
+                return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
+                        kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+        }
     }
 
     /**
@@ -13228,9 +13246,11 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 return parseListBindingPattern();
             case IDENTIFIER_TOKEN:
-                return parseCaptureOrWildcardBindingPattern();
+                return parseBindingPatternStartsWithIdentifier();
             case OPEN_BRACE_TOKEN:
                 return parseMappingBindingPattern();
+            case ERROR_KEYWORD:
+                return parseFunctionalBindingPattern();
             default:
                 Solution sol = recover(peek(), ParserRuleContext.BINDING_PATTERN);
 
@@ -13245,30 +13265,16 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    /**
-     * Parse capture-binding-pattern.
-     * <p>
-     * <code>
-     * capture-binding-pattern := variable-name
-     * <br/>
-     * variable-name := identifier
-     * </code>
-     *
-     * @return capture-binding-pattern node
-     */
-    private STNode parseCaptureOrWildcardBindingPattern() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-            STNode varName = parseVariableName();
-            return createCaptureOrWildcardBP(varName);
-        } else {
-            Solution sol = recover(token, ParserRuleContext.CAPTURE_BINDING_PATTERN);
-            if (sol.action == Action.REMOVE) {
-                return sol.recoveredNode;
-            }
-
-            return STNodeFactory.createCaptureBindingPatternNode(sol.recoveredNode);
+    private STNode parseBindingPatternStartsWithIdentifier() {
+        STNode argNameOrBindingPattern =
+                parseQualifiedIdentifier(ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER);
+        STToken secondToken = peek();
+        if (secondToken.kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            return parseFunctionalBindingPattern(argNameOrBindingPattern);
         }
+
+        // TODO: Handle qualified-identifier.
+        return createCaptureOrWildcardBP(argNameOrBindingPattern);
     }
 
     private STNode createCaptureOrWildcardBP(STNode varName) {
@@ -13587,6 +13593,161 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private STNode parseFunctionalBindingPattern() {
+        STNode typeDesc = parseFunctionallyConstructibleType();
+        return parseFunctionalBindingPattern(typeDesc);
+    }
+
+    private STNode parseFunctionalBindingPattern(STNode typeDesc) {
+        STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
+        STNode argListBindingPatterns = parseArgListBindingPatterns();
+        STNode closeParenthesis = parseCloseParenthesis();
+        return STNodeFactory.createFunctionalBindingPatternNode(typeDesc, openParenthesis, argListBindingPatterns,
+                closeParenthesis);
+    }
+    
+    private STNode parseFunctionallyConstructibleType() {
+        STToken token = peek();
+        switch (token.kind) {
+            case ERROR_KEYWORD:
+                return consume();
+            case IDENTIFIER_TOKEN:
+                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+            default:
+                // recover
+                return null;
+        }
+    }
+
+    private STNode parseArgListBindingPatterns() {
+        List<STNode> argListBindingPatterns = new ArrayList<>();
+        boolean invalidArgFound = false;
+        SyntaxKind prevArgKind = SyntaxKind.CAPTURE_BINDING_PATTERN;
+
+        STToken nextToken = peek();
+        while (!isEndOfParametersList(nextToken.kind)) {
+            // If there's an extra comma at the end of arguments list, remove it.
+            // Then stop the argument parsing.
+            STNode currentArg = parseArgBindingPattern(nextToken.kind);
+            if (invalidArgFound) {
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, null);
+            } else {
+                DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(prevArgKind, currentArg.kind);
+                if (errorCode == null) {
+                    argListBindingPatterns.add(currentArg);
+                    prevArgKind = currentArg.kind;
+                } else {
+                    updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
+                    invalidArgFound = true;
+                }
+            }
+
+            nextToken = peek();
+            STNode argEnd = parseArgsBindingPatternEnd(nextToken.kind);
+            if (argEnd == null) {
+                // null marks the end of args
+                break;
+            }
+            argListBindingPatterns.add(argEnd);
+
+            nextToken = peek();
+        }
+        return STNodeFactory.createNodeList(argListBindingPatterns);
+    }
+
+    private STNode parseArgsBindingPatternEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_PAREN_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseMappingBindingPatternEnd(solution.tokenKind);
+        }
+    }
+
+    private STNode parseArgBindingPattern(SyntaxKind kind) {
+        switch (kind) {
+            case CLOSE_PAREN_TOKEN:
+                // marks the end of args list
+                return null;
+            case ELLIPSIS_TOKEN:
+                return parseRestBindingPattern();
+
+            // Identifier can means two things: either its a named-arg, or just an expression.
+            case IDENTIFIER_TOKEN:
+                // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
+                return parseNamedOrPositionalArgBindingPattern(kind);
+            case OPEN_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case ERROR_KEYWORD:
+                return parseBindingPattern();
+
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ARG_BINDING_PATTERN);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseArgBindingPattern(solution.tokenKind);
+        }
+    }
+
+    private STNode parseNamedOrPositionalArgBindingPattern(SyntaxKind nextTokenKind) {
+        STNode argNameOrBindingPattern = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+        STToken secondToken = peek();
+        switch (secondToken.kind) {
+            case EQUAL_TOKEN:
+                // TODO: Handle qualified-identifier.
+                STNode equal = parseAssignOp();
+                STNode bindingPattern = parseBindingPattern();
+                return STNodeFactory.createNamedArgBindingPatternNode(argNameOrBindingPattern, equal, bindingPattern);
+            case OPEN_PAREN_TOKEN:
+                return parseFunctionalBindingPattern(argNameOrBindingPattern);
+            case COMMA_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            default:
+                return createCaptureOrWildcardBP(argNameOrBindingPattern);
+        }
+    }
+
+    private DiagnosticErrorCode validateArgBindingPatternOrder(SyntaxKind prevArgKind, SyntaxKind currentArgKind) {
+        DiagnosticErrorCode errorCode = null;
+        switch (prevArgKind) {
+            case CAPTURE_BINDING_PATTERN:
+            case LIST_BINDING_PATTERN:
+            case MAPPING_BINDING_PATTERN:
+                break;
+            case NAMED_ARG_BINDING_PATTERN:
+                if (currentArgKind != SyntaxKind.NAMED_ARG_BINDING_PATTERN ||
+                        currentArgKind != SyntaxKind.REST_BINDING_PATTERN) {
+                    errorCode = DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG;
+                }
+                break;
+            case REST_BINDING_PATTERN:
+                // Nothing is allowed after a rest arg
+                errorCode = DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                break;
+            default:
+                // This line should never get reached
+                throw new IllegalStateException("Invalid SyntaxKind in an argument");
+        }
+        return errorCode;
     }
 
     // ------------------------ Typed binding patterns ---------------------------
@@ -14337,7 +14498,7 @@ public class BallerinaParser extends AbstractParser {
 
     private SyntaxKind getStmtStartBracketedListType(STNode memberNode) {
         if (memberNode.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
-                memberNode.kind.compareTo(SyntaxKind.SINGLETON_TYPE_DESC) <= 0) {
+                memberNode.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             return SyntaxKind.TUPLE_TYPE_DESC;
         }
 
@@ -14362,9 +14523,92 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.LIST_BP_OR_LIST_CONSTRUCTOR;
             case SIMPLE_NAME_REFERENCE: // member is a simple type-ref/var-ref
             case BRACKETED_LIST: // member is again ambiguous
+                return SyntaxKind.NONE;
+            case FUNCTION_CALL:
+                if (isPosibleFunctionalBindingPattern((STFunctionCallExpressionNode) memberNode)) {
+                    return SyntaxKind.NONE;
+                }
+                return SyntaxKind.LIST_CONSTRUCTOR;
             default:
+                if (isExpression(memberNode.kind)) {
+                    return SyntaxKind.LIST_CONSTRUCTOR;
+                }
+
                 // can be anyof the three.
                 return SyntaxKind.NONE;
+        }
+    }
+
+    private boolean isPosibleFunctionalBindingPattern(STFunctionCallExpressionNode funcCall) {
+        STNode args = funcCall.arguments;
+        int size = args.bucketCount();
+
+        for (int i = 0; i < size; i++) {
+            STNode arg = args.childInBucket(i);
+            if (arg.kind != SyntaxKind.NAMED_ARG && arg.kind != SyntaxKind.POSITIONAL_ARG &&
+                    arg.kind != SyntaxKind.REST_ARG) {
+                continue;
+            }
+
+            if (!isPosibleArgBindingPattern((STFunctionArgumentNode) arg)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isPosibleArgBindingPattern(STFunctionArgumentNode arg) {
+        switch (arg.kind) {
+            case POSITIONAL_ARG:
+                STNode expr = ((STPositionalArgumentNode) arg).expression;
+                return isPosibleBindingPattern(expr);
+            case NAMED_ARG:
+                expr = ((STNamedArgumentNode) arg).expression;
+                return isPosibleBindingPattern(expr);
+            case REST_ARG:
+                expr = ((STRestArgumentNode) arg).expression;
+                return expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isPosibleBindingPattern(STNode node) {
+        switch (node.kind) {
+            case SIMPLE_NAME_REFERENCE:
+                return true;
+            case LIST_CONSTRUCTOR:
+                STListConstructorExpressionNode listConstructor = (STListConstructorExpressionNode) node;
+                for (int i = 0; i < listConstructor.bucketCount(); i++) {
+                    STNode expr = listConstructor.childInBucket(i);
+                    if (!isPosibleBindingPattern(expr)) {
+                        return false;
+                    }
+                }
+                return true;
+            case MAPPING_CONSTRUCTOR:
+                STMappingConstructorExpressionNode mappingConstructor = (STMappingConstructorExpressionNode) node;
+                for (int i = 0; i < mappingConstructor.bucketCount(); i++) {
+                    STNode expr = mappingConstructor.childInBucket(i);
+                    if (!isPosibleBindingPattern(expr)) {
+                        return false;
+                    }
+                }
+                return true;
+            case SPECIFIC_FIELD:
+                STSpecificFieldNode specificField = (STSpecificFieldNode) node;
+                if (specificField.readonlyKeyword != null) {
+                    return false;
+                }
+
+                if (specificField.valueExpr == null) {
+                    return true;
+                }
+
+                return isPosibleBindingPattern(specificField.valueExpr);
+            default:
+                return false;
         }
     }
 
@@ -15516,6 +15760,29 @@ public class BallerinaParser extends AbstractParser {
                 }
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, field.colon,
                         getBindingPattern(field.valueExpr));
+            case FUNCTION_CALL:
+                STFunctionCallExpressionNode funcCall = (STFunctionCallExpressionNode) ambiguousNode;
+                STNode args = funcCall.arguments;
+                int size = args.bucketCount();
+                bindingPatterns = new ArrayList<STNode>();
+                for (int i = 0; i < size; i++) {
+                    STNode arg = args.childInBucket(i);
+                    bindingPatterns.add(getBindingPattern(arg));
+                }
+
+                STNode argListBindingPatterns = STNodeFactory.createNodeList(bindingPatterns);
+                return STNodeFactory.createFunctionalBindingPatternNode(funcCall.functionName, funcCall.openParenToken,
+                        argListBindingPatterns, funcCall.closeParenToken);
+            case POSITIONAL_ARG:
+                STPositionalArgumentNode positionalArg = (STPositionalArgumentNode) ambiguousNode;
+                return getBindingPattern(positionalArg.expression);
+            case NAMED_ARG:
+                STNamedArgumentNode namedArg = (STNamedArgumentNode) ambiguousNode;
+                return STNodeFactory.createNamedArgBindingPatternNode(namedArg.argumentName, namedArg.equalsToken,
+                        getBindingPattern(namedArg.expression));
+            case REST_ARG:
+                STRestArgumentNode restArg = (STRestArgumentNode) ambiguousNode;
+                return STNodeFactory.createRestBindingPatternNode(restArg.ellipsis, restArg.expression);
             default:
                 return ambiguousNode;
         }

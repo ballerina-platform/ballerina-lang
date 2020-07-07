@@ -2263,6 +2263,39 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stRestBindingPatternNode.createUnlinkedFacade();
     }
 
+    public static FunctionalBindingPatternNode createFunctionalBindingPatternNode(
+            Node typeReference,
+            Token openParenthesis,
+            SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
+            Token closeParenthesis) {
+        Objects.requireNonNull(typeReference, "typeReference must not be null");
+        Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
+        Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
+        Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
+
+        STNode stFunctionalBindingPatternNode = STNodeFactory.createFunctionalBindingPatternNode(
+                typeReference.internalNode(),
+                openParenthesis.internalNode(),
+                argListBindingPatterns.underlyingListNode().internalNode(),
+                closeParenthesis.internalNode());
+        return stFunctionalBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static NamedArgBindingPatternNode createNamedArgBindingPatternNode(
+            IdentifierToken argName,
+            Token equalsToken,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(argName, "argName must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stNamedArgBindingPatternNode = STNodeFactory.createNamedArgBindingPatternNode(
+                argName.internalNode(),
+                equalsToken.internalNode(),
+                bindingPattern.internalNode());
+        return stNamedArgBindingPatternNode.createUnlinkedFacade();
+    }
+
     public static AsyncSendActionNode createAsyncSendActionNode(
             ExpressionNode expression,
             Token rightArrowToken,

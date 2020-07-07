@@ -1826,6 +1826,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFunctionalBindingPatternNode transform(
+            STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
+        return functionalBindingPatternNode.modify(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    @Override
+    public STNamedArgBindingPatternNode transform(
+            STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        STNode argName = modifyNode(namedArgBindingPatternNode.argName);
+        STNode equalsToken = modifyNode(namedArgBindingPatternNode.equalsToken);
+        STNode bindingPattern = modifyNode(namedArgBindingPatternNode.bindingPattern);
+        return namedArgBindingPatternNode.modify(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
+    @Override
     public STAsyncSendActionNode transform(
             STAsyncSendActionNode asyncSendActionNode) {
         STNode expression = modifyNode(asyncSendActionNode.expression);
