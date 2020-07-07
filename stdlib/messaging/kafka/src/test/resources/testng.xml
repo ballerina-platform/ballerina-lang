@@ -60,7 +60,7 @@
     <test name="ballerina-kafka-ssl-tests">
         <classes>
             <!-- SSL-Based Consumer/Producer-Related tests -->
-            <class name="org.ballerinalang.messaging.kafka.ssl.KafkaConsumerAndProducerWithSSLTest"/>
+<!--            <class name="org.ballerinalang.messaging.kafka.ssl.KafkaConsumerAndProducerWithSSLTest"/>-->
         </classes>
     </test>
 </suite>
