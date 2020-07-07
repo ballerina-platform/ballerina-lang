@@ -1357,6 +1357,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 return new BTypedescType(listConstructor.typedescType, null);
         }
 
+        if (bType == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+
         BLangListConstructorExpr exprToLog = listConstructor;
         if (this.nonErrorLoggingCheck) {
             listConstructor.cloneAttempt++;
@@ -1813,6 +1817,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType == symTable.semanticError) {
+            return;
+        }
+
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                        DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
