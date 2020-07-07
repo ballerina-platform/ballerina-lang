@@ -1672,11 +1672,15 @@ public class BallerinaLexer extends AbstractLexer {
                     }
                     nextChar = peek();
                     continue;
+                case LexerTerminals.CARRIAGE_RETURN:
                 case LexerTerminals.NEWLINE:
                     // Reaching here means ending backticks were not found within the same line.
                     // Therefore, look ahead and see if next line is a documentation line and if so,
                     // look for a ending in that line. Otherwise terminate backtick content at the new line.
                     int lookAheadCount = 1;
+                    if (reader.peek() == LexerTerminals.CARRIAGE_RETURN) {
+                        lookAheadCount++;
+                    }
                     int lookAheadChar = reader.peek(lookAheadCount);
                     while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
                         lookAheadCount++;
@@ -1764,7 +1768,7 @@ public class BallerinaLexer extends AbstractLexer {
             while (isIdentifierInitialChar(peek())) {
                 reader.advance();
             }
-            if (getLexeme().equals("return")) {
+            if (LexerTerminals.RETURN.equals(getLexeme())) {
                 token = getDocumentationSyntaxToken(SyntaxKind.RETURN_KEYWORD);
             } else {
                 token =  getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
@@ -1848,6 +1852,7 @@ public class BallerinaLexer extends AbstractLexer {
             switch (nextToken) {
                 case LexerTerminals.BACKTICK:
                 case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
                     break;
                 default:
                     reader.advance();
