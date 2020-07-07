@@ -17,6 +17,7 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -59,6 +60,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -186,6 +189,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_INNER_JOIN_FUNCTION = new Name("createInnerJoinFunction");
     private static final Name QUERY_CREATE_OUTER_JOIN_FUNCTION = new Name("createOuterJoinFunction");
     private static final Name QUERY_CREATE_FILTER_FUNCTION = new Name("createFilterFunction");
+    private static final Name QUERY_CREATE_ORDER_BY_FUNCTION = new Name("createOrderByFunction");
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
@@ -199,6 +203,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
+    private BLangOrderByClause orderByClause;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentLambdaBody;
     private Map<String, BSymbol> identifiers;
@@ -329,6 +334,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                     BLangVariableReference whereFunc = addWhereFunction(block, (BLangWhereClause) clause);
                     addStreamFunction(block, initPipeline, whereFunc);
                     break;
+                case ORDER_BY:
+                    orderByClause = (BLangOrderByClause) clause;
+                    break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
                     addStreamFunction(block, initPipeline, selectFunc);
@@ -347,7 +355,13 @@ public class QueryDesugar extends BLangNodeVisitor {
                     break;
             }
         }
-        return addGetStreamFromPipeline(block, initPipeline);
+        BLangVariableReference streamRef = addGetStreamFromPipeline(block, initPipeline);
+
+        if (orderByClause != null) {
+            streamRef = addOrderFieldsAndDirection(block, orderByClause, streamRef);
+        }
+
+        return streamRef;
     }
 
     // ---- Util methods to create the stream pipeline. ---- //
@@ -547,6 +561,44 @@ public class QueryDesugar extends BLangNodeVisitor {
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_FILTER_FUNCTION, Lists.of(lambda), pos);
     }
+
+    /**
+     * Desugar order by clause and return a reference to created order by function.
+     *
+     * @param blockStmt parent block to write to.
+     * @param orderByClause  to be desugared.
+     * @param streamRef reference to the stream output.
+     * @return variableReference to created order by function.
+     */
+    BLangVariableReference addOrderFieldsAndDirection(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
+                                                      BLangVariableReference streamRef) {
+
+        DiagnosticPos pos = orderByClause.pos;
+
+        BLangListConstructorExpr.BLangArrayLiteral
+                sortFieldsArrayExpr = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        sortFieldsArrayExpr.exprs = new ArrayList<>();
+        sortFieldsArrayExpr.type = new BArrayType(symTable.stringType);
+
+        BLangListConstructorExpr.BLangArrayLiteral
+                sortModesArrayExpr = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        sortModesArrayExpr.exprs = new ArrayList<>();
+        sortModesArrayExpr.type = new BArrayType(symTable.booleanType);
+
+        for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
+            BLangOrderKey orderKey = (BLangOrderKey) orderKeyNode;
+            String fieldName = orderKey.expression.toString();
+            sortFieldsArrayExpr.exprs.add(ASTBuilderUtil.createLiteral(orderKey.pos, symTable.stringType,
+                    fieldName));
+            boolean fieldOrderType = orderKey.getOrderDirection();
+            sortModesArrayExpr.exprs.add(ASTBuilderUtil.createLiteral(orderKey.pos, symTable.booleanType,
+                    fieldOrderType));
+        }
+
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION,
+                Lists.of(sortFieldsArrayExpr, sortModesArrayExpr, streamRef), pos);
+    }
+
 
     /**
      * Desugar selectClause to below and return a reference to created select _StreamFunction.
