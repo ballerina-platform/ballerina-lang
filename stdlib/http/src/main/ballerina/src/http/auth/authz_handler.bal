@@ -42,14 +42,10 @@ public type AuthzHandler object {
     # + req - The `http:Request` instance
     # + return - `true` if it can be authorized, `false` otherwise, or else an `http:AuthorizationError` if an error occurred
     function canProcess(Request req) returns boolean|AuthorizationError {
-        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-        if (principal is runtime:Principal) {
-            if (principal?.username is ()) {
-                return prepareAuthorizationError("Username not set in runtime:Principal. Unable to authorize.");
-            }
-            return true;
+        if (auth:getInvocationContext()?.userId is ()) {
+            return prepareAuthorizationError("UserId not set in auth:InvocationContext. Unable to authorize.");
         }
-        return prepareAuthorizationError("runtime:Principal is not set in runtime:InvocationContext. Unable to authorize.");
+        return true;
     }
 
     # Authorizes the request.
@@ -63,30 +59,24 @@ public type AuthzHandler object {
         string resourceName = runtime:getInvocationContext().attributes[RESOURCE_NAME].toString();
         string requestMethod = runtime:getInvocationContext().attributes[REQUEST_METHOD].toString();
 
-        runtime:Principal? principal = runtime:getInvocationContext()?.principal;
-        if (principal is runtime:Principal) {
-            string username = principal?.username ?: "";    // this is already validated at `canProcess` function
-            string[] userScopes = principal?.scopes ?: [];
-            string authzCacheKey = generateAuthzCacheKey(username, userScopes, serviceName, resourceName,
-                                   requestMethod);
+        string userId = auth:getInvocationContext()?.userId ?: "";    // this is already validated at `canProcess` function
+        string[] userScopes = auth:getInvocationContext()?.scopes?: [];
+        string authzCacheKey = generateAuthzCacheKey(userId, userScopes, serviceName, resourceName,
+                               requestMethod);
 
-            boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache,
-                                                         self.negativeAuthzCache);
+        boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache,
+                                                     self.negativeAuthzCache);
 
-            if (authorized) {
-                log:printDebug(function () returns string {
-                    return "Successfully authorized to access resource: " + serviceName + ", method: " + requestMethod;
-                });
-            } else {
-                log:printDebug(function () returns string {
-                    return "Authorization failure for resource: " + serviceName + ", method: " + requestMethod;
-                });
-            }
-            return authorized;
+        if (authorized) {
+            log:printDebug(function () returns string {
+                return "Successfully authorized to access resource: " + serviceName + ", method: " + requestMethod;
+            });
+        } else {
+            log:printDebug(function () returns string {
+                return "Authorization failure for resource: " + serviceName + ", method: " + requestMethod;
+            });
         }
-        // This block will never execute, since `canProcess` function has validated the
-        // `runtime:getInvocationContext()?.principal` is `runtime:Principal`
-        return false;
+        return authorized;
     }
 };
 
