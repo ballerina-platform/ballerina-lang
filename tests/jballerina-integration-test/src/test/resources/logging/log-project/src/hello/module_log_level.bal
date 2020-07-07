@@ -19,8 +19,8 @@ import logorg/alpha;
 import logorg/beta;
 
 public function main() {
-    log:setModuleLogLevel(log:WARN, "logorg/alpha");
-    log:setModuleLogLevel(log:DEBUG, "logorg/beta");
+    log:setModuleLogLevel(log:WARN, moduleName = "logorg/alpha");
+    log:setModuleLogLevel(log:DEBUG, moduleName = "logorg/beta");
     log:setModuleLogLevel(log:ERROR);
 
     alpha:logInAlpha();

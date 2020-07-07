@@ -19,7 +19,7 @@ import logorg/delta2;
 
 public function main() {
     // The following will be overridden at the `logInDelta` function in delta2 module
-    log:setModuleLogLevel(log:DEBUG, "logorg/delta2");
+    log:setModuleLogLevel(log:DEBUG, moduleName = "logorg/delta2");
 
     delta2:logInDelta2();
 }
