@@ -67,6 +67,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -913,6 +915,16 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnClause onClause) {
         analyzeNode(onClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOrderKey orderKeyClause) {
+        analyzeNode(orderKeyClause.expression, env);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> analyzeNode((BLangNode) value, env));
     }
 
     @Override

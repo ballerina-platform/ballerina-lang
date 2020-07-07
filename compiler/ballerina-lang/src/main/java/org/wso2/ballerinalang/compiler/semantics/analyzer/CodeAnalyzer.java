@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
@@ -85,6 +86,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -2677,6 +2680,26 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         this.dlog.error(collection.pos, DiagnosticCode.NOT_ALLOWED_STREAM_USAGE_WITH_FROM);
                     }
                 }
+            } else if (clause.getKind() == NodeKind.ORDER_BY) {
+                BType resultType = queryExpr.type;
+                if (queryExpr.type.tag == TypeTags.ARRAY) {
+                    resultType = ((BArrayType)queryExpr.type).eType;
+                } else if (queryExpr.type.tag == TypeTags.TABLE) {
+                    resultType = ((BTableType)queryExpr.type).constraint;
+                } else if (queryExpr.type.tag == TypeTags.STREAM) {
+                    resultType = ((BStreamType)queryExpr.type).constraint;
+                }
+                if (resultType.tag == TypeTags.RECORD) {
+                    BRecordType recordType = (BRecordType) resultType;
+                    Map<String, BField> recordFields = recordType.fields;
+                    for (OrderKeyNode orderKeyNode : ((BLangOrderByClause) clause).getOrderKeyList()) {
+                        if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
+                            dlog.error(((BLangOrderKey)orderKeyNode).expression.pos,
+                                    DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
+                                    ((BLangOrderKey)orderKeyNode).expression, resultType);
+                        }
+                    }
+                }
             }
             analyzeNode(clause, env);
         }
@@ -2729,6 +2752,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnClause onClause) {
         analyzeExpr(onClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+        orderByClause.orderByKeyList.forEach(value -> analyzeExpr((BLangExpression)value.getOrderKey()));
     }
 
     @Override

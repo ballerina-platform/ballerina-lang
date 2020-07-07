@@ -1,4 +1,4 @@
-// Generated from BallerinaParser.g4 by ANTLR 4.5.3
+// Generated from /home/lasini/Documents/wso2/ballerina-lang/compiler/ballerina-lang/src/main/resources/grammar/BallerinaParser.g4 by ANTLR 4.5.3
 package org.wso2.ballerinalang.compiler.parser.antlr4;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -2643,6 +2643,36 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitSelectClause(BallerinaParser.SelectClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderDirection}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderDirection(BallerinaParser.OrderDirectionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderDirection}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderDirection(BallerinaParser.OrderDirectionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderKey}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderKey(BallerinaParser.OrderKeyContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderKey}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderKey(BallerinaParser.OrderKeyContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrderByClause(BallerinaParser.OrderByClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#orderByClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#onClause}.
 	 * @param ctx the parse tree
