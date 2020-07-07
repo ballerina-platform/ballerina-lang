@@ -2927,15 +2927,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken =
                 modifyToken(mappingMatchPatternNode.openBraceToken());
-        SeparatedNodeList<Node> mappingMatchPatternListNode =
-                modifySeparatedNodeList(mappingMatchPatternNode.mappingMatchPatternListNode());
+        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+                modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
         RestMatchPatternNode restMatchPattern =
                 modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
         Token closeBraceToken =
                 modifyToken(mappingMatchPatternNode.closeBraceToken());
         return mappingMatchPatternNode.modify(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -2962,29 +2962,29 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(functionalMatchPatternNode.typeRef());
         Token openParenthesisToken =
                 modifyToken(functionalMatchPatternNode.openParenthesisToken());
-        SeparatedNodeList<Node> argMatchPatternListNode =
-                modifySeparatedNodeList(functionalMatchPatternNode.argMatchPatternListNode());
-        NamedArgMatchPatternsNode namedArgMatchPatternsNode =
-                modifyNode(functionalMatchPatternNode.namedArgMatchPatternsNode());
+        SeparatedNodeList<Node> positionalArgMatchPatternsNode =
+                modifySeparatedNodeList(functionalMatchPatternNode.positionalArgMatchPatternsNode());
+        OtherArgMatchPatternsNode otherArgMatchPatternsNode =
+                modifyNode(functionalMatchPatternNode.otherArgMatchPatternsNode());
         Token closeParenthesisToken =
                 modifyToken(functionalMatchPatternNode.closeParenthesisToken());
         return functionalMatchPatternNode.modify(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken);
     }
 
     @Override
-    public NamedArgMatchPatternsNode transform(
-            NamedArgMatchPatternsNode namedArgMatchPatternsNode) {
-        SeparatedNodeList<Node> namedArgMatchPatternListNode =
-                modifySeparatedNodeList(namedArgMatchPatternsNode.namedArgMatchPatternListNode());
+    public OtherArgMatchPatternsNode transform(
+            OtherArgMatchPatternsNode otherArgMatchPatternsNode) {
+        SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode =
+                modifySeparatedNodeList(otherArgMatchPatternsNode.namedArgMatchPatternsNode());
         RestMatchPatternNode restMatchPattern =
-                modifyNode(namedArgMatchPatternsNode.restMatchPattern().orElse(null));
-        return namedArgMatchPatternsNode.modify(
-                namedArgMatchPatternListNode,
+                modifyNode(otherArgMatchPatternsNode.restMatchPattern().orElse(null));
+        return otherArgMatchPatternsNode.modify(
+                namedArgMatchPatternsNode,
                 restMatchPattern);
     }
 

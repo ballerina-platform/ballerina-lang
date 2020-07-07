@@ -2156,13 +2156,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMappingMatchPatternNode(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken) {
 
         return new STMappingMatchPatternNode(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -2181,24 +2181,24 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode argMatchPatternListNode,
-            STNode namedArgMatchPatternsNode,
+            STNode positionalArgMatchPatternsNode,
+            STNode otherArgMatchPatternsNode,
             STNode closeParenthesisToken) {
 
         return new STFunctionalMatchPatternNode(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken);
     }
 
-    public static STNode createNamedArgMatchPatternsNode(
-            STNode namedArgMatchPatternListNode,
+    public static STNode createOtherArgMatchPatternsNode(
+            STNode namedArgMatchPatternsNode,
             STNode restMatchPattern) {
 
-        return new STNamedArgMatchPatternsNode(
-                namedArgMatchPatternListNode,
+        return new STOtherArgMatchPatternsNode(
+                namedArgMatchPatternsNode,
                 restMatchPattern);
     }
 

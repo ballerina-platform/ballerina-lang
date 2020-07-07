@@ -761,8 +761,8 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(functionalMatchPatternNode);
     }
 
-    public T transform(STNamedArgMatchPatternsNode namedArgMatchPatternsNode) {
-        return transformSyntaxNode(namedArgMatchPatternsNode);
+    public T transform(STOtherArgMatchPatternsNode otherArgMatchPatternsNode) {
+        return transformSyntaxNode(otherArgMatchPatternsNode);
     }
 
     public T transform(STNamedArgMatchPatternNode namedArgMatchPatternNode) {

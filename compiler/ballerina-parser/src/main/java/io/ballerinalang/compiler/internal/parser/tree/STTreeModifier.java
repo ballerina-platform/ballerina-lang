@@ -2321,12 +2321,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STMappingMatchPatternNode transform(
             STMappingMatchPatternNode mappingMatchPatternNode) {
         STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
-        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode fieldMatchPatterns = modifyNode(mappingMatchPatternNode.fieldMatchPatterns);
         STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
         STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
         return mappingMatchPatternNode.modify(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -2348,24 +2348,24 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STFunctionalMatchPatternNode functionalMatchPatternNode) {
         STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
         STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
-        STNode argMatchPatternListNode = modifyNode(functionalMatchPatternNode.argMatchPatternListNode);
-        STNode namedArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.namedArgMatchPatternsNode);
+        STNode positionalArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.positionalArgMatchPatternsNode);
+        STNode otherArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.otherArgMatchPatternsNode);
         STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
         return functionalMatchPatternNode.modify(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken);
     }
 
     @Override
-    public STNamedArgMatchPatternsNode transform(
-            STNamedArgMatchPatternsNode namedArgMatchPatternsNode) {
-        STNode namedArgMatchPatternListNode = modifyNode(namedArgMatchPatternsNode.namedArgMatchPatternListNode);
-        STNode restMatchPattern = modifyNode(namedArgMatchPatternsNode.restMatchPattern);
-        return namedArgMatchPatternsNode.modify(
-                namedArgMatchPatternListNode,
+    public STOtherArgMatchPatternsNode transform(
+            STOtherArgMatchPatternsNode otherArgMatchPatternsNode) {
+        STNode namedArgMatchPatternsNode = modifyNode(otherArgMatchPatternsNode.namedArgMatchPatternsNode);
+        STNode restMatchPattern = modifyNode(otherArgMatchPatternsNode.restMatchPattern);
+        return otherArgMatchPatternsNode.modify(
+                namedArgMatchPatternsNode,
                 restMatchPattern);
     }
 

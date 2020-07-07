@@ -3952,13 +3952,13 @@
                     "type": "Token"
                 },
                 {
-                    "name": "argMatchPatternListNode",
+                    "name": "positionalArgMatchPatternsNode",
                     "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "namedArgMatchPatternsNode",
-                    "type": "NamedArgMatchPatternsNode"
+                    "name": "otherArgMatchPatternsNode",
+                    "type": "OtherArgMatchPatternsNode"
                 },
                 {
                     "name": "closeParenthesisToken",
@@ -3967,13 +3967,13 @@
             ]
         },
         {
-            "name": "NamedArgMatchPatternsNode",
+            "name": "OtherArgMatchPatternsNode",
             "base": "Node",
-            "kind": "NAMED_ARG_MATCH_PATTERNS",
+            "kind": "OTHER_ARG_MATCH_PATTERNS",
             "attributes": [
                 {
-                    "name": "namedArgMatchPatternListNode",
-                    "type": "Node",
+                    "name": "namedArgMatchPatternsNode",
+                    "type": "NamedArgMatchPatternNode",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {

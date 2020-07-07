@@ -33,21 +33,21 @@ import java.util.Collections;
 public class STFunctionalMatchPatternNode extends STNode {
     public final STNode typeRef;
     public final STNode openParenthesisToken;
-    public final STNode argMatchPatternListNode;
-    public final STNode namedArgMatchPatternsNode;
+    public final STNode positionalArgMatchPatternsNode;
+    public final STNode otherArgMatchPatternsNode;
     public final STNode closeParenthesisToken;
 
     STFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode argMatchPatternListNode,
-            STNode namedArgMatchPatternsNode,
+            STNode positionalArgMatchPatternsNode,
+            STNode otherArgMatchPatternsNode,
             STNode closeParenthesisToken) {
         this(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken,
                 Collections.emptyList());
     }
@@ -55,22 +55,22 @@ public class STFunctionalMatchPatternNode extends STNode {
     STFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode argMatchPatternListNode,
-            STNode namedArgMatchPatternsNode,
+            STNode positionalArgMatchPatternsNode,
+            STNode otherArgMatchPatternsNode,
             STNode closeParenthesisToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FUNCTIONAL_MATCH_PATTERN, diagnostics);
         this.typeRef = typeRef;
         this.openParenthesisToken = openParenthesisToken;
-        this.argMatchPatternListNode = argMatchPatternListNode;
-        this.namedArgMatchPatternsNode = namedArgMatchPatternsNode;
+        this.positionalArgMatchPatternsNode = positionalArgMatchPatternsNode;
+        this.otherArgMatchPatternsNode = otherArgMatchPatternsNode;
         this.closeParenthesisToken = closeParenthesisToken;
 
         addChildren(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken);
     }
 
@@ -78,8 +78,8 @@ public class STFunctionalMatchPatternNode extends STNode {
         return new STFunctionalMatchPatternNode(
                 this.typeRef,
                 this.openParenthesisToken,
-                this.argMatchPatternListNode,
-                this.namedArgMatchPatternsNode,
+                this.positionalArgMatchPatternsNode,
+                this.otherArgMatchPatternsNode,
                 this.closeParenthesisToken,
                 diagnostics);
     }
@@ -87,14 +87,14 @@ public class STFunctionalMatchPatternNode extends STNode {
     public STFunctionalMatchPatternNode modify(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode argMatchPatternListNode,
-            STNode namedArgMatchPatternsNode,
+            STNode positionalArgMatchPatternsNode,
+            STNode otherArgMatchPatternsNode,
             STNode closeParenthesisToken) {
         if (checkForReferenceEquality(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken)) {
             return this;
         }
@@ -102,8 +102,8 @@ public class STFunctionalMatchPatternNode extends STNode {
         return new STFunctionalMatchPatternNode(
                 typeRef,
                 openParenthesisToken,
-                argMatchPatternListNode,
-                namedArgMatchPatternsNode,
+                positionalArgMatchPatternsNode,
+                otherArgMatchPatternsNode,
                 closeParenthesisToken,
                 diagnostics);
     }
