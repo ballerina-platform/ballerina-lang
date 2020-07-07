@@ -110,7 +110,7 @@ public class HybridNodeStorage {
         return peek(k);
     }
     
-    int getCurrentIndex() {
+    int getCurrentTokenIndex() {
         return this.peekedNodeIndex;
     }
 

@@ -44,7 +44,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 public class OnRollback {
 
     public static void onRollback(Strand strand, FPValue fpValue) {
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
         transactionResourceManager.registerAbortedFunction(transactionLocalContext.getGlobalTransactionId(),
                 fpValue);

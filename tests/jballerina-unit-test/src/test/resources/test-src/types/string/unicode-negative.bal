@@ -22,5 +22,5 @@ function testUnicodeNegative() {
     string s5 = "\u{12FFFF}";
     string s6 = "\u{DFFF}\u{DAFF}";
     string s7 = "\u{12FFFF} ABC \u{DFFF} DEF \u{DAFF}";
-    string s7 = "\u{12FFFF} ABC \u{DFFFAAA} DEF \u{FFFFFFF}";
+    string s8 = "\u{12FFFF} ABC \u{DFFFAAA} DEF \u{FFFFFFF}";
 }

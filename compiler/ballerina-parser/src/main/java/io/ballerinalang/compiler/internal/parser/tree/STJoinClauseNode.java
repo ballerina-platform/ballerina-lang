@@ -36,19 +36,22 @@ public class STJoinClauseNode extends STClauseNode {
     public final STNode typedBindingPattern;
     public final STNode inKeyword;
     public final STNode expression;
+    public final STNode onCondition;
 
     STJoinClauseNode(
             STNode outerKeyword,
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
         this(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
                 expression,
+                onCondition,
                 Collections.emptyList());
     }
 
@@ -58,6 +61,7 @@ public class STJoinClauseNode extends STClauseNode {
             STNode typedBindingPattern,
             STNode inKeyword,
             STNode expression,
+            STNode onCondition,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.JOIN_CLAUSE, diagnostics);
         this.outerKeyword = outerKeyword;
@@ -65,13 +69,15 @@ public class STJoinClauseNode extends STClauseNode {
         this.typedBindingPattern = typedBindingPattern;
         this.inKeyword = inKeyword;
         this.expression = expression;
+        this.onCondition = onCondition;
 
         addChildren(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -81,6 +87,7 @@ public class STJoinClauseNode extends STClauseNode {
                 this.typedBindingPattern,
                 this.inKeyword,
                 this.expression,
+                this.onCondition,
                 diagnostics);
     }
 
@@ -89,13 +96,15 @@ public class STJoinClauseNode extends STClauseNode {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
         if (checkForReferenceEquality(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression)) {
+                expression,
+                onCondition)) {
             return this;
         }
 
@@ -105,6 +114,7 @@ public class STJoinClauseNode extends STClauseNode {
                 typedBindingPattern,
                 inKeyword,
                 expression,
+                onCondition,
                 diagnostics);
     }
 

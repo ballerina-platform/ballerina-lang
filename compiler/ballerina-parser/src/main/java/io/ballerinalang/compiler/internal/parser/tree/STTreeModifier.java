@@ -2271,12 +2271,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
         STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
         STNode expression = modifyNode(joinClauseNode.expression);
+        STNode onCondition = modifyNode(joinClauseNode.onCondition);
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     @Override
@@ -2287,6 +2289,58 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return onClauseNode.modify(
                 onKeyword,
                 expression);
+    }
+
+    @Override
+    public STListMatchPatternNode transform(
+            STListMatchPatternNode listMatchPatternNode) {
+        STNode openBracket = modifyNode(listMatchPatternNode.openBracket);
+        STNode matchPatterns = modifyNode(listMatchPatternNode.matchPatterns);
+        STNode restMatchPattern = modifyNode(listMatchPatternNode.restMatchPattern);
+        STNode closeBracket = modifyNode(listMatchPatternNode.closeBracket);
+        return listMatchPatternNode.modify(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    @Override
+    public STRestMatchPatternNode transform(
+            STRestMatchPatternNode restMatchPatternNode) {
+        STNode ellipsisToken = modifyNode(restMatchPatternNode.ellipsisToken);
+        STNode varKeywordToken = modifyNode(restMatchPatternNode.varKeywordToken);
+        STNode variableName = modifyNode(restMatchPatternNode.variableName);
+        return restMatchPatternNode.modify(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
+
+    @Override
+    public STMappingMatchPatternNode transform(
+            STMappingMatchPatternNode mappingMatchPatternNode) {
+        STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
+        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
+        STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public STFieldMatchPatternNode transform(
+            STFieldMatchPatternNode fieldMatchPatternNode) {
+        STNode fieldNameNode = modifyNode(fieldMatchPatternNode.fieldNameNode);
+        STNode colonToken = modifyNode(fieldMatchPatternNode.colonToken);
+        STNode matchPattern = modifyNode(fieldMatchPatternNode.matchPattern);
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 
     // Tokens

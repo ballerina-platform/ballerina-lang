@@ -49,6 +49,11 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
     private List<CodeActionNodeType> codeActionNodeTypes;
     private final boolean isNodeTypeBased;
 
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
     /**
      * Create a diagnostic based code action provider.
      */
@@ -167,6 +172,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
 //            Lambda Functions: function() returns int { return 1; };
 //            Type Casts: <int>1.1;
 //            Streaming From Clauses: from var person in personList;
+        position = new Position(position.getLine(), position.getCharacter() + 1);
         String content = diagnosedContent.trim();
         int pointer = content.length();
         int count = 0;
@@ -265,7 +271,7 @@ public abstract class AbstractCodeActionProvider implements LSCodeActionProvider
         // Thus we offset into last
         int bal = diagnosedContent.length() - count;
         if (bal > 0) {
-            position = new Position(position.getLine(), position.getCharacter() + bal + 1);
+            position.setCharacter(position.getCharacter() + bal + 1);
         }
         return position;
     }

@@ -2109,14 +2109,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
 
         return new STJoinClauseNode(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public static STNode createOnClauseNode(
@@ -2126,6 +2128,54 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STOnClauseNode(
                 onKeyword,
                 expression);
+    }
+
+    public static STNode createListMatchPatternNode(
+            STNode openBracket,
+            STNode matchPatterns,
+            STNode restMatchPattern,
+            STNode closeBracket) {
+
+        return new STListMatchPatternNode(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    public static STNode createRestMatchPatternNode(
+            STNode ellipsisToken,
+            STNode varKeywordToken,
+            STNode variableName) {
+
+        return new STRestMatchPatternNode(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
+
+    public static STNode createMappingMatchPatternNode(
+            STNode openBraceToken,
+            STNode mappingMatchPatternListNode,
+            STNode restMatchPattern,
+            STNode closeBraceToken) {
+
+        return new STMappingMatchPatternNode(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    public static STNode createFieldMatchPatternNode(
+            STNode fieldNameNode,
+            STNode colonToken,
+            STNode matchPattern) {
+
+        return new STFieldMatchPatternNode(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 }
 

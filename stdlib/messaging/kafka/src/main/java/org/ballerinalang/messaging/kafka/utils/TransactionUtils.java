@@ -57,8 +57,8 @@ public class TransactionUtils {
                                                        ObjectValue producer,
                                                        KafkaTransactionContext transactionContext) {
         String connectorId = producer.getStringValue(CONNECTOR_ID).getValue();
-        if (Objects.isNull(strand.transactionLocalContext.getTransactionContext(connectorId))) {
-            TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        if (Objects.isNull(strand.currentTrxContext.getTransactionContext(connectorId))) {
+            TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
             transactionLocalContext.registerTransactionContext(connectorId, transactionContext);
         }
     }

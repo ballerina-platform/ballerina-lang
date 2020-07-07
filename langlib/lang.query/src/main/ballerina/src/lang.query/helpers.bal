@@ -37,9 +37,16 @@ public function createLetFunction(function(_Frame _frame) returns _Frame|error? 
     return new _LetFunction(letFunc);
 }
 
-public function createJoinFunction(_StreamPipeline joinedPipeline)
+public function createInnerJoinFunction(_StreamPipeline joinedPipeline,
+                                        function(_Frame _frame) returns boolean onCondition)
         returns _StreamFunction {
-    return new _JoinFunction(joinedPipeline);
+    return new _InnerJoinFunction(joinedPipeline, onCondition);
+}
+
+public function createOuterJoinFunction(_StreamPipeline joinedPipeline,
+                                        function(_Frame _frame) returns boolean onCondition)
+        returns _StreamFunction {
+    return new _OuterJoinFunction(joinedPipeline, onCondition);
 }
 
 public function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)

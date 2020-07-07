@@ -2047,12 +2047,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             SelectClauseNode selectClause,
             OnConflictClauseNode onConflictClause,
             LimitClauseNode limitClause) {
-        Objects.requireNonNull(queryConstructType, "queryConstructType must not be null");
         Objects.requireNonNull(queryPipeline, "queryPipeline must not be null");
         Objects.requireNonNull(selectClause, "selectClause must not be null");
 
         STNode stQueryExpressionNode = STNodeFactory.createQueryExpressionNode(
-                queryConstructType.internalNode(),
+                getOptionalSTNode(queryConstructType),
                 queryPipeline.internalNode(),
                 selectClause.internalNode(),
                 getOptionalSTNode(onConflictClause),
@@ -2808,7 +2807,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token joinKeyword,
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
-            ExpressionNode expression) {
+            ExpressionNode expression,
+            OnClauseNode onCondition) {
         Objects.requireNonNull(joinKeyword, "joinKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
         Objects.requireNonNull(inKeyword, "inKeyword must not be null");
@@ -2819,7 +2819,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 joinKeyword.internalNode(),
                 typedBindingPattern.internalNode(),
                 inKeyword.internalNode(),
-                expression.internalNode());
+                expression.internalNode(),
+                getOptionalSTNode(onCondition));
         return stJoinClauseNode.createUnlinkedFacade();
     }
 
@@ -2833,6 +2834,70 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 onKeyword.internalNode(),
                 expression.internalNode());
         return stOnClauseNode.createUnlinkedFacade();
+    }
+
+    public static ListMatchPatternNode createListMatchPatternNode(
+            Token openBracket,
+            SeparatedNodeList<Node> matchPatterns,
+            RestMatchPatternNode restMatchPattern,
+            Token closeBracket) {
+        Objects.requireNonNull(openBracket, "openBracket must not be null");
+        Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
+        Objects.requireNonNull(closeBracket, "closeBracket must not be null");
+
+        STNode stListMatchPatternNode = STNodeFactory.createListMatchPatternNode(
+                openBracket.internalNode(),
+                matchPatterns.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern),
+                closeBracket.internalNode());
+        return stListMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static RestMatchPatternNode createRestMatchPatternNode(
+            Token ellipsisToken,
+            Token varKeywordToken,
+            SimpleNameReferenceNode variableName) {
+        Objects.requireNonNull(ellipsisToken, "ellipsisToken must not be null");
+        Objects.requireNonNull(varKeywordToken, "varKeywordToken must not be null");
+        Objects.requireNonNull(variableName, "variableName must not be null");
+
+        STNode stRestMatchPatternNode = STNodeFactory.createRestMatchPatternNode(
+                ellipsisToken.internalNode(),
+                varKeywordToken.internalNode(),
+                variableName.internalNode());
+        return stRestMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static MappingMatchPatternNode createMappingMatchPatternNode(
+            Token openBraceToken,
+            SeparatedNodeList<Node> mappingMatchPatternListNode,
+            RestMatchPatternNode restMatchPattern,
+            Token closeBraceToken) {
+        Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
+        Objects.requireNonNull(mappingMatchPatternListNode, "mappingMatchPatternListNode must not be null");
+        Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
+
+        STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
+                openBraceToken.internalNode(),
+                mappingMatchPatternListNode.underlyingListNode().internalNode(),
+                getOptionalSTNode(restMatchPattern),
+                closeBraceToken.internalNode());
+        return stMappingMatchPatternNode.createUnlinkedFacade();
+    }
+
+    public static FieldMatchPatternNode createFieldMatchPatternNode(
+            SimpleNameReferenceNode fieldNameNode,
+            Token colonToken,
+            Node matchPattern) {
+        Objects.requireNonNull(fieldNameNode, "fieldNameNode must not be null");
+        Objects.requireNonNull(colonToken, "colonToken must not be null");
+        Objects.requireNonNull(matchPattern, "matchPattern must not be null");
+
+        STNode stFieldMatchPatternNode = STNodeFactory.createFieldMatchPatternNode(
+                fieldNameNode.internalNode(),
+                colonToken.internalNode(),
+                matchPattern.internalNode());
+        return stFieldMatchPatternNode.createUnlinkedFacade();
     }
 }
 

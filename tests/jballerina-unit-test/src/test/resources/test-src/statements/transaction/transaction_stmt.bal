@@ -94,28 +94,11 @@ function testMultipleTrxBlocks() returns error? {
     assertEquality(4, j);
 }
 
-type AssertionError error;
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata && actual is anydata && expected == actual {
-        return;
-    }
-
-    if expected === actual {
-        return;
-    }
-
-    panic AssertionError(ASSERTION_ERROR_REASON,
-            message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
-
 string ss = "";
 function testTrxHandlers() returns string {
     ss = ss + "started";
     transactions:Info transInfo;
-        var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
         ss = ss + " trxAborted";
     };
 
@@ -170,4 +153,121 @@ public function testAssignmentToUninitializedVariableOfOuterScopeFromTrxBlock() 
         var commitRes = commit;
     }
     return s;
+}
+
+function testTrxReturnVal() returns string {
+    string str = "start";
+    transaction {
+        str = str + " within transaction";
+        var commitRes = commit;
+        str = str + " end.";
+        return str;
+    }
+}
+
+function testInvokingTrxFunc() returns string {
+    string str = "start";
+    string res = funcWithTrx(str);
+    return res + " end.";
+
+}
+
+function funcWithTrx(string str) returns string {
+    transaction {
+        string res = str + " within transaction";
+        var commitRes = commit;
+        return res;
+    }
+}
+
+function testTransactionLangLib() returns error? {
+    string str = "";
+    var rollbackFunc = function (transactions:Info info, error? cause, boolean willRetry) {
+        if (cause is error) {
+            str += " " + cause.message();
+        }
+    };
+
+    transaction {
+        readonly d = 123;
+        transactions:setData(d);
+        transactions:Info transInfo = transactions:info();
+        transactions:Info? newTransInfo = transactions:getInfo(transInfo.xid);
+        if(newTransInfo is transactions:Info) {
+            assertEquality(transInfo.xid, newTransInfo.xid);
+        } else {
+            panic AssertionError(ASSERTION_ERROR_REASON, message = "unexpected output from getInfo");
+        }
+        transactions:onRollback(rollbackFunc);
+        str += "In Trx";
+        assertEquality(d, transactions:getData());
+        check commit;
+        str += " commit";
+    }
+}
+
+type AssertionError error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic AssertionError(ASSERTION_ERROR_REASON, message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
+
+function testWithinTrxMode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
+
+    transaction {
+        ss = "trxStarted";
+        string invoRes = testFuncInvocation();
+        ss = ss + invoRes + " -> invoked function returned";
+        transactions:onCommit(onCommitFunc);
+        if (transactional) {
+            ss = ss + " -> strand in transactional mode";
+        }
+        var commitRes = commit;
+        if (!transactional) {
+            ss = ss + " -> strand in non-transactional mode";
+        }
+        ss += " -> trxEnded.";
+    }
+    return ss;
+}
+
+function testFuncInvocation() returns string {
+    string ss = " -> within invoked function";
+    if (transactional) {
+        ss = ss + " -> strand in transactional mode";
+    }
+    return ss;
+}
+
+function testUnreachableCode() returns string {
+    string ss = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " -> trxCommited";
+    };
+
+    transaction {
+        ss = "trxStarted";
+        transactions:onCommit(onCommitFunc);
+        var commitRes = commit;
+        if (transactional) {
+            //only reached when commit fails
+            ss = ss + " -> strand in transactional mode";
+        }
+        ss += " -> trxEnded.";
+    }
+    return ss;
 }

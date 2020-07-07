@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FutureValue;
 import org.ballerinalang.jvm.values.MapValue;
+import org.ballerinalang.jvm.values.api.BError;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -52,6 +54,7 @@ public class Strand {
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
+    public BError panic;
     public Scheduler scheduler;
     public Strand parent = null;
     public WDChannels wdChannels;
@@ -69,7 +72,8 @@ public class Strand {
     ItemGroup strandGroup;
 
     private Map<String, Object> globalProps;
-    public TransactionLocalContext transactionLocalContext;
+    public TransactionLocalContext currentTrxContext;
+    public Stack<TransactionLocalContext> trxContexts;
     private State state;
     private final ReentrantLock strandLock;
 
@@ -82,6 +86,7 @@ public class Strand {
         this.dependants = new HashSet<>();
         this.strandLock = new ReentrantLock();
         this.waitingContexts = new ArrayList<>();
+        this.trxContexts = new Stack<>();
     }
 
     public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
@@ -103,10 +108,6 @@ public class Strand {
         }
     }
 
-    public void setReturnValues(Object returnValue) {
-        this.returnValue = returnValue;
-    }
-
     public Object getProperty(String key) {
         return this.globalProps.get(key);
     }
@@ -116,11 +117,27 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return this.transactionLocalContext != null;
+        return this.currentTrxContext != null;
     }
 
+    @Deprecated
     public void removeLocalTransactionContext() {
-        this.transactionLocalContext = null;
+        this.currentTrxContext = null;
+    }
+
+    public void removeCurrentTrxContext() {
+        if (!this.trxContexts.isEmpty()) {
+            this.currentTrxContext = this.trxContexts.pop();
+            return;
+        }
+        this.currentTrxContext = null;
+    }
+
+    public void setCurrentTransactionContext(TransactionLocalContext ctx) {
+        if (this.currentTrxContext != null) {
+            this.trxContexts.push(this.currentTrxContext);
+        }
+        this.currentTrxContext = ctx;
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {

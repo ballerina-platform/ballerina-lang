@@ -82,6 +82,10 @@ public class BallerinaTreeModifyUtil {
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
+        put("IF_STATEMENT", "if ($CONDITION) {\n" +
+                "\n} else {\n\n}\n");
+        put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
+                "\n}");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {

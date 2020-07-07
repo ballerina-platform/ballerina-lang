@@ -425,36 +425,12 @@
                     },
                     {
                       "kind": "MATCH_CLAUSE",
-                      "hasDiagnostics": true,
                       "children": [
                         {
                           "kind": "LIST",
-                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "MATCH_GUARD",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IF_KEYWORD",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IF_KEYWORD"
-                              ]
-                            },
-                            {
-                              "kind": "LIST_CONSTRUCTOR",
+                              "kind": "LIST_MATCH_PATTERN",
                               "children": [
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN",

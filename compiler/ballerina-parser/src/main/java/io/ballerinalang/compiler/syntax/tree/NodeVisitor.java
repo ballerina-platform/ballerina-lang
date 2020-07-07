@@ -751,6 +751,22 @@ public abstract class NodeVisitor {
         visitSyntaxNode(onClauseNode);
     }
 
+    public void visit(ListMatchPatternNode listMatchPatternNode) {
+        visitSyntaxNode(listMatchPatternNode);
+    }
+
+    public void visit(RestMatchPatternNode restMatchPatternNode) {
+        visitSyntaxNode(restMatchPatternNode);
+    }
+
+    public void visit(MappingMatchPatternNode mappingMatchPatternNode) {
+        visitSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public void visit(FieldMatchPatternNode fieldMatchPatternNode) {
+        visitSyntaxNode(fieldMatchPatternNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

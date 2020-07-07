@@ -75,5 +75,5 @@ public abstract class AbstractTokenReader {
      *
      * @return current token index
      */
-    public abstract int getCurrentIndex();
+    public abstract int getCurrentTokenIndex();
 }

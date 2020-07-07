@@ -1103,6 +1103,14 @@ public class ParserTestUtils {
                 return SyntaxKind.MATCH_GUARD;
             case "OBJECT_METHOD_DEFINITION":
                 return SyntaxKind.OBJECT_METHOD_DEFINITION;
+            case "LIST_MATCH_PATTERN":
+                return SyntaxKind.LIST_MATCH_PATTERN;
+            case "REST_MATCH_PATTERN":
+                return SyntaxKind.REST_MATCH_PATTERN;
+            case "MAPPING_MATCH_PATTERN":
+                return SyntaxKind.MAPPING_MATCH_PATTERN;
+            case "FIELD_MATCH_PATTERN":
+                return SyntaxKind.FIELD_MATCH_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

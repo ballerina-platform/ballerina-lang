@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "jwt",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "lang.boolean",
       "kind": "Module",
       "detail": "Module",
@@ -171,14 +163,6 @@
       "detail": "Module",
       "sortText": "110",
       "insertText": "oauth2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "encoding",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "encoding",
       "insertTextFormat": "Snippet"
     },
     {

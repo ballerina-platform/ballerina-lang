@@ -79,8 +79,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public TableValueImpl(BTableType type) {
         this.type = type;
