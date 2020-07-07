@@ -28,9 +28,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
@@ -50,9 +47,7 @@ public class LastIndexOf {
     public static Object lastIndexOf(Strand strand, BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
-                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
         }
         return value.lastIndexOf(subString, (int) startIndex);
     }

@@ -17,7 +17,6 @@
 package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.util.exceptions.BLangFreezeException;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,30 +118,6 @@ public class ErrorHandler {
      */
     public static void handleInvalidXPath(String operation, Exception e) {
         throw new BallerinaException("Failed to " + operation + ". Invalid xpath: " + e.getMessage());
-    }
-    
-    /**
-     * Handle any xpath related exception.
-     * 
-     * @param operation     Operation that executed
-     * @param e             Throwable to handle
-     */
-    public static void handleXMLException(String operation, Throwable e) {
-        // here local message of the cause is logged whenever possible, to avoid java class being logged 
-        // along with the error message.
-        if (e instanceof BallerinaException && ((BallerinaException) e).getDetail() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
-                    ((BallerinaException) e).getDetail());
-        } else if (e instanceof BLangFreezeException) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Failed to " + operation + ": " +
-                    ((BLangFreezeException) e).getDetail());
-        } else if (e.getCause() != null) {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                         "Failed to " + operation + ": " + e.getCause().getMessage());
-        } else {
-            throw new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR,
-                                         "Failed to " + operation + ": " + e.getMessage());
-        }
     }
 
     public static void handleUndefineHeader(String headerName) {

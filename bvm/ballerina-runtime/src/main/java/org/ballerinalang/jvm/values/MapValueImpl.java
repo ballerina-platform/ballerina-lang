@@ -54,9 +54,7 @@ import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.JSONUtils.mergeJson;
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static org.ballerinalang.jvm.values.ReadOnlyUtils.handleInvalidUpdate;
 
@@ -222,14 +220,13 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
         String errMessage = "";
         switch (getType().getTag()) {
             case TypeTags.RECORD_TYPE_TAG:
-                errMessage = "Invalid update of record field: ";
+                errMessage = "Invalid update of record field, ";
                 break;
             case TypeTags.MAP_TAG:
-                errMessage = "Invalid map insertion: ";
+                errMessage = "Invalid map insertion, ";
                 break;
         }
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                          errMessage + BLangExceptionHelper.getErrorMessage(
+        throw BallerinaErrors.createError(errMessage + BLangExceptionHelper.getErrorMessage(
                                                   INVALID_READONLY_VALUE_UPDATE));
     }
 

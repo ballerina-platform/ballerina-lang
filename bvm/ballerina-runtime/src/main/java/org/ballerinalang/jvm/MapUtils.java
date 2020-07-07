@@ -31,11 +31,9 @@ import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.MAP_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 
 /**
  * Common utility methods used for MapValue insertion/manipulation.
@@ -67,8 +65,7 @@ public class MapUtils {
         BType expType = mapType.getConstrainedType();
         BType valuesType = TypeChecker.getType(value);
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+        throw BallerinaErrors.createError(INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER,
                                           BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
                                                                                expType, valuesType));
     }
@@ -86,7 +83,7 @@ public class MapUtils {
             if (!initialValue && Flags.isFlagOn(recField.flags, Flags.READONLY)) {
 
                 throw BallerinaErrors.createError(
-                        getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+                        INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER,
                         BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
                                                              fieldName, recType));
             }
@@ -109,16 +106,14 @@ public class MapUtils {
         }
         BType valuesType = TypeChecker.getType(value);
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                  INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+        throw BallerinaErrors.createError(INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER,
                                           BLangExceptionHelper.getErrorMessage(
                                                   RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
                                                   valuesType));
     }
 
     public static ErrorValue createOpNotSupportedError(BType type, String op) {
-        return BallerinaErrors.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                                   OPERATION_NOT_SUPPORTED_IDENTIFIER),
+        return BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
                                            String.format("%s not supported on type '%s'", op, type.getQualifiedName()));
     }
 
@@ -161,8 +156,7 @@ public class MapUtils {
     }
 
     private static ErrorValue createOpNotSupportedErrorForRecord(BType type, String field) {
-        return BallerinaErrors.createError(getModulePrefixedReason(
-                MAP_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER), String.format(
+        return BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER, String.format(
                 "failed to remove field: '%s' is a required field in '%s'", field, type.getQualifiedName()));
     }
 }

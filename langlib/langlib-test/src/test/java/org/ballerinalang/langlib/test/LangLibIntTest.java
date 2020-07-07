@@ -31,9 +31,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static org.ballerinalang.jvm.util.BLangConstants.INT_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.NUMBER_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.NUMBER_PARSING_ERROR_IDENTIFIER;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -69,7 +67,7 @@ public class LangLibIntTest {
         assertEquals(returns[1].getType().getTag(), TypeTags.ERROR_TAG);
 
         BError err = (BError) returns[1];
-        assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER));
+        assertEquals(err.getReason(), NUMBER_PARSING_ERROR_IDENTIFIER);
         assertEquals(err.getDetails().toString(), "{\"message\":\"'string' value '12invalid34' " +
                 "cannot be converted to 'int'\"}");
     }
@@ -102,7 +100,7 @@ public class LangLibIntTest {
         assertEquals(returns[1].getType().getTag(), TypeTags.ERROR_TAG);
 
         BError err = (BError) returns[1];
-        assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER));
+        assertEquals(err.getReason(), NUMBER_PARSING_ERROR_IDENTIFIER);
         assertEquals(err.getDetails().toString(), "{\"message\":\"For input string: \"12invalid34\"\"}");
     }
 

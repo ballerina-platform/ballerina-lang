@@ -33,9 +33,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.Base64;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -55,8 +53,7 @@ public class ToBase64 {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                      OPERATION_NOT_SUPPORTED_IDENTIFIER),
+            throw BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
                                               "toBase64() is only supported on 'byte[]'");
         }
         return StringUtils.fromString(Base64.getEncoder().encodeToString(arr.getBytes()));

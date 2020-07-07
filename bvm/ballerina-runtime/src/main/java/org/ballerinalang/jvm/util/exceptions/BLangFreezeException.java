@@ -24,22 +24,11 @@ package org.ballerinalang.jvm.util.exceptions;
  */
 public class BLangFreezeException extends BLangRuntimeException {
 
-    private String detail = null;
-
     public BLangFreezeException(String message) {
         super(message);
     }
 
-    public BLangFreezeException(String message, String detail) {
-        super(message);
-        this.detail = detail;
-    }
-
     public BLangFreezeException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public String getDetail() {
-        return detail;
     }
 }

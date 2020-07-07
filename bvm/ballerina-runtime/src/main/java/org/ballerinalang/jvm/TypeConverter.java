@@ -28,7 +28,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.Flags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.DecimalValue;
@@ -95,7 +95,7 @@ public class TypeConverter {
                 return anyToByte(inputValue, () ->
                         BallerinaErrors.createNumericConversionError(inputValue, BTypes.typeByte));
             default:
-                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
+                throw BallerinaErrors.createError(BallerinaErrorMessages.NUMBER_CONVERSION_ERROR,
                                                   BLangExceptionHelper.getErrorMessage(
                                                           RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                           inputType, inputValue, targetType));

@@ -113,7 +113,7 @@ public class RawTemplateLiteralTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*InherentTypeViolation message=incompatible types: expected 'int', found 'float'.*")
+                  "error: Inherent type violation: incompatible types: expected 'int', found 'float'.*")
     public void testIndirectAssignmentToConcreteType() {
         BRunUtil.invoke(result, "testIndirectAssignmentToConcreteType");
     }

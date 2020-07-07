@@ -266,8 +266,8 @@ public class JSONStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'Student'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to 'Student'");
     }
 
     @Test
@@ -276,8 +276,8 @@ public class JSONStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'map<string>'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to 'map<string>'");
     }
 
     @Test
@@ -286,7 +286,7 @@ public class JSONStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "cannot convert '()' to type 'StringArray'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: cannot convert '()' to type 'StringArray'");
     }
 }

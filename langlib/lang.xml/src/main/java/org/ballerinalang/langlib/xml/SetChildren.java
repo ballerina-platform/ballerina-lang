@@ -51,7 +51,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 )
 public class SetChildren {
 
-    private static final String OPERATION = "set children to xml element";
+    private static final String OPERATION = "set children";
 
     public static void setChildren(Strand strand, XMLValue xml, Object children) {
         if (!IsElement.isElement(strand, xml)) {

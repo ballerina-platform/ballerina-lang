@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Represent Ballerina distinct types type-ids in the runtime.
@@ -54,6 +55,17 @@ public class BTypeIdSet {
             }
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner typeIdsStr = new StringJoiner("&");
+        for (TypeId id : ids) {
+            if (id.isPrimary) {
+                typeIdsStr.add("{" + id.pkg.toString() + "}" + id.name);
+            }
+        }
+        return typeIdsStr.toString();
     }
 
     /**

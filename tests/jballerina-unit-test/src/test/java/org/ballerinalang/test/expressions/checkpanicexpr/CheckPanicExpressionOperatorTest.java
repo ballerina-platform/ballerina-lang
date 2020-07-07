@@ -74,8 +74,7 @@ public class CheckPanicExpressionOperatorTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange message=array index" +
-                    " out of range: index: 4, size: 2.*")
+            expectedExceptionsMessageRegExp = "error: array index out of range: index: 4, size: 2.*")
     public void testSafeAssignmentBasics5() {
         BValue[] arg = {new BInteger(5)};
         BRunUtil.invoke(result, "testBasicCheckpanic", arg);

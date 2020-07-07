@@ -57,8 +57,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.CONSTRUCT_FROM_CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.CONSTRUCT_FROM_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 

@@ -26,7 +26,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.XMLValidator;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
@@ -363,7 +363,7 @@ public final class XMLItem extends XMLValue {
     }
 
     private BallerinaException createXMLCycleError() {
-        return new BallerinaException(BallerinaErrorReasons.XML_OPERATION_ERROR, "Cycle detected");
+        return new BallerinaException(BallerinaErrorMessages.XML_OPERATION_ERROR, "Cycle detected");
     }
 
     private void mergeAdjoiningTextNodesIntoList(List leftList, List<BXML> appendingList) {

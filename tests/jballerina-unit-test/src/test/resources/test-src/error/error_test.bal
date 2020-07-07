@@ -203,11 +203,15 @@ function testErrorConstrWithConstLiteralForConstReason() returns error {
 //    return errOneInitSuccesful && errTwoInitSuccesful;
 //}
 
-function testUnspecifiedErrorDetailFrozenness() returns boolean {
+function testUnspecifiedErrorDetailFrozenness() returns string {
     error e1 = error("reason 1");
     map<anydata|readonly> m1 = e1.detail();
     error? err = trap addValueToMap(m1, "k", 1);
-    return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
+    if (err is error) {
+        return err.message();
+    } else {
+        return "()";
+    }
 }
 
 function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {

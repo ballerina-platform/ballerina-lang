@@ -207,15 +207,16 @@ function testLaxUnionFieldAccessNegative3() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        assertEquality(je.message(), "JSON operation error: JSON value is not a mapping");
+        return true;
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina/lang.map}KeyNotFound" &&
-                                je.detail()["message"].toString() == "Key '" + key + "' not found in JSON mapping";
+        assertEquality(je.message(), "Key not found: Key '" + key + "' not found in JSON mapping");
+        return true;
     }
     return false;
 }
@@ -273,4 +274,15 @@ function testJsonFieldAccessOnInvocation() returns boolean {
 
 function getJson() returns json {
     return { x: { y: 1 } };
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error("AssertionError",
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

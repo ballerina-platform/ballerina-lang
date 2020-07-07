@@ -59,7 +59,7 @@ public class AccessTest {
     @Test(dataProvider = "fieldAndOptionalFieldAccessFunctions")
     public void testFieldAndOptionalFieldAccess(String function) {
         BValue[] returns = BRunUtil.invoke(result, function);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "In function: " + function);
     }
 
     @DataProvider(name = "fieldAndOptionalFieldAccessFunctions")

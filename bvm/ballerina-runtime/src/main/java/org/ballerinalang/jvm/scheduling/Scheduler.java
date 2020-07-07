@@ -21,7 +21,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.util.RuntimeUtils;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.values.ChannelDetails;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.FPValue;
@@ -374,7 +374,7 @@ public class Scheduler {
 
     private Throwable createError(Throwable t) {
         if (t instanceof StackOverflowError) {
-            ErrorValue error = BallerinaErrors.createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+            ErrorValue error = BallerinaErrors.createError(BallerinaErrorMessages.STACK_OVERFLOW_ERROR);
             error.setStackTrace(t.getStackTrace());
             return error;
         }

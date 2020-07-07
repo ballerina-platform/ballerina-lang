@@ -31,9 +31,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -55,8 +53,7 @@ public class ToBase16 {
         BType arrType = arr.getType();
         if (arrType.getTag() != TypeTags.ARRAY_TAG ||
                 ((BArrayType) arrType).getElementType().getTag() != TypeTags.BYTE_TAG) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB,
-                                                                      OPERATION_NOT_SUPPORTED_IDENTIFIER),
+            throw BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
                                               "toBase16() is only supported on 'byte[]'");
         }
 

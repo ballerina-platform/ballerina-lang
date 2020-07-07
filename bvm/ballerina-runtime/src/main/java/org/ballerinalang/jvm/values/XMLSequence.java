@@ -21,7 +21,7 @@ import org.ballerinalang.jvm.XMLNodeType;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.BLangConstants;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BXML;
@@ -471,7 +471,7 @@ public final class XMLSequence extends XMLValue {
             }
             return (XMLValue) this.children.get(index);
         } catch (Exception e) {
-            throw BallerinaErrors.createError(BallerinaErrorReasons.XML_OPERATION_ERROR, e.getMessage());
+            throw BallerinaErrors.createError(e.getMessage());
         }
     }
 

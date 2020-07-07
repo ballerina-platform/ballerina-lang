@@ -30,7 +30,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.MapUtils.checkIsMapOnlyOperation;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
@@ -55,11 +54,10 @@ public class Remove {
             try {
                 return m.remove(k);
             } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-                throw BallerinaErrors.createError(e.getMessage(),
-                                                  "Failed to remove element from map: " + e.getDetail());
+                throw BallerinaErrors.createError("Failed to remove element from map, " + e.getMessage());
             }
         }
 
-        throw BallerinaErrors.createError(MAP_KEY_NOT_FOUND_ERROR, "cannot find key '" + k + "'");
+        throw BallerinaErrors.createError("Cannot find key '" + k + "'");
     }
 }

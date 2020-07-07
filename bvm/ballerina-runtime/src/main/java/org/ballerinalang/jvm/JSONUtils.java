@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -49,10 +49,9 @@ import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.JSON_OPERATION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.MAP_KEY_NOT_FOUND_ERROR;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -207,8 +206,7 @@ public class JSONUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
+            throw BLangExceptionHelper.getRuntimeException(INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER,
                     RuntimeErrors.JSON_SET_ERROR, t.getMessage());
         }
     }
@@ -429,14 +427,14 @@ public class JSONUtils {
         BType j2Type = TypeChecker.getType(j2);
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+            return BallerinaErrors.createError(BallerinaErrorMessages.MERGE_JSON_ERROR,
                                                "Cannot merge JSON values of types '" + j1Type + "' and '" +
                                                        j2Type + "'");
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
         if (visitedPairs.contains(currentPair)) {
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+            return BallerinaErrors.createError(BallerinaErrorMessages.MERGE_JSON_ERROR,
                                                "Cannot merge JSON values with cyclic references");
         }
         visitedPairs.add(currentPair);
@@ -461,7 +459,7 @@ public class JSONUtils {
             detailMap.put(TypeConstants.DETAIL_MESSAGE,
                           StringUtils.fromString("JSON Merge failed for key '" + key + "'"));
             detailMap.put(TypeConstants.DETAIL_CAUSE, elementMergeNullableError);
-            return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR, detailMap);
+            return BallerinaErrors.createError(BallerinaErrorMessages.MERGE_JSON_ERROR, detailMap);
         }
         return null;
     }
@@ -480,7 +478,7 @@ public class JSONUtils {
             BType j2Type = TypeChecker.getType(j2);
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-                return BallerinaErrors.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
+                return BallerinaErrors.createError(BallerinaErrorMessages.MERGE_JSON_ERROR,
                                                    "Cannot merge JSON values of types '" + j1Type + "' and '" +
                                                            j2Type + "'");
             }
@@ -548,7 +546,7 @@ public class JSONUtils {
         String detail = throwable.getMessage() != null ?
                 prefix + ": " + throwable.getMessage() :
                 "error occurred in JSON Conversion";
-        return BallerinaErrors.createError(BallerinaErrorReasons.JSON_CONVERSION_ERROR, detail);
+        return BallerinaErrors.createError(BallerinaErrorMessages.JSON_CONVERSION_ERROR, detail);
     }
 
     // Private methods

@@ -25,7 +25,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return name of the element if `x` is a element or nil if element name is not set, else error.
@@ -50,6 +49,6 @@ public class GetElementNameNilLifting {
             return elementName;
         }
         String nodeTypeName = xmlVal.getNodeType().value();
-        return createError(XML_OPERATION_ERROR, "XML " + nodeTypeName + " does not contain element name");
+        return createError("XML " + nodeTypeName + " does not contain element name");
     }
 }

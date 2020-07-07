@@ -36,9 +36,6 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
@@ -362,8 +359,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        throw BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                          BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw BallerinaErrors.createError(BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     /**

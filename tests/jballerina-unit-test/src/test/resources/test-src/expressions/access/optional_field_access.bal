@@ -281,15 +281,16 @@ function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        assertEquality(je.message(), "JSON operation error: JSON value is not a mapping");
+        return true;
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}KeyNotFound" &&
-                                je.detail()["message"].toString() == "Key '" + key + "' not found in JSON mapping";
+        assertEquality(je.message(), "Key not found: Key '" + key + "' not found in JSON mapping");
+        return true;
     }
     return false;
 }
@@ -384,6 +385,17 @@ function testOptionalFieldAccessInUnionType3() {
     if !(x1 == () && x2 == () && x3 == "s" && x4 == 1) {
         panic error("ASSERTION_ERROR_REASON", message = "expected 'true', found 'false'");
     }
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error("AssertionError",
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
 
 function testOptionalFieldAccessInUnionType() {

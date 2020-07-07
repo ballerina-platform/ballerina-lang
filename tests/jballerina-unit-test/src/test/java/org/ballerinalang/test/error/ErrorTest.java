@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BError;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
@@ -252,8 +253,9 @@ public class ErrorTest {
     @Test
     public void testUnspecifiedErrorDetailFrozenness() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "testUnspecifiedErrorDetailFrozenness");
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(),
+                "Invalid map insertion, modification not allowed on readonly value");
     }
 
     @Test
@@ -397,13 +399,13 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:344}";
-        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
                 "lineNumber:348}";
+        String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
+                "lineNumber:352}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
-        Assert.assertEquals(result[1].stringValue(), "{ballerina}StackOverflow");
+        Assert.assertEquals(result[1].stringValue(), "Stack overflow");
     }
 
     @Test

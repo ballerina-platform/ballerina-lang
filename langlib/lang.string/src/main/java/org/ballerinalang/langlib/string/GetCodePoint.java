@@ -26,9 +26,6 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.BLangConstants.STRING_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.util.BLangCompilerConstants.STRING_VERSION;
 
 /**
@@ -48,9 +45,7 @@ public class GetCodePoint {
         try {
             return str.getCodePoint((int) i);
         } catch (IndexOutOfBoundsException e) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                      INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    "String codepoint index out of range: " + i);
+            throw BallerinaErrors.createError("String codepoint index out of range: " + i);
         }
     }
 }

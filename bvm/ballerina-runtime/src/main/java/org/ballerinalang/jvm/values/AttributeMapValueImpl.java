@@ -27,9 +27,6 @@ import org.ballerinalang.jvm.values.api.BString;
 
 import javax.xml.XMLConstants;
 
-import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static org.ballerinalang.jvm.values.XMLItem.XMLNS_URL_PREFIX;
 
@@ -55,8 +52,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     @Override
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
-            throw BallerinaErrors.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                              BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+            throw BallerinaErrors.createError(BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
         }
 
         return insertValue(keyBStr, value, false);

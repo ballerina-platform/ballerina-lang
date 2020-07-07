@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 import org.ballerinalang.jvm.util.exceptions.RuntimeErrors;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -44,7 +44,7 @@ import static org.ballerinalang.jvm.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.MODULE_INIT_CLASS_NAME;
 import static org.ballerinalang.jvm.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.STOP_FUNCTION_SUFFIX;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BALLERINA_PREFIXED_CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.BALLERINA_PREFIXED_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
@@ -64,6 +64,7 @@ public class BallerinaErrors {
     public static final String GENERATE_PKG_START = "___start_";
     public static final String GENERATE_PKG_STOP = "___stop_";
     public static final String GENERATE_OBJECT_CLASS_PREFIX = ".$value$";
+    public static final String MESSAGE_SEPARATOR = ": ";
 
     @Deprecated
     public static ErrorValue createError(String message) {
@@ -75,29 +76,22 @@ public class BallerinaErrors {
     }
 
     @Deprecated
-    public static ErrorValue createError(String reason, String detail) {
-            return createError(StringUtils.fromString(reason), StringUtils.fromString(detail));
+    public static ErrorValue createError(String message, String detail) {
+            return createError(StringUtils.fromString(message + MESSAGE_SEPARATOR + detail));
     }
 
-    public static ErrorValue createError(BString reason, BString detail) {
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
-        }
-        return new ErrorValue(reason, detailMap);
+    public static ErrorValue createError(BString message, BString detail) {
+        return createError(StringUtils.fromString(message.getValue() + MESSAGE_SEPARATOR + detail.getValue()));
     }
 
     @Deprecated
     public static ErrorValue createError(BType type, String message, String detail) {
-        return createError(type, StringUtils.fromString(message), StringUtils.fromString(detail));
+        return new ErrorValue(type, StringUtils.fromString(message + MESSAGE_SEPARATOR + detail),
+                null, new MapValueImpl<>());
     }
 
     public static ErrorValue createError(BType type, BString message, BString detail) {
-        MapValueImpl<BString, Object> detailMap = new MapValueImpl<>(BTypes.typeErrorDetail);
-        if (detail != null) {
-            detailMap.put(ERROR_MESSAGE_FIELD, detail);
-        }
-        return new ErrorValue(type, message, null, detailMap);
+        return createError(type, message.getValue(), detail.getValue());
     }
 
     public static ErrorValue createDistinctError(String typeIdName, BPackage typeIdPkg, String message) {
@@ -149,7 +143,7 @@ public class BallerinaErrors {
         // stack overflow exceptions in addition to error value.
         // In the future, if we need to trap more exception types, we need to check instance of each exception and
         // handle accordingly.
-        ErrorValue error = createError(BallerinaErrorReasons.STACK_OVERFLOW_ERROR);
+        ErrorValue error = createError(BallerinaErrorMessages.STACK_OVERFLOW_ERROR);
         error.setStackTrace(throwable.getStackTrace());
         return error;
     }
@@ -161,36 +155,29 @@ public class BallerinaErrors {
     }
 
     public static ErrorValue createTypeCastError(Object sourceVal, BType targetType) {
-        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
+        throw createError(BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
                                                                TypeChecker.getType(sourceVal), targetType));
 
     }
 
     public static ErrorValue createBToJTypeCastError(Object sourceVal, String targetType) {
-        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
+        throw createError(BLangExceptionHelper.getErrorMessage(RuntimeErrors.J_TYPE_CAST_ERROR,
                         TypeChecker.getType(sourceVal), targetType));
     }
 
     public static ErrorValue createNumericConversionError(Object inputValue, BType targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                          BLangExceptionHelper.getErrorMessage(
+        throw createError(BLangExceptionHelper.getErrorMessage(
                                   RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                   TypeChecker.getType(inputValue), inputValue, targetType));
     }
 
     public static ErrorValue createNumericConversionError(Object inputValue, BType inputType, BType targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+        throw createError(BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
 
-    static BString getErrorMessageFromDetail(MapValueImpl<BString, Object> detailMap) {
-        return (BString) detailMap.get(ERROR_MESSAGE_FIELD);
-    }
-
     public static ErrorValue createCancelledFutureError() {
-        return createError(BallerinaErrorReasons.FUTURE_CANCELLED);
+        return createError(BallerinaErrorMessages.FUTURE_CANCELLED);
     }
 
     public static ErrorValue createNullReferenceError() {

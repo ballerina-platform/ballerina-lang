@@ -195,8 +195,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'xml<lang.xml:Element" +
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Employee' value cannot be converted to 'xml<lang.xml:Element" +
                                     "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
     }
 
@@ -205,8 +205,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampOpenRecordToClosedRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Teacher' value cannot be converted to 'Employee'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Teacher' value cannot be converted to 'Employee'");
     }
 
     @Test
@@ -214,8 +214,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToClosedRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value cannot be converted to 'Student'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Person' value cannot be converted to 'Student'");
     }
 
     @Test
@@ -223,8 +223,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampClosedRecordToMap");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Person' value cannot be converted to 'map<string>'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Person' value cannot be converted to 'map<string>'");
     }
 
     @Test
@@ -232,8 +232,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToArray");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'string[]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Employee' value cannot be converted to 'string[]'");
     }
 
     @Test
@@ -241,8 +241,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(recordNegativeTestCompileResult, "stampRecordToTuple");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to '[string,string]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Employee' value cannot be converted to '[string,string]'");
     }
 
     //----------------------------- JSON NegativeTest cases ------------------------------------------------------
@@ -252,8 +252,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'xml<lang.xml:Element|" +
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to 'xml<lang.xml:Element|" +
                                     "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
     }
 
@@ -262,8 +262,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(jsonNegativeTestCompileResult, "stampJSONToTuple");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to '[string,string]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to '[string,string]'");
     }
 
     //----------------------------- XML NegativeTest cases ------------------------------------------------------
@@ -273,8 +273,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to 'BookRecord'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to 'BookRecord'");
     }
 
     @Test
@@ -282,8 +282,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToJson");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to 'json'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to 'json'");
     }
 
     @Test
@@ -291,8 +291,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToMap");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to 'map<anydata>'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to 'map<anydata>'");
     }
 
     @Test
@@ -300,8 +300,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToArray");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to 'BookRecord[]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to 'BookRecord[]'");
     }
 
     @Test
@@ -309,8 +309,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(xmlNegativeTestCompileResult, "stampXMLToTuple");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to '[string,string]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to '[string,string]'");
     }
 
     //----------------------------- Map NegativeTest cases ------------------------------------------------------
@@ -320,8 +320,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<anydata>' value cannot be converted to 'xml<lang.xml:Element|" +
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<anydata>' value cannot be converted to 'xml<lang.xml:Element|" +
                                     "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
     }
 
@@ -330,8 +330,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToArray");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<anydata>' value cannot be converted to 'string[]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<anydata>' value cannot be converted to 'string[]'");
     }
 
     @Test
@@ -339,8 +339,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(mapNegativeTestCompileResult, "stampMapToTuple");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<anydata>' value cannot be converted to '[string,string]'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'map<anydata>' value cannot be converted to '[string,string]'");
     }
     
     //----------------------------- Array NegativeTest cases ------------------------------------------------------
@@ -350,8 +350,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'anydata[]' value cannot be converted to 'Employee'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'anydata[]' value cannot be converted to 'Employee'");
     }
 
     @Test
@@ -359,8 +359,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(arrayNegativeTestCompileResult, "stampAnyArrayToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'anydata[]' value cannot be converted to 'xml<lang.xml:Element|" +
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'anydata[]' value cannot be converted to 'xml<lang.xml:Element|" +
                                     "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
     }
 
@@ -371,8 +371,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToRecord");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'Employee'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: '[string,string,string]' value cannot be converted to 'Employee'");
     }
     
     @Test
@@ -380,8 +380,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToJSON");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'json'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: '[string,string,string]' value cannot be converted to 'json'");
     }
     
     @Test
@@ -389,8 +389,9 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'xml<lang.xml:Element" +
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: '[string,string,string]' value cannot be converted to " +
+                                    "'xml<lang.xml:Element" +
                                     "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
     }
 
@@ -399,8 +400,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(tupleNegativeTestCompileResult, "stampTupleToMap");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'map<anydata>'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: '[string,string,string]' value cannot be converted to 'map<anydata>'");
     }
     
     //----------------------------- Union NegativeTest cases ------------------------------------------------------
@@ -410,8 +411,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToXML");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'lang.xml:Element' value cannot be converted to 'Employee'");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'lang.xml:Element' value cannot be converted to 'Employee'");
     }
 
     @Test
@@ -419,7 +420,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue[] results = BRunUtil.invoke(unionNegativeTestCompileResult, "stampUnionToConstraintMapToUnionNegative");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'int' value cannot be converted to 'float|decimal|[string,int]': ambiguous target type");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'int' value cannot be converted to 'float|decimal|[string,int]': " +
+                                    "ambiguous target type");
     }
 }

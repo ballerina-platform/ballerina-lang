@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.services.ErrorHandlerUtils;
 import org.ballerinalang.jvm.types.BErrorType;
 import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypeIdSet;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.api.BError;
@@ -74,18 +75,23 @@ public class ErrorValue extends BError implements RefValue {
 
     @Override
     public String stringValue() {
-        if (isEmptyDetail()) {
-            return "error " + message.getValue();
+        StringBuilder st = new StringBuilder();
+        st.append("error");
+        st.append(typeIdsToStr());
+        st.append(message.getValue());
+        if (errorDetailAvailable()) {
+            st.append(" ");
+            st.append(org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details));
         }
-        return "error " + message.getValue() + " " + getCauseToString() +
-                org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(details);
+        return st.toString();
     }
 
-    private String getCauseToString() {
-        if (cause != null) {
-            return org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(cause) + " ";
+    private String typeIdsToStr() {
+        BTypeIdSet typeIdSet = ((BErrorType) type).typeIdSet;
+        if (typeIdSet == null) {
+            return " ";
         }
-        return "";
+        return typeIdSet.toString() + " ";
     }
 
     @Override
@@ -223,17 +229,20 @@ public class ErrorValue extends BError implements RefValue {
         if (this.cause != null) {
             joiner.add("cause: " + this.cause.getMessage());
         }
-        if (!isEmptyDetail()) {
+        if (errorDetailAvailable()) {
             joiner.add(this.details.toString());
         }
 
         return joiner.toString();
     }
 
-    private boolean isEmptyDetail() {
+    private boolean errorDetailAvailable() {
         if (details == null) {
-            return true;
+            return false;
         }
-        return (details instanceof MapValue) && ((MapValue) details).isEmpty();
+        if (details instanceof  MapValue) {
+            return !((MapValue) details).isEmpty();
+        }
+        return false;
     }
 }

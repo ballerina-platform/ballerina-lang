@@ -112,7 +112,7 @@ public class FieldAccessTest {
         BValueArray array = ((BValueArray) returns[0]);
         Assert.assertEquals(array.size(), 5);
         for (int i = 0; i < 5; i++) {
-            Assert.assertEquals(array.getBoolean(i), 1);
+            Assert.assertEquals(array.getBoolean(i), 1, "In index: " + i);
         }
     }
 

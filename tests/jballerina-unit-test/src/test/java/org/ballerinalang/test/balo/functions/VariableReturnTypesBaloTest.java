@@ -44,15 +44,13 @@ public class VariableReturnTypesBaloTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map' cannot be cast to " +
-                  "'map<anydata>.*")
+          expectedExceptionsMessageRegExp = "error: 'map' cannot be cast to 'map<anydata>'.*")
     public void testRuntimeCastError() {
         BRunUtil.invoke(result, "testRuntimeCastError");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Person' cannot be cast " +
-                  "to 'int'.*")
+          expectedExceptionsMessageRegExp = "error: 'Person' cannot be cast to 'int'.*")
     public void testCastingForInvalidValues() {
         BRunUtil.invoke(result, "testCastingForInvalidValues");
     }

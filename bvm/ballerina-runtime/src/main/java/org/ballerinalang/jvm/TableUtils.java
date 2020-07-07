@@ -29,7 +29,7 @@ import org.ballerinalang.jvm.values.TableValue;
 
 import java.util.Map;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.TABLE_KEY_CYCLIC_VALUE_REFERENCE_ERROR;
 
 /**
  * This class contains the utility methods required by the table implementation.

@@ -32,8 +32,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.BOOLEAN_PARSING_ERROR_IDENTIFIER;
 
 /**
  * This class tests boolean lang module functionality.
@@ -73,7 +72,7 @@ public class LangLibBooleanTest {
     }
 
     private ErrorValue getError(String value) {
-        String reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
+        String reason = BOOLEAN_PARSING_ERROR_IDENTIFIER;
         String msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                 BTypes.typeString, value, BTypes.typeBoolean);
         return BallerinaErrors.createError(reason, msg);

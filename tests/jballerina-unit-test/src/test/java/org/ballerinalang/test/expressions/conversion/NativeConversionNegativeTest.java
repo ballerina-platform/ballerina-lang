@@ -59,40 +59,41 @@ public class NativeConversionNegativeTest {
 
         // check the error
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'Person'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg, "Conversion error: 'map<json>' value cannot be converted to 'Person'");
     }
 
     @Test
     public void testEmptyJSONtoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyJSONtoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<json>' value cannot be converted to 'StructWithoutDefaults'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg,
+                "Conversion error: 'map<json>' value cannot be converted to 'StructWithoutDefaults'");
     }
 
     @Test
     public void testEmptyMaptoStructWithoutDefaults() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testEmptyMaptoStructWithoutDefaults");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'map<anydata>' value cannot be converted to 'StructWithoutDefaults'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg,
+                "Conversion error: 'map<anydata>' value cannot be converted to 'StructWithoutDefaults'");
     }
 
     @Test(description = "Test performing an invalid tuple conversion")
     public void testTupleConversionFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testTupleConversionFail");
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'[T1,T1]' value cannot be converted to '[T1,"
-                + "T2]'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg, "Conversion error: '[T1,T1]' value cannot be converted to '[T1,T2]'");
     }
 
     @Test(description = "Test converting an unsupported array to json")
     public void testArrayToJsonFail() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testArrayToJsonFail");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'TX[]' value cannot be converted to 'json'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg, "Conversion error: 'TX[]' value cannot be converted to 'json'");
     }
 
     @Test(description = "Test passing tainted value with convert")
@@ -116,8 +117,8 @@ public class NativeConversionNegativeTest {
     public void testIncompatibleImplicitConversion() {
         BValue[] returns = BRunUtil.invoke(negativeResult, "testIncompatibleImplicitConversion");
         Assert.assertTrue(returns[0] instanceof BError);
-        String errorMsg = ((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "'string' value cannot be converted to 'int'");
+        String errorMsg = ((BError) returns[0]).getMessage();
+        Assert.assertEquals(errorMsg, "Conversion error: 'string' value cannot be converted to 'int'");
     }
 
     @Test(description = "Test converting record to record which has cyclic reference to its own value.")
@@ -125,8 +126,8 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToRecordWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Manager' value has cyclic reference");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Manager' value has cyclic reference");
     }
 
     @Test(description = "Test converting record to map having cyclic reference.")
@@ -134,8 +135,8 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToMapWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Manager' value has cyclic reference");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Manager' value has cyclic reference");
     }
 
     @Test(description = "Test converting record to json having cyclic reference.")
@@ -143,8 +144,8 @@ public class NativeConversionNegativeTest {
         BValue[] results = BRunUtil.invoke(negativeResult, "testConvertRecordToJsonWithCyclicValueReferences");
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Manager' value has cyclic reference");
+        Assert.assertEquals(((BError) results[0]).getMessage(),
+                            "Conversion error: 'Manager' value has cyclic reference");
     }
 }
 

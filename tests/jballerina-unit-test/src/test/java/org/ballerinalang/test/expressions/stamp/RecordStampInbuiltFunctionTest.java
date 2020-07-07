@@ -554,7 +554,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) results[0]).getMessage(),
                             "'Teacher' value cannot be converted to 'map<string>'");
     }
 
@@ -564,7 +564,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) results[0]).getMessage(),
                             "'Teacher' value cannot be converted to 'NonAcademicStaff'");
     }
 
@@ -574,7 +574,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) results[0]).getMessage(),
                             "'Employee' value cannot be converted to 'Teacher'");
     }
 
@@ -584,7 +584,7 @@ public class RecordStampInbuiltFunctionTest {
         BValue error = results[0];
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
-        Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
+        Assert.assertEquals(((BError) results[0]).getMessage(),
                             "'Employee' value cannot be converted to 'Teacher'");
     }
 }

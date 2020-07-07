@@ -48,8 +48,6 @@ import java.util.Set;
 import static org.ballerinalang.jvm.types.TypeConstants.READONLY_XML_TNAME;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 
 /**
@@ -65,8 +63,7 @@ public class ReadOnlyUtils {
      * @param moduleName the name of the langlib module for whose values the error occurred
      */
     static void handleInvalidUpdate(String moduleName) {
-        throw new BLangFreezeException(getModulePrefixedReason(moduleName, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw new BLangFreezeException(BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
     }
 
     public static BType setImmutableTypeAndGetEffectiveType(BType type) {

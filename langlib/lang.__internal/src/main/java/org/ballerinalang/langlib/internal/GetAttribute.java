@@ -28,7 +28,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.jvm.BallerinaErrors.createError;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.XML_OPERATION_ERROR;
 
 /**
  * Return attribute value matching attribute name `attrName`.
@@ -50,13 +49,12 @@ public class GetAttribute {
             return null;
         }
         if (!IsElement.isElement(xmlVal)) {
-            return createError(XML_OPERATION_ERROR,
-                               "Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
+            return createError("Invalid xml attribute access on xml " + xmlVal.getNodeType().value());
         }
         XMLQName qname = new XMLQName(attrName);
         BString attrVal = xmlVal.getAttribute(qname.getLocalName(), qname.getUri());
         if (attrVal == null && !optionalFiledAccess) {
-            return createError(XML_OPERATION_ERROR, "attribute '" + attrName + "' not found");
+            return createError("Attribute '" + attrName + "' not found");
         }
         return attrVal;
     }

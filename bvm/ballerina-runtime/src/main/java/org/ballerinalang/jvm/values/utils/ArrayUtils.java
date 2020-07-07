@@ -25,9 +25,7 @@ import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
 
 import static java.lang.String.format;
-import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 
 /**
  * Utility functions for dealing with ArrayValue.
@@ -77,7 +75,7 @@ public class ArrayUtils {
     }
 
     public static ErrorValue createOpNotSupportedError(BType type, String op) {
-        return BallerinaErrors.createError(getModulePrefixedReason(ARRAY_LANG_LIB, OPERATION_NOT_SUPPORTED_IDENTIFIER),
+        return BallerinaErrors.createError(OPERATION_NOT_SUPPORTED_IDENTIFIER,
                                            format("%s not supported on type '%s'", op, type.getQualifiedName()));
     }
 }

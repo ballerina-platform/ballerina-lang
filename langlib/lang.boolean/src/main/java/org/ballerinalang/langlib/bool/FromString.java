@@ -29,9 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.BLangConstants.BOOLEAN_LANG_LIB;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.BOOLEAN_PARSING_ERROR_IDENTIFIER;
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.BOOLEAN_PARSING_ERROR_IDENTIFIER;
 import static org.ballerinalang.util.BLangCompilerConstants.BOOLEAN_VERSION;
 
 /**
@@ -54,10 +52,9 @@ public class FromString {
         } else if ("false".equalsIgnoreCase(s) || "0".equalsIgnoreCase(s)) {
             return false;
         } else {
-            String reason = getModulePrefixedReason(BOOLEAN_LANG_LIB, BOOLEAN_PARSING_ERROR_IDENTIFIER);
             String msg = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                               BTypes.typeString, s, BTypes.typeBoolean);
-            return BallerinaErrors.createError(reason, msg);
+            return BallerinaErrors.createError(BOOLEAN_PARSING_ERROR_IDENTIFIER, msg);
         }
     }
 }

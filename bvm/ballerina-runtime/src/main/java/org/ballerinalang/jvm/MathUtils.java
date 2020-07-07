@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.jvm;
 
-import org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages;
 
 /**
  * Common utility methods used for arithmatic operations.
@@ -31,14 +31,14 @@ public class MathUtils {
             if (numerator == Long.MIN_VALUE && denominator == -1) {
                 // a panic will occur on division by zero or overflow,
                 // which happens if the first operand is -2^63 and the second operand is -1
-                throw BallerinaErrors.createError(BallerinaErrorReasons.NUMBER_OVERFLOW, " int range overflow");
+                throw BallerinaErrors.createError(BallerinaErrorMessages.NUMBER_OVERFLOW, "int range overflow");
             }
             return numerator / denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+                throw BallerinaErrors.createError(BallerinaErrorMessages.DIVISION_BY_ZERO_ERROR, "/ by zero");
             } else {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+                throw BallerinaErrors.createError(BallerinaErrorMessages.ARITHMETIC_OPERATION_ERROR, e.getMessage());
             }
         }
     }
@@ -48,9 +48,9 @@ public class MathUtils {
             return numerator % denominator;
         } catch (ArithmeticException e) {
             if (denominator == 0) {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.DIVISION_BY_ZERO_ERROR, " / by zero");
+                throw BallerinaErrors.createError(BallerinaErrorMessages.DIVISION_BY_ZERO_ERROR, "/ by zero");
             } else {
-                throw BallerinaErrors.createError(BallerinaErrorReasons.ARITHMETIC_OPERATION_ERROR, e.getMessage());
+                throw BallerinaErrors.createError(BallerinaErrorMessages.ARITHMETIC_OPERATION_ERROR, e.getMessage());
             }
         }
     }

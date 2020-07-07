@@ -47,7 +47,7 @@ public class RemoveAll {
         try {
             m.clear();
         } catch (org.ballerinalang.jvm.util.exceptions.BLangFreezeException e) {
-            throw BallerinaErrors.createError(e.getMessage(), "Failed to clear map: " + e.getDetail());
+            throw BallerinaErrors.createError("Failed to clear map, " + e.getMessage());
         }
     }
 }
