@@ -474,8 +474,11 @@ public class BallerinaLexer extends AbstractLexer {
      * <p>
      * Process a comment, and add it to trivia list.
      * </p>
-     * <code>Comment := // AnyCharButNewline*
-     * <br/><br/>AnyCharButNewline := ^ 0xA</code>
+     * <code>
+     * Comment := // AnyCharButNewline*
+     * <br/><br/>
+     * AnyCharButNewline := ^ 0xA
+     * </code>
      */
     private STNode processComment() {
         // We reach here after verifying up to 2 code-points ahead. Hence advance(2).

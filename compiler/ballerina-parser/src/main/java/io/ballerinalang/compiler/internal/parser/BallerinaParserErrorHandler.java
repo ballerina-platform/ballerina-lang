@@ -394,7 +394,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] NIL_OR_PARENTHESISED_TYPE_DESC_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.TYPE_DESCRIPTOR };
 
-    private static final ParserRuleContext[] BINDING_PATTERN = { ParserRuleContext.CAPTURE_BINDING_PATTERN,
+    private static final ParserRuleContext[] BINDING_PATTERN = { ParserRuleContext.BINDING_PATTERN_STARTING_IDENTIFIER,
             ParserRuleContext.LIST_BINDING_PATTERN, ParserRuleContext.MAPPING_BINDING_PATTERN };
 
     private static final ParserRuleContext[] LIST_BINDING_PATTERN_CONTENTS =
@@ -2193,7 +2193,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForTypeDescriptor();
             case TYPED_BINDING_PATTERN:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
-            case CAPTURE_BINDING_PATTERN:
+            case BINDING_PATTERN_STARTING_IDENTIFIER:
                 return ParserRuleContext.VARIABLE_NAME;
             case REST_BINDING_PATTERN:
                 return ParserRuleContext.ELLIPSIS;
@@ -2671,7 +2671,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_BINDING_PATTERN:
             case REST_BINDING_PATTERN:
             case TYPED_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
+            case BINDING_PATTERN_STARTING_IDENTIFIER:
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
             case ALTERNATE_WAIT_EXPRS:
@@ -3281,7 +3281,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FOREACH_STMT:
                 return ParserRuleContext.IN_KEYWORD;
             case TYPED_BINDING_PATTERN:
-            case CAPTURE_BINDING_PATTERN:
+            case BINDING_PATTERN_STARTING_IDENTIFIER:
             case LIST_BINDING_PATTERN:
             case STMT_START_BRACKETED_LIST_MEMBER:
             case REST_BINDING_PATTERN:
@@ -3593,7 +3593,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private ParserRuleContext getNextRuleForBindingPattern() {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
-            case CAPTURE_BINDING_PATTERN:
+            case BINDING_PATTERN_STARTING_IDENTIFIER:
             case TYPED_BINDING_PATTERN:
                 endContext();
                 return getNextRuleForBindingPattern();
@@ -3964,7 +3964,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TERMINAL_EXPRESSION:
             case XML_NAME:
             case ACCESS_EXPRESSION:
-            case CAPTURE_BINDING_PATTERN:
+            case BINDING_PATTERN_STARTING_IDENTIFIER:
             case COMPUTED_FIELD_NAME:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:

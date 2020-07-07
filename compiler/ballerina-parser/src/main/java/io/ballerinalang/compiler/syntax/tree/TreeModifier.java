@@ -544,8 +544,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(methodCallExpressionNode.methodName());
         Token openParenToken =
                 modifyToken(methodCallExpressionNode.openParenToken());
-        NodeList<FunctionArgumentNode> arguments =
-                modifyNodeList(methodCallExpressionNode.arguments());
+        SeparatedNodeList<FunctionArgumentNode> arguments =
+                modifySeparatedNodeList(methodCallExpressionNode.arguments());
         Token closeParenToken =
                 modifyToken(methodCallExpressionNode.closeParenToken());
         return methodCallExpressionNode.modify(
@@ -827,8 +827,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public NamedArgumentNode transform(
             NamedArgumentNode namedArgumentNode) {
-        Token leadingComma =
-                modifyToken(namedArgumentNode.leadingComma().orElse(null));
         SimpleNameReferenceNode argumentName =
                 modifyNode(namedArgumentNode.argumentName());
         Token equalsToken =
@@ -836,7 +834,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode expression =
                 modifyNode(namedArgumentNode.expression());
         return namedArgumentNode.modify(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -845,26 +842,20 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public PositionalArgumentNode transform(
             PositionalArgumentNode positionalArgumentNode) {
-        Token leadingComma =
-                modifyToken(positionalArgumentNode.leadingComma().orElse(null));
         ExpressionNode expression =
                 modifyNode(positionalArgumentNode.expression());
         return positionalArgumentNode.modify(
-                leadingComma,
                 expression);
     }
 
     @Override
     public RestArgumentNode transform(
             RestArgumentNode restArgumentNode) {
-        Token leadingComma =
-                modifyToken(restArgumentNode.leadingComma().orElse(null));
         Token ellipsis =
                 modifyToken(restArgumentNode.ellipsis());
         ExpressionNode expression =
                 modifyNode(restArgumentNode.expression());
         return restArgumentNode.modify(
-                leadingComma,
                 ellipsis,
                 expression);
     }

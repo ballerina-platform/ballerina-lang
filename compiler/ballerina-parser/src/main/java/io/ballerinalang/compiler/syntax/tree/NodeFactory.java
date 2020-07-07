@@ -533,7 +533,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token dotToken,
             NameReferenceNode methodName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(dotToken, "dotToken must not be null");
@@ -809,7 +809,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static NamedArgumentNode createNamedArgumentNode(
-            Token leadingComma,
             SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
@@ -818,7 +817,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stNamedArgumentNode = STNodeFactory.createNamedArgumentNode(
-                getOptionalSTNode(leadingComma),
                 argumentName.internalNode(),
                 equalsToken.internalNode(),
                 expression.internalNode());
@@ -826,25 +824,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static PositionalArgumentNode createPositionalArgumentNode(
-            Token leadingComma,
             ExpressionNode expression) {
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stPositionalArgumentNode = STNodeFactory.createPositionalArgumentNode(
-                getOptionalSTNode(leadingComma),
                 expression.internalNode());
         return stPositionalArgumentNode.createUnlinkedFacade();
     }
 
     public static RestArgumentNode createRestArgumentNode(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode expression) {
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stRestArgumentNode = STNodeFactory.createRestArgumentNode(
-                getOptionalSTNode(leadingComma),
                 ellipsis.internalNode(),
                 expression.internalNode());
         return stRestArgumentNode.createUnlinkedFacade();

@@ -616,34 +616,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
 
         return new STNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
     }
 
     public static STNode createPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression) {
 
         return new STPositionalArgumentNode(
-                leadingComma,
                 expression);
     }
 
     public static STNode createRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
 
         return new STRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression);
     }

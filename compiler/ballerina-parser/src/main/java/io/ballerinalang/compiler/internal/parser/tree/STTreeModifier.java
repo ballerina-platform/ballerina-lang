@@ -650,12 +650,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STNamedArgumentNode transform(
             STNamedArgumentNode namedArgumentNode) {
-        STNode leadingComma = modifyNode(namedArgumentNode.leadingComma);
         STNode argumentName = modifyNode(namedArgumentNode.argumentName);
         STNode equalsToken = modifyNode(namedArgumentNode.equalsToken);
         STNode expression = modifyNode(namedArgumentNode.expression);
         return namedArgumentNode.modify(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -664,21 +662,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STPositionalArgumentNode transform(
             STPositionalArgumentNode positionalArgumentNode) {
-        STNode leadingComma = modifyNode(positionalArgumentNode.leadingComma);
         STNode expression = modifyNode(positionalArgumentNode.expression);
         return positionalArgumentNode.modify(
-                leadingComma,
                 expression);
     }
 
     @Override
     public STRestArgumentNode transform(
             STRestArgumentNode restArgumentNode) {
-        STNode leadingComma = modifyNode(restArgumentNode.leadingComma);
         STNode ellipsis = modifyNode(restArgumentNode.ellipsis);
         STNode expression = modifyNode(restArgumentNode.expression);
         return restArgumentNode.modify(
-                leadingComma,
                 ellipsis,
                 expression);
     }

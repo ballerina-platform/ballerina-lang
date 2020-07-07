@@ -399,7 +399,7 @@ public class BallerinaParser extends AbstractParser {
             case CLOSE_BRACKET:
                 return parseCloseBracket();
             case ARG_START_OR_ARG_LIST_END:
-                return parseArg((STNode) args[0]);
+                return parseArgument();
             case ARG_END:
                 return parseArgEnd();
             case MAPPING_FIELD_END:
@@ -4910,8 +4910,7 @@ public class BallerinaParser extends AbstractParser {
             return args;
         }
 
-        STNode leadingComma = STNodeFactory.createEmptyNode();
-        STNode firstArg = parseArg(leadingComma);
+        STNode firstArg = parseArgument();
         if (firstArg == null) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
@@ -4938,7 +4937,7 @@ public class BallerinaParser extends AbstractParser {
             STNode argEnd = parseArgEnd(nextToken.kind);
             if (argEnd == null) {
                 // null marks the end of args
-                return STNodeFactory.createNodeList(argsList);
+                break;
             }
 
             // If there's an extra comma at the end of arguments list, remove it.
@@ -4950,10 +4949,11 @@ public class BallerinaParser extends AbstractParser {
                 STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevArg, argEnd,
                         DiagnosticErrorCode.ERROR_INVALID_TOKEN, ((STToken) argEnd).text());
                 argsList.add(prevArgWithDiagnostics);
-                return STNodeFactory.createNodeList(argsList);
+                break;
             }
 
-            STNode curArg = parseArg(nextToken.kind, argEnd);
+            argsList.add(argEnd);
+            STNode curArg = parseArgument(nextToken.kind);
             if (invalidArgFound) {
                 updateLastNodeInListWithInvalidNode(argsList, curArg, null);
             } else {
@@ -5021,38 +5021,36 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse function call argument.
      *
-     * @param leadingComma Comma that occurs before the param
      * @return Parsed argument node
      */
-    private STNode parseArg(STNode leadingComma) {
+    private STNode parseArgument() {
         STToken token = peek();
-        return parseArg(token.kind, leadingComma);
+        return parseArgument(token.kind);
     }
 
-    private STNode parseArg(SyntaxKind kind, STNode leadingComma) {
+    private STNode parseArgument(SyntaxKind kind) {
         STNode arg;
         switch (kind) {
             case ELLIPSIS_TOKEN:
                 STToken ellipsis = consume();
                 STNode expr = parseExpression();
-                arg = STNodeFactory.createRestArgumentNode(leadingComma, ellipsis, expr);
+                arg = STNodeFactory.createRestArgumentNode(ellipsis, expr);
                 break;
-
-            // Identifier can means two things: either its a named-arg, or just an expression.
             case IDENTIFIER_TOKEN:
+                // Identifier can means two things: either its a named-arg, or just an expression.
                 // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
-                arg = parseNamedOrPositionalArg(leadingComma, kind);
+                arg = parseNamedOrPositionalArg(kind);
                 break;
             case CLOSE_PAREN_TOKEN:
                 return null;
             default:
                 if (isValidExprStart(kind)) {
                     expr = parseExpression();
-                    arg = STNodeFactory.createPositionalArgumentNode(leadingComma, expr);
+                    arg = STNodeFactory.createPositionalArgumentNode(expr);
                     break;
                 }
 
-                Solution solution = recover(peek(), ParserRuleContext.ARG_START_OR_ARG_LIST_END, leadingComma);
+                Solution solution = recover(peek(), ParserRuleContext.ARG_START_OR_ARG_LIST_END);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -5061,7 +5059,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseArg(solution.tokenKind, leadingComma);
+                return parseArgument(solution.tokenKind);
         }
 
         return arg;
@@ -5071,26 +5069,25 @@ public class BallerinaParser extends AbstractParser {
      * Parse positional or named arg. This method assumed peek()/peek(1)
      * is always an identifier.
      *
-     * @param leadingComma Comma that occurs before the param
      * @return Parsed argument node
      */
-    private STNode parseNamedOrPositionalArg(STNode leadingComma, SyntaxKind nextTokenKind) {
+    private STNode parseNamedOrPositionalArg(SyntaxKind nextTokenKind) {
         STNode argNameOrExpr = parseTerminalExpression(peek().kind, true, false, false);
         STToken secondToken = peek();
         switch (secondToken.kind) {
             case EQUAL_TOKEN:
                 STNode equal = parseAssignOp();
                 STNode valExpr = parseExpression();
-                return STNodeFactory.createNamedArgumentNode(leadingComma, argNameOrExpr, equal, valExpr);
+                return STNodeFactory.createNamedArgumentNode(argNameOrExpr, equal, valExpr);
             case COMMA_TOKEN:
             case CLOSE_PAREN_TOKEN:
-                return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrExpr);
+                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
 
             // Treat everything else as a single expression. If something is missing,
             // expression-parsing will recover it.
             default:
                 argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, false, false);
-                return STNodeFactory.createPositionalArgumentNode(leadingComma, argNameOrExpr);
+                return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
     }
 
@@ -13273,8 +13270,13 @@ public class BallerinaParser extends AbstractParser {
             return parseFunctionalBindingPattern(argNameOrBindingPattern);
         }
 
-        // TODO: Handle qualified-identifier.
-        return createCaptureOrWildcardBP(argNameOrBindingPattern);
+        if (argNameOrBindingPattern.kind != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN);
+            identifier = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(identifier, argNameOrBindingPattern);
+            return createCaptureOrWildcardBP(identifier);
+        }
+
+        return createCaptureOrWildcardBP(((STSimpleNameReferenceNode) argNameOrBindingPattern).name);
     }
 
     private STNode createCaptureOrWildcardBP(STNode varName) {
@@ -15739,7 +15741,7 @@ public class BallerinaParser extends AbstractParser {
                         restBindingPattern, innerList.collectionEndToken);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 innerList = (STAmbiguousCollectionNode) ambiguousNode;
-                List<STNode> bindingPatterns = new ArrayList<STNode>();
+                List<STNode> bindingPatterns = new ArrayList<>();
                 restBindingPattern = STNodeFactory.createEmptyNode();
                 for (int i = 0; i < innerList.members.size(); i++) {
                     STNode bp = getBindingPattern(innerList.members.get(i));
@@ -15764,7 +15766,7 @@ public class BallerinaParser extends AbstractParser {
                 STFunctionCallExpressionNode funcCall = (STFunctionCallExpressionNode) ambiguousNode;
                 STNode args = funcCall.arguments;
                 int size = args.bucketCount();
-                bindingPatterns = new ArrayList<STNode>();
+                bindingPatterns = new ArrayList<>();
                 for (int i = 0; i < size; i++) {
                     STNode arg = args.childInBucket(i);
                     bindingPatterns.add(getBindingPattern(arg));
