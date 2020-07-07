@@ -8,9 +8,9 @@
 #
 function foo() { }
 
-# test erroneous reference documentatoin
+# test erroneous reference documentation
 #
-# test bakctick content `with no ending backtick
+# test backtick content `with no ending backtick
 # This line will be captured as a correct documentation line
 #
 # test parameter reference parameter `with no ending backtick

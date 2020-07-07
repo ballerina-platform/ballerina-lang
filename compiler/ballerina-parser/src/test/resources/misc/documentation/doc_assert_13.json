@@ -450,7 +450,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "test erroneous reference documentatoin",
+                                  "value": "test erroneous reference documentation",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -497,7 +497,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "test bakctick content "
+                                  "value": "test backtick content "
                                 },
                                 {
                                   "kind": "DOCUMENTATION_REFERENCE",

@@ -4226,7 +4226,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 docText.append(endBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(endBacktick));
 
                 references.add(bLangRefDoc);
-            } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION){
+            } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 Token docDescription = (Token) element;
                 docText.append(docDescription.text());
             }

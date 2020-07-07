@@ -366,12 +366,12 @@ public class ParserTestUtils {
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
             case PARAMETER_NAME:
+            case BACKTICK_CONTENT:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
-            case BACKTICK_CONTENT:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();

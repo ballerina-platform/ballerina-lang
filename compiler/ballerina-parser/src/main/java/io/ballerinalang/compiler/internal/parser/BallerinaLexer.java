@@ -1593,50 +1593,46 @@ public class BallerinaLexer extends AbstractLexer {
     private STToken readDocumentationInternalToken() {
         reader.mark();
         int nextChar = peek();
-        switch (nextChar) {
-            case LexerTerminals.BACKTICK:
-                if (reader.peek(1) != LexerTerminals.BACKTICK) {
-                    reader.advance();
-                    switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
-                    return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
-                }
-                // Fall through
-            default:
-                while (!reader.isEOF()) {
-                    switch (nextChar) {
-                        case LexerTerminals.NEWLINE:
-                        case LexerTerminals.CARRIAGE_RETURN:
-                            endMode();
-                            break;
-                        case LexerTerminals.BACKTICK:
-                            if (reader.peek(1) != LexerTerminals.BACKTICK) {
-                                break;
-                            } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
-                                // Double backtick detected
-                                reader.advance(2);
-                                processDocumentationCodeContent(false);
-                            } else {
-                                // Triple backtick detected
-                                reader.advance(3);
-                                processDocumentationCodeContent(true);
-                            }
-                            nextChar = peek();
-                            continue;
-                        default:
-                            if (isIdentifierInitialChar(nextChar)) {
-                                boolean hasDocumentationReference = processDocumentationReference(nextChar);
-                                if (hasDocumentationReference) {
-                                    switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
-                                    break;
-                                }
-                            } else {
-                                reader.advance();
-                            }
-                            nextChar = peek();
-                            continue;
-                    }
+        if (nextChar == LexerTerminals.BACKTICK && reader.peek(1) != LexerTerminals.BACKTICK) {
+            reader.advance();
+            switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
+            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+        }
+
+        while (!reader.isEOF()) {
+            switch (nextChar) {
+                case LexerTerminals.NEWLINE:
+                case LexerTerminals.CARRIAGE_RETURN:
+                    endMode();
                     break;
-                }
+                case LexerTerminals.BACKTICK:
+                    if (reader.peek(1) != LexerTerminals.BACKTICK) {
+                        break;
+                    } else if (reader.peek(2) != LexerTerminals.BACKTICK) {
+                        // Double backtick detected
+                        reader.advance(2);
+                        processDocumentationCodeContent(false);
+                    } else {
+                        // Triple backtick detected
+                        reader.advance(3);
+                        processDocumentationCodeContent(true);
+                    }
+                    nextChar = peek();
+                    continue;
+                default:
+                    if (isIdentifierInitialChar(nextChar)) {
+                        boolean hasDocumentationReference = processDocumentationReference(nextChar);
+                        if (hasDocumentationReference) {
+                            switchMode(ParserMode.DOCUMENTATION_REFERENCE_TYPE);
+                            break;
+                        }
+                    } else {
+                        reader.advance();
+                    }
+                    nextChar = peek();
+                    continue;
+            }
+            break;
         }
 
         if (getLexeme().isEmpty()) {
@@ -1678,7 +1674,7 @@ public class BallerinaLexer extends AbstractLexer {
                     // Therefore, look ahead and see if next line is a documentation line and if so,
                     // look for a ending in that line. Otherwise terminate backtick content at the new line.
                     int lookAheadCount = 1;
-                    if (reader.peek() == LexerTerminals.CARRIAGE_RETURN) {
+                    if (peek() == LexerTerminals.CARRIAGE_RETURN && reader.peek(1) == LexerTerminals.NEWLINE) {
                         lookAheadCount++;
                     }
                     int lookAheadChar = reader.peek(lookAheadCount);
