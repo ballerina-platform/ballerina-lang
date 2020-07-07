@@ -35,7 +35,7 @@ public interface Project {
      * Returns true if the module exists in the project.
      *
      * @param moduleId Module Id
-     * @return
+     * @return boolean
      */
     public boolean isModuleExists(PackageID moduleId);
 
@@ -43,7 +43,7 @@ public interface Project {
      * Returns the .balo path.
      *
      * @param moduleId Module Id
-     * @return
+     * @return Path
      */
     public Path getBaloPath(PackageID moduleId) throws InvalidModuleException;
 }
