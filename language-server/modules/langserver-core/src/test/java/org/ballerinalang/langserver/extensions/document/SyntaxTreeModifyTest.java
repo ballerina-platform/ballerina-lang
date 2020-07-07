@@ -269,7 +269,8 @@ public class SyntaxTreeModifyTest {
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(1, 1, 1, 1, "SERVICE_START",
-                gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\", \"PORT\":\"9090\"}",
+                gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\", \"RES_PATH\":\"sayHello\"," +
+                                "\"METHODS\":\"\\\"GET\\\"\", \"PORT\":\"9090\"}",
                         JsonObject.class));
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
