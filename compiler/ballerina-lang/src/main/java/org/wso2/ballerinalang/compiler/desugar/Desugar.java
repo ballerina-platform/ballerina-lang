@@ -6243,7 +6243,7 @@ public class Desugar extends BLangNodeVisitor {
      */
     private BLangFunction splitInitFunction(BLangPackage packageNode, SymbolEnv env) {
         int methodSize = INIT_METHOD_SPLIT_SIZE;
-        if (packageNode.initFunction.body.stmts.size() < methodSize || !isJvmTarget) {
+        if (!isJvmTarget) {
             return packageNode.initFunction;
         }
         BLangFunction initFunction = packageNode.initFunction;
@@ -6256,14 +6256,15 @@ public class Desugar extends BLangNodeVisitor {
         // until we get to a varDef, stmts are independent, divide it based on methodSize
         int varDefIndex = 0;
         for (int i = 0; i < stmts.size(); i++) {
-            if (stmts.get(i).getKind() == NodeKind.VARIABLE_DEF) {
+            BLangStatement statement = stmts.get(i);
+            if (statement.getKind() == NodeKind.VARIABLE_DEF) {
                 break;
             }
             varDefIndex++;
-            if (i > 0 && i % methodSize == 0) {
+            if (i > 0 && (i % methodSize == 0 || isAssignmentWithInitOrRecordLiteralExpr(statement))) {
                 generatedFunctions.add(newFunc);
                 newFunc = createIntermediateInitFunction(packageNode, env);
-                symTable.rootScope.define(names.fromIdNode(newFunc.name) , newFunc.symbol);
+                symTable.rootScope.define(names.fromIdNode(newFunc.name), newFunc.symbol);
             }
 
             newFunc.body.stmts.add(stmts.get(i));
@@ -6340,6 +6341,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         return generatedFunctions.get(0);
+    }
+
+    private boolean isAssignmentWithInitOrRecordLiteralExpr(BLangStatement statement) {
+        if (statement.getKind() == NodeKind.ASSIGNMENT) {
+            NodeKind exprKind = ((BLangAssignment) statement).getExpression().getKind();
+            return exprKind == NodeKind.TYPE_INIT_EXPR || exprKind == NodeKind.RECORD_LITERAL_EXPR;
+        }
+        return false;
     }
 
     /**

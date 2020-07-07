@@ -73,8 +73,15 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--all", "-a"}, description = "Generate docs for all the modules of the project.")
     private boolean buildAll;
 
+    @CommandLine.Option(names = {"--toJSON", "-toJSON"}, description = "Generate a JSON containing Doc data.")
+    private boolean toJson;
+
     @CommandLine.Option(names = {"--output", "-o"}, description = "Path to folder to which API docs will be written.")
     private String output;
+
+    @CommandLine.Option(names = {"--excludeIndex", "-excludeIndex"}, description = "Prevents project index from " +
+            "being generated.")
+    private boolean excludeIndex;
 
     @CommandLine.Option(names = {"--offline"}, description = "Compiles offline without downloading " +
                                                               "dependencies.")
@@ -282,7 +289,7 @@ public class DocCommand implements BLauncherCmd {
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
-                .addTask(new CreateDocsTask(outputPath)) // creates API documentation
+                .addTask(new CreateDocsTask(outputPath, toJson, excludeIndex)) // creates API documentation
                 .build();
         
         taskExecutor.executeTasks(buildContext);

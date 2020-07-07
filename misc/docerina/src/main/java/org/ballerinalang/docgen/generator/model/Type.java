@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -46,21 +47,39 @@ import java.util.stream.Collectors;
  * Represents a Ballerina Type.
  */
 public class Type {
+    @Expose
     public String orgName;
+    @Expose
     public String moduleName;
+    @Expose
     public String name;
+    @Expose
     public String description;
+    @Expose
     public String category;
+    @Expose
     public boolean isAnonymousUnionType;
+    @Expose
     public boolean isArrayType;
+    @Expose
     public boolean isNullable;
+    @Expose
     public boolean isTuple;
+    @Expose
     public boolean isLambda;
+    @Expose
+    public boolean isDeprecated;
+    @Expose
     public boolean generateUserDefinedTypeLink = true;
+    @Expose
     public List<Type> memberTypes = new ArrayList<>();
+    @Expose
     public List<Type> paramTypes = new ArrayList<>();
+    @Expose
     public int arrayDimensions;
+    @Expose
     public Type elementType;
+    @Expose
     public Type returnType;
 
     private Type() {
@@ -112,9 +131,10 @@ public class Type {
         setCategory(type.type);
     }
 
-    public Type(String name, String description) {
+    public Type(String name, String description, boolean isDeprecated) {
         this.name = name;
         this.description = description;
+        this.isDeprecated = isDeprecated;
     }
 
     public static Type fromTypeNode(BLangType type, String currentModule) {
@@ -167,6 +187,10 @@ public class Type {
         if (type.type instanceof BNilType) {
             typeModel.name = "()";
         }
+        // If anonymous type substitute the name
+        if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
+            typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);;
+        }
         return typeModel;
     }
 
@@ -191,7 +215,7 @@ public class Type {
                 case TypeTags
                         .FINITE:
                         if (type instanceof BFiniteType) {
-                            Set<BLangExpression> valueSpace = ((BFiniteType) type).valueSpace;
+                            Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
                             if (valueSpace.size() == 1 && valueSpace.toArray()[0] instanceof BLangLiteral) {
                                 BLangLiteral literal = (BLangLiteral) valueSpace.toArray()[0];
                                 if (literal.isConstant) {

@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,11 +24,15 @@ import java.util.List;
  * Represent documentation for a Record.
  */
 public class Record extends Construct {
+    @Expose
+    public List<DefaultableVariable> fields  = new ArrayList<>();
+    @Expose
+    public boolean isAnonymous = false;
 
-    public List<DefaultableVarible> fields  = new ArrayList<>();
-
-    public Record(String name, String description, List<DefaultableVarible> fields) {
-        super(name, description);
+    public Record(String name, String description, boolean isDeprecated, boolean isAnonymous,
+                  List<DefaultableVariable> fields) {
+        super(name, description, isDeprecated);
+        this.isAnonymous = isAnonymous;
         this.fields = fields;
     }
 }
