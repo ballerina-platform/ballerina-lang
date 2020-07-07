@@ -425,7 +425,7 @@ function getValidationResponse(HttpClient httpClient, Request req, Response cach
         log:printDebug("Sending validation request for a stale response");
     }
 
-    var response = sendValidationRequest(httpClient, path, cachedResponse);
+    var response = sendValidationRequest(httpClient, path, req, cachedResponse);
     if (response is Response) {
         validationResponse = response;
     } else {
@@ -611,20 +611,33 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse) returns Response|ClientError {
-    Request validationRequest = new;
-
-    if (cachedResponse.hasHeader(ETAG)) {
-        validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
+function sendValidationRequest(HttpClient httpClient, string path, Request originalRequest, Response cachedResponse)
+                                returns Response|ClientError {
+    // Set the precondition headers only if the user hasn't explicitly set them.
+    boolean userProvidedINMHeader = originalRequest.hasHeader(IF_NONE_MATCH);
+    if (!userProvidedINMHeader && cachedResponse.hasHeader(ETAG)) {
+        originalRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
     }
 
-    if (cachedResponse.hasHeader(LAST_MODIFIED)) {
-        validationRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
+    boolean userProvidedIMSHeader = originalRequest.hasHeader(IF_MODIFIED_SINCE);
+    if (!userProvidedIMSHeader && cachedResponse.hasHeader(LAST_MODIFIED)) {
+        originalRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
     }
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    return httpClient->get(path, message = validationRequest);
+    Response|ClientError resp = httpClient->forward(path, originalRequest);
+
+    // Have to remove the precondition headers from the request if they weren't user provided.
+    if (!userProvidedINMHeader) {
+        originalRequest.removeHeader(IF_NONE_MATCH);
+    }
+
+    if (!userProvidedIMSHeader) {
+        originalRequest.removeHeader(IF_MODIFIED_SINCE);
+    }
+
+    return resp;
 }
 
 function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
