@@ -4206,31 +4206,42 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                            NodeList<Node> docElements) {
         StringBuilder docText = new StringBuilder();
         for (Node element : docElements) {
-            docText.append(element.toString());
-
-            // Add references if available
             if (element.kind() == SyntaxKind.DOCUMENTATION_REFERENCE) {
                 BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
                 DocumentationReferenceNode docReferenceNode = (DocumentationReferenceNode) element;
 
-                Token backtickContent = docReferenceNode.backtickContent();
-                bLangRefDoc.referenceName = backtickContent.isMissing() ? "" : backtickContent.text();
-
                 bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
                 docReferenceNode.referenceType().ifPresent(
-                        refType -> bLangRefDoc.type = stringToRefType(refType.text())
+                        refType -> {
+                            bLangRefDoc.type = stringToRefType(refType.text());
+                            docText.append(getTextWithWhitespaceTrivia(refType));
+                        }
                 );
 
+                Token startBacktick = docReferenceNode.startBacktick();
+                docText.append(startBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(startBacktick));
+                Token backtickContent = docReferenceNode.backtickContent();
+                docText.append(backtickContent.isMissing() ? "" : getTextWithWhitespaceTrivia(backtickContent));
+                Token endBacktick = docReferenceNode.endBacktick();
+                docText.append(endBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(endBacktick));
+
                 references.add(bLangRefDoc);
+            } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION){
+                Token docDescription = (Token) element;
+                docText.append(docDescription.text());
             }
         }
 
-        String text = docText.toString();
-        if (text.endsWith("\n")) {
-            text = text.substring(0, text.length() - 1);
-        }
+        return docText.toString();
+    }
 
-        return text;
+    private String getTextWithWhitespaceTrivia(Token token) {
+        String leadingWhitespaces = token.leadingMinutiae().toString();
+        String tokenText = token.text();
+        String trailingWhiteSpaces = token.trailingMinutiae().toString();
+
+        boolean hasOnlyWhitespaceTrivia = leadingWhitespaces.trim().isEmpty() && trailingWhiteSpaces.trim().isEmpty();
+        return hasOnlyWhitespaceTrivia ? leadingWhitespaces + tokenText + trailingWhiteSpaces : tokenText;
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
