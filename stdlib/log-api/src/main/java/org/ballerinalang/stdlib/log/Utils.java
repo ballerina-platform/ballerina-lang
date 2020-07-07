@@ -113,12 +113,12 @@ public class Utils extends AbstractLogFunction {
         }
     }
 
-    public static void setModuleLogLevel(BString logLevel, BString moduleName) {
+    public static void setModuleLogLevel(BString logLevel, Object moduleName) {
         String module;
-        if (moduleName.length() == 0) {
+        if (moduleName == null) {
             module = getPackagePath();
         } else {
-            module = moduleName.getValue();
+            module = moduleName.toString();
         }
         String level = logLevel.getValue();
         switch (level) {

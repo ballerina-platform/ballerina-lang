@@ -116,6 +116,6 @@ public function printWarn(anydata|(function () returns (anydata)) msg) = @java:M
 #
 # + logLevel - Log level to be set
 # + moduleName - Name of the module
-public function setModuleLogLevel(LogLevel logLevel, public string moduleName = "") = @java:Method {
+public function setModuleLogLevel(LogLevel logLevel, public string? moduleName = ()) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
