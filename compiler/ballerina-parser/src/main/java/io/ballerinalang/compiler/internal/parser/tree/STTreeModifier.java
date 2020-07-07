@@ -2271,12 +2271,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
         STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
         STNode expression = modifyNode(joinClauseNode.expression);
+        STNode onCondition = modifyNode(joinClauseNode.onCondition);
         return joinClauseNode.modify(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     @Override
@@ -2313,6 +2315,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 ellipsisToken,
                 varKeywordToken,
                 variableName);
+    }
+
+    @Override
+    public STMappingMatchPatternNode transform(
+            STMappingMatchPatternNode mappingMatchPatternNode) {
+        STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
+        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
+        STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public STFieldMatchPatternNode transform(
+            STFieldMatchPatternNode fieldMatchPatternNode) {
+        STNode fieldNameNode = modifyNode(fieldMatchPatternNode.fieldNameNode);
+        STNode colonToken = modifyNode(fieldMatchPatternNode.colonToken);
+        STNode matchPattern = modifyNode(fieldMatchPatternNode.matchPattern);
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 
     // Tokens

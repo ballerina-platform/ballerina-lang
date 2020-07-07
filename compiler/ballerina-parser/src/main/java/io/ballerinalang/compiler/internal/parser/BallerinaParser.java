@@ -579,6 +579,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseRecordKeyword();
             case LIST_MATCH_PATTERN_MEMBER_RHS:
                 return parseListMatchPatternMemberRhs();
+            case FIELD_MATCH_PATTERN_MEMBER:
+                return parseFieldMatchPatternMember();
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
+                return parseFieldMatchPatternRhs();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -9621,7 +9625,9 @@ public class BallerinaParser extends AbstractParser {
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
         }
         STNode rightDoubleArrow = parseDoubleRightArrow();
-        STNode expression = parseExpression(OperatorPrecedence.ANON_FUNC_OR_LET, isRhsExpr, false);
+        // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
+        // operators. That is done by lowering the current precedence.
+        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
     }
 
@@ -9991,11 +9997,6 @@ public class BallerinaParser extends AbstractParser {
             } else {
                 clauses.add(intermediateClause);
             }
-
-            // TODO: validate any clause after on-cluase
-            if (intermediateClause.kind == SyntaxKind.JOIN_CLAUSE) {
-                clauses.add(parseOnClause(isRhsExpr));
-            }
         }
 
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
@@ -10343,12 +10344,18 @@ public class BallerinaParser extends AbstractParser {
         STNode joinKeyword = parseJoinKeyword();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.JOIN_CLAUSE);
         STNode inKeyword = parseInKeyword();
-
+        STNode onCondition;
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        nextToken = peek();
+        if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
+            onCondition = parseOnClause(isRhsExpr);
+        } else {
+            onCondition = STNodeFactory.createEmptyNode();
+        }
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword,
-                expression);
+                expression, onCondition);
     }
 
     /**
@@ -12444,6 +12451,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseVarTypedBindingPattern();
             case OPEN_BRACKET_TOKEN:
                 return parseListMatchPattern();
+            case OPEN_BRACE_TOKEN:
+                return parseMappingMatchPattern();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MATCH_PATTERN_START);
 
@@ -12619,6 +12628,143 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse mapping match pattern.
+     * <p>
+     *     mapping-match-pattern := { field-match-patterns }
+     *     <br/>
+     *     field-match-patterns := field-match-pattern (, field-match-pattern)* [, rest-match-pattern]
+     *                              | [ rest-match-pattern ]
+     *     <br/>
+     *     field-match-pattern := field-name : match-pattern
+     *     <br/>
+     *     rest-match-pattern := ... var variable-name
+     * </p>
+     *
+     * @return Parsed Node.
+     */
+    private STNode parseMappingMatchPattern() {
+        startContext(ParserRuleContext.MAPPING_MATCH_PATTERN);
+        STNode openBraceToken = parseOpenBrace();
+        List<STNode> fieldMatchPatternList = new ArrayList<>();
+        STNode restMatchPattern = null;
+        boolean isEndOfFields = false;
+
+        while (!isEndOfMappingMatchPattern()) {
+            STNode fieldMatchPatternMember = parseFieldMatchPatternMember();
+            if (fieldMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
+                restMatchPattern = fieldMatchPatternMember;
+                isEndOfFields = true;
+                break;
+            }
+            fieldMatchPatternList.add(fieldMatchPatternMember);
+            STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
+
+            if (fieldMatchPatternRhs != null) {
+                fieldMatchPatternList.add(fieldMatchPatternRhs);
+            } else {
+                break;
+            }
+        }
+
+        // Following loop will only run if there are more fields after the rest match pattern.
+        // Try to parse them and mark as invalid.
+        STNode fieldMatchPatternRhs = parseFieldMatchPatternRhs();
+        while (isEndOfFields && fieldMatchPatternRhs != null) {
+            STNode invalidField = parseFieldMatchPatternMember();
+            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern,
+                    fieldMatchPatternRhs);
+            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, invalidField);
+            restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
+                    DiagnosticErrorCode.ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD);
+            fieldMatchPatternRhs = parseFieldMatchPatternRhs();
+        }
+
+        if (restMatchPattern == null) {
+            restMatchPattern = STNodeFactory.createEmptyNode();
+        }
+
+        STNode fieldMatchPatterns =  STNodeFactory.createNodeList(fieldMatchPatternList);
+        STNode closeBraceToken = parseCloseBrace();
+        endContext();
+
+        return STNodeFactory.createMappingMatchPatternNode(openBraceToken, fieldMatchPatterns,
+                restMatchPattern, closeBraceToken);
+    }
+
+    private STNode parseFieldMatchPatternMember() {
+        return parseFieldMatchPatternMember(peek().kind);
+    }
+
+    private STNode parseFieldMatchPatternMember(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseFieldMatchPattern();
+            case ELLIPSIS_TOKEN:
+                return parseRestMatchPattern();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldMatchPatternMember(solution.tokenKind);
+        }
+    }
+
+    /**
+     * Parse filed match pattern.
+     * <p>
+     *     field-match-pattern := field-name : match-pattern
+     * </p>
+     *
+     * @return Parsed field match pattern node
+     */
+    public STNode parseFieldMatchPattern() {
+        STNode fieldNameNode = parseVariableName();
+        STNode colonToken = parseColon();
+        STNode matchPattern = parseMatchPattern();
+        return STNodeFactory.createFieldMatchPatternNode(fieldNameNode, colonToken, matchPattern);
+    }
+
+    public boolean isEndOfMappingMatchPattern() {
+        switch (peek().kind) {
+            case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseFieldMatchPatternRhs() {
+        return parseFieldMatchPatternRhs(peek().kind);
+    }
+
+    private STNode parseFieldMatchPatternRhs(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.FIELD_MATCH_PATTERN_MEMBER_RHS);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseFieldMatchPatternRhs(solution.tokenKind);
+        }
+    }
     // ------------------------ Ambiguity resolution at statement start ---------------------------
 
     /**

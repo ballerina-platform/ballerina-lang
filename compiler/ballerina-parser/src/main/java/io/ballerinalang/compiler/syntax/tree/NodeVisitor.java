@@ -759,6 +759,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restMatchPatternNode);
     }
 
+    public void visit(MappingMatchPatternNode mappingMatchPatternNode) {
+        visitSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public void visit(FieldMatchPatternNode fieldMatchPatternNode) {
+        visitSyntaxNode(fieldMatchPatternNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

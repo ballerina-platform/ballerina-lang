@@ -2109,14 +2109,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
 
         return new STJoinClauseNode(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public static STNode createOnClauseNode(
@@ -2150,6 +2152,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsisToken,
                 varKeywordToken,
                 variableName);
+    }
+
+    public static STNode createMappingMatchPatternNode(
+            STNode openBraceToken,
+            STNode mappingMatchPatternListNode,
+            STNode restMatchPattern,
+            STNode closeBraceToken) {
+
+        return new STMappingMatchPatternNode(
+                openBraceToken,
+                mappingMatchPatternListNode,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    public static STNode createFieldMatchPatternNode(
+            STNode fieldNameNode,
+            STNode colonToken,
+            STNode matchPattern) {
+
+        return new STFieldMatchPatternNode(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
     }
 }
 
