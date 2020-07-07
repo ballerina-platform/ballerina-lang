@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-http:Client cachingEP4 = new("http://localhost:9260", { cache: { isShared: true } });
+http:Client cachingEP4 = new("http://localhost:9260", { cache: { enabled: true, isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/validation-request"
