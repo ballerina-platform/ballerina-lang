@@ -80,7 +80,7 @@ public type HttpCachingClient client object {
     public remote function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
-        return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared, false);
+        return getCachedResponse(self.cache, self.httpClient, req, HTTP_HEAD, path, self.cacheConfig.isShared, false);
     }
 
     # Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
@@ -114,7 +114,7 @@ public type HttpCachingClient client object {
         Request request = <Request>message;
         setRequestCacheControlHeader(request);
 
-        if (httpMethod == GET || httpMethod == HEAD) {
+        if (httpMethod == HTTP_GET || httpMethod == HTTP_HEAD) {
             return getCachedResponse(self.cache, self.httpClient, request, httpMethod, path,
                                      self.cacheConfig.isShared, false);
         }
@@ -172,7 +172,7 @@ public type HttpCachingClient client object {
     public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         Request req = <Request>message;
         setRequestCacheControlHeader(req);
-        return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared, false);
+        return getCachedResponse(self.cache, self.httpClient, req, HTTP_GET, path, self.cacheConfig.isShared, false);
     }
 
     # Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
@@ -200,7 +200,7 @@ public type HttpCachingClient client object {
     # + request - The HTTP request to be forwarded
     # + return - The response for the request or an `http:ClientError` if failed to establish communication with the upstream server
     public remote function forward(string path, @tainted Request request) returns @tainted Response|ClientError {
-        if (request.method == GET || request.method == HEAD) {
+        if (request.method == HTTP_GET || request.method == HTTP_HEAD) {
             return getCachedResponse(self.cache, self.httpClient, request, request.method, path,
                                      self.cacheConfig.isShared, true);
         }
@@ -348,7 +348,7 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
                     inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        string getMethodCacheKey = getCacheKey(GET, path);
+        string getMethodCacheKey = getCacheKey(HTTP_GET, path);
         if (httpCache.cache.hasKey(getMethodCacheKey)) {
             cache:Error? result = httpCache.cache.invalidate(getMethodCacheKey);
             if (result is cache:Error) {
@@ -356,7 +356,7 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
             }
         }
 
-        string headMethodCacheKey = getCacheKey(HEAD, path);
+        string headMethodCacheKey = getCacheKey(HTTP_HEAD, path);
         if (httpCache.cache.hasKey(headMethodCacheKey)) {
             cache:Error? result = httpCache.cache.invalidate(headMethodCacheKey);
             if (result is cache:Error) {
@@ -371,9 +371,9 @@ function sendNewRequest(HttpClient httpClient, Request request, string path, str
     if (forwardRequest) {
         return httpClient->forward(path, request);
     }
-    if (httpMethod == GET) {
+    if (httpMethod == HTTP_GET) {
         return httpClient->get(path, message = request);
-    } else if (httpMethod == HEAD) {
+    } else if (httpMethod == HTTP_HEAD) {
         return httpClient->head(path, message = request);
     } else {
         string message = "HTTP method not supported in caching client: " + httpMethod;

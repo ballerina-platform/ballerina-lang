@@ -62,9 +62,11 @@ public const string PROXY_REVALIDATE = "proxy-revalidate";
 # In shared caches, `s-maxage` overrides the `max-age` or `expires` header field.
 public const string S_MAX_AGE = "s-maxage";
 
+
 // Other constants
 # Setting this as the `max-stale` directives indicates that the `max-stale` directive does not specify a limit.
 public const int MAX_STALE_ANY_AGE = 9223372036854775807;
+
 
 // Non-public constants/final vars
 final string WARNING_AGENT = getWarningAgent();
@@ -74,15 +76,6 @@ final string WARNING_111_REVALIDATION_FAILED = "111 " + WARNING_AGENT + " \"Reva
 
 const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
-
-const string FORWARD = "FORWARD";
-const string GET = "GET";
-const string POST = "POST";
-const string DELETE = "DELETE";
-const string OPTIONS = "OPTIONS";
-const string PUT = "PUT";
-const string PATCH = "PATCH";
-const string HEAD = "HEAD";
 
 function getWarningAgent() returns string {
     string ballerinaVersion = runtime:getProperty("ballerina.version");
