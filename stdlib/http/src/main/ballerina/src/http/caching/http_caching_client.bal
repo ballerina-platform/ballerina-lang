@@ -274,9 +274,7 @@ public type HttpCachingClient client object {
 public function createHttpCachingClient(string url, ClientConfiguration config, CacheConfig cacheConfig)
                                                                                       returns HttpClient|ClientError {
     HttpCachingClient httpCachingClient = new(url, config, cacheConfig);
-    log:printDebug(function() returns string {
-        return "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient);
-    });
+    log:printDebug(() => "Created HTTP caching client: " + io:sprintf("%s", httpCachingClient));
     return httpCachingClient;
 }
 
@@ -287,10 +285,10 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 
     if (cache.hasKey(getCacheKey(httpMethod, path))) {
         Response cachedResponse = cache.get(getCacheKey(httpMethod, path));
+
+        log:printDebug(() => "Cached response found for: '" + httpMethod + " " + path + "'");
+
         // Based on https://tools.ietf.org/html/rfc7234#section-4
-        log:printDebug(function() returns string {
-            return "Cached response found for: '" + httpMethod + " " + path + "'";
-        });
 
         updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
         setAgeHeader(<@untainted> cachedResponse);
@@ -320,9 +318,8 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
             return cachedResponse;
         }
 
-        log:printDebug(function() returns string {
-            return "Validating a stale response for '" + path + "' with the origin server.";
-        });
+        log:printDebug(() => "Validating a stale response for '" + path + "' with the origin server.");
+
         var validatedResponse = getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path,
                                                             httpMethod, false);
         if (validatedResponse is Response) {
@@ -330,15 +327,11 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
             setAgeHeader(validatedResponse);
         }
         return validatedResponse;
-    } else {
-        log:printDebug(function() returns string {
-            return "Cached response not found for: '" + httpMethod + " " + path + "'";
-        });
     }
 
-    log:printDebug(function() returns string {
-        return "Sending new request to: " + path;
-    });
+    log:printDebug(() => "Cached response not found for: '" + httpMethod + " " + path + "'");
+    log:printDebug(() => "Sending new request to: " + path);
+
     var response = sendNewRequest(httpClient, req, path, httpMethod, forwardRequest);
     if (response is Response) {
         if (cache.isAllowedToCache(response)) {
@@ -354,21 +347,20 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 function invalidateResponses(HttpCache httpCache, Response inboundResponse, string path) {
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
-        inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        if (httpCache.cache.hasKey(getCacheKey(GET, path))) {
-            cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
+                    inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
+        string getMethodCacheKey = getCacheKey(GET, path);
+        if (httpCache.cache.hasKey(getMethodCacheKey)) {
+            cache:Error? result = httpCache.cache.invalidate(getMethodCacheKey);
             if (result is cache:Error) {
-                log:printDebug(function() returns string {
-                    return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-                });
+                log:printDebug(() => "Failed to remove the key: " + getMethodCacheKey + " from the cache.");
             }
         }
-        if (httpCache.cache.hasKey(getCacheKey(HEAD, path))) {
-            cache:Error? result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
+
+        string headMethodCacheKey = getCacheKey(HEAD, path);
+        if (httpCache.cache.hasKey(headMethodCacheKey)) {
+            cache:Error? result = httpCache.cache.invalidate(headMethodCacheKey);
             if (result is cache:Error) {
-                log:printDebug(function() returns string {
-                    return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-                });
+                log:printDebug(() => "Failed to remove the key: " + headMethodCacheKey + " from the cache.");
             }
         }
     }

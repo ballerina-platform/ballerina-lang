@@ -53,9 +53,7 @@ function retain2xxWarnings(Response cachedResponse) {
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach var warningHeader in warningHeaders {
             if (warningHeader.indexOf("214") is int || warningHeader.indexOf("299") is int) {
-                log:printDebug(function() returns string {
-                    return "Adding warning header: " + warningHeader;
-                });
+                log:printDebug(() => "Adding warning header: " + warningHeader);
                 cachedResponse.addHeader(WARNING, warningHeader);
                 continue;
             }
