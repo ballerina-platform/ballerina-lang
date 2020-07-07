@@ -31,12 +31,12 @@ public type InvocationContext record {|
     string[] scopes?;
 |};
 
-# Returns the `runtime:InvocationContext` instance.
+# Returns the `auth:InvocationContext` instance.
 # ```ballerina
-# runtime:InvocationContext invocationContext = runtime:getInvocationContext();
+# auth:InvocationContext invocationContext = auth:getInvocationContext();
 # ```
 #
-# + return - The `runtime:InvocationContext` instance
+# + return - The `auth:InvocationContext` instance
 public function getInvocationContext() returns InvocationContext = @java:Method {
     class: "org.ballerinalang.stdlib.auth.nativeimpl.GetInvocationContext"
 } external;
