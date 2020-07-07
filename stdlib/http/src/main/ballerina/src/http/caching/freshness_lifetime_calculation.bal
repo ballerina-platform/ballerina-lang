@@ -38,23 +38,31 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
 
     // At this point, there should be exactly one Expires header to calculate the freshness lifetime.
     // When adding heuristic calculations, the condition would change to >1.
-    if (cachedResponse.hasHeader(EXPIRES)) {
-        string[] expiresHeader = cachedResponse.getHeaders(EXPIRES);
+    if (!cachedResponse.hasHeader(EXPIRES)) {
+        return STALE;
+    }
 
-        if (expiresHeader.length() == 1) {
-            if (cachedResponse.hasHeader(DATE)) {
-                string[] dateHeader = cachedResponse.getHeaders(DATE);
+    string[] expiresHeader = cachedResponse.getHeaders(EXPIRES);
 
-                if (dateHeader.length() == 1) {
-                    var tExpiresHeader = time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123);
-                    var tDateHeader = time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123);
-                    if (tExpiresHeader is time:Time && tDateHeader is time:Time) {
-                        int freshnessLifetime = (tExpiresHeader.time - tDateHeader.time) /1000;
-                        return freshnessLifetime;
-                    }
-                }
-            }
-        }
+    if (expiresHeader.length() != 1) {
+        return STALE;
+    }
+
+    if (!cachedResponse.hasHeader(DATE)) {
+        return STALE;
+    }
+
+    string[] dateHeader = cachedResponse.getHeaders(DATE);
+
+    if (dateHeader.length() != 1) {
+        return STALE;
+    }
+
+    var tExpiresHeader = time:parse(expiresHeader[0], time:TIME_FORMAT_RFC_1123);
+    var tDateHeader = time:parse(dateHeader[0], time:TIME_FORMAT_RFC_1123);
+    if (tExpiresHeader is time:Time && tDateHeader is time:Time) {
+        int freshnessLifetime = (tExpiresHeader.time - tDateHeader.time) /1000;
+        return freshnessLifetime;
     }
 
     // TODO: Add heuristic freshness lifetime calculation
