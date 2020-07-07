@@ -261,9 +261,15 @@ public class QueryDesugar extends BLangNodeVisitor {
             } else if (queryExpr.type.tag == TypeTags.STRING) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
+                BType arrayType = queryExpr.type;
+                if (arrayType.tag == TypeTags.UNION) {
+                    arrayType = ((BUnionType) arrayType).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                            .findFirst().orElse(symTable.arrayType);
+                }
                 BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
                 arr.exprs = new ArrayList<>();
-                arr.type = queryExpr.type;
+                arr.type = arrayType;
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
                         Lists.of(streamRef, arr), pos);
             }
