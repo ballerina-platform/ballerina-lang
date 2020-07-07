@@ -760,6 +760,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restMatchPatternNode);
     }
 
+    public T transform(MappingMatchPatternNode mappingMatchPatternNode) {
+        return transformSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public T transform(FieldMatchPatternNode fieldMatchPatternNode) {
+        return transformSyntaxNode(fieldMatchPatternNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

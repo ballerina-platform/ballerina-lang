@@ -18,15 +18,25 @@
 
 <FindBugsFilter>
     <Match>
-        <And>
-            <Bug pattern="REC_CATCH_EXCEPTION"/>
-            <Or>
-                <Package name="org.ballerinalang.debugadapter.variable.types*"/>
+        <Or>
+            <And>
+                <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
                 <And>
-                    <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionParser"/>
-                    <Method name="validateAndParse"/>
+                    <Class name="org.ballerinalang.debugadapter.JBallerinaDebugServer"/>
+                    <Method name="evaluate"/>
                 </And>
-            </Or>
-        </And>
+            </And>
+            <And>
+                <Bug pattern="REC_CATCH_EXCEPTION"/>
+                <Or>
+                    <Package name="org.ballerinalang.debugadapter.variable.types*"/>
+                    <Class name="org.ballerinalang.debugadapter.variable.VariableUtils"/>
+                    <And>
+                        <Class name="org.ballerinalang.debugadapter.evaluation.DebugExpressionParser"/>
+                        <Method name="validateAndParse"/>
+                    </And>
+                </Or>
+            </And>
+        </Or>
     </Match>
 </FindBugsFilter>

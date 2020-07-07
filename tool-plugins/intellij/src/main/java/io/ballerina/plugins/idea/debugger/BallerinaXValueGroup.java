@@ -28,6 +28,8 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import static io.ballerina.plugins.idea.debugger.BallerinaXValue.getIconFor;
+
 /**
  * Represents a variable group in debug window.
  */
@@ -61,7 +63,7 @@ public class BallerinaXValueGroup extends XValueGroup {
         } else {
             XValueChildrenList list = new XValueChildrenList();
             for (Variable variable : variables) {
-                list.add(variable.getName(), new BallerinaXValue(process, variable, AllIcons.Nodes.Field));
+                list.add(variable.getName(), new BallerinaXValue(process, variable, getIconFor(variable)));
             }
             node.addChildren(list, true);
         }
