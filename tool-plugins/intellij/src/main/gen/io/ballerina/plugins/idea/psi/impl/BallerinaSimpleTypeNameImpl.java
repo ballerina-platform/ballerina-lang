@@ -43,24 +43,6 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
-  public BallerinaAnyDataTypeName getAnyDataTypeName() {
-    return findChildByClass(BallerinaAnyDataTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaAnyTypeName getAnyTypeName() {
-    return findChildByClass(BallerinaAnyTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaHandleTypeName getHandleTypeName() {
-    return findChildByClass(BallerinaHandleTypeName.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaNilLiteral getNilLiteral() {
     return findChildByClass(BallerinaNilLiteral.class);
   }
@@ -73,12 +55,6 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
 
   @Override
   @Nullable
-  public BallerinaTypeDescTypeName getTypeDescTypeName() {
-    return findChildByClass(BallerinaTypeDescTypeName.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaValueTypeName getValueTypeName() {
     return findChildByClass(BallerinaValueTypeName.class);
   }
@@ -87,6 +63,30 @@ public class BallerinaSimpleTypeNameImpl extends BallerinaTypeNameImpl implement
   @Nullable
   public PsiElement getNullLiteral() {
     return findChildByType(NULL_LITERAL);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAny() {
+    return findChildByType(ANY);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAnydata() {
+    return findChildByType(ANYDATA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getHandle() {
+    return findChildByType(HANDLE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getTypedesc() {
+    return findChildByType(TYPEDESC);
   }
 
 }
