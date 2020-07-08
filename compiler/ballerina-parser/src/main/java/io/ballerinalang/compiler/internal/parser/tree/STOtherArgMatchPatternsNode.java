@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.NamedArgMatchPatternsNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.OtherArgMatchPatternsNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,56 +30,56 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STNamedArgMatchPatternsNode extends STNode {
-    public final STNode namedArgMatchPatternListNode;
+public class STOtherArgMatchPatternsNode extends STNode {
+    public final STNode namedArgMatchPatternsNode;
     public final STNode restMatchPattern;
 
-    STNamedArgMatchPatternsNode(
-            STNode namedArgMatchPatternListNode,
+    STOtherArgMatchPatternsNode(
+            STNode namedArgMatchPatternsNode,
             STNode restMatchPattern) {
         this(
-                namedArgMatchPatternListNode,
+                namedArgMatchPatternsNode,
                 restMatchPattern,
                 Collections.emptyList());
     }
 
-    STNamedArgMatchPatternsNode(
-            STNode namedArgMatchPatternListNode,
+    STOtherArgMatchPatternsNode(
+            STNode namedArgMatchPatternsNode,
             STNode restMatchPattern,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.NAMED_ARG_MATCH_PATTERNS, diagnostics);
-        this.namedArgMatchPatternListNode = namedArgMatchPatternListNode;
+        super(SyntaxKind.OTHER_ARG_MATCH_PATTERNS, diagnostics);
+        this.namedArgMatchPatternsNode = namedArgMatchPatternsNode;
         this.restMatchPattern = restMatchPattern;
 
         addChildren(
-                namedArgMatchPatternListNode,
+                namedArgMatchPatternsNode,
                 restMatchPattern);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STNamedArgMatchPatternsNode(
-                this.namedArgMatchPatternListNode,
+        return new STOtherArgMatchPatternsNode(
+                this.namedArgMatchPatternsNode,
                 this.restMatchPattern,
                 diagnostics);
     }
 
-    public STNamedArgMatchPatternsNode modify(
-            STNode namedArgMatchPatternListNode,
+    public STOtherArgMatchPatternsNode modify(
+            STNode namedArgMatchPatternsNode,
             STNode restMatchPattern) {
         if (checkForReferenceEquality(
-                namedArgMatchPatternListNode,
+                namedArgMatchPatternsNode,
                 restMatchPattern)) {
             return this;
         }
 
-        return new STNamedArgMatchPatternsNode(
-                namedArgMatchPatternListNode,
+        return new STOtherArgMatchPatternsNode(
+                namedArgMatchPatternsNode,
                 restMatchPattern,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new NamedArgMatchPatternsNode(this, position, parent);
+        return new OtherArgMatchPatternsNode(this, position, parent);
     }
 
     @Override

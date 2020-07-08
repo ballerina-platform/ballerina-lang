@@ -27,13 +27,13 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class NamedArgMatchPatternsNode extends NonTerminalNode {
+public class OtherArgMatchPatternsNode extends NonTerminalNode {
 
-    public NamedArgMatchPatternsNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public OtherArgMatchPatternsNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public SeparatedNodeList<Node> namedArgMatchPatternListNode() {
+    public SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode() {
         return new SeparatedNodeList<>(childInBucket(0));
     }
 
@@ -54,26 +54,26 @@ public class NamedArgMatchPatternsNode extends NonTerminalNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "namedArgMatchPatternListNode",
+                "namedArgMatchPatternsNode",
                 "restMatchPattern"};
     }
 
-    public NamedArgMatchPatternsNode modify(
-            SeparatedNodeList<Node> namedArgMatchPatternListNode,
+    public OtherArgMatchPatternsNode modify(
+            SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode,
             RestMatchPatternNode restMatchPattern) {
         if (checkForReferenceEquality(
-                namedArgMatchPatternListNode.underlyingListNode(),
+                namedArgMatchPatternsNode.underlyingListNode(),
                 restMatchPattern)) {
             return this;
         }
 
-        return NodeFactory.createNamedArgMatchPatternsNode(
-                namedArgMatchPatternListNode,
+        return NodeFactory.createOtherArgMatchPatternsNode(
+                namedArgMatchPatternsNode,
                 restMatchPattern);
     }
 
-    public NamedArgMatchPatternsNodeModifier modify() {
-        return new NamedArgMatchPatternsNodeModifier(this);
+    public OtherArgMatchPatternsNodeModifier modify() {
+        return new OtherArgMatchPatternsNodeModifier(this);
     }
 
     /**
@@ -81,34 +81,34 @@ public class NamedArgMatchPatternsNode extends NonTerminalNode {
      *
      * @since 2.0.0
      */
-    public static class NamedArgMatchPatternsNodeModifier {
-        private final NamedArgMatchPatternsNode oldNode;
-        private SeparatedNodeList<Node> namedArgMatchPatternListNode;
+    public static class OtherArgMatchPatternsNodeModifier {
+        private final OtherArgMatchPatternsNode oldNode;
+        private SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode;
         private RestMatchPatternNode restMatchPattern;
 
-        public NamedArgMatchPatternsNodeModifier(NamedArgMatchPatternsNode oldNode) {
+        public OtherArgMatchPatternsNodeModifier(OtherArgMatchPatternsNode oldNode) {
             this.oldNode = oldNode;
-            this.namedArgMatchPatternListNode = oldNode.namedArgMatchPatternListNode();
+            this.namedArgMatchPatternsNode = oldNode.namedArgMatchPatternsNode();
             this.restMatchPattern = oldNode.restMatchPattern().orElse(null);
         }
 
-        public NamedArgMatchPatternsNodeModifier withNamedArgMatchPatternListNode(
-                SeparatedNodeList<Node> namedArgMatchPatternListNode) {
-            Objects.requireNonNull(namedArgMatchPatternListNode, "namedArgMatchPatternListNode must not be null");
-            this.namedArgMatchPatternListNode = namedArgMatchPatternListNode;
+        public OtherArgMatchPatternsNodeModifier withNamedArgMatchPatternsNode(
+                SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode) {
+            Objects.requireNonNull(namedArgMatchPatternsNode, "namedArgMatchPatternsNode must not be null");
+            this.namedArgMatchPatternsNode = namedArgMatchPatternsNode;
             return this;
         }
 
-        public NamedArgMatchPatternsNodeModifier withRestMatchPattern(
+        public OtherArgMatchPatternsNodeModifier withRestMatchPattern(
                 RestMatchPatternNode restMatchPattern) {
             Objects.requireNonNull(restMatchPattern, "restMatchPattern must not be null");
             this.restMatchPattern = restMatchPattern;
             return this;
         }
 
-        public NamedArgMatchPatternsNode apply() {
+        public OtherArgMatchPatternsNode apply() {
             return oldNode.modify(
-                    namedArgMatchPatternListNode,
+                    namedArgMatchPatternsNode,
                     restMatchPattern);
         }
     }

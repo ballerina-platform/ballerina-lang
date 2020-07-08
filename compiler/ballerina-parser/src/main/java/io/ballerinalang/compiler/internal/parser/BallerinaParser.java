@@ -585,8 +585,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFieldMatchPatternRhs();
             case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
                 return parseFunctionalMatchPatternOrConsPattern((STNode) args[0]);
-            case OTHER_ARG_MATCH_PATTERN_START:
-                return parseOtherArgMatchPatterns((List<STNode>)args[0]);
+            case OTHER_ARG_MATCH_PATTERN_MEMBER:
+                return parseOtherArgMatchPatterns((List<STNode>) args[0]);
             case ARG_LIST_MATCH_PATTERN_MEMBER_RHS:
                 return parseArgListMatchPatternMemberRhs();
             // case RECORD_BODY_END:
@@ -12784,9 +12784,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken) {
             case OPEN_PAREN_TOKEN:
                 return parseFunctionalMatchPattern(typeRefOrConstExpr);
-            case RIGHT_DOUBLE_ARROW_TOKEN:
-                return typeRefOrConstExpr;
             default:
+                if (isMatchPatternRhs(peek().kind)) {
+                    return typeRefOrConstExpr;
+                }
                 Solution solution = recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN,
                         typeRefOrConstExpr);
 
@@ -12798,6 +12799,22 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 return parseFunctionalMatchPatternOrConsPattern(solution.tokenKind, typeRefOrConstExpr);
+        }
+    }
+
+    private boolean isMatchPatternRhs(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case RIGHT_DOUBLE_ARROW_TOKEN:
+            case COMMA_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            case PIPE_TOKEN:
+            case IF_KEYWORD:
+            case EOF_TOKEN:
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -12817,8 +12834,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed functional match pattern node.
      */
     private STNode parseFunctionalMatchPattern(STNode typeRef) {
-        startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTREN);
-        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.FUNCTIONAL_MATCH_PATTREN);
+        startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
+        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
         List<STNode> positionalArgMatchPatterns = new ArrayList<>();
         STNode otherArgMatchPatternsNode = STNodeFactory.createEmptyNode();
 
@@ -12932,7 +12949,7 @@ public class BallerinaParser extends AbstractParser {
                     //Start over parsing after seeing an invalid node.
                     return parseOtherArgMatchPatterns(namedArgMatchPatternList);
                 default:
-                    Solution solution = recover(peek(), ParserRuleContext.OTHER_ARG_MATCH_PATTERN_START,
+                    Solution solution = recover(peek(), ParserRuleContext.OTHER_ARG_MATCH_PATTERN_MEMBER,
                             namedArgMatchPatternList);
 
                     // If the parser recovered by inserting a token, then try to re-parse the same
