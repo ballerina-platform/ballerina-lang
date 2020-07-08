@@ -75,11 +75,12 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
-    private static final String REMOTE_URL = "https://datamapper.dv.choreo.dev/uploader";
-    private static final String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
-    private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
-    private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
-            CUSTOM_URL;
+//    private static final String REMOTE_URL = "https://datamapper.dv.choreo.dev/uploader";
+//    private static final String REMOTE_AI_SERVICE_URL_ENV = "REMOTE_AI_SERVICE_URL";
+//    private static final String CUSTOM_URL = System.getenv(REMOTE_AI_SERVICE_URL_ENV);
+//    private static final String AI_SERVICE_URL = (CUSTOM_URL == null || CUSTOM_URL.length() == 0) ? REMOTE_URL :
+//            CUSTOM_URL;
+    private static final String AI_SERVICE_URL = "http://localhost:5000/uploader";
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
@@ -110,7 +111,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                     action.setKind(CodeActionKind.QuickFix);
 
                     String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-                    List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(document, context, refAtCursor, diagnostic);
+                    List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, refAtCursor, diagnostic);
                     action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
                             new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
                     List<Diagnostic> diagnostics = new ArrayList<>();
@@ -126,7 +127,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         return null;
     }
 
-    private static List<TextEdit> getAIDataMapperCodeActionEdits(LSDocumentIdentifier document, LSContext context,
+    private static List<TextEdit> getAIDataMapperCodeActionEdits(LSContext context,
                                                                  SymbolReferencesModel.Reference refAtCursor,
                                                                  Diagnostic diagnostic)
             throws IOException, WorkspaceDocumentException {
@@ -160,27 +161,26 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             // Insert function declaration at the bottom of the file
             WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
             Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
-            String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
-            String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
-            int indexOfFunctionName = fileContent.indexOf(functionName);
-            if (indexOfFunctionName == -1) {
-                int numberOfLinesInFile = fileContent.split("\n").length;
-                Position startPosOfLastLine = new Position(numberOfLinesInFile + 3, 0);
-                Position endPosOfLastLine = new Position(numberOfLinesInFile + 3, 1);
-                Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
-                String generatedRecordMappingFunction =
-                        getGeneratedRecordMappingFunction(bLangNode, document, context, diagnostic, symbolAtCursor,
-                                docManager, foundTypeLeft, foundTypeRight);
-                TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
-                fEdits.add(functionEdit);
+            if (filePath.isPresent()) {
+                String fileContent = docManager.getFileContent(Paths.get(String.valueOf(filePath.get())));
+                String functionName = String.format("map%sTo%s (%s", foundTypeRight, foundTypeLeft, foundTypeRight);
+                int indexOfFunctionName = fileContent.indexOf(functionName);
+                if (indexOfFunctionName == -1) {
+                    int numberOfLinesInFile = fileContent.split("\n").length;
+                    Position startPosOfLastLine = new Position(numberOfLinesInFile + 3, 0);
+                    Position endPosOfLastLine = new Position(numberOfLinesInFile + 3, 1);
+                    Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
+                    String generatedRecordMappingFunction =
+                            getGeneratedRecordMappingFunction(bLangNode, symbolAtCursor, foundTypeLeft, foundTypeRight);
+                    TextEdit functionEdit = new TextEdit(newFunctionRange, generatedRecordMappingFunction);
+                    fEdits.add(functionEdit);
+                }
             }
         }
         return fEdits;
     }
 
-    private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, LSDocumentIdentifier document,
-                                                            LSContext context, Diagnostic diagnostic,
-                                                            BSymbol symbolAtCursor, WorkspaceDocumentManager docManager,
+    private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, BSymbol symbolAtCursor,
                                                             String foundTypeLeft, String foundTypeRight)
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
@@ -189,7 +189,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         // Schema 1
         BType variableTypeMappingFrom = symbolAtCursor.type;
         if (variableTypeMappingFrom instanceof BRecordType) {
-            List<BField> rightSchemaFields = ((BRecordType) variableTypeMappingFrom).fields;
+//            List<BField> rightSchemaFields = (List<BField>) ((BRecordType) variableTypeMappingFrom).fields;
+            List<BField> rightSchemaFields = new ArrayList<>(((BRecordType) variableTypeMappingFrom).fields.values());
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields);
 
             rightRecordJSON.addProperty("schema", foundTypeRight);
@@ -201,7 +202,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
 
         BType variableTypeMappingTo = ((BLangSimpleVarRef) bLangNode).expectedType;
         if (variableTypeMappingTo instanceof BRecordType) {
-            List<BField> leftSchemaFields = ((BRecordType) variableTypeMappingTo).fields;
+//            List<BField> leftSchemaFields = (List<BField>) ((BRecordType) variableTypeMappingTo).fields;
+            List<BField> leftSchemaFields =new ArrayList<>(((BRecordType) variableTypeMappingTo).fields.values());
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields);
 
             leftRecordJSON.addProperty("schema", foundTypeLeft);
@@ -248,13 +250,17 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 BType attributeEType = ((BArrayType) attribute.type).eType;
                 if (attributeEType instanceof BRecordType) {
                     fieldDetails.addProperty("type", "ballerina_type");
-                    fieldDetails.add("properties", recordToJSON(((BRecordType) attributeEType).fields));
+//                    fieldDetails.add("properties", recordToJSON((List<BField>)((BRecordType) attributeEType).fields));
+                    fieldDetails.add("properties",
+                            recordToJSON(new ArrayList<>(((BRecordType) attributeEType).fields.values())));
                 } else {
                     fieldDetails.addProperty("type", String.valueOf(attribute.type));
                 }
             } else if (attribute.type instanceof BRecordType) {
                 fieldDetails.addProperty("type", "ballerina_type");
-                fieldDetails.add("properties", recordToJSON(((BRecordType) attribute.type).fields));
+//                fieldDetails.add("properties", recordToJSON((List<BField>)((BRecordType) attribute.type).fields));
+                fieldDetails.add("properties",
+                        recordToJSON(new ArrayList<>(((BRecordType) attribute.type).fields.values())));
             } else {
                 fieldDetails.addProperty("type", String.valueOf(attribute.type));
             }
@@ -277,7 +283,11 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
         LSDocumentIdentifier document = null;
         try {
-            document = documentManager.getLSDocument(filePath.get());
+            if (filePath.isPresent()) {
+                document = documentManager.getLSDocument(filePath.get());
+            } else {
+                return actions;
+            }
         } catch (WorkspaceDocumentException e) {
             // ignore
         }
