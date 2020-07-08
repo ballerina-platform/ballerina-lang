@@ -42,7 +42,6 @@ import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,27 +65,33 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 )
 public class ToJson {
 
-    private static final String AMBIGUOUS_TARGET = "ambiguous target type";
-
     public static Object toJson(Strand strand, Object value) {
-        BType targetJsonType = BTypes.typeJSON;
         try {
-            return convert(value, targetJsonType, new ArrayList<>(), strand);
+            return convert(value, new ArrayList<>(), strand);
         } catch (Exception e) {
             return e;
         }
     }
 
-    private static Object convert(Object value, BType targetType, List<TypeValuePair> unresolvedValues, Strand strand) {
+    private static Object convert(Object value, List<TypeValuePair> unresolvedValues, Strand strand) {
+        BType jsonType = BTypes.typeJSON;
+
         if (value == null) {
-            if (targetType.isNilable()) {
-                return null;
-            }
-            throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+            return null;
         }
 
-        TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
+        BType sourceType = TypeChecker.getType(value);
+
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
+            if (TypeChecker.checkIsType(value, jsonType)) {
+                return value;
+            } else {
+                // Has to be a numeric conversion.
+                return TypeConverter.convertValues(jsonType, value);
+            }
+        }
+
+        TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
 
         if (unresolvedValues.contains(typeValuePair)) {
             throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR,
@@ -96,12 +101,8 @@ public class ToJson {
 
         unresolvedValues.add(typeValuePair);
 
-        if (!TypeChecker.isConvertibleToJson(value, new ArrayList<>())) {
-            return createConversionError(value, targetType);
-        }
-
         Object newValue;
-        switch (TypeChecker.getType(value).getTag()) {
+        switch (sourceType.getTag()) {
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
@@ -117,70 +118,40 @@ public class ToJson {
                 try {
                     newValue = JSONUtils.toJSON((TableValueImpl) value);
                 } catch (Exception e) {
-                    throw createConversionError(value, targetType, e.getMessage());
+                    throw createConversionError(value, jsonType, e.getMessage());
                 }
                 break;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                newValue = convertMapToJson((MapValue<?, ?>) value, new BMapType(BTypes.typeJSON),
-                        unresolvedValues, strand);
+                newValue = convertMapToJson((MapValue<?, ?>) value, unresolvedValues, strand);
                 break;
             case TypeTags.ERROR_TAG:
-                newValue = ((RefValue) value).copy(new HashMap<>());
-                break;
             default:
-                List<BType> convertibleTypes = TypeConverter.getConvertibleTypes(value, BTypes.typeJSON);
-                if (convertibleTypes.size() == 0) {
-                    throw createConversionError(value, targetType);
-                } else if (convertibleTypes.size() > 1) {
-                    throw createConversionError(value, targetType, AMBIGUOUS_TARGET);
-                }
-
-                BType sourceType = TypeChecker.getType(value);
-                BType matchingType = convertibleTypes.get(0);
-
-                // handle primitive values
-                if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-                    if (TypeChecker.checkIsType(value, matchingType)) {
-                        newValue = value;
-                    } else {
-                        // Has to be a numeric conversion.
-                        newValue = TypeConverter.convertValues(matchingType, value);
-                    }
-                } else {
-                    throw createConversionError(value, targetType);
-                }
-                break;
+                throw createConversionError(value, jsonType);
         }
 
         unresolvedValues.remove(typeValuePair);
         return newValue;
     }
 
-    private static Object convertMapToJson(MapValue<?, ?> map, BType targetType, List<TypeValuePair> unresolvedValues,
+    private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues,
                                            Strand strand) {
-        MapValueImpl<BString, Object> newMap = new MapValueImpl<>(targetType);
+        MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
         for (Map.Entry entry : map.entrySet()) {
-            BType constraintType = ((BMapType) targetType).getConstrainedType();
-            putToMap(newMap, entry, constraintType, unresolvedValues, strand);
+            Object newValue = convert(entry.getValue(), unresolvedValues, strand);
+            newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
     }
 
     private static Object convertArrayToJson(ArrayValue array, List<TypeValuePair> unresolvedValues,
                                              Strand strand) {
-        ArrayValueImpl newArray = new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        ArrayValueImpl newArray = new ArrayValueImpl((BArrayType) BTypes.typeJsonArray);
         for (int i = 0; i < array.size(); i++) {
-            Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues, strand);
+            Object newValue = convert(array.get(i), unresolvedValues, strand);
             newArray.add(i, newValue);
         }
         return newArray;
-    }
-
-    private static void putToMap(MapValue<BString, Object> map, Map.Entry entry, BType fieldType,
-                                 List<TypeValuePair> unresolvedValues, Strand strand) {
-        Object newValue = convert(entry.getValue(), fieldType, unresolvedValues, strand);
-        map.put(StringUtils.fromString(entry.getKey().toString()), newValue);
     }
 
     private static ErrorValue createConversionError(Object inputValue, BType targetType) {

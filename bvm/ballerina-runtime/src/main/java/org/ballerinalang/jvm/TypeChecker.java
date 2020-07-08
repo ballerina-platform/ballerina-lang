@@ -355,7 +355,7 @@ public class TypeChecker {
             ArrayValue source = (ArrayValue) sourceValue;
             BType elementType = ((BArrayType) source.getType()).getElementType();
             if (BTypes.isValueType(elementType)) {
-                return TypeChecker.checkIsType(elementType, BTypes.typeJSON, new ArrayList<>());
+                return true;
             }
 
             Object[] arrayValues = source.getValues();

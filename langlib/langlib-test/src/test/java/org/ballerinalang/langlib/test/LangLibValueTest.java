@@ -41,7 +41,7 @@ import static org.testng.Assert.assertNull;
  *
  * @since 1.0
  */
-@Test(enabled = true)
+@Test
 public class LangLibValueTest {
 
     private CompileResult compileResult;
@@ -56,7 +56,7 @@ public class LangLibValueTest {
         }
     }
 
-    @Test(enabled = true)
+    @Test
     public void testToJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToJsonString");
@@ -84,12 +84,12 @@ public class LangLibValueTest {
         assertEquals(arr.size(), 10);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testToJsonForNonJsonTypes() {
         BRunUtil.invokeFunction(compileResult, "testToJsonStringForNonJsonTypes");
     }
 
-    @Test(enabled = true)
+    @Test
     public void testFromJsonString() {
 
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testFromJsonString");
@@ -108,7 +108,7 @@ public class LangLibValueTest {
         assertEquals(arr.size(), 7);
     }
 
-    @Test(enabled = true)
+    @Test
     public void testToString() {
         BValue[] returns = BRunUtil.invokeFunction(compileResult, "testToStringMethod");
         BValueArray array = (BValueArray) returns[0];
@@ -161,18 +161,18 @@ public class LangLibValueTest {
                             "varRecord=name=Gima address=country=Sri Lanka city=Colombo street=Palm Grove age=12");
     }
 
-    @Test(enabled = true)
+    @Test
     public void testToStringForTable() {
         BRunUtil.invokeFunction(compileResult, "testToStringMethodForTable");
     }
 
-    @Test(dataProvider = "mergeJsonFunctions", enabled = true)
+    @Test(dataProvider = "mergeJsonFunctions")
     public void testMergeJson(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(enabled = true)
+    @Test
     public void xmlSequenceFragmentToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
@@ -194,7 +194,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "cloneWithTypeFunctions", enabled = true)
+    @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
         BValue[] returns = BRunUtil.invoke(compileResult, function);
     }
@@ -219,7 +219,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "fromJsonWithTypeFunctions", enabled = true)
+    @Test(dataProvider = "fromJsonWithTypeFunctions")
     public void testFromJsonWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -243,7 +243,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "fromJsonStringWithTypeFunctions", enabled = true)
+    @Test(dataProvider = "fromJsonStringWithTypeFunctions")
     public void testFromJsonStringWithType(String function) {
         BRunUtil.invoke(compileResult, function);
     }
@@ -261,7 +261,7 @@ public class LangLibValueTest {
         };
     }
 
-    @Test(dataProvider = "toJsonFunctions", enabled = true)
+    @Test(dataProvider = "toJsonFunctions")
     public void testToJson(String function) {
         BRunUtil.invoke(compileResult, function);
     }
