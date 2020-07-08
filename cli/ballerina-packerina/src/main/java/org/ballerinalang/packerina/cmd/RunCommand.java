@@ -27,7 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyObservabilitySymbolsTask;
@@ -40,8 +39,6 @@ import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
 import org.ballerinalang.tool.LauncherUtils;
@@ -278,14 +275,11 @@ public class RunCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, false);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, false,
+                observabilityIncluded);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(this.outStream);
         buildContext.setErr(this.errStream);
-
-        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(observabilityIncluded ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
 
@@ -297,7 +291,6 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask())   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)

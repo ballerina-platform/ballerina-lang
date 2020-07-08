@@ -4001,6 +4001,77 @@
                     "type": "Node"
                 }
             ]
+        },
+        {
+            "name": "DocumentationNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ParameterDocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "plusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameterName",
+                    "type": "Token"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "DOCUMENTATION_REFERENCE",
+            "attributes": [
+                {
+                    "name": "referenceType",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "backtickContent",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
         }
     ]
 }

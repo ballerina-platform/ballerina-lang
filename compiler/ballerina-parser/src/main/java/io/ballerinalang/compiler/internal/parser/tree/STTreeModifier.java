@@ -2381,6 +2381,48 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 matchPattern);
     }
 
+    @Override
+    public STParameterDocumentationLineNode transform(
+            STParameterDocumentationLineNode parameterDocumentationLineNode) {
+        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
+        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
+        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
+        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
+        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
+        return parameterDocumentationLineNode.modify(
+                parameterDocumentationLineNode.kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    @Override
+    public STDocumentationReferenceNode transform(
+            STDocumentationReferenceNode documentationReferenceNode) {
+        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
+        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
+        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
+        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
+        return documentationReferenceNode.modify(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
+    }
+
+    @Override
+    public STDocumentationLineNode transform(
+            STDocumentationLineNode documentationLineNode) {
+        STNode hashToken = modifyNode(documentationLineNode.hashToken);
+        STNode documentElements = modifyNode(documentationLineNode.documentElements);
+        return documentationLineNode.modify(
+                documentationLineNode.kind,
+                hashToken,
+                documentElements);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

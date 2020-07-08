@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.observability.ObservabilityConstants;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BStructureType;
@@ -58,6 +59,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.FUNC_ON_ERROR;
+import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.FUNC_ON_MESSAGE;
+import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.ORG_NAME;
+import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.RABBITMQ;
+import static org.ballerinalang.messaging.rabbitmq.RabbitMQConstants.RABBITMQ_VERSION;
+
 /**
  * Handles and dispatched messages with data binding.
  *
@@ -72,6 +79,10 @@ public class MessageDispatcher {
     private ObjectValue channelObj;
     private String queueName;
     private BRuntime runtime;
+    private static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(ORG_NAME, RABBITMQ,
+                                                                                 RABBITMQ_VERSION, FUNC_ON_MESSAGE);
+    private static final StrandMetadata ON_ERROR_METADATA = new StrandMetadata(ORG_NAME, RABBITMQ, RABBITMQ_VERSION,
+                                                                               FUNC_ON_ERROR);
 
     public MessageDispatcher(ObjectValue service, Channel channel, boolean autoAck, BRuntime runtime,
                              ObjectValue channelObj) {
@@ -125,9 +136,9 @@ public class MessageDispatcher {
     private void handleDispatch(byte[] message, long deliveryTag, AMQP.BasicProperties properties) {
         AttachedFunction[] attachedFunctions = service.getType().getAttachedFunctions();
         AttachedFunction onMessageFunction;
-        if (RabbitMQConstants.FUNC_ON_MESSAGE.equals(attachedFunctions[0].getName())) {
+        if (FUNC_ON_MESSAGE.equals(attachedFunctions[0].getName())) {
             onMessageFunction = attachedFunctions[0];
-        } else if (RabbitMQConstants.FUNC_ON_MESSAGE.equals(attachedFunctions[1].getName())) {
+        } else if (FUNC_ON_MESSAGE.equals(attachedFunctions[1].getName())) {
             onMessageFunction = attachedFunctions[1];
         } else {
             return;
@@ -147,7 +158,7 @@ public class MessageDispatcher {
             CallableUnitCallback callback = new RabbitMQResourceCallback(countDownLatch, channel, queueName,
                                                                          message.length);
             ObjectValue messageObjectValue = getMessageObjectValue(message, deliveryTag, properties);
-            executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, messageObjectValue, true);
+            executeResourceOnMessage(callback, messageObjectValue, true);
             countDownLatch.await();
         } catch (InterruptedException e) {
             RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_CONSUME);
@@ -168,8 +179,8 @@ public class MessageDispatcher {
             CountDownLatch countDownLatch = new CountDownLatch(1);
             CallableUnitCallback callback = new RabbitMQResourceCallback(countDownLatch, channel, queueName,
                                                                          message.length);
-            executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, messageObjectValue,
-                            true, forContent, true);
+            executeResourceOnMessage(callback, messageObjectValue,
+                                     true, forContent, true);
             countDownLatch.await();
         } catch (BallerinaConnectorException | UnsupportedEncodingException exception) {
             RabbitMQMetricsUtil.reportError(channel, RabbitMQObservabilityConstants.ERROR_TYPE_CONSUME);
@@ -248,7 +259,7 @@ public class MessageDispatcher {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         try {
             CallableUnitCallback callback = new RabbitMQErrorResourceCallback(countDownLatch);
-            executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, messageObjectValue, true, error, true);
+            executeResourceOnError(callback, messageObjectValue, true, error, true);
             countDownLatch.await();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -260,12 +271,22 @@ public class MessageDispatcher {
         }
     }
 
-    private void executeResource(String function, CallableUnitCallback callback, Object... args) {
+    private void executeResourceOnMessage(CallableUnitCallback callback, Object... args) {
+        executeResource(RabbitMQConstants.FUNC_ON_MESSAGE, callback, ON_MESSAGE_METADATA, args);
+    }
+
+    private void executeResourceOnError(CallableUnitCallback callback, Object... args) {
+       executeResource(RabbitMQConstants.FUNC_ON_ERROR, callback, ON_ERROR_METADATA, args);
+    }
+
+    private void executeResource(String function, CallableUnitCallback callback, StrandMetadata metaData,
+                                 Object... args) {
         if (ObserveUtils.isTracingEnabled()) {
-            runtime.invokeMethodAsync(service, function, callback, getNewObserverContextInProperties(), args);
+            runtime.invokeMethodAsync(service, function, null, metaData, callback, getNewObserverContextInProperties(),
+                                      args);
             return;
         }
-        runtime.invokeMethodAsync(service, function, callback, args);
+        runtime.invokeMethodAsync(service, function, null, metaData, callback, args);
     }
 
     private Map<String, Object> getNewObserverContextInProperties() {
