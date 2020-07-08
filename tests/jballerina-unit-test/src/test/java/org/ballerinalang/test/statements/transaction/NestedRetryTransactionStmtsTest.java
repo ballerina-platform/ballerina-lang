@@ -61,31 +61,31 @@ public class NestedRetryTransactionStmtsTest {
     public void multipleTrxSequenceSuccess() {
         String result = executeMultipleTrxSequence(false, false, false, false);
         Assert.assertEquals(result, "start -> in-trx-1-1 -> trxCommited-1-1 -> in-trx-1-2 -> trxCommited-1-2 "
-                +"-> end-1 -> in-trx-2-1 -> trxCommited-2-1 -> in-trx-2-2 -> trxCommited-2-2 -> end-2");
+                + "-> end-1 -> in-trx-2-1 -> trxCommited-2-1 -> in-trx-2-2 -> trxCommited-2-2 -> end-2");
     }
 
     @Test
     public void multipleTrxSequenceAbortFirst() {
         String result = executeMultipleTrxSequence(true, false, false, false);
         Assert.assertEquals(result, "start -> in-trx-1-1 -> trxRollbacked-1-1 -> in-trx-1-2 "
-                +"-> trxRollbacked-1-2 -> end-1 -> in-trx-2-1 -> trxCommited-2-1 -> in-trx-2-2 "
-                +"-> trxCommited-2-2 -> end-2");
+                + "-> trxRollbacked-1-2 -> end-1 -> in-trx-2-1 -> trxCommited-2-1 -> in-trx-2-2 "
+                + "-> trxCommited-2-2 -> end-2");
     }
 
     @Test
     public void multipleTrxSequenceAbortSecond() {
         String result = executeMultipleTrxSequence(false, true, false, false);
         Assert.assertEquals(result, "start -> in-trx-1-1 -> trxCommited-1-1 -> in-trx-1-2 "
-                +"-> trxCommited-1-2 -> end-1 -> in-trx-2-1 -> trxRollbacked-2-1 -> in-trx-2-2 "
-                +"-> trxRollbacked-2-2 -> end-2");
+                + "-> trxCommited-1-2 -> end-1 -> in-trx-2-1 -> trxRollbacked-2-1 -> in-trx-2-2 "
+                + "-> trxRollbacked-2-2 -> end-2");
     }
 
     @Test
     public void multipleTrxSequenceAbortBoth() {
         String result = executeMultipleTrxSequence(true, true, false, false);
         Assert.assertEquals(result, "start -> in-trx-1-1 -> trxRollbacked-1-1 -> in-trx-1-2 "
-                +"-> trxRollbacked-1-2 -> end-1 -> in-trx-2-1 -> trxRollbacked-2-1 -> in-trx-2-2 "
-                +"-> trxRollbacked-2-2 -> end-2");
+                + "-> trxRollbacked-1-2 -> end-1 -> in-trx-2-1 -> trxRollbacked-2-1 -> in-trx-2-2 "
+                + "-> trxRollbacked-2-2 -> end-2");
     }
 
     private String executeMultipleTrxSequence(boolean abort1, boolean abort2, boolean fail1, boolean fail2) {
@@ -99,8 +99,24 @@ public class NestedRetryTransactionStmtsTest {
     public void testCustomRetryManager() {
         BValue[] result = BRunUtil.invoke(programFile, "testCustomRetryManager", new BValue[]{});
         Assert.assertEquals(result[0].stringValue(), "start -> inside trx1  -> attempt 1:error, "
-                +"-> inside trx1  -> attempt 2:error, -> inside trx1  -> attempt 3 -> result commited -> trx1 end. "
-                +"-> inside trx2  -> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  -> attempt 3 "
-                +"-> result commited -> trx2 end.");
+                + "-> inside trx1  -> attempt 2:error, -> inside trx1  -> attempt 3 -> result commited -> trx1 end. "
+                + "-> inside trx2  -> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  -> attempt 3 "
+                + "-> result commited -> trx2 end.");
+    }
+
+    @Test
+    public void testNestedTrxWithinRetryTrx() {
+        BValue[] result = BRunUtil.invoke(programFile, "testNestedTrxWithinRetryTrx", new BValue[]{});
+        Assert.assertEquals(result[0].stringValue(), "start -> inside trx1  -> attempt 1:error, "
+                + "-> inside trx1  -> attempt 2:error, -> inside trx1  -> attempt 3 -> result commited "
+                + "-> trx1 end. -> inside trx2  -> result commited -> trx2 end.");
+    }
+
+    @Test
+    public void testNestedRetryTrxWithinTrx() {
+        BValue[] result = BRunUtil.invoke(programFile, "testNestedRetryTrxWithinTrx", new BValue[]{});
+        Assert.assertEquals(result[0].stringValue(), "start -> inside trx1  -> inside trx2  "
+                + "-> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  -> attempt 3 "
+                + "-> result commited -> trx2 end. -> result commited -> trx1 end.");
     }
 }

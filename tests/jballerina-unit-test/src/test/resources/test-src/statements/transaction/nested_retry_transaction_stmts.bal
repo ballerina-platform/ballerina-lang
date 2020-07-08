@@ -282,3 +282,49 @@ function testCustomRetryManager() returns string|error {
     }
     return str;
 }
+
+function testNestedTrxWithinRetryTrx() returns string|error {
+    string str = "start";
+    int count = 0;
+    retry transaction {
+        str += " -> inside trx1 ";
+        count = count + 1;
+        if(count < 3) {
+            str += (" -> attempt " + count.toString() + ":error,");
+            int bV = check trxError();
+        } else {
+            str += (" -> attempt "+ count.toString());
+            var commitRes = commit;
+            str += " -> result commited -> trx1 end.";
+        }
+        transaction {
+            str += " -> inside trx2 ";
+            var commitRes = commit;
+            str += " -> result commited -> trx2 end.";
+        }
+    }
+    return str;
+}
+
+function testNestedRetryTrxWithinTrx() returns string|error {
+    string str = "start";
+    transaction {
+        int count = 0;
+        str += " -> inside trx1 ";
+        retry transaction {
+                str += " -> inside trx2 ";
+                count = count + 1;
+                if(count < 3) {
+                    str += (" -> attempt " + count.toString() + ":error,");
+                    int bV = check trxError();
+                } else {
+                    str += (" -> attempt "+ count.toString());
+                    var commitRes = commit;
+                    str += " -> result commited -> trx2 end.";
+                }
+            }
+        var commitRes = commit;
+        str += " -> result commited -> trx1 end.";
+    }
+    return str;
+}
