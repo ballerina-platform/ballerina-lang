@@ -245,6 +245,9 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
+        if (orderByClause != null) {
+            streamRef = addOrderFieldsAndDirection(queryBlock, orderByClause, streamRef);
+        }
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
             streamStmtExpr.type = streamRef.type;
@@ -355,13 +358,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                     break;
             }
         }
-        BLangVariableReference streamRef = addGetStreamFromPipeline(block, initPipeline);
-
-        if (orderByClause != null) {
-            streamRef = addOrderFieldsAndDirection(block, orderByClause, streamRef);
-        }
-
-        return streamRef;
+        return addGetStreamFromPipeline(block, initPipeline);
     }
 
     // ---- Util methods to create the stream pipeline. ---- //
