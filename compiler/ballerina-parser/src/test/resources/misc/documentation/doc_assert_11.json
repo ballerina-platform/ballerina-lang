@@ -57,7 +57,7 @@
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "   "
+                                  "value": " "
                                 }
                               ]
                             },
@@ -66,7 +66,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "``xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;``",
+                                  "value": "  ``xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;``",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

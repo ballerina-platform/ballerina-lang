@@ -58,7 +58,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = readTokenInBracedContentInInterpolation();
                 break;
             case DOCUMENTATION:
-                processLeadingTrivia();
+                this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationToken();
                 break;
             case DOCUMENTATION_INTERNAL:
@@ -182,7 +182,7 @@ public class BallerinaLexer extends AbstractLexer {
                 break;
             case LexerTerminals.HASH:
                 startMode(ParserMode.DOCUMENTATION);
-                token = getDocumentationSyntaxToken(SyntaxKind.HASH_TOKEN);
+                token = getHashToken();
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);
@@ -1368,6 +1368,32 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createToken(SyntaxKind.BACKTICK_TOKEN, leadingTrivia, trailingTrivia);
     }
 
+    private STToken getHashToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        // We reach here only for the hash token. Trivia for the hash token can only be an end of line,
+        // a single whitespace or may be an end of line following the single whitespace.
+        // Rest of the trivia after that belongs to the content of the documentation description.
+        STNode trailingTrivia;
+        List<STNode> triviaList = new ArrayList<>(2);
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.SPACE) {
+            reader.mark();
+            reader.advance();
+            triviaList.add(STNodeFactory.createMinutiae(SyntaxKind.WHITESPACE_MINUTIAE, getLexeme()));
+            nextChar = peek();
+        }
+        if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
+            reader.mark();
+            triviaList.add(processEndOfLine());
+            // End of line reached, Hence end the documentation mode
+            endMode();
+        }
+
+        trailingTrivia = STNodeFactory.createNodeList(triviaList);
+        return STNodeFactory.createToken(SyntaxKind.HASH_TOKEN, leadingTrivia, trailingTrivia);
+    }
+
     private STToken readTemplateToken() {
         reader.mark();
         if (reader.isEOF()) {
@@ -1743,7 +1769,6 @@ public class BallerinaLexer extends AbstractLexer {
                 }
                 // Fall through
             default:
-                //
                 reader.advance(lookAheadCount);
                 return false;
         }
