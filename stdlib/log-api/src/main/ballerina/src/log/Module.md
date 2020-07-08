@@ -49,4 +49,4 @@ The log level of `foo` can also be configured through the CLI as follows:
 $ ballerina run foo --\"<org-name>/foo.loglevel\"=DEBUG
 ```
 
-For information on the operation, which you can perform with this module, see the below Function. For examples on the usage of the operation, see [Log Api](https://ballerina.io/learn/by-example/log-api.html).
+For information on the operation, which you can perform with this module, see the below Function. For examples on the usage of the operation, see [Log Api](https://ballerina.io/swan-lake/learn/by-example/log-api.html).

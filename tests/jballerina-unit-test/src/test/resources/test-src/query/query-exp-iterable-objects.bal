@@ -93,3 +93,71 @@ public function testIterableWithError() returns int[]|error {
 
     return integers;
 }
+
+type NumberGenerator object {
+    int i = 0;
+    public function next() returns record {| int value; |}? {
+        self.i += 1;
+        if(self.i < 5) {
+          return { value: self.i };
+        }
+    }
+};
+
+type NumberStreamGenerator object {
+    int i = 0;
+    public function next() returns record {| stream<int> value; |}? {
+         self.i += 1;
+         if (self.i < 5) {
+             NumberGenerator numGen = new();
+             stream<int> numberStream = new (numGen);
+             return { value: numberStream};
+         }
+    }
+};
+
+public function testStreamOfStreams() returns int[] {
+    NumberStreamGenerator numStreamGen = new();
+    stream<stream<int>> numberStream = new (numStreamGen);
+    record {| stream<int> value; |}? nextStream = numberStream.next();
+    int[] integers = from var strm in numberStream
+                     from var num in liftError(strm.toArray())
+                     select num;
+
+    return integers;
+}
+
+function liftError (int[]|error arrayData) returns int[] {
+    if(!(arrayData is error)) {
+        return arrayData;
+    }
+    return [];
+}
+
+public function testIteratorInStream() returns int[]|error {
+    int[] intArray = [1, 2, 3, 4, 5];
+    stream<int> numberStream = intArray.toStream();
+    int[]|error integers = from var num in getIterableObject(numberStream.iterator())
+                     select <int>num;
+
+    return integers;
+}
+
+public type _Iterator abstract object {
+    public function next() returns record {|any|error value;|}|error?;
+};
+
+type IterableFromIterator object {
+        _Iterator itr;
+        public function init(_Iterator itr) {
+            self.itr = itr;
+        }
+
+        public function __iterator() returns _Iterator {
+            return self.itr;
+        }
+};
+
+function getIterableObject(_Iterator iterator) returns IterableFromIterator {
+    return new IterableFromIterator(iterator);
+}
