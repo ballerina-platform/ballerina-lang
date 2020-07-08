@@ -138,18 +138,7 @@ public class DocCommand implements BLauncherCmd {
         // validation and decide source root and source full path
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
-        // combine docs
-        if (this.combine) {
-            BuildContext buildContext = new BuildContext(this.sourceRootPath);
-            buildContext.setOut(outStream);
-            buildContext.setErr(errStream);
-            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                    .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
-                    .build();
-
-            taskExecutor.executeTasks(buildContext);
-            Runtime.getRuntime().exit(0);
-        }
+        // set custom template path
         if (this.templateLoc != null) {
             Path templatePath = Paths.get(this.templateLoc).toAbsolutePath();
             if (Files.notExists(templatePath)) {
@@ -161,6 +150,18 @@ public class DocCommand implements BLauncherCmd {
                 return;
             }
             System.setProperty("CUSTOM_TEMPLATE_PATH", templatePath.toString());
+        }
+        // combine docs
+        if (this.combine) {
+            BuildContext buildContext = new BuildContext(this.sourceRootPath);
+            buildContext.setOut(outStream);
+            buildContext.setErr(errStream);
+            TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
+                    .addTask(new CreateDocsTask(toJson, jsonPath, excludeIndex, combine)) // creates API documentation
+                    .build();
+
+            taskExecutor.executeTasks(buildContext);
+            Runtime.getRuntime().exit(0);
         }
         // Generating API Docs through a JSON file
         if (this.jsonLoc != null) {
