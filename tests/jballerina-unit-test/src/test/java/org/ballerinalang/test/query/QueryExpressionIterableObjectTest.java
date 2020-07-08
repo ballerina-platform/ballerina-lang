@@ -74,7 +74,7 @@ public class QueryExpressionIterableObjectTest {
         Assert.assertEquals(array.getInt(i++), 34);
         Assert.assertEquals(array.getInt(i++), 78);
         Assert.assertEquals(array.getInt(i++), 21);
-        Assert.assertEquals(array.getInt(i),90);
+        Assert.assertEquals(array.getInt(i), 90);
 
     }
 
