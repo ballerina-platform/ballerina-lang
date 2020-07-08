@@ -41,7 +41,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -102,14 +101,14 @@ public class JarResolverImpl implements JarResolver {
     @Override
     public Path moduleJar(PackageID packageID) {
         if (packageID.toString().equals(".") || isProjectModule(packageID) || isPathDependency(packageID)) {
-            // If so fetch from project balo cache
+            // If so fetch from project jar cache
             return buildContext.getJarPathFromTargetCache(packageID);
         } else if (isModuleInDistribution(packageID)) {
             // If so fetch from distribution
             return getJarFromDistribution(packageID);
         } else {
-            // If not fetch from home balo cache.
-            return getBaloPathFromHomeCache(packageID);
+            // If not fetch from home jar cache.
+            return buildContext.getJarPathFromHomeCache(packageID);
         }
     }
 
@@ -124,8 +123,8 @@ public class JarResolverImpl implements JarResolver {
     }
 
     @Override
-    public List<Path> nativeDependencies(PackageID packageID) {
-        List<Path> modulePlatformLibs = new ArrayList<>();
+    public HashSet<Path> nativeDependencies(PackageID packageID) {
+        HashSet<Path> modulePlatformLibs = new HashSet<>();
         // copy platform libs for all modules(imported modules as well)
         addPlatformLibs(packageID, modulePlatformLibs);
 
@@ -146,8 +145,8 @@ public class JarResolverImpl implements JarResolver {
     }
 
     @Override
-    public List<Path> nativeDependenciesForTests(PackageID packageID) {
-        List<Path> testPlatformLibs = new ArrayList<>(nativeDependencies(packageID));
+    public HashSet<Path> nativeDependenciesForTests(PackageID packageID) {
+        HashSet<Path> testPlatformLibs = new HashSet<>(nativeDependencies(packageID));
         List<Library> libraries = manifest.getPlatform().libraries;
         if (libraries != null) {
             for (Library library : libraries) {
@@ -167,15 +166,40 @@ public class JarResolverImpl implements JarResolver {
     }
 
     @Override
-    public List<Path> allDependencies(BLangPackage bLangPackage) {
+    public HashSet<Path> allDependencies(BLangPackage bLangPackage) {
         HashSet<PackageID> alreadyImportedSet = new HashSet<>();
         PackageID pkgId = bLangPackage.packageID;
-        List<Path> modulePlatformLibs = new ArrayList<>(nativeDependencies(pkgId));
+        HashSet<Path> modulePlatformLibs = new HashSet<>(nativeDependencies(pkgId));
         copyImportedLibs(pkgId, bLangPackage.symbol.imports, modulePlatformLibs, alreadyImportedSet);
         return modulePlatformLibs;
     }
 
-    private void copyImportedLibs(PackageID packageID, List<BPackageSymbol> imports, List<Path> moduleDependencySet,
+    @Override
+    public HashSet<Path> allTestDependencies(BLangPackage bLangPackage) {
+        HashSet<PackageID> alreadyImportedSet = new HashSet<>();
+        PackageID pkgId = bLangPackage.packageID;
+        HashSet<Path> moduleTestLibs = new HashSet<>(nativeDependenciesForTests(pkgId));
+        moduleTestLibs.addAll(allDependencies(bLangPackage));
+        moduleTestLibs.add(moduleTestJar(bLangPackage));
+        moduleTestLibs.add(getRuntimeJar());
+        // Copy native libs imported by testable package
+        for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
+            copyImportedLibs(testPkg.packageID, testPkg.symbol.imports, moduleTestLibs, alreadyImportedSet);
+        }
+        moduleTestLibs.remove(buildContext.getJarPathFromTargetCache(pkgId));
+        return moduleTestLibs;
+    }
+
+    public Path getRuntimeJar() {
+        if (skipCopyLibsFromDist) {
+            return null;
+        }
+        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
+        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
+        return Paths.get(balHomePath, "bre", "lib", runtimeJarName);
+    }
+
+    private void copyImportedLibs(PackageID packageID, List<BPackageSymbol> imports, HashSet<Path> moduleDependencySet,
                                   HashSet<PackageID> alreadyImportedSet) {
         moduleDependencySet.add(moduleJar(packageID));
         for (BPackageSymbol importSymbol : imports) {
@@ -221,27 +245,27 @@ public class JarResolverImpl implements JarResolver {
         return null;
     }
 
-    private void addLibsFromHomeBaloCache(PackageID packageID, List<Path> modulePlatformLibs) {
+    private void addLibsFromHomeBaloCache(PackageID packageID, HashSet<Path> modulePlatformLibs) {
         Path baloPath = getBaloPathFromHomeCache(packageID);
         if (baloPath != null) {
             addLibsFromBalo(baloPath, modulePlatformLibs);
         }
     }
 
-    private void addLibsFromBaloDependency(PackageID packageID, List<Path> modulePlatformLibs) {
+    private void addLibsFromBaloDependency(PackageID packageID, HashSet<Path> modulePlatformLibs) {
         addLibsFromBalo(buildContext.getImportPathDependency(packageID).get().getMetadata().getPath(),
                 modulePlatformLibs);
     }
 
-    private void addLibsFromDistribution(PackageID packageID, List<Path> modulePlatformLibs) {
-        List<Path> dependencies = getDependenciesFromDist(packageID);
+    private void addLibsFromDistribution(PackageID packageID, HashSet<Path> modulePlatformLibs) {
+        HashSet<Path> dependencies = getDependenciesFromDist(packageID);
         if (dependencies != null) {
             modulePlatformLibs.addAll(dependencies);
         }
     }
 
-    private void addPlatformLibs(PackageID packageID, List<Path> modulePlatformLibs) {
-        List<Path> platformLibs = new ArrayList<>();
+    private void addPlatformLibs(PackageID packageID, HashSet<Path> modulePlatformLibs) {
+        HashSet<Path> platformLibs = new HashSet<>();
         List<Library> libraries = manifest.getPlatform().libraries;
 
         Optional<Dependency> importPathDependency = buildContext.getImportPathDependency(packageID);
@@ -270,10 +294,10 @@ public class JarResolverImpl implements JarResolver {
                 dependency.getMetadata().getPath()));
     }
 
-    private void validateBaloDependencies(PackageID packageID, List<Path> platformLibs, Path importDependencyPath) {
+    private void validateBaloDependencies(PackageID packageID, HashSet<Path> platformLibs, Path importDependencyPath) {
         Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(importDependencyPath);
         List<Library> baloDependencies = manifestFromBalo.getPlatform().libraries;
-        List<Path> baloCompileScopeDependencies = new ArrayList<>();
+        HashSet<Path> baloCompileScopeDependencies = new HashSet<>();
         if (baloDependencies == null) {
             return;
         }
@@ -292,7 +316,7 @@ public class JarResolverImpl implements JarResolver {
         }
     }
 
-    private void addLibsFromBalo(Path baloFilePath, List<Path> moduleDependencySet) {
+    private void addLibsFromBalo(Path baloFilePath, HashSet<Path> moduleDependencySet) {
         String fileName = baloFilePath.getFileName().toString();
         Path baloFileUnzipDirectory = Paths.get(baloFilePath.getParent().toString(),
                 fileName.substring(0, fileName.lastIndexOf('.')));
@@ -333,9 +357,9 @@ public class JarResolverImpl implements JarResolver {
         }
     }
 
-    private List<Path> getDependenciesFromDist(PackageID packageID) {
+    private HashSet<Path> getDependenciesFromDist(PackageID packageID) {
         // Get the jar paths
-        List<Path> libPaths = new ArrayList<>();
+        HashSet<Path> libPaths = new HashSet<>();
         File tomlFile = getTomlFilePath(packageID);
 
         if (skipCopyLibsFromDist) {
@@ -374,6 +398,9 @@ public class JarResolverImpl implements JarResolver {
     }
 
     private Path getChoreoRuntimeJar() {
+        if (skipCopyLibsFromDist) {
+            return null;
+        }
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         String runtimeJarName = "ballerina-choreo-extension-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
         return Paths.get(balHomePath, "bre", "lib", runtimeJarName);

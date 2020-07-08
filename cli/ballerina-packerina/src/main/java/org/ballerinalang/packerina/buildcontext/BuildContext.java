@@ -26,7 +26,6 @@ import org.ballerinalang.packerina.buildcontext.sourcecontext.MultiModuleContext
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
-import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.packerina.utils.EmptyPrintStream;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
@@ -49,7 +48,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -75,7 +73,6 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
     private SourceType srcType;
     private transient PrintStream out;
     private transient PrintStream err;
-    public transient Map<PackageID, ExecutableJar> moduleDependencyPathMap = new HashMap<>();
     
     /**
      * Create a build context with context fields.
