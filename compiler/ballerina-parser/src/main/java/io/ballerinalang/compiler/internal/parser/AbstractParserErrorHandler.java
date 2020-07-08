@@ -478,7 +478,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @since 1.2.0
      */
-    public enum Action {
+    protected enum Action {
         INSERT, REMOVE, KEEP;
     }
 }
