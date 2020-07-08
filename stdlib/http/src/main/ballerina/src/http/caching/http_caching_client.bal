@@ -375,7 +375,7 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
                                                             httpMethod, false);
         if (validatedResponse is Response) {
             updateResponseTimestamps(validatedResponse, currentT.time, time:currentTime().time);
-            setAgeHeader(validatedResponse);
+            setAgeHeader(<@untainted>validatedResponse);
         }
         return validatedResponse;
     } else {
@@ -582,7 +582,7 @@ function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Resp
         return false;
     }
 
-    return isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
+    return <@untainted>isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
@@ -611,7 +611,7 @@ function isServingStaleProhibitedInResponseCC(ResponseCacheControl? cacheControl
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
 function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Response cachedResponse,
-                                 boolean isSharedCache) returns boolean {
+                                 boolean isSharedCache) returns @tainted boolean {
     if (requestCacheControl is ()) {
         return false;
     }
