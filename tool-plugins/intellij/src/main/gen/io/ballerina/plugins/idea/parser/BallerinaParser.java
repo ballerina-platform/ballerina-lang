@@ -2151,7 +2151,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean ExpressionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, NULL_LITERAL);
     if (!r) r = consumeToken(b, INT);
     if (!r) r = consumeToken(b, STRING);
@@ -2192,7 +2191,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, ERROR);
     if (!r) r = consumeToken(b, CHECK);
     if (!r) r = consumeToken(b, CHECKPANIC);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -5004,7 +5002,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, BOOLEAN_LITERAL);
     if (!r) r = consumeToken(b, QUOTED_STRING_LITERAL);
     if (!r) r = consumeToken(b, DECIMAL_INTEGER_LITERAL);
@@ -5065,7 +5062,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, RECORD);
     if (!r) r = consumeToken(b, IDENTIFIER);
     if (!r) r = consumeToken(b, WAIT);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -5484,7 +5480,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean TopLevelDefinitionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
     if (!r) r = consumeToken(b, PARAMETER_DOCUMENTATION_START);
     if (!r) r = consumeToken(b, RETURN_PARAMETER_DOCUMENTATION_START);
@@ -5523,7 +5518,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FUTURE);
     if (!r) r = consumeToken(b, IDENTIFIER);
     if (!r) r = consumeToken(b, LEFT_BRACE);
-    exit_section_(b, m, null, r);
     return r;
   }
 
