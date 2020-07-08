@@ -53,6 +53,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_EXTENDED_FLOATING_POINT_NUMBER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_FLOATING_POINT_NUMBER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DO;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
@@ -64,7 +66,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOAT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOATING_POINT_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
@@ -72,6 +73,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HANDLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEXADECIMAL_FLOATING_POINT_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEX_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IF;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT;
@@ -111,6 +113,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOURCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_TEXT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
@@ -131,6 +134,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_ALL_CHAR;
 
 /**
  * Parser definition.
@@ -140,11 +144,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
     public static final TokenSet WHITE_SPACES = TokenSet.create(TokenType.WHITE_SPACE);
     public static final TokenSet COMMENTS = TokenSet.create(LINE_COMMENT);
 
-    public static final TokenSet STRINGS = TokenSet.create(QUOTED_STRING_LITERAL);
+    public static final TokenSet STRINGS = TokenSet.create(QUOTED_STRING_LITERAL, XML_ALL_CHAR, STRING_TEMPLATE_TEXT);
 
     public static final TokenSet NUMBERS = TokenSet
             .create(DECIMAL_INTEGER_LITERAL, HEX_INTEGER_LITERAL, OCTAL_INTEGER_LITERAL, BINARY_INTEGER_LITERAL,
-                    FLOATING_POINT_LITERAL);
+                    DECIMAL_FLOATING_POINT_NUMBER, DECIMAL_EXTENDED_FLOATING_POINT_NUMBER,
+                    HEXADECIMAL_FLOATING_POINT_LITERAL);
 
     // excluding keywords "foreach" and "map", which are also used as Iterable operations.
     public static final TokenSet KEYWORDS = TokenSet
