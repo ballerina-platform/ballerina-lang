@@ -27,6 +27,7 @@ import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 /**
@@ -63,18 +64,18 @@ public abstract class Node {
         return parent;
     }
 
-    public NonTerminalNode ancestor(Predicate<Node> filter) {
+    public Optional<NonTerminalNode> ancestor(Predicate<Node> filter) {
         NonTerminalNode parent = this.parent;
 
         // null is returned if predicate doesnt match any of the ancestors
         while (parent != null) {
             if (filter.test(parent)) {
-                return parent;
+                return Optional.of(parent);
             }
             parent = parent.parent();
         }
 
-        return parent;
+        return Optional.ofNullable(parent);
     }
 
     public List<NonTerminalNode> ancestors() {

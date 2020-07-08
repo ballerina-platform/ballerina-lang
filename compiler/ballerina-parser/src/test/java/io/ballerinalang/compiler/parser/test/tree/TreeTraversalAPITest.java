@@ -34,6 +34,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Contains methods to test external syntax tree traversal API.
@@ -83,12 +84,12 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Token token = modulePart.findToken(115);
 
         //testing a positive case
-        Node ancestor = token.ancestor(node -> node instanceof FunctionDefinitionNode);
-        Assert.assertEquals(ancestor.kind(), SyntaxKind.FUNCTION_DEFINITION);
+        Optional<NonTerminalNode> ancestor = token.ancestor(node -> node instanceof FunctionDefinitionNode);
+        Assert.assertEquals(ancestor.get().kind(), SyntaxKind.FUNCTION_DEFINITION);
 
         //testing a negative case
         ancestor = token.ancestor(node -> node instanceof ForEachStatementNode);
-        Assert.assertEquals(ancestor, null);
+        Assert.assertEquals(ancestor.isPresent(), false);
     }
 
     @Test(enabled = false) //disabled since it fails in windows due to token position
@@ -119,12 +120,12 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Token funcToken = modulePart.findToken(50);
 
         //testing a positive case
-        Node ancestor = funcToken.ancestor(node -> node instanceof ModulePartNode);
-        Assert.assertEquals(ancestor.kind(), SyntaxKind.MODULE_PART);
+        Optional<NonTerminalNode> ancestor = funcToken.ancestor(node -> node instanceof ModulePartNode);
+        Assert.assertEquals(ancestor.get().kind(), SyntaxKind.MODULE_PART);
 
         //testing a negative case
         ancestor = funcToken.ancestor(node -> node instanceof ForEachStatementNode);
-        Assert.assertEquals(ancestor, null);
+        Assert.assertEquals(ancestor.isPresent(), false);
     }
 
     @Test
