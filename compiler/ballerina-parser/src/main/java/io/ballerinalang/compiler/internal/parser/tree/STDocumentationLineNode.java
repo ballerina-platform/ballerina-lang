@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,46 +30,62 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationStringNode extends STDocumentationNode {
-    public final STNode documentationLines;
+public class STDocumentationLineNode extends STDocumentationNode {
+    public final STNode hashToken;
+    public final STNode documentElements;
 
-    STDocumentationStringNode(
-            STNode documentationLines) {
+    STDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
         this(
-                documentationLines,
+                kind,
+                hashToken,
+                documentElements,
                 Collections.emptyList());
     }
 
-    STDocumentationStringNode(
-            STNode documentationLines,
+    STDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_STRING, diagnostics);
-        this.documentationLines = documentationLines;
+        super(kind, diagnostics);
+        this.hashToken = hashToken;
+        this.documentElements = documentElements;
 
         addChildren(
-                documentationLines);
+                hashToken,
+                documentElements);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationStringNode(
-                this.documentationLines,
+        return new STDocumentationLineNode(
+                this.kind,
+                this.hashToken,
+                this.documentElements,
                 diagnostics);
     }
 
-    public STDocumentationStringNode modify(
-            STNode documentationLines) {
+    public STDocumentationLineNode modify(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
         if (checkForReferenceEquality(
-                documentationLines)) {
+                hashToken,
+                documentElements)) {
             return this;
         }
 
-        return new STDocumentationStringNode(
-                documentationLines,
+        return new STDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationStringNode(this, position, parent);
+        return new DocumentationLineNode(this, position, parent);
     }
 
     @Override
