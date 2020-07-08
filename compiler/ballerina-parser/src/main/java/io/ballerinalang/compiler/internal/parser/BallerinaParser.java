@@ -12835,16 +12835,21 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFunctionalMatchPattern(STNode typeRef) {
         startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
-        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
+        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
         List<STNode> positionalArgMatchPatterns = new ArrayList<>();
         STNode otherArgMatchPatternsNode = STNodeFactory.createEmptyNode();
 
         while (!isEndOfFunctionalMatchPattern()) {
             STToken nextToken = peek();
+            if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
+                otherArgMatchPatternsNode = parseOtherArgMatchPatterns(new ArrayList<>());
+                break;
+            }
             if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
                 STNode nextNextToken = peek(2);
                 if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
                     otherArgMatchPatternsNode = parseOtherArgMatchPatterns(new ArrayList<>());
+                    break;
                 }
             }
             STNode positionalArgMatchPattern = parseMatchPattern();
