@@ -74,6 +74,10 @@ public class ListConstructorExprTest {
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '(readonly|int[])', " +
                                           "found '[int,map<(boolean|int)>]'", 66, 25);
         BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(boolean[][]|readonly)'", 70, 31);
+        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 74, 5);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 74, 23);
+        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 75, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 75, 23);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

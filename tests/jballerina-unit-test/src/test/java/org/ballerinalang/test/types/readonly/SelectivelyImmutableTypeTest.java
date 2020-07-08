@@ -97,6 +97,11 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 243, 25);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 243, 46);
 
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 258, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+                      261, 5);
+
         assertEquals(result.getErrorCount(), index);
     }
 

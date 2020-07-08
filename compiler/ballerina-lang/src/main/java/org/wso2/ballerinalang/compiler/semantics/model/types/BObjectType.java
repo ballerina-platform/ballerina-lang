@@ -99,6 +99,11 @@ public class BObjectType extends BStructureType implements ObjectType {
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
+
+            if (Symbols.isFlagOn(tsymbol.flags, Flags.READONLY)) {
+                sb.append(" & readonly");
+            }
+
             return sb.toString();
         }
         return this.tsymbol.toString();

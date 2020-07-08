@@ -68,7 +68,7 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 9);
+        Assert.assertEquals(result.getErrorCount(), 13);
         validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
         validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
         validateError(result, 2,
@@ -80,6 +80,10 @@ public class MappingConstructorExprTest {
         validateError(result, 7, "invalid operation: type 'PersonThree' does not support field access for " +
                 "non-required field 'salary'", 55, 41);
         validateError(result, 8, "undefined symbol 'c'", 55, 55);
+        validateError(result, 9, "unknown type 'Foo'", 59, 5);
+        validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
+        validateError(result, 11, "unknown type 'Foo'", 60, 5);
+        validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
     }
 
     @Test

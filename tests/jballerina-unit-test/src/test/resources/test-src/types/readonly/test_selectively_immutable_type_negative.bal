@@ -248,3 +248,15 @@ type NeverImmutable record {
 };
 
 function getInt() returns int => 1;
+
+type ReadOnlyObj readonly object {
+    int j = 3;
+};
+
+function testInvalidUpdateOfAnonTypeField() {
+    readonly & record {int i;} x = {i: 1};
+    x.i = 2; // error
+
+    readonly & abstract object {int j;} y = new ReadOnlyObj();
+    y.j = 4; // error
+}
