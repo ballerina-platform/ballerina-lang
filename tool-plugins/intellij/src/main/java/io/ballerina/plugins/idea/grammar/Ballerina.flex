@@ -10,17 +10,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 %%
 
 %{
-    private boolean inXmlExpressionMode = false;
-    private boolean inXmlTagMode = false;
-    private boolean inDoubleQuotedXmlStringMode = false;
-    private boolean inSingleQuotedXmlStringMode = false;
-    private boolean inXmlPiMode = false;
-    private boolean inXmlCommentMode = false;
-
-    private boolean inStringTemplate = false;
+   private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
+    private boolean inQueryExpression = false;
 
-   private boolean inQueryExpression = false;
+    // Added as a top level definition recovery strategy(so that the closing braces will only be sent for top-level
+    // definitions)
+    private boolean inTopLevelDefinition = false;
+    private int braceCount = 0;
 
     public BallerinaLexer() {
         this((java.io.Reader)null);
@@ -186,25 +183,18 @@ STRING_TEMPLATE_LITERAL_START = string[ \t\n\x0B\f\r]*`
 STRING_TEMPLATE_LITERAL_END = "`"
 STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
 STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
-STRING_TEMPLATE_EXPRESSION_START = {STRING_TEMPLATE_TEXT}? {INTERPOLATION_START}
+STRING_TEMPLATE_EXPRESSION_START = {INTERPOLATION_START}
 STRING_TEMPLATE_EXPRESSION_END = "}"
 STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
 DOLLAR = \$
 
+%state STRING_TEMPLATE_MODE
 %state XML_MODE
-%state XML_TAG_MODE
-%state DOUBLE_QUOTED_XML_STRING_MODE
-%state SINGLE_QUOTED_XML_STRING_MODE
-%state XML_PI_MODE
-%state XML_COMMENT_MODE
-
 %state MARKDOWN_DOCUMENTATION_MODE
 %state MARKDOWN_PARAMETER_DOCUMENTATION_MODE
 %state SINGLE_BACKTICKED_MARKDOWN_MODE
 %state DOUBLE_BACKTICKED_MARKDOWN_MODE
 %state TRIPLE_BACKTICKED_MARKDOWN_MODE
-
-%state STRING_TEMPLATE_MODE
 
 %%
 <YYINITIAL> {
@@ -314,24 +304,26 @@ DOLLAR = \$
     "::"                                        { return DOUBLE_COLON; }
     "."                                         { return DOT; }
     ","                                         { return COMMA; }
-    "{"                                         { return LEFT_BRACE; }
+    "{"                                         { if (inTopLevelDefinition) {
+                                                      braceCount++;
+                                                  } else {
+                                                      inTopLevelDefinition = true;
+                                                      braceCount++;
+                                                      return LEFT_BRACE;
+                                                  }
+                                                }
     "}"                                         { if (inStringTemplateExpression) {
-                                                        inStringTemplateExpression = false;
-                                                        inStringTemplate = true;
-                                                        yybegin(STRING_TEMPLATE_MODE);
-                                                        return STRING_TEMPLATE_EXPRESSION_END;
+                                                      inStringTemplateExpression = false;
+                                                      inStringTemplate = true;
+                                                      yybegin(STRING_TEMPLATE_MODE);
+                                                      return STRING_TEMPLATE_EXPRESSION_END;
+                                                  } else if (inTopLevelDefinition) {
+                                                      braceCount--;
+                                                      if(braceCount <= 0) {
+                                                          inTopLevelDefinition = false;
+                                                          return RIGHT_BRACE;
+                                                      }
                                                   }
-                                                  if (inXmlExpressionMode) {
-                                                      inXmlExpressionMode = false;
-                                                      yybegin(XML_MODE);
-                                                      return RIGHT_BRACE;
-                                                  }
-                                                  if (inXmlCommentMode) {
-                                                      inXmlCommentMode = false;
-                                                      yybegin(XML_COMMENT_MODE);
-                                                      return RIGHT_BRACE;
-                                                  }
-                                                  return RIGHT_BRACE;
                                                 }
     "("                                         { return LEFT_PARENTHESIS; }
     ")"                                         { return RIGHT_PARENTHESIS; }
