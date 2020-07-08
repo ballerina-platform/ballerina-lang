@@ -99,7 +99,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object)TypeName|RecordTypeDescriptor|BinaryAndExpression") = TypeName
+    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|InclusiveRecord|ExclusiveRecord)TypeName|BinaryAndExpression") = TypeName
 
     // This is to identify top level elements in a file.
     implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
@@ -132,7 +132,7 @@ DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAtta
 DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=2 elementType=Definition}
 
 Definition ::= TypeDefinition | ServiceDefinition | FunctionDefinition | AnnotationDefinition | ConstantDefinition | GlobalVariableDefinition {recoverWhile=TopLevelDefinitionRecover}
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|'@'|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|AT|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         type definitions                                                          //
@@ -140,16 +140,48 @@ private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAME
 TypeDefinition ::= public? type identifier RecoverableTypeContent (RecoverableTypeBody)? SEMICOLON {pin=2}
 RecoverableTypeContent ::= identifier {recoverWhile = TypeDefinitionRecover}
 private TypeDefinitionRecover ::= !(LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER | SEMICOLON)
-RecoverableTypeBody ::= (LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER) RecoverableTypeBodyContent (RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER) {pin=1}
-RecoverableTypeBodyContent ::= identifier {recoverWhile=TypeBodyRecover}
-private TypeBodyRecover ::= !(RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER)
+RecoverableTypeBody ::= CloseRecordTypeBody | RecoverableBody
+CloseRecordTypeBody ::= LEFT_CLOSED_RECORD_DELIMITER RecoverableCloseRecordContent RIGHT_CLOSED_RECORD_DELIMITER {pin=1}
+RecoverableCloseRecordContent ::= any {recoverWhile=CloseRecordTypeBodyRecover}
+private CloseRecordTypeBodyRecover ::= !(RIGHT_CLOSED_RECORD_DELIMITER)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        service definitions                                                        //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ServiceDefinition ::= service identifier? on RecoverableServiceContent RIGHT_BRACE {pin=3}
-RecoverableServiceContent ::= identifier {recoverWhile = ServiceDefinitionRecover}
-private ServiceDefinitionRecover ::= !(RIGHT_BRACE)
+ServiceDefinition ::= service identifier? on RecoverableAttachmentContent RecoverableBody {pin=3}
+RecoverableAttachmentContent ::= identifier {recoverWhile = ServiceDefinitionRecover}
+private ServiceDefinitionRecover ::= !(LEFT_BRACE)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                        function definitions                                                       //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {pin=3 methods=[getIdentifier]}
+
+AnyIdentifierName ::= identifier
+FunctionSignature ::= LEFT_PARENTHESIS RecoverableParameterContent RIGHT_PARENTHESIS returns? RecoverableReturnType {pin=1}
+RecoverableParameterContent ::= identifier {recoverWhile=FunctionSignatureRecover}
+private FunctionSignatureRecover ::= !(RIGHT_PARENTHESIS)
+RecoverableReturnType ::= identifier {recoverWhile=ReturnParamRecover}
+private ReturnParamRecover ::= !(EQUAL_GT | ASSIGN | LEFT_BRACE)
+
+FunctionDefinitionBody ::= (ExprFunctionBodySpec SEMICOLON) | (ExternalFunctionBody SEMICOLON) | RecoverableBody
+ExprFunctionBodySpec ::= EQUAL_GT identifier {pin=1 recoverWhile=ExprFuncBodyRecover}
+private ExprFuncBodyRecover ::= !(SEMICOLON)
+
+ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=1 recoverWhile=ExternalFuncBodyRecover}
+private ExternalFuncBodyRecover ::= !(SEMICOLON)
+
+// IMPORTANT - "RecoverableBody" rule should be used for all the top level definition bodies, for proper grammar recovery.
+RecoverableBody ::= LEFT_BRACE RecoverableBodyContent RIGHT_BRACE {pin=1}
+RecoverableBodyContent ::= identifier {pin=1 recoverWhile=RecoverableBodyContentRecover}
+private RecoverableBodyContentRecover ::= !(RIGHT_BRACE)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                       annotation definitions                                                      //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+AnnotationDefinition ::= public? const? annotation RecoverableAnnotationContent SEMICOLON {pin=3}
+RecoverableAnnotationContent ::= identifier {recoverWhile=AnnotationDefinitionRecover}
+private AnnotationDefinitionRecover ::= !(SEMICOLON)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                     global variable definitions                                                   //
@@ -166,7 +198,8 @@ TypeName ::= TupleTypeName
              | UnionTypeName
              | ObjectTypeName
              | NullableTypeName
-             | RecordTypeDescriptor
+             | InclusiveRecordTypeName
+             | ExclusiveRecordTypeName
 
 SimpleTypeName ::= NULL_LITERAL
                    | AnyTypeName
@@ -188,21 +221,15 @@ UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
 TupleTypeName ::=  LEFT_BRACKET ((TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)?) | TupleRestDescriptor) RIGHT_BRACKET {pin=1}
 ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
+InclusiveRecordTypeName ::=  record RecoverableBody
+ExclusiveRecordTypeName ::=  record LEFT_CLOSED_RECORD_DELIMITER RecoverableBodyContent RIGHT_CLOSED_RECORD_DELIMITER
 ObjectBody ::= {recoverWhile=ObjectBodyRecover}
 private ObjectBodyRecover ::= !(RIGHT_BRACE)
 
-RecordTypeDescriptor ::= record (LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER) RecordBody (RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER) {pin=1}
-RecordBody ::= {recoverWhile=RecordBodyRecover}
-private RecordBodyRecover ::= !(RIGHT_BRACE | RIGHT_CLOSED_RECORD_DELIMITER)
-
 TupleRestDescriptor::= TypeName ELLIPSIS
-
-ReferenceTypeName ::= BuiltInReferenceTypeName
-                      | UserDefineTypeName
-
-UserDefineTypeName ::= identifier
+ReferenceTypeName ::= BuiltInReferenceTypeName | UserDefineTypeName
+UserDefineTypeName ::= NameReference
 ValueTypeName ::=   boolean | int | float | decimal | string | byte
-
 BuiltInReferenceTypeName ::= MapTypeName
                              | FutureTypeName
                              | XmlTypeName
@@ -234,70 +261,34 @@ RecoverableVariableDefinitionContent ::= identifier {recoverWhile=GlobalVariable
 private GlobalVariableDefinitionRecover ::= !(SEMICOLON)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                        function definitions                                                       //
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {pin=3 methods=[getIdentifier]}
-FunctionSignature ::= LEFT_PARENTHESIS RecoverableParameterContent RIGHT_PARENTHESIS returns? RecoverableReturnType {pin=1}
-RecoverableParameterContent ::= identifier {recoverWhile=FunctionSignatureRecover}
-private FunctionSignatureRecover ::= !(RIGHT_PARENTHESIS)
-RecoverableReturnType ::= identifier {recoverWhile=ReturnParamRecover}
-private ReturnParamRecover ::= !(EQUAL_GT | ASSIGN | LEFT_BRACE)
-
-FunctionDefinitionBody ::= (ExprFunctionBodySpec SEMICOLON) | (ExternalFunctionBody SEMICOLON) | BlockFunctionBody
-// bnf specific rules to add error recovery more precisely.
-ExprFunctionBodySpec ::= EQUAL_GT identifier {pin=1 recoverWhile=ExprFuncBodyRecover}
-private ExprFuncBodyRecover ::= !(SEMICOLON)
-
-ExternalFunctionBody ::= ASSIGN AnnotationAttachment* external {pin=1 recoverWhile=ExternalFuncBodyRecover}
-private ExternalFuncBodyRecover ::= !(SEMICOLON)
-
-BlockFunctionBody ::= LEFT_BRACE  RecoverableFunctionContent RIGHT_BRACE {pin=1}
-RecoverableFunctionContent ::= identifier {recoverWhile=BlockFunctionRecover}
-private BlockFunctionRecover ::= !(RIGHT_BRACE)
-AnyIdentifierName ::= identifier
-
-AnnotationDefinition ::= public? const? annotation RecoverableAnnotationContent SEMICOLON {pin=3}
-RecoverableAnnotationContent ::= identifier {recoverWhile=AnnotationDefinitionRecover}
-private AnnotationDefinitionRecover ::= !(SEMICOLON)
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        constant definitions                                                       //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ConstantDefinition ::= public? const RecoverableConstantContent SEMICOLON  {pin=2}
 RecoverableConstantContent ::= identifier {recoverWhile=ConstantDefinitionRecover}
 private ConstantDefinitionRecover ::= !(SEMICOLON)
 
-AnnotationAttachment ::= AT RecoverableAnnotationAttachmentContent identifier (AnnotationRecord)? {pin=1}
-RecoverableAnnotationAttachmentContent ::= any { recoverWhile=AnnotationAttachmentRecovery }
-private AnnotationAttachmentRecovery ::= !(identifier)
-AnnotationRecord ::= LEFT_BRACE RecoverableAnnotationRecordContent RIGHT_BRACE {pin=1}
-RecoverableAnnotationRecordContent ::= identifier {recoverWhile=AnnotationRecordRecover}
-private AnnotationRecordRecover ::= !(RIGHT_BRACE)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                             annotations                                                           //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+AnnotationAttachment ::= AT NameReference RecoverableBody? {pin=1}
+NameReference ::= PackageReference identifier | identifier
+PackageReference ::= identifier COLON {pin=2}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        markdown documentation                                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
-
 documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
-
 parameterDocumentationLine ::= parameterDocumentation parameterDescription*
-
 returnParameterDocumentationLine ::= returnParameterDocumentation returnParameterDescription*
-
 deprecatedAnnotationDocumentationLine ::= deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
-
 documentationContent ::= documentationText?
-
 parameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
-
 returnParameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
-
 deprecateAnnotationDescriptionLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 
 //TODO: Fix documentation reference capturing.
 documentationText ::= (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
-
 documentationReference ::= referenceType SINGLE_BACKTICK_CONTENT SINGLE_BACKTICK_MARKDOWN_END {pin=1}
 
 referenceType ::= DOCTYPE
@@ -311,20 +302,13 @@ referenceType ::= DOCTYPE
                 | DOCCONST
 
 parameterDocumentation ::= PARAMETER_DOCUMENTATION_START PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=3}
-
 returnParameterDocumentation ::= RETURN_PARAMETER_DOCUMENTATION_START docParameterDescription
-
-
 deprecatedAnnotationDocumentation ::= DEPRECATED_DOCUMENTATION
-
 docParameterDescription ::= documentationText?
 
 backtickedBlock ::=  tripleBacktickedBlock | doubleBacktickedBlock | singleBacktickedBlock
-
 singleBacktickedBlock ::= SINGLE_BACKTICK_MARKDOWN_START SINGLE_BACKTICK_CONTENT? SINGLE_BACKTICK_MARKDOWN_END {pin=1}
-
 doubleBacktickedBlock ::= DOUBLE_BACKTICK_MARKDOWN_START DOUBLE_BACKTICK_CONTENT? DOUBLE_BACKTICK_MARKDOWN_END {pin=1}
-
 tripleBacktickedBlock ::= TRIPLE_BACKTICK_MARKDOWN_START TRIPLE_BACKTICK_CONTENT? TRIPLE_BACKTICK_MARKDOWN_END {pin=1}
 
 documentationTextContent ::= MARKDOWN_DOCUMENTATION_TEXT | DOCUMENTATION_ESCAPED_CHARACTERS
@@ -332,7 +316,7 @@ documentationTextContent ::= MARKDOWN_DOCUMENTATION_TEXT | DOCUMENTATION_ESCAPED
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                             Unused tokens                                                         //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
+private StatementRecover ::= !(BOOLEAN_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
 private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
 
 unused_Resource ::= resource
@@ -374,8 +358,6 @@ unused_StringTemplateText ::= STRING_TEMPLATE_TEXT
 unused_StringTemplateLiteralStart ::= STRING_TEMPLATE_LITERAL_START
 unused_StringTemplateLiteralEnd ::= STRING_TEMPLATE_LITERAL_END
 unused_AnnotationAccess ::= ANNOTATION_ACCESS
-unused_RightClosedRecordDelimiter ::= RIGHT_CLOSED_RECORD_DELIMITER
-unused_LeftClosedRecordDelimiter ::= LEFT_CLOSED_RECORD_DELIMITER
 unused_OptionalFieldAccess ::= OPTIONAL_FIELD_ACCESS
 unused_CompoundLeftShift ::= COMPOUND_LEFT_SHIFT
 unused_CompoundRightShift ::= COMPOUND_RIGHT_SHIFT
