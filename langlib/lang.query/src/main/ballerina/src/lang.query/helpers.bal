@@ -129,7 +129,7 @@ public type StreamOrderBy object {
 
         int k = iBegin;
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], 0, false, false) < 0)) {
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], 0, false, 0) < 0)) {
                 b[k] = a[i];
                 i = i + 1;
             } else {
@@ -140,39 +140,43 @@ public type StreamOrderBy object {
         }
     }
 
-    function sortFunc(Type x, Type y, int fieldIndex, boolean isInnerTypeField, boolean sortType)
+    function sortFunc(Type x, Type y, int fieldIndex, boolean isInnerTypeField, int sortFieldIndex)
     returns @tainted int {
         map<anydata> xMapValue = <map<anydata>>x;
         map<anydata> yMapValue = <map<anydata>>y;
         string[] fieldsList = [];
         string fieldFunc = "";
-        if (!isInnerTypeField && !sortType) {
+        if (!isInnerTypeField) {
             fieldFunc  = self.fieldFuncs[fieldIndex];
         } else {
             fieldsList = xMapValue.keys();
             fieldFunc = fieldsList[fieldIndex];
        }
+
         var xFieldValue = xMapValue.get(fieldFunc);
         var yFieldValue = yMapValue.get(fieldFunc);
+
         if (xFieldValue is (int|float)) {
             if (yFieldValue is (int|float)) {
                 int c;
                 if (isInnerTypeField) {
-                    if (sortType) {
+                    if (self.sortTypes[sortFieldIndex]) {
                         c = self.numberSort(xFieldValue, yFieldValue);
                     } else {
                         c = self.numberSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, sortType,
-                    fieldsList.length());
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                                sortFieldIndex);
                 } else {
                     if (self.sortTypes[fieldIndex]) {
                        c = self.numberSort(xFieldValue, yFieldValue);
                     } else {
                        c = self.numberSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, false, 0);
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                    fieldIndex);
                 }
+
             } else {
                 panic error("Inconsistent order field value",
                 message = fieldFunc + " order field contain non-numeric values");
@@ -181,20 +185,21 @@ public type StreamOrderBy object {
             if (yFieldValue is string) {
                 int c;
                 if (isInnerTypeField) {
-                    if (sortType) {
+                    if (self.sortTypes[sortFieldIndex]) {
                         c = self.stringSort(xFieldValue, yFieldValue);
                     } else {
                         c = self.stringSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, sortType,
-                    fieldsList.length());
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                       sortFieldIndex);
                 } else {
                     if (self.sortTypes[fieldIndex]) {
                         c = self.stringSort(xFieldValue, yFieldValue);
                     } else {
                         c = self.stringSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, false, 0);
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                        fieldIndex);
                 }
             } else {
                 panic error("Inconsistent order field value",
@@ -204,20 +209,21 @@ public type StreamOrderBy object {
             if (yFieldValue is boolean) {
                 int c;
                 if (isInnerTypeField) {
-                    if (sortType) {
+                    if (self.sortTypes[sortFieldIndex]) {
                         c = self.booleanSort(xFieldValue, yFieldValue);
                     } else {
                         c = self.booleanSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, sortType,
-                    fieldsList.length());
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                    sortFieldIndex);
                 } else {
                     if (self.sortTypes[fieldIndex]) {
                         c = self.booleanSort(xFieldValue, yFieldValue);
                     } else {
                         c = self.booleanSort(yFieldValue, xFieldValue);
                     }
-                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, false, 0);
+                    return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                    fieldIndex);
                 }
             } else {
                   panic error("Inconsistent order field value",
@@ -225,7 +231,14 @@ public type StreamOrderBy object {
             }
         } else if (xFieldValue is record{}) {
             if (yFieldValue is record{}) {
-                return self.sortFunc(xFieldValue, yFieldValue, 0, true, self.sortTypes[fieldIndex]);
+                int c;
+                if (!isInnerTypeField) {
+                    c = self.sortFunc(xFieldValue, yFieldValue, 0, true, fieldIndex);
+                } else {
+                    c = self.sortFunc(xFieldValue, yFieldValue, 0, false, sortFieldIndex);
+                }
+                return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                sortFieldIndex);
             } else {
                 panic error("Inconsistent order field value",
                 message = fieldFunc + " order field contain non-record type values");
@@ -235,20 +248,32 @@ public type StreamOrderBy object {
                 int i = 0;
                 int c;
                 while (i < xFieldValue.length() && i < yFieldValue.length()) {
-                    c = self.sortFunc(xFieldValue[i], yFieldValue[i], 0, true, self.sortTypes[fieldIndex]);
+                    if (!isInnerTypeField) {
+                        c = self.sortFunc(xFieldValue[i], yFieldValue[i], 0, true, fieldIndex);
+                    } else {
+                        c = self.sortFunc(xFieldValue[i], yFieldValue[i], 0, false, sortFieldIndex);
+                    }
                     if (c < 0 || c > 0) {
                         break;
                     }
                     i += 1;
                 }
-                return c;
+                return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                sortFieldIndex);
             } else {
                 panic error("Inconsistent order field value",
                 message = fieldFunc + " order field contain non-list type values");
             }
         } else if (xFieldValue is map<anydata|error>) {
             if (yFieldValue is map<anydata|error>) {
-                return self.sortFunc(xFieldValue, yFieldValue, 0, true, self.sortTypes[fieldIndex]);
+                int c;
+                if (!isInnerTypeField) {
+                    c = self.sortFunc(xFieldValue, yFieldValue, 0, true, fieldIndex);
+                } else {
+                    c = self.sortFunc(xFieldValue, yFieldValue, 0, false, sortFieldIndex);
+                }
+                return self.callNextSortFunc(x, y, c, fieldIndex + 1, isInnerTypeField, fieldsList.length(),
+                                     sortFieldIndex);
             } else {
                 panic error("Inconsistent order field value",
                 message = fieldFunc + " order field contain non-map type values");
@@ -297,13 +322,13 @@ public type StreamOrderBy object {
         }
     }
 
-    function callNextSortFunc(Type x, Type y, int c, int fieldIndex, boolean isInnerTypeField, boolean sortType, int
-    len) returns @tainted int {
+    function callNextSortFunc(Type x, Type y, int c, int fieldIndex, boolean isInnerTypeField, int len,
+    int sortFieldIndex) returns @tainted int {
         int result = c;
         if (result == 0 && (self.sortTypes.length() > fieldIndex) && !isInnerTypeField) {
-            result = self.sortFunc(x, y, fieldIndex, isInnerTypeField, false);
+            result = self.sortFunc(x, y, fieldIndex, isInnerTypeField, sortFieldIndex);
         } else if (result == 0 && isInnerTypeField && len > fieldIndex) {
-            result = self.sortFunc(x, y, fieldIndex, isInnerTypeField, sortType);
+            result = self.sortFunc(x, y, fieldIndex, isInnerTypeField, sortFieldIndex);
         }
         return result;
     }
