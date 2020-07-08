@@ -816,6 +816,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
+    |   FAIL expression                                                     # failExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
@@ -891,6 +892,10 @@ shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 transactionalExpr
     :   TRANSACTIONAL
+    ;
+
+failExpr
+    :   FAIL expression
     ;
 
 commitAction

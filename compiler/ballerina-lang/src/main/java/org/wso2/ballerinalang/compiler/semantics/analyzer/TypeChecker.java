@@ -105,6 +105,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -3876,6 +3877,24 @@ public class TypeChecker extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        BLangExpression errorExpression = failExpr.expr;
+        BType errorExpressionType = checkExpr(errorExpression, env);
+
+        if (errorExpressionType == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!types.containsErrorType(errorExpressionType)) {
+            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
+            resultType = symTable.semanticError;
+        }
+
+        resultType = errorExpressionType;
     }
 
     @Override

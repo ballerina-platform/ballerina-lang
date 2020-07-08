@@ -2454,6 +2454,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code failExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterFailExpression(BallerinaParser.FailExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code failExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitFailExpression(BallerinaParser.FailExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code constSimpleLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#constantExpression}.
 	 * @param ctx the parse tree
@@ -2603,6 +2615,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTransactionalExpr(BallerinaParser.TransactionalExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#failExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterFailExpr(BallerinaParser.FailExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#failExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitFailExpr(BallerinaParser.FailExprContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#commitAction}.
 	 * @param ctx the parse tree
