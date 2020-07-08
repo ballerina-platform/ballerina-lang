@@ -4145,39 +4145,47 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
 
         NodeList<Node> docLineList = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
+        BLangMarkdownParameterDocumentation bLangParaDoc = null;
+        BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc = null;
         for (Node singleDocLine : docLineList) {
             switch (singleDocLine.kind()) {
                 case DOCUMENTATION_LINE:
                 case REFERENCE_DOCUMENTATION_LINE:
-                    BLangMarkdownDocumentationLine bLangDocLine =
-                            (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
                     DocumentationLineNode docLineNode = (DocumentationLineNode) singleDocLine;
-
                     NodeList<Node> docElements = docLineNode.documentElements();
                     String docText = addReferencesAndReturnDocumentationText(references, docElements);
 
-                    bLangDocLine.text = docText;
-                    documentationLines.add(bLangDocLine);
+                    // All documentation lines after a parameter documentation, are considered to be
+                    // parameter documentation's documentation lines.
+                    if (bLangReturnParaDoc != null) {
+                        bLangReturnParaDoc.returnParameterDocumentationLines.add(docText);
+                    } else if (bLangParaDoc != null) {
+                        bLangParaDoc.parameterDocumentationLines.add(docText);
+                    } else {
+                        BLangMarkdownDocumentationLine bLangDocLine =
+                                (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+                        bLangDocLine.text = docText;
+                        documentationLines.add(bLangDocLine);
+                    }
                     break;
                 case PARAMETER_DOCUMENTATION_LINE:
-                    BLangMarkdownParameterDocumentation bLangParameterDoc = new BLangMarkdownParameterDocumentation();
+                    bLangParaDoc = new BLangMarkdownParameterDocumentation();
                     ParameterDocumentationLineNode parameterDocLineNode =
                             (ParameterDocumentationLineNode) singleDocLine;
 
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
                     paraName.value = parameterName.isMissing() ? "" : parameterName.text();
-                    bLangParameterDoc.parameterName = paraName;
+                    bLangParaDoc.parameterName = paraName;
 
                     NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
-                    bLangParameterDoc.parameterDocumentationLines.add(paraDocText);
-                    parameters.add(bLangParameterDoc);
+                    bLangParaDoc.parameterDocumentationLines.add(paraDocText);
+                    parameters.add(bLangParaDoc);
                     break;
                 case RETURN_PARAMETER_DOCUMENTATION_LINE:
-                    BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc =
-                            new BLangMarkdownReturnParameterDocumentation();
+                    bLangReturnParaDoc = new BLangMarkdownReturnParameterDocumentation();
                     ParameterDocumentationLineNode returnParaDocLineNode =
                             (ParameterDocumentationLineNode) singleDocLine;
 
