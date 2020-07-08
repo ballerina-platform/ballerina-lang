@@ -335,7 +335,7 @@ UNUSED_RIGHT_BRACE = "}"
                                                           inTopLevelDefinition = false;
                                                           return RIGHT_BRACE;
                                                       }
-                                                      return UNUSED_RIGHT_BRACE;
+                                                      return IGNORED_RIGHT_BRACE;
                                                   }
                                                 }
     "("                                         { return LEFT_PARENTHESIS; }
