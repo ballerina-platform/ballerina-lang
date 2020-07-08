@@ -148,9 +148,18 @@ private CloseRecordTypeBodyRecover ::= !(RIGHT_CLOSED_RECORD_DELIMITER)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        service definitions                                                        //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ServiceDefinition ::= service identifier? on RecoverableAttachmentContent RecoverableBody {pin=3}
+ServiceDefinition ::= service identifier? on RecoverableAttachmentContent ServiceDefinitionBody {pin=3}
 RecoverableAttachmentContent ::= identifier {recoverWhile = ServiceDefinitionRecover}
 private ServiceDefinitionRecover ::= !(LEFT_BRACE)
+
+ServiceDefinitionBody ::= LEFT_BRACE ObjectMethod* RIGHT_BRACE {pin=1 recoverWhile=RecoverableBodyContentRecover}
+ObjectMethod ::= MethodDeclaration | MethodDefinition
+MethodDeclaration ::= documentationString? NestedAnnotationAttachment* (public|private)? (remote|resource)? function AnyIdentifierName NestedFunctionSignature SEMICOLON
+MethodDefinition ::= documentationString? NestedAnnotationAttachment* (public|private)? (remote|resource)? function AnyIdentifierName NestedFunctionSignature NestedRecoverableBody
+
+NestedFunctionSignature ::= LEFT_PARENTHESIS RecoverableParameterContent RIGHT_PARENTHESIS returns? NestedRecoverableReturnType {pin=1}
+NestedRecoverableReturnType ::= identifier {recoverWhile=NestedReturnParamRecover}
+private NestedReturnParamRecover ::= !(SEMICOLON | NESTED_LEFT_BRACE)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        function definitions                                                       //
@@ -175,6 +184,11 @@ private ExternalFuncBodyRecover ::= !(SEMICOLON)
 RecoverableBody ::= LEFT_BRACE RecoverableBodyContent RIGHT_BRACE {pin=1}
 RecoverableBodyContent ::= identifier {pin=1 recoverWhile=RecoverableBodyContentRecover}
 private RecoverableBodyContentRecover ::= !(RIGHT_BRACE)
+
+// IMPORTANT - "NestedRecoverableBody" rule should be used for all the 1st level definition bodies, for proper grammar recovery.
+NestedRecoverableBody ::= NESTED_LEFT_BRACE NestedRecoverableBodyContent NESTED_RIGHT_BRACE {pin=1}
+NestedRecoverableBodyContent ::= identifier {pin=1 recoverWhile=NestedRecoverableBodyContentRecover}
+private NestedRecoverableBodyContentRecover ::= !(NESTED_RIGHT_BRACE)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                       annotation definitions                                                      //
@@ -274,6 +288,8 @@ AnnotationAttachment ::= AT NameReference RecoverableBody? {pin=1}
 NameReference ::= PackageReference identifier | identifier
 PackageReference ::= identifier COLON {pin=2}
 
+NestedAnnotationAttachment ::= AT NameReference NestedRecoverableBody? {pin=1}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        markdown documentation                                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -367,3 +383,5 @@ unused_b16Blob ::= BASE_16_BLOB_LITERAL
 unused_b64Blob ::= BASE_64_BLOB_LITERAL
 unused_CompoundLogicalShift ::= COMPOUND_LOGICAL_SHIFT
 unused_xmlLiteralStart ::= XML_LITERAL_START
+unused_leftBrace ::= IGNORED_LEFT_BRACE
+unused_rightBrace ::= IGNORED_RIGHT_BRACE
