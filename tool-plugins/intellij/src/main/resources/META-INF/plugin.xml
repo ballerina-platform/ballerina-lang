@@ -1,7 +1,7 @@
 <idea-plugin>
     <id>io.ballerina</id>
     <name>Ballerina</name>
-    <version>1.2.5</version>
+    <version>1.2.6</version>
     <vendor email="ballerinalang@wso2.com" url="https://ballerina.io/">BallerinaLang</vendor>
 
     <description><![CDATA[
@@ -13,7 +13,9 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li> Fixed distribution auto-detection for homebrew based installations. </li>
+        <li> Fixed plugin support for deprecated parameter documentation. </li>
+        <li> Fixed quoted string literal related syntax highlighting. </li>
+
       </ul>
     ]]>
     </change-notes>
