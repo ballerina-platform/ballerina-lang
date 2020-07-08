@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDocumentationStringImpl extends ASTWrapperPsiElement implements BallerinaDocumentationString {
+public class BallerinaDeprecateAnnotationDescriptionLineImpl extends ASTWrapperPsiElement implements BallerinaDeprecateAnnotationDescriptionLine {
 
-  public BallerinaDocumentationStringImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecateAnnotationDescriptionLineImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDocumentationString(this);
+    visitor.visitDeprecateAnnotationDescriptionLine(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,32 +44,14 @@ public class BallerinaDocumentationStringImpl extends ASTWrapperPsiElement imple
 
   @Override
   @Nullable
-  public BallerinaDeprecatedAnnotationDocumentationLine getDeprecatedAnnotationDocumentationLine() {
-    return findChildByClass(BallerinaDeprecatedAnnotationDocumentationLine.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDeprecatedParametersDocumentationLine getDeprecatedParametersDocumentationLine() {
-    return findChildByClass(BallerinaDeprecatedParametersDocumentationLine.class);
+  public BallerinaDocumentationText getDocumentationText() {
+    return findChildByClass(BallerinaDocumentationText.class);
   }
 
   @Override
   @NotNull
-  public List<BallerinaDocumentationLine> getDocumentationLineList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationLine.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaParameterDocumentationLine> getParameterDocumentationLineList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaParameterDocumentationLine.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaReturnParameterDocumentationLine getReturnParameterDocumentationLine() {
-    return findChildByClass(BallerinaReturnParameterDocumentationLine.class);
+  public PsiElement getMarkdownDocumentationLineStart() {
+    return findNotNullChildByType(MARKDOWN_DOCUMENTATION_LINE_START);
   }
 
 }

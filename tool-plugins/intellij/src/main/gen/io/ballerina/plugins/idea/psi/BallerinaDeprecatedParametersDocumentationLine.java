@@ -21,12 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaDeprecatedAnnotationDocumentationLine extends PsiElement {
+public interface BallerinaDeprecatedParametersDocumentationLine extends PsiElement {
 
   @NotNull
-  List<BallerinaDeprecateAnnotationDescriptionLine> getDeprecateAnnotationDescriptionLineList();
+  BallerinaDeprecatedParametersDocumentation getDeprecatedParametersDocumentation();
 
   @NotNull
-  BallerinaDeprecatedAnnotationDocumentation getDeprecatedAnnotationDocumentation();
+  List<BallerinaParameterDocumentationLine> getParameterDocumentationLineList();
 
 }

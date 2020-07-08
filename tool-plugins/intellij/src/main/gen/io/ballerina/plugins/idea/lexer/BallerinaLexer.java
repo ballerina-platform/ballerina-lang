@@ -128,10 +128,11 @@ public class BallerinaLexer implements FlexLexer {
     "\2\1\2\0\3\42\1\262\2\42\2\1\1\0\1\263"+
     "\1\264\1\1\1\265\1\0\2\42\1\266\2\42\1\1"+
     "\1\267\2\0\1\270\1\0\1\271\2\42\1\272\1\273"+
-    "\2\0\1\42\1\274\1\0\1\275\1\0\1\276";
+    "\2\0\1\42\1\274\1\0\1\275\1\0\2\276\1\0"+
+    "\1\276\10\0\1\277";
 
   private static int [] zzUnpackAction() {
-    int [] result = new int[638];
+    int [] result = new int[650];
     int offset = 0;
     offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
     return result;
@@ -235,10 +236,12 @@ public class BallerinaLexer implements FlexLexer {
     "\0\u8e4a\0\u02be\0\u02be\0\u8e98\0\u8ee6\0\u8f34\0\u8f82\0\u8fd0"+
     "\0\u06b4\0\u901e\0\u906c\0\u90ba\0\u02be\0\u9108\0\u9156\0\u02be"+
     "\0\u91a4\0\u06b4\0\u91f2\0\u9240\0\u06b4\0\u02be\0\u928e\0\u92dc"+
-    "\0\u932a\0\u06b4\0\u9378\0\u06b4\0\u93c6\0\u9414";
+    "\0\u932a\0\u06b4\0\u9378\0\u06b4\0\u93c6\0\u9414\0\u9462\0\u94b0"+
+    "\0\u94fe\0\u954c\0\u959a\0\u95e8\0\u9636\0\u9684\0\u96d2\0\u9720"+
+    "\0\u976e\0\u97bc";
 
   private static int [] zzUnpackRowMap() {
-    int [] result = new int[638];
+    int [] result = new int[650];
     int offset = 0;
     offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
     return result;
@@ -1407,10 +1410,13 @@ public class BallerinaLexer implements FlexLexer {
     "\16\0\1\u0277\4\0\3\u0277\1\u0252\7\0\1\u0277\5\0"+
     "\1\u0277\40\0\1\u027b\103\0\22\104\1\0\1\104\1\112"+
     "\24\104\1\u027c\7\104\1\u0279\5\104\1\0\26\104\15\0"+
-    "\1\u027d\160\0\1\u027e\116\0\1\u027e\34\0";
+    "\1\u027d\160\0\1\u027e\116\0\1\u027f\112\0\1\u0280\2\0"+
+    "\1\u0281\53\0\1\u0282\157\0\1\u0281\47\0\1\u0283\121\0"+
+    "\1\u0284\151\0\1\u0285\57\0\1\u0286\112\0\1\u0287\120\0"+
+    "\1\u0288\113\0\1\u0289\123\0\1\u028a\155\0\1\u028a\34\0";
 
   private static int [] zzUnpackTrans() {
-    int [] result = new int[37986];
+    int [] result = new int[38922];
     int offset = 0;
     offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
     return result;
@@ -1466,10 +1472,11 @@ public class BallerinaLexer implements FlexLexer {
     "\5\1\1\11\11\1\1\0\1\11\1\0\1\11\4\1"+
     "\2\0\3\1\1\11\4\1\1\0\4\1\1\0\2\1"+
     "\1\11\4\1\2\0\1\1\1\0\1\11\2\1\1\11"+
-    "\1\1\2\0\1\1\1\11\1\0\1\11\1\0\1\1";
+    "\1\1\2\0\1\1\1\11\1\0\1\11\1\0\2\1"+
+    "\1\0\1\1\10\0\1\1";
 
   private static int [] zzUnpackAttribute() {
-    int [] result = new int[638];
+    int [] result = new int[650];
     int offset = 0;
     offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
     return result;
@@ -1790,57 +1797,57 @@ public class BallerinaLexer implements FlexLexer {
             { return IDENTIFIER;
             } 
             // fall through
-          case 191: break;
+          case 192: break;
           case 2: 
             { return DECIMAL_INTEGER_LITERAL;
             } 
             // fall through
-          case 192: break;
+          case 193: break;
           case 3: 
             { return DOT;
             } 
             // fall through
-          case 193: break;
+          case 194: break;
           case 4: 
             { return SUB;
             } 
             // fall through
-          case 194: break;
+          case 195: break;
           case 5: 
             { return WHITE_SPACE;
             } 
             // fall through
-          case 195: break;
+          case 196: break;
           case 6: 
             { return BAD_CHARACTER;
             } 
             // fall through
-          case 196: break;
+          case 197: break;
           case 7: 
             { return DIV;
             } 
             // fall through
-          case 197: break;
+          case 198: break;
           case 8: 
             { return ADD;
             } 
             // fall through
-          case 198: break;
+          case 199: break;
           case 9: 
             { return ASSIGN;
             } 
             // fall through
-          case 199: break;
+          case 200: break;
           case 10: 
             { return PIPE;
             } 
             // fall through
-          case 200: break;
+          case 201: break;
           case 11: 
             { return LEFT_BRACE;
             } 
             // fall through
-          case 201: break;
+          case 202: break;
           case 12: 
             { if (inStringTemplateExpression) {
                                                         inStringTemplateExpression = false;
@@ -1861,897 +1868,902 @@ public class BallerinaLexer implements FlexLexer {
                                                   return RIGHT_BRACE;
             } 
             // fall through
-          case 202: break;
+          case 203: break;
           case 13: 
             { return BACKTICK;
             } 
             // fall through
-          case 203: break;
+          case 204: break;
           case 14: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return MARKDOWN_DOCUMENTATION_LINE_START;
             } 
             // fall through
-          case 204: break;
+          case 205: break;
           case 15: 
             { return SEMICOLON;
             } 
             // fall through
-          case 205: break;
+          case 206: break;
           case 16: 
             { return COLON;
             } 
             // fall through
-          case 206: break;
+          case 207: break;
           case 17: 
             { return COMMA;
             } 
             // fall through
-          case 207: break;
+          case 208: break;
           case 18: 
             { return LEFT_PARENTHESIS;
             } 
             // fall through
-          case 208: break;
+          case 209: break;
           case 19: 
             { return RIGHT_PARENTHESIS;
             } 
             // fall through
-          case 209: break;
+          case 210: break;
           case 20: 
             { return LEFT_BRACKET;
             } 
             // fall through
-          case 210: break;
+          case 211: break;
           case 21: 
             { return RIGHT_BRACKET;
             } 
             // fall through
-          case 211: break;
+          case 212: break;
           case 22: 
             { return QUESTION_MARK;
             } 
             // fall through
-          case 212: break;
+          case 213: break;
           case 23: 
             { return MUL;
             } 
             // fall through
-          case 213: break;
+          case 214: break;
           case 24: 
             { return MOD;
             } 
             // fall through
-          case 214: break;
+          case 215: break;
           case 25: 
             { return NOT;
             } 
             // fall through
-          case 215: break;
+          case 216: break;
           case 26: 
             { return GT;
             } 
             // fall through
-          case 216: break;
+          case 217: break;
           case 27: 
             { return LT;
             } 
             // fall through
-          case 217: break;
+          case 218: break;
           case 28: 
             { return BITAND;
             } 
             // fall through
-          case 218: break;
+          case 219: break;
           case 29: 
             { return BITXOR;
             } 
             // fall through
-          case 219: break;
+          case 220: break;
           case 30: 
             { return BIT_COMPLEMENT;
             } 
             // fall through
-          case 220: break;
+          case 221: break;
           case 31: 
             { return AT;
             } 
             // fall through
-          case 221: break;
+          case 222: break;
           case 32: 
             { return XML_ALL_CHAR;
             } 
             // fall through
-          case 222: break;
+          case 223: break;
           case 33: 
             { yybegin(YYINITIAL); return XML_LITERAL_END;
             } 
             // fall through
-          case 223: break;
+          case 224: break;
           case 34: 
             { return MARKDOWN_DOCUMENTATION_TEXT;
             } 
             // fall through
-          case 224: break;
+          case 225: break;
           case 35: 
             { yybegin(YYINITIAL);
             } 
             // fall through
-          case 225: break;
+          case 226: break;
           case 36: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return SINGLE_BACKTICK_MARKDOWN_START;
             } 
             // fall through
-          case 226: break;
+          case 227: break;
           case 37: 
             { return PARAMETER_NAME;
             } 
             // fall through
-          case 227: break;
+          case 228: break;
           case 38: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DESCRIPTION_SEPARATOR;
             } 
             // fall through
-          case 228: break;
+          case 229: break;
           case 39: 
             { return SINGLE_BACKTICK_CONTENT;
             } 
             // fall through
-          case 229: break;
+          case 230: break;
           case 40: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return SINGLE_BACKTICK_MARKDOWN_END;
             } 
             // fall through
-          case 230: break;
+          case 231: break;
           case 41: 
             { return DOUBLE_BACKTICK_CONTENT;
             } 
             // fall through
-          case 231: break;
+          case 232: break;
           case 42: 
             { return TRIPLE_BACKTICK_CONTENT;
             } 
             // fall through
-          case 232: break;
+          case 233: break;
           case 43: 
             { return STRING_TEMPLATE_TEXT;
             } 
             // fall through
-          case 233: break;
+          case 234: break;
           case 44: 
             { inStringTemplate = false; yybegin(YYINITIAL); return BAD_CHARACTER;
             } 
             // fall through
-          case 234: break;
+          case 235: break;
           case 45: 
             { inStringTemplate = false; yybegin(YYINITIAL); return STRING_TEMPLATE_LITERAL_END;
             } 
             // fall through
-          case 235: break;
+          case 236: break;
           case 46: 
             { return DECIMAL_FLOATING_POINT_NUMBER;
             } 
             // fall through
-          case 236: break;
+          case 237: break;
           case 47: 
             { return RANGE;
             } 
             // fall through
-          case 237: break;
+          case 238: break;
           case 48: 
             { return ANNOTATION_ACCESS;
             } 
             // fall through
-          case 238: break;
+          case 239: break;
           case 49: 
             { return COMPOUND_SUB;
             } 
             // fall through
-          case 239: break;
+          case 240: break;
           case 50: 
             { return RARROW;
             } 
             // fall through
-          case 240: break;
+          case 241: break;
           case 51: 
             { return AS;
             } 
             // fall through
-          case 241: break;
+          case 242: break;
           case 52: 
             { return QUOTED_STRING_LITERAL;
             } 
             // fall through
-          case 242: break;
+          case 243: break;
           case 53: 
             { return LINE_COMMENT;
             } 
             // fall through
-          case 243: break;
+          case 244: break;
           case 54: 
             { return COMPOUND_DIV;
             } 
             // fall through
-          case 244: break;
+          case 245: break;
           case 55: 
             { return COMPOUND_ADD;
             } 
             // fall through
-          case 245: break;
+          case 246: break;
           case 56: 
             { return EQUAL;
             } 
             // fall through
-          case 246: break;
+          case 247: break;
           case 57: 
             { return EQUAL_GT;
             } 
             // fall through
-          case 247: break;
+          case 248: break;
           case 58: 
             { return COMPOUND_BIT_OR;
             } 
             // fall through
-          case 248: break;
+          case 249: break;
           case 59: 
             { return OR;
             } 
             // fall through
-          case 249: break;
+          case 250: break;
           case 60: 
             { return RIGHT_CLOSED_RECORD_DELIMITER;
             } 
             // fall through
-          case 250: break;
+          case 251: break;
           case 61: 
             { return LEFT_CLOSED_RECORD_DELIMITER;
             } 
             // fall through
-          case 251: break;
+          case 252: break;
           case 62: 
             { if(inQueryExpression){ inQueryExpression = false; return DO; } return IDENTIFIER;
             } 
             // fall through
-          case 252: break;
+          case 253: break;
           case 63: 
             { return IF;
             } 
             // fall through
-          case 253: break;
+          case 254: break;
           case 64: 
             { return IS;
             } 
             // fall through
-          case 254: break;
+          case 255: break;
           case 65: 
             { return IN;
             } 
             // fall through
-          case 255: break;
+          case 256: break;
           case 66: 
             { return ON;
             } 
             // fall through
-          case 256: break;
+          case 257: break;
           case 67: 
             { yybegin(MARKDOWN_PARAMETER_DOCUMENTATION_MODE); return PARAMETER_DOCUMENTATION_START;
             } 
             // fall through
-          case 257: break;
+          case 258: break;
           case 68: 
             { return DOUBLE_COLON;
             } 
             // fall through
-          case 258: break;
+          case 259: break;
           case 69: 
             { return OPTIONAL_FIELD_ACCESS;
             } 
             // fall through
-          case 259: break;
+          case 260: break;
           case 70: 
             { return ELVIS;
             } 
             // fall through
-          case 260: break;
+          case 261: break;
           case 71: 
             { return COMPOUND_MUL;
             } 
             // fall through
-          case 261: break;
+          case 262: break;
           case 72: 
             { return NOT_EQUAL;
             } 
             // fall through
-          case 262: break;
+          case 263: break;
           case 73: 
             { return GT_EQUAL;
             } 
             // fall through
-          case 263: break;
+          case 264: break;
           case 74: 
             { return LARROW;
             } 
             // fall through
-          case 264: break;
+          case 265: break;
           case 75: 
             { return LT_EQUAL;
             } 
             // fall through
-          case 265: break;
+          case 266: break;
           case 76: 
             { return COMPOUND_BIT_AND;
             } 
             // fall through
-          case 266: break;
+          case 267: break;
           case 77: 
             { return AND;
             } 
             // fall through
-          case 267: break;
+          case 268: break;
           case 78: 
             { return COMPOUND_BIT_XOR;
             } 
             // fall through
-          case 268: break;
+          case 269: break;
           case 79: 
             { yybegin(DOUBLE_BACKTICKED_MARKDOWN_MODE); return DOUBLE_BACKTICK_MARKDOWN_START;
             } 
             // fall through
-          case 269: break;
+          case 270: break;
           case 80: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DOUBLE_BACKTICK_MARKDOWN_END;
             } 
             // fall through
-          case 270: break;
+          case 271: break;
           case 81: 
             { inStringTemplate = false; inStringTemplateExpression = true; yybegin(YYINITIAL); return STRING_TEMPLATE_EXPRESSION_START;
             } 
             // fall through
-          case 271: break;
+          case 272: break;
           case 82: 
             { return HEX_INTEGER_LITERAL;
             } 
             // fall through
-          case 272: break;
+          case 273: break;
           case 83: 
             { return ELLIPSIS;
             } 
             // fall through
-          case 273: break;
+          case 274: break;
           case 84: 
             { return HALF_OPEN_RANGE;
             } 
             // fall through
-          case 274: break;
+          case 275: break;
           case 85: 
             { return SYNCRARROW;
             } 
             // fall through
-          case 275: break;
+          case 276: break;
           case 86: 
             { return TRY;
             } 
             // fall through
-          case 276: break;
+          case 277: break;
           case 87: 
             { return ANY;
             } 
             // fall through
-          case 277: break;
+          case 278: break;
           case 88: 
             { return LET;
             } 
             // fall through
-          case 278: break;
+          case 279: break;
           case 89: 
             { return NEW;
             } 
             // fall through
-          case 279: break;
+          case 280: break;
           case 90: 
             { return REF_EQUAL;
             } 
             // fall through
-          case 280: break;
+          case 281: break;
           case 91: 
             { return XML;
             } 
             // fall through
-          case 281: break;
+          case 282: break;
           case 92: 
             { return MAP;
             } 
             // fall through
-          case 282: break;
+          case 283: break;
           case 93: 
             { return VAR;
             } 
             // fall through
-          case 283: break;
+          case 284: break;
           case 94: 
             { return INT;
             } 
             // fall through
-          case 284: break;
+          case 285: break;
           case 95: 
             { return REF_NOT_EQUAL;
             } 
             // fall through
-          case 285: break;
+          case 286: break;
           case 96: 
             { return COMPOUND_RIGHT_SHIFT;
             } 
             // fall through
-          case 286: break;
+          case 287: break;
           case 97: 
             { return COMPOUND_LEFT_SHIFT;
             } 
             // fall through
-          case 287: break;
+          case 288: break;
           case 98: 
             { yybegin(TRIPLE_BACKTICKED_MARKDOWN_MODE); return TRIPLE_BACKTICK_MARKDOWN_START;
             } 
             // fall through
-          case 288: break;
+          case 289: break;
           case 99: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return TRIPLE_BACKTICK_MARKDOWN_END;
             } 
             // fall through
-          case 289: break;
+          case 290: break;
           case 100: 
             { return HEXADECIMAL_FLOATING_POINT_LITERAL;
             } 
             // fall through
-          case 290: break;
+          case 291: break;
           case 101: 
             { return DECIMAL_EXTENDED_FLOATING_POINT_NUMBER;
             } 
             // fall through
-          case 291: break;
+          case 292: break;
           case 102: 
             { return BOOLEAN_LITERAL;
             } 
             // fall through
-          case 292: break;
+          case 293: break;
           case 103: 
             { return TRAP;
             } 
             // fall through
-          case 293: break;
+          case 294: break;
           case 104: 
             { return TYPE;
             } 
             // fall through
-          case 294: break;
+          case 295: break;
           case 105: 
             { return ELSE;
             } 
             // fall through
-          case 295: break;
+          case 296: break;
           case 106: 
             { inQueryExpression=true; return FROM;
             } 
             // fall through
-          case 296: break;
+          case 297: break;
           case 107: 
             { return FORK;
             } 
             // fall through
-          case 297: break;
+          case 298: break;
           case 108: 
             { return LOCK;
             } 
             // fall through
-          case 298: break;
+          case 299: break;
           case 109: 
             { return BYTE;
             } 
             // fall through
-          case 299: break;
+          case 300: break;
           case 110: 
             { return NULL_LITERAL;
             } 
             // fall through
-          case 300: break;
+          case 301: break;
           case 111: 
             { yybegin(XML_MODE); return XML_LITERAL_START;
             } 
             // fall through
-          case 301: break;
+          case 302: break;
           case 112: 
             { return JSON;
             } 
             // fall through
-          case 302: break;
+          case 303: break;
           case 113: 
             { return WAIT;
             } 
             // fall through
-          case 303: break;
+          case 304: break;
           case 114: 
             { return WITH;
             } 
             // fall through
-          case 304: break;
+          case 305: break;
           case 115: 
             { return COMPOUND_LOGICAL_SHIFT;
             } 
             // fall through
-          case 305: break;
+          case 306: break;
           case 116: 
             { return TABLE;
             } 
             // fall through
-          case 306: break;
+          case 307: break;
           case 117: 
             { return THROW;
             } 
             // fall through
-          case 307: break;
+          case 308: break;
           case 118: 
             { return RETRY;
             } 
             // fall through
-          case 308: break;
+          case 309: break;
           case 119: 
             { return ERROR;
             } 
             // fall through
-          case 309: break;
+          case 310: break;
           case 120: 
             { return FLUSH;
             } 
             // fall through
-          case 310: break;
+          case 311: break;
           case 121: 
             { return FLOAT;
             } 
             // fall through
-          case 311: break;
+          case 312: break;
           case 122: 
             { return TYPE_FIELD;
             } 
             // fall through
-          case 312: break;
+          case 313: break;
           case 123: 
             { return FINAL;
             } 
             // fall through
-          case 313: break;
+          case 314: break;
           case 124: 
             { return ABORT;
             } 
             // fall through
-          case 314: break;
+          case 315: break;
           case 125: 
             { return START;
             } 
             // fall through
-          case 315: break;
+          case 316: break;
           case 126: 
             { return BREAK;
             } 
             // fall through
-          case 316: break;
+          case 317: break;
           case 127: 
             { return XMLNS;
             } 
             // fall through
-          case 317: break;
+          case 318: break;
           case 128: 
             { return MATCH;
             } 
             // fall through
-          case 318: break;
+          case 319: break;
           case 129: 
             { return PANIC;
             } 
             // fall through
-          case 319: break;
+          case 320: break;
           case 130: 
             { return CATCH;
             } 
             // fall through
-          case 320: break;
+          case 321: break;
           case 131: 
             { return CONST;
             } 
             // fall through
-          case 321: break;
+          case 322: break;
           case 132: 
             { return CHECK;
             } 
             // fall through
-          case 322: break;
+          case 323: break;
           case 133: 
             { if(inQueryExpression){ return WHERE; } return IDENTIFIER;
             } 
             // fall through
-          case 323: break;
+          case 324: break;
           case 134: 
             { return WHILE;
             } 
             // fall through
-          case 324: break;
+          case 325: break;
           case 135: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCVAR;
             } 
             // fall through
-          case 325: break;
+          case 326: break;
           case 136: 
             { return TYPEOF;
             } 
             // fall through
-          case 326: break;
+          case 327: break;
           case 137: 
             { return RETURN;
             } 
             // fall through
-          case 327: break;
+          case 328: break;
           case 138: 
             { return REMOTE;
             } 
             // fall through
-          case 328: break;
+          case 329: break;
           case 139: 
             { return RECORD;
             } 
             // fall through
-          case 329: break;
+          case 330: break;
           case 140: 
             { return FUTURE;
             } 
             // fall through
-          case 330: break;
+          case 331: break;
           case 141: 
             { return STREAM;
             } 
             // fall through
-          case 331: break;
+          case 332: break;
           case 142: 
             { return STRING;
             } 
             // fall through
-          case 332: break;
+          case 333: break;
           case 143: 
             { if(inQueryExpression){ inQueryExpression = false; return SELECT; } return IDENTIFIER;
             } 
             // fall through
-          case 333: break;
+          case 334: break;
           case 144: 
             { return SOURCE;
             } 
             // fall through
-          case 334: break;
+          case 335: break;
           case 145: 
             { return OBJECT_INIT;
             } 
             // fall through
-          case 335: break;
+          case 336: break;
           case 146: 
             { return PUBLIC;
             } 
             // fall through
-          case 336: break;
+          case 337: break;
           case 147: 
             { return CLIENT;
             } 
             // fall through
-          case 337: break;
+          case 338: break;
           case 148: 
             { return IMPORT;
             } 
             // fall through
-          case 338: break;
+          case 339: break;
           case 149: 
             { return OBJECT;
             } 
             // fall through
-          case 339: break;
+          case 340: break;
           case 150: 
             { return HANDLE;
             } 
             // fall through
-          case 340: break;
+          case 341: break;
           case 151: 
             { return WORKER;
             } 
             // fall through
-          case 341: break;
+          case 342: break;
           case 152: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCTYPE;
             } 
             // fall through
-          case 342: break;
+          case 343: break;
           case 153: 
             { return RETRIES;
             } 
             // fall through
-          case 343: break;
+          case 344: break;
           case 154: 
             { return RETURNS;
             } 
             // fall through
-          case 344: break;
+          case 345: break;
           case 155: 
             { return FINALLY;
             } 
             // fall through
-          case 345: break;
+          case 346: break;
           case 156: 
             { return FOREACH;
             } 
             // fall through
-          case 346: break;
+          case 347: break;
           case 157: 
             { return ABORTED;
             } 
             // fall through
-          case 347: break;
+          case 348: break;
           case 158: 
             { return ANYDATA;
             } 
             // fall through
-          case 348: break;
+          case 349: break;
           case 159: 
             { inStringTemplate = true; yybegin(STRING_TEMPLATE_MODE); return STRING_TEMPLATE_LITERAL_START;
             } 
             // fall through
-          case 349: break;
+          case 350: break;
           case 160: 
             { return SERVICE;
             } 
             // fall through
-          case 350: break;
+          case 351: break;
           case 161: 
             { return BOOLEAN;
             } 
             // fall through
-          case 351: break;
+          case 352: break;
           case 162: 
             { return PRIVATE;
             } 
             // fall through
-          case 352: break;
+          case 353: break;
           case 163: 
             { return CHANNEL;
             } 
             // fall through
-          case 353: break;
+          case 354: break;
           case 164: 
             { return DEFAULT;
             } 
             // fall through
-          case 354: break;
+          case 355: break;
           case 165: 
             { return DECIMAL;
             } 
             // fall through
-          case 355: break;
+          case 356: break;
           case 166: 
             { return VERSION;
             } 
             // fall through
-          case 356: break;
+          case 357: break;
           case 167: 
             { return ONRETRY;
             } 
             // fall through
-          case 357: break;
+          case 358: break;
           case 168: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCCONST;
             } 
             // fall through
-          case 358: break;
+          case 359: break;
           case 169: 
             { return TYPEDESC;
             } 
             // fall through
-          case 359: break;
+          case 360: break;
           case 170: 
             { return RESOURCE;
             } 
             // fall through
-          case 360: break;
+          case 361: break;
           case 171: 
             { return EXTERNAL;
             } 
             // fall through
-          case 361: break;
+          case 362: break;
           case 172: 
             { return FUNCTION;
             } 
             // fall through
-          case 362: break;
+          case 363: break;
           case 173: 
             { return ABSTRACT;
             } 
             // fall through
-          case 363: break;
+          case 364: break;
           case 174: 
             { return LISTENER;
             } 
             // fall through
-          case 364: break;
+          case 365: break;
           case 175: 
             { return BASE_16_BLOB_LITERAL;
             } 
             // fall through
-          case 365: break;
+          case 366: break;
           case 176: 
             { return BASE_64_BLOB_LITERAL;
             } 
             // fall through
-          case 366: break;
+          case 367: break;
           case 177: 
             { return CONTINUE;
             } 
             // fall through
-          case 367: break;
+          case 368: break;
           case 178: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCMODULE;
             } 
             // fall through
-          case 368: break;
+          case 369: break;
           case 179: 
             { return TYPE_PARAMETER;
             } 
             // fall through
-          case 369: break;
+          case 370: break;
           case 180: 
             { return COMMITTED;
             } 
             // fall through
-          case 370: break;
+          case 371: break;
           case 181: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return RETURN_PARAMETER_DOCUMENTATION_START;
             } 
             // fall through
-          case 371: break;
+          case 372: break;
           case 182: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCSERVICE;
             } 
             // fall through
-          case 372: break;
+          case 373: break;
           case 183: 
             { return ANNOTATION;
             } 
             // fall through
-          case 373: break;
+          case 374: break;
           case 184: 
             { return CHECKPANIC;
             } 
             // fall through
-          case 374: break;
+          case 375: break;
           case 185: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCFUNCTION;
             } 
             // fall through
-          case 375: break;
+          case 376: break;
           case 186: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCVARIABLE;
             } 
             // fall through
-          case 376: break;
+          case 377: break;
           case 187: 
             { return TRANSACTION;
             } 
             // fall through
-          case 377: break;
+          case 378: break;
           case 188: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCPARAMETER;
             } 
             // fall through
-          case 378: break;
+          case 379: break;
           case 189: 
             { yybegin(SINGLE_BACKTICKED_MARKDOWN_MODE); return DOCANNOTATION;
             } 
             // fall through
-          case 379: break;
+          case 380: break;
           case 190: 
             { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DEPRECATED_DOCUMENTATION;
             } 
             // fall through
-          case 380: break;
+          case 381: break;
+          case 191: 
+            { yybegin(MARKDOWN_DOCUMENTATION_MODE); return DEPRECATED_PARAMETER_DOCUMENTATION;
+            } 
+            // fall through
+          case 382: break;
           default:
             zzScanError(ZZ_NO_MATCH);
           }

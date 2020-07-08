@@ -78,7 +78,9 @@ public interface BallerinaTypes {
   IElementType DEFINITION = new BallerinaCompositeElementType("DEFINITION");
   IElementType DEPRECATED_ANNOTATION_DOCUMENTATION = new BallerinaCompositeElementType("DEPRECATED_ANNOTATION_DOCUMENTATION");
   IElementType DEPRECATED_ANNOTATION_DOCUMENTATION_LINE = new BallerinaCompositeElementType("DEPRECATED_ANNOTATION_DOCUMENTATION_LINE");
-  IElementType DEPRECATE_ANNOTATION_DESCRIPTION_LIN = new BallerinaCompositeElementType("DEPRECATE_ANNOTATION_DESCRIPTION_LIN");
+  IElementType DEPRECATED_PARAMETERS_DOCUMENTATION = new BallerinaCompositeElementType("DEPRECATED_PARAMETERS_DOCUMENTATION");
+  IElementType DEPRECATED_PARAMETERS_DOCUMENTATION_LINE = new BallerinaCompositeElementType("DEPRECATED_PARAMETERS_DOCUMENTATION_LINE");
+  IElementType DEPRECATE_ANNOTATION_DESCRIPTION_LINE = new BallerinaCompositeElementType("DEPRECATE_ANNOTATION_DESCRIPTION_LINE");
   IElementType DOCUMENTATION_CONTENT = new BallerinaCompositeElementType("DOCUMENTATION_CONTENT");
   IElementType DOCUMENTATION_LINE = new BallerinaCompositeElementType("DOCUMENTATION_LINE");
   IElementType DOCUMENTATION_REFERENCE = new BallerinaCompositeElementType("DOCUMENTATION_REFERENCE");
@@ -384,8 +386,8 @@ public interface BallerinaTypes {
   IElementType DECIMAL_INTEGER_LITERAL = new BallerinaTokenType("DECIMAL_INTEGER_LITERAL");
   IElementType DECREMENT = new BallerinaTokenType("--");
   IElementType DEFAULT = new BallerinaTokenType("default");
-  IElementType DEPRECATEANNOTATIONDESCRIPTIONLINE = new BallerinaTokenType("deprecateAnnotationDescriptionLine");
   IElementType DEPRECATED_DOCUMENTATION = new BallerinaTokenType("DEPRECATED_DOCUMENTATION");
+  IElementType DEPRECATED_PARAMETER_DOCUMENTATION = new BallerinaTokenType("DEPRECATED_PARAMETER_DOCUMENTATION");
   IElementType DESCRIPTION_SEPARATOR = new BallerinaTokenType("DESCRIPTION_SEPARATOR");
   IElementType DIV = new BallerinaTokenType("/");
   IElementType DO = new BallerinaTokenType("do");
@@ -696,8 +698,14 @@ public interface BallerinaTypes {
       else if (type == DEPRECATED_ANNOTATION_DOCUMENTATION_LINE) {
         return new BallerinaDeprecatedAnnotationDocumentationLineImpl(node);
       }
-      else if (type == DEPRECATE_ANNOTATION_DESCRIPTION_LIN) {
-        return new BallerinaDeprecateAnnotationDescriptionLinImpl(node);
+      else if (type == DEPRECATED_PARAMETERS_DOCUMENTATION) {
+        return new BallerinaDeprecatedParametersDocumentationImpl(node);
+      }
+      else if (type == DEPRECATED_PARAMETERS_DOCUMENTATION_LINE) {
+        return new BallerinaDeprecatedParametersDocumentationLineImpl(node);
+      }
+      else if (type == DEPRECATE_ANNOTATION_DESCRIPTION_LINE) {
+        return new BallerinaDeprecateAnnotationDescriptionLineImpl(node);
       }
       else if (type == DOCUMENTATION_CONTENT) {
         return new BallerinaDocumentationContentImpl(node);
