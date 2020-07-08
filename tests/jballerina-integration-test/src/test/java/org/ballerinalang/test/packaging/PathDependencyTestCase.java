@@ -23,6 +23,7 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -36,6 +37,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -269,7 +271,7 @@ public class PathDependencyTestCase extends BaseTest {
         replaced = lines.map(line -> line.replaceAll("fee", feeModuleName))
                 .collect(Collectors.toList());
         Files.write(jeeBalPath, replaced);
-    
+
         String jeeModuleBaloFileName = "jee" + BLANG_COMPILED_JAR_EXT;
         String jeeExecutableFilePath = "target" + File.separator + "bin" + File.separator + jeeModuleBaloFileName;
 
@@ -604,6 +606,31 @@ public class PathDependencyTestCase extends BaseTest {
         buildLogLeecher.waitForText(10000);
     }
 
+    @Test(description = "Test if observability jar gets packed with executable if observability flag is given.")
+    public void testObservabilityFlag() throws BallerinaTestException, IOException {
+        // Test ballerina init
+        Path projectPath = tempTestResources.resolve("test-dependency");
+        String moduleExecutableFileName = "bar" + BLANG_COMPILED_JAR_EXT;
+        String observabilityEntry = "org/ballerinalang/observe/trace/extension/choreo/";
+        Path executablePath = projectPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).
+                resolve(ProjectDirConstants.BIN_DIR_NAME).resolve(moduleExecutableFileName);
+
+        // Build module without "--observability-included" flag
+        String buildText = ProjectDirConstants.TARGET_DIR_NAME + File.separator + ProjectDirConstants.BIN_DIR_NAME +
+                File.separator + moduleExecutableFileName;
+        LogLeecher buildLeecher = new LogLeecher(buildText);
+        balClient.runMain("build", new String[] { "bar" }, envVariables, new String[] {},
+                new LogLeecher[] { buildLeecher }, projectPath.toString());
+        buildLeecher.waitForText(5000);
+        Assert.assertFalse(isJarEntryExists(executablePath, observabilityEntry));
+
+        // Build module with "--observability-included" flag
+        balClient.runMain("build", new String[] { "--observability-included", "bar" }, envVariables,
+                new String[] {}, new LogLeecher[] { buildLeecher }, projectPath.toString());
+        buildLeecher.waitForText(5000);
+        Assert.assertTrue(isJarEntryExists(executablePath, observabilityEntry));
+    }
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
@@ -613,6 +640,12 @@ public class PathDependencyTestCase extends BaseTest {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
         envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
         return envVariables;
+    }
+
+    private boolean isJarEntryExists(Path executablePath, String jarEntry) throws IOException {
+        try (JarFile jarFile = new JarFile(executablePath.toFile())) {
+            return jarFile.getEntry(jarEntry) != null;
+        }
     }
     
     @AfterClass
