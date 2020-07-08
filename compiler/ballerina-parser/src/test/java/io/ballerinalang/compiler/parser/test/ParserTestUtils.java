@@ -1111,6 +1111,12 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
+            case "FUNCTIONAL_MATCH_PATTERN":
+                return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
+            case "OTHER_ARG_MATCH_PATTERNS":
+                return SyntaxKind.OTHER_ARG_MATCH_PATTERNS;
+            case "NAMED_ARG_MATCH_PATTERN":
+                return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

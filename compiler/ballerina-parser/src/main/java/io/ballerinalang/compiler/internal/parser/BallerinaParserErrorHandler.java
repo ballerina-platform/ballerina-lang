@@ -2844,6 +2844,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
             endContext();
             return getNextRuleForMatchPattern();
+        } else if (parentCtx == ParserRuleContext.NAMED_ARG_MATCH_PATTERN) {
+            endContext(); //end named arg math pattern context
+            endContext(); //end functional match pattern context
+            return getNextRuleForMatchPattern();
         }
         return ParserRuleContext.EXPRESSION_RHS;
     }
