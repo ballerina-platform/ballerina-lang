@@ -155,7 +155,8 @@ public type InboundCustomAuthProvider object {
         string token = "4ddb0c25";
         boolean authenticated = crypto:crc32b(credential.toBytes()) == token;
         if (authenticated) {
-            auth:setPrincipal(token, token, [credential]);
+            //auth:setPrincipal(token, [credential]);
+            auth:setAuthInvocationContext(userId = token, scopes = [credential]);
         }
         return authenticated;
     }
