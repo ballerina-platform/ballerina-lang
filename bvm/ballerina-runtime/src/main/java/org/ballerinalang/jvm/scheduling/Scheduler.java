@@ -280,10 +280,11 @@ public class Scheduler {
                 } finally {
                     strandHolder.get().strand = null;
                 }
-
                 postProcess(item, result, panic);
+                if (group.items.empty()) {
+                    group.scheduled.set(false);
+                }
             }
-            group.scheduled.set(false);
         }
     }
 
