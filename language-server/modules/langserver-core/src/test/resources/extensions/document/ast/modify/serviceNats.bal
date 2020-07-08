@@ -12,5 +12,7 @@ service hello on new http:Listener(9090) {
         nats:Connection connection = new ();
         nats:Producer producer = new (connection);
         nats:Error? result = producer->publish("Foo", "Test Message");
+
     }
 }
+
