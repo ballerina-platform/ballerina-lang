@@ -132,7 +132,10 @@ DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAtta
 DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=2 elementType=Definition}
 
 Definition ::= TypeDefinition | ServiceDefinition | FunctionDefinition | AnnotationDefinition | ConstantDefinition | GlobalVariableDefinition {recoverWhile=TopLevelDefinitionRecover}
-private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START|RETURN_PARAMETER_DOCUMENTATION_START|AT|external|remote|client|abstract|public|type|typedesc|service|listener|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record|channel|const|final|var|future|identifier|'{')
+private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START
+|RETURN_PARAMETER_DOCUMENTATION_START|AT|external|remote|client|abstract|public|type|typedesc|service|listener
+|function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record
+|channel|const|final|var|future|identifier|'{')
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         type definitions                                                          //
@@ -205,29 +208,9 @@ private varDefinition ::= final? var RecoverableVariableDefinitionContent SEMICO
 private listenerDefinition ::= public? listener RecoverableVariableDefinitionContent SEMICOLON {pin=2}
 private typedVariableDefinition ::= final? TypeName identifier ASSIGN RecoverableVarDefContent SEMICOLON {pin=3}
 
-TypeName ::= TupleTypeName
-             | SimpleTypeName
-             | GroupTypeName
-             | ArrayTypeName
-             | UnionTypeName
-             | ObjectTypeName
-             | NullableTypeName
-             | InclusiveRecordTypeName
-             | ExclusiveRecordTypeName
+TypeName ::= TupleTypeName | SimpleTypeName | GroupTypeName | ArrayTypeName | UnionTypeName | ObjectTypeName | NullableTypeName | InclusiveRecordTypeName | ExclusiveRecordTypeName
 
-SimpleTypeName ::= NULL_LITERAL
-                   | AnyTypeName
-                   | AnyDataTypeName
-                   | HandleTypeName
-                   | ValueTypeName
-                   | ReferenceTypeName
-                   | TypeDescTypeName
-                   | NilLiteral
-
-AnyTypeName ::= any
-AnyDataTypeName ::= anydata
-TypeDescTypeName ::= typedesc
-HandleTypeName ::= handle
+SimpleTypeName ::= NULL_LITERAL | any | anydata | handle | ValueTypeName | ReferenceTypeName | typedesc | NilLiteral
 
 ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
@@ -244,16 +227,7 @@ TupleRestDescriptor::= TypeName ELLIPSIS
 ReferenceTypeName ::= BuiltInReferenceTypeName | UserDefineTypeName
 UserDefineTypeName ::= NameReference
 ValueTypeName ::=   boolean | int | float | decimal | string | byte
-BuiltInReferenceTypeName ::= MapTypeName
-                             | FutureTypeName
-                             | XmlTypeName
-                             | JsonTypeName
-                             | StreamTypeName
-                             | TableTypeName
-                             | ServiceTypeName
-                             | TypeDescReferenceTypeName
-                             | ErrorTypeName
-                             | FunctionTypeName
+BuiltInReferenceTypeName ::= MapTypeName | FutureTypeName | XmlTypeName | JsonTypeName | StreamTypeName | TableTypeName | ServiceTypeName | TypeDescReferenceTypeName | ErrorTypeName | FunctionTypeName
 
 MapTypeName ::= map LT TypeName GT {pin=1}
 FutureTypeName ::= future LT TypeName GT {pin=1}
@@ -306,16 +280,7 @@ deprecateAnnotationDescriptionLine ::= MARKDOWN_DOCUMENTATION_LINE_START documen
 //TODO: Fix documentation reference capturing.
 documentationText ::= (documentationReference | referenceType | backtickedBlock | documentationTextContent)+
 documentationReference ::= referenceType SINGLE_BACKTICK_CONTENT SINGLE_BACKTICK_MARKDOWN_END {pin=1}
-
-referenceType ::= DOCTYPE
-                | DOCSERVICE
-                | DOCVARIABLE
-                | DOCVAR
-                | DOCANNOTATION
-                | DOCMODULE
-                | DOCFUNCTION
-                | DOCPARAMETER
-                | DOCCONST
+referenceType ::= DOCTYPE | DOCSERVICE | DOCVARIABLE | DOCVAR | DOCANNOTATION | DOCMODULE | DOCFUNCTION | DOCPARAMETER | DOCCONST
 
 parameterDocumentation ::= PARAMETER_DOCUMENTATION_START PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=3}
 returnParameterDocumentation ::= RETURN_PARAMETER_DOCUMENTATION_START docParameterDescription
@@ -332,56 +297,14 @@ documentationTextContent ::= MARKDOWN_DOCUMENTATION_TEXT | DOCUMENTATION_ESCAPED
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                             Unused tokens                                                         //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-private StatementRecover ::= !(BOOLEAN_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait)
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|byte|any|map|table|typeof|function|stream|'}'|';'|var|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|fail|lock|xmlns|transaction|if|forever|object|trap|wait|flush|error|check|checkpanic)
-
-unused_Resource ::= resource
-unused_Returns ::= returns
-unused_Catch ::= catch
-unused_Else ::= else
-unused_Finally ::= finally
-unused_Handle ::= handle
-unused_In ::= in
-unused_Is ::= is
-unused_Let ::= let
-unused_New ::= new
-unused_ObjInit ::= OBJECT_INIT
-unused_OnRetry ::= onretry
-unused_Retries ::= retries
-unused_Source ::= source
-unused_Start ::= start
-unused_TypeField ::= TYPE_FIELD
-unused_TypeParameter ::= TYPE_PARAMETER
-unused_With ::= with
-unused_Select ::= select
-unused_Where ::= where
-unused_Do ::= do
-unused_Elvis ::= ELVIS
-unused_RARROW ::= SYNCRARROW
-unused_Parameter ::= PARAMETER
-
-unused_stringTemPlateExpressionStart ::= STRING_TEMPLATE_EXPRESSION_START
-unused_stringTemPlateExpressionEnd ::= STRING_TEMPLATE_EXPRESSION_END
-unused_BitAnd ::= BITAND
-unused_BitXor ::= BITXOR
-unused_BitComplement ::= BIT_COMPLEMENT
-unused_CompoundBitOr ::= COMPOUND_BIT_OR
-unused_CompoundBitAnd ::= COMPOUND_BIT_AND
-unused_CompoundBitXor ::= COMPOUND_BIT_XOR
-unused_XmlAllChar ::= XML_ALL_CHAR
-unused_XmlLiteralEnd ::= XML_LITERAL_END
-unused_StringTemplateText ::= STRING_TEMPLATE_TEXT
-unused_StringTemplateLiteralStart ::= STRING_TEMPLATE_LITERAL_START
-unused_StringTemplateLiteralEnd ::= STRING_TEMPLATE_LITERAL_END
-unused_AnnotationAccess ::= ANNOTATION_ACCESS
-unused_OptionalFieldAccess ::= OPTIONAL_FIELD_ACCESS
-unused_CompoundLeftShift ::= COMPOUND_LEFT_SHIFT
-unused_CompoundRightShift ::= COMPOUND_RIGHT_SHIFT
-unused_HalfOpenRange ::= HALF_OPEN_RANGE
-unused_Default ::= DEFAULT
-unused_b16Blob ::= BASE_16_BLOB_LITERAL
-unused_b64Blob ::= BASE_64_BLOB_LITERAL
-unused_CompoundLogicalShift ::= COMPOUND_LOGICAL_SHIFT
-unused_xmlLiteralStart ::= XML_LITERAL_START
-unused_leftBrace ::= IGNORED_LEFT_BRACE
-unused_rightBrace ::= IGNORED_RIGHT_BRACE
+private unusedTokens ::= !(BOOLEAN_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL
+|BINARY_INTEGER_LITERAL|NULL_LITERAL|DECIMAL_FLOATING_POINT_NUMBER|HEXADECIMAL_FLOATING_POINT_LITERAL|int|string
+|float|decimal|boolean|byte|any|anydata|json|xml|xmlns|map|table|function|stream|'{'|'['|'}'|';'|typedesc|future|var
+|while|match|foreach|continue|break|fork|try|throw|return|abort|aborted|committed|retry|fail|lock|transaction|if
+|forever|object|service|check|checkpanic|error|panic|from|worker|record|identifier|wait|with|where|TYPE_PARAMETER
+|TYPE_FIELD|SYNCRARROW|start|source|retries|parameter|onretry|OBJECT_INIT|new|select|let|is|in|finally|ELVIS|else
+|do|catch|typeof|trap|flush|XML_ALL_CHAR|STRING_TEMPLATE_TEXT|STRING_TEMPLATE_LITERAL_START|STRING_TEMPLATE_LITERAL_END
+|STRING_TEMPLATE_EXPRESSION_START|STRING_TEMPLATE_EXPRESSION_END|XML_LITERAL_START|XML_LITERAL_END|BITAND|BITXOR
+|BIT_COMPLEMENT|COMPOUND_BIT_OR|COMPOUND_BIT_AND|COMPOUND_BIT_XOR|ANNOTATION_ACCESS|OPTIONAL_FIELD_ACCESS
+|COMPOUND_LEFT_SHIFT|COMPOUND_RIGHT_SHIFT|HALF_OPEN_RANGE|DEFAULT|BASE_16_BLOB_LITERAL|BASE_64_BLOB_LITERAL
+|COMPOUND_LOGICAL_SHIFT|IGNORED_LEFT_BRACE|IGNORED_RIGHT_BRACE)
