@@ -155,19 +155,19 @@ public class WaitForAllActionsTest {
         Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
     }
 
-//    @Test
-//    public void waitTest9() {
-//        BValue[] returns = BRunUtil.invoke(result, "waitTest9");
-//
-//        Map<String, String> expectedMap = new HashMap<>();
-//        expectedMap.put("f1", "20");
-//        expectedMap.put("f5", "hello foo");
-//
-//        Assert.assertEquals(returns.length, 1);
-//        Map<String, String> resultMap = new HashMap<>();
-//        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
-//        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
-//    }
+    @Test
+    public void waitTest9() {
+        BValue[] returns = BRunUtil.invoke(result, "waitTest9");
+
+        Map<String, String> expectedMap = new HashMap<>();
+        expectedMap.put("f1", "20");
+        expectedMap.put("f5", "hello foo");
+
+        Assert.assertEquals(returns.length, 1);
+        Map<String, String> resultMap = new HashMap<>();
+        ((BMap) returns[0]).getMap().forEach((o, o2) -> resultMap.put(o.toString(), o2.toString()));
+        Assert.assertTrue(mapsAreEqual(expectedMap, resultMap));
+    }
 
     @Test
     public void waitTest10() {
