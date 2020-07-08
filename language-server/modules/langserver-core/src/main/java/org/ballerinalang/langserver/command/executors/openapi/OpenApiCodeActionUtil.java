@@ -20,7 +20,9 @@ import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.eclipse.lsp4j.Position;
@@ -55,13 +57,14 @@ public class OpenApiCodeActionUtil {
      */
     public static List<BLangPackage> getBLangPkg(LSContext context, LSDocumentIdentifier document,
                                                  Position position)
-            throws WorkspaceDocumentException, CompilationFailedException {
+            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
         TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
         TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        return ReferencesUtil.findCursorTokenAndCompileModules(context, false);
+        TokensUtil.findtokenAtCursor(context);
+        return ReferencesUtil.compileModules(context);
     }
 
     public static BLangFunction getBLangFunction(List<BLangPackage> packages, Position position) {

@@ -309,7 +309,7 @@ class TypeEmitter {
 
         String str = "future";
         str += "<";
-        str += emitTypeRef(bType.getReturnType(), 0);
+        str += emitTypeRef(bType.getConstraint(), 0);
         str += ">";
         return str;
     }

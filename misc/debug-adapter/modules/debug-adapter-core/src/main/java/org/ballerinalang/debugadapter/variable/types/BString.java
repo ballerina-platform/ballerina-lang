@@ -16,45 +16,30 @@
 
 package org.ballerinalang.debugadapter.variable.types;
 
-import com.sun.jdi.Field;
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
-import org.ballerinalang.debugadapter.variable.BPrimitiveVariable;
+import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.JVMValueType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
-import java.util.Optional;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringFrom;
 
 /**
  * Ballerina string variable type.
  */
-public class BString extends BPrimitiveVariable {
+public class BString extends BSimpleVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
-
-    public BString(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.STRING.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
+    public BString(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.STRING, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        if (jvmValueRef == null) {
-            return "unknown";
-        }
-        if (jvmValueRef.referenceType().name().equals(JVMValueType.BMPSTRING.getString())
-                || jvmValueRef.referenceType().name().equals(JVMValueType.NONBMPSTRING.getString())) {
-            Optional<Field> valueField = jvmValueRef.referenceType().allFields().stream()
-                    .filter(field -> field.name().equals("value")).findAny();
-            if (valueField.isPresent()) {
-                return jvmValueRef.getValue(valueField.get()).toString();
-            }
-            return "unknown";
-        } else {
-            return jvmValueRef.toString();
+    public String computeValue() {
+        try {
+            return getStringFrom(jvmValue);
+        } catch (Exception ignored) {
+            return UNKNOWN_VALUE;
         }
     }
 }

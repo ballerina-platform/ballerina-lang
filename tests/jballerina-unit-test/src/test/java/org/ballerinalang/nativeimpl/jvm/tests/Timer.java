@@ -34,7 +34,7 @@ public class Timer {
         new Thread(() -> {
             for (int i = 0; i < count; i++) {
                 sleep(interval);
-                runtime.invokeMethodAsync(object, "exec");
+                runtime.invokeMethodAsync(object, "exec", null, null, null);
             }
         }).start();
     }

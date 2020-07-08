@@ -210,3 +210,25 @@ function testArrowExprWithNoReturn() returns int {
 function incrementInt(int x) {
     gVar += x;
 }
+
+type Sum function (int) returns function (int) returns int;
+
+function testNestedArrowExpressionWithOneParameter() {
+    Sum sum = intVar1 => intVar2 => intVar1 + intVar2;
+    var newFunction = sum(7);
+    var result = newFunction(5);
+    assertEquality(12, result);
+}
+
+const ASSERTION_ERR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+    if expected === actual {
+        return;
+    }
+    panic error(ASSERTION_ERR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

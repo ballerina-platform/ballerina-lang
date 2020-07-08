@@ -2109,14 +2109,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
 
         return new STJoinClauseNode(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public static STNode createOnClauseNode(
@@ -2150,6 +2152,71 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsisToken,
                 varKeywordToken,
                 variableName);
+    }
+
+    public static STNode createMappingMatchPatternNode(
+            STNode openBraceToken,
+            STNode fieldMatchPatterns,
+            STNode restMatchPattern,
+            STNode closeBraceToken) {
+
+        return new STMappingMatchPatternNode(
+                openBraceToken,
+                fieldMatchPatterns,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    public static STNode createFieldMatchPatternNode(
+            STNode fieldNameNode,
+            STNode colonToken,
+            STNode matchPattern) {
+
+        return new STFieldMatchPatternNode(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
+    }
+
+    public static STNode createParameterDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode plusToken,
+            STNode parameterName,
+            STNode minusToken,
+            STNode documentElements) {
+
+        return new STParameterDocumentationLineNode(
+                kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    public static STNode createDocumentationReferenceNode(
+            STNode referenceType,
+            STNode startBacktick,
+            STNode backtickContent,
+            STNode endBacktick) {
+
+        return new STDocumentationReferenceNode(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
+    }
+
+    public static STNode createDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
     }
 }
 

@@ -57,4 +57,9 @@ public class QualifiedIdentifierTest extends AbstractExpressionsTest {
     public void testAdditionalColons() {
         test("pkg::::bar", "qualified-identifier/qualified_identifier_assert_06.json");
     }
+
+    @Test
+    public void testIncompleteQualifiedIdent() {
+        test("pkg:", "qualified-identifier/qualified_identifier_assert_07.json");
+    }
 }

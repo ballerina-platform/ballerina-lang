@@ -13,25 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package org.ballerinalang.debugadapter.variable;
-
-import org.eclipse.lsp4j.debug.Variable;
+package org.ballerinalang.langserver.util.references;
 
 /**
- * Base implementation for ballerina primitive variable types.
+ * Exception when token or symbol is not found.
+ *
+ * @since 2.0.0
  */
-public abstract class BPrimitiveVariable implements BVariable {
-
-    private Variable dapVariable;
-
-    @Override
-    public Variable getDapVariable() {
-        return dapVariable;
-    }
-
-    @Override
-    public void setDapVariable(Variable dapVariable) {
-        this.dapVariable = dapVariable;
+public class TokenOrSymbolNotFoundException extends Exception {
+    public TokenOrSymbolNotFoundException(String message) {
+        super(message);
     }
 }
