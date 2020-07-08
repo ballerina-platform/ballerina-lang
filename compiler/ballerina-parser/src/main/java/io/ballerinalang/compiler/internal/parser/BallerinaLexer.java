@@ -1786,7 +1786,7 @@ public class BallerinaLexer extends AbstractLexer {
         if (isIdentifierInitialChar(nextChar)) {
             STToken token;
             reader.advance();
-            while (isIdentifierInitialChar(peek())) {
+            while (isIdentifierFollowingChar(peek())) {
                 reader.advance();
             }
             if (LexerTerminals.RETURN.equals(getLexeme())) {
