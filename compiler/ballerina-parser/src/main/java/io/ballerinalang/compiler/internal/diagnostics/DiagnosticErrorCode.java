@@ -251,7 +251,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_METADATA("BCE218", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE219", "error.invalid.qualifier"),
     ERROR_INVALID_ANNOTATIONS("BCE220", "error.invalid.annotations"),
-
+    ERROR_ACTION_AS_A_WAIT_EXPR("BCE221","error.action.as.a.wait.expr"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",

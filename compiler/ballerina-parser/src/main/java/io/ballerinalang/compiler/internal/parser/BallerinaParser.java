@@ -3989,7 +3989,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseExpression(OperatorPrecedence precedenceLevel, boolean isRhsExpr, boolean allowActions) {
-        return parseExpression(precedenceLevel, isRhsExpr, allowActions, false);
+        STNode actionOrExpression = parseExpression(precedenceLevel, isRhsExpr, allowActions, false);
+        if (isAction(actionOrExpression) && !allowActions) {
+            actionOrExpression = SyntaxErrors.addDiagnostic(actionOrExpression,
+                    DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+        }
+        return actionOrExpression;
     }
 
     private STNode parseExpression(OperatorPrecedence precedenceLevel, boolean isRhsExpr, boolean allowActions,
@@ -10980,10 +10985,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseWaitFutureExpr() {
-        STNode waitFutureExpr = parseExpression();
+        STNode waitFutureExpr = parseExpression(DEFAULT_OP_PRECEDENCE, true, true);
         if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
             waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
                     DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
+        } else if (isAction(waitFutureExpr)) {
+            waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
+                    DiagnosticErrorCode.ERROR_ACTION_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
     }
