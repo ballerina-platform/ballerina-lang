@@ -48,7 +48,4 @@ public interface BallerinaFunctionDefinition extends BallerinaTopLevelDefinition
   @Nullable
   PsiElement getIdentifier();
 
-  @Nullable
-  String getName();
-
 }

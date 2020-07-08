@@ -90,10 +90,4 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
     return BallerinaPsiImplUtil.getIdentifier(this);
   }
 
-  @Override
-  @Nullable
-  public String getName() {
-    return BallerinaPsiImplUtil.getName(this);
-  }
-
 }

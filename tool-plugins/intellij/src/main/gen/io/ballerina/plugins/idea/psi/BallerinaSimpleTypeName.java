@@ -24,27 +24,27 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaSimpleTypeName extends BallerinaTypeName {
 
   @Nullable
-  BallerinaAnyDataTypeName getAnyDataTypeName();
-
-  @Nullable
-  BallerinaAnyTypeName getAnyTypeName();
-
-  @Nullable
-  BallerinaHandleTypeName getHandleTypeName();
-
-  @Nullable
   BallerinaNilLiteral getNilLiteral();
 
   @Nullable
   BallerinaReferenceTypeName getReferenceTypeName();
 
   @Nullable
-  BallerinaTypeDescTypeName getTypeDescTypeName();
-
-  @Nullable
   BallerinaValueTypeName getValueTypeName();
 
   @Nullable
   PsiElement getNullLiteral();
+
+  @Nullable
+  PsiElement getAny();
+
+  @Nullable
+  PsiElement getAnydata();
+
+  @Nullable
+  PsiElement getHandle();
+
+  @Nullable
+  PsiElement getTypedesc();
 
 }
