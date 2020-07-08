@@ -347,7 +347,7 @@ public class TypesTest {
     public void testGetNonExistingElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
         Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "{ballerina/lang.map}KeyNotFound");
+        Assert.assertEquals(((BError) returns[0]).getReason(), "Key not found: Key 'name' not found in JSON mapping");
 
     }
 
@@ -501,7 +501,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'map<json>' cannot be " +
+            expectedExceptionsMessageRegExp = "error: 'map<json>' cannot be " +
                                               "cast to 'json\\[\\]'.*")
     public void testSetToNonArrayWithIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonArrayWithIndex");
@@ -514,7 +514,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'map<json>' cannot be cast to 'json\\[\\]'.*")
+            expectedExceptionsMessageRegExp = "error: 'map<json>' cannot be cast to 'json\\[\\]'.*")
     public void testGetFromNonArrayWithIndex() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonArrayWithIndex");
         Assert.assertNull(returns[0]);
@@ -523,7 +523,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'json\\[\\]' cannot be " +
+            expectedExceptionsMessageRegExp = "error: 'json\\[\\]' cannot be " +
                                               "cast to 'map<json>.*")
     public void testSetToNonObjectWithKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSetToNonObjectWithKey");
@@ -541,12 +541,12 @@ public class TypesTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertNotNull(returns[1]);
         Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
-        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
-        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "JSON operation error: JSON value is not a mapping");
+        Assert.assertEquals(((BError) returns[1]).getMessage(),
+                            "JSON operation error: JSON value is not a mapping");
+        Assert.assertEquals(((BError) returns[2]).getMessage(),
+                            "JSON operation error: JSON value is not a mapping");
     }
 
     @Test
@@ -557,7 +557,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*IndexOutOfRange message=array index out of range: " +
+          expectedExceptionsMessageRegExp = "error: array index out of range: " +
                                             "index: 5, size: 3.*")
     public void testGetArrayOutofBoundElement() {
         BRunUtil.invoke(compileResult, "testGetArrayOutofBoundElement");
@@ -566,8 +566,8 @@ public class TypesTest {
     @Test
     public void testGetElementFromPrimitive() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "JSON operation error: JSON value is not a mapping");
     }
 
     @Test
@@ -585,13 +585,13 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'error' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = "error: 'error' cannot be cast to 'string'.*")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)'" +
+            expectedExceptionsMessageRegExp = "error: '\\(\\)'" +
                                               " cannot be cast to 'map<json>'.*")
     public void testAddToNull() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
@@ -606,31 +606,31 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'int'.*")
+            expectedExceptionsMessageRegExp = "error: '\\(\\)' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'float'.*")
+            expectedExceptionsMessageRegExp = "error: '\\(\\)' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'string'.*")
+            expectedExceptionsMessageRegExp = "error: '\\(\\)' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
+            expectedExceptionsMessageRegExp = "error: '\\(\\)' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
+            expectedExceptionsMessageRegExp = "error: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
@@ -780,7 +780,7 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'string\\[\\]' cannot be cast to " +
+            expectedExceptionsMessageRegExp = "error: 'string\\[\\]' cannot be cast to " +
                     "'\\[float\\]\\[\\]'.*")
     public void testTupleArrayTypeToString() {
         BRunUtil.invoke(compileResult, "testTupleArrayTypeToString");

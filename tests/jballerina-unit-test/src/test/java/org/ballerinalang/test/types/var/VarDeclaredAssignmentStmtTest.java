@@ -201,8 +201,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'Person'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to 'Person'");
     }
 
     @Test(description = "Test incompatible json to struct with errors.")
@@ -213,8 +213,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'PersonA'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "Conversion error: 'map<json>' value cannot be converted to 'PersonA'");
     }
 
     @Test(description = "Test compatible struct with force casting.")
@@ -237,8 +237,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'B' cannot be cast to 'A'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'B' cannot be cast to 'A'");
     }
 
     @Test(description = "Test any to string with errors.")
@@ -247,8 +247,8 @@ public class VarDeclaredAssignmentStmtTest {
 
 
         Assert.assertSame(returns[0].getClass(), BError.class);
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'int' cannot be cast to 'string'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'int' cannot be cast to 'string'");
     }
 
     @Test(description = "Test any null to string with errors.") //TODO check this
@@ -257,8 +257,8 @@ public class VarDeclaredAssignmentStmtTest {
 
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: '()' cannot be cast to 'string'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'()' cannot be cast to 'string'");
     }
 
     @Test(description = "Test any to boolean with errors.")
@@ -268,8 +268,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'int' cannot be cast to 'boolean'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'int' cannot be cast to 'boolean'");
     }
 
     @Test(description = "Test any null to boolean with errors.")
@@ -279,8 +279,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: '()' cannot be cast to 'boolean'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'()' cannot be cast to 'boolean'");
     }
 
     @Test(description = "Test any to int with errors.")
@@ -290,8 +290,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'string' cannot be cast to 'int'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'string' cannot be cast to 'int'");
     }
 
     @Test(description = "Test any null to int with errors.")
@@ -301,8 +301,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: '()' cannot be cast to 'int'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'()' cannot be cast to 'int'");
     }
 
     @Test(description = "Test any to float with errors.")
@@ -312,8 +312,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'string' cannot be cast to 'float'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'string' cannot be cast to 'float'");
     }
 
     @Test(description = "Test any null to float with errors.")
@@ -323,8 +323,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: '()' cannot be cast to 'float'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'()' cannot be cast to 'float'");
     }
 
     @Test(description = "Test any to map with errors.")
@@ -334,8 +334,8 @@ public class VarDeclaredAssignmentStmtTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertSame(returns[0].getClass(), BError.class);
 
-        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
-                            "incompatible types: 'string' cannot be cast to 'map'");
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
+                            "'string' cannot be cast to 'map'");
     }
 
 }

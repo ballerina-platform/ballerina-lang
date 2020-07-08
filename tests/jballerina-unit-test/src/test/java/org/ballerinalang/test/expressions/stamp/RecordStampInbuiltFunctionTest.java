@@ -555,7 +555,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BError) results[0]).getMessage(),
-                            "'Teacher' value cannot be converted to 'map<string>'");
+                            "Conversion error: 'Teacher' value cannot be converted to 'map<string>'");
     }
 
     @Test
@@ -565,7 +565,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BError) results[0]).getMessage(),
-                            "'Teacher' value cannot be converted to 'NonAcademicStaff'");
+                            "Conversion error: 'Teacher' value cannot be converted to 'NonAcademicStaff'");
     }
 
     @Test
@@ -575,7 +575,7 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BError) results[0]).getMessage(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                            "Conversion error: 'Employee' value cannot be converted to 'Teacher'");
     }
 
     @Test
@@ -585,6 +585,6 @@ public class RecordStampInbuiltFunctionTest {
 
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BError) results[0]).getMessage(),
-                            "'Employee' value cannot be converted to 'Teacher'");
+                            "Conversion error: 'Employee' value cannot be converted to 'Teacher'");
     }
 }
