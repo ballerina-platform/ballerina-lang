@@ -3133,7 +3133,7 @@
                 },
                 {
                     "name": "receiveWorkers",
-                    "type": "SimpleNameReferenceNode"
+                    "type": "Node"
                 }
             ]
         },

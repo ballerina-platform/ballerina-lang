@@ -23,6 +23,7 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.expressions.WorkerMultipleReceiveNode;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -414,6 +416,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBlockFunctionBody source) {
+
         BLangBlockFunctionBody clone = new BLangBlockFunctionBody();
         source.cloneRef = clone;
         clone.pos = source.pos;
@@ -422,6 +425,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExprFunctionBody source) {
+
         BLangExprFunctionBody clone = new BLangExprFunctionBody();
         source.cloneRef = clone;
         clone.pos = source.pos;
@@ -430,6 +434,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody source) {
+
         BLangExternalFunctionBody clone = new BLangExternalFunctionBody();
         source.cloneRef = clone;
         clone.annAttachments = cloneList(source.annAttachments);
@@ -583,6 +588,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetrySpec source) {
+
         BLangRetrySpec clone = new BLangRetrySpec();
         source.cloneRef = clone;
         clone.retryManagerType = clone(source.retryManagerType);
@@ -591,6 +597,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry source) {
+
         BLangRetry clone = new BLangRetry();
         source.cloneRef = clone;
         clone.retrySpec = clone(source.retrySpec);
@@ -599,6 +606,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction source) {
+
         BLangRetryTransaction clone = new BLangRetryTransaction();
         source.cloneRef = clone;
         clone.retrySpec = clone(source.retrySpec);
@@ -734,6 +742,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRollback source) {
+
         BLangRollback clone = new BLangRollback();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
@@ -804,6 +813,27 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.workerIdentifier = source.workerIdentifier;
         clone.keyExpr = clone(source.keyExpr);
         clone.isChannel = source.isChannel;
+    }
+
+    @Override
+    public void visit(BLangWorkerMultipleReceive source) {
+
+        BLangWorkerMultipleReceive clone = new BLangWorkerMultipleReceive();
+        source.cloneRef = clone;
+
+        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode field : source.receiveFields) {
+
+            BLangWorkerMultipleReceive.BLangWorkerReceiveField sourceField =
+                    (BLangWorkerMultipleReceive.BLangWorkerReceiveField) field;
+
+            BLangWorkerMultipleReceive.BLangWorkerReceiveField receiveField =
+                    new BLangWorkerMultipleReceive.BLangWorkerReceiveField();
+
+            receiveField.workerFieldName = sourceField.workerFieldName;
+            receiveField.workerIdentifier = sourceField.workerIdentifier;
+
+            clone.receiveFields.add(receiveField);
+        }
     }
 
     @Override
@@ -954,6 +984,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangActionInvocation source) {
+
         BLangInvocation.BLangActionInvocation clone = new BLangInvocation.BLangActionInvocation();
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
@@ -1028,6 +1059,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetExpression source) {
+
         BLangLetExpression clone = new BLangLetExpression();
         source.cloneRef = clone;
         clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
@@ -1178,6 +1210,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRawTemplateLiteral source) {
+
         BLangRawTemplateLiteral clone = new BLangRawTemplateLiteral();
         source.cloneRef = clone;
         clone.strings = cloneList(source.strings);
@@ -1364,12 +1397,14 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLetClause source) {
+
         BLangLetClause clone = new BLangLetClause();
         source.cloneRef = clone;
         clone.letVarDeclarations = cloneLetVarDeclarations(source.letVarDeclarations);
     }
 
     private List<BLangLetVariable> cloneLetVarDeclarations(List<BLangLetVariable> letVarDeclarations) {
+
         List<BLangLetVariable> cloneDefs = new ArrayList<>();
         for (BLangLetVariable letVarDeclaration : letVarDeclarations) {
             BLangLetVariable clonedVar = new BLangLetVariable();
@@ -1619,6 +1654,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+
         BLangConstRef clone = new BLangConstRef();
         constRef.cloneRef = clone;
         clone.pkgAlias = constRef.pkgAlias;
@@ -1764,6 +1800,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkDownDeprecationDocumentation source) {
+
         BLangMarkDownDeprecationDocumentation clone = new BLangMarkDownDeprecationDocumentation();
         source.cloneRef = clone;
         clone.deprecationLine = source.deprecationLine;
@@ -1773,6 +1810,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkDownDeprecatedParametersDocumentation source) {
+
         BLangMarkDownDeprecatedParametersDocumentation clone = new BLangMarkDownDeprecatedParametersDocumentation();
         source.cloneRef = clone;
         clone.parameters = source.parameters;
@@ -1780,6 +1818,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMarkdownDocumentation source) {
+
         BLangMarkdownDocumentation clone = new BLangMarkdownDocumentation();
         source.cloneRef = clone;
         clone.documentationLines.addAll(cloneList(source.documentationLines));
@@ -1956,6 +1995,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementFilter source) {
+
         BLangXMLElementFilter clone = new BLangXMLElementFilter(
                 source.pos,
                 source.getWS(),
@@ -1968,6 +2008,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLElementAccess source) {
+
         BLangXMLElementAccess clone = new BLangXMLElementAccess(
                 source.pos,
                 source.getWS(),
@@ -1978,6 +2019,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess source) {
+
         BLangXMLNavigationAccess clone = new BLangXMLNavigationAccess(
                 source.pos,
                 source.getWS(),

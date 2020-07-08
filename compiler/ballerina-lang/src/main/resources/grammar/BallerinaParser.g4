@@ -839,6 +839,7 @@ expression
     |   WAIT (waitForCollection | expression)                               # waitExpression
     |   trapExpr                                                            # trapExpression
     |   LARROW peerWorker (COMMA expression)?                               # workerReceiveExpression
+    |   multipleWorkerReceiveExpr                                           # workerMultipleReceiveExpression
     |   flushWorker                                                         # flushWorkerExpression
     |   typeDescExpr                                                        # typeAccessExpression
     |   queryExpr                                                           # queryExpression
@@ -846,6 +847,19 @@ expression
     |   letExpr                                                             # letExpression
     |   transactionalExpr                                                   # transactionalExpression
     |   commitAction                                                        # commitActionExpression
+    ;
+
+multipleWorkerReceiveExpr
+    :   LARROW LEFT_BRACE receiveField (COMMA receiveField)* RIGHT_BRACE
+    ;
+
+receiveField
+    :   peerWorker
+    |   fieldName COLON peerWorker
+    ;
+
+fieldName
+    :   Identifier
     ;
 
 constantExpression

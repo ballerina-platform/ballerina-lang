@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.WorkerMultipleReceiveNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -106,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -914,7 +916,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         workerReceiveNode.sendExpression.accept(this);
     }
 
-    // Expressions
+    @Override
+    public void visit(BLangWorkerMultipleReceive workerMultipleReceive) {
+        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : workerMultipleReceive.receiveFields) {
+            ((BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField).sendExpression.accept(this);
+        }
+    }
+// Expressions
 
     @Override
     public void visit(BLangLiteral literalExpr) {

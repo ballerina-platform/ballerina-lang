@@ -2358,6 +2358,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordLiteralExpression(BallerinaParser.RecordLiteralExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code workerMultipleReceiveExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterWorkerMultipleReceiveExpression(BallerinaParser.WorkerMultipleReceiveExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code workerMultipleReceiveExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitWorkerMultipleReceiveExpression(BallerinaParser.WorkerMultipleReceiveExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code variableReferenceExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -2453,6 +2465,36 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#multipleWorkerReceiveExpr}.
+	 * @param ctx the parse tree
+	 */
+	void enterMultipleWorkerReceiveExpr(BallerinaParser.MultipleWorkerReceiveExprContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#multipleWorkerReceiveExpr}.
+	 * @param ctx the parse tree
+	 */
+	void exitMultipleWorkerReceiveExpr(BallerinaParser.MultipleWorkerReceiveExprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#receiveField}.
+	 * @param ctx the parse tree
+	 */
+	void enterReceiveField(BallerinaParser.ReceiveFieldContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#receiveField}.
+	 * @param ctx the parse tree
+	 */
+	void exitReceiveField(BallerinaParser.ReceiveFieldContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#fieldName}.
+	 * @param ctx the parse tree
+	 */
+	void enterFieldName(BallerinaParser.FieldNameContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#fieldName}.
+	 * @param ctx the parse tree
+	 */
+	void exitFieldName(BallerinaParser.FieldNameContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code constSimpleLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#constantExpression}.

@@ -159,6 +159,7 @@ public enum NodeKind {
     WHILE,
     LOCK,
     WORKER_RECEIVE,
+    WORKER_MULTIPLE_RECEIVE,
     WORKER_SEND,
     WORKER_SYNC_SEND,
     WORKER_FLUSH,

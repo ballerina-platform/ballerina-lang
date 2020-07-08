@@ -2339,7 +2339,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ReceiveActionNode receiveActionNode) {
         Token leftArrow =
                 modifyToken(receiveActionNode.leftArrow());
-        SimpleNameReferenceNode receiveWorkers =
+        Node receiveWorkers =
                 modifyNode(receiveActionNode.receiveWorkers());
         return receiveActionNode.modify(
                 leftArrow,

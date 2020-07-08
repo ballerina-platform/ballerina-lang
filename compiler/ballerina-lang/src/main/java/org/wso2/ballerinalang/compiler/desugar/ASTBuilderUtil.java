@@ -69,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -594,7 +595,7 @@ public class ASTBuilderUtil {
         return isLikeExpr;
     }
 
-    static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {
+    public static BLangLiteral createLiteral(DiagnosticPos pos, BType type, Object value) {
         final BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.pos = pos;
         literal.value = value;
@@ -610,14 +611,14 @@ public class ASTBuilderUtil {
         return constRef;
     }
 
-    static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {
+    public static BLangRecordLiteral createEmptyRecordLiteral(DiagnosticPos pos, BType type) {
         final BLangRecordLiteral recordLiteralNode = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
         recordLiteralNode.pos = pos;
         recordLiteralNode.type = type;
         return recordLiteralNode;
     }
 
-    static BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
+    public static BLangRecordLiteral.BLangRecordKeyValueField createBLangRecordKeyValue(BLangExpression key,
                                                                                  BLangExpression value) {
         final BLangRecordLiteral.BLangRecordKeyValueField recordKeyValue =
                 (BLangRecordLiteral.BLangRecordKeyValueField) TreeBuilder.createRecordKeyValue();
@@ -882,5 +883,12 @@ public class ASTBuilderUtil {
         xmlTextLiteral.parent = parent;
         xmlTextLiteral.type = type;
         return xmlTextLiteral;
+    }
+
+    public static BLangWorkerReceive createWorkerReceive(BLangIdentifier workerName, BLangExpression sendExpr) {
+        BLangWorkerReceive receive = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        receive.workerIdentifier = workerName;
+        receive.sendExpression = sendExpr;
+        return receive;
     }
 }

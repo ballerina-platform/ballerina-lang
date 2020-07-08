@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -334,6 +335,8 @@ public class BLangPackageBuilder {
     private Stack<TableMultiKeyExpressionNode> tableMultiKeyExpressionNodeStack = new Stack<>();
 
     private Stack<RetrySpecNode> retrySpecNodeStack = new Stack<>();
+
+    private Stack<BLangWorkerMultipleReceive> workerMultipleReceiveStack = new Stack<>();
 
     private long isInErrorType = 0;
 
@@ -3946,5 +3949,29 @@ public class BLangPackageBuilder {
         }
 
         field.flagSet.add(Flag.READONLY);
+    }
+
+    public void startWorkerMultipleReceive(DiagnosticPos currentPos) {
+        BLangWorkerMultipleReceive bLangWorkerMultipleReceive = TreeBuilder.createWorkerMultipleReceiveExpressionNode();
+        bLangWorkerMultipleReceive.pos = currentPos;
+        workerMultipleReceiveStack.push(bLangWorkerMultipleReceive);
+    }
+
+    void addWorkerMultipleReceiveExpressionWorker(String workerName, Set<Whitespace> ws, DiagnosticPos pos) {
+        BLangWorkerMultipleReceive.BLangWorkerReceiveField workerReceiveField = TreeBuilder.createReceiveFieldNode();
+        workerReceiveField.setWorkerName(this.createIdentifier(pos, workerName, ws));
+        workerMultipleReceiveStack.peek().receiveFields.add(workerReceiveField);
+    }
+
+    void addWorkerMultipleReceiveExpressionWithFieldName(String fieldName, DiagnosticPos pos, String workerName,
+                                                         Set<Whitespace> ws, DiagnosticPos workerPos) {
+        BLangWorkerMultipleReceive.BLangWorkerReceiveField workerReceiveField = TreeBuilder.createReceiveFieldNode();
+        workerReceiveField.setWorkerName(this.createIdentifier(workerPos, workerName, ws));
+        workerReceiveField.setWorkerFieldName(this.createIdentifier(pos, fieldName));
+        workerMultipleReceiveStack.peek().receiveFields.add(workerReceiveField);
+    }
+
+    void endWorkerMultipleReceive() {
+        addExpressionNode(workerMultipleReceiveStack.pop());
     }
 }

@@ -10634,6 +10634,7 @@ public class BallerinaParser extends AbstractParser {
         STToken token = peek();
         switch (token.kind) {
             case IDENTIFIER_TOKEN:
+                return parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
             case DEFAULT_KEYWORD:
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
@@ -10813,7 +10814,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createQualifiedReceiveField(STNode identifier) {
         if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return identifier;
+            return STNodeFactory.createSimpleNameReferenceNode(identifier);
         }
 
         STNode colon = parseColon();

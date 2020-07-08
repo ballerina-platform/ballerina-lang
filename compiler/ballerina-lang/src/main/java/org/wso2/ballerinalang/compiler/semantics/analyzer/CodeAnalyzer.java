@@ -25,9 +25,11 @@ import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
+import org.ballerinalang.model.tree.expressions.WorkerMultipleReceiveNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -133,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -319,7 +322,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
+        for (int i = 0; i < pkgNode.topLevelNodes.size(); i++) {
+            analyzeNode((BLangNode) pkgNode.topLevelNodes.get(i), pkgEnv);
+        }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
     }
@@ -1936,6 +1941,70 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         was.addWorkerAction(workerReceiveNode);
     }
 
+    @Override
+    public void visit(BLangWorkerMultipleReceive workerMultipleReceive) {
+        // Validate worker receive
+        validateActionParentNode(workerMultipleReceive.pos, workerMultipleReceive);
+
+        WorkerActionSystem was = this.workerActionSystemStack.peek();
+
+        for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receiveField : workerMultipleReceive.receiveFields) {
+
+            BLangWorkerMultipleReceive.BLangWorkerReceiveField receivedWorker =
+                    (BLangWorkerMultipleReceive.BLangWorkerReceiveField) receiveField;
+            BLangIdentifier workerIdentifier = receivedWorker.workerIdentifier;
+
+            BSymbol sender = symResolver.lookupSymbolInMainSpace(env, names.fromIdNode(workerIdentifier));
+
+            if ((sender.tag & SymTag.VARIABLE) != SymTag.VARIABLE) {
+                sender = symTable.notFoundSymbol;
+            }
+
+            verifyPeerCommunication(
+                    workerMultipleReceive.pos,
+                    sender,
+                    workerIdentifier.value
+                                   );
+
+            String workerName = workerIdentifier.getValue();
+            boolean allowedLocation = isCommunicationAllowedLocation(workerName);
+
+            if (!allowedLocation) {
+                this.dlog.error(workerIdentifier.pos, DiagnosticCode.INVALID_WORKER_RECEIVE_POSITION);
+                was.hasErrors = true;
+            }
+
+            if (!this.workerExists(receivedWorker.workerType, workerName)) {
+                this.dlog.error(workerIdentifier.pos, DiagnosticCode.UNDEFINED_WORKER, workerName);
+                was.hasErrors = true;
+            }
+
+        }
+
+        workerMultipleReceive.matchingSendsError = createAccumulatedErrorTypeForMatchingSyncSend(workerMultipleReceive);
+
+        was.addWorkerAction(workerMultipleReceive);
+    }
+
+    private BType createAccumulatedErrorTypeForMatchingSyncSend(BLangWorkerMultipleReceive workerMultipleReceive) {
+
+        Set<BType> returnTypesUpToNow = this.returnTypes.peek();
+        LinkedHashSet<BType> returnTypeAndSendType = new LinkedHashSet<>();
+        for (BType returnType : returnTypesUpToNow) {
+            if (returnType.tag == TypeTags.ERROR) {
+                returnTypeAndSendType.add(returnType);
+            } else {
+                this.dlog.error(workerMultipleReceive.pos, DiagnosticCode.WORKER_RECEIVE_AFTER_RETURN);
+            }
+        }
+        returnTypeAndSendType.add(symTable.nilType);
+        if (returnTypeAndSendType.size() > 1) {
+            return BUnionType.create(null, returnTypeAndSendType);
+        } else {
+            return symTable.nilType;
+        }
+    }
+
     private void verifyPeerCommunication(DiagnosticPos pos, BSymbol otherWorker, String otherWorkerName) {
         if (env.enclEnv.node.getKind() != NodeKind.FUNCTION) {
             return;
@@ -2908,6 +2977,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return action.getKind() == NodeKind.WORKER_SYNC_SEND;
     }
 
+    private static boolean isWorkerMultipleReceive(BLangNode action) {
+
+        return action.getKind() == NodeKind.WORKER_MULTIPLE_RECEIVE;
+    }
+
     private String extractWorkerId(BLangNode action) {
         if (isWorkerSend(action)) {
             return ((BLangWorkerSend) action).workerIdentifier.value;
@@ -2919,29 +2993,104 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void validateWorkerInteractions(WorkerActionSystem workerActionSystem) {
+
         BLangNode currentAction;
         boolean systemRunning;
+        boolean canOtherSMNext;
         do {
             systemRunning = false;
+
             for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
+                canOtherSMNext = true;
                 if (worker.done()) {
                     continue;
                 }
+
                 currentAction = worker.currentAction();
+
                 if (!isWorkerSend(currentAction) && !isWorkerSyncSend(currentAction)) {
                     continue;
                 }
+
                 WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
+
                 if (otherSM == null || !otherSM.currentIsReceive(worker.workerId)) {
                     continue;
                 }
-                BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
-                if (isWorkerSyncSend(currentAction)) {
-                    this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
+
+                if (isWorkerMultipleReceive(otherSM.currentAction())) {
+                    BLangWorkerMultipleReceive multipleReceive = (BLangWorkerMultipleReceive) otherSM.currentAction();
+
+                    multipleReceive.receiveFields.get(multipleReceive.currentReceiveFieldIndex).setSendExpression(
+                            ((BLangWorkerSend) currentAction).expr
+                                                                                                                 );
+
+                    if (!workerActionSystem.multipleReceives.contains(multipleReceive)) {
+                        multipleReceive.receiveFieldsMapLiteral
+                                = ASTBuilderUtil.createEmptyRecordLiteral(multipleReceive.pos, symTable.mapType);
+
+                        while (multipleReceive.receiveFieldsMapLiteral.fields.size()
+                                < multipleReceive.receiveFields.size()) {
+                            multipleReceive.receiveFieldsMapLiteral.fields.add(null);
+                        }
+
+                        workerActionSystem.multipleReceives.add(multipleReceive);
+                        multipleReceive.receiveFieldsMapLiteral.pos = multipleReceive.pos;
+                    }
+
+                    BLangLiteral workerId = ASTBuilderUtil.createLiteral(
+                            currentAction.pos, symTable.stringType, worker.workerId);
+
+                    BLangIdentifier workerReceiveIdentifier
+                            = ASTBuilderUtil.createIdentifier(worker.pos, worker.workerId);
+
+                    BLangWorkerReceive workerReceive = ASTBuilderUtil.createWorkerReceive(
+                            workerReceiveIdentifier,
+                            ((BLangWorkerSend) currentAction).expr);
+
+                    workerReceive.type = worker.currentAction().type;
+
+                    workerReceive.pos = (DiagnosticPos) multipleReceive.receiveFields.get(
+                            multipleReceive.currentReceiveFieldIndex).getWorkerName().getPosition();
+
+                    boolean currentWorkerReceiveHasField
+                            = multipleReceive.receiveFields.get(
+                            multipleReceive.currentReceiveFieldIndex
+                                                               ).getWorkerFieldName() != null;
+                    if (currentWorkerReceiveHasField) {
+                        BLangLiteral workerFieldName = ASTBuilderUtil.createLiteral(
+                                multipleReceive.pos, symTable.stringType,
+                                multipleReceive.receiveFields.get(
+                                        multipleReceive.currentReceiveFieldIndex).getWorkerFieldName().getValue()
+                                                                                   );
+                        multipleReceive.receiveFieldsMapLiteral.fields.set(
+                                multipleReceive.currentReceiveFieldIndex,
+                                ASTBuilderUtil.createBLangRecordKeyValue(
+                                        workerFieldName,
+                                        workerReceive)
+                                                                          );
+
+                    } else {
+                        multipleReceive.receiveFieldsMapLiteral.fields.set(
+                                multipleReceive.currentReceiveFieldIndex,
+                                ASTBuilderUtil.createBLangRecordKeyValue(workerId, workerReceive)
+                                                                          );
+                    }
+
+                    canOtherSMNext = multipleReceive.canMoveToNext();
+
                 } else {
-                    this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                    BLangWorkerReceive receive = (BLangWorkerReceive) otherSM.currentAction();
+                    if (isWorkerSyncSend(currentAction)) {
+                        this.validateWorkerActionParameters((BLangWorkerSyncSendExpr) currentAction, receive);
+                    } else {
+                        this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
+                    }
                 }
-                otherSM.next();
+
+                if (canOtherSMNext) {
+                    otherSM.next();
+                }
                 worker.next();
 
                 systemRunning = true;
@@ -2949,16 +3098,31 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 otherSM.node.sendsToThis.add(channelName);
 
                 worker.node.sendsToThis.add(channelName);
+
             }
         } while (systemRunning);
+
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
+        } else {
+            // Validate worker multiple receive
+            for (BLangWorkerMultipleReceive multipleReceive : workerActionSystem.multipleReceives) {
+                this.validateWorkerActionParameters(multipleReceive);
+            }
         }
     }
+
 
     private void reportInvalidWorkerInteractionDiagnostics(WorkerActionSystem workerActionSystem) {
         this.dlog.error(workerActionSystem.getRootPosition(), DiagnosticCode.INVALID_WORKER_INTERACTION,
                 workerActionSystem.toString());
+    }
+
+    private void validateWorkerActionParameters(BLangWorkerMultipleReceive multipleReceive) {
+
+        BType curExpType = multipleReceive.expectedType;
+        BType checkedExprType = typeChecker.checkExpr(multipleReceive.receiveFieldsMapLiteral, this.env);
+        BType checkedType = types.checkType(multipleReceive.receiveFieldsMapLiteral, checkedExprType, curExpType);
     }
 
     private void validateWorkerActionParameters(BLangWorkerSend send, BLangWorkerReceive receive) {
@@ -3099,6 +3263,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      */
     private static class WorkerActionSystem {
 
+        public List<BLangWorkerMultipleReceive> multipleReceives = new ArrayList<>();
         public List<WorkerActionStateMachine> finshedWorkers = new ArrayList<>();
         private Stack<WorkerActionStateMachine> workerActionStateMachines = new Stack<>();
         private boolean hasErrors = false;
@@ -3173,13 +3338,33 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return this.actions.get(this.currentState);
         }
 
+        private boolean checkAndSetWorkerMultipleReceiveSource(BLangWorkerMultipleReceive multipleReceive,
+                                                               String sourceWorkerId) {
+
+            for (WorkerMultipleReceiveNode.WorkerReceiveFieldNode receivedWorker : multipleReceive.receiveFields) {
+                if (!receivedWorker.getHasReceived()
+                        && receivedWorker.getWorkerName().getValue().equals(sourceWorkerId)) {
+                    multipleReceive.currentReceiveFieldIndex = multipleReceive.receiveFields.indexOf(receivedWorker);
+                    receivedWorker.setHasReceived(true);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public boolean currentIsReceive(String sourceWorkerId) {
+
             if (this.done()) {
                 return false;
             }
             BLangNode action = this.currentAction();
-            return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
-                    ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+            if (isWorkerMultipleReceive(action)) {
+                return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
+                        checkAndSetWorkerMultipleReceiveSource(((BLangWorkerMultipleReceive) action), sourceWorkerId);
+            } else {
+                return !isWorkerSend(action) && !isWorkerSyncSend(action) &&
+                        ((BLangWorkerReceive) action).workerIdentifier.value.equals(sourceWorkerId);
+            }
         }
 
         public void next() {
@@ -3188,6 +3373,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         @Override
         public String toString() {
+
             if (this.done()) {
                 return WORKER_SM_FINISHED;
             } else {
@@ -3196,6 +3382,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return ((BLangWorkerSend) action).toActionString();
                 } else if (isWorkerSyncSend(action)) {
                     return ((BLangWorkerSyncSendExpr) action).toActionString();
+                } else if (isWorkerMultipleReceive(action)) {
+                    return ((BLangWorkerMultipleReceive) action).toActionString();
                 } else {
                     return ((BLangWorkerReceive) action).toActionString();
                 }

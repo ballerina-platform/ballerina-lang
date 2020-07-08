@@ -232,6 +232,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -910,6 +911,14 @@ public class TreeBuilder {
 
     public static IsLikeExpressionNode createIsLikeExpressionNode() {
         return new BLangIsLikeExpr();
+    }
+
+    public static BLangWorkerMultipleReceive createWorkerMultipleReceiveExpressionNode() {
+        return new BLangWorkerMultipleReceive();
+    }
+
+    public static BLangWorkerMultipleReceive.BLangWorkerReceiveField createReceiveFieldNode() {
+        return new BLangWorkerMultipleReceive.BLangWorkerReceiveField();
     }
 
 }

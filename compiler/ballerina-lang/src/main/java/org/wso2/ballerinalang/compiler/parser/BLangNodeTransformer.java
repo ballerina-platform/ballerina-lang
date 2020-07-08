@@ -132,6 +132,7 @@ import io.ballerinalang.compiler.syntax.tree.QueryActionNode;
 import io.ballerinalang.compiler.syntax.tree.QueryConstructTypeNode;
 import io.ballerinalang.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
+import io.ballerinalang.compiler.syntax.tree.ReceiveFieldsNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldNode;
 import io.ballerinalang.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerinalang.compiler.syntax.tree.RecordRestDescriptorNode;
@@ -316,6 +317,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr.BLangWaitKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerFlushExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerMultipleReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerSyncSendExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
@@ -1979,10 +1981,37 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(ReceiveActionNode receiveActionNode) {
-        BLangWorkerReceive workerReceiveExpr = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
-        workerReceiveExpr.setWorkerName(createIdentifier(receiveActionNode.receiveWorkers().name()));
-        workerReceiveExpr.pos = getPosition(receiveActionNode);
-        return workerReceiveExpr;
+        if (receiveActionNode.receiveWorkers().kind().equals(SyntaxKind.RECEIVE_FIELDS)) {
+            BLangWorkerMultipleReceive workerMultipleReceive = TreeBuilder.createWorkerMultipleReceiveExpressionNode();
+
+            SeparatedNodeList receiveFields = ((ReceiveFieldsNode) receiveActionNode.receiveWorkers()).receiveFields();
+            int size = receiveFields.size();
+            for (int i = 0; i < size; i++) {
+                Node receiveField = receiveFields.get(i);
+                BLangWorkerMultipleReceive.BLangWorkerReceiveField workerReceiveField
+                        = TreeBuilder.createReceiveFieldNode();
+                if (receiveField.kind().equals(SyntaxKind.SIMPLE_NAME_REFERENCE)) {
+                    workerReceiveField.setWorkerName(createIdentifier(((SimpleNameReferenceNode) receiveField).name()));
+                } else if (receiveField.kind().equals(SyntaxKind.QUALIFIED_NAME_REFERENCE)) {
+                    QualifiedNameReferenceNode qualifiedReceiveField = ((QualifiedNameReferenceNode) receiveField);
+                    workerReceiveField.setWorkerFieldName(createIdentifier(qualifiedReceiveField.modulePrefix()));
+                    workerReceiveField.setWorkerName(createIdentifier(qualifiedReceiveField.identifier()));
+                }
+                workerMultipleReceive.receiveFields.add(workerReceiveField);
+            }
+
+            workerMultipleReceive.pos = getPosition(receiveActionNode);
+            return workerMultipleReceive;
+        }
+
+        BLangWorkerReceive workerReceive = (BLangWorkerReceive) TreeBuilder.createWorkerReceiveNode();
+        DiagnosticPos workerReceivePos = getPosition(receiveActionNode);
+        workerReceive.setWorkerName(createIdentifier(
+                workerReceivePos,
+                ((IdentifierToken) receiveActionNode.receiveWorkers()).text()
+                                                    ));
+        workerReceive.pos = workerReceivePos;
+        return workerReceive;
     }
 
     @Override
