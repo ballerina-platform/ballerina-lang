@@ -185,8 +185,14 @@ STRING_LITERAL_ESCAPED_SEQUENCE = {DOLLAR}** \\ [\\'\"bnftr\{`]
 STRING_TEMPLATE_VALID_CHAR_SEQUENCE = [^`$\\] | {DOLLAR}+ [^`$\{\\] | {WHITE_SPACE} | {STRING_LITERAL_ESCAPED_SEQUENCE}
 STRING_TEMPLATE_EXPRESSION_START = {INTERPOLATION_START}
 STRING_TEMPLATE_EXPRESSION_END = "}"
-STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+ {DOLLAR}* | {DOLLAR}+
+STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}+
 DOLLAR = \$
+
+// used to avoid conflicts with top-level braces.
+NESTED_LEFT_BRACE = "{"
+NESTED_RIGHT_BRACE = "}"
+UNUSED_LEFT_BRACE = "{"
+UNUSED_RIGHT_BRACE = "}"
 
 %state STRING_TEMPLATE_MODE
 %state XML_MODE
@@ -306,6 +312,10 @@ DOLLAR = \$
     ","                                         { return COMMA; }
     "{"                                         { if (inTopLevelDefinition) {
                                                       braceCount++;
+                                                      if (braceCount==2) {
+                                                          return NESTED_LEFT_BRACE;
+                                                      }
+                                                      return IGNORED_LEFT_BRACE;
                                                   } else {
                                                       inTopLevelDefinition = true;
                                                       braceCount++;
@@ -319,10 +329,13 @@ DOLLAR = \$
                                                       return STRING_TEMPLATE_EXPRESSION_END;
                                                   } else if (inTopLevelDefinition) {
                                                       braceCount--;
-                                                      if(braceCount <= 0) {
+                                                      if (braceCount==1) {
+                                                          return NESTED_RIGHT_BRACE;
+                                                      } else if (braceCount <= 0) {
                                                           inTopLevelDefinition = false;
                                                           return RIGHT_BRACE;
                                                       }
+                                                      return UNUSED_RIGHT_BRACE;
                                                   }
                                                 }
     "("                                         { return LEFT_PARENTHESIS; }
