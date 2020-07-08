@@ -71,28 +71,35 @@ public function extractUsernameAndPassword(string credential) returns [string, s
     }
 }
 
-# Sets the authentication-related values (scheme, auth token) to the authentication context of the invocation context.
+//# Sets the authentication-related values (scheme, auth token) to the authentication context of the invocation context.
+//# ```ballerina
+//# auth:setAuthenticationContext("jwt", "<credential>");
+//# ```
+//#
+//# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
+//# + authToken - Auth token (credential)
+//public function setAuthenticationContext(string scheme, string authToken) {
+//    InvocationContext invocationContext = getInvocationContext();
+//    invocationContext.scheme = scheme;
+//    invocationContext.token = authToken;
+//}
+
+# Sets the authentication-related values to the invocation context.
 # ```ballerina
-# auth:setAuthenticationContext("jwt", "<credential>");
+# auth:setAuthInvocationContext("jwt", "<credential>", "<userID>", <scopes>, <claims>);
 # ```
 #
 # + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
 # + authToken - Auth token (credential)
-public function setAuthenticationContext(string scheme, string authToken) {
+public function setAuthInvocationContext(public string? scheme = (), public string? authToken = (),
+                    public string? userId = (), public string[]? scopes = (), public map<any>? claims = ()) {
     InvocationContext invocationContext = getInvocationContext();
-    invocationContext.scheme = scheme;
-    invocationContext.token = authToken;
-}
-
-# Sets the authentication-related values (user ID, username, scopes, claims) to the principal of the invocation context.
-#
-# + userId - User ID of the authenticated user
-# + username - Username of the authenticated user
-# + claims - Claims of the authenticated user
-# + scopes - Authenticated user scopes
-public function setPrincipal(public string? userId = (), public string? username = (), public string[]? scopes = (),
-                             public map<any>? claims = ()) {
-    InvocationContext invocationContext = getInvocationContext();
+    if (!(scheme is ())) {
+        invocationContext.scheme = scheme;
+    }
+    if (!(authToken is ())) {
+        invocationContext.token = authToken;
+    }
     if (!(userId is ()) && userId != "") {
         invocationContext.userId = userId;
     }
@@ -103,6 +110,25 @@ public function setPrincipal(public string? userId = (), public string? username
         invocationContext.claims = claims;
     }
 }
+
+//# Sets the authentication-related values (user ID, username, scopes, claims) to the principal of the invocation context.
+//#
+//# + userId - User ID of the authenticated user
+//# + username - Username of the authenticated user
+//# + claims - Claims of the authenticated user
+//# + scopes - Authenticated user scopes
+//public function setPrincipal(public string? userId = (), public string[]? scopes = (), public map<any>? claims = ()) {
+//    InvocationContext invocationContext = getInvocationContext();
+//    if (!(userId is ()) && userId != "") {
+//        invocationContext.userId = userId;
+//    }
+//    if (!(scopes is ())) {
+//        invocationContext.scopes = scopes;
+//    }
+//    if (!(claims is ())) {
+//        invocationContext.claims = claims;
+//    }
+//}
 
 # Checks whether the scopes of the user match the scopes of the resource.
 #
