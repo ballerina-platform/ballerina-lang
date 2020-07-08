@@ -42,6 +42,8 @@ import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationLineNode;
+import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
@@ -119,6 +121,7 @@ import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
+import io.ballerinalang.compiler.syntax.tree.ParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -4141,73 +4144,56 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LinkedList<BLangMarkdownParameterDocumentation> parameters = new LinkedList<>();
         LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
 
-        NodeList<Token> tokens = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
-        List<String> previousParamLines = null;
-        StringBuilder threeTickContent = new StringBuilder();
-        boolean needToAppendThreeTickContent = false;
-        boolean inThreeTicks = false;
-        for (Token token : tokens) {
-            String text = token.text();
-            text = text.substring(1);
+        NodeList<Node> docLineList = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
+        for (Node singleDocLine : docLineList) {
+            switch (singleDocLine.kind()) {
+                case DOCUMENTATION_LINE:
+                case REFERENCE_DOCUMENTATION_LINE:
+                    BLangMarkdownDocumentationLine bLangDocLine =
+                            (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
+                    DocumentationLineNode docLineNode = (DocumentationLineNode) singleDocLine;
 
-            boolean inThreeTicksPreviousLine = inThreeTicks;
-            inThreeTicks = addReferences(text, references, inThreeTicks);
+                    NodeList<Node> docElements = docLineNode.documentElements();
+                    String docText = addReferencesAndReturnDocumentationText(references, docElements);
 
-            if (inThreeTicksPreviousLine) {
-                threeTickContent.append(token.leadingMinutiae()).append(text);
-                if (inThreeTicks) {
-                    threeTickContent.append(token.trailingMinutiae());
-                }
-                needToAppendThreeTickContent = true;
-                continue;
-            }
+                    bLangDocLine.text = docText;
+                    documentationLines.add(bLangDocLine);
+                    break;
+                case PARAMETER_DOCUMENTATION_LINE:
+                    BLangMarkdownParameterDocumentation bLangParameterDoc = new BLangMarkdownParameterDocumentation();
+                    ParameterDocumentationLineNode parameterDocLineNode =
+                            (ParameterDocumentationLineNode) singleDocLine;
 
-            if (inThreeTicks) { // inThreeTicksPreviousLine == true && inThreeTicks == false means quote just started
-                threeTickContent.setLength(0);
-            }
+                    BLangIdentifier paraName = new BLangIdentifier();
+                    Token parameterName = parameterDocLineNode.parameterName();
+                    paraName.value = parameterName.isMissing() ? "" : parameterName.text();
+                    bLangParameterDoc.parameterName = paraName;
 
-            if (text.startsWith(" +")) { // '+' indicates a param
-                text = text.substring(2);
-                int nameSeparator = text.indexOf('-'); // '-' is the param separate
-                String value = text.substring(0, nameSeparator).trim();
+                    NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
+                    String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
-                if ("return".equals(value)) { // spacial param name to mark return
-                    BLangMarkdownReturnParameterDocumentation returnParameter =
+                    bLangParameterDoc.parameterDocumentationLines.add(paraDocText);
+                    parameters.add(bLangParameterDoc);
+                    break;
+                case RETURN_PARAMETER_DOCUMENTATION_LINE:
+                    BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc =
                             new BLangMarkdownReturnParameterDocumentation();
-                    previousParamLines = returnParameter.returnParameterDocumentationLines;
-                    doc.returnParameter = returnParameter;
-                } else {
-                    BLangMarkdownParameterDocumentation parameterDoc = new BLangMarkdownParameterDocumentation();
-                    previousParamLines = parameterDoc.parameterDocumentationLines;
-                    BLangIdentifier parameterName = new BLangIdentifier();
-                    parameterDoc.parameterName = parameterName;
-                    parameterName.value = value;
-                    parameters.add(parameterDoc);
-                }
+                    ParameterDocumentationLineNode returnParaDocLineNode =
+                            (ParameterDocumentationLineNode) singleDocLine;
 
-                previousParamLines.add(trimLeftAtMostOne(text.substring(nameSeparator + 1)));
+                    NodeList<Node> returnParaDocElements = returnParaDocLineNode.documentElements();
+                    String returnParaDocText =
+                            addReferencesAndReturnDocumentationText(references, returnParaDocElements);
 
-            } else if (text.startsWith(" # Deprecated")) {
-                doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
-            } else if (previousParamLines != null) {
-                previousParamLines.add(trimLeftAtMostOne(text));
-            } else {
-                if (needToAppendThreeTickContent) {
-                    documentationLines.getLast().text += threeTickContent.toString();
-                    threeTickContent.setLength(0);
-                    needToAppendThreeTickContent = false;
-                }
-
-                BLangMarkdownDocumentationLine docLine =
-                        (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
-                docLine.text = trimLeftAtMostOne(text);
-                documentationLines.add(docLine);
-                threeTickContent.append(token.trailingMinutiae());
+                    bLangReturnParaDoc.returnParameterDocumentationLines.add(returnParaDocText);
+                    doc.returnParameter = bLangReturnParaDoc;
+                    break;
+                case DEPRECATION_DOCUMENTATION_LINE:
+                    doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
+                    break;
+                default:
+                    break;
             }
-        }
-
-        if (needToAppendThreeTickContent) {
-            documentationLines.getLast().text += threeTickContent.toString();
         }
 
         doc.documentationLines = documentationLines;
@@ -4216,70 +4202,69 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return doc;
     }
 
-    private String trimLeftAtMostOne(String text) {
-        int countToStrip = 0;
-        if (!text.isEmpty() && Character.isWhitespace(text.charAt(0))) {
-            countToStrip = 1;
+    private String addReferencesAndReturnDocumentationText(LinkedList<BLangMarkdownReferenceDocumentation> references,
+                                                           NodeList<Node> docElements) {
+        StringBuilder docText = new StringBuilder();
+        for (Node element : docElements) {
+            if (element.kind() == SyntaxKind.DOCUMENTATION_REFERENCE) {
+                BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
+                DocumentationReferenceNode docReferenceNode = (DocumentationReferenceNode) element;
+
+                bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
+                docReferenceNode.referenceType().ifPresent(
+                        refType -> {
+                            bLangRefDoc.type = stringToRefType(refType.text());
+                            docText.append(getTextWithWhitespaceTrivia(refType));
+                        }
+                );
+
+                Token startBacktick = docReferenceNode.startBacktick();
+                docText.append(startBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(startBacktick));
+                Token backtickContent = docReferenceNode.backtickContent();
+                docText.append(backtickContent.isMissing() ? "" : getTextWithWhitespaceTrivia(backtickContent));
+                Token endBacktick = docReferenceNode.endBacktick();
+                docText.append(endBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(endBacktick));
+
+                references.add(bLangRefDoc);
+            } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
+                Token docDescription = (Token) element;
+                docText.append(docDescription.text());
+            }
         }
-        return text.substring(countToStrip);
+
+        return docText.toString();
     }
 
-    private boolean addReferences(String text, LinkedList<BLangMarkdownReferenceDocumentation> references,
-                                  boolean startsInsideQuotes) {
-//              _
-//             / \ non-tick (in single quote)
-//             v /
-//            --4<----.                 _____
-//      tick /         \non-tick       /     \ non-tick
-//          v     tick  \       tick  v tick  \        tick
-//     .-> 0-------------->1--------->2--------->3-----------------.
-//    /   ^ \                        ^ \                           |
-//    |   | |                        | |                           |
-//    |   \_/non-tick (un-quoted)    \_/non-tick (in double quote) |
-//    \____________________________________________________________/
-//
-// note this state machine is only design to distinguish single tick and double tick quoted string
-// for simplicity are assuming three tick case is just a subset of double tick case
+    private String getTextWithWhitespaceTrivia(Token token) {
+        String leadingWhitespaces = token.leadingMinutiae().toString();
+        String tokenText = token.text();
+        String trailingWhiteSpaces = token.trailingMinutiae().toString();
 
-        int length = text.length();
-        int state = startsInsideQuotes ? 2 : 0;
-        int lastWhiteSpace = 0;
-        int secondToLastWhiteSpace = 0;
-
-        //                0  1  2  3  4
-        int[][] table = {{0, 4, 2, 2, 4},  // non-tick
-                         {1, 2, 3, 0, 0}}; // tick
-
-        for (int i = 0; i < length; i++) {
-            char c = text.charAt(i);
-            int isTick = c == '`' ? 1 : 0;
-            int newState = table[isTick][state];
-
-            if (newState == 0 && c == ' ') {
-                secondToLastWhiteSpace = lastWhiteSpace;
-                lastWhiteSpace = i;
-            }
-
-            if (state == 4 && newState == 0) { // we are coming out of a single quoted string
-                BLangMarkdownReferenceDocumentation ref = new BLangMarkdownReferenceDocumentation();
-                ref.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                if (secondToLastWhiteSpace + 1 < lastWhiteSpace) {
-                    ref.type = stringToRefType(text.substring(secondToLastWhiteSpace + 1, lastWhiteSpace));
-                }
-                references.add(ref);
-            }
-            state = newState;
-        }
-        return state == 2 || state == 3;
+        boolean hasOnlyWhitespaceTrivia = leadingWhitespaces.trim().isEmpty() && trailingWhiteSpaces.trim().isEmpty();
+        return hasOnlyWhitespaceTrivia ? leadingWhitespaces + tokenText + trailingWhiteSpaces : tokenText;
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
-        for (DocumentationReferenceType type : DocumentationReferenceType.values()) {
-            if (type.getValue().equals(refTypeName)) {
-                return type;
-            }
+        switch (refTypeName) {
+            case "type":
+                return DocumentationReferenceType.TYPE;
+            case "service":
+                return DocumentationReferenceType.SERVICE;
+            case "variable":
+                return DocumentationReferenceType.VARIABLE;
+            case "var":
+                return DocumentationReferenceType.VAR;
+            case "annotation":
+                return DocumentationReferenceType.ANNOTATION;
+            case "module":
+                return DocumentationReferenceType.MODULE;
+            case "function":
+                return DocumentationReferenceType.FUNCTION;
+            case "parameter":
+                return DocumentationReferenceType.PARAMETER;
+            default:
+                return DocumentationReferenceType.BACKTICK_CONTENT;
         }
-        return DocumentationReferenceType.BACKTICK_CONTENT;
     }
 
     private Object getIntegerLiteral(Node literal, String nodeValue) {

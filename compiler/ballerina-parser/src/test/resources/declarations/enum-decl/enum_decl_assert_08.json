@@ -25,11 +25,24 @@
                       "children": [
                         {
                           "kind": "DOCUMENTATION_LINE",
-                          "value": "#this is doc comment",
-                          "trailingMinutiae": [
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "this is doc comment",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -455,6 +468,7 @@
                           "hasDiagnostics": true,
                           "diagnostics": [
                             "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN",
                             "ERROR_INVALID_TOKEN"
                           ],
                           "value": "BLUE",
@@ -474,14 +488,20 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "DOCUMENTATION_LINE",
-                                "value": "#doc",
+                                "kind": "HASH_TOKEN",
                                 "leadingMinutiae": [
                                   {
                                     "kind": "WHITESPACE_MINUTIAE",
                                     "value": "  "
                                   }
-                                ],
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "DOCUMENTATION_DESCRIPTION",
+                                "value": "doc",
                                 "trailingMinutiae": [
                                   {
                                     "kind": "END_OF_LINE_MINUTIAE",
@@ -861,17 +881,30 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_LINE",
-                                  "value": "#doc cmt",
-                                  "leadingMinutiae": [
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
+                                      "kind": "HASH_TOKEN",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "  "
+                                        }
+                                      ]
+                                    },
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "DOCUMENTATION_DESCRIPTION",
+                                          "value": "doc cmt",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }

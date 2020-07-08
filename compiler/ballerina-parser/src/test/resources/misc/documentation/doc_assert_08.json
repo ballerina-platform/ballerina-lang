@@ -40,7 +40,7 @@
             },
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "Person",
+              "value": "Teacher",
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",
@@ -49,10 +49,14 @@
               ]
             },
             {
-              "kind": "RECORD_TYPE_DESC",
+              "kind": "OBJECT_TYPE_DESC",
               "children": [
                 {
-                  "kind": "RECORD_KEYWORD",
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
+                  "kind": "OBJECT_KEYWORD",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -61,7 +65,7 @@
                   ]
                 },
                 {
-                  "kind": "OPEN_BRACE_PIPE_TOKEN",
+                  "kind": "OPEN_BRACE_TOKEN",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
@@ -73,7 +77,7 @@
                   "kind": "LIST",
                   "children": [
                     {
-                      "kind": "RECORD_FIELD",
+                      "kind": "OBJECT_FIELD",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -111,7 +115,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "name of the person",
+                                              "value": "Teacher name",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -130,6 +134,21 @@
                             {
                               "kind": "LIST",
                               "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PUBLIC_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         },
@@ -138,12 +157,6 @@
                           "children": [
                             {
                               "kind": "STRING_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -155,7 +168,31 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "name"
+                          "value": "name",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "STRING_LITERAL",
+                          "children": [
+                            {
+                              "kind": "STRING_LITERAL",
+                              "value": "Saman"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -169,7 +206,7 @@
                       ]
                     },
                     {
-                      "kind": "RECORD_FIELD",
+                      "kind": "OBJECT_FIELD",
                       "children": [
                         {
                           "kind": "METADATA",
@@ -207,7 +244,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "age of the person",
+                                              "value": "Teacher age",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -226,6 +263,21 @@
                             {
                               "kind": "LIST",
                               "children": []
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "PUBLIC_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         },
@@ -234,12 +286,6 @@
                           "children": [
                             {
                               "kind": "INT_KEYWORD",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -251,104 +297,31 @@
                         },
                         {
                           "kind": "IDENTIFIER_TOKEN",
-                          "value": "age"
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
+                          "value": "age",
                           "trailingMinutiae": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "RECORD_FIELD",
-                      "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "DOCUMENTATION_STRING",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": [
-                                    {
-                                      "kind": "DOCUMENTATION_LINE",
-                                      "children": [
-                                        {
-                                          "kind": "HASH_TOKEN",
-                                          "leadingMinutiae": [
-                                            {
-                                              "kind": "END_OF_LINE_MINUTIAE",
-                                              "value": "\n"
-                                            },
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": "    "
-                                            }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
-                                          ]
-                                        },
-                                        {
-                                          "kind": "LIST",
-                                          "children": [
-                                            {
-                                              "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "country code of the person",
-                                              "trailingMinutiae": [
-                                                {
-                                                  "kind": "END_OF_LINE_MINUTIAE",
-                                                  "value": "\n"
-                                                }
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST",
-                              "children": []
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         },
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                          "kind": "EQUAL_TOKEN",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "CountryCode",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "    "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "countryCode"
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "15"
+                            }
+                          ]
                         },
                         {
                           "kind": "SEMICOLON_TOKEN",
@@ -364,7 +337,7 @@
                   ]
                 },
                 {
-                  "kind": "CLOSE_BRACE_PIPE_TOKEN"
+                  "kind": "CLOSE_BRACE_TOKEN"
                 }
               ]
             },

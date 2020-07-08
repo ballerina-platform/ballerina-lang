@@ -1337,7 +1337,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public DocumentationStringNode transform(
             DocumentationStringNode documentationStringNode) {
-        NodeList<Token> documentationLines =
+        NodeList<Node> documentationLines =
                 modifyNodeList(documentationStringNode.documentationLines());
         return documentationStringNode.modify(
                 documentationLines);
@@ -2927,15 +2927,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken =
                 modifyToken(mappingMatchPatternNode.openBraceToken());
-        SeparatedNodeList<Node> mappingMatchPatternListNode =
-                modifySeparatedNodeList(mappingMatchPatternNode.mappingMatchPatternListNode());
+        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+                modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
         RestMatchPatternNode restMatchPattern =
                 modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
         Token closeBraceToken =
                 modifyToken(mappingMatchPatternNode.closeBraceToken());
         return mappingMatchPatternNode.modify(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -2953,6 +2953,59 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 fieldNameNode,
                 colonToken,
                 matchPattern);
+    }
+
+    @Override
+    public ParameterDocumentationLineNode transform(
+            ParameterDocumentationLineNode parameterDocumentationLineNode) {
+        Token hashToken =
+                modifyToken(parameterDocumentationLineNode.hashToken());
+        Token plusToken =
+                modifyToken(parameterDocumentationLineNode.plusToken());
+        Token parameterName =
+                modifyToken(parameterDocumentationLineNode.parameterName());
+        Token minusToken =
+                modifyToken(parameterDocumentationLineNode.minusToken());
+        NodeList<Node> documentElements =
+                modifyNodeList(parameterDocumentationLineNode.documentElements());
+        return parameterDocumentationLineNode.modify(
+                parameterDocumentationLineNode.kind(),
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    @Override
+    public DocumentationReferenceNode transform(
+            DocumentationReferenceNode documentationReferenceNode) {
+        Token referenceType =
+                modifyToken(documentationReferenceNode.referenceType().orElse(null));
+        Token startBacktick =
+                modifyToken(documentationReferenceNode.startBacktick());
+        Token backtickContent =
+                modifyToken(documentationReferenceNode.backtickContent());
+        Token endBacktick =
+                modifyToken(documentationReferenceNode.endBacktick());
+        return documentationReferenceNode.modify(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
+    }
+
+    @Override
+    public DocumentationLineNode transform(
+            DocumentationLineNode documentationLineNode) {
+        Token hashToken =
+                modifyToken(documentationLineNode.hashToken());
+        NodeList<Node> documentElements =
+                modifyNodeList(documentationLineNode.documentElements());
+        return documentationLineNode.modify(
+                documentationLineNode.kind(),
+                hashToken,
+                documentElements);
     }
 
     // Tokens
