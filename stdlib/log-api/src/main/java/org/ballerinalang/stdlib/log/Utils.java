@@ -29,14 +29,6 @@ import org.ballerinalang.logging.util.BLogLevel;
  */
 public class Utils extends AbstractLogFunction {
 
-    private static final String debug = "DEBUG";
-    private static final String error = "ERROR";
-    private static final String info = "INFO";
-    private static final String warn = "WARN";
-    private static final String trace = "TRACE";
-    private static final String all = "ALL";
-    private static final String off = "OFF";
-
     public static void printDebug(Object msg) {
         boolean logLevelEnabled;
         if (LOG_MANAGER.isModuleLogLevelEnabled()) {
@@ -121,27 +113,6 @@ public class Utils extends AbstractLogFunction {
             module = moduleName.toString();
         }
         String level = logLevel.getValue();
-        switch (level) {
-            case debug:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.DEBUG, module);
-                break;
-            case error:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.ERROR, module);
-                break;
-            case info:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.INFO, module);
-                break;
-            case warn:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.WARN, module);
-                break;
-            case trace:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.TRACE, module);
-                break;
-            case off:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.OFF, module);
-                break;
-            default:
-                LOG_MANAGER.setModuleLogLevel(BLogLevel.ALL, module);
-        }
+        LOG_MANAGER.setModuleLogLevel(BLogLevel.toBLogLevel(level), module);
     }
 }

@@ -16,29 +16,16 @@
 
 import ballerina/java;
 
-# Represents the debug log level.
-public const DEBUG = "DEBUG";
-
-# Represents the error log level.
-public const ERROR = "ERROR";
-
-# Represents the info log level.
-public const INFO = "INFO";
-
-# Represents the trace log level.
-public const TRACE = "TRACE";
-
-# Represents the warn log level.
-public const WARN = "WARN";
-
-# Represents the all log level.
-public const ALL = "ALL";
-
-# Represents the off log level.
-public const OFF = "OFF";
-
 # Represents log level types.
-public type LogLevel DEBUG | INFO | ERROR | WARN | TRACE | OFF | ALL;
+public enum LogLevel {
+    DEBUG,
+    ERROR,
+    INFO,
+    TRACE,
+    WARN,
+    ALL,
+    OFF
+}
 
 # Logs the specified value at DEBUG level.
 # ```ballerina
@@ -92,7 +79,7 @@ public function printWarn(anydata|(function () returns (anydata)) msg) = @java:M
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
 
-# Sets the module log level. If the module is not defined, the log level will be set to the current module.
+# Sets the module log level. If a module name is not specified, the log level will be set to the current module.
 # Following log levels are allowed.
 #
 # ERROR - error log level
