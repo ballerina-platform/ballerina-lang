@@ -101,7 +101,7 @@ public class NestedRetryTransactionStmtsTest {
         Assert.assertEquals(result[0].stringValue(), "start -> inside trx1  -> attempt 1:error, "
                 + "-> inside trx1  -> attempt 2:error, -> inside trx1  -> attempt 3 -> result commited -> trx1 end. "
                 + "-> inside trx2  -> attempt 1:error, -> inside trx2  -> attempt 2:error, -> inside trx2  "
-                +"-> attempt 3 -> result commited -> trx2 end.");
+                + "-> attempt 3 -> result commited -> trx2 end.");
     }
 
     @Test
