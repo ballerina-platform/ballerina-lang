@@ -60,8 +60,6 @@ public class BasicWorkerActionsNegativeTest {
                 "worker send statements to 'w1' from 'w3'", 61, 17);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker send statement position, must be a top " +
                 "level statement in a worker", 74, 13);
-        BAssertUtil.validateError(resultNegative, index++, "action invocation as an expression not allowed here",
-                78, 15);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker receive statement position, must be a " +
                 "top level statement in a worker", 81, 19);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
@@ -79,10 +77,8 @@ public class BasicWorkerActionsNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wix'", 216, 30);
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 217, 30);
         BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 218, 75);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 225, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 226, 25);
-        BAssertUtil.validateError(resultNegative, index++, "action invocation as an expression not allowed here",
-                                  232, 23);
+        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 226, 30);
+        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 227, 25);
 
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
 
