@@ -106,6 +106,7 @@ public class JvmConstants {
     public static final String SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND = "org/ballerinalang/jvm/scheduling/Strand";
+    public static final String STRAND_METADATA = "org/ballerinalang/jvm/scheduling/StrandMetadata";
     public static final String TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
     public static final String LIST_UTILS = "org/ballerinalang/jvm/Lists";
     public static final String STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
@@ -185,6 +186,7 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String CONSTRUCTOR_INIT_METHOD = "<init>";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -207,12 +209,16 @@ public class JvmConstants {
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
     public static final String SCHEDULER_START_METHOD = "start";
+    public static final String CREATE_RECORD_VALUE = "createRecordValue";
+    public static final String CREATE_OBJECT_VALUE = "createObjectValue";
 
     // strand data related constants
     public static final String STRAND_ANNOTATION = "strand";
     public static final String STRAND_THREAD = "thread";
-    public static final String STRAND_DATA_NAME = "name";
+    public static final String STRAND_NAME = "name";
+    public static final String STRAND_POLICY_NAME = "policy";
     public static final String STRAND_VALUE_ANY = "any";
+    public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
 
     // observability related constants
