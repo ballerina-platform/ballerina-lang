@@ -211,7 +211,7 @@ function testQueryExprWithStreamForStringOrNilResult() returns string? {
     return outputNameString;
 }
 
-function testQueryExprWithVarForStringResult() returns string[] {
+function testQueryExprWithVarForStringResult() returns boolean {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
@@ -223,10 +223,20 @@ function testQueryExprWithVarForStringResult() returns string[] {
                 where person.age >= 30
                 select (person.firstName).concat(" ");
 
-    return outputNameString;
+    boolean testPassed = true;
+    string s;
+    any res = outputNameString;
+    testPassed = testPassed && res is string[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && outputNameString.length() == 2;
+    s = outputNameString[0];
+    testPassed = testPassed && s == "Ranjan ";
+    s = outputNameString[1];
+    testPassed = testPassed && s == "John ";
+    return testPassed;
 }
 
-function testQueryExprWithListForStringResult() returns string[] {
+function testQueryExprWithListForStringResult() returns boolean {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
@@ -238,7 +248,19 @@ function testQueryExprWithListForStringResult() returns string[] {
                 where person.age >= 30
                 select (person.firstName).concat(" ");
 
-    return outputNameString;
+    boolean testPassed = true;
+    string s;
+    any res = outputNameString;
+    if (res is string[]) {
+        testPassed = testPassed && res.length() == 2;
+        s = res[0];
+        testPassed = testPassed && s == "Ranjan ";
+        s = res[1];
+        testPassed = testPassed && s == "John ";
+    } else {
+        testPassed = false;
+    }
+    return testPassed;
 }
 
 function testQueryExprWithUnionTypeForStringResult() returns string|error {
@@ -256,7 +278,7 @@ function testQueryExprWithUnionTypeForStringResult() returns string|error {
     return outputNameString;
 }
 
-function testQueryExprWithUnionTypeForStringResult2() returns string[]|error {
+function testQueryExprWithUnionTypeForStringResult2() returns boolean {
     Person p1 = {firstName: "Alex", lastName: "George", age: 23};
     Person p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
     Person p3 = {firstName: "John", lastName: "David", age: 33};
@@ -268,5 +290,16 @@ function testQueryExprWithUnionTypeForStringResult2() returns string[]|error {
                 where person.age >= 30
                 select (person.firstName).concat(" ");
 
-    return outputNameString;
+    boolean testPassed = true;
+    string s;
+    if (outputNameString is string[]) {
+        testPassed = testPassed && outputNameString.length() == 2;
+        s = outputNameString[0];
+        testPassed = testPassed && s == "Ranjan ";
+        s = outputNameString[1];
+        testPassed = testPassed && s == "John ";
+    } else {
+        testPassed = false;
+    }
+    return testPassed;
 }
