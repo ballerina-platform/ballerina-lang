@@ -152,6 +152,7 @@ public class StringQueryExpressionTest {
         BValue[] returnValues = BRunUtil.invoke(resultV2, "testMethodAccessWithCasting");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues[0].stringValue(), "Everyday Italian|Harry Potter|XQuery Kick Start|Learning XML|");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "Everyday Italian|Harry Potter|XQuery Kick Start|Learning XML|");
     }
 }
