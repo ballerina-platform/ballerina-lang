@@ -50,15 +50,15 @@ public class TupleLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion message=array of " +
-                  "length 0 cannot be expanded into array of length 2 without filler values.*")
+          expectedExceptionsMessageRegExp = "error: Illegal list insertion: array of length 0 cannot be expanded " +
+                  "into array of length 2 without filler values.*")
     public void testRecordsWithoutFillerValues() {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion message=tuple of " +
-                  "length 1 cannot be expanded into tuple of length 3 without filler values.*")
+          expectedExceptionsMessageRegExp = "error: Illegal list insertion: tuple of length 1 cannot be expanded " +
+                  "into tuple of length 3 without filler values.*")
     public void testRecordsWithoutFillerValues2() {
         BRunUtil.invoke(compileResult, "testRecordsWithoutFillerValues2");
     }

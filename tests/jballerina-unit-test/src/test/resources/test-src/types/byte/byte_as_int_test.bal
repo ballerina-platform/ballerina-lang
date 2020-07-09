@@ -187,9 +187,6 @@ function testDowncastOfByteArrayCastToIntArray() {
 }
 
 function testInherentTypeViolationOfByteArrayCastToIntArray() {
-    final string expErrorReason = "{ballerina/lang.array}InherentTypeViolation";
-    final string expErrorDetailMessage = "incompatible types: expected 'byte', found 'int'";
-
     byte[] barr = [0, 1, 2, 255];
     int[] iarr = <int[]> barr;
 
@@ -201,18 +198,15 @@ function testInherentTypeViolationOfByteArrayCastToIntArray() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(err.message(), expErrorReason);
-    assertEquality(err.detail()["message"], expErrorDetailMessage);
+    assertEquality(err.message(), "Inherent type violation: incompatible types: expected 'byte', found 'int'");
 
     res = trap fn(2, 256);
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(err.message(), expErrorReason);
-    assertEquality(err.detail()["message"], expErrorDetailMessage);
+    assertEquality(err.message(), "Inherent type violation: incompatible types: expected 'byte', found 'int'");
 }
 
-const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
@@ -227,6 +221,5 @@ function assertEquality(any|error expected, any|error actual) {
         return;
     }
 
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+    panic error("Assertion error: expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

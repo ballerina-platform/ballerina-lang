@@ -49,16 +49,14 @@ public class TableWithXMLKeySpecifierTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '<id>245</id>'.*")
+            expectedExceptionsMessageRegExp = "error: Key not found: cannot find key '<id>245</id>'.*")
     public void testMemberAccessWithInvalidSingleKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLRecordKey");
         Assert.fail();
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}KeyNotFound message=cannot " +
-                    "find key '<id>245</id> fname=Sanjiva lname=Weerawarana'.*")
+            expectedExceptionsMessageRegExp = "error: Key not found: cannot find key '<id>245</id> fname=Sanjiva lname=Weerawarana'.*")
     public void testMemberAccessWithInvalidMultiKey() {
         BRunUtil.invoke(result, "testMemberAccessWithInvalidXMLMultiKey");
         Assert.fail();

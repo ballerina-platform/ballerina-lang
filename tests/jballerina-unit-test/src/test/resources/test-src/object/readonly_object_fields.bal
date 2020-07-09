@@ -69,8 +69,7 @@ function testInvalidObjectSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in object of type 'Student'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in object of type 'Student'", err.message());
 }
 
 type ReadonlyNamedPerson object {
@@ -132,9 +131,7 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in object of type 'ReadonlyNamedPerson'",
-                   err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in object of type 'ReadonlyNamedPerson'", err.message());
 }
 
 type Employee object {
@@ -181,8 +178,7 @@ function testObjectWithStructuredReadonlyFields() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'details' in object of type 'Employee'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'details' in object of type 'Employee'", err.message());
 }
 
 type Identifier object {
@@ -218,8 +214,7 @@ function testReadOnlyFieldWithDefaultValue() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'id' in object of type 'Identifier'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'id' in object of type 'Identifier'", err.message());
 }
 
 type Foo abstract object {
@@ -296,7 +291,7 @@ function testSubTypingWithReadOnlyFields() {
     error? res = trap fn1();
     assertTrue(res is error);
     error err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in object of type 'Person'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'particulars' in object of type 'Person'", err.message());
 
     Person p2 = new ({name: "Amy"});
     Graduate g = p2;
@@ -307,7 +302,7 @@ function testSubTypingWithReadOnlyFields() {
     res = trap fn2();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in object of type 'Person'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'particulars' in object of type 'Person'", err.message());
 
     assertTrue(g is Person);
     var fn3 = function () {
@@ -316,8 +311,8 @@ function testSubTypingWithReadOnlyFields() {
     res = trap fn3();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality("cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
-                   err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
+                   err.message());
 }
 
 type AbstractPerson abstract object {

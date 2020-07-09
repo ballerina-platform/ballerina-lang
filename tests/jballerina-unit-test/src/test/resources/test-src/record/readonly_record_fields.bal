@@ -57,8 +57,7 @@ function testInvalidRecordSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in record of type 'Student'", err.message());
 
     var fn2 = function () {
         record {} rec = st1;
@@ -68,8 +67,7 @@ function testInvalidRecordSimpleReadonlyFieldUpdate() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'id' in record of type 'Student'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'id' in record of type 'Student'", err.message());
 }
 
 type Employee record {
@@ -123,8 +121,7 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in record of type 'Student'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in record of type 'Student'", err.message());
 
     var fn2 = function () {
         sd.id = 4567;
@@ -133,8 +130,7 @@ function testInvalidUpdateOfPossiblyReadonlyFieldInUnion() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'id' in record of type 'Student'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'id' in record of type 'Student'", err.message());
 }
 
 function testRecordWithStructuredReadonlyFields() {
@@ -175,8 +171,7 @@ function testRecordWithStructuredReadonlyFields() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'details' in record of type 'Employee'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'details' in record of type 'Employee'", err.message());
 }
 
 type Identifier record {|
@@ -203,8 +198,7 @@ function testReadOnlyFieldWithDefaultValue() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'id' in record of type 'Identifier'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'id' in record of type 'Identifier'", err.message());
 }
 
 type Foo record {|
@@ -275,7 +269,7 @@ function testSubTypingWithReadOnlyFields() {
     error? res = trap fn1();
     assertTrue(res is error);
     error err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in record of type 'Person'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'particulars' in record of type 'Person'", err.message());
 
     Person p2 = {
         particulars: {
@@ -291,7 +285,7 @@ function testSubTypingWithReadOnlyFields() {
     res = trap fn2();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality("cannot update 'readonly' field 'particulars' in record of type 'Person'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'particulars' in record of type 'Person'", err.message());
 
     assertTrue(g is Person);
     var fn3 = function () {
@@ -300,8 +294,8 @@ function testSubTypingWithReadOnlyFields() {
     res = trap fn3();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality("cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
-                   err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in record of type '(Particulars & readonly)'",
+                   err.message());
 
     map<map<int>|boolean> & readonly mp = {
         a: true,

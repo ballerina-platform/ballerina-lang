@@ -14,8 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
-const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
 
 function testReadonlyObjects() {
     testBasicReadOnlyObject();
@@ -99,9 +97,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("cannot update 'readonly' field 'name' in record of type '(Details & readonly)'",
-                   err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'name' in record of type '(Details & readonly)'", err.message());
 
     fn = function () {
         obj.dept = {name: "finance"};
@@ -110,8 +106,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+    assertEquality("Inherent type violation: modification not allowed on readonly value", err.message());
 
     fn = function () {
         obj.id = 123;
@@ -120,8 +115,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
-    assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+    assertEquality("Inherent type violation: modification not allowed on readonly value", err.message());
 }
 
 type Controller abstract object {

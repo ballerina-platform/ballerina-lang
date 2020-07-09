@@ -26,11 +26,11 @@ function removeRequiredOpen() {
 
 function testRemoveRequiredOpen() {
     error? result = trap removeRequiredOpen();
-    if ((result is error) && (result.message() == "{ballerina/lang.map}OperationNotSupported")) {
-        return;
+    if (result is ()) {
+        panic error("Expected error, found ()");
+    } else {
+        assertEquality("Operation not supported: failed to remove field: 'a' is a required field in '.:Foo'", result.message());
     }
-
-    panic error("AssertionError", message = "Expected {ballerina/lang.map}OperationNotSupported error.");
 }
 
 type Bar record {|
@@ -45,9 +45,21 @@ function removeRequiredClosed() {
 
 function testRemoveRequiredClosed() {
     error? result = trap removeRequiredClosed();
-    if ((result is error) && (result.message() == "{ballerina/lang.map}OperationNotSupported")) {
+    if (result is ()) {
+        panic error("Expected error, found ()");
+    } else {
+        assertEquality("Operation not supported: failed to remove field: 'a' is a required field in '.:Bar'", result.message());
+    }
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
         return;
     }
 
-    panic error("AssertionError", message = "Expected {ballerina/lang.map}OperationNotSupported error.");
+    if expected === actual {
+        return;
+    }
+
+    panic error("AssertionError: expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

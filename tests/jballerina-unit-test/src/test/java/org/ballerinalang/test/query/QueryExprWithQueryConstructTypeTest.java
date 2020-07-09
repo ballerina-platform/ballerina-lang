@@ -99,8 +99,7 @@ public class QueryExprWithQueryConstructTypeTest {
         Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
 
         BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "{ballerina/lang.table}KeyConstraintViolation " +
-                "{\"message\":\"A value found for key '1 Melina'\"}");
+        Assert.assertEquals(expectedError.getMessage(), "Key constraint violation: A value found for key '1 Melina'");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")

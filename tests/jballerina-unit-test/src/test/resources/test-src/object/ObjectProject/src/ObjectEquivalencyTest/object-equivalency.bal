@@ -727,14 +727,10 @@ function testSubtypingBetweenNonClientAndClientObject() {
     error e3 = <error> err3;
     error e4 = <error> err4;
 
-    assertEquality("incompatible types: 'ObjectEquivalencyTest:FakeEmail' cannot be cast to " +
-    "'ObjectEquivalencyTest:Email'", e1.detail()["message"]);
-    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', " +
-    "found 'ObjectEquivalencyTest:FakeEmail'", e2.detail()["message"]);
-    assertEquality("incompatible types: 'ObjectEquivalencyTest:Email' cannot be cast to " +
-    "'ObjectEquivalencyTest:FakeEmail'", e3.detail()["message"]);
-    assertEquality("invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:FakeEmail', " +
-    "found 'ObjectEquivalencyTest:Email'", e4.detail()["message"]);
+    assertEquality("'ObjectEquivalencyTest:FakeEmail' cannot be cast to 'ObjectEquivalencyTest:Email'", e1.message());
+    assertEquality("Inherent type violation: invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:Email', found 'ObjectEquivalencyTest:FakeEmail'", e2.message());
+    assertEquality("'ObjectEquivalencyTest:Email' cannot be cast to 'ObjectEquivalencyTest:FakeEmail'", e3.message());
+    assertEquality("Inherent type violation: invalid value for record field 'f': expected value of type 'ObjectEquivalencyTest:FakeEmail', found 'ObjectEquivalencyTest:Email'", e4.message());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

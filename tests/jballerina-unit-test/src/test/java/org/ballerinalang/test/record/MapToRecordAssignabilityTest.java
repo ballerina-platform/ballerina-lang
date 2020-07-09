@@ -65,35 +65,34 @@ public class MapToRecordAssignabilityTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
+          expectedExceptionsMessageRegExp = "error: Inherent type violation: invalid map insertion, expected value of" +
                   " type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
+          expectedExceptionsMessageRegExp = "error: Inherent type violation: invalid map insertion, expected value of" +
                   " type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound message=invalid field access: field 'cc' not found in " +
+          expectedExceptionsMessageRegExp = "error: Key not found: invalid field access: field 'cc' not found in " +
                   "record type 'Bar'.*")
     public void testSubtyping() {
         BRunUtil.invoke(compileResult, "testSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*TypeCastError message=incompatible types: 'Bar' cannot be cast to " +
-                  "'Baz'.*")
+          expectedExceptionsMessageRegExp = "error: 'Bar' cannot be cast to 'Baz'.*")
     public void testComplexSubtyping() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation message=invalid map insertion: expected value of" +
+          expectedExceptionsMessageRegExp = "error: Inherent type violation: invalid map insertion, expected value of" +
                   " type 'Bar', found '\\$anonType\\$30'.*")
     public void testComplexSubtyping2() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping2");

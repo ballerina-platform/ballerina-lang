@@ -101,8 +101,7 @@ public class TupleRestDescriptorTest {
     @Test(description = "Test out of bound indexed based access on tuples with rest descriptor",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}IndexOutOfRange message=tuple index out of range: index: 4, " +
-                            "size: 4.*")
+                    "error: tuple index out of range: index: 4, size: 4.*")
     public void testIndexBasedAccessNegative() {
         BRunUtil.invoke(result, "testIndexBasedAccessNegative");
     }

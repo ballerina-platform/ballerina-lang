@@ -223,14 +223,13 @@ public class InstanceMethodTest {
         BValue[] returns = BRunUtil.invoke(result, "errorDetail", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].getType().getName(), "error");
-        Assert.assertEquals(((BError) returns[0]).getReason(),
+        Assert.assertEquals(((BError) returns[0]).getMessage(),
                 "org.ballerinalang.nativeimpl.jvm.tests.JavaInteropTestCheckedException");
         Assert.assertEquals(((BMap) ((BError) returns[0]).getDetails()).get("message").stringValue(),
                 "Custom error");
         BError cause = (BError) ((BMap) ((BError) returns[0]).getDetails()).get("cause");
         Assert.assertEquals(cause.getType().getName(), "error");
-        Assert.assertEquals(cause.getReason(), "java.lang.Throwable");
-        Assert.assertEquals(((BMap) cause.getDetails()).get("message").stringValue(), "Interop Throwable");
+        Assert.assertEquals(cause.getMessage(), "java.lang.Throwable: Interop Throwable");
     }
 
     @Test(description = "Test content of a exception return")
@@ -245,7 +244,7 @@ public class InstanceMethodTest {
         } catch (Throwable e) {
             Assert.assertTrue(e.getMessage().contains("error: java.lang.RuntimeException"));
             Assert.assertTrue(e.getMessage().contains("message=Unchecked Exception"));
-            Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable message=Unchecked cause"));
+            Assert.assertTrue(e.getMessage().contains("cause=error java.lang.Throwable: Unchecked cause"));
         }
     }
 

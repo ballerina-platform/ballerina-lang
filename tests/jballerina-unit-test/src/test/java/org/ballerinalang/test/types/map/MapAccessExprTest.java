@@ -192,8 +192,7 @@ public class MapAccessExprTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound message=cannot find key " +
-                    "'fname2'.*")
+            expectedExceptionsMessageRegExp = "error: Cannot find key 'fname2'.*")
     public void testMapRemoveNegative() {
         BRunUtil.invoke(compileResult, "testMapRemoveNegative");
     }
