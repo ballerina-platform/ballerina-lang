@@ -332,6 +332,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitDeprecatedParametersDocumentation(@NotNull BallerinaDeprecatedParametersDocumentation o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecatedParametersDocumentationLine(@NotNull BallerinaDeprecatedParametersDocumentationLine o) {
+    visitPsiElement(o);
+  }
+
   public void visitDocParameterDescription(@NotNull BallerinaDocParameterDescription o) {
     visitPsiElement(o);
   }

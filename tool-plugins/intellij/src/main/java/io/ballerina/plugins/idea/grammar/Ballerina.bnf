@@ -267,11 +267,12 @@ NestedAnnotationAttachment ::= AT NameReference NestedRecoverableBody? {pin=1}
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        markdown documentation                                                     //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
+documentationString ::= documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedParametersDocumentationLine? deprecatedAnnotationDocumentationLine?
 documentationLine ::= MARKDOWN_DOCUMENTATION_LINE_START documentationContent {pin=1}
 parameterDocumentationLine ::= parameterDocumentation parameterDescription*
 returnParameterDocumentationLine ::= returnParameterDocumentation returnParameterDescription*
 deprecatedAnnotationDocumentationLine ::= deprecatedAnnotationDocumentation deprecateAnnotationDescriptionLine*
+deprecatedParametersDocumentationLine ::= deprecatedParametersDocumentation parameterDocumentationLine+
 documentationContent ::= documentationText?
 parameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
 returnParameterDescription ::= MARKDOWN_DOCUMENTATION_LINE_START documentationText?
@@ -285,6 +286,7 @@ referenceType ::= DOCTYPE | DOCSERVICE | DOCVARIABLE | DOCVAR | DOCANNOTATION | 
 parameterDocumentation ::= PARAMETER_DOCUMENTATION_START PARAMETER_NAME DESCRIPTION_SEPARATOR documentationText? {pin=3}
 returnParameterDocumentation ::= RETURN_PARAMETER_DOCUMENTATION_START docParameterDescription
 deprecatedAnnotationDocumentation ::= DEPRECATED_DOCUMENTATION
+deprecatedParametersDocumentation ::= DEPRECATED_PARAMETER_DOCUMENTATION
 docParameterDescription ::= documentationText?
 
 backtickedBlock ::=  tripleBacktickedBlock | doubleBacktickedBlock | singleBacktickedBlock

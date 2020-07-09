@@ -17,15 +17,311 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.parser;
 
+import com.intellij.lang.ASTNode;
+import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.*;
-import com.intellij.psi.tree.IElementType;
-import com.intellij.lang.ASTNode;
-import com.intellij.psi.tree.TokenSet;
 import com.intellij.lang.PsiParser;
-import com.intellij.lang.LightPsiParser;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.tree.TokenSet;
+
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.Parser;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.TRUE_CONDITION;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._COLLAPSE_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._LEFT_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._NONE_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._NOT_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.adapt_builder_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.addVariant;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeToken;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokenSmart;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokens;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokensSmart;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.create_token_set_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.current_position_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.empty_element_parsed_guard_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.enter_section_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.eof;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.exit_section_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.isGroupType;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nextTokenIs;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nextTokenIsSmart;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nullableTypePredicate;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.recursion_guard_;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.report_error_;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABSTRACT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ALIAS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_ACCESS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_ATTACHMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANYDATA;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY_IDENTIFIER_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ARRAY_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.AT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BACKTICKED_BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BASE_16_BLOB_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BASE_64_BLOB_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINARY_INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BITAND;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BITXOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUILT_IN_REFERENCE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.BYTE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECKPANIC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLOSE_RECORD_TYPE_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_AND;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_OR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_XOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_LEFT_SHIFT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_LOGICAL_SHIFT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_RIGHT_SHIFT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONSTANT_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_EXTENDED_FLOATING_POINT_NUMBER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_FLOATING_POINT_NUMBER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEFAULT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_ANNOTATION_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_ANNOTATION_DOCUMENTATION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETERS_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETERS_DOCUMENTATION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETER_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATE_ANNOTATION_DESCRIPTION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DESCRIPTION_SEPARATOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DO;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCANNOTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCCONST;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCFUNCTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCMODULE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCPARAMETER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCSERVICE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCTYPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_ESCAPED_CHARACTERS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_REFERENCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_STRING;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEXT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEXT_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCVAR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCVARIABLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOC_PARAMETER_DESCRIPTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICKED_BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELLIPSIS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXCLUSIVE_RECORD_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPR_FUNCTION_BODY_SPEC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERNAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERNAL_FUNCTION_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOAT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_DEFINITION_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_SIGNATURE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.GLOBAL_VARIABLE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HALF_OPEN_RANGE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HANDLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEXADECIMAL_FLOATING_POINT_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEX_INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IDENTIFIER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IF;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IGNORED_LEFT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IGNORED_RIGHT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT_DECLARATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.INCLUSIVE_RECORD_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.INT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACKET;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_CLOSED_RECORD_DELIMITER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_PARENTHESIS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LET;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MAP;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MAP_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.METHOD_DECLARATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.METHOD_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.MUL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAMESPACE_DECLARATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAME_REFERENCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_ANNOTATION_ATTACHMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_FUNCTION_SIGNATURE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_LEFT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_BODY_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_RETURN_TYPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RIGHT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NIL_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULL_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_INIT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_METHOD;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OCTAL_INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONRETRY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.OPTIONAL_FIELD_ACCESS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ORG_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_REFERENCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_VERSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PANIC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DESCRIPTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PIPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUOTED_STRING_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_ANNOTATION_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_ATTACHMENT_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_BODY_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_CLOSE_RECORD_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_CONSTANT_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_PARAMETER_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_RETURN_TYPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_TYPE_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_TYPE_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_VARIABLE_DEFINITION_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_VAR_DEF_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REFERENCE_TYPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REFERENCE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.REMOTE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DESCRIPTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_LINE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACKET;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_CLOSED_RECORD_DELIMITER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_PARENTHESIS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SEMICOLON;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_DEFINITION_BODY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICKED_BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOURCE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_EXPRESSION_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_LITERAL_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_LITERAL_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_TEXT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICKED_BLOCK;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_CONTENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REST_DESCRIPTOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEDESC;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEOF;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_DEFINITION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_DESC_REFERENCE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_FIELD;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_PARAMETER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNION_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.USER_DEFINE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VALUE_TYPE_NAME;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION_PATTERN;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_ALL_CHAR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_LITERAL_END;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_LITERAL_START;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_TYPE_NAME;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class BallerinaParser implements PsiParser, LightPsiParser {
@@ -1798,6 +2094,46 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // DEPRECATED_PARAMETER_DOCUMENTATION
+  public static boolean deprecatedParametersDocumentation(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentation")) return false;
+    if (!nextTokenIs(b, DEPRECATED_PARAMETER_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DEPRECATED_PARAMETER_DOCUMENTATION);
+    exit_section_(b, m, DEPRECATED_PARAMETERS_DOCUMENTATION, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // deprecatedParametersDocumentation parameterDocumentationLine+
+  public static boolean deprecatedParametersDocumentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentationLine")) return false;
+    if (!nextTokenIs(b, DEPRECATED_PARAMETER_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = deprecatedParametersDocumentation(b, l + 1);
+    r = r && deprecatedParametersDocumentationLine_1(b, l + 1);
+    exit_section_(b, m, DEPRECATED_PARAMETERS_DOCUMENTATION_LINE, r);
+    return r;
+  }
+
+  // parameterDocumentationLine+
+  private static boolean deprecatedParametersDocumentationLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentationLine_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = parameterDocumentationLine(b, l + 1);
+    while (r) {
+      int c = current_position_(b);
+      if (!parameterDocumentationLine(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "deprecatedParametersDocumentationLine_1", c)) break;
+    }
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  /* ********************************************************** */
   // documentationText?
   public static boolean docParameterDescription(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "docParameterDescription")) return false;
@@ -1845,7 +2181,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
+  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedParametersDocumentationLine? deprecatedAnnotationDocumentationLine?
   public static boolean documentationString(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString")) return false;
     if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
@@ -1855,6 +2191,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && documentationString_1(b, l + 1);
     r = r && documentationString_2(b, l + 1);
     r = r && documentationString_3(b, l + 1);
+    r = r && documentationString_4(b, l + 1);
     exit_section_(b, m, DOCUMENTATION_STRING, r);
     return r;
   }
@@ -1892,9 +2229,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // deprecatedAnnotationDocumentationLine?
+  // deprecatedParametersDocumentationLine?
   private static boolean documentationString_3(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString_3")) return false;
+    deprecatedParametersDocumentationLine(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAnnotationDocumentationLine?
+  private static boolean documentationString_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_4")) return false;
     deprecatedAnnotationDocumentationLine(b, l + 1);
     return true;
   }
