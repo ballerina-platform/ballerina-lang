@@ -50,7 +50,9 @@ public enum CompilerOptionName {
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
 
-    TOOLING_COMPILATION("toolingCompilation");
+    TOOLING_COMPILATION("toolingCompilation"),
+
+    HOME_CACHE("homeCache");
 
     public final String name;
 

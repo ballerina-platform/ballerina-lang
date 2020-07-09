@@ -163,11 +163,14 @@ public class BuildCommand implements BLauncherCmd {
     private static final String buildCmd = "ballerina build [-o <output>] [--sourceroot] [--offline] [--skip-tests]\n" +
             "                    [--skip-lock] {<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]";
 
-    @CommandLine.Option(names = "--test-report", description = "enable test report generation")
+    @CommandLine.Option(names = "--test-report", description = "Enable test report generation")
     private boolean testReport;
 
-    @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
+    @CommandLine.Option(names = "--code-coverage", description = "Enable code coverage")
     private boolean coverage;
+
+    @CommandLine.Option(names = "--home-cache", description = "Custom home cache")
+    private String homeCache;
 
     public void execute() {
         if (this.helpFlag) {
@@ -365,6 +368,11 @@ public class BuildCommand implements BLauncherCmd {
             CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
+
+        // if home cache is given use that
+        if (homeCache != null) {
+            System.setProperty(RepoUtils.HOME_CACHE_DIR, homeCache);
+        }
         
         // normalize paths
         this.sourceRootPath = this.sourceRootPath.normalize();
@@ -382,6 +390,7 @@ public class BuildCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, Boolean.toString(!this.skipTests));
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         options.put(PRESERVE_WHITESPACE, "true");
+
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
         buildContext.setOut(outStream);

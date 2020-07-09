@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDeprecateAnnotationDescriptionLinImpl extends ASTWrapperPsiElement implements BallerinaDeprecateAnnotationDescriptionLin {
+public class BallerinaDeprecatedParametersDocumentationLineImpl extends ASTWrapperPsiElement implements BallerinaDeprecatedParametersDocumentationLine {
 
-  public BallerinaDeprecateAnnotationDescriptionLinImpl(@NotNull ASTNode node) {
+  public BallerinaDeprecatedParametersDocumentationLineImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDeprecateAnnotationDescriptionLin(this);
+    visitor.visitDeprecatedParametersDocumentationLine(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,15 +43,15 @@ public class BallerinaDeprecateAnnotationDescriptionLinImpl extends ASTWrapperPs
   }
 
   @Override
-  @Nullable
-  public BallerinaDocumentationText getDocumentationText() {
-    return findChildByClass(BallerinaDocumentationText.class);
+  @NotNull
+  public BallerinaDeprecatedParametersDocumentation getDeprecatedParametersDocumentation() {
+    return findNotNullChildByClass(BallerinaDeprecatedParametersDocumentation.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getMarkdownDocumentationLineStart() {
-    return findNotNullChildByType(MARKDOWN_DOCUMENTATION_LINE_START);
+  public List<BallerinaParameterDocumentationLine> getParameterDocumentationLineList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaParameterDocumentationLine.class);
   }
 
 }

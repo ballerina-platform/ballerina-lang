@@ -60,12 +60,14 @@ public type JwtTrustStoreConfig record {|
     string certificateAlias;
 |};
 
-// Deprecated: This record was used for JWT caching and with the new cache API v2.0.0 this record no longer used
-// and will be removed in next major version.
 # Represents an entry of JWT cache.
 #
 # + jwtPayload - Parsed JWT payload
 # + expTime - Expiry time (milliseconds since the Epoch) of the parsed JWT
+# # Deprecated
+# This record is deprecated and it was used for JWT caching and with the new cache API v2.0.0 this record no longer
+# used and will be removed in next major version.
+@deprecated
 public type InboundJwtCacheEntry record {|
     JwtPayload jwtPayload;
     int? expTime;
@@ -230,18 +232,23 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
         match (key) {
             ISS => {
                 jwtPayload.iss = jwtPayloadJson[key].toJsonString();
+                customClaims[ISS] = jwtPayload?.iss;
             }
             SUB => {
                 jwtPayload.sub = jwtPayloadJson[key].toJsonString();
+                customClaims[SUB] = jwtPayload?.sub;
             }
             AUD => {
                 jwtPayload.aud = check convertToStringArray(jwtPayloadJson[key]);
+                customClaims[AUD] = jwtPayload?.aud;
             }
             JTI => {
                 jwtPayload.jti = jwtPayloadJson[key].toJsonString();
+                customClaims[JTI] = jwtPayload?.jti;
             }
             EXP => {
                 string exp = jwtPayloadJson[key].toJsonString();
+                customClaims[EXP] = exp;
                 int|error value = langint:fromString(exp);
                 if (value is int) {
                     jwtPayload.exp = value;
@@ -251,6 +258,7 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
             }
             NBF => {
                 string nbf = jwtPayloadJson[key].toJsonString();
+                customClaims[NBF] = nbf;
                 int|error value = langint:fromString(nbf);
                 if (value is int) {
                     jwtPayload.nbf = value;
@@ -260,6 +268,7 @@ function parsePayload(map<json> jwtPayloadJson) returns JwtPayload|Error {
             }
             IAT => {
                 string iat = jwtPayloadJson[key].toJsonString();
+                customClaims[IAT] = iat;
                 int|error value = langint:fromString(iat);
                 if (value is int) {
                     jwtPayload.iat = value;

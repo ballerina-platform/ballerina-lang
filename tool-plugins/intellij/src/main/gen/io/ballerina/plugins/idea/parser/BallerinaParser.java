@@ -2151,7 +2151,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean ExpressionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, NULL_LITERAL);
     if (!r) r = consumeToken(b, INT);
     if (!r) r = consumeToken(b, STRING);
@@ -2192,7 +2191,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, ERROR);
     if (!r) r = consumeToken(b, CHECK);
     if (!r) r = consumeToken(b, CHECKPANIC);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -5004,7 +5002,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, BOOLEAN_LITERAL);
     if (!r) r = consumeToken(b, QUOTED_STRING_LITERAL);
     if (!r) r = consumeToken(b, DECIMAL_INTEGER_LITERAL);
@@ -5065,7 +5062,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, RECORD);
     if (!r) r = consumeToken(b, IDENTIFIER);
     if (!r) r = consumeToken(b, WAIT);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -5484,7 +5480,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   private static boolean TopLevelDefinitionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TopLevelDefinitionRecover_0")) return false;
     boolean r;
-    Marker m = enter_section_(b);
     r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
     if (!r) r = consumeToken(b, PARAMETER_DOCUMENTATION_START);
     if (!r) r = consumeToken(b, RETURN_PARAMETER_DOCUMENTATION_START);
@@ -5523,7 +5518,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FUTURE);
     if (!r) r = consumeToken(b, IDENTIFIER);
     if (!r) r = consumeToken(b, LEFT_BRACE);
-    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -6332,20 +6326,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // MARKDOWN_DOCUMENTATION_LINE_START documentationText?
-  public static boolean deprecateAnnotationDescriptionLin(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLin")) return false;
+  public static boolean deprecateAnnotationDescriptionLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLine")) return false;
     if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = consumeToken(b, MARKDOWN_DOCUMENTATION_LINE_START);
-    r = r && deprecateAnnotationDescriptionLin_1(b, l + 1);
-    exit_section_(b, m, DEPRECATE_ANNOTATION_DESCRIPTION_LIN, r);
+    r = r && deprecateAnnotationDescriptionLine_1(b, l + 1);
+    exit_section_(b, m, DEPRECATE_ANNOTATION_DESCRIPTION_LINE, r);
     return r;
   }
 
   // documentationText?
-  private static boolean deprecateAnnotationDescriptionLin_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLin_1")) return false;
+  private static boolean deprecateAnnotationDescriptionLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecateAnnotationDescriptionLine_1")) return false;
     documentationText(b, l + 1);
     return true;
   }
@@ -6380,10 +6374,50 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "deprecatedAnnotationDocumentationLine_1")) return false;
     while (true) {
       int c = current_position_(b);
-      if (!consumeToken(b, DEPRECATEANNOTATIONDESCRIPTIONLINE)) break;
+      if (!deprecateAnnotationDescriptionLine(b, l + 1)) break;
       if (!empty_element_parsed_guard_(b, "deprecatedAnnotationDocumentationLine_1", c)) break;
     }
     return true;
+  }
+
+  /* ********************************************************** */
+  // DEPRECATED_PARAMETER_DOCUMENTATION
+  public static boolean deprecatedParametersDocumentation(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentation")) return false;
+    if (!nextTokenIs(b, DEPRECATED_PARAMETER_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, DEPRECATED_PARAMETER_DOCUMENTATION);
+    exit_section_(b, m, DEPRECATED_PARAMETERS_DOCUMENTATION, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // deprecatedParametersDocumentation parameterDocumentationLine+
+  public static boolean deprecatedParametersDocumentationLine(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentationLine")) return false;
+    if (!nextTokenIs(b, DEPRECATED_PARAMETER_DOCUMENTATION)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = deprecatedParametersDocumentation(b, l + 1);
+    r = r && deprecatedParametersDocumentationLine_1(b, l + 1);
+    exit_section_(b, m, DEPRECATED_PARAMETERS_DOCUMENTATION_LINE, r);
+    return r;
+  }
+
+  // parameterDocumentationLine+
+  private static boolean deprecatedParametersDocumentationLine_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "deprecatedParametersDocumentationLine_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = parameterDocumentationLine(b, l + 1);
+    while (r) {
+      int c = current_position_(b);
+      if (!parameterDocumentationLine(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "deprecatedParametersDocumentationLine_1", c)) break;
+    }
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -6434,7 +6468,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedAnnotationDocumentationLine?
+  // documentationLine+ parameterDocumentationLine* returnParameterDocumentationLine? deprecatedParametersDocumentationLine? deprecatedAnnotationDocumentationLine?
   public static boolean documentationString(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString")) return false;
     if (!nextTokenIs(b, MARKDOWN_DOCUMENTATION_LINE_START)) return false;
@@ -6444,6 +6478,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && documentationString_1(b, l + 1);
     r = r && documentationString_2(b, l + 1);
     r = r && documentationString_3(b, l + 1);
+    r = r && documentationString_4(b, l + 1);
     exit_section_(b, m, DOCUMENTATION_STRING, r);
     return r;
   }
@@ -6481,9 +6516,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return true;
   }
 
-  // deprecatedAnnotationDocumentationLine?
+  // deprecatedParametersDocumentationLine?
   private static boolean documentationString_3(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "documentationString_3")) return false;
+    deprecatedParametersDocumentationLine(b, l + 1);
+    return true;
+  }
+
+  // deprecatedAnnotationDocumentationLine?
+  private static boolean documentationString_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "documentationString_4")) return false;
     deprecatedAnnotationDocumentationLine(b, l + 1);
     return true;
   }
