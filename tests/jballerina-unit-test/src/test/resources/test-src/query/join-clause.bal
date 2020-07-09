@@ -203,6 +203,9 @@ function testOuterJoinClauseWithRecordVariable() returns boolean {
 
     boolean testPassed = true;
     DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
     testPassed = testPassed && deptPersonList.length() == 4;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
@@ -237,6 +240,9 @@ function testOuterJoinClauseWithRecordVariable2() returns boolean {
 
     boolean testPassed = true;
     DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
     testPassed = testPassed && deptPersonList.length() == 4;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
@@ -271,6 +277,9 @@ function testOuterJoinClauseWithRecordVariable3() returns boolean {
 
     boolean testPassed = true;
     DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
     testPassed = testPassed && deptPersonList.length() == 4;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
@@ -336,6 +345,9 @@ function testOuterJoinClauseWithLimit() returns boolean {
 
     boolean testPassed = true;
     DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
     testPassed = testPassed && deptPersonList.length() == 2;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";
@@ -366,6 +378,9 @@ function testOuterJoinWithOnClauseWithFunction() returns boolean {
 
     boolean testPassed = true;
     DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
     testPassed = testPassed && deptPersonList.length() == 4;
     dp = deptPersonList[0];
     testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "HR";

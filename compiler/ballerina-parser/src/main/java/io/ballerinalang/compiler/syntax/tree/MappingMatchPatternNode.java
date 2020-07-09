@@ -37,7 +37,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public SeparatedNodeList<Node> mappingMatchPatternListNode() {
+    public SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns() {
         return new SeparatedNodeList<>(childInBucket(1));
     }
 
@@ -63,19 +63,19 @@ public class MappingMatchPatternNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "openBraceToken",
-                "mappingMatchPatternListNode",
+                "fieldMatchPatterns",
                 "restMatchPattern",
                 "closeBraceToken"};
     }
 
     public MappingMatchPatternNode modify(
             Token openBraceToken,
-            SeparatedNodeList<Node> mappingMatchPatternListNode,
+            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
             RestMatchPatternNode restMatchPattern,
             Token closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
-                mappingMatchPatternListNode.underlyingListNode(),
+                fieldMatchPatterns.underlyingListNode(),
                 restMatchPattern,
                 closeBraceToken)) {
             return this;
@@ -83,7 +83,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
 
         return NodeFactory.createMappingMatchPatternNode(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -100,14 +100,14 @@ public class MappingMatchPatternNode extends NonTerminalNode {
     public static class MappingMatchPatternNodeModifier {
         private final MappingMatchPatternNode oldNode;
         private Token openBraceToken;
-        private SeparatedNodeList<Node> mappingMatchPatternListNode;
+        private SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns;
         private RestMatchPatternNode restMatchPattern;
         private Token closeBraceToken;
 
         public MappingMatchPatternNodeModifier(MappingMatchPatternNode oldNode) {
             this.oldNode = oldNode;
             this.openBraceToken = oldNode.openBraceToken();
-            this.mappingMatchPatternListNode = oldNode.mappingMatchPatternListNode();
+            this.fieldMatchPatterns = oldNode.fieldMatchPatterns();
             this.restMatchPattern = oldNode.restMatchPattern().orElse(null);
             this.closeBraceToken = oldNode.closeBraceToken();
         }
@@ -119,10 +119,10 @@ public class MappingMatchPatternNode extends NonTerminalNode {
             return this;
         }
 
-        public MappingMatchPatternNodeModifier withMappingMatchPatternListNode(
-                SeparatedNodeList<Node> mappingMatchPatternListNode) {
-            Objects.requireNonNull(mappingMatchPatternListNode, "mappingMatchPatternListNode must not be null");
-            this.mappingMatchPatternListNode = mappingMatchPatternListNode;
+        public MappingMatchPatternNodeModifier withFieldMatchPatterns(
+                SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns) {
+            Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");
+            this.fieldMatchPatterns = fieldMatchPatterns;
             return this;
         }
 
@@ -143,7 +143,7 @@ public class MappingMatchPatternNode extends NonTerminalNode {
         public MappingMatchPatternNode apply() {
             return oldNode.modify(
                     openBraceToken,
-                    mappingMatchPatternListNode,
+                    fieldMatchPatterns,
                     restMatchPattern,
                     closeBraceToken);
         }

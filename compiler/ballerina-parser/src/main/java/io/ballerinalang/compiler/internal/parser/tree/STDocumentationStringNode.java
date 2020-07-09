@@ -30,7 +30,7 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationStringNode extends STNode {
+public class STDocumentationStringNode extends STDocumentationNode {
     public final STNode documentationLines;
 
     STDocumentationStringNode(
