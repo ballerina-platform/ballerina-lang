@@ -101,7 +101,7 @@ public function exec(@untainted string command, @untainted map<string> env = {},
 # ```
 #
 # + name - Name of the property
-# + return - Value of the property if the property exists or else an empty string otherwise
+# + return - Value of the property if the property exists or else an empty string
 public function getProperty(@untainted string name) returns string = @java:Method {
     name: "getProperty",
     class: "org.ballerinalang.stdlib.system.nativeimpl.GetProperty"
