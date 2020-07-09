@@ -4188,7 +4188,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
                     bLangParaDoc.parameterDocumentationLines.add(paraDocText);
-                    bLangParaDoc.pos = getPosition(parameterDocLineNode);
+                    bLangParaDoc.pos = getPosition(parameterName);
                     parameters.add(bLangParaDoc);
                     break;
                 case RETURN_PARAMETER_DOCUMENTATION_LINE:
@@ -4235,20 +4235,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 docReferenceNode.referenceType().ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
-                            docText.append(getTextWithWhitespaceTrivia(refType));
+                            docText.append(refType.text());
                         }
                 );
 
                 Token startBacktick = docReferenceNode.startBacktick();
-                docText.append(startBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(startBacktick));
+                docText.append(startBacktick.isMissing() ? "" : startBacktick.text());
 
                 Token backtickContent = docReferenceNode.backtickContent();
-                String contentString = backtickContent.isMissing() ? "" : getTextWithWhitespaceTrivia(backtickContent);
+                String contentString = backtickContent.isMissing() ? "" : backtickContent.text();
                 bLangRefDoc.referenceName = contentString;
                 docText.append(contentString);
 
                 Token endBacktick = docReferenceNode.endBacktick();
-                docText.append(endBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(endBacktick));
+                docText.append(endBacktick.isMissing() ? "" : endBacktick.text());
 
                 bLangRefDoc.pos = getPosition(docReferenceNode);
                 references.add(bLangRefDoc);
@@ -4258,25 +4258,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
-        return docText.toString();
+        return trimLeftAtMostOne(docText.toString());
     }
 
-    private String getTextWithWhitespaceTrivia(Token token) {
-        AtomicReference<String> leadingWhitespaces = new AtomicReference<>("");
-        token.leadingMinutiae().forEach(minutiae -> {
-            if (minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
-                leadingWhitespaces.set(minutiae.text());
-            }
-        });
-
-        AtomicReference<String> trailingWhiteSpaces = new AtomicReference<>("");
-        token.trailingMinutiae().forEach(minutiae -> {
-            if (minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
-                trailingWhiteSpaces.set(minutiae.text());
-            }
-        });
-
-        return leadingWhitespaces + token.text() + trailingWhiteSpaces;
+    private String trimLeftAtMostOne(String text) {
+        int countToStrip = 0;
+        if (!text.isEmpty() && Character.isWhitespace(text.charAt(0))) {
+            countToStrip = 1;
+        }
+        return text.substring(countToStrip);
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
