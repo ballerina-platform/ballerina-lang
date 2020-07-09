@@ -190,20 +190,6 @@ public class CodeGenerator {
             api.getInfo().setTitle(GeneratorConstants.UNTITLED_SERVICE);
         }
 
-        final BallerinaOpenApiType openApi = TypeExtractorUtil.extractOpenApiObject(api);
-        openApi.setBalServiceName(serviceName);
-        openApi.setBalModule(srcPackage);
-        openApi.setServers(api);
-        openApi.setTags(api.getTags());
-        
-        if (reldefinitionPath == null) {
-            openApi.setDefPath(definitionPath.replaceAll(Pattern.quote("\\"),
-                    Matcher.quoteReplacement("\\\\")));
-        } else {
-            openApi.setDefPath(reldefinitionPath.replaceAll(Pattern.quote("\\"),
-                    Matcher.quoteReplacement("\\\\")));
-        }
-
         List<GenSrcFile> sourceFiles;
 
         switch (type) {
@@ -218,6 +204,21 @@ public class CodeGenerator {
                 sourceFiles = generateClient(definitionContext);
                 break;
             case GEN_SERVICE:
+
+                final BallerinaOpenApiType openApi = TypeExtractorUtil.extractOpenApiObject(api);
+                openApi.setBalServiceName(serviceName);
+                openApi.setBalModule(srcPackage);
+                openApi.setServers(api);
+                openApi.setTags(api.getTags());
+
+                if (reldefinitionPath == null) {
+                    openApi.setDefPath(definitionPath.replaceAll(Pattern.quote("\\"),
+                            Matcher.quoteReplacement("\\\\")));
+                } else {
+                    openApi.setDefPath(reldefinitionPath.replaceAll(Pattern.quote("\\"),
+                            Matcher.quoteReplacement("\\\\")));
+                }
+
                 sourceFiles = generateBallerinaService(openApi);
                 break;
             default:
