@@ -380,6 +380,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createFailExpressionNode(
+            SyntaxKind kind,
+            STNode failKeyword,
+            STNode expression) {
+
+        return new STFailExpressionNode(
+                kind,
+                failKeyword,
+                expression);
+    }
+
     public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,
@@ -2156,13 +2167,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMappingMatchPatternNode(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken) {
 
         return new STMappingMatchPatternNode(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }

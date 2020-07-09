@@ -495,6 +495,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCheckExpressionNode.createUnlinkedFacade();
     }
 
+    public static FailExpressionNode createFailExpressionNode(
+            SyntaxKind kind,
+            Token failKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stFailExpressionNode = STNodeFactory.createFailExpressionNode(
+                kind,
+                failKeyword.internalNode(),
+                expression.internalNode());
+        return stFailExpressionNode.createUnlinkedFacade();
+    }
+
     public static FieldAccessExpressionNode createFieldAccessExpressionNode(
             ExpressionNode expression,
             Token dotToken,
@@ -2870,16 +2884,16 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingMatchPatternNode createMappingMatchPatternNode(
             Token openBraceToken,
-            SeparatedNodeList<Node> mappingMatchPatternListNode,
+            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
             RestMatchPatternNode restMatchPattern,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
-        Objects.requireNonNull(mappingMatchPatternListNode, "mappingMatchPatternListNode must not be null");
+        Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");
         Objects.requireNonNull(closeBraceToken, "closeBraceToken must not be null");
 
         STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
                 openBraceToken.internalNode(),
-                mappingMatchPatternListNode.underlyingListNode().internalNode(),
+                fieldMatchPatterns.underlyingListNode().internalNode(),
                 getOptionalSTNode(restMatchPattern),
                 closeBraceToken.internalNode());
         return stMappingMatchPatternNode.createUnlinkedFacade();

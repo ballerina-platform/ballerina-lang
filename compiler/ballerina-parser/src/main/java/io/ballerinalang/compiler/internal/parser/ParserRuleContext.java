@@ -341,6 +341,7 @@ public enum ParserRuleContext {
     JOIN_KEYWORD("join"),
     OUTER_KEYWORD("outer"),
     VAR_KEYWORD("var"),
+    FAIL_KEYWORD("fail"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

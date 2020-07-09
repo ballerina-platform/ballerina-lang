@@ -501,6 +501,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FailExpressionNode transform(
+            FailExpressionNode failExpressionNode) {
+        Token failKeyword =
+                modifyToken(failExpressionNode.failKeyword());
+        ExpressionNode expression =
+                modifyNode(failExpressionNode.expression());
+        return failExpressionNode.modify(
+                failExpressionNode.kind(),
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public FieldAccessExpressionNode transform(
             FieldAccessExpressionNode fieldAccessExpressionNode) {
         ExpressionNode expression =
@@ -2927,15 +2940,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MappingMatchPatternNode mappingMatchPatternNode) {
         Token openBraceToken =
                 modifyToken(mappingMatchPatternNode.openBraceToken());
-        SeparatedNodeList<Node> mappingMatchPatternListNode =
-                modifySeparatedNodeList(mappingMatchPatternNode.mappingMatchPatternListNode());
+        SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns =
+                modifySeparatedNodeList(mappingMatchPatternNode.fieldMatchPatterns());
         RestMatchPatternNode restMatchPattern =
                 modifyNode(mappingMatchPatternNode.restMatchPattern().orElse(null));
         Token closeBraceToken =
                 modifyToken(mappingMatchPatternNode.closeBraceToken());
         return mappingMatchPatternNode.modify(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }

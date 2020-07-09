@@ -4866,7 +4866,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFailExpr failExpr) {
         BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(failExpr.pos, failExpr.expr,
-                symTable.errorType);
+                symTable.nilType);
         checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
         result = rewriteExpr(checkedExpr);
     }

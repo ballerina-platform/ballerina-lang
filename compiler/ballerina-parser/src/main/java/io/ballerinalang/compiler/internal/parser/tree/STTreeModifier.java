@@ -394,6 +394,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailExpressionNode transform(
+            STFailExpressionNode failExpressionNode) {
+        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
+        STNode expression = modifyNode(failExpressionNode.expression);
+        return failExpressionNode.modify(
+                failExpressionNode.kind,
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public STFieldAccessExpressionNode transform(
             STFieldAccessExpressionNode fieldAccessExpressionNode) {
         STNode expression = modifyNode(fieldAccessExpressionNode.expression);
@@ -2321,12 +2332,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STMappingMatchPatternNode transform(
             STMappingMatchPatternNode mappingMatchPatternNode) {
         STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
-        STNode mappingMatchPatternListNode = modifyNode(mappingMatchPatternNode.mappingMatchPatternListNode);
+        STNode fieldMatchPatterns = modifyNode(mappingMatchPatternNode.fieldMatchPatterns);
         STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
         STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
         return mappingMatchPatternNode.modify(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }

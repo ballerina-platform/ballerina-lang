@@ -639,6 +639,20 @@
             ]
         },
         {
+            "name": "FailExpressionNode",
+            "base": "ExpressionNode",
+            "attributes": [
+                {
+                    "name": "failKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "FieldAccessExpressionNode",
             "base": "ExpressionNode",
             "kind": "FIELD_ACCESS",

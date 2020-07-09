@@ -862,6 +862,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
             case LexerTerminals.CHECK:
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
+            case LexerTerminals.FAIL:
+                return getSyntaxToken(SyntaxKind.FAIL_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
             case LexerTerminals.CONTINUE:
