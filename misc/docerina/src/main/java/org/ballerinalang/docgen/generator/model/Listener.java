@@ -29,8 +29,8 @@ public class Listener extends Object {
     public List<Function> lifeCycleMethods = new ArrayList<>();
 
     public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods) {
-        super(name, description, isDeprecated, fields, methods);
+            List<Function> methods, boolean isAnonymous) {
+        super(name, description, isDeprecated, fields, methods, isAnonymous);
         this.lifeCycleMethods = getLCMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }

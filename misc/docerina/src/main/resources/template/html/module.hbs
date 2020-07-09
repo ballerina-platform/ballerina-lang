@@ -40,7 +40,7 @@
                     {{{ module.description }}}
 
             {{#if module.records}}
-
+            {{#unless (areAllAnonymous module.records) }}
             <section class="method-content" id="records">
                 <div class="main-method-title here">
                     <a class="url-link" href="#records">
@@ -50,6 +50,7 @@
                 </div>
                 <table>
                     {{#each module.records}}
+                    {{#unless isAnonymous}}
                         <tr>
                             <td class="module-title truncate records" id="{{name}}" title="{{name}}">
                                 <a class="records {{#if isDeprecated}}strike{{/if}}" href="records/{{name}}.html">{{name}}</a>
@@ -61,12 +62,15 @@
                                 {{#if isAnonymous}}Anonymous record{{else}}{{{ editDescription description }}}{{/if}}
                             </td>
                         </tr>
+                    {{/unless}}
                     {{/each}}
                 </table>
             </section>
+            {{/unless}}
             {{/if}}
 
             {{#if module.objects}}
+            {{#unless (areAllAnonymous module.objects) }}
             <section class="method-content" id="objects">
                 <div class="main-method-title here">
                     <a class="url-link" href="#objects">
@@ -76,6 +80,7 @@
                 </div>
                 <table>
                     {{#each module.objects}}
+                    {{#unless isAnonymous}}
                         <tr>
                             <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
                                 <a class="objects {{#if isDeprecated}}strike{{/if}}" href="objects/{{name}}.html">{{name}}</a>
@@ -87,9 +92,11 @@
                                 {{{ editDescription description }}}
                             </td>
                         </tr>
+                    {{/unless}}
                     {{/each}}
                 </table>
-             </section>  
+             </section>
+            {{/unless}}
             {{/if}}
 
             {{#if module.clients}}

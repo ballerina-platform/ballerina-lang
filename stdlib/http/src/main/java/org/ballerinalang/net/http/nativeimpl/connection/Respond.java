@@ -84,6 +84,8 @@ public class Respond extends ConnectionAction {
         // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
             outboundResponseMsg.setHttpStatusCode(HttpResponseStatus.NOT_MODIFIED.code());
+            outboundResponseMsg.setProperty(HttpConstants.HTTP_REASON_PHRASE,
+                                            HttpResponseStatus.NOT_MODIFIED.reasonPhrase());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
             outboundResponseMsg.waitAndReleaseAllEntities();
