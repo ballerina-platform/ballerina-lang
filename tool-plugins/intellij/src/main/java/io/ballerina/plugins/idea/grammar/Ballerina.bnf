@@ -140,13 +140,28 @@ private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAME
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         type definitions                                                          //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-TypeDefinition ::= public? type identifier RecoverableTypeContent (RecoverableTypeBody)? SEMICOLON {pin=2}
-RecoverableTypeContent ::= identifier {recoverWhile = TypeDefinitionRecover}
-private TypeDefinitionRecover ::= !(LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER | SEMICOLON)
-RecoverableTypeBody ::= CloseRecordTypeBody | RecoverableBody
-CloseRecordTypeBody ::= LEFT_CLOSED_RECORD_DELIMITER RecoverableCloseRecordContent RIGHT_CLOSED_RECORD_DELIMITER {pin=1}
-RecoverableCloseRecordContent ::= any {recoverWhile=CloseRecordTypeBodyRecover}
-private CloseRecordTypeBodyRecover ::= !(RIGHT_CLOSED_RECORD_DELIMITER)
+TypeDefinition ::= public? type identifier TypeBody SEMICOLON {pin=2}
+TypeBody ::= CloseRecordTypeBody | OpenRecordTypeBody | ObjectTypeBody | OtherTypeBody
+
+CloseRecordTypeBody ::= record LEFT_CLOSED_RECORD_DELIMITER RecoverableCloseRecordContent RIGHT_CLOSED_RECORD_DELIMITER {pin=2}
+RecoverableCloseRecordContent ::= any {pin=1 recoverWhile=RecoverableCloseRecordContentRecover}
+private RecoverableCloseRecordContentRecover::= !(RIGHT_CLOSED_RECORD_DELIMITER)
+
+OpenRecordTypeBody ::= record LEFT_BRACE RecoverableOpenRecordContent RIGHT_BRACE {pin=2}
+RecoverableOpenRecordContent ::= any {pin=1 recoverWhile=RecoverableOpenRecordContentRecover}
+private RecoverableOpenRecordContentRecover::= !(RIGHT_BRACE)
+
+ObjectTypeBody ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBodyContent RIGHT_BRACE {pin=2}
+ObjectBodyContent ::= (ObjectMethod | ObjectFieldDefinition | TypeReference)*
+ObjectFieldDefinition ::= documentationString? AnnotationAttachment* (public | private)? TypeName identifier ObjectFieldDefinitionContent (COMMA | SEMICOLON) {pin=5}
+ObjectFieldDefinitionContent ::= any {pin=1 recoverWhile=ObjectFieldDefinitionContentRecover}
+private ObjectFieldDefinitionContentRecover ::= !(COMMA | SEMICOLON)
+TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
+
+// Todo - verify/add others
+OtherTypeBody ::= (identifier|QUOTED_STRING_LITERAL|error) RecoverableTypeContent {pin=1}
+RecoverableTypeContent ::= any {pin=1 recoverWhile=SimpleTypeContentRecover}
+private SimpleTypeContentRecover ::= !(SEMICOLON)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        service definitions                                                        //

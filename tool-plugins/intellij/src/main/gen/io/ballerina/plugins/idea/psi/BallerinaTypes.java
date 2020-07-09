@@ -76,9 +76,15 @@ public interface BallerinaTypes {
   IElementType NIL_LITERAL = new BallerinaCompositeElementType("NIL_LITERAL");
   IElementType NULLABLE_TYPE_NAME = new BallerinaCompositeElementType("NULLABLE_TYPE_NAME");
   IElementType OBJECT_BODY = new BallerinaCompositeElementType("OBJECT_BODY");
+  IElementType OBJECT_BODY_CONTENT = new BallerinaCompositeElementType("OBJECT_BODY_CONTENT");
+  IElementType OBJECT_FIELD_DEFINITION = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION");
+  IElementType OBJECT_FIELD_DEFINITION_CONTENT = new BallerinaCompositeElementType("OBJECT_FIELD_DEFINITION_CONTENT");
   IElementType OBJECT_METHOD = new BallerinaCompositeElementType("OBJECT_METHOD");
+  IElementType OBJECT_TYPE_BODY = new BallerinaCompositeElementType("OBJECT_TYPE_BODY");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
+  IElementType OPEN_RECORD_TYPE_BODY = new BallerinaCompositeElementType("OPEN_RECORD_TYPE_BODY");
   IElementType ORG_NAME = new BallerinaCompositeElementType("ORG_NAME");
+  IElementType OTHER_TYPE_BODY = new BallerinaCompositeElementType("OTHER_TYPE_BODY");
   IElementType PACKAGE_NAME = new BallerinaCompositeElementType("PACKAGE_NAME");
   IElementType PACKAGE_REFERENCE = new BallerinaCompositeElementType("PACKAGE_REFERENCE");
   IElementType PACKAGE_VERSION = new BallerinaCompositeElementType("PACKAGE_VERSION");
@@ -91,9 +97,9 @@ public interface BallerinaTypes {
   IElementType RECOVERABLE_BODY_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_BODY_CONTENT");
   IElementType RECOVERABLE_CLOSE_RECORD_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_CLOSE_RECORD_CONTENT");
   IElementType RECOVERABLE_CONSTANT_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_CONSTANT_CONTENT");
+  IElementType RECOVERABLE_OPEN_RECORD_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_OPEN_RECORD_CONTENT");
   IElementType RECOVERABLE_PARAMETER_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_PARAMETER_CONTENT");
   IElementType RECOVERABLE_RETURN_TYPE = new BallerinaCompositeElementType("RECOVERABLE_RETURN_TYPE");
-  IElementType RECOVERABLE_TYPE_BODY = new BallerinaCompositeElementType("RECOVERABLE_TYPE_BODY");
   IElementType RECOVERABLE_TYPE_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_TYPE_CONTENT");
   IElementType RECOVERABLE_VARIABLE_DEFINITION_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_VARIABLE_DEFINITION_CONTENT");
   IElementType RECOVERABLE_VAR_DEF_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_VAR_DEF_CONTENT");
@@ -112,9 +118,11 @@ public interface BallerinaTypes {
   IElementType TRIPLE_BACKTICKED_BLOCK = new BallerinaCompositeElementType("TRIPLE_BACKTICKED_BLOCK");
   IElementType TUPLE_REST_DESCRIPTOR = new BallerinaCompositeElementType("TUPLE_REST_DESCRIPTOR");
   IElementType TUPLE_TYPE_NAME = new BallerinaCompositeElementType("TUPLE_TYPE_NAME");
+  IElementType TYPE_BODY = new BallerinaCompositeElementType("TYPE_BODY");
   IElementType TYPE_DEFINITION = new BallerinaCompositeElementType("TYPE_DEFINITION");
   IElementType TYPE_DESC_REFERENCE_TYPE_NAME = new BallerinaCompositeElementType("TYPE_DESC_REFERENCE_TYPE_NAME");
   IElementType TYPE_NAME = new BallerinaCompositeElementType("TYPE_NAME");
+  IElementType TYPE_REFERENCE = new BallerinaCompositeElementType("TYPE_REFERENCE");
   IElementType UNION_TYPE_NAME = new BallerinaCompositeElementType("UNION_TYPE_NAME");
   IElementType USER_DEFINE_TYPE_NAME = new BallerinaCompositeElementType("USER_DEFINE_TYPE_NAME");
   IElementType VALUE_TYPE_NAME = new BallerinaCompositeElementType("VALUE_TYPE_NAME");
@@ -484,14 +492,32 @@ public interface BallerinaTypes {
       else if (type == OBJECT_BODY) {
         return new BallerinaObjectBodyImpl(node);
       }
+      else if (type == OBJECT_BODY_CONTENT) {
+        return new BallerinaObjectBodyContentImpl(node);
+      }
+      else if (type == OBJECT_FIELD_DEFINITION) {
+        return new BallerinaObjectFieldDefinitionImpl(node);
+      }
+      else if (type == OBJECT_FIELD_DEFINITION_CONTENT) {
+        return new BallerinaObjectFieldDefinitionContentImpl(node);
+      }
       else if (type == OBJECT_METHOD) {
         return new BallerinaObjectMethodImpl(node);
+      }
+      else if (type == OBJECT_TYPE_BODY) {
+        return new BallerinaObjectTypeBodyImpl(node);
       }
       else if (type == OBJECT_TYPE_NAME) {
         return new BallerinaObjectTypeNameImpl(node);
       }
+      else if (type == OPEN_RECORD_TYPE_BODY) {
+        return new BallerinaOpenRecordTypeBodyImpl(node);
+      }
       else if (type == ORG_NAME) {
         return new BallerinaOrgNameImpl(node);
+      }
+      else if (type == OTHER_TYPE_BODY) {
+        return new BallerinaOtherTypeBodyImpl(node);
       }
       else if (type == PACKAGE_NAME) {
         return new BallerinaPackageNameImpl(node);
@@ -529,14 +555,14 @@ public interface BallerinaTypes {
       else if (type == RECOVERABLE_CONSTANT_CONTENT) {
         return new BallerinaRecoverableConstantContentImpl(node);
       }
+      else if (type == RECOVERABLE_OPEN_RECORD_CONTENT) {
+        return new BallerinaRecoverableOpenRecordContentImpl(node);
+      }
       else if (type == RECOVERABLE_PARAMETER_CONTENT) {
         return new BallerinaRecoverableParameterContentImpl(node);
       }
       else if (type == RECOVERABLE_RETURN_TYPE) {
         return new BallerinaRecoverableReturnTypeImpl(node);
-      }
-      else if (type == RECOVERABLE_TYPE_BODY) {
-        return new BallerinaRecoverableTypeBodyImpl(node);
       }
       else if (type == RECOVERABLE_TYPE_CONTENT) {
         return new BallerinaRecoverableTypeContentImpl(node);
@@ -592,11 +618,17 @@ public interface BallerinaTypes {
       else if (type == TUPLE_TYPE_NAME) {
         return new BallerinaTupleTypeNameImpl(node);
       }
+      else if (type == TYPE_BODY) {
+        return new BallerinaTypeBodyImpl(node);
+      }
       else if (type == TYPE_DEFINITION) {
         return new BallerinaTypeDefinitionImpl(node);
       }
       else if (type == TYPE_DESC_REFERENCE_TYPE_NAME) {
         return new BallerinaTypeDescReferenceTypeNameImpl(node);
+      }
+      else if (type == TYPE_REFERENCE) {
+        return new BallerinaTypeReferenceImpl(node);
       }
       else if (type == UNION_TYPE_NAME) {
         return new BallerinaUnionTypeNameImpl(node);

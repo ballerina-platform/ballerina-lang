@@ -176,7 +176,23 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitObjectBodyContent(@NotNull BallerinaObjectBodyContent o) {
+    visitPsiElement(o);
+  }
+
+  public void visitObjectFieldDefinition(@NotNull BallerinaObjectFieldDefinition o) {
+    visitPsiElement(o);
+  }
+
+  public void visitObjectFieldDefinitionContent(@NotNull BallerinaObjectFieldDefinitionContent o) {
+    visitPsiElement(o);
+  }
+
   public void visitObjectMethod(@NotNull BallerinaObjectMethod o) {
+    visitPsiElement(o);
+  }
+
+  public void visitObjectTypeBody(@NotNull BallerinaObjectTypeBody o) {
     visitPsiElement(o);
   }
 
@@ -184,7 +200,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitOpenRecordTypeBody(@NotNull BallerinaOpenRecordTypeBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitOrgName(@NotNull BallerinaOrgName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitOtherTypeBody(@NotNull BallerinaOtherTypeBody o) {
     visitPsiElement(o);
   }
 
@@ -224,15 +248,15 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRecoverableOpenRecordContent(@NotNull BallerinaRecoverableOpenRecordContent o) {
+    visitPsiElement(o);
+  }
+
   public void visitRecoverableParameterContent(@NotNull BallerinaRecoverableParameterContent o) {
     visitPsiElement(o);
   }
 
   public void visitRecoverableReturnType(@NotNull BallerinaRecoverableReturnType o) {
-    visitPsiElement(o);
-  }
-
-  public void visitRecoverableTypeBody(@NotNull BallerinaRecoverableTypeBody o) {
     visitPsiElement(o);
   }
 
@@ -284,6 +308,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitTypeBody(@NotNull BallerinaTypeBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitTypeDefinition(@NotNull BallerinaTypeDefinition o) {
     visitTopLevelDefinition(o);
   }
@@ -293,6 +321,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitTypeName(@NotNull BallerinaTypeName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTypeReference(@NotNull BallerinaTypeReference o) {
     visitPsiElement(o);
   }
 

@@ -60,4 +60,10 @@ public class BallerinaCloseRecordTypeBodyImpl extends ASTWrapperPsiElement imple
     return findChildByType(RIGHT_CLOSED_RECORD_DELIMITER);
   }
 
+  @Override
+  @NotNull
+  public PsiElement getRecord() {
+    return findNotNullChildByType(RECORD);
+  }
+
 }

@@ -21,18 +21,18 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaCloseRecordTypeBody extends PsiElement {
+public interface BallerinaOtherTypeBody extends PsiElement {
 
   @Nullable
-  BallerinaRecoverableCloseRecordContent getRecoverableCloseRecordContent();
-
-  @NotNull
-  PsiElement getLeftClosedRecordDelimiter();
+  BallerinaRecoverableTypeContent getRecoverableTypeContent();
 
   @Nullable
-  PsiElement getRightClosedRecordDelimiter();
+  PsiElement getQuotedStringLiteral();
 
-  @NotNull
-  PsiElement getRecord();
+  @Nullable
+  PsiElement getError();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }
