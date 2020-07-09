@@ -190,7 +190,7 @@ public class SyntaxTreeModifyTest {
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{}", JsonObject.class));
+                gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class));
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
                         "\"PARAMS\": []}", JsonObject.class));
@@ -226,7 +226,7 @@ public class SyntaxTreeModifyTest {
 
         Gson gson = new Gson();
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{}", JsonObject.class));
+                gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_END",
                 gson.fromJson("{}", JsonObject.class));
 

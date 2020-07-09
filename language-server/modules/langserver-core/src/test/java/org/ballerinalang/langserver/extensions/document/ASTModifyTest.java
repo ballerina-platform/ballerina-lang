@@ -260,7 +260,7 @@ public class ASTModifyTest {
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{}", JsonObject.class));
+                gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class));
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
                         "\"PARAMS\": []}", JsonObject.class));
@@ -299,7 +299,7 @@ public class ASTModifyTest {
         Gson gson = new Gson();
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
                 .modifyTriggerAndGetBallerinaAST(tempFile.toString(),
-                        "main", gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
+                        "main", gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class), this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "IMPORT",

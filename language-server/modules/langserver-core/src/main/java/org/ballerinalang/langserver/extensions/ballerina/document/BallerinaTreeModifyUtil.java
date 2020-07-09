@@ -75,7 +75,7 @@ public class BallerinaTreeModifyUtil {
         put("REMOTE_SERVICE_CALL", "$TYPE $VARIABLE = $CALLER->$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
-        put("MAIN_START", "public function main() {\n");
+        put("MAIN_START", "$COMMENTpublic function main() {\n");
         put("MAIN_END", "}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
