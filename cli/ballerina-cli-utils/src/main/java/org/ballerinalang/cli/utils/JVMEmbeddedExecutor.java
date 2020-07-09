@@ -21,6 +21,7 @@ package org.ballerinalang.cli.utils;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.ArgumentParser;
@@ -48,11 +49,12 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Optional<RuntimeException> executeMainFunction(String moduleName, String[] args) {
+    public Optional<RuntimeException> executeMainFunction(String moduleName, String moduleVersion, String strandName,
+                                                          StrandMetadata metaData, String[] args) {
         try {
             final Scheduler scheduler = new Scheduler(false);
-            runInitOnSchedule(moduleName, scheduler);
-            runMainOnSchedule(moduleName, scheduler, args);
+            runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
+            runMainOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData, args);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
             return Optional.empty();
@@ -65,11 +67,12 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * {@inheritDoc}
      */
     @Override
-    public Optional<RuntimeException> executeService(String moduleName) {
+    public Optional<RuntimeException> executeService(String moduleName, String moduleVersion, String strandName,
+                                                     StrandMetadata metaData) {
         try {
             final Scheduler scheduler = new Scheduler(false);
-            runInitOnSchedule(moduleName, scheduler);
-            runStartOnSchedule(moduleName, scheduler);
+            runInitOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
+            runStartOnSchedule(moduleName, moduleVersion, scheduler, strandName, metaData);
             scheduler.immortal = true;
             new Thread(scheduler::start).start();
             return Optional.empty();
@@ -82,12 +85,18 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the __start_ function of the module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler.
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private void runStartOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
+    private void runStartOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler, String strandName,
+                                    StrandMetadata metaData)
+            throws RuntimeException {
         try {
-            Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
+            Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + ".___init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleStart", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -101,7 +110,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull);
+                                                       BTypes.typeNull, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -126,14 +135,19 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the <module_name>.main function of a module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler which executes the function.
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
      * @param stringArgs The string arguments for the function.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private static void runMainOnSchedule(String moduleName, Scheduler scheduler, String[] stringArgs)
+    private static void runMainOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
+                                          String strandName, StrandMetadata metaData, String[] stringArgs)
             throws RuntimeException {
         try {
-            Class<?> mainClass = Class.forName("ballerina." + moduleName + "." + moduleName);
+            Class<?> mainClass = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + "." + moduleName);
             final Method mainMethod = mainClass.getDeclaredMethod("main", Strand.class, ArrayValue.class,
                     boolean.class);
             Object[] entryFuncArgs =
@@ -155,7 +169,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(entryFuncArgs, func, null, null, null,
-                    BTypes.typeNull);
+                                                       BTypes.typeNull, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {
@@ -180,12 +194,18 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
      * Executes the __init_ function of the module.
      *
      * @param moduleName The name of the module.
+     * @param moduleVersion Version of the module.
      * @param scheduler  The scheduler which executes the function.
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
      * @throws RuntimeException When an error occurs invoking or within the function.
      */
-    private static void runInitOnSchedule(String moduleName, Scheduler scheduler) throws RuntimeException {
+    private static void runInitOnSchedule(String moduleName, String moduleVersion, Scheduler scheduler,
+                                          String strandName, StrandMetadata metaData)
+            throws RuntimeException {
         try {
-            Class<?> initClazz = Class.forName("ballerina." + moduleName + ".___init");
+            Class<?> initClazz = Class.forName("ballerina." + moduleName + "." +
+                                                       moduleVersion.replace(".", "_") + ".___init");
             final Method initMethod = initClazz.getDeclaredMethod("$moduleInit", Strand.class);
             //TODO fix following method invoke to scheduler.schedule()
             Function<Object[], Object> func = objects -> {
@@ -199,7 +219,7 @@ public class JVMEmbeddedExecutor implements EmbeddedExecutor {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeNull);
+                    BTypes.typeNull, strandName, metaData);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

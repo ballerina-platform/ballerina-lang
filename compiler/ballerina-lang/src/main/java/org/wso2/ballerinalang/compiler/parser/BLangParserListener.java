@@ -2829,7 +2829,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isDeclaredWithVar = ctx.VAR() != null;
-
         if (ctx.bindingPattern().Identifier() != null) {
             String identifier = ctx.bindingPattern().Identifier().getText();
             DiagnosticPos identifierPos = getCurrentPos(ctx.bindingPattern().Identifier());
@@ -2846,6 +2845,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.createClauseWithTupleVariableDefStatement(getCurrentPos(ctx), getWS(ctx),
                     isDeclaredWithVar, true, false);
         }
+        this.pkgBuilder.finishFromClause();
+    }
+
+    @Override
+    public void enterJoinClause(BallerinaParser.JoinClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.startJoinClause();
     }
 
     @Override
@@ -2895,14 +2904,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createWhereClause(getCurrentPos(ctx), getWS(ctx));
-    }
-
-    @Override
-    public void enterOnClause(BallerinaParser.OnClauseContext ctx) {
-        if (isInErrorState) {
-            return;
-        }
-        this.pkgBuilder.startOnClause();
     }
 
     @Override

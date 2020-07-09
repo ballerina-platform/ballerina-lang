@@ -23,20 +23,22 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A metadata holder to keep track of jvm lambdas and its call instruction that will be generated for a class.
+ * A data holder to keep async invocation related data which will be used by class generation.
  *
  * @since 1.3.0
  */
-public class LambdaMetadata {
+public class AsyncDataCollector {
 
     private Map<String, BIRInstruction> lambdas;
+    private Map<String, ScheduleFunctionInfo> strandMetaDataMap;
     private int lambdaIndex = 0;
     private String enclosingClass;
 
-    public LambdaMetadata(String enclosingClass) {
+    public AsyncDataCollector(String enclosingClass) {
 
         this.enclosingClass = enclosingClass;
         lambdas = new HashMap<>();
+        strandMetaDataMap = new HashMap<>();
     }
 
     public void incrementLambdaIndex() {
@@ -62,5 +64,9 @@ public class LambdaMetadata {
     public Map<String, BIRInstruction> getLambdas() {
 
         return lambdas;
+    }
+
+    public Map<String, ScheduleFunctionInfo> getStrandMetadata() {
+        return strandMetaDataMap;
     }
 }
