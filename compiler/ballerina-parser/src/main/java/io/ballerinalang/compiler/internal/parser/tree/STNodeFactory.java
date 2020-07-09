@@ -2156,13 +2156,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMappingMatchPatternNode(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken) {
 
         return new STMappingMatchPatternNode(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -2176,6 +2176,47 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 fieldNameNode,
                 colonToken,
                 matchPattern);
+    }
+
+    public static STNode createParameterDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode plusToken,
+            STNode parameterName,
+            STNode minusToken,
+            STNode documentElements) {
+
+        return new STParameterDocumentationLineNode(
+                kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    public static STNode createDocumentationReferenceNode(
+            STNode referenceType,
+            STNode startBacktick,
+            STNode backtickContent,
+            STNode endBacktick) {
+
+        return new STDocumentationReferenceNode(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
+    }
+
+    public static STNode createDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
     }
 }
 

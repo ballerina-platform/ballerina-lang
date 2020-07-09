@@ -49,7 +49,6 @@ import static org.ballerinalang.jvm.scheduling.ItemGroup.POISON_PILL;
  */
 public class Scheduler {
 
-
     private PrintStream err = System.err;
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
@@ -84,7 +83,7 @@ public class Scheduler {
         } catch (Throwable t) {
             // Log and continue with default
             err.println("ballerina: error occurred in scheduler while reading system variable:" +
-                    BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
+                                BLangConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
         }
         this.numThreads = poolSize;
         this.immortal = immortal;
@@ -106,27 +105,33 @@ public class Scheduler {
     /**
      * Schedules given function by creating a new strand group.
      *
-     * @param params parameters to underlying function.
-     * @param fp function ponter to be executed.
-     * @param parent parent of the new Strand that get created here.
+     * @param params     parameters to underlying function.
+     * @param fp         function ponter to be executed.
+     * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function pointer invocation.
      */
-    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
-        return schedule(params, fp.getFunction(), parent, null, null, returnType);
+    public FutureValue scheduleFunction(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
+                                        String strandName, StrandMetadata metadata) {
+        return schedule(params, fp.getFunction(), parent, null, null, returnType, strandName, metadata);
     }
 
     /**
      * Schedules given function to the callers strand group.
      *
-     * @param params parameters to underlying function.
-     * @param fp function to be executed.
-     * @param parent parent of the new Strand that get created here.
+     * @param params     parameters to underlying function.
+     * @param fp         function to be executed.
+     * @param parent     parent of the new Strand that get created here.
      * @param returnType return type of the function.
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
      * @return {@link FutureValue} reference to the given function invocation.
      */
-    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType) {
-        FutureValue future = createFuture(parent, null, null, returnType);
+    public FutureValue scheduleLocal(Object[] params, FPValue<?, ?> fp, Strand parent, BType returnType,
+                                     String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, null, null, returnType, strandName, metadata);
         return scheduleLocal(params, fp, parent, future);
     }
 
@@ -143,43 +148,44 @@ public class Scheduler {
         return future;
     }
 
-    @Deprecated
-    public FutureValue scheduleConsumer(Object[] params, FPValue<?, ?> fp, Strand parent) {
-        return schedule(params, fp.getFunction(), parent, (CallableUnitCallback) null);
-    }
-
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params   - parameters to be passed to the function
-     * @param function - function to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @param properties - request properties which requires for co-relation
-     * @param returnType - return type of the scheduled function
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param function   function to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param properties request properties which requires for co-relation
+     * @param returnType return type of the scheduled function
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
     public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
-                                Map<String, Object> properties, BType returnType) {
-        FutureValue future = createFuture(parent, callback, properties, returnType);
-        return schedule(params, function, parent, future);
+                                Map<String, Object> properties, BType returnType, String strandName,
+                                StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, properties, returnType, strandName, metadata);
+        return schedule(params, function, future);
     }
 
     /**
      * Add a task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params   - parameters to be passed to the function
-     * @param function - function to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param function   function to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
-    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
-        return schedule(params, function, parent, future);
+    public FutureValue schedule(Object[] params, Function function, Strand parent, CallableUnitCallback callback,
+                                String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
+        return schedule(params, function, future);
     }
 
-    private FutureValue schedule(Object[] params, Function function, Strand parent, FutureValue future) {
+    private FutureValue schedule(Object[] params, Function function, FutureValue future) {
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(function, params, future);
         future.strand.schedulerItem = item;
@@ -194,15 +200,18 @@ public class Scheduler {
     /**
      * Add a void returning task to the runnable list, which will eventually be executed by the Scheduler.
      *
-     * @param params   - parameters to be passed to the function
-     * @param consumer - consumer to be executed
-     * @param parent   - parent strand that makes the request to schedule another
-     * @param callback - to notify any listener when ever the execution of the given function is finished
-     * @return - Reference to the scheduled task
+     * @param params     parameters to be passed to the function
+     * @param consumer   consumer to be executed
+     * @param parent     parent strand that makes the request to schedule another
+     * @param callback   to notify any listener when ever the execution of the given function is finished
+     * @param strandName name for new strand
+     * @param metadata   meta data of new strand
+     * @return Reference to the scheduled task
      */
     @Deprecated
-    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback) {
-        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull);
+    public FutureValue schedule(Object[] params, Consumer consumer, Strand parent, CallableUnitCallback callback,
+                                String strandName, StrandMetadata metadata) {
+        FutureValue future = createFuture(parent, callback, null, BTypes.typeNull, strandName, metadata);
         params[0] = future.strand;
         SchedulerItem item = new SchedulerItem(consumer, params, future);
         future.strand.schedulerItem = item;
@@ -280,10 +289,11 @@ public class Scheduler {
                 } finally {
                     strandHolder.get().strand = null;
                 }
-
                 postProcess(item, result, panic);
+                if (group.items.empty()) {
+                    group.scheduled.set(false);
+                }
             }
-            group.scheduled.set(false);
         }
     }
 
@@ -438,8 +448,12 @@ public class Scheduler {
     }
 
     public FutureValue createFuture(Strand parent, CallableUnitCallback callback, Map<String, Object> properties,
-                                     BType constraint) {
-        Strand newStrand = new Strand(this, parent, properties);
+                                    BType constraint, String name, StrandMetadata metadata) {
+        Strand newStrand = new Strand(name, metadata, this, parent, properties);
+        return createFuture(parent, callback, constraint, newStrand);
+    }
+
+    private FutureValue createFuture(Strand parent, CallableUnitCallback callback, BType constraint, Strand newStrand) {
         if (parent != null) {
             newStrand.observerContext = parent.observerContext;
         }
