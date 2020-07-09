@@ -391,7 +391,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -4235,7 +4234,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 docReferenceNode.referenceType().ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
-                            docText.append(refType.text());
+                            docText.append(refType.toString());
                         }
                 );
 

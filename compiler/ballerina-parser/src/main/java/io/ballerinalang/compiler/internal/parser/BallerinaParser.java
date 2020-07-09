@@ -12815,7 +12815,7 @@ public class BallerinaParser extends AbstractParser {
             case 1:
                 STNode docElement = docElements.get(0);
                 if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    if (((STToken) docElement).text().startsWith("# Deprecated")) {
+                    if (((STToken) docElement).text().startsWith(" # Deprecated")) {
                         return createDeprecationDocumentationLineNode(hashToken, docElementList);
                     }
                     return createDocumentationLineNode(hashToken, docElementList);
