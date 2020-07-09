@@ -4283,6 +4283,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return DocumentationReferenceType.FUNCTION;
             case "parameter":
                 return DocumentationReferenceType.PARAMETER;
+            case "const":
+                return DocumentationReferenceType.CONST;
             default:
                 return DocumentationReferenceType.BACKTICK_CONTENT;
         }

@@ -1745,6 +1745,7 @@ public class BallerinaLexer extends AbstractLexer {
             case LexerTerminals.MODULE:
             case LexerTerminals.FUNCTION:
             case LexerTerminals.PARAMETER:
+            case LexerTerminals.CONST:
                 // Look ahead for a single backtick.
                 // There could be spaces or tabs in between.
                 while (true) {
@@ -1849,6 +1850,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getDocumentationSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.PARAMETER:
                 return getDocumentationSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
+            case LexerTerminals.CONST:
+                return getDocumentationSyntaxToken(SyntaxKind.CONST_DOC_REFERENCE_TOKEN);
             default:
                 throw new IllegalStateException();
         }

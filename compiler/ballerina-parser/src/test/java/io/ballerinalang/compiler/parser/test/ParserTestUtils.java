@@ -643,6 +643,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN;
             case "PARAMETER_DOC_REFERENCE_TOKEN":
                 return SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN;
+            case "CONST_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.CONST_DOC_REFERENCE_TOKEN;
 
             // Operators
             case "PLUS_TOKEN":

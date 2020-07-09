@@ -12867,6 +12867,7 @@ public class BallerinaParser extends AbstractParser {
             case MODULE_DOC_REFERENCE_TOKEN:
             case FUNCTION_DOC_REFERENCE_TOKEN:
             case PARAMETER_DOC_REFERENCE_TOKEN:
+            case CONST_DOC_REFERENCE_TOKEN:
                 return true;
             default:
                 return false;
