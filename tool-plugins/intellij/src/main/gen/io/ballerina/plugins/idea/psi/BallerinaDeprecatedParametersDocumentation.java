@@ -21,12 +21,9 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaAlias extends PsiElement {
+public interface BallerinaDeprecatedParametersDocumentation extends PsiElement {
 
   @NotNull
-  PsiElement getAs();
-
-  @Nullable
-  PsiElement getIdentifier();
+  PsiElement getDeprecatedParameterDocumentation();
 
 }
