@@ -673,7 +673,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",

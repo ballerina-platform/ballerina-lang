@@ -522,8 +522,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(functionCallExpressionNode.functionName());
         Token openParenToken =
                 modifyToken(functionCallExpressionNode.openParenToken());
-        NodeList<FunctionArgumentNode> arguments =
-                modifyNodeList(functionCallExpressionNode.arguments());
+        SeparatedNodeList<FunctionArgumentNode> arguments =
+                modifySeparatedNodeList(functionCallExpressionNode.arguments());
         Token closeParenToken =
                 modifyToken(functionCallExpressionNode.closeParenToken());
         return functionCallExpressionNode.modify(
