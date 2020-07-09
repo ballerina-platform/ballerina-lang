@@ -22,6 +22,7 @@ import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
@@ -60,12 +61,15 @@ public class Executor {
      * @param scheduler    available scheduler.
      * @param service      to be executed.
      * @param resourceName to be executed.
+     * @param strandName   name for newly creating strand which is used to execute the function pointer.
+     * @param metaData     meta data of new strand.
      * @param callback     to be executed when execution completes.
      * @param properties   to be passed to context.
      * @param args         required for the resource.
      */
-    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName,
-                              CallableUnitCallback callback, Map<String, Object> properties, Object... args) {
+    public static void submit(Scheduler scheduler, ObjectValue service, String resourceName, String strandName,
+                              StrandMetadata metaData, CallableUnitCallback callback,
+                              Map<String, Object> properties, Object... args) {
 
         Function<Object[], Object> func = objects -> {
             Strand strand = (Strand) objects[0];
@@ -76,20 +80,22 @@ public class Executor {
             }
             return service.call(strand, resourceName, args);
         };
-        scheduler.schedule(new Object[1], func, null, callback, properties, OPTIONAL_ERROR_TYPE);
+        scheduler.schedule(new Object[1], func, null, callback, properties, OPTIONAL_ERROR_TYPE, strandName, metaData);
     }
 
     /**
      * Execution API to execute just a function.
      *
-     * @param strand   current strand
-     * @param service  to be executed
-     * @param resource to be executed
-     * @param args     to be passed to invokable unit
+     * @param strand     current strand
+     * @param service    to be executed
+     * @param resource   to be executed
+     * @param strandName name for newly creating strand which is used to execute the function pointer.
+     * @param metaData   meta data of new strand.
+     * @param args       to be passed to invokable unit
      * @return results
      */
     public static Object executeFunction(Strand strand, ObjectValue service, AttachedFunction resource,
-                                         Object... args) {
+                                         String strandName, StrandMetadata metaData, Object... args) {
         int requiredArgNo = resource.type.paramTypes.length;
         int providedArgNo = (args.length / 2); // due to additional boolean args being added for each arg
         if (requiredArgNo != providedArgNo) {
@@ -97,13 +103,15 @@ public class Executor {
                                                providedArgNo + ".");
         }
 
-        return service.call(new Strand(strand.scheduler), resource.getName(), args);
+        return service.call(new Strand(strandName, metaData, strand.scheduler, null, null), resource.getName(), args);
     }
 
     /**
      * This method will invoke Ballerina function in blocking manner.
      *
      * @param scheduler   current scheduler
+     * @param strandName  name for newly creating strand which is used to execute the function pointer.
+     * @param metaData    meta data of new strand.
      * @param classLoader normal classLoader
      * @param orgName     org which the package belongs to
      * @param packageName package which the class belongs to
@@ -113,7 +121,8 @@ public class Executor {
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, final String orgName,
+    public static Object executeFunction(Scheduler scheduler, String strandName, StrandMetadata metaData,
+                                         ClassLoader classLoader, final String orgName,
                                          String packageName, String version, String className, String methodName,
                                          Object... paramValues) {
         try {
@@ -149,7 +158,7 @@ public class Executor {
                 public void notifyFailure(ErrorValue error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>(), BTypes.typeNull);
+            }, new HashMap<>(), BTypes.typeNull, strandName, metaData);
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {
