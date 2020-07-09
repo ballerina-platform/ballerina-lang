@@ -4165,6 +4165,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         BLangMarkdownDocumentationLine bLangDocLine =
                                 (BLangMarkdownDocumentationLine) TreeBuilder.createMarkdownDocumentationTextNode();
                         bLangDocLine.text = docText;
+                        bLangDocLine.pos = getPosition(docLineNode);
                         documentationLines.add(bLangDocLine);
                     }
                     break;
@@ -4182,6 +4183,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
                     bLangParaDoc.parameterDocumentationLines.add(paraDocText);
+                    bLangParaDoc.pos = getPosition(parameterDocLineNode);
                     parameters.add(bLangParaDoc);
                     break;
                 case RETURN_PARAMETER_DOCUMENTATION_LINE:
@@ -4194,10 +4196,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                             addReferencesAndReturnDocumentationText(references, returnParaDocElements);
 
                     bLangReturnParaDoc.returnParameterDocumentationLines.add(returnParaDocText);
+                    bLangReturnParaDoc.pos = getPosition(returnParaDocLineNode);
                     doc.returnParameter = bLangReturnParaDoc;
                     break;
                 case DEPRECATION_DOCUMENTATION_LINE:
-                    doc.deprecationDocumentation = new BLangMarkDownDeprecationDocumentation();
+                    BLangMarkDownDeprecationDocumentation bLangDeprecationDoc =
+                            new BLangMarkDownDeprecationDocumentation();
+                    DocumentationLineNode deprecationDocLineNode = (DocumentationLineNode) singleDocLine;
+
+                    bLangDeprecationDoc.pos = getPosition(deprecationDocLineNode);
+                    doc.deprecationDocumentation = bLangDeprecationDoc;
                     break;
                 default:
                     break;
@@ -4228,11 +4236,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
                 Token startBacktick = docReferenceNode.startBacktick();
                 docText.append(startBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(startBacktick));
+
                 Token backtickContent = docReferenceNode.backtickContent();
-                docText.append(backtickContent.isMissing() ? "" : getTextWithWhitespaceTrivia(backtickContent));
+                String contentString = backtickContent.isMissing() ? "" : getTextWithWhitespaceTrivia(backtickContent);
+                bLangRefDoc.referenceName = contentString;
+                docText.append(contentString);
+
                 Token endBacktick = docReferenceNode.endBacktick();
                 docText.append(endBacktick.isMissing() ? "" : getTextWithWhitespaceTrivia(endBacktick));
 
+                bLangRefDoc.pos = getPosition(docReferenceNode);
                 references.add(bLangRefDoc);
             } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 Token docDescription = (Token) element;
