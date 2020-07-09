@@ -24,20 +24,14 @@
                           "kind": "DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "Example for an xml literal:",
+                                  "value": " Example for an xml literal:",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -53,20 +47,14 @@
                           "kind": "DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "  ```xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;```",
+                                  "value": "   ```xml x \u003d xml `\u003c{{tagName}}\u003ehello\u003c/{{tagName}}\u003e`;```",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -182,12 +170,6 @@
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
                               ]
                             },
                             {
@@ -195,7 +177,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "```this is to test `(single backtick) and ``(double backtick) within triple backticks```",
+                                  "value": " ```this is to test `(single backtick) and ``(double backtick) within triple backticks```",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -311,12 +293,6 @@
                                   "kind": "END_OF_LINE_MINUTIAE",
                                   "value": "\n"
                                 }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
                               ]
                             },
                             {
@@ -324,7 +300,7 @@
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "This is a dummy object",
+                                  "value": " This is a dummy object",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -340,20 +316,14 @@
                           "kind": "DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "``` Purpose of adding\n# this documentation is\n# to check backtick documentations ```",
+                                  "value": " ``` Purpose of adding\n# this documentation is\n# to check backtick documentations ```",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",
@@ -448,12 +418,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -461,7 +425,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "This is a test function",
+                                              "value": " This is a test function",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -483,12 +447,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -496,7 +454,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "``` Purpose of adding\n    # this documentation is\n    # to check backtick documentations ```",
+                                              "value": " ``` Purpose of adding\n    # this documentation is\n    # to check backtick documentations ```",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",

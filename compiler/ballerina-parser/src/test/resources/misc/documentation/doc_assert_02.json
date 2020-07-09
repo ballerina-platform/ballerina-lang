@@ -98,12 +98,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -111,7 +105,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "name of the person",
+                                              "value": " name of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -194,12 +188,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -207,7 +195,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "age of the person",
+                                              "value": " age of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -290,12 +278,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -303,7 +285,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "country code of the person",
+                                              "value": " country code of the person",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",

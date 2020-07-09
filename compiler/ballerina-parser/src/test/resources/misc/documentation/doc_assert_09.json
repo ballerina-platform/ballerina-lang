@@ -104,12 +104,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -117,7 +111,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "This is first function",
+                                              "value": " This is first function",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
@@ -240,12 +234,6 @@
                                               "kind": "WHITESPACE_MINUTIAE",
                                               "value": "    "
                                             }
-                                          ],
-                                          "trailingMinutiae": [
-                                            {
-                                              "kind": "WHITESPACE_MINUTIAE",
-                                              "value": " "
-                                            }
                                           ]
                                         },
                                         {
@@ -253,7 +241,7 @@
                                           "children": [
                                             {
                                               "kind": "DOCUMENTATION_DESCRIPTION",
-                                              "value": "This is second function",
+                                              "value": " This is second function",
                                               "trailingMinutiae": [
                                                 {
                                                   "kind": "END_OF_LINE_MINUTIAE",
