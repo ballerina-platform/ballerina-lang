@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview1",
+    "version": "2.0.0-Preview2-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -110,6 +110,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "If set to true ballerina endpoints code lens feature will be allowed"
+                },
+                "ballerina.dataMapper.enabled": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "If set to true ballerina data mapper code action feature will be allowed"
+                },
+                "ballerina.dataMapper.url": {
+                    "type": "string",
+                    "default": "https://datamapper.dv.choreo.dev/uploader",
+                    "description": "URL for data mapper back end"
                 }
             }
         },
