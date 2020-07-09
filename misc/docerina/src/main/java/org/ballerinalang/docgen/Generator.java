@@ -150,7 +150,11 @@ public class Generator {
             // TODO: handle value type nodes
             added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
-            // TODO: handle tuple type nodes
+            Type tupleType = Type.fromTypeNode(typeNode, module.id);
+            UnionType unionTupleType = new UnionType(typeName, description(typeDefinition), isDeprecated,
+                    tupleType.memberTypes);
+            unionTupleType.isTuple = true;
+            module.unionTypes.add(unionTupleType);
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
