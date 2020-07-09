@@ -365,11 +365,13 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-            case DOCUMENTATION_LINE:
+            case PARAMETER_NAME:
+            case BACKTICK_CONTENT:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
+            case DOCUMENTATION_DESCRIPTION:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -624,6 +626,24 @@ public class ParserTestUtils {
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
 
+            // Documentation reference types of BFM
+            case "TYPE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.TYPE_DOC_REFERENCE_TOKEN;
+            case "SERVICE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN;
+            case "VARIABLE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN;
+            case "VAR_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.VAR_DOC_REFERENCE_TOKEN;
+            case "ANNOTATION_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN;
+            case "MODULE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.MODULE_DOC_REFERENCE_TOKEN;
+            case "FUNCTION_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN;
+            case "PARAMETER_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN;
+
             // Operators
             case "PLUS_TOKEN":
                 return SyntaxKind.PLUS_TOKEN;
@@ -735,6 +755,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case "LEFT_ARROW_TOKEN":
                 return SyntaxKind.LEFT_ARROW_TOKEN;
+            case "HASH_TOKEN":
+                return SyntaxKind.HASH_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -1033,8 +1055,6 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_WORKER_DECLARATOR;
             case "DOCUMENTATION_STRING":
                 return SyntaxKind.DOCUMENTATION_STRING;
-            case "DOCUMENTATION_LINE":
-                return SyntaxKind.DOCUMENTATION_LINE;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
@@ -1111,6 +1131,10 @@ public class ParserTestUtils {
                 return SyntaxKind.LIST_MATCH_PATTERN;
             case "REST_MATCH_PATTERN":
                 return SyntaxKind.REST_MATCH_PATTERN;
+            case "MAPPING_MATCH_PATTERN":
+                return SyntaxKind.MAPPING_MATCH_PATTERN;
+            case "FIELD_MATCH_PATTERN":
+                return SyntaxKind.FIELD_MATCH_PATTERN;
 
             // XML template
             case "XML_ELEMENT":
@@ -1151,6 +1175,26 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+
+            // Documentation
+            case "DOCUMENTATION_LINE":
+                return SyntaxKind.DOCUMENTATION_LINE;
+            case "REFERENCE_DOCUMENTATION_LINE":
+                return SyntaxKind.REFERENCE_DOCUMENTATION_LINE;
+            case "PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
+            case "RETURN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
+            case "DEPRECATION_DOCUMENTATION_LINE":
+                return SyntaxKind.DEPRECATION_DOCUMENTATION_LINE;
+            case "DOCUMENTATION_DESCRIPTION":
+                return SyntaxKind.DOCUMENTATION_DESCRIPTION;
+            case "DOCUMENTATION_REFERENCE":
+                return SyntaxKind.DOCUMENTATION_REFERENCE;
+            case "PARAMETER_NAME":
+                return SyntaxKind.PARAMETER_NAME;
+            case "BACKTICK_CONTENT":
+                return SyntaxKind.BACKTICK_CONTENT;
 
             // Trivia
             case "EOF_TOKEN":

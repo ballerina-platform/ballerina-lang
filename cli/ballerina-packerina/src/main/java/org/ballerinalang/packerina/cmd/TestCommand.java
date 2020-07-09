@@ -27,7 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
@@ -38,8 +37,6 @@ import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.ListTestGroupsTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -365,16 +362,14 @@ public class TestCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist,
+                observabilityIncluded);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
-
-        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(observabilityIncluded ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isObservabilityIncluded()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
@@ -388,7 +383,6 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
                 .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
-                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
                 .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
