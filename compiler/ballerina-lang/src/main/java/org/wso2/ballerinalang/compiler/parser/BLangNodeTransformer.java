@@ -391,6 +391,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -865,6 +866,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                         objFieldNode.expression(),
                                                         false, false, objFieldNode.visibilityQualifier().orElse(null),
                                                         objFieldNode.metadata().annotations());
+        // Transform documentation
+        Optional<Node> doc = objFieldNode.metadata().documentationString();
+        simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
+
         addRedonlyQualifier(objFieldNode.readonlyKeyword(), objFieldNode.typeName(), simpleVar);
         simpleVar.pos = getPosition(objFieldNode);
         return simpleVar;
@@ -4257,12 +4262,21 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private String getTextWithWhitespaceTrivia(Token token) {
-        String leadingWhitespaces = token.leadingMinutiae().toString();
-        String tokenText = token.text();
-        String trailingWhiteSpaces = token.trailingMinutiae().toString();
+        AtomicReference<String> leadingWhitespaces = new AtomicReference<>("");
+        token.leadingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
+                leadingWhitespaces.set(minutiae.text());
+            }
+        });
 
-        boolean hasOnlyWhitespaceTrivia = leadingWhitespaces.trim().isEmpty() && trailingWhiteSpaces.trim().isEmpty();
-        return hasOnlyWhitespaceTrivia ? leadingWhitespaces + tokenText + trailingWhiteSpaces : tokenText;
+        AtomicReference<String> trailingWhiteSpaces = new AtomicReference<>("");
+        token.trailingMinutiae().forEach(minutiae -> {
+            if (minutiae.kind() == SyntaxKind.WHITESPACE_MINUTIAE) {
+                trailingWhiteSpaces.set(minutiae.text());
+            }
+        });
+
+        return leadingWhitespaces + token.text() + trailingWhiteSpaces;
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {
