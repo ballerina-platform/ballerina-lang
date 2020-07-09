@@ -36,7 +36,7 @@ function testIntersectionWithMemberTypeDefinedAfter() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality("cannot update 'readonly' field 'i' in record of type '(Foo & readonly)'", err.detail()["message"]);
+    assertEquality("Inherent type violation: cannot update 'readonly' field 'i' in record of type '(Foo & readonly)'", err.message());
 }
 
 type Foo record {
