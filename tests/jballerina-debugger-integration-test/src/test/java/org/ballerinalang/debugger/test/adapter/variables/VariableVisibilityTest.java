@@ -252,7 +252,6 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
 //        assertVariable(anonPersonAddressChildVariables[0], "city", "Colombo", "string");
 //        assertVariable(anonPersonAddressChildVariables[1], "country", "Sri Lanka", "string");
 
-
         // json child variable visibility test
         Variable[] jsonChildVariables = getChildVariable(variables[23]);
         Arrays.sort(jsonChildVariables, compareByName);
