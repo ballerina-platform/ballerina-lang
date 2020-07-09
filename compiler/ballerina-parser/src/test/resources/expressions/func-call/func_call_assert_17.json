@@ -113,6 +113,10 @@
         },
         {
           "kind": "REST_ARG",
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_ARG_FOLLOWED_BY_REST_ARG"
+          ],
           "children": [
             {
               "kind": "ELLIPSIS_TOKEN"
@@ -122,39 +126,40 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "subjects"
+                  "value": "subjects",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
+                        "kind": "POSITIONAL_ARG",
+                        "children": [
+                          {
+                            "kind": "DECIMAL_INTEGER_LITERAL",
+                            "children": [
+                              {
+                                "kind": "DECIMAL_INTEGER_LITERAL",
+                                "value": "10"
+                              }
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  ]
                 }
               ]
-            }
-          ]
-        },
-        {
-          "kind": "COMMA_TOKEN",
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_ARG_FOLLOWED_BY_REST_ARG"
-          ],
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            },
-            {
-              "kind": "INVALID_NODE_MINUTIAE",
-              "invalidNode": {
-                "kind": "POSITIONAL_ARG",
-                "children": [
-                  {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "children": [
-                      {
-                        "kind": "DECIMAL_INTEGER_LITERAL",
-                        "value": "10"
-                      }
-                    ]
-                  }
-                ]
-              }
             }
           ]
         }

@@ -4941,10 +4941,9 @@ public class BallerinaParser extends AbstractParser {
      * @return the argument list
      */
     private STNode parseArgList(STNode firstArg) {
-        boolean invalidArgFound = false;
         ArrayList<STNode> argsList = new ArrayList<>();
         argsList.add(firstArg);
-        SyntaxKind prevArgKind = firstArg.kind;
+        SyntaxKind lastValidArgKind = firstArg.kind;
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
             STNode argEnd = parseArgEnd(nextToken.kind);
@@ -4965,19 +4964,15 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            argsList.add(argEnd);
             STNode curArg = parseArgument(nextToken.kind);
-            if (invalidArgFound) {
-                updateLastNodeInListWithInvalidNode(argsList, curArg, null);
+            DiagnosticErrorCode errorCode = validateArgumentOrder(lastValidArgKind, curArg.kind);
+            if (errorCode == null) {
+                argsList.add(argEnd);
+                argsList.add(curArg);
+                lastValidArgKind = curArg.kind;
             } else {
-                DiagnosticErrorCode errorCode = validateArgumentOrder(prevArgKind, curArg.kind);
-                if (errorCode == null) {
-                    argsList.add(curArg);
-                    prevArgKind = curArg.kind;
-                } else {
-                    updateLastNodeInListWithInvalidNode(argsList, curArg, errorCode);
-                    invalidArgFound = true;
-                }
+                updateLastNodeInListWithInvalidNode(argsList, argEnd, null);
+                updateLastNodeInListWithInvalidNode(argsList, curArg, errorCode);
             }
 
             nextToken = peek();
@@ -13489,6 +13484,24 @@ public class BallerinaParser extends AbstractParser {
                 return isAmbiguous(binaryExpr.lhsExpr) && isAmbiguous(binaryExpr.rhsExpr);
             case BRACED_EXPRESSION:
                 return isAmbiguous(((STBracedExpressionNode) node).expression);
+            case INDEXED_EXPRESSION:
+                STIndexedExpressionNode indexExpr = (STIndexedExpressionNode) node;
+                if (!isAmbiguous(indexExpr.containerExpression)) {
+                    return false;
+                }
+
+                STNode keys = indexExpr.keyExpression;
+                for (int i = 0; i < keys.bucketCount(); i++) {
+                    STNode item = keys.childInBucket(i);
+                    if (item.kind == SyntaxKind.COMMA_TOKEN) {
+                        continue;
+                    }
+
+                    if (!isAmbiguous(item)) {
+                        return false;
+                    }
+                }
+                return true;
             default:
                 return false;
         }
@@ -14027,25 +14040,17 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseArgListBindingPatterns() {
         List<STNode> argListBindingPatterns = new ArrayList<>();
-        boolean invalidArgFound = false;
-        SyntaxKind prevArgKind = SyntaxKind.CAPTURE_BINDING_PATTERN;
+        SyntaxKind lastValidArgKind = SyntaxKind.CAPTURE_BINDING_PATTERN;
 
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
-            // If there's an extra comma at the end of arguments list, remove it.
-            // Then stop the argument parsing.
             STNode currentArg = parseArgBindingPattern(nextToken.kind);
-            if (invalidArgFound) {
-                updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, null);
+            DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind);
+            if (errorCode == null) {
+                argListBindingPatterns.add(currentArg);
+                lastValidArgKind = currentArg.kind;
             } else {
-                DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(prevArgKind, currentArg.kind);
-                if (errorCode == null) {
-                    argListBindingPatterns.add(currentArg);
-                    prevArgKind = currentArg.kind;
-                } else {
-                    updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
-                    invalidArgFound = true;
-                }
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
             }
 
             nextToken = peek();
@@ -14054,7 +14059,12 @@ public class BallerinaParser extends AbstractParser {
                 // null marks the end of args
                 break;
             }
-            argListBindingPatterns.add(argEnd);
+
+            if (errorCode == null) {
+                argListBindingPatterns.add(argEnd);
+            } else {
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
+            }
 
             nextToken = peek();
         }
@@ -14932,7 +14942,7 @@ public class BallerinaParser extends AbstractParser {
                 }
                 return SyntaxKind.LIST_CONSTRUCTOR;
             default:
-                if (isExpression(memberNode.kind) && !isAllBasicLiterals(memberNode)) {
+                if (isExpression(memberNode.kind) && !isAllBasicLiterals(memberNode) && !isAmbiguous(memberNode)) {
                     return SyntaxKind.LIST_CONSTRUCTOR;
                 }
 
