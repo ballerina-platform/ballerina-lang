@@ -1111,7 +1111,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token rightArrowToken,
             SimpleNameReferenceNode methodName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
@@ -1920,7 +1920,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
             Token newKeyword,
             TypeDescriptorNode typeDescriptor,
-            Node parenthesizedArgList) {
+            ParenthesizedArgList parenthesizedArgList) {
         Objects.requireNonNull(newKeyword, "newKeyword must not be null");
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
@@ -1945,7 +1945,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ParenthesizedArgList createParenthesizedArgList(
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
         Objects.requireNonNull(arguments, "arguments must not be null");

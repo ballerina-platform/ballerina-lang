@@ -1518,7 +1518,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -2615,7 +2615,7 @@
                 },
                 {
                     "name": "parenthesizedArgList",
-                    "type": "Node"
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },
@@ -2647,7 +2647,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",

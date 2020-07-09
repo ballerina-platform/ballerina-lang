@@ -1141,8 +1141,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(remoteMethodCallActionNode.methodName());
         Token openParenToken =
                 modifyToken(remoteMethodCallActionNode.openParenToken());
-        NodeList<FunctionArgumentNode> arguments =
-                modifyNodeList(remoteMethodCallActionNode.arguments());
+        SeparatedNodeList<FunctionArgumentNode> arguments =
+                modifySeparatedNodeList(remoteMethodCallActionNode.arguments());
         Token closeParenToken =
                 modifyToken(remoteMethodCallActionNode.closeParenToken());
         return remoteMethodCallActionNode.modify(
@@ -1954,7 +1954,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(explicitNewExpressionNode.newKeyword());
         TypeDescriptorNode typeDescriptor =
                 modifyNode(explicitNewExpressionNode.typeDescriptor());
-        Node parenthesizedArgList =
+        ParenthesizedArgList parenthesizedArgList =
                 modifyNode(explicitNewExpressionNode.parenthesizedArgList());
         return explicitNewExpressionNode.modify(
                 newKeyword,
@@ -1979,8 +1979,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ParenthesizedArgList parenthesizedArgList) {
         Token openParenToken =
                 modifyToken(parenthesizedArgList.openParenToken());
-        NodeList<FunctionArgumentNode> arguments =
-                modifyNodeList(parenthesizedArgList.arguments());
+        SeparatedNodeList<FunctionArgumentNode> arguments =
+                modifySeparatedNodeList(parenthesizedArgList.arguments());
         Token closeParenToken =
                 modifyToken(parenthesizedArgList.closeParenToken());
         return parenthesizedArgList.modify(
