@@ -18,6 +18,7 @@
 package org.ballerinalang.jvm.values;
 
 import org.ballerinalang.jvm.BRuntime;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.util.BLangConstants;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
@@ -44,11 +45,13 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
     final BType type;
     Function<T, R> function;
     public boolean isConcurrent;
+    public String strandName;
 
     @Deprecated
-    public FPValue(Function<T, R> function, BType type, boolean isConcurrent) {
+    public FPValue(Function<T, R> function, BType type, String strandName, boolean isConcurrent) {
         this.function = function;
         this.type = type;
+        this.strandName = strandName;
         this.isConcurrent = isConcurrent;
     }
 
@@ -56,21 +59,14 @@ public class FPValue<T, R> implements BFunctionPointer<T, R>, RefValue {
         return this.function.apply(t);
     }
 
-    @Deprecated
-    public FPValue(Consumer<T> consumer, BType type) {
-        this.function = val -> {
-            consumer.accept(val);
-            return null;
-        };
-        this.type = type;
+    public FutureValue asyncCall(Object[] args, StrandMetadata metaData) {
+        return this.asyncCall(args, o -> o, metaData);
     }
 
-    public FutureValue asyncCall(Object[] args) {
-        return this.asyncCall(args, o -> o);
-    }
-
-    public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction) {
-        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, args, resultHandleFunction);
+    public FutureValue asyncCall(Object[] args, Function<Object, Object> resultHandleFunction,
+                                 StrandMetadata metaData) {
+        return BRuntime.getCurrentRuntime().invokeFunctionPointerAsync(this, this.strandName, metaData,
+                                                                       args, resultHandleFunction);
     }
 
     public Function<T, R> getFunction() {

@@ -1,0 +1,2 @@
+# # Deprecated
+function foo() { }

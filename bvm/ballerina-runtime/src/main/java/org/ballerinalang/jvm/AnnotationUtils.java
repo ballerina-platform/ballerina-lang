@@ -106,4 +106,18 @@ public class AnnotationUtils {
     public static boolean isConcurrent(FPValue fpValue) {
         return fpValue.isConcurrent;
     }
+
+    /**
+     * Returns strand name of given {@link FPValue}.
+     *
+     * @param fpValue     function pointer to be invoked
+     * @param defaultName default strand name
+     * @return annotated strand name
+     */
+    public static String getStrandName(FPValue fpValue, String defaultName) {
+        if (fpValue.strandName != null) {
+            return fpValue.strandName;
+        }
+        return defaultName;
+    }
 }
