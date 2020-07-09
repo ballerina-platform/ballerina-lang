@@ -286,7 +286,8 @@ public class DocCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true,
+                true);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
