@@ -25,7 +25,6 @@ import org.ballerinalang.jvm.values.api.BString;
 /**
  * Extern function ballerina.system:getProperty.
  *
- * @since swan-lake
  */
 public class GetProperty {
     public static BString getProperty(BString name) {
