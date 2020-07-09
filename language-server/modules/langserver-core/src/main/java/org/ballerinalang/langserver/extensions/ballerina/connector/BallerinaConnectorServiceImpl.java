@@ -140,7 +140,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName());
-
+        String error = "";
         if (ast == null) {
             try {
                 Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
@@ -215,14 +215,15 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
                 ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                         request.getVersion(), request.getName());
-            } catch (UnsupportedEncodingException | LSStdlibCacheException | LSConnectorException e) {
+            } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
+                error = e.getMessage();
                 logError(msg, e, null, (Position) null);
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName() , ast);
+                request.getVersion(), request.getName(), request.getDisplayName(), ast, error);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
