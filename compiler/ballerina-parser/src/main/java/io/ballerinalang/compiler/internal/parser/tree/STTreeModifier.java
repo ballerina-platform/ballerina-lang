@@ -2348,25 +2348,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STFunctionalMatchPatternNode functionalMatchPatternNode) {
         STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
         STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
-        STNode positionalArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.positionalArgMatchPatternsNode);
-        STNode otherArgMatchPatternsNode = modifyNode(functionalMatchPatternNode.otherArgMatchPatternsNode);
+        STNode argListMatchPatternNode = modifyNode(functionalMatchPatternNode.argListMatchPatternNode);
         STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
         return functionalMatchPatternNode.modify(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken);
-    }
-
-    @Override
-    public STOtherArgMatchPatternsNode transform(
-            STOtherArgMatchPatternsNode otherArgMatchPatternsNode) {
-        STNode namedArgMatchPatternsNode = modifyNode(otherArgMatchPatternsNode.namedArgMatchPatternsNode);
-        STNode restMatchPattern = modifyNode(otherArgMatchPatternsNode.restMatchPattern);
-        return otherArgMatchPatternsNode.modify(
-                namedArgMatchPatternsNode,
-                restMatchPattern);
     }
 
     @Override

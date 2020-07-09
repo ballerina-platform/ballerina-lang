@@ -2903,33 +2903,19 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static FunctionalMatchPatternNode createFunctionalMatchPatternNode(
             Node typeRef,
             Token openParenthesisToken,
-            SeparatedNodeList<Node> positionalArgMatchPatternsNode,
-            OtherArgMatchPatternsNode otherArgMatchPatternsNode,
+            SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {
         Objects.requireNonNull(typeRef, "typeRef must not be null");
         Objects.requireNonNull(openParenthesisToken, "openParenthesisToken must not be null");
-        Objects.requireNonNull(positionalArgMatchPatternsNode, "positionalArgMatchPatternsNode must not be null");
-        Objects.requireNonNull(otherArgMatchPatternsNode, "otherArgMatchPatternsNode must not be null");
+        Objects.requireNonNull(argListMatchPatternNode, "argListMatchPatternNode must not be null");
         Objects.requireNonNull(closeParenthesisToken, "closeParenthesisToken must not be null");
 
         STNode stFunctionalMatchPatternNode = STNodeFactory.createFunctionalMatchPatternNode(
                 typeRef.internalNode(),
                 openParenthesisToken.internalNode(),
-                positionalArgMatchPatternsNode.underlyingListNode().internalNode(),
-                otherArgMatchPatternsNode.internalNode(),
+                argListMatchPatternNode.underlyingListNode().internalNode(),
                 closeParenthesisToken.internalNode());
         return stFunctionalMatchPatternNode.createUnlinkedFacade();
-    }
-
-    public static OtherArgMatchPatternsNode createOtherArgMatchPatternsNode(
-            SeparatedNodeList<NamedArgMatchPatternNode> namedArgMatchPatternsNode,
-            RestMatchPatternNode restMatchPattern) {
-        Objects.requireNonNull(namedArgMatchPatternsNode, "namedArgMatchPatternsNode must not be null");
-
-        STNode stOtherArgMatchPatternsNode = STNodeFactory.createOtherArgMatchPatternsNode(
-                namedArgMatchPatternsNode.underlyingListNode().internalNode(),
-                getOptionalSTNode(restMatchPattern));
-        return stOtherArgMatchPatternsNode.createUnlinkedFacade();
     }
 
     public static NamedArgMatchPatternNode createNamedArgMatchPatternNode(

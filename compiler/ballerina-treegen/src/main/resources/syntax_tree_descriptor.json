@@ -3952,34 +3952,13 @@
                     "type": "Token"
                 },
                 {
-                    "name": "positionalArgMatchPatternsNode",
+                    "name": "argListMatchPatternNode",
                     "type": "Node",
                     "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
-                    "name": "otherArgMatchPatternsNode",
-                    "type": "OtherArgMatchPatternsNode"
-                },
-                {
                     "name": "closeParenthesisToken",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "OtherArgMatchPatternsNode",
-            "base": "Node",
-            "kind": "OTHER_ARG_MATCH_PATTERNS",
-            "attributes": [
-                {
-                    "name": "namedArgMatchPatternsNode",
-                    "type": "NamedArgMatchPatternNode",
-                    "occurrences": "MULTIPLE_SEPARATED"
-                },
-                {
-                    "name": "restMatchPattern",
-                    "type": "RestMatchPatternNode",
-                    "isOptional": true
                 }
             ]
         },

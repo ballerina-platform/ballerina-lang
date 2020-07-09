@@ -253,10 +253,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_ANNOTATIONS("BCE220", "error.invalid.annotations"),
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE221",
             "error.more.field.match.patterns.after.rest.field"),
-    ERROR_POSITIONAL_ARGUMENT_IS_NOT_ALLOWED_AFTER_NAMED_ARGUMENT("BCE222",
-            "error.positional.argument.is.not.allowed.after.named.argument"),
-    ERROR_OTHER_ARGUMENTS_ARE_NOT_ALLOWED_AFTER_REST_MATCH_PATTERN("BCE223",
-            "error.other.arguments.are.not.allowed.after.rest.match.pattern"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",

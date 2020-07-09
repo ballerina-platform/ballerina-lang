@@ -40,16 +40,12 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         return childInBucket(1);
     }
 
-    public SeparatedNodeList<Node> positionalArgMatchPatternsNode() {
+    public SeparatedNodeList<Node> argListMatchPatternNode() {
         return new SeparatedNodeList<>(childInBucket(2));
     }
 
-    public OtherArgMatchPatternsNode otherArgMatchPatternsNode() {
-        return childInBucket(3);
-    }
-
     public Token closeParenthesisToken() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     @Override
@@ -67,22 +63,19 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         return new String[]{
                 "typeRef",
                 "openParenthesisToken",
-                "positionalArgMatchPatternsNode",
-                "otherArgMatchPatternsNode",
+                "argListMatchPatternNode",
                 "closeParenthesisToken"};
     }
 
     public FunctionalMatchPatternNode modify(
             Node typeRef,
             Token openParenthesisToken,
-            SeparatedNodeList<Node> positionalArgMatchPatternsNode,
-            OtherArgMatchPatternsNode otherArgMatchPatternsNode,
+            SeparatedNodeList<Node> argListMatchPatternNode,
             Token closeParenthesisToken) {
         if (checkForReferenceEquality(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode.underlyingListNode(),
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode.underlyingListNode(),
                 closeParenthesisToken)) {
             return this;
         }
@@ -90,8 +83,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         return NodeFactory.createFunctionalMatchPatternNode(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken);
     }
 
@@ -108,16 +100,14 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
         private final FunctionalMatchPatternNode oldNode;
         private Node typeRef;
         private Token openParenthesisToken;
-        private SeparatedNodeList<Node> positionalArgMatchPatternsNode;
-        private OtherArgMatchPatternsNode otherArgMatchPatternsNode;
+        private SeparatedNodeList<Node> argListMatchPatternNode;
         private Token closeParenthesisToken;
 
         public FunctionalMatchPatternNodeModifier(FunctionalMatchPatternNode oldNode) {
             this.oldNode = oldNode;
             this.typeRef = oldNode.typeRef();
             this.openParenthesisToken = oldNode.openParenthesisToken();
-            this.positionalArgMatchPatternsNode = oldNode.positionalArgMatchPatternsNode();
-            this.otherArgMatchPatternsNode = oldNode.otherArgMatchPatternsNode();
+            this.argListMatchPatternNode = oldNode.argListMatchPatternNode();
             this.closeParenthesisToken = oldNode.closeParenthesisToken();
         }
 
@@ -135,17 +125,10 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
             return this;
         }
 
-        public FunctionalMatchPatternNodeModifier withPositionalArgMatchPatternsNode(
-                SeparatedNodeList<Node> positionalArgMatchPatternsNode) {
-            Objects.requireNonNull(positionalArgMatchPatternsNode, "positionalArgMatchPatternsNode must not be null");
-            this.positionalArgMatchPatternsNode = positionalArgMatchPatternsNode;
-            return this;
-        }
-
-        public FunctionalMatchPatternNodeModifier withOtherArgMatchPatternsNode(
-                OtherArgMatchPatternsNode otherArgMatchPatternsNode) {
-            Objects.requireNonNull(otherArgMatchPatternsNode, "otherArgMatchPatternsNode must not be null");
-            this.otherArgMatchPatternsNode = otherArgMatchPatternsNode;
+        public FunctionalMatchPatternNodeModifier withArgListMatchPatternNode(
+                SeparatedNodeList<Node> argListMatchPatternNode) {
+            Objects.requireNonNull(argListMatchPatternNode, "argListMatchPatternNode must not be null");
+            this.argListMatchPatternNode = argListMatchPatternNode;
             return this;
         }
 
@@ -160,8 +143,7 @@ public class FunctionalMatchPatternNode extends NonTerminalNode {
             return oldNode.modify(
                     typeRef,
                     openParenthesisToken,
-                    positionalArgMatchPatternsNode,
-                    otherArgMatchPatternsNode,
+                    argListMatchPatternNode,
                     closeParenthesisToken);
         }
     }

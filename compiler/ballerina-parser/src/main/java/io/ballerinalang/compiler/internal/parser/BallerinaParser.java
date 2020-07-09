@@ -585,10 +585,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseFieldMatchPatternRhs();
             case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
                 return parseFunctionalMatchPatternOrConsPattern((STNode) args[0]);
-            case OTHER_ARG_MATCH_PATTERN_MEMBER:
-                return parseOtherArgMatchPatterns((List<STNode>) args[0]);
-            case ARG_LIST_MATCH_PATTERN_MEMBER_RHS:
-                return parseArgListMatchPatternMemberRhs();
+            case ARG_MATCH_PATTERN:
+                return parseArgMatchPattern();
+            case ARG_MATCH_PATTERN_RHS:
+                return parseArgMatchPatternRhs();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -12763,7 +12763,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
                 return parseFunctionalMatchPattern(typeRefOrConstExpr);
             default:
-                if (isMatchPatternRhs(peek().kind)) {
+                if (isMatchPatternEnd(peek().kind)) {
                     return typeRefOrConstExpr;
                 }
                 Solution solution = recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN,
@@ -12780,7 +12780,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private boolean isMatchPatternRhs(SyntaxKind tokenKind) {
+    private boolean isMatchPatternEnd(SyntaxKind tokenKind) {
         switch (tokenKind) {
             case RIGHT_DOUBLE_ARROW_TOKEN:
             case COMMA_TOKEN:
@@ -12814,39 +12814,42 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseFunctionalMatchPattern(STNode typeRef) {
         startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
         STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
-        List<STNode> positionalArgMatchPatterns = new ArrayList<>();
-        STNode otherArgMatchPatternsNode = STNodeFactory.createEmptyNode();
-
-        while (!isEndOfFunctionalMatchPattern()) {
-            STToken nextToken = peek();
-            if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                otherArgMatchPatternsNode = parseOtherArgMatchPatterns(new ArrayList<>());
-                break;
-            }
-            if (nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN) {
-                STNode nextNextToken = peek(2);
-                if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
-                    otherArgMatchPatternsNode = parseOtherArgMatchPatterns(new ArrayList<>());
-                    break;
-                }
-            }
-            STNode positionalArgMatchPattern = parseMatchPattern();
-            positionalArgMatchPatterns.add(positionalArgMatchPattern);
-            STNode positionalArgMatchPatternRhs = parseArgListMatchPatternMemberRhs();
-
-            if (positionalArgMatchPatternRhs != null) {
-                positionalArgMatchPatterns.add(positionalArgMatchPatternRhs);
-            } else {
-                break;
-            }
-        }
-
-        STNode positionalArgMatchPatternsNode =  STNodeFactory.createNodeList(positionalArgMatchPatterns);
+        STNode argListMatchPatternNode = parseArgListMatchPatterns();
         STNode closeParenthesisToken = parseCloseParenthesis();
         endContext();
 
-        return STNodeFactory.createFunctionalMatchPatternNode(typeRef, openParenthesisToken,
-                positionalArgMatchPatternsNode, otherArgMatchPatternsNode, closeParenthesisToken);
+        return STNodeFactory.createFunctionalMatchPatternNode(typeRef, openParenthesisToken, argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    private STNode parseArgListMatchPatterns() {
+        List<STNode> argListMatchPatterns = new ArrayList<>();
+        SyntaxKind lastValidArgKind = SyntaxKind.IDENTIFIER_TOKEN;
+
+        while (!isEndOfFunctionalMatchPattern()) {
+            STNode currentArg = parseArgMatchPattern();
+            DiagnosticErrorCode errorCode = validateArgMatchPatternOrder(lastValidArgKind, currentArg.kind);
+            if (errorCode == null) {
+                argListMatchPatterns.add(currentArg);
+                lastValidArgKind = currentArg.kind;
+            } else {
+                updateLastNodeInListWithInvalidNode(argListMatchPatterns, currentArg, errorCode);
+            }
+
+            STNode argRhs = parseArgMatchPatternRhs();
+
+            if (argRhs == null) {
+                break;
+            }
+
+            if (errorCode == null) {
+                argListMatchPatterns.add(argRhs);
+            } else {
+                updateLastNodeInListWithInvalidNode(argListMatchPatterns, argRhs, null);
+            }
+        }
+
+        return STNodeFactory.createNodeList(argListMatchPatterns);
     }
 
     private boolean isEndOfFunctionalMatchPattern() {
@@ -12860,50 +12863,24 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse other arg match patterns.
+     * Parse arg match patterns.
      * <code>
-     *     other-arg-match-patterns :=
-     *    named-arg-match-patterns [, rest-match-pattern]
-     *    | [rest-match-pattern]
-     *  <br/>
-     *      named-arg-match-patterns := named-arg-match-pattern (, named-arg-match-pattern)*
+     *     arg-match-pattern := match-pattern |   named-arg-match-pattern | rest-match-pattern
      * </code>
      * <br/><br/>
      *
-     * @return parsed other arg match pattern node.
+     * @return parsed arg match pattern node.
      */
-    private STNode parseOtherArgMatchPatterns(List<STNode> namedArgMatchPatternList) {
-        return parseOtherArgMatchPatterns(peek().kind, namedArgMatchPatternList);
+    private STNode parseArgMatchPattern() {
+        return parseArgMatchPattern(peek().kind);
     }
 
-    private STNode parseOtherArgMatchPatterns(SyntaxKind nextTokenKind, List<STNode> namedArgMatchPatternList) {
-        STNode namedArgMatchPatternsNode;
-        while (!isEndOfFunctionalMatchPattern()) {
+    private STNode parseArgMatchPattern(SyntaxKind nextTokenKind) {
             switch (nextTokenKind) {
                 case IDENTIFIER_TOKEN:
-                    namedArgMatchPatternList.add(parseNamedArgMatchPattern());
-                    break;
+                    return parseNamedOrPositionalArgMatchPattern();
                 case ELLIPSIS_TOKEN:
-                    STNode restMatchPattern  = parseRestMatchPattern();
-                    namedArgMatchPatternsNode = STNodeFactory.createNodeList(namedArgMatchPatternList);
-
-                    // Following loop will only run if there are more fields after the rest match pattern.
-                    // Try to parse them and add them as invalid nodes.
-                    STNode restMatchPatternRhs = parseArgListMatchPatternMemberRhs();
-                    List<STNode> invalidNamedArgMatchPatternList = new ArrayList<>();
-                    while (restMatchPatternRhs != null) {
-                        invalidNamedArgMatchPatternList.add(restMatchPatternRhs);
-                        STNode invalidField = parseOtherArgMatchPatterns(invalidNamedArgMatchPatternList);
-                        restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern,
-                                invalidField);
-                        restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
-                                DiagnosticErrorCode.ERROR_OTHER_ARGUMENTS_ARE_NOT_ALLOWED_AFTER_REST_MATCH_PATTERN);
-                        restMatchPatternRhs = parseArgListMatchPatternMemberRhs();
-                    }
-                    return STNodeFactory.createOtherArgMatchPatternsNode(namedArgMatchPatternsNode,
-                            restMatchPattern);
-                //If there is a positional arg match pattern after named arg match pattern
-                //Parse them and add as invalid nodes.
+                    return parseRestMatchPattern();
                 case OPEN_PAREN_TOKEN:
                 case NULL_KEYWORD:
                 case TRUE_KEYWORD:
@@ -12919,21 +12896,9 @@ public class BallerinaParser extends AbstractParser {
                 case OPEN_BRACKET_TOKEN:
                 case OPEN_BRACE_TOKEN:
                 case ERROR_KEYWORD:
-                    STNode invalidPositionalArg = parseMatchPattern();
-                    updateLastNodeInListWithInvalidNode(namedArgMatchPatternList, invalidPositionalArg,
-                            DiagnosticErrorCode.ERROR_POSITIONAL_ARGUMENT_IS_NOT_ALLOWED_AFTER_NAMED_ARGUMENT);
-                    //Look for invalid comma as well.
-                    STNode namedArgMatchPatternRhs = parseArgListMatchPatternMemberRhs();
-                    if (namedArgMatchPatternRhs != null) {
-                        updateLastNodeInListWithInvalidNode(namedArgMatchPatternList, namedArgMatchPatternRhs,
-                                DiagnosticErrorCode.ERROR_POSITIONAL_ARGUMENT_IS_NOT_ALLOWED_AFTER_NAMED_ARGUMENT);
-                    }
-                    //Invalid nodes are added as a minutiae to the last comma node
-                    //Start over parsing after seeing an invalid node.
-                    return parseOtherArgMatchPatterns(namedArgMatchPatternList);
+                    return parseMatchPattern();
                 default:
-                    Solution solution = recover(peek(), ParserRuleContext.OTHER_ARG_MATCH_PATTERN_MEMBER,
-                            namedArgMatchPatternList);
+                    Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN);
 
                     // If the parser recovered by inserting a token, then try to re-parse the same
                     // rule with the inserted token. This is done to pick the correct branch
@@ -12942,20 +12907,23 @@ public class BallerinaParser extends AbstractParser {
                         return solution.recoveredNode;
                     }
 
-                    return parseOtherArgMatchPatterns(solution.tokenKind, namedArgMatchPatternList);
+                    return parseArgMatchPattern(solution.tokenKind);
             }
+    }
 
-            STNode namedArgMatchPatternRhs = parseArgListMatchPatternMemberRhs();
-            if (namedArgMatchPatternRhs != null) {
-                namedArgMatchPatternList.add(namedArgMatchPatternRhs);
-            } else {
-                break;
-            }
-            nextTokenKind = peek().kind;
+    private STNode parseNamedOrPositionalArgMatchPattern() {
+        STNode identifier = parseIdentifier(ParserRuleContext.MATCH_PATTERN_START);
+        STToken secondToken = peek();
+        switch (secondToken.kind) {
+            case EQUAL_TOKEN:
+                return parseNamedArgMatchPattern(identifier);
+            case OPEN_PAREN_TOKEN:
+                return parseFunctionalMatchPattern(identifier);
+            case COMMA_TOKEN:
+            case CLOSE_PAREN_TOKEN:
+            default:
+                return identifier;
         }
-
-        namedArgMatchPatternsNode = STNodeFactory.createNodeList(namedArgMatchPatternList);
-        return STNodeFactory.createOtherArgMatchPatternsNode(namedArgMatchPatternsNode, null);
     }
 
     /**
@@ -12966,20 +12934,19 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return arg match pattern list node added the new arg match pattern
      */
-    private STNode parseNamedArgMatchPattern() {
+    private STNode parseNamedArgMatchPattern(STNode identifier) {
         startContext(ParserRuleContext.NAMED_ARG_MATCH_PATTERN);
-        STNode identifier = parseIdentifier(ParserRuleContext.NAMED_ARG_MATCH_PATTERN);
         STNode equalToken = parseAssignOp();
         STNode matchPattern = parseMatchPattern();
         endContext();
         return STNodeFactory.createNamedArgMatchPatternNode(identifier, equalToken, matchPattern);
     }
 
-    private STNode parseArgListMatchPatternMemberRhs() {
-        return parseArgListMatchPatternMemberRhs(peek().kind);
+    private STNode parseArgMatchPatternRhs() {
+        return parseArgMatchPatternRhs(peek().kind);
     }
 
-    private STNode parseArgListMatchPatternMemberRhs(SyntaxKind nextTokenKind) {
+    private STNode parseArgMatchPatternRhs(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case COMMA_TOKEN:
                 return parseComma();
@@ -12987,7 +12954,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
                 return null;
             default:
-                Solution solution = recover(peek(), ParserRuleContext.ARG_LIST_MATCH_PATTERN_MEMBER_RHS);
+                Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN_RHS);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12996,8 +12963,27 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseArgListMatchPatternMemberRhs(solution.tokenKind);
+                return parseArgMatchPatternRhs(solution.tokenKind);
         }
+    }
+
+    private DiagnosticErrorCode validateArgMatchPatternOrder(SyntaxKind prevArgKind, SyntaxKind currentArgKind) {
+        DiagnosticErrorCode errorCode = null;
+        switch (prevArgKind) {
+            case NAMED_ARG_MATCH_PATTERN:
+                if (currentArgKind != SyntaxKind.NAMED_ARG_MATCH_PATTERN &&
+                        currentArgKind != SyntaxKind.REST_MATCH_PATTERN) {
+                    errorCode = DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG;
+                }
+                break;
+            case REST_MATCH_PATTERN:
+                // Nothing is allowed after a rest arg
+                errorCode = DiagnosticErrorCode.ERROR_ARG_FOLLOWED_BY_REST_ARG;
+                break;
+            default:
+                break;
+        }
+        return errorCode;
     }
 
     // --------------------------------- Documentation ---------------------------------

@@ -761,10 +761,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(functionalMatchPatternNode);
     }
 
-    public void visit(STOtherArgMatchPatternsNode otherArgMatchPatternsNode) {
-        visitSyntaxNode(otherArgMatchPatternsNode);
-    }
-
     public void visit(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
         visitSyntaxNode(namedArgMatchPatternNode);
     }

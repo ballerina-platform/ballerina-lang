@@ -33,21 +33,18 @@ import java.util.Collections;
 public class STFunctionalMatchPatternNode extends STNode {
     public final STNode typeRef;
     public final STNode openParenthesisToken;
-    public final STNode positionalArgMatchPatternsNode;
-    public final STNode otherArgMatchPatternsNode;
+    public final STNode argListMatchPatternNode;
     public final STNode closeParenthesisToken;
 
     STFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode positionalArgMatchPatternsNode,
-            STNode otherArgMatchPatternsNode,
+            STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
         this(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken,
                 Collections.emptyList());
     }
@@ -55,22 +52,19 @@ public class STFunctionalMatchPatternNode extends STNode {
     STFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode positionalArgMatchPatternsNode,
-            STNode otherArgMatchPatternsNode,
+            STNode argListMatchPatternNode,
             STNode closeParenthesisToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FUNCTIONAL_MATCH_PATTERN, diagnostics);
         this.typeRef = typeRef;
         this.openParenthesisToken = openParenthesisToken;
-        this.positionalArgMatchPatternsNode = positionalArgMatchPatternsNode;
-        this.otherArgMatchPatternsNode = otherArgMatchPatternsNode;
+        this.argListMatchPatternNode = argListMatchPatternNode;
         this.closeParenthesisToken = closeParenthesisToken;
 
         addChildren(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken);
     }
 
@@ -78,8 +72,7 @@ public class STFunctionalMatchPatternNode extends STNode {
         return new STFunctionalMatchPatternNode(
                 this.typeRef,
                 this.openParenthesisToken,
-                this.positionalArgMatchPatternsNode,
-                this.otherArgMatchPatternsNode,
+                this.argListMatchPatternNode,
                 this.closeParenthesisToken,
                 diagnostics);
     }
@@ -87,14 +80,12 @@ public class STFunctionalMatchPatternNode extends STNode {
     public STFunctionalMatchPatternNode modify(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode positionalArgMatchPatternsNode,
-            STNode otherArgMatchPatternsNode,
+            STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
         if (checkForReferenceEquality(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken)) {
             return this;
         }
@@ -102,8 +93,7 @@ public class STFunctionalMatchPatternNode extends STNode {
         return new STFunctionalMatchPatternNode(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken,
                 diagnostics);
     }

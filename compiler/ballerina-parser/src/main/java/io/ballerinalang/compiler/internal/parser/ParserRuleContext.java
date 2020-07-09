@@ -231,11 +231,11 @@ public enum ParserRuleContext {
     FUNCTIONAL_MATCH_PATTERN("functional-match-pattern"),
     FUNC_MATCH_PATTERN_OR_CONST_PATTERN("func-match-pattern-or-cons-pattern"),
     FUNCTIONAL_MATCH_PATTERN_START("functional-match-pattern-start"),
-    OTHER_ARG_MATCH_PATTERN_MEMBER("other-arg-match-pattern-member"),
     NAMED_ARG_MATCH_PATTERN("named-arg-match-pattern"),
+    NAMED_ARG_MATCH_PATTERN_RHS("named-arg-match-pattern-rhs"),
     ARG_LIST_MATCH_PATTERN_START("arg-list-match-pattern-start"),
-    ARG_LIST_MATCH_PATTERN_MEMBER("arg-list-match-pattern-member"),
-    ARG_LIST_MATCH_PATTERN_MEMBER_RHS("arg-list-match-pattern-member-rhs"),
+    ARG_MATCH_PATTERN("arg-match-pattern"),
+    ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
 
     // Statements
     STATEMENT("statement"),

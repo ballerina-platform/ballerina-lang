@@ -2,7 +2,7 @@ function foo () {
     match bar {
         error()) => {}
         error gdgf&%^$ ) => {}
-        identifier ) => {}
+        identifier name = [], ... var e) => {}
         identifier:identifier %!&%) => {}
         error () fgfdg 676456 => {}
         5454 error 453 g5 () fgfdg 676456 => {}

@@ -2181,25 +2181,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createFunctionalMatchPatternNode(
             STNode typeRef,
             STNode openParenthesisToken,
-            STNode positionalArgMatchPatternsNode,
-            STNode otherArgMatchPatternsNode,
+            STNode argListMatchPatternNode,
             STNode closeParenthesisToken) {
 
         return new STFunctionalMatchPatternNode(
                 typeRef,
                 openParenthesisToken,
-                positionalArgMatchPatternsNode,
-                otherArgMatchPatternsNode,
+                argListMatchPatternNode,
                 closeParenthesisToken);
-    }
-
-    public static STNode createOtherArgMatchPatternsNode(
-            STNode namedArgMatchPatternsNode,
-            STNode restMatchPattern) {
-
-        return new STOtherArgMatchPatternsNode(
-                namedArgMatchPatternsNode,
-                restMatchPattern);
     }
 
     public static STNode createNamedArgMatchPatternNode(
