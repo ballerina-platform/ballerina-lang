@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -31,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -174,6 +176,14 @@ public class Type {
                 && ((BLangUnionTypeNode) type).getMemberTypeNodes().size() == 2) {
             BLangUnionTypeNode unionType = (BLangUnionTypeNode) type;
             typeModel = fromTypeNode((BLangType) unionType.getMemberTypeNodes().toArray()[0], currentModule);
+        } else if (type instanceof BLangStreamType) {
+            typeModel = new Type(type, currentModule);
+            List<Type> memberTypeNodes = new ArrayList<>();
+            memberTypeNodes.add(Type.fromTypeNode(((BLangStreamType) type).constraint, currentModule));
+            if (((BLangStreamType) type).error != null) {
+                memberTypeNodes.add(Type.fromTypeNode(((BLangStreamType) type).error, currentModule));
+            }
+            typeModel.memberTypes = memberTypeNodes;
         }
         if (typeModel == null) {
             typeModel = new Type(type, currentModule);
@@ -189,7 +199,13 @@ public class Type {
         }
         // If anonymous type substitute the name
         if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
-            typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);;
+            // if anonymous empty record
+            if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty()) {
+                    typeModel.name = type.type.toString();
+                    typeModel.generateUserDefinedTypeLink = false;
+            } else {
+                typeModel.name = "T" + typeModel.name.substring(typeModel.name.lastIndexOf('$') + 1);
+            }
         }
         return typeModel;
     }
@@ -244,6 +260,8 @@ public class Type {
                 case TypeTags.FUTURE:
                 case TypeTags.HANDLE:
                     this.category = "builtin"; break;
+                case TypeTags.STREAM:
+                    this.category = "stream"; break;
                 default:
                     this.category = "UNKNOWN";
             }

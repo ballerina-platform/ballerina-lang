@@ -76,6 +76,9 @@ OPTIONS
        --debug
            Run tests in remote debugging mode.
 
+       --home-cache
+           Specify a home cache directory.
+
 CONFIG PROPERTIES
        (--key=value)...
            Set Ballerina environment parameters as key/value pairs.

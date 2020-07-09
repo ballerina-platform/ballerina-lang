@@ -120,19 +120,21 @@
         <classes>
             <class name="org.ballerinalang.test.auth.AuthBaseTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest" />
-            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest" />
-            <class name="org.ballerinalang.test.auth.AuthzCacheTest" />
             <class name="org.ballerinalang.test.auth.AuthzConfigInheritanceTest"/>
-            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
-            <class name="org.ballerinalang.test.auth.OAuth2ConfigTest"/>
             <class name="org.ballerinalang.test.auth.ResourceLevelAuthTest"/>
             <class name="org.ballerinalang.test.auth.ServiceLevelAuthnTest"/>
-            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
-            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithoutHTTPAnnotationsTest"/>
             <class name="org.ballerinalang.test.auth.AuthnConfigPatternTest"/>
-            <class name="org.ballerinalang.test.auth.AuthnWithOAuth2Test"/>
+            <class name="org.ballerinalang.test.auth.AuthzConfigPatternTest"/>
+            <class name="org.ballerinalang.test.auth.AuthWithCustomProvidersHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithMultipleHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.AuthzCacheTest"/>
+            <class name="org.ballerinalang.test.auth.AuthnWithExpiredCertificateTest"/>
+            <class name="org.ballerinalang.test.auth.TokenPropagationTest"/>
+            <class name="org.ballerinalang.test.auth.SignatureValidationTest"/>
+            <class name="org.ballerinalang.test.auth.OAuth2ServiceTest"/>
+            <class name="org.ballerinalang.test.auth.OAuth2ClientTest"/>
+            <class name="org.ballerinalang.test.auth.LdapAuthStoreTest"/>
         </classes>
     </test>
 
@@ -300,25 +302,26 @@
         </classes>
     </test>
 
-    <test name="ballerina-packerina-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <groups>
-            <run>
-                <exclude name="brokenOnJBallerina"/>
-            </run>
-        </groups>
-        <classes>
-            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>
-            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>
-            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>
-            <!--            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>-->
-            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>
-            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>
-            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>
-        </classes>
-    </test>
+<!--    <test name="ballerina-packerina-tests" parallel="false">-->
+<!--        <parameter name="enableJBallerinaTests" value="true"/>-->
+<!--        <groups>-->
+<!--            <run>-->
+<!--                <exclude name="brokenOnJBallerina"/>-->
+<!--            </run>-->
+<!--        </groups>-->
+<!--        <classes>-->
+<!--            <class name="org.ballerinalang.test.packaging.ModulePushTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingNegativeTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.PackagingTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.LockFileTestCase"/>-->
+<!--            &lt;!&ndash;            <class name="org.ballerinalang.test.packaging.NativePackagingTestCase"/>&ndash;&gt;-->
+<!--            <class name="org.ballerinalang.test.packaging.PathDependencyTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.DirectoryTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SpiServicesTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.SingleBalFileTestCase"/>-->
+<!--            <class name="org.ballerinalang.test.packaging.CustomHomeCacheTest"/>-->
+<!--        </classes>-->
+<!--    </test>-->
 
     <test name="ballerina-task-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true"/>

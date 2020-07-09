@@ -360,15 +360,12 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
 
         // If a fresh response is not available, serve a stale response, provided that it is not prohibited by
         // a directive and is explicitly allowed in the request.
-        if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared)) {
-
+        if (isAllowedToBeServedStale(req.cacheControl, cachedResponse, isShared) && !req.hasHeader(PRAGMA)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
-            if (!isNoCacheSet(reqCache, resCache) && !req.hasHeader(PRAGMA)) {
-                log:printDebug("Serving cached stale response without validating with the origin server");
-                cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
-                return cachedResponse;
-            }
+            log:printDebug("Serving cached stale response without validating with the origin server");
+            cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
+            return cachedResponse;
         }
 
         log:printDebug(function() returns string {
@@ -378,7 +375,7 @@ function getCachedResponse(HttpCache cache, HttpClient httpClient, @tainted Requ
                                                             httpMethod, false);
         if (validatedResponse is Response) {
             updateResponseTimestamps(validatedResponse, currentT.time, time:currentTime().time);
-            setAgeHeader(validatedResponse);
+            setAgeHeader(<@untainted>validatedResponse);
         }
         return validatedResponse;
     } else {
@@ -425,7 +422,7 @@ function getValidationResponse(HttpClient httpClient, Request req, Response cach
         log:printDebug("Sending validation request for a stale response");
     }
 
-    var response = sendValidationRequest(httpClient, path, cachedResponse);
+    var response = sendValidationRequest(httpClient, path, req, cachedResponse);
     if (response is Response) {
         validationResponse = response;
     } else {
@@ -577,64 +574,81 @@ function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns
 function isAllowedToBeServedStale(RequestCacheControl? requestCacheControl, Response cachedResponse,
                                   boolean isSharedCache) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    var responseCacheControl = cachedResponse.cacheControl;
-    if (responseCacheControl is ResponseCacheControl) {
-        if (isServingStaleProhibited(requestCacheControl, responseCacheControl)) {
-            return false;
-        }
-    } else {
+    if (isServingStaleProhibitedInRequestCC(requestCacheControl)) {
         return false;
     }
-    return isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
+
+    if (isServingStaleProhibitedInResponseCC(cachedResponse.cacheControl)) {
+        return false;
+    }
+
+    return <@untainted>isStaleResponseAccepted(requestCacheControl, cachedResponse, isSharedCache);
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
-function isServingStaleProhibited(RequestCacheControl? reqCC, ResponseCacheControl? resCC) returns boolean {
+function isServingStaleProhibitedInRequestCC(RequestCacheControl? cacheControl) returns boolean {
     // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
-    if (reqCC is RequestCacheControl) {
-        if (reqCC.noCache || reqCC.noStore) {
-            return true;
-        }
+    if (cacheControl is ()) {
+        return false;
     }
 
-    if (resCC is ResponseCacheControl) {
-        if (resCC.mustRevalidate || resCC.proxyRevalidate || (resCC.sMaxAge >= 0)) {
-            return true;
-        }
+    RequestCacheControl reqCC = <RequestCacheControl>cacheControl;
+    return reqCC.noCache || reqCC.noStore;
+}
+
+// Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
+function isServingStaleProhibitedInResponseCC(ResponseCacheControl? cacheControl) returns boolean {
+    // A cache MUST NOT generate a stale response if it is prohibited by an explicit in-protocol directive
+    if (cacheControl is ()) {
+        return false;
     }
 
-    return false;
+    ResponseCacheControl resCC = <ResponseCacheControl>cacheControl;
+
+    // No need to worry about no-store directive here since we don't cache responses with no-store directives.
+    return resCC.noCache || resCC.mustRevalidate || resCC.proxyRevalidate || (resCC.sMaxAge >= 0);
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
 function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Response cachedResponse,
-                                 boolean isSharedCache) returns boolean {
-    if (requestCacheControl is RequestCacheControl) {
-        if (requestCacheControl.maxStale == MAX_STALE_ANY_AGE) {
-            return true;
-        } else if (requestCacheControl.maxStale >=
-                                (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache))) {
-            return true;
-        }
+                                 boolean isSharedCache) returns @tainted boolean {
+    if (requestCacheControl is ()) {
+        return false;
     }
-    return false;
+
+    RequestCacheControl reqCC = <RequestCacheControl>requestCacheControl;
+    return (reqCC.maxStale == MAX_STALE_ANY_AGE)
+          || (reqCC.maxStale >= (getResponseAge(cachedResponse) - getFreshnessLifetime(cachedResponse, isSharedCache)));
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(HttpClient httpClient, string path, Response cachedResponse) returns Response|ClientError {
-    Request validationRequest = new;
-
-    if (cachedResponse.hasHeader(ETAG)) {
-        validationRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
+function sendValidationRequest(HttpClient httpClient, string path, Request originalRequest, Response cachedResponse)
+                                returns Response|ClientError {
+    // Set the precondition headers only if the user hasn't explicitly set them.
+    boolean userProvidedINMHeader = originalRequest.hasHeader(IF_NONE_MATCH);
+    if (!userProvidedINMHeader && cachedResponse.hasHeader(ETAG)) {
+        originalRequest.setHeader(IF_NONE_MATCH, cachedResponse.getHeader(ETAG));
     }
 
-    if (cachedResponse.hasHeader(LAST_MODIFIED)) {
-        validationRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
+    boolean userProvidedIMSHeader = originalRequest.hasHeader(IF_MODIFIED_SINCE);
+    if (!userProvidedIMSHeader && cachedResponse.hasHeader(LAST_MODIFIED)) {
+        originalRequest.setHeader(IF_MODIFIED_SINCE, cachedResponse.getHeader(LAST_MODIFIED));
     }
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    return httpClient->get(path, message = validationRequest);
+    Response|ClientError resp = httpClient->forward(path, originalRequest);
+
+    // Have to remove the precondition headers from the request if they weren't user provided.
+    if (!userProvidedINMHeader) {
+        originalRequest.removeHeader(IF_NONE_MATCH);
+    }
+
+    if (!userProvidedIMSHeader) {
+        originalRequest.removeHeader(IF_MODIFIED_SINCE);
+    }
+
+    return resp;
 }
 
 function sendNewRequest(HttpClient httpClient, Request request, string path, string httpMethod, boolean forwardRequest)
