@@ -343,56 +343,6 @@ public class TypeChecker {
         return false;
     }
 
-    public static boolean isConvertibleToJson(Object sourceValue, List<TypeValuePair> unresolvedValues) {
-
-        BType sourceType = TypeChecker.getType(sourceValue);
-
-        if (TypeChecker.checkIsLikeType(sourceValue, BTypes.typeJSON, true)) {
-            return true;
-        }
-
-        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
-            ArrayValue source = (ArrayValue) sourceValue;
-            BType elementType = ((BArrayType) source.getType()).getElementType();
-            if (BTypes.isValueType(elementType)) {
-                return true;
-            }
-
-            Object[] arrayValues = source.getValues();
-            for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
-                if (!isConvertibleToJson(arrayValues[i], unresolvedValues)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.MAP_TAG) {
-            for (Object value : ((MapValueImpl) sourceValue).values()) {
-                if (!isConvertibleToJson(value, unresolvedValues)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG) {
-            TypeValuePair typeValuePair = new TypeValuePair(sourceValue, BTypes.typeJSON);
-            if (unresolvedValues.contains(typeValuePair)) {
-                return true;
-            }
-            unresolvedValues.add(typeValuePair);
-            for (Object object : ((MapValueImpl) sourceValue).values()) {
-                if (!isConvertibleToJson(object, unresolvedValues)) {
-                    return false;
-                }
-            }
-            return true;
-        } else if (sourceType.getTag() == TypeTags.TABLE_TAG) {
-            return true;
-        } else if ((sourceType.getTag() >= TypeTags.XML_ELEMENT_TAG && sourceType.getTag() <= TypeTags.XML_TEXT_TAG) ||
-                sourceType.getTag() == TypeTags.XML_TAG) {
-            return true;
-        }
-        return false;
-    }
-
     public static BType getType(Object value) {
         if (value == null) {
             return BTypes.typeNull;
