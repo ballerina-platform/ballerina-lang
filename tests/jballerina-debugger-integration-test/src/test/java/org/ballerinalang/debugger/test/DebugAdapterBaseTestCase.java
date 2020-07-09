@@ -331,7 +331,13 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
             }
         }
     }
-
+    /**
+     * Can be used to fetch variable values when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return Variable array with debug hit variables information.
+     * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
+     */
     protected Variable[] fetchDebugHitVariables(StoppedEventArguments args) throws BallerinaTestException {
         if (!DebugHitListener.connector.isConnected()) {
             return new Variable[0];
@@ -361,6 +367,13 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         }
     }
 
+    /**
+     * Can be used to get child variables from parent variable.
+     *
+     * @param childVariable child variable.
+     * @return Variable array with child variables information.
+     * @throws BallerinaTestException if an error occurs when fetching debug hit child variables.
+     */
     protected Variable[] getChildVariable(Variable childVariable) throws BallerinaTestException {
         VariablesArguments childVariableArgs = new VariablesArguments();
         childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
