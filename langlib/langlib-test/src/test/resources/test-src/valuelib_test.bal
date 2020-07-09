@@ -19,6 +19,11 @@ type Employee record {
     boolean married;
 };
 
+type Address1 record {|
+    string country;
+    string city;
+    json...;
+|};
 
 function testToJsonString() returns map<string> {
     json aNil = ();
@@ -33,6 +38,7 @@ function testToJsonString() returns map<string> {
     map<()|int|float|boolean|string| map<json>>[] aArr =
         [{ name : "anObject", value : "10", sub : "Science", intVal: 2324, boolVal: true, floatVal: 45.4, nestedMap:
         {xx: "XXStr", n: 343, nilVal: ()}}, { name : "anObject", value : "10", sub : "Science"}];
+    Address1 addr1 = {country: "x", city: "y", "street": "z", "no": 3};
     map<string> result = {};
     byte[] bArr = [0, 1, 255];
     int[] iArr = bArr;
@@ -47,8 +53,14 @@ function testToJsonString() returns map<string> {
     result["anotherMap"] = anotherMap.toJsonString();
     result["aArr"] = aArr.toJsonString();
     result["iArr"] = iArr.toJsonString();
+    result["arr1"] = addr1.toJsonString();
     return result;
 }
+
+type Pooh record {
+    int id;
+    xml x;
+};
 
 function testToJsonStringForNonJsonTypes() {
     () aNil = ();
@@ -58,6 +70,8 @@ function testToJsonStringForNonJsonTypes() {
     string[] anStringArray = ["hello", "world"];
     int[] anIntArray = [1, 2];
     Address aRecord = {country: "A", city: "Aa", street: "Aaa"};
+    Pooh aRecordWithXML = {id: 1, x: xml `<book>DJ</book>`};
+    anydata anAnyData = 10.23;
     map<string> result = {};
 
     result["aNil"] = aNil.toJsonString();
@@ -67,6 +81,8 @@ function testToJsonStringForNonJsonTypes() {
     result["anStringArray"] = anStringArray.toJsonString();
     result["anIntArray"] = anIntArray.toJsonString();
     result["aRecord"] = aRecord.toJsonString();
+    result["aRecordWithXML"] = aRecordWithXML.toJsonString();
+    result["anAnyData"] = anAnyData.toJsonString();
 
     assert(result["aNil"], "null");
     assert(result["aString"], "aString");
@@ -75,6 +91,8 @@ function testToJsonStringForNonJsonTypes() {
     assert(result["anStringArray"], "[\"hello\", \"world\"]");
     assert(result["anIntArray"], "[1, 2]");
     assert(result["aRecord"], "{\"country\":\"A\", \"city\":\"Aa\", \"street\":\"Aaa\"}");
+    assert(result["aRecordWithXML"], "{\"id\":1, \"x\":\"<book>DJ</book>\"}");
+    assert(result["anAnyData"], "10.23");
 }
 
 function testFromJsonString() returns map<json|error> {
@@ -827,10 +845,15 @@ function testFromJsonStringWithTypeIntArray() {
 
 /////////////////////////// Tests for `toJson()` ///////////////////////////
 
-function testToJsonWithRecord() {
+function testToJsonWithRecord1() {
     Student2 s = {name: "Adam", age: 23};
     json|error j = s.toJson();
     assert(j is json, true);
+}
+
+function testToJsonWithRecord2() {
+    Address1 addr1 = {country: "x", city: "y", "street": "z", "no": 3};
+    json jsonaddr1 = addr1.toJson();
 }
 
 function testToJsonWithLiterals() {

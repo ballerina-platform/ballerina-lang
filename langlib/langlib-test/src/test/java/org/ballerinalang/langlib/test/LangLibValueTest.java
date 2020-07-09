@@ -81,7 +81,8 @@ public class LangLibValueTest {
                      "\"boolVal\":true, \"floatVal\":45.4, \"nestedMap\":{\"xx\":\"XXStr\", \"n\":343, " +
                      "\"nilVal\":null}}, {\"name\":\"anObject\", \"value\":\"10\", \"sub\":\"Science\"}]");
         assertEquals(arr.get("iArr").stringValue(), "[0, 1, 255]");
-        assertEquals(arr.size(), 10);
+        assertEquals(arr.get("arr1").stringValue(), "{\"country\":\"x\", \"city\":\"y\", \"street\":\"z\", \"no\":3}");
+        assertEquals(arr.size(), 11);
     }
 
     @Test
@@ -269,7 +270,8 @@ public class LangLibValueTest {
     @DataProvider(name = "toJsonFunctions")
     public Object[][] toJsonFunctions() {
         return new Object[][] {
-                { "testToJsonWithRecord" },
+                { "testToJsonWithRecord1" },
+                { "testToJsonWithRecord2" },
                 { "testToJsonWithLiterals" },
                 { "testToJsonWithArray" },
                 { "testToJsonWithXML" },
