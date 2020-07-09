@@ -12,6 +12,10 @@ scopes="scope1,scope2"
 password="123"
 scopes="scope1,scope3"
 
+[b7a.users.alice]
+password="123"
+scopes="test-scope"
+
 [b7a.group1]
 [b7a.group1.chanaka]
 password="123"

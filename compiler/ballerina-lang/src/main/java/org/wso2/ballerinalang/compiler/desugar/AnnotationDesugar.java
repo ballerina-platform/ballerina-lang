@@ -259,18 +259,23 @@ public class AnnotationDesugar {
                     continue;
                 }
                 BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
-                if (!variableName.value.equals("thread")) {
+                if (variableName.value.equals("name")) {
+                    if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                        continue;
+                    }
+                    function.symbol.strandName = ((BLangLiteral) keyValue.valueExpr).value.toString();
                     continue;
                 }
-                if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
-                    continue;
+                if (variableName.value.equals("thread")) {
+                    if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                        continue;
+                    }
+                    Object value = ((BLangLiteral) keyValue.valueExpr).value;
+                    if ("any".equals(value)) {
+                        function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
+                    }
                 }
-                Object value = ((BLangLiteral) keyValue.valueExpr).value;
 
-                if ("any".equals(value)) {
-                    function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
-                    return;
-                }
             }
         }
     }
