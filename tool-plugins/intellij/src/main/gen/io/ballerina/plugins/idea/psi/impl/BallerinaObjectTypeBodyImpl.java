@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement implements BallerinaRecoverableTypeContent {
+public class BallerinaObjectTypeBodyImpl extends ASTWrapperPsiElement implements BallerinaObjectTypeBody {
 
-  public BallerinaRecoverableTypeContentImpl(@NotNull ASTNode node) {
+  public BallerinaObjectTypeBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecoverableTypeContent(this);
+    visitor.visitObjectTypeBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,9 +43,39 @@ public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement im
   }
 
   @Override
+  @Nullable
+  public BallerinaObjectBodyContent getObjectBodyContent() {
+    return findChildByClass(BallerinaObjectBodyContent.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getLeftBrace() {
+    return findChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getAbstract() {
+    return findChildByType(ABSTRACT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getClient() {
+    return findChildByType(CLIENT);
+  }
+
+  @Override
   @NotNull
-  public PsiElement getAny() {
-    return findNotNullChildByType(ANY);
+  public PsiElement getObject() {
+    return findNotNullChildByType(OBJECT);
   }
 
 }

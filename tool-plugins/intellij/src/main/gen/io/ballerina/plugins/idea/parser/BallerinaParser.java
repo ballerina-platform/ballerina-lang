@@ -17,311 +17,15 @@
 // This is a generated file. Not intended for manual editing.
 package io.ballerina.plugins.idea.parser;
 
-import com.intellij.lang.ASTNode;
-import com.intellij.lang.LightPsiParser;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiBuilder.Marker;
-import com.intellij.lang.PsiParser;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
+import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.*;
 import com.intellij.psi.tree.IElementType;
+import com.intellij.lang.ASTNode;
 import com.intellij.psi.tree.TokenSet;
-
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.Parser;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.TRUE_CONDITION;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._COLLAPSE_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._LEFT_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._NONE_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil._NOT_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.adapt_builder_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.addVariant;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeToken;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokenSmart;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokens;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.consumeTokensSmart;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.create_token_set_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.current_position_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.empty_element_parsed_guard_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.enter_section_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.eof;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.exit_section_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.isGroupType;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nextTokenIs;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nextTokenIsSmart;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.nullableTypePredicate;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.recursion_guard_;
-import static io.ballerina.plugins.idea.parser.BallerinaParserUtil.report_error_;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABORTED;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ABSTRACT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ALIAS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_ACCESS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_ATTACHMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANNOTATION_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANYDATA;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ANY_IDENTIFIER_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ARRAY_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.AS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ASSIGN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.AT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BACKTICKED_BLOCK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BASE_16_BLOB_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BASE_64_BLOB_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BINARY_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BITAND;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BITXOR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BIT_COMPLEMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BOOLEAN_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BREAK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BUILT_IN_REFERENCE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.BYTE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CATCH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECKPANIC;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLOSE_RECORD_TYPE_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_AND;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_OR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_BIT_XOR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_LEFT_SHIFT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_LOGICAL_SHIFT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_RIGHT_SHIFT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONSTANT_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_EXTENDED_FLOATING_POINT_NUMBER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_FLOATING_POINT_NUMBER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEFAULT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_ANNOTATION_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_ANNOTATION_DOCUMENTATION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETERS_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETERS_DOCUMENTATION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED_PARAMETER_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATE_ANNOTATION_DESCRIPTION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DESCRIPTION_SEPARATOR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DIV;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DO;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCANNOTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCCONST;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCFUNCTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCMODULE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCPARAMETER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCSERVICE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCTYPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_ESCAPED_CHARACTERS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_REFERENCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_STRING;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEXT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCUMENTATION_TEXT_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCVAR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOCVARIABLE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOC_PARAMETER_DESCRIPTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICKED_BLOCK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.DOUBLE_BACKTICK_MARKDOWN_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELLIPSIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXCLUSIVE_RECORD_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPR_FUNCTION_BODY_SPEC;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERNAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERNAL_FUNCTION_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FINALLY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLOAT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FLUSH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREACH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FOREVER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FORK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FROM;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_DEFINITION_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_SIGNATURE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUNCTION_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.GLOBAL_VARIABLE_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.HALF_OPEN_RANGE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.HANDLE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEXADECIMAL_FLOATING_POINT_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.HEX_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IDENTIFIER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IF;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IGNORED_LEFT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IGNORED_RIGHT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT_DECLARATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.INCLUSIVE_RECORD_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.INT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_BRACKET;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_CLOSED_RECORD_DELIMITER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LEFT_PARENTHESIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LET;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.LT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MAP;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MAP_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MARKDOWN_DOCUMENTATION_LINE_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MARKDOWN_DOCUMENTATION_TEXT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.METHOD_DECLARATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.METHOD_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.MUL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAMESPACE_DECLARATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAME_REFERENCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_ANNOTATION_ATTACHMENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_FUNCTION_SIGNATURE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_LEFT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_BODY_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RECOVERABLE_RETURN_TYPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NESTED_RIGHT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NIL_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULL_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_INIT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_METHOD;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OCTAL_INTEGER_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ONRETRY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.OPTIONAL_FIELD_ACCESS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.ORG_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_REFERENCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PACKAGE_VERSION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PANIC;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DESCRIPTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_DOCUMENTATION_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PARAMETER_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PIPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUESTION_MARK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUOTED_STRING_LITERAL;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_ANNOTATION_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_ATTACHMENT_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_BODY_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_CLOSE_RECORD_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_CONSTANT_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_PARAMETER_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_RETURN_TYPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_TYPE_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_TYPE_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_VARIABLE_DEFINITION_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECOVERABLE_VAR_DEF_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.REFERENCE_TYPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.REFERENCE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.REMOTE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DESCRIPTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_LINE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN_PARAMETER_DOCUMENTATION_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_BRACKET;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_CLOSED_RECORD_DELIMITER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.RIGHT_PARENTHESIS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SEMICOLON;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_DEFINITION_BODY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICKED_BLOCK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SINGLE_BACKTICK_MARKDOWN_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOURCE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STREAM_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_EXPRESSION_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_EXPRESSION_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_LITERAL_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_LITERAL_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.STRING_TEMPLATE_TEXT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICKED_BLOCK;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_CONTENT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRIPLE_BACKTICK_MARKDOWN_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_REST_DESCRIPTOR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEDESC;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPEOF;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_DEFINITION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_DESC_REFERENCE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_FIELD;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE_PARAMETER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.UNION_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.USER_DEFINE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.VALUE_TYPE_NAME;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.VAR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION_PATTERN;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WAIT;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WORKER;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XMLNS;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_ALL_CHAR;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_LITERAL_END;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_LITERAL_START;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.XML_TYPE_NAME;
+import com.intellij.lang.PsiParser;
+import com.intellij.lang.LightPsiParser;
 
 @SuppressWarnings({"SimplifiableIfStatement", "UnusedAssignment"})
 public class BallerinaParser implements PsiParser, LightPsiParser {
@@ -462,29 +166,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // LEFT_CLOSED_RECORD_DELIMITER RecoverableCloseRecordContent RIGHT_CLOSED_RECORD_DELIMITER
+  // record LEFT_CLOSED_RECORD_DELIMITER RecoverableCloseRecordContent RIGHT_CLOSED_RECORD_DELIMITER
   public static boolean CloseRecordTypeBody(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CloseRecordTypeBody")) return false;
-    if (!nextTokenIs(b, LEFT_CLOSED_RECORD_DELIMITER)) return false;
+    if (!nextTokenIs(b, RECORD)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, CLOSE_RECORD_TYPE_BODY, null);
-    r = consumeToken(b, LEFT_CLOSED_RECORD_DELIMITER);
-    p = r; // pin = 1
+    r = consumeTokens(b, 2, RECORD, LEFT_CLOSED_RECORD_DELIMITER);
+    p = r; // pin = 2
     r = r && report_error_(b, RecoverableCloseRecordContent(b, l + 1));
     r = p && consumeToken(b, RIGHT_CLOSED_RECORD_DELIMITER) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  /* ********************************************************** */
-  // !(RIGHT_CLOSED_RECORD_DELIMITER)
-  static boolean CloseRecordTypeBodyRecover(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "CloseRecordTypeBodyRecover")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !consumeToken(b, RIGHT_CLOSED_RECORD_DELIMITER);
-    exit_section_(b, l, m, r, false, null);
-    return r;
   }
 
   /* ********************************************************** */
@@ -1395,6 +1088,30 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // (ObjectMethod | ObjectFieldDefinition | TypeReference)*
+  public static boolean ObjectBodyContent(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectBodyContent")) return false;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_BODY_CONTENT, "<object body content>");
+    while (true) {
+      int c = current_position_(b);
+      if (!ObjectBodyContent_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ObjectBodyContent", c)) break;
+    }
+    exit_section_(b, l, m, true, false, null);
+    return true;
+  }
+
+  // ObjectMethod | ObjectFieldDefinition | TypeReference
+  private static boolean ObjectBodyContent_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectBodyContent_0")) return false;
+    boolean r;
+    r = ObjectMethod(b, l + 1);
+    if (!r) r = ObjectFieldDefinition(b, l + 1);
+    if (!r) r = TypeReference(b, l + 1);
+    return r;
+  }
+
+  /* ********************************************************** */
   // !(RIGHT_BRACE)
   static boolean ObjectBodyRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ObjectBodyRecover")) return false;
@@ -1402,6 +1119,98 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NOT_);
     r = !consumeToken(b, RIGHT_BRACE);
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // documentationString? AnnotationAttachment* (public | private)? TypeName identifier ObjectFieldDefinitionContent (COMMA | SEMICOLON)
+  public static boolean ObjectFieldDefinition(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_FIELD_DEFINITION, "<object field definition>");
+    r = ObjectFieldDefinition_0(b, l + 1);
+    r = r && ObjectFieldDefinition_1(b, l + 1);
+    r = r && ObjectFieldDefinition_2(b, l + 1);
+    r = r && TypeName(b, l + 1, -1);
+    r = r && consumeToken(b, IDENTIFIER);
+    p = r; // pin = 5
+    r = r && report_error_(b, ObjectFieldDefinitionContent(b, l + 1));
+    r = p && ObjectFieldDefinition_6(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // documentationString?
+  private static boolean ObjectFieldDefinition_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_0")) return false;
+    documentationString(b, l + 1);
+    return true;
+  }
+
+  // AnnotationAttachment*
+  private static boolean ObjectFieldDefinition_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_1")) return false;
+    while (true) {
+      int c = current_position_(b);
+      if (!AnnotationAttachment(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "ObjectFieldDefinition_1", c)) break;
+    }
+    return true;
+  }
+
+  // (public | private)?
+  private static boolean ObjectFieldDefinition_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_2")) return false;
+    ObjectFieldDefinition_2_0(b, l + 1);
+    return true;
+  }
+
+  // public | private
+  private static boolean ObjectFieldDefinition_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_2_0")) return false;
+    boolean r;
+    r = consumeToken(b, PUBLIC);
+    if (!r) r = consumeToken(b, PRIVATE);
+    return r;
+  }
+
+  // COMMA | SEMICOLON
+  private static boolean ObjectFieldDefinition_6(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinition_6")) return false;
+    boolean r;
+    r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, SEMICOLON);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // any
+  public static boolean ObjectFieldDefinitionContent(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinitionContent")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_FIELD_DEFINITION_CONTENT, "<object field definition content>");
+    r = consumeToken(b, ANY);
+    exit_section_(b, l, m, r, false, ObjectFieldDefinitionContentRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(COMMA | SEMICOLON)
+  static boolean ObjectFieldDefinitionContentRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinitionContentRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !ObjectFieldDefinitionContentRecover_0(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // COMMA | SEMICOLON
+  private static boolean ObjectFieldDefinitionContentRecover_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectFieldDefinitionContentRecover_0")) return false;
+    boolean r;
+    r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, SEMICOLON);
     return r;
   }
 
@@ -1418,6 +1227,90 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBodyContent RIGHT_BRACE
+  public static boolean ObjectTypeBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OBJECT_TYPE_BODY, "<object type body>");
+    r = ObjectTypeBody_0(b, l + 1);
+    r = r && consumeTokens(b, 1, OBJECT, LEFT_BRACE);
+    p = r; // pin = 2
+    r = r && report_error_(b, ObjectBodyContent(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // (client? abstract) | (abstract? client?)
+  private static boolean ObjectTypeBody_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = ObjectTypeBody_0_0(b, l + 1);
+    if (!r) r = ObjectTypeBody_0_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // client? abstract
+  private static boolean ObjectTypeBody_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = ObjectTypeBody_0_0_0(b, l + 1);
+    r = r && consumeToken(b, ABSTRACT);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // client?
+  private static boolean ObjectTypeBody_0_0_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0_0_0")) return false;
+    consumeToken(b, CLIENT);
+    return true;
+  }
+
+  // abstract? client?
+  private static boolean ObjectTypeBody_0_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0_1")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = ObjectTypeBody_0_1_0(b, l + 1);
+    r = r && ObjectTypeBody_0_1_1(b, l + 1);
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // abstract?
+  private static boolean ObjectTypeBody_0_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0_1_0")) return false;
+    consumeToken(b, ABSTRACT);
+    return true;
+  }
+
+  // client?
+  private static boolean ObjectTypeBody_0_1_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ObjectTypeBody_0_1_1")) return false;
+    consumeToken(b, CLIENT);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // record LEFT_BRACE RecoverableOpenRecordContent RIGHT_BRACE
+  public static boolean OpenRecordTypeBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OpenRecordTypeBody")) return false;
+    if (!nextTokenIs(b, RECORD)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OPEN_RECORD_TYPE_BODY, null);
+    r = consumeTokens(b, 2, RECORD, LEFT_BRACE);
+    p = r; // pin = 2
+    r = r && report_error_(b, RecoverableOpenRecordContent(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
   // identifier
   public static boolean OrgName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OrgName")) return false;
@@ -1426,6 +1319,29 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, IDENTIFIER);
     exit_section_(b, m, ORG_NAME, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // (identifier|QUOTED_STRING_LITERAL|error) RecoverableTypeContent
+  public static boolean OtherTypeBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OtherTypeBody")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, OTHER_TYPE_BODY, "<other type body>");
+    r = OtherTypeBody_0(b, l + 1);
+    p = r; // pin = 1
+    r = r && RecoverableTypeContent(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // identifier|QUOTED_STRING_LITERAL|error
+  private static boolean OtherTypeBody_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OtherTypeBody_0")) return false;
+    boolean r;
+    r = consumeToken(b, IDENTIFIER);
+    if (!r) r = consumeToken(b, QUOTED_STRING_LITERAL);
+    if (!r) r = consumeToken(b, ERROR);
     return r;
   }
 
@@ -1533,7 +1449,18 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_CLOSE_RECORD_CONTENT, "<recoverable close record content>");
     r = consumeToken(b, ANY);
-    exit_section_(b, l, m, r, false, CloseRecordTypeBodyRecover_parser_);
+    exit_section_(b, l, m, r, false, RecoverableCloseRecordContentRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(RIGHT_CLOSED_RECORD_DELIMITER)
+  static boolean RecoverableCloseRecordContentRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecoverableCloseRecordContentRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeToken(b, RIGHT_CLOSED_RECORD_DELIMITER);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -1545,6 +1472,28 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_CONSTANT_CONTENT, "<recoverable constant content>");
     r = consumeToken(b, IDENTIFIER);
     exit_section_(b, l, m, r, false, ConstantDefinitionRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // any
+  public static boolean RecoverableOpenRecordContent(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecoverableOpenRecordContent")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_OPEN_RECORD_CONTENT, "<recoverable open record content>");
+    r = consumeToken(b, ANY);
+    exit_section_(b, l, m, r, false, RecoverableOpenRecordContentRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(RIGHT_BRACE)
+  static boolean RecoverableOpenRecordContentRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecoverableOpenRecordContentRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -1571,26 +1520,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // CloseRecordTypeBody | RecoverableBody
-  public static boolean RecoverableTypeBody(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "RecoverableTypeBody")) return false;
-    if (!nextTokenIs(b, "<recoverable type body>", LEFT_BRACE, LEFT_CLOSED_RECORD_DELIMITER)) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_TYPE_BODY, "<recoverable type body>");
-    r = CloseRecordTypeBody(b, l + 1);
-    if (!r) r = RecoverableBody(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // identifier
+  // any
   public static boolean RecoverableTypeContent(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RecoverableTypeContent")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_TYPE_CONTENT, "<recoverable type content>");
-    r = consumeToken(b, IDENTIFIER);
-    exit_section_(b, l, m, r, false, TypeDefinitionRecover_parser_);
+    r = consumeToken(b, ANY);
+    exit_section_(b, l, m, r, false, SimpleTypeContentRecover_parser_);
     return r;
   }
 
@@ -1718,6 +1654,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b);
     r = consumeToken(b, SERVICE);
     exit_section_(b, m, SERVICE_TYPE_NAME, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(SEMICOLON)
+  static boolean SimpleTypeContentRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SimpleTypeContentRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !consumeToken(b, SEMICOLON);
+    exit_section_(b, l, m, r, false, null);
     return r;
   }
 
@@ -1863,7 +1810,21 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // public? type identifier RecoverableTypeContent (RecoverableTypeBody)? SEMICOLON
+  // CloseRecordTypeBody | OpenRecordTypeBody | ObjectTypeBody | OtherTypeBody
+  public static boolean TypeBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeBody")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_BODY, "<type body>");
+    r = CloseRecordTypeBody(b, l + 1);
+    if (!r) r = OpenRecordTypeBody(b, l + 1);
+    if (!r) r = ObjectTypeBody(b, l + 1);
+    if (!r) r = OtherTypeBody(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // public? type identifier TypeBody SEMICOLON
   public static boolean TypeDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TypeDefinition")) return false;
     if (!nextTokenIs(b, "<type definition>", PUBLIC, TYPE)) return false;
@@ -1872,8 +1833,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = TypeDefinition_0(b, l + 1);
     r = r && consumeTokens(b, 1, TYPE, IDENTIFIER);
     p = r; // pin = 2
-    r = r && report_error_(b, RecoverableTypeContent(b, l + 1));
-    r = p && report_error_(b, TypeDefinition_4(b, l + 1)) && r;
+    r = r && report_error_(b, TypeBody(b, l + 1));
     r = p && consumeToken(b, SEMICOLON) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -1884,44 +1844,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!recursion_guard_(b, l, "TypeDefinition_0")) return false;
     consumeToken(b, PUBLIC);
     return true;
-  }
-
-  // (RecoverableTypeBody)?
-  private static boolean TypeDefinition_4(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDefinition_4")) return false;
-    TypeDefinition_4_0(b, l + 1);
-    return true;
-  }
-
-  // (RecoverableTypeBody)
-  private static boolean TypeDefinition_4_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDefinition_4_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = RecoverableTypeBody(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
-  }
-
-  /* ********************************************************** */
-  // !(LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER | SEMICOLON)
-  static boolean TypeDefinitionRecover(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDefinitionRecover")) return false;
-    boolean r;
-    Marker m = enter_section_(b, l, _NOT_);
-    r = !TypeDefinitionRecover_0(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
-  }
-
-  // LEFT_BRACE | LEFT_CLOSED_RECORD_DELIMITER | SEMICOLON
-  private static boolean TypeDefinitionRecover_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "TypeDefinitionRecover_0")) return false;
-    boolean r;
-    r = consumeToken(b, LEFT_BRACE);
-    if (!r) r = consumeToken(b, LEFT_CLOSED_RECORD_DELIMITER);
-    if (!r) r = consumeToken(b, SEMICOLON);
-    return r;
   }
 
   /* ********************************************************** */
@@ -1935,6 +1857,21 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     p = r; // pin = 2
     r = r && report_error_(b, TypeName(b, l + 1, -1));
     r = p && consumeToken(b, GT) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // MUL SimpleTypeName SEMICOLON
+  public static boolean TypeReference(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TypeReference")) return false;
+    if (!nextTokenIs(b, MUL)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, TYPE_REFERENCE, null);
+    r = consumeToken(b, MUL);
+    p = r; // pin = 1
+    r = r && report_error_(b, SimpleTypeName(b, l + 1));
+    r = p && consumeToken(b, SEMICOLON) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -3023,11 +2960,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       return AnnotationDefinitionRecover(b, l + 1);
     }
   };
-  static final Parser CloseRecordTypeBodyRecover_parser_ = new Parser() {
-    public boolean parse(PsiBuilder b, int l) {
-      return CloseRecordTypeBodyRecover(b, l + 1);
-    }
-  };
   static final Parser ConstantDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return ConstantDefinitionRecover(b, l + 1);
@@ -3068,9 +3000,24 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       return ObjectBodyRecover(b, l + 1);
     }
   };
+  static final Parser ObjectFieldDefinitionContentRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return ObjectFieldDefinitionContentRecover(b, l + 1);
+    }
+  };
   static final Parser RecoverableBodyContentRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return RecoverableBodyContentRecover(b, l + 1);
+    }
+  };
+  static final Parser RecoverableCloseRecordContentRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return RecoverableCloseRecordContentRecover(b, l + 1);
+    }
+  };
+  static final Parser RecoverableOpenRecordContentRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return RecoverableOpenRecordContentRecover(b, l + 1);
     }
   };
   static final Parser ReturnParamRecover_parser_ = new Parser() {
@@ -3083,14 +3030,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
       return ServiceDefinitionRecover(b, l + 1);
     }
   };
+  static final Parser SimpleTypeContentRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return SimpleTypeContentRecover(b, l + 1);
+    }
+  };
   static final Parser TopLevelDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return TopLevelDefinitionRecover(b, l + 1);
-    }
-  };
-  static final Parser TypeDefinitionRecover_parser_ = new Parser() {
-    public boolean parse(PsiBuilder b, int l) {
-      return TypeDefinitionRecover(b, l + 1);
     }
   };
   static final Parser VarDefExpressionRecover_parser_ = new Parser() {

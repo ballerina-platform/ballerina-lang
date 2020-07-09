@@ -28,6 +28,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
+import io.ballerina.plugins.idea.psi.BallerinaCloseRecordTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
@@ -36,11 +37,13 @@ import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaMethodDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNestedRecoverableBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectMethod;
+import io.ballerina.plugins.idea.psi.BallerinaObjectTypeBody;
+import io.ballerina.plugins.idea.psi.BallerinaOpenRecordTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecoverableBody;
-import io.ballerina.plugins.idea.psi.BallerinaRecoverableTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinitionBody;
+import io.ballerina.plugins.idea.psi.BallerinaTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
@@ -87,16 +90,30 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
     }
 
     private void buildTypeFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+
         Collection<BallerinaTypeDefinition> typeDefinitions = PsiTreeUtil.findChildrenOfType(root,
                 BallerinaTypeDefinition.class);
+
         for (BallerinaTypeDefinition typeDefinition : typeDefinitions) {
-            BallerinaRecoverableTypeBody typeBody =
-                    PsiTreeUtil.getChildOfType(typeDefinition, BallerinaRecoverableTypeBody.class);
+            BallerinaTypeBody typeBody = PsiTreeUtil.getChildOfType(typeDefinition,
+                    BallerinaTypeBody.class);
             if (typeBody == null) {
                 continue;
             }
-            // Add folding descriptor.
-            addFoldingDescriptor(descriptors, typeDefinition, typeBody, true);
+            BallerinaOpenRecordTypeBody openRecordBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaOpenRecordTypeBody.class);
+            BallerinaCloseRecordTypeBody closeRecordBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaCloseRecordTypeBody.class);
+            BallerinaObjectTypeBody objectTypeBody = PsiTreeUtil.getChildOfType(typeBody,
+                    BallerinaObjectTypeBody.class);
+
+            if (openRecordBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, openRecordBody, false);
+            } else if (closeRecordBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, closeRecordBody, false);
+            } else if (objectTypeBody != null) {
+                addFoldingDescriptor(descriptors, typeDefinition, objectTypeBody, false);
+            }
         }
     }
 

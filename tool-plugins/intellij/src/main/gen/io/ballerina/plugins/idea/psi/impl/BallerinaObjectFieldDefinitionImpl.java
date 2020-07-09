@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement implements BallerinaRecoverableTypeContent {
+public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement implements BallerinaObjectFieldDefinition {
 
-  public BallerinaRecoverableTypeContentImpl(@NotNull ASTNode node) {
+  public BallerinaObjectFieldDefinitionImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecoverableTypeContent(this);
+    visitor.visitObjectFieldDefinition(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +44,56 @@ public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement im
 
   @Override
   @NotNull
-  public PsiElement getAny() {
-    return findNotNullChildByType(ANY);
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaObjectFieldDefinitionContent getObjectFieldDefinitionContent() {
+    return findChildByClass(BallerinaObjectFieldDefinitionContent.class);
+  }
+
+  @Override
+  @NotNull
+  public BallerinaTypeName getTypeName() {
+    return findNotNullChildByClass(BallerinaTypeName.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaDocumentationString getDocumentationString() {
+    return findChildByClass(BallerinaDocumentationString.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getComma() {
+    return findChildByType(COMMA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getSemicolon() {
+    return findChildByType(SEMICOLON);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getIdentifier() {
+    return findNotNullChildByType(IDENTIFIER);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPrivate() {
+    return findChildByType(PRIVATE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getPublic() {
+    return findChildByType(PUBLIC);
   }
 
 }

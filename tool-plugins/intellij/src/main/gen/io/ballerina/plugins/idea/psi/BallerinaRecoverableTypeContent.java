@@ -24,6 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaRecoverableTypeContent extends PsiElement {
 
   @NotNull
-  PsiElement getIdentifier();
+  PsiElement getAny();
 
 }

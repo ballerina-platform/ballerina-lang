@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement implements BallerinaRecoverableTypeContent {
+public class BallerinaObjectBodyContentImpl extends ASTWrapperPsiElement implements BallerinaObjectBodyContent {
 
-  public BallerinaRecoverableTypeContentImpl(@NotNull ASTNode node) {
+  public BallerinaObjectBodyContentImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecoverableTypeContent(this);
+    visitor.visitObjectBodyContent(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,8 +44,20 @@ public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement im
 
   @Override
   @NotNull
-  public PsiElement getAny() {
-    return findNotNullChildByType(ANY);
+  public List<BallerinaObjectFieldDefinition> getObjectFieldDefinitionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFieldDefinition.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaObjectMethod> getObjectMethodList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectMethod.class);
+  }
+
+  @Override
+  @NotNull
+  public List<BallerinaTypeReference> getTypeReferenceList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaTypeReference.class);
   }
 
 }

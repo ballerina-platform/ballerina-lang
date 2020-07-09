@@ -44,14 +44,8 @@ public class BallerinaTypeDefinitionImpl extends ASTWrapperPsiElement implements
 
   @Override
   @Nullable
-  public BallerinaRecoverableTypeBody getRecoverableTypeBody() {
-    return findChildByClass(BallerinaRecoverableTypeBody.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaRecoverableTypeContent getRecoverableTypeContent() {
-    return findChildByClass(BallerinaRecoverableTypeContent.class);
+  public BallerinaTypeBody getTypeBody() {
+    return findChildByClass(BallerinaTypeBody.class);
   }
 
   @Override

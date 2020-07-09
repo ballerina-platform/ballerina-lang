@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement implements BallerinaRecoverableTypeContent {
+public class BallerinaOpenRecordTypeBodyImpl extends ASTWrapperPsiElement implements BallerinaOpenRecordTypeBody {
 
-  public BallerinaRecoverableTypeContentImpl(@NotNull ASTNode node) {
+  public BallerinaOpenRecordTypeBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitRecoverableTypeContent(this);
+    visitor.visitOpenRecordTypeBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,9 +43,27 @@ public class BallerinaRecoverableTypeContentImpl extends ASTWrapperPsiElement im
   }
 
   @Override
+  @Nullable
+  public BallerinaRecoverableOpenRecordContent getRecoverableOpenRecordContent() {
+    return findChildByClass(BallerinaRecoverableOpenRecordContent.class);
+  }
+
+  @Override
   @NotNull
-  public PsiElement getAny() {
-    return findNotNullChildByType(ANY);
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getRightBrace() {
+    return findChildByType(RIGHT_BRACE);
+  }
+
+  @Override
+  @NotNull
+  public PsiElement getRecord() {
+    return findNotNullChildByType(RECORD);
   }
 
 }
