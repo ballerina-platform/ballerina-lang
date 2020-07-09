@@ -27,6 +27,9 @@ import org.wso2.transport.localfilesystem.server.util.Constants;
  */
 public class DirectoryListenerConstants {
 
+    public static final String MODULE_NAME = "file";
+    public static final String MODULE_VERSION = "0.5.0";
+
     //Annotation
     public static final BString ANNOTATION_PATH = StringUtils.fromString("path");
     public static final BString ANNOTATION_DIRECTORY_RECURSIVE = StringUtils.fromString(
@@ -43,4 +46,5 @@ public class DirectoryListenerConstants {
     public static final String RESOURCE_NAME_ON_CREATE = "onCreate";
     public static final String RESOURCE_NAME_ON_DELETE = "onDelete";
     public static final String RESOURCE_NAME_ON_MODIFY = "onModify";
+    public static final String RESOURCE_NAME_ON_MESSAGE = "onMessage";
 }

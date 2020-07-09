@@ -4,6 +4,7 @@ import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
+
+import static org.ballerinalang.testerina.natives.test.MockConstants.MOCK_STRAND_NAME;
 
 /**
  * Class that contains inter-op function related to function mocking.
@@ -88,8 +91,9 @@ public class FunctionMock {
         }
 
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
-        return Executor.executeFunction(strand.scheduler, classLoader, orgName, packageName, version, className,
-                methodName, argsList.toArray());
+        StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
+        return Executor.executeFunction(strand.scheduler, MOCK_STRAND_NAME, metadata, classLoader, orgName,
+                                        packageName, version, className, methodName, argsList.toArray());
     }
 
     private static String getClassName(String methodName, String orgName, String packageName, String version)

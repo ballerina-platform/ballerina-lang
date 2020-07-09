@@ -121,13 +121,29 @@ public function testStreamOfStreams() returns int[] {
     stream<stream<int>> numberStream = new (numStreamGen);
     record {| stream<int> value; |}? nextStream = numberStream.next();
     int[] integers = from var strm in numberStream
-                     from var num in liftError(strm.toArray())
-                     select num;
+                     from var num in liftError(toArray(strm))
+                     select <int>num;
 
     return integers;
 }
 
-function liftError (int[]|error arrayData) returns int[] {
+function toArray (stream<any|error, error> strm) returns any[]|error {
+    any[] arr = [];
+    record {| any|error value; |}|error? v = strm.next();
+    while (v is record {| any|error value; |}) {
+        any|error value = v.value;
+        if (!(value is error)) {
+            arr.push(value);
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return arr;
+}
+
+function liftError (any[]|error arrayData) returns any[] {
     if(!(arrayData is error)) {
         return arrayData;
     }

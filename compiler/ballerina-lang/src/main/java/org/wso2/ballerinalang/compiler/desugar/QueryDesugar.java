@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
@@ -260,7 +261,17 @@ public class QueryDesugar extends BLangNodeVisitor {
             } else if (queryExpr.type.tag == TypeTags.STRING) {
                 result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_STRING_FUNCTION, Lists.of(streamRef), pos);
             } else {
-                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION, Lists.of(streamRef), pos);
+                BType arrayType = queryExpr.type;
+                if (arrayType.tag == TypeTags.UNION) {
+                    arrayType = ((BUnionType) arrayType).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                            .findFirst().orElse(symTable.arrayType);
+                }
+                BLangArrayLiteral arr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+                arr.exprs = new ArrayList<>();
+                arr.type = arrayType;
+                result = getStreamFunctionVariableRef(queryBlock, QUERY_TO_ARRAY_FUNCTION,
+                        Lists.of(streamRef, arr), pos);
             }
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
             streamStmtExpr.type = result.type;
@@ -1291,7 +1302,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangListConstructorExpr.BLangArrayLiteral arrayLiteral) {
+    public void visit(BLangArrayLiteral arrayLiteral) {
         arrayLiteral.exprs.forEach(expression -> expression.accept(this));
     }
 
