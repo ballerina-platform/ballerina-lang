@@ -75,8 +75,7 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<T
     return pipeline.getStream();
 }
 
-public function toArray(stream<Type, error?> strm) returns Type[]|error {
-    Type[] arr = [];
+public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
