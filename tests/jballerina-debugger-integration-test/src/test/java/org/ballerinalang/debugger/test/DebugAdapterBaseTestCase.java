@@ -20,8 +20,8 @@ package org.ballerinalang.debugger.test;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
-import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.debugger.test.utils.DebugHitListener;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -334,7 +334,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
 
     protected Variable[] fetchDebugHitVariables(StoppedEventArguments args) throws BallerinaTestException {
         if (!DebugHitListener.connector.isConnected()) {
-            return null;
+            return new Variable[0];
         }
         StackTraceArguments stackTraceArgs = new StackTraceArguments();
         VariablesArguments variableArgs = new VariablesArguments();
@@ -342,10 +342,11 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         stackTraceArgs.setThreadId(args.getThreadId());
 
         try {
-            StackTraceResponse stackTraceResp = DebugHitListener.connector.getRequestManager().stackTrace(stackTraceArgs);
+            StackTraceResponse stackTraceResp = DebugHitListener.connector.getRequestManager()
+                    .stackTrace(stackTraceArgs);
             StackFrame[] stackFrames = stackTraceResp.getStackFrames();
             if (stackFrames.length == 0) {
-                return null;
+                return new Variable[0];
             }
 
             scopeArgs.setFrameId(stackFrames[0].getId());
@@ -364,7 +365,8 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         VariablesArguments childVariableArgs = new VariablesArguments();
         childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
         try {
-            VariablesResponse childVariableResp = DebugHitListener.connector.getRequestManager().variables(childVariableArgs);
+            VariablesResponse childVariableResp = DebugHitListener.connector.getRequestManager()
+                    .variables(childVariableArgs);
             return childVariableResp.getVariables();
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);

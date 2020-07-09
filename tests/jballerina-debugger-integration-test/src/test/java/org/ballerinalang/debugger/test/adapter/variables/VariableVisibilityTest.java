@@ -35,6 +35,9 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Comparator;
 
+/**
+ * Test class for variable visibility.
+ */
 public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
     Variable[] variables;
     Comparator<Variable> compareByName = Comparator.comparing(Variable::getName);
@@ -58,140 +61,89 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         Arrays.sort(variables, compareByName);
 
         // var variable visibility test
-        Assert.assertEquals(variables[0].getName(), "v01_varVariable");
-        Assert.assertEquals(variables[0].getValue(), "()");
-        Assert.assertEquals(variables[0].getType(), "nil");
+        assertVariable(variables[0], "v01_varVariable", "()", "nil");
 
         // boolean variable visibility test
-        Assert.assertEquals(variables[1].getName(), "v02_booleanVar");
-        Assert.assertEquals(variables[1].getValue(), "true");
-        Assert.assertEquals(variables[1].getType(), "boolean");
+        assertVariable(variables[1], "v02_booleanVar", "true", "boolean");
 
         // int variable visibility test
-        Assert.assertEquals(variables[2].getName(), "v03_intVar");
-        Assert.assertEquals(variables[2].getValue(), "20");
-        Assert.assertEquals(variables[2].getType(), "int");
+        assertVariable(variables[2], "v03_intVar", "20", "int");
 
         // float variable visibility test
-        Assert.assertEquals(variables[3].getName(), "v04_floatVar");
-        Assert.assertEquals(variables[3].getValue(), "-10.0");
-        Assert.assertEquals(variables[3].getType(), "float");
+        assertVariable(variables[3], "v04_floatVar", "-10.0", "float");
 
         // decimal variable visibility test
-        Assert.assertEquals(variables[4].getName(), "v05_decimalVar");
-        Assert.assertEquals(variables[4].getValue(), "3.5");
-        Assert.assertEquals(variables[4].getType(), "decimal");
+        assertVariable(variables[4], "v05_decimalVar", "3.5", "decimal");
 
         // string variable visibility test
-        Assert.assertEquals(variables[5].getName(), "v06_stringVar");
-        Assert.assertEquals(variables[5].getValue(), "foo");
-        Assert.assertEquals(variables[5].getType(), "string");
+        assertVariable(variables[5], "v06_stringVar", "foo", "string");
 
         // xml variable visibility test
-        Assert.assertEquals(variables[6].getName(), "v07_xmlVar");
-        Assert.assertEquals(variables[6].getValue(),
-                "<person gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>");
-        Assert.assertEquals(variables[6].getType(), "xml");
+        assertVariable(variables[6], "v07_xmlVar",
+                "<person gender=\"male\"><firstname>Praveen</firstname><lastname>Nada</lastname></person>",
+                "xml");
 
         // array variable visibility test
-        Assert.assertEquals(variables[7].getName(), "v08_arrayVar");
-        Assert.assertEquals(variables[7].getValue(), "any[4]");
-        Assert.assertEquals(variables[7].getType(), "array");
+        assertVariable(variables[7], "v08_arrayVar", "any[4]", "array");
 
         // tuple variable visibility test
-        Assert.assertEquals(variables[8].getName(), "v09_tupleVar");
-        Assert.assertEquals(variables[8].getValue(), "tuple[int,string]");
-        Assert.assertEquals(variables[8].getType(), "tuple");
+        assertVariable(variables[8], "v09_tupleVar", "tuple[int,string]", "tuple");
 
         // map variable visibility test
-        Assert.assertEquals(variables[9].getName(), "v10_mapVar");
-        Assert.assertEquals(variables[9].getValue(), "map");
-        Assert.assertEquals(variables[9].getType(), "map");
+        assertVariable(variables[9], "v10_mapVar", "map", "map");
 
         // record variable visibility test (Student record)
-        Assert.assertEquals(variables[10].getName(), "v11_john");
-        Assert.assertEquals(variables[10].getValue(), "Student");
-        Assert.assertEquals(variables[10].getType(), "record");
+        assertVariable(variables[10], "v11_john", "Student", "record");
 
         // anonymous record variable visibility test
-        Assert.assertEquals(variables[11].getName(), "v12_anonRecord");
-        Assert.assertEquals(variables[11].getValue(), "anonymous");
-        Assert.assertEquals(variables[11].getType(), "record");
+        assertVariable(variables[11], "v12_anonRecord", "anonymous", "record");
 
         // error variable visibility test
-        Assert.assertEquals(variables[12].getName(), "v13_errorVar");
-        Assert.assertEquals(variables[12].getValue(), "SimpleErrorType");
-        Assert.assertEquals(variables[12].getType(), "error");
+        assertVariable(variables[12], "v13_errorVar", "SimpleErrorType", "error");
 
         // anonymous function variable visibility test
-        Assert.assertEquals(variables[13].getName(), "v14_anonFunctionVar");
-        Assert.assertEquals(variables[13].getValue(), "function (string,string) returns (string)");
-        Assert.assertEquals(variables[13].getType(), "function");
+        assertVariable(variables[13], "v14_anonFunctionVar",
+                "function (string,string) returns (string)", "function");
 
         // future variable visibility test
-        Assert.assertEquals(variables[14].getName(), "v15_futureVar");
-        Assert.assertEquals(variables[14].getValue(), "future");
-        Assert.assertEquals(variables[14].getType(), "future");
+        assertVariable(variables[14], "v15_futureVar", "future", "future");
 
         // object variable visibility test (Person object)
-        Assert.assertEquals(variables[15].getName(), "v16_objectVar");
-        Assert.assertEquals(variables[15].getValue(), "Person");
-        Assert.assertEquals(variables[15].getType(), "object");
+        assertVariable(variables[15], "v16_objectVar", "Person", "object");
 
         // anonymous object variable visibility test (AnonPerson object)
-        Assert.assertEquals(variables[16].getName(), "v17_anonObjectVar");
-        Assert.assertEquals(variables[16].getValue(), "AnonPerson");
-//        Assert.assertEquals(variables[16].getType(), "object");
+//        assertVariable(variables[16], "v17_anonObjectVar", "AnonPerson", "object");
 
         // type descriptor variable visibility test
-        Assert.assertEquals(variables[17].getName(), "v18_typedescVar");
-        Assert.assertEquals(variables[17].getValue(), "int");
-        Assert.assertEquals(variables[17].getType(), "typedesc");
+        assertVariable(variables[17], "v18_typedescVar", "int", "typedesc");
 
         // union variable visibility test
-        Assert.assertEquals(variables[18].getName(), "v19_unionVar");
-        Assert.assertEquals(variables[18].getValue(), "foo");
-        Assert.assertEquals(variables[18].getType(), "string");
+        assertVariable(variables[18], "v19_unionVar", "foo", "string");
 
         // optional variable visibility test
-        Assert.assertEquals(variables[19].getName(), "v20_optionalVar");
-        Assert.assertEquals(variables[19].getValue(), "foo");
-        Assert.assertEquals(variables[19].getType(), "string");
+        assertVariable(variables[19], "v20_optionalVar", "foo", "string");
 
         // any variable visibility test
-        Assert.assertEquals(variables[20].getName(), "v21_anyVar");
-        Assert.assertEquals(variables[20].getValue(), "15.0");
-        Assert.assertEquals(variables[20].getType(), "float");
+        assertVariable(variables[20], "v21_anyVar", "15.0", "float");
 
         // anydata variable visibility test
-        Assert.assertEquals(variables[21].getName(), "v22_anydataVar");
-        Assert.assertEquals(variables[21].getValue(), "619");
-        Assert.assertEquals(variables[21].getType(), "int");
+        assertVariable(variables[21], "v22_anydataVar", "619", "int");
 
         // byte variable visibility test
-        Assert.assertEquals(variables[22].getName(), "v23_byteVar");
-        Assert.assertEquals(variables[22].getValue(), "128");
-        Assert.assertEquals(variables[22].getType(), "int");
+        assertVariable(variables[22], "v23_byteVar", "128", "int");
 
         // json variable visibility test
-        Assert.assertEquals(variables[23].getName(), "v24_jsonVar");
-        Assert.assertEquals(variables[23].getValue(), "object");
-        Assert.assertEquals(variables[23].getType(), "json");
+        assertVariable(variables[23], "v24_jsonVar", "object", "json");
 
         // table variable visibility test
-        Assert.assertEquals(variables[24].getName(), "v25_tableVar");
-        Assert.assertEquals(variables[24].getValue(), "table<Employee>");
-        Assert.assertEquals(variables[24].getType(), "table");
+        assertVariable(variables[24], "v25_tableVar", "table<Employee>", "table");
 
         // stream variable visibility test
-        Assert.assertEquals(variables[25].getName(), "v26_oddNumberStream");
-        Assert.assertEquals(variables[25].getValue(), "stream<int>");
-        Assert.assertEquals(variables[25].getType(), "stream");
+        assertVariable(variables[25], "v26_oddNumberStream", "stream<int>",
+                "stream");
 
         // never variable visibility test
-        Assert.assertEquals(variables[26].getName(), "v27_neverVar");
-        Assert.assertEquals(variables[26].getValue(), "");
-        Assert.assertEquals(variables[26].getType(), "xml");
+        assertVariable(variables[26], "v27_neverVar", "", "xml");
     }
 
     @Test(dependsOnMethods = "parentVariableVisibilityTest")
@@ -199,183 +151,120 @@ public class VariableVisibilityTest extends DebugAdapterBaseTestCase {
         // xml child variable visibility test
         Variable[] xmlChildVariables = getChildVariable(variables[6]);
         Arrays.sort(xmlChildVariables, compareByName);
-        Assert.assertEquals(xmlChildVariables[0].getName(), "attributes");
-        Assert.assertEquals(xmlChildVariables[0].getValue(), "map");
-        Assert.assertEquals(xmlChildVariables[0].getType(), "map");
-        Assert.assertEquals(xmlChildVariables[1].getName(), "children");
-        Assert.assertEquals(xmlChildVariables[1].getValue(),
-                "<firstname>Praveen</firstname><lastname>Nada</lastname>");
-        Assert.assertEquals(xmlChildVariables[1].getType(), "xml");
+        assertVariable(xmlChildVariables[0], "attributes", "map", "map");
+        assertVariable(xmlChildVariables[1], "children",
+                "<firstname>Praveen</firstname><lastname>Nada</lastname>", "xml");
 
         // xml attributes child variable visibility test
         Variable[] xmlAttributesChildVariables = getChildVariable(xmlChildVariables[0]);
-        Assert.assertEquals(xmlAttributesChildVariables[0].getName(), "gender");
-        Assert.assertEquals(xmlAttributesChildVariables[0].getValue(), "male");
-        Assert.assertEquals(xmlAttributesChildVariables[0].getType(), "string");
+        assertVariable(xmlAttributesChildVariables[0], "gender", "male", "string");
 
         // xml children variable visibility test
         Variable[] xmlChildrenVariables = getChildVariable(xmlChildVariables[1]);
-        Assert.assertEquals(xmlChildrenVariables[0].getValue(), "<firstname>Praveen</firstname>");
-        Assert.assertEquals(xmlChildrenVariables[0].getType(), "xml");
-        Assert.assertEquals(xmlChildrenVariables[1].getValue(), "<lastname>Nada</lastname>");
-        Assert.assertEquals(xmlChildrenVariables[1].getType(), "xml");
+        assertVariable(xmlChildrenVariables[0], "0", "<firstname>Praveen</firstname>",
+                "xml");
+        assertVariable(xmlChildrenVariables[1], "1", "<lastname>Nada</lastname>",
+                "xml");
 
         // xml grand children variable visibility test
         Variable[] xmlGrandChildrenVariables = getChildVariable(xmlChildrenVariables[0]);
         Arrays.sort(xmlGrandChildrenVariables, compareByName);
-        Assert.assertEquals(xmlGrandChildrenVariables[1].getName(), "children");
-        Assert.assertEquals(xmlGrandChildrenVariables[1].getValue(), "Praveen");
-        Assert.assertEquals(xmlGrandChildrenVariables[1].getType(), "xml");
+        assertVariable(xmlGrandChildrenVariables[1], "children", "Praveen", "xml");
 
         // array child variable visibility test
         Variable[] arrayChildVariables = getChildVariable(variables[7]);
-        Assert.assertEquals(arrayChildVariables[0].getValue(), "1");
-        Assert.assertEquals(arrayChildVariables[0].getType(), "int");
-        Assert.assertEquals(arrayChildVariables[1].getValue(), "20");
-        Assert.assertEquals(arrayChildVariables[1].getType(), "int");
-        Assert.assertEquals(arrayChildVariables[2].getValue(), "-10.0");
-        Assert.assertEquals(arrayChildVariables[2].getType(), "float");
-        Assert.assertEquals(arrayChildVariables[3].getValue(), "foo");
-        Assert.assertEquals(arrayChildVariables[3].getType(), "string");
+        assertVariable(arrayChildVariables[0], "[0]", "1", "int");
+        assertVariable(arrayChildVariables[1], "[1]", "20", "int");
+        assertVariable(arrayChildVariables[2], "[2]", "-10.0", "float");
+        assertVariable(arrayChildVariables[3], "[3]", "foo", "string");
 
         // tuple child variable visibility test
         Variable[] tupleChildVariables = getChildVariable(variables[8]);
-        Assert.assertEquals(tupleChildVariables[0].getValue(), "20");
-        Assert.assertEquals(tupleChildVariables[0].getType(), "int");
-        Assert.assertEquals(tupleChildVariables[1].getValue(), "foo");
-        Assert.assertEquals(tupleChildVariables[1].getType(), "string");
+        assertVariable(tupleChildVariables[0], "[0]", "20", "int");
+        assertVariable(tupleChildVariables[1], "[1]", "foo", "string");
 
         // map child variable visibility test
         Variable[] mapChildVariables = getChildVariable(variables[9]);
         Arrays.sort(mapChildVariables, compareByName);
-        Assert.assertEquals(mapChildVariables[0].getName(), "city");
-        Assert.assertEquals(mapChildVariables[0].getValue(), "Colombo 03");
-        Assert.assertEquals(mapChildVariables[0].getType(), "string");
-        Assert.assertEquals(mapChildVariables[1].getName(), "country");
-        Assert.assertEquals(mapChildVariables[1].getValue(), "Sri Lanka");
-        Assert.assertEquals(mapChildVariables[1].getType(), "string");
-        Assert.assertEquals(mapChildVariables[2].getName(), "line1");
-        Assert.assertEquals(mapChildVariables[2].getValue(), "No. 20");
-        Assert.assertEquals(mapChildVariables[2].getType(), "string");
-        Assert.assertEquals(mapChildVariables[3].getName(), "line2");
-        Assert.assertEquals(mapChildVariables[3].getValue(), "Palm Grove");
-        Assert.assertEquals(mapChildVariables[3].getType(), "string");
+        assertVariable(mapChildVariables[0], "city", "Colombo 03", "string");
+        assertVariable(mapChildVariables[1], "country", "Sri Lanka", "string");
+        assertVariable(mapChildVariables[2], "line1", "No. 20", "string");
+        assertVariable(mapChildVariables[3], "line2", "Palm Grove", "string");
 
         // record child variable visibility test (Student record)
         Variable[] studentRecordChildVariables = getChildVariable(variables[10]);
         Arrays.sort(studentRecordChildVariables, compareByName);
-        Assert.assertEquals(studentRecordChildVariables[0].getName(), "age");
-        Assert.assertEquals(studentRecordChildVariables[0].getValue(), "20");
-        Assert.assertEquals(studentRecordChildVariables[0].getType(), "int");
-        Assert.assertEquals(studentRecordChildVariables[1].getName(), "grades");
-        Assert.assertEquals(studentRecordChildVariables[1].getValue(), "Grades");
-        Assert.assertEquals(studentRecordChildVariables[1].getType(), "record");
-        Assert.assertEquals(studentRecordChildVariables[2].getName(), "name");
-        Assert.assertEquals(studentRecordChildVariables[2].getValue(), "John Doe");
-        Assert.assertEquals(studentRecordChildVariables[2].getType(), "string");
+        assertVariable(studentRecordChildVariables[0], "age", "20", "int");
+        assertVariable(studentRecordChildVariables[1], "grades", "Grades",
+                "record");
+        assertVariable(studentRecordChildVariables[2], "name", "John Doe",
+                "string");
 
         // record child variable visibility test (Grades record)
         Variable[] studentGradesChildVariables = getChildVariable(studentRecordChildVariables[1]);
         Arrays.sort(studentGradesChildVariables, compareByName);
-        Assert.assertEquals(studentGradesChildVariables[0].getName(), "chemistry");
-        Assert.assertEquals(studentGradesChildVariables[0].getValue(), "65");
-        Assert.assertEquals(studentGradesChildVariables[0].getType(), "int");
-        Assert.assertEquals(studentGradesChildVariables[1].getName(), "maths");
-        Assert.assertEquals(studentGradesChildVariables[1].getValue(), "80");
-        Assert.assertEquals(studentGradesChildVariables[1].getType(), "int");
-        Assert.assertEquals(studentGradesChildVariables[2].getName(), "physics");
-        Assert.assertEquals(studentGradesChildVariables[2].getValue(), "75");
-        Assert.assertEquals(studentGradesChildVariables[2].getType(), "int");
+        assertVariable(studentGradesChildVariables[0], "chemistry", "65", "int");
+        assertVariable(studentGradesChildVariables[1], "maths", "80", "int");
+        assertVariable(studentGradesChildVariables[2], "physics", "75", "int");
 
         // anonymous record child variable visibility test
         Variable[] recordChildVariables = getChildVariable(variables[11]);
         Arrays.sort(recordChildVariables, compareByName);
-        Assert.assertEquals(recordChildVariables[0].getName(), "city");
-        Assert.assertEquals(recordChildVariables[0].getValue(), "London");
-        Assert.assertEquals(recordChildVariables[0].getType(), "string");
-        Assert.assertEquals(recordChildVariables[1].getName(), "country");
-        Assert.assertEquals(recordChildVariables[1].getValue(), "UK");
-        Assert.assertEquals(recordChildVariables[1].getType(), "string");
+        assertVariable(recordChildVariables[0], "city", "London", "string");
+        assertVariable(recordChildVariables[1], "country", "UK", "string");
 
         // error child variable visibility test
         Variable[] errorChildVariables = getChildVariable(variables[12]);
         Arrays.sort(errorChildVariables, compareByName);
-        Assert.assertEquals(errorChildVariables[0].getName(), "details");
-        Assert.assertEquals(errorChildVariables[0].getValue(), "map");
-        Assert.assertEquals(errorChildVariables[0].getType(), "map");
-        Assert.assertEquals(errorChildVariables[1].getName(), "message");
-        Assert.assertEquals(errorChildVariables[1].getValue(), "SimpleErrorType");
-        Assert.assertEquals(errorChildVariables[1].getType(), "string");
+        assertVariable(errorChildVariables[0], "details", "map", "map");
+        assertVariable(errorChildVariables[1], "message", "SimpleErrorType",
+                "string");
 
         // error details child variable visibility test
         Variable[] errorDetailsChildVariables = getChildVariable(errorChildVariables[0]);
-        Assert.assertEquals(errorDetailsChildVariables[0].getName(), "message");
-        Assert.assertEquals(errorDetailsChildVariables[0].getValue(), "Simple error occurred");
-        Assert.assertEquals(errorDetailsChildVariables[0].getType(), "string");
+        assertVariable(errorDetailsChildVariables[0], "message", "Simple error occurred", "string");
 
         // future child variable visibility test
         Variable[] futureChildVariables = getChildVariable(variables[14]);
         Arrays.sort(futureChildVariables, compareByName);
-        Assert.assertEquals(futureChildVariables[0].getName(), "isDone");
-        Assert.assertEquals(futureChildVariables[0].getValue(), "true");
-        Assert.assertEquals(futureChildVariables[0].getType(), "boolean");
-        Assert.assertEquals(futureChildVariables[1].getName(), "result");
-        Assert.assertEquals(futureChildVariables[1].getValue(), "90");
-        Assert.assertEquals(futureChildVariables[1].getType(), "int");
+        assertVariable(futureChildVariables[0], "isDone", "true", "boolean");
+        assertVariable(futureChildVariables[1], "result", "90", "int");
 
         // object child variable visibility test (Person object)
         Variable[] personObjectChildVariables = getChildVariable(variables[15]);
         Arrays.sort(personObjectChildVariables, compareByName);
-        Assert.assertEquals(personObjectChildVariables[0].getName(), "address");
-        Assert.assertEquals(personObjectChildVariables[0].getValue(), "No 20, Palm grove");
-        Assert.assertEquals(personObjectChildVariables[0].getType(), "string");
-        Assert.assertEquals(personObjectChildVariables[1].getName(), "age");
-        Assert.assertEquals(personObjectChildVariables[1].getValue(), "0");
-        Assert.assertEquals(personObjectChildVariables[1].getType(), "int");
-        Assert.assertEquals(personObjectChildVariables[2].getName(), "email");
-        Assert.assertEquals(personObjectChildVariables[2].getValue(), "default@abc.com");
-        Assert.assertEquals(personObjectChildVariables[2].getType(), "string");
-        Assert.assertEquals(personObjectChildVariables[3].getName(), "name");
-        Assert.assertEquals(personObjectChildVariables[3].getValue(), "");
-        Assert.assertEquals(personObjectChildVariables[3].getType(), "string");
+        assertVariable(personObjectChildVariables[0], "address", "No 20, Palm grove", "string");
+        assertVariable(personObjectChildVariables[1], "age", "0", "int");
+        assertVariable(personObjectChildVariables[2], "email", "default@abc.com", "string");
+        assertVariable(personObjectChildVariables[3], "name", "", "string");
 
         // anonymous object child variable visibility test (AnonPerson object)
         Variable[] anonPersonObjectChildVariables = getChildVariable(variables[16]);
         Arrays.sort(anonPersonObjectChildVariables, compareByName);
-        Assert.assertEquals(anonPersonObjectChildVariables[0].getName(), "address");
-//        Assert.assertEquals(anonPersonObjectChildVariables[0].getValue(), "Address");
-//        Assert.assertEquals(anonPersonObjectChildVariables[0].getType(), "record");
-        Assert.assertEquals(anonPersonObjectChildVariables[1].getName(), "age");
-        Assert.assertEquals(anonPersonObjectChildVariables[1].getValue(), "25");
-        Assert.assertEquals(anonPersonObjectChildVariables[1].getType(), "int");
-        Assert.assertEquals(anonPersonObjectChildVariables[2].getName(), "name");
-        Assert.assertEquals(anonPersonObjectChildVariables[2].getValue(), "John Doe");
-        Assert.assertEquals(anonPersonObjectChildVariables[2].getType(), "string");
+//        assertVariable(anonPersonObjectChildVariables[0], "address", "Address", "record");
+        assertVariable(anonPersonObjectChildVariables[1], "age", "25", "int");
+        assertVariable(anonPersonObjectChildVariables[2], "name", "John Doe", "string");
 
         // TODO: Anonymous object's grand child variables are not visible. Need to fix it.
 
 //        Variable[] anonPersonAddressChildVariables = getChildVariable(anonPersonObjectChildVariables[0]);
 //        Arrays.sort(anonPersonAddressChildVariables, compareByName);
-//        Assert.assertEquals(anonPersonAddressChildVariables[0].getName(), "city");
-//        Assert.assertEquals(anonPersonAddressChildVariables[0].getValue(), "Colombo");
-//        Assert.assertEquals(anonPersonAddressChildVariables[0].getType(), "string");
-//        Assert.assertEquals(anonPersonAddressChildVariables[1].getName(), "country");
-//        Assert.assertEquals(anonPersonAddressChildVariables[1].getValue(), "Sri Lanka");
-//        Assert.assertEquals(anonPersonAddressChildVariables[1].getType(), "string");
+//        assertVariable(anonPersonAddressChildVariables[0], "city", "Colombo", "string");
+//        assertVariable(anonPersonAddressChildVariables[1], "country", "Sri Lanka", "string");
+
 
         // json child variable visibility test
         Variable[] jsonChildVariables = getChildVariable(variables[23]);
         Arrays.sort(jsonChildVariables, compareByName);
-        Assert.assertEquals(jsonChildVariables[0].getName(), "color");
-        Assert.assertEquals(jsonChildVariables[0].getValue(), "red");
-        Assert.assertEquals(jsonChildVariables[0].getType(), "string");
-        Assert.assertEquals(jsonChildVariables[1].getName(), "name");
-        Assert.assertEquals(jsonChildVariables[1].getValue(), "apple");
-        Assert.assertEquals(jsonChildVariables[1].getType(), "string");
-        Assert.assertEquals(jsonChildVariables[2].getName(), "price");
-        Assert.assertEquals(jsonChildVariables[2].getValue(), "40");
-        Assert.assertEquals(jsonChildVariables[2].getType(), "int");
+        assertVariable(jsonChildVariables[0], "color", "red", "string");
+        assertVariable(jsonChildVariables[1], "name", "apple", "string");
+        assertVariable(jsonChildVariables[2], "price", "40", "int");
+    }
 
+    private void assertVariable(Variable variable, String variableName, String variableValue, String variableType) {
+        Assert.assertEquals(variable.getName(), variableName);
+        Assert.assertEquals(variable.getValue(), variableValue);
+        Assert.assertEquals(variable.getType(), variableType);
     }
 
     @AfterClass
