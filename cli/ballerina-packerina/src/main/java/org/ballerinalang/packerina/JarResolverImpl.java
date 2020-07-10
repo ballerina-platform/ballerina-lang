@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
+import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
@@ -178,15 +179,21 @@ public class JarResolverImpl implements JarResolver {
     public HashSet<Path> allTestDependencies(BLangPackage bLangPackage) {
         HashSet<PackageID> alreadyImportedSet = new HashSet<>();
         PackageID pkgId = bLangPackage.packageID;
+        Path runtimeJar = getRuntimeJar();
         HashSet<Path> moduleTestLibs = new HashSet<>(nativeDependenciesForTests(pkgId));
         moduleTestLibs.addAll(allDependencies(bLangPackage));
         moduleTestLibs.add(moduleTestJar(bLangPackage));
-        moduleTestLibs.add(getRuntimeJar());
+        if (runtimeJar != null) {
+            moduleTestLibs.add(getRuntimeJar());
+        }
         // Copy native libs imported by testable package
         for (BLangPackage testPkg : bLangPackage.getTestablePkgs()) {
             copyImportedLibs(testPkg.packageID, testPkg.symbol.imports, moduleTestLibs, alreadyImportedSet);
         }
-        moduleTestLibs.remove(buildContext.getJarPathFromTargetCache(pkgId));
+
+        if (buildContext.getSourceType() != SourceType.SINGLE_BAL_FILE) {
+            moduleTestLibs.remove(buildContext.getJarPathFromTargetCache(pkgId));
+        }
         return moduleTestLibs;
     }
 
@@ -201,7 +208,11 @@ public class JarResolverImpl implements JarResolver {
 
     private void copyImportedLibs(PackageID packageID, List<BPackageSymbol> imports, HashSet<Path> moduleDependencySet,
                                   HashSet<PackageID> alreadyImportedSet) {
-        moduleDependencySet.add(moduleJar(packageID));
+        Path moduleJar = moduleJar(packageID);
+        if (moduleJar != null) {
+            moduleDependencySet.add(moduleJar);
+        }
+
         for (BPackageSymbol importSymbol : imports) {
             PackageID pkgId = importSymbol.pkgID;
             if (!alreadyImportedSet.contains(pkgId)) {
