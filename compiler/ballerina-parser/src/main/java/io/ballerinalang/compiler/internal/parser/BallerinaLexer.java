@@ -1636,8 +1636,9 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         // Look ahead for a "Deprecated" word match.
+        char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
         for (int i = 0; i < 10; i++) {
-            if ((char) lookAheadChar != LexerTerminals.DEPRECATED.charAt(i)) {
+            if ((char) lookAheadChar != deprecatedChars[i]) {
                 // No match. Hence return a documentation internal token.
                 return readDocumentationInternalToken();
             }
@@ -1648,9 +1649,13 @@ public class BallerinaLexer extends AbstractLexer {
         // There is a match. Hence return a deprecation literal.
         processLeadingTrivia();
         reader.mark();
-        while (!getLexeme().endsWith(LexerTerminals.DEPRECATED)) {
-            reader.advance();
+        reader.advance(); // Advance reader for #
+        int nextChar = peek();
+        while ((char) nextChar != deprecatedChars[0]) {
+            reader.advance(); // Advance reader for WS
+            nextChar = peek();
         }
+        reader.advance(10); // Advance reader for "Deprecated" word
         return getDocumentationLiteral(SyntaxKind.DEPRECATION_LITERAL);
     }
 
