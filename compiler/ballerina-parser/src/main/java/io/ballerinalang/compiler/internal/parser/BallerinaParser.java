@@ -3952,7 +3952,12 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     protected STNode parseExpression() {
-        return parseExpression(DEFAULT_OP_PRECEDENCE, true, false);
+        STNode actionOrExpression = parseExpression(DEFAULT_OP_PRECEDENCE, true, false);
+        if (isAction(actionOrExpression)) {
+            actionOrExpression = SyntaxErrors.addDiagnostic(actionOrExpression,
+                    DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+        }
+        return actionOrExpression;
     }
 
     /**
@@ -10996,10 +11001,13 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseWaitFutureExpr() {
-        STNode waitFutureExpr = parseExpression();
+        STNode waitFutureExpr = parseActionOrExpression();
         if (waitFutureExpr.kind == SyntaxKind.MAPPING_CONSTRUCTOR) {
             waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
                     DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
+        } else if (isAction(waitFutureExpr)) {
+            waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
+                    DiagnosticErrorCode.ERROR_ACTION_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
     }
