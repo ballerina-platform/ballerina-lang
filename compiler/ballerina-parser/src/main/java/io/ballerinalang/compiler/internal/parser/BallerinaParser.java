@@ -597,6 +597,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgMatchPattern();
             case ARG_MATCH_PATTERN_RHS:
                 return parseArgMatchPatternRhs();
+            case ARG_BINDING_PATTERN:
+                return parseArgBindingPattern();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -14041,7 +14043,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse list-binding-pattern entry.
+     * Parse list-binding-pattern member.
      * <p>
      * <code>
      * list-binding-pattern := [ list-member-binding-patterns ]
@@ -14050,7 +14052,7 @@ public class BallerinaParser extends AbstractParser {
      *                                  | [ rest-binding-pattern ]
      * </code>
      *
-     * @return rest-binding-pattern node
+     * @return List binding pattern member
      */
     private STNode parseListBindingPatternMember() {
         STToken token = peek();
@@ -14080,6 +14082,15 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse rest binding pattern.
+     * <p>
+     * <code>
+     * rest-binding-pattern := ... variable-name
+     * </code>
+     * 
+     * @return Rest binding pattern node
+     */
     private STNode parseRestBindingPattern() {
         startContext(ParserRuleContext.REST_BINDING_PATTERN);
         STNode ellipsis = parseEllipsis();
@@ -14273,12 +14284,31 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Parse error binding pattern node.
+     * <p>
+     * <code>functional-binding-pattern := error ( arg-list-binding-pattern )</code>
+     * 
+     * @return Error binding pattern node.
+     */
     private STNode parseErrorBindingPattern() {
         startContext(ParserRuleContext.FUNCTIONAL_BINDING_PATTERN);
         STNode typeDesc = parseErrorKeyword();
         return parseFunctionalBindingPattern(typeDesc);
     }
 
+    /**
+     * Parse functional binding pattern.
+     * <p>
+     * <code>
+     * functional-binding-pattern := functionally-constructible-type-reference ( arg-list-binding-pattern )
+     * <br/><br/>
+     * functionally-constructible-type-reference := error | type-reference
+     * </code>
+     * 
+     * @param typeDesc Functionally constructible type reference
+     * @return Functional binding pattern node.
+     */
     private STNode parseFunctionalBindingPattern(STNode typeDesc) {
         STNode openParenthesis = parseOpenParenthesis(ParserRuleContext.ARG_LIST_START);
         STNode argListBindingPatterns = parseArgListBindingPatterns();
@@ -14339,6 +14369,31 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseArgsBindingPatternEnd(solution.tokenKind);
         }
+    }
+
+    /**
+     * Parse arg binding pattern.
+     * <p>
+     * <code>
+     * arg-list-binding-pattern := positional-arg-binding-patterns [, other-arg-binding-patterns] 
+     *                             | other-arg-binding-patterns
+     * <br/><br/>
+     * positional-arg-binding-patterns := positional-arg-binding-pattern (, positional-arg-binding-pattern)*
+     * <br/><br/>
+     * positional-arg-binding-pattern := binding-pattern
+     * <br/><br/>
+     * other-arg-binding-patterns := named-arg-binding-patterns [, rest-binding-pattern] | [rest-binding-pattern]
+     * <br/><br/>
+     * named-arg-binding-patterns := named-arg-binding-pattern (, named-arg-binding-pattern)*
+     * <br/><br/>
+     * named-arg-binding-pattern := arg-name = binding-pattern
+     * </code>
+     * 
+     * @return Arg binding pattern
+     */
+    private STNode parseArgBindingPattern() {
+        STToken nextToken = peek();
+        return parseArgBindingPattern(nextToken.kind);
     }
 
     private STNode parseArgBindingPattern(SyntaxKind kind) {
