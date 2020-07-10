@@ -710,6 +710,10 @@
             {
                 "name": "Knative Deployment",
                 "url": "knative-deployment"
+            },
+            {
+                "name": "Azure Functions Deployment",
+                "url": "azure-functions-deployment"
             }
         ]
     },

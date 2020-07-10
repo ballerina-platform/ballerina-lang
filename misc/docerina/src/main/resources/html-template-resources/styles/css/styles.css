@@ -25,10 +25,10 @@ body .attach-icon {
   opacity: 0.3;
 }
 body .content-wrapper {
-  margin: 0;
+  margin-left: 210px;
   height: 100vh;
-  overflow-y: hidden;
-  position: fixed;
+  overflow-y: scroll;
+  position: inherit;
   font-size: 16px;
   padding-top: 1em;
 }
@@ -294,10 +294,6 @@ body .content-wrapper .breadcrumb-home-icon {
 }
 body .content-wrapper .breadcrumb-home-icon:hover {
   opacity: 0.7;
-}
-body .content-wrapper:hover {
-  overflow-y: auto;
-  position: inherit;
 }
 body .content-wrapper p {
   line-height: 24px;
@@ -590,8 +586,9 @@ body .content-wrapper .strike {
   height: 100vh;
   overflow-y: hidden;
   overflow-x: hidden;
-  min-width: 210px;
-  float: left;
+  width: 210px;
+  position: fixed;
+  z-index: 1;
   padding-top: 1em;
 }
 .navi-wrapper .navi-wrapper-content,
@@ -621,7 +618,6 @@ body .content-wrapper .strike {
 .navi-wrapper:hover,
 .navi-wrapper-sidebar:hover {
   overflow-y: scroll;
-  position: inherit;
 }
 .navi-wrapper .search input,
 .navi-wrapper-sidebar .search input {
@@ -729,6 +725,7 @@ a.toc.item {
   }
   body .content-wrapper {
     height: auto !important;
+    margin-left: 0;
     overflow-y: visible !important;
   }
   .ui.fixed.menu {
@@ -743,9 +740,9 @@ a.toc.item {
   }
   a.toc.item {
     width: 12px;
-    position: fixed;
-    top: 20px;
-    left: 11px;
+    position: relative;
+    top: 30px;
+    left: 20px;
     opacity: 0.5;
     display: block;
   }
@@ -754,7 +751,7 @@ a.toc.item {
     display: block;
   }
   .navi-wrapper {
-    display: none !important;
+    display: none;
   }
   .navi-wrapper-content {
     width: 250px !important;
