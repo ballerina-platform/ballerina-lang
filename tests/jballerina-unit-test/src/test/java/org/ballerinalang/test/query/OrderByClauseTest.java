@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
@@ -40,8 +41,8 @@ public class OrderByClauseTest {
     }
 
     @Test(description = "Test query expression with order by")
-    public void testSimpleQueryExpr() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testSimpleQueryExpr");
+    public void testQueryExprWithOrderByClause() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClause");
         Assert.assertNotNull(returnValues);
 
         Assert.assertEquals(returnValues.length, 11, "Expected events are not received");
@@ -55,8 +56,8 @@ public class OrderByClauseTest {
         BMap<String, BValue> student7 = (BMap<String, BValue>) returnValues[6];
         BMap<String, BValue> student8 = (BMap<String, BValue>) returnValues[7];
         BMap<String, BValue> student9 = (BMap<String, BValue>) returnValues[8];
-        BMap<String, BValue> student10= (BMap<String, BValue>) returnValues[9];
-        BMap<String, BValue> student11= (BMap<String, BValue>) returnValues[10];
+        BMap<String, BValue> student10 = (BMap<String, BValue>) returnValues[9];
+        BMap<String, BValue> student11 = (BMap<String, BValue>) returnValues[10];
 
         Assert.assertEquals(student1.get("firstname").stringValue(), "Ranjan");
         Assert.assertEquals(student2.get("lastname").stringValue(), "{lname:\"Herman\"}");
@@ -73,5 +74,40 @@ public class OrderByClauseTest {
         Assert.assertEquals(student9.get("isUndergrad").stringValue(), "true");
         Assert.assertEquals(student10.get("firstname").stringValue(), "Zander");
         Assert.assertEquals(student11.get("firstname").stringValue(), "Xyla");
+    }
+
+    @Test(description = "Test query expression with order by and other clauses")
+    public void testQueryExprWithLetWhereAndOrderByClauses() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithLetWhereAndOrderByClauses");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> student1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> student2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> student3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(student1.get("lastname").stringValue(), "{lname:\"George\"}");
+        Assert.assertEquals(student2.get("lastname").stringValue(), "{lname:\"Herman\"}");
+        Assert.assertEquals(student2.get("isUndergrad").stringValue(), "false");
+        Assert.assertEquals(student3.get("lastname").stringValue(), "{lname:\"Frost\"}");
+    }
+
+    @Test(description = "Test query expr with order by clause returning a table")
+    public void testQueryExprWithOrderByClauseReturnTable() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnTable");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(enabled = false, description = "Test query expr with order by clause returning a stream")
+    public void testQueryExprWithOrderByClauseReturnStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnStream");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 }
