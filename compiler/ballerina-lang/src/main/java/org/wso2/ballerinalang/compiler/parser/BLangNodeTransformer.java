@@ -4209,7 +4209,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     DocumentationLineNode deprecationDocLineNode = (DocumentationLineNode) singleDocLine;
 
                     String lineText = ((Token) deprecationDocLineNode.documentElements().get(0)).text();
-                    bLangDeprecationDoc.addDeprecationLine("#" + lineText);
+                    bLangDeprecationDoc.addDeprecationLine("# " + lineText);
                     bLangDeprecationDoc.pos = getPosition(deprecationDocLineNode);
                     doc.deprecationDocumentation = bLangDeprecationDoc;
                     break;

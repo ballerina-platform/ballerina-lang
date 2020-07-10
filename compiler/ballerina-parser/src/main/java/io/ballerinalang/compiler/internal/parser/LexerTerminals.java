@@ -103,6 +103,7 @@ public class LexerTerminals {
     // For BFM only
     public static final String VARIABLE = "variable";
     public static final String MODULE = "module";
+    public static final String DEPRECATED = "Deprecated";
 
     // Types
     public static final String INT = "int";

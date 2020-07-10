@@ -12794,12 +12794,30 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.PLUS_TOKEN) {
             return parseParameterDocumentationLine(hashToken);
+        } else if (nextToken.kind == SyntaxKind.DEPRECATION_LITERAL) {
+            return parseDeprecationDocumentationLine(hashToken);
         }
         return parseDocumentationLine(hashToken);
     }
 
     /**
-     * Parse documentation line, deprecation documentation line and reference documentation line.
+     * Parse deprecation documentation line.
+     *
+     * @param hashToken Hash token at the beginning of the line
+     * @return Parsed node
+     */
+    private STNode parseDeprecationDocumentationLine(STNode hashToken) {
+        STNode deprecationLiteral = consume();
+
+        List<STNode> docElements = parseDocumentationElements();
+        docElements.add(0, deprecationLiteral);
+
+        STNode docElementList = STNodeFactory.createNodeList(docElements);
+        return createDeprecationDocumentationLineNode(hashToken, docElementList);
+    }
+
+    /**
+     * Parse documentation line and reference documentation line.
      *
      * @param hashToken Hash token at the beginning of the line
      * @return Parsed node
@@ -12815,9 +12833,6 @@ public class BallerinaParser extends AbstractParser {
             case 1:
                 STNode docElement = docElements.get(0);
                 if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    if (((STToken) docElement).text().startsWith(" # Deprecated")) {
-                        return createDeprecationDocumentationLineNode(hashToken, docElementList);
-                    }
                     return createDocumentationLineNode(hashToken, docElementList);
                 }
                 // Else fall through

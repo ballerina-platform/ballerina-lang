@@ -367,6 +367,7 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
+            case DEPRECATION_LITERAL:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
@@ -1193,6 +1194,8 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_NAME;
             case "BACKTICK_CONTENT":
                 return SyntaxKind.BACKTICK_CONTENT;
+            case "DEPRECATION_LITERAL":
+                return SyntaxKind.DEPRECATION_LITERAL;
 
             // Trivia
             case "EOF_TOKEN":

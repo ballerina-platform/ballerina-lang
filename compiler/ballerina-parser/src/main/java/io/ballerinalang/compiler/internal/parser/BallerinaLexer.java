@@ -1595,9 +1595,10 @@ public class BallerinaLexer extends AbstractLexer {
      */
 
     private STToken readDocumentationToken() {
-        // Look ahead and see if next non-trivial char is a plus char.
-        // If it is, process trivial chars as leading trivia of the plus token.
-        // Else, let trivial chars be a part of documentation description.
+        // Look ahead and see if next non-trivial char is a plus char or a hash char.
+        // If it is a plus char, process trivial chars as leading trivia of the plus token.
+        // If it is a hash char, look ahead and see if it is followed by a deprecation literal.
+        // Else, let trivial chars be a part of the documentation description.
         int lookAheadCount = 0;
         int lookAheadChar = reader.peek(lookAheadCount);
         while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
@@ -1606,13 +1607,48 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         if (lookAheadChar == LexerTerminals.PLUS) {
-            processLeadingTrivia();
-            reader.advance();
-            switchMode(ParserMode.DOCUMENTATION_PARAMETER);
-            return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+            return processPlusToken();
+        } else if (lookAheadChar == LexerTerminals.HASH) {
+            return processDeprecationLiteralToken(lookAheadCount);
+        } else {
+            return readDocumentationInternalToken();
+        }
+    }
+
+    private STToken processPlusToken() {
+        processLeadingTrivia();
+        reader.advance();
+        switchMode(ParserMode.DOCUMENTATION_PARAMETER);
+        return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+    }
+
+    private STToken processDeprecationLiteralToken(int lookAheadCount) {
+        // Look ahead and see if next non-trivial char belongs to a deprecation literal.
+        // There could be spaces and tabs in between.
+        lookAheadCount++;
+        int lookAheadChar = reader.peek(lookAheadCount);
+        while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
+            lookAheadCount++;
+            lookAheadChar = reader.peek(lookAheadCount);
         }
 
-        return readDocumentationInternalToken();
+        // Look ahead for a "Deprecated" word match.
+        for (int i = 0; i < 10; i++) {
+            if ((char) lookAheadChar != LexerTerminals.DEPRECATED.charAt(i)) {
+                // No match. Hence return a documentation internal token.
+                return readDocumentationInternalToken();
+            }
+            lookAheadCount++;
+            lookAheadChar = reader.peek(lookAheadCount);
+        }
+
+        // There is a match. Hence return a deprecation literal.
+        processLeadingTrivia();
+        reader.mark();
+        while (!getLexeme().endsWith(LexerTerminals.DEPRECATED)) {
+            reader.advance();
+        }
+        return getDocumentationLiteral(SyntaxKind.DEPRECATION_LITERAL);
     }
 
     /*
