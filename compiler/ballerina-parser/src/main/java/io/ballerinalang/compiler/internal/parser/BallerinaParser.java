@@ -36,7 +36,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STIntersectionTypeDescript
 import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNilLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;

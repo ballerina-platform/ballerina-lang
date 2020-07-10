@@ -2470,7 +2470,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangWorkerSend.setWorkerName(createIdentifier(asyncSendActionNode.peerWorker().name()));
                     return bLangWorkerSend;
                 }
-                //fall-through
+                // Else fall through
             default:
                 BLangExpressionStmt bLExpressionStmt =
                         (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
@@ -2549,8 +2549,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (!(expression instanceof BLangWorkerSend)) {
             invocation = (BLangInvocation) expression;
         } else {
-            invocation = (BLangInvocation) ((BLangWorkerSend)expression).expr;
-            expression = ((BLangWorkerSend)expression).expr;
+            invocation = (BLangInvocation) ((BLangWorkerSend) expression).expr;
+            expression = ((BLangWorkerSend) expression).expr;
         }
 
         if (expression.getKind() == NodeKind.INVOCATION) {
