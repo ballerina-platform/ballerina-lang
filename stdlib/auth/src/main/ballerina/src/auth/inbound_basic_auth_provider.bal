@@ -83,9 +83,7 @@ public type InboundBasicAuthProvider object {
             authenticated = password == passwordFromConfig;
         }
         if (authenticated) {
-            //setAuthenticationContext("basic", credential);
             string[] scopes = getScopes(username, self.basicAuthConfig.tableName);
-            //setPrincipal(username, scopes);
             setAuthInvocationContext("basic", credential, username, scopes);
         }
         return authenticated;

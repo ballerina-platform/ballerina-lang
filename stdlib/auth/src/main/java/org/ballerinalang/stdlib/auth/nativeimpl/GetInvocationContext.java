@@ -29,7 +29,6 @@ import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_AUTH_PKG_ID;
 /**
  * Extern function to get auth invocation context record.
  *
- * @since swan-lake
  */
 public class GetInvocationContext {
 
