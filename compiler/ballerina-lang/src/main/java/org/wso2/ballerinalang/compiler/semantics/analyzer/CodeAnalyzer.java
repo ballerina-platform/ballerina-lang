@@ -2683,20 +2683,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             } else if (clause.getKind() == NodeKind.ORDER_BY) {
                 BType resultType = queryExpr.type;
                 if (queryExpr.type.tag == TypeTags.ARRAY) {
-                    resultType = ((BArrayType)queryExpr.type).eType;
+                    resultType = ((BArrayType) queryExpr.type).eType;
                 } else if (queryExpr.type.tag == TypeTags.TABLE) {
-                    resultType = ((BTableType)queryExpr.type).constraint;
+                    resultType = ((BTableType) queryExpr.type).constraint;
                 } else if (queryExpr.type.tag == TypeTags.STREAM) {
-                    resultType = ((BStreamType)queryExpr.type).constraint;
+                    resultType = ((BStreamType) queryExpr.type).constraint;
                 }
                 if (resultType.tag == TypeTags.RECORD) {
                     BRecordType recordType = (BRecordType) resultType;
                     Map<String, BField> recordFields = recordType.fields;
                     for (OrderKeyNode orderKeyNode : ((BLangOrderByClause) clause).getOrderKeyList()) {
                         if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
-                            dlog.error(((BLangOrderKey)orderKeyNode).expression.pos,
+                            dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
                                     DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
-                                    ((BLangOrderKey)orderKeyNode).expression, resultType);
+                                    ((BLangOrderKey) orderKeyNode).expression, resultType);
                         }
                     }
                 }
@@ -2756,7 +2756,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOrderByClause orderByClause) {
-        orderByClause.orderByKeyList.forEach(value -> analyzeExpr((BLangExpression)value.getOrderKey()));
+        orderByClause.orderByKeyList.forEach(value -> analyzeExpr((BLangExpression) value.getOrderKey()));
     }
 
     @Override

@@ -583,13 +583,11 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         DiagnosticPos pos = orderByClause.pos;
 
-        BLangListConstructorExpr.BLangArrayLiteral
-                sortFieldsArrayExpr = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        BLangArrayLiteral sortFieldsArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortFieldsArrayExpr.exprs = new ArrayList<>();
         sortFieldsArrayExpr.type = new BArrayType(symTable.stringType);
 
-        BLangListConstructorExpr.BLangArrayLiteral
-                sortModesArrayExpr = (BLangListConstructorExpr.BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+        BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
         sortModesArrayExpr.type = new BArrayType(symTable.booleanType);
 
