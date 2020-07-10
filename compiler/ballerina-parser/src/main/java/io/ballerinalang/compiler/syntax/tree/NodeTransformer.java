@@ -776,6 +776,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(fieldMatchPatternNode);
     }
 
+    public T transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
+    }
+
     public T transform(ParameterDocumentationLineNode parameterDocumentationLineNode) {
         return transformSyntaxNode(parameterDocumentationLineNode);
     }

@@ -221,7 +221,7 @@ public enum ParserRuleContext {
     MATCH_PATTERN("match-pattern"),
     MATCH_PATTERN_START("match-pattern-start"),
     MATCH_PATTERN_END("match-pattern-end"),
-    MATCH_PATTERN_RHS("match-pattern-outer-rhs"),
+    MATCH_PATTERN_RHS("match-pattern-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
     JOIN_CLAUSE("join-clause"),
     LIST_MATCH_PATTERN("list-match-pattern"),
@@ -233,7 +233,16 @@ public enum ParserRuleContext {
     FIELD_MATCH_PATTERNS_START("field-match-patterns-start"),
     FIELD_MATCH_PATTERN_MEMBER_RHS("field-match-pattern-member-rhs"),
     FIELD_MATCH_PATTERN_MEMBER("field-match-pattern-member"),
+    FUNCTIONAL_MATCH_PATTERN("functional-match-pattern"),
+    FUNC_MATCH_PATTERN_OR_CONST_PATTERN("func-match-pattern-or-const-pattern"),
+    FUNCTIONAL_MATCH_PATTERN_START("functional-match-pattern-start"),
+    NAMED_ARG_MATCH_PATTERN("named-arg-match-pattern"),
+    NAMED_ARG_MATCH_PATTERN_RHS("named-arg-match-pattern-rhs"),
+    ARG_LIST_MATCH_PATTERN_START("arg-list-match-pattern-start"),
+    ARG_MATCH_PATTERN("arg-match-pattern"),
+    ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
+
 
     // Statements
     STATEMENT("statement"),
