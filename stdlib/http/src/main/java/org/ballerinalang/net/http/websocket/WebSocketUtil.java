@@ -75,7 +75,7 @@ import javax.net.ssl.SSLException;
 /**
  * Utility class for WebSocket.
  */
-public class    WebSocketUtil {
+public class WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
     private static final BString CLIENT_ENDPOINT_CONFIG = StringUtils.fromString("config");
