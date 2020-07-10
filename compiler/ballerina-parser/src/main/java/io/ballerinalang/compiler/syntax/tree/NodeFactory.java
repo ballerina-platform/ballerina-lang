@@ -513,7 +513,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static FunctionCallExpressionNode createFunctionCallExpressionNode(
             Node functionName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(functionName, "functionName must not be null");
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
@@ -533,7 +533,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token dotToken,
             NameReferenceNode methodName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(dotToken, "dotToken must not be null");
@@ -809,7 +809,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static NamedArgumentNode createNamedArgumentNode(
-            Token leadingComma,
             SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
@@ -818,7 +817,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stNamedArgumentNode = STNodeFactory.createNamedArgumentNode(
-                getOptionalSTNode(leadingComma),
                 argumentName.internalNode(),
                 equalsToken.internalNode(),
                 expression.internalNode());
@@ -826,25 +824,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static PositionalArgumentNode createPositionalArgumentNode(
-            Token leadingComma,
             ExpressionNode expression) {
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stPositionalArgumentNode = STNodeFactory.createPositionalArgumentNode(
-                getOptionalSTNode(leadingComma),
                 expression.internalNode());
         return stPositionalArgumentNode.createUnlinkedFacade();
     }
 
     public static RestArgumentNode createRestArgumentNode(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode expression) {
         Objects.requireNonNull(ellipsis, "ellipsis must not be null");
         Objects.requireNonNull(expression, "expression must not be null");
 
         STNode stRestArgumentNode = STNodeFactory.createRestArgumentNode(
-                getOptionalSTNode(leadingComma),
                 ellipsis.internalNode(),
                 expression.internalNode());
         return stRestArgumentNode.createUnlinkedFacade();
@@ -1117,7 +1111,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token rightArrowToken,
             SimpleNameReferenceNode methodName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(expression, "expression must not be null");
         Objects.requireNonNull(rightArrowToken, "rightArrowToken must not be null");
@@ -1926,7 +1920,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ExplicitNewExpressionNode createExplicitNewExpressionNode(
             Token newKeyword,
             TypeDescriptorNode typeDescriptor,
-            Node parenthesizedArgList) {
+            ParenthesizedArgList parenthesizedArgList) {
         Objects.requireNonNull(newKeyword, "newKeyword must not be null");
         Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
         Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
@@ -1951,7 +1945,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ParenthesizedArgList createParenthesizedArgList(
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         Objects.requireNonNull(openParenToken, "openParenToken must not be null");
         Objects.requireNonNull(arguments, "arguments must not be null");
@@ -2261,6 +2255,39 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 ellipsisToken.internalNode(),
                 variableName.internalNode());
         return stRestBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static FunctionalBindingPatternNode createFunctionalBindingPatternNode(
+            Node typeReference,
+            Token openParenthesis,
+            SeparatedNodeList<BindingPatternNode> argListBindingPatterns,
+            Token closeParenthesis) {
+        Objects.requireNonNull(typeReference, "typeReference must not be null");
+        Objects.requireNonNull(openParenthesis, "openParenthesis must not be null");
+        Objects.requireNonNull(argListBindingPatterns, "argListBindingPatterns must not be null");
+        Objects.requireNonNull(closeParenthesis, "closeParenthesis must not be null");
+
+        STNode stFunctionalBindingPatternNode = STNodeFactory.createFunctionalBindingPatternNode(
+                typeReference.internalNode(),
+                openParenthesis.internalNode(),
+                argListBindingPatterns.underlyingListNode().internalNode(),
+                closeParenthesis.internalNode());
+        return stFunctionalBindingPatternNode.createUnlinkedFacade();
+    }
+
+    public static NamedArgBindingPatternNode createNamedArgBindingPatternNode(
+            IdentifierToken argName,
+            Token equalsToken,
+            BindingPatternNode bindingPattern) {
+        Objects.requireNonNull(argName, "argName must not be null");
+        Objects.requireNonNull(equalsToken, "equalsToken must not be null");
+        Objects.requireNonNull(bindingPattern, "bindingPattern must not be null");
+
+        STNode stNamedArgBindingPatternNode = STNodeFactory.createNamedArgBindingPatternNode(
+                argName.internalNode(),
+                equalsToken.internalNode(),
+                bindingPattern.internalNode());
+        return stNamedArgBindingPatternNode.createUnlinkedFacade();
     }
 
     public static AsyncSendActionNode createAsyncSendActionNode(

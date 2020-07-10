@@ -616,34 +616,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
 
         return new STNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
     }
 
     public static STNode createPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression) {
 
         return new STPositionalArgumentNode(
-                leadingComma,
                 expression);
     }
 
     public static STNode createRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
 
         return new STRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -1700,6 +1694,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STRestBindingPatternNode(
                 ellipsisToken,
                 variableName);
+    }
+
+    public static STNode createFunctionalBindingPatternNode(
+            STNode typeReference,
+            STNode openParenthesis,
+            STNode argListBindingPatterns,
+            STNode closeParenthesis) {
+
+        return new STFunctionalBindingPatternNode(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    public static STNode createNamedArgBindingPatternNode(
+            STNode argName,
+            STNode equalsToken,
+            STNode bindingPattern) {
+
+        return new STNamedArgBindingPatternNode(
+                argName,
+                equalsToken,
+                bindingPattern);
     }
 
     public static STNode createAsyncSendActionNode(
