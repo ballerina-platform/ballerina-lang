@@ -212,7 +212,7 @@ public type WebSocketClientConfiguration record {|
 # + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
 #                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
 #                               an error.If the value < 0, then the value sets to the default value(300).
-# + cookies - Cookie's name and value, which should be sent to the server
+# + cookies - Name and value of the cookies, which should be sent to the server
 public type CommonWebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
