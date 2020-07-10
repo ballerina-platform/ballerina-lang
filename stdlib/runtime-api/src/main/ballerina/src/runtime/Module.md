@@ -26,6 +26,4 @@ Following is the code snippet for pausing the current strand for 1000 millisecon
 runtime:sleep(1000);
 ```
 
-
 For information on the operations, which you can perform with this module, see the below **Functions**.
-
