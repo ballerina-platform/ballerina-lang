@@ -589,6 +589,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
+    public void visit(STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        visitSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public void visit(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        visitSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public void visit(STAsyncSendActionNode asyncSendActionNode) {
         visitSyntaxNode(asyncSendActionNode);
     }
@@ -755,6 +763,14 @@ public abstract class STNodeVisitor {
 
     public void visit(STFieldMatchPatternNode fieldMatchPatternNode) {
         visitSyntaxNode(fieldMatchPatternNode);
+    }
+
+    public void visit(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
     }
 
     public void visit(STParameterDocumentationLineNode parameterDocumentationLineNode) {

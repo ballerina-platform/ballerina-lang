@@ -31,18 +31,15 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STNamedArgumentNode extends STFunctionArgumentNode {
-    public final STNode leadingComma;
     public final STNode argumentName;
     public final STNode equalsToken;
     public final STNode expression;
 
     STNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
         this(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression,
@@ -50,19 +47,16 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
     }
 
     STNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.NAMED_ARG, diagnostics);
-        this.leadingComma = leadingComma;
         this.argumentName = argumentName;
         this.equalsToken = equalsToken;
         this.expression = expression;
 
         addChildren(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -70,7 +64,6 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STNamedArgumentNode(
-                this.leadingComma,
                 this.argumentName,
                 this.equalsToken,
                 this.expression,
@@ -78,12 +71,10 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
     }
 
     public STNamedArgumentNode modify(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression)) {
@@ -91,7 +82,6 @@ public class STNamedArgumentNode extends STFunctionArgumentNode {
         }
 
         return new STNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression,

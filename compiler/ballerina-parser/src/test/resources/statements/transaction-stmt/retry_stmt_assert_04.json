@@ -373,17 +373,17 @@
                           ]
                         },
                         {
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
                           "kind": "POSITIONAL_ARG",
                           "children": [
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
@@ -539,17 +539,17 @@
                           ]
                         },
                         {
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
                           "kind": "POSITIONAL_ARG",
                           "children": [
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
