@@ -787,6 +787,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationLineNode);
     }
 
+    public void visit(OrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(OrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

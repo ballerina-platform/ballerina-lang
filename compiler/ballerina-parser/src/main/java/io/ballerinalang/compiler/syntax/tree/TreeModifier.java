@@ -3032,6 +3032,36 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 documentElements);
     }
 
+    @Override
+    public OrderByClauseNode transform(
+            OrderByClauseNode orderByClauseNode) {
+        Token orderKeyword =
+                modifyToken(orderByClauseNode.orderKeyword());
+        Token byKeyword =
+                modifyToken(orderByClauseNode.byKeyword());
+        SeparatedNodeList<OrderKeyNode> orderKey =
+                modifySeparatedNodeList(orderByClauseNode.orderKey());
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public OrderKeyNode transform(
+            OrderKeyNode orderKeyNode) {
+        ExpressionNode expression =
+                modifyNode(orderKeyNode.expression());
+        Token ascendingKeyword =
+                modifyToken(orderKeyNode.ascendingKeyword().orElse(null));
+        Token descendingKeyword =
+                modifyToken(orderKeyNode.descendingKeyword().orElse(null));
+        return orderKeyNode.modify(
+                expression,
+                ascendingKeyword,
+                descendingKeyword);
+    }
+
     // Tokens
 
     @Override

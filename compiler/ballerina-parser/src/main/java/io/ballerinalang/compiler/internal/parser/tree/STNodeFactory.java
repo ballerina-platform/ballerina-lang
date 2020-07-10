@@ -2236,5 +2236,27 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 hashToken,
                 documentElements);
     }
+
+    public static STNode createOrderByClauseNode(
+            STNode orderKeyword,
+            STNode byKeyword,
+            STNode orderKey) {
+
+        return new STOrderByClauseNode(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    public static STNode createOrderKeyNode(
+            STNode expression,
+            STNode ascendingKeyword,
+            STNode descendingKeyword) {
+
+        return new STOrderKeyNode(
+                expression,
+                ascendingKeyword,
+                descendingKeyword);
+    }
 }
 

@@ -98,6 +98,10 @@ public enum SyntaxKind {
     JOIN_KEYWORD(244, "join"),
     OUTER_KEYWORD(245, "outer"),
     EQUALS_KEYWORD(246, "equals"),
+    ORDER_KEYWORD(247, "order"),
+    BY_KEYWORD(248, "by"),
+    ASCENDING_KEYWORD(249, "ascending"),
+    DESCENDING_KEYWORD(250, "descending"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -422,6 +426,8 @@ public enum SyntaxKind {
     FIELD_MATCH_PATTERN(3078),
     FUNCTIONAL_BINDING_PATTERN(3079),
     NAMED_ARG_BINDING_PATTERN(3080),
+    ORDER_BY_CLAUSE(3081),
+    ORDER_KEY(3082),
 
     // XML
     XML_ELEMENT(4000),

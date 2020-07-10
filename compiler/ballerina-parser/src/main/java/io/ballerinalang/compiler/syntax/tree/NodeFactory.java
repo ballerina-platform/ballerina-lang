@@ -2980,5 +2980,33 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 documentElements.underlyingListNode().internalNode());
         return stDocumentationLineNode.createUnlinkedFacade();
     }
+
+    public static OrderByClauseNode createOrderByClauseNode(
+            Token orderKeyword,
+            Token byKeyword,
+            SeparatedNodeList<OrderKeyNode> orderKey) {
+        Objects.requireNonNull(orderKeyword, "orderKeyword must not be null");
+        Objects.requireNonNull(byKeyword, "byKeyword must not be null");
+        Objects.requireNonNull(orderKey, "orderKey must not be null");
+
+        STNode stOrderByClauseNode = STNodeFactory.createOrderByClauseNode(
+                orderKeyword.internalNode(),
+                byKeyword.internalNode(),
+                orderKey.underlyingListNode().internalNode());
+        return stOrderByClauseNode.createUnlinkedFacade();
+    }
+
+    public static OrderKeyNode createOrderKeyNode(
+            ExpressionNode expression,
+            Token ascendingKeyword,
+            Token descendingKeyword) {
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stOrderKeyNode = STNodeFactory.createOrderKeyNode(
+                expression.internalNode(),
+                getOptionalSTNode(ascendingKeyword),
+                getOptionalSTNode(descendingKeyword));
+        return stOrderKeyNode.createUnlinkedFacade();
+    }
 }
 

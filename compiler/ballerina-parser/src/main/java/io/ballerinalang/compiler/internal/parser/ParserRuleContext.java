@@ -234,6 +234,8 @@ public enum ParserRuleContext {
     FIELD_MATCH_PATTERN_MEMBER_RHS("field-match-pattern-member-rhs"),
     FIELD_MATCH_PATTERN_MEMBER("field-match-pattern-member"),
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
+    ORDER_BY_CLAUSE("order-by-clause"),
+    ORDER_KEY("order-key"),
 
     // Statements
     STATEMENT("statement"),
@@ -347,6 +349,10 @@ public enum ParserRuleContext {
     JOIN_KEYWORD("join"),
     OUTER_KEYWORD("outer"),
     VAR_KEYWORD("var"),
+    ORDER_KEYWORD("order"),
+    BY_KEYWORD("by"),
+    ASCENDING_KEYWORD("ascending"),
+    DESCENDING_KEYWORD("descending"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),

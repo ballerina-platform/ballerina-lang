@@ -788,6 +788,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationLineNode);
     }
 
+    public T transform(OrderByClauseNode orderByClauseNode) {
+        return transformSyntaxNode(orderByClauseNode);
+    }
+
+    public T transform(OrderKeyNode orderKeyNode) {
+        return transformSyntaxNode(orderKeyNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

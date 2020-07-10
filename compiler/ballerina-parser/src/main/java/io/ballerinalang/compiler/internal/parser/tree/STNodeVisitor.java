@@ -777,6 +777,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationLineNode);
     }
 
+    public void visit(STOrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(STOrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);
