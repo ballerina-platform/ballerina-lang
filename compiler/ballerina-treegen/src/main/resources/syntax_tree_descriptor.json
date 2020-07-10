@@ -53,6 +53,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -668,7 +673,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -700,7 +705,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -1086,11 +1091,6 @@
             "kind": "NAMED_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "argumentName",
                     "type": "SimpleNameReferenceNode"
                 },
@@ -1110,11 +1110,6 @@
             "kind": "POSITIONAL_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "expression",
                     "type": "ExpressionNode"
                 }
@@ -1125,11 +1120,6 @@
             "base": "FunctionArgumentNode",
             "kind": "REST_ARG",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "ellipsis",
                     "type": "Token"
@@ -1528,7 +1518,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -1764,12 +1754,12 @@
         },
         {
             "name": "DocumentationStringNode",
-            "base": "Node",
+            "base": "DocumentationNode",
             "kind": "DOCUMENTATION_STRING",
             "attributes": [
                 {
                     "name": "documentationLines",
-                    "type": "Token",
+                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -2095,6 +2085,22 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "XmlTypeDescriptorNode",
+            "base": "TypeDescriptorNode",
+            "kind": "XML_TYPE_DESC",
+            "attributes": [
+                {
+                    "name": "xmlKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "xmlTypeParamsNode",
+                    "type": "TypeParameterNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -2609,7 +2615,7 @@
                 },
                 {
                     "name": "parenthesizedArgList",
-                    "type": "Node"
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },
@@ -2641,7 +2647,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -2762,7 +2768,8 @@
             "attributes": [
                 {
                     "name": "queryConstructType",
-                    "type": "QueryConstructTypeNode"
+                    "type": "QueryConstructTypeNode",
+                    "isOptional": true
                 },
                 {
                     "name": "queryPipeline",
@@ -2771,6 +2778,16 @@
                 {
                     "name": "selectClause",
                     "type": "SelectClauseNode"
+                },
+                {
+                    "name": "onConflictClause",
+                    "type": "OnConflictClauseNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "limitClause",
+                    "type": "LimitClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3053,6 +3070,49 @@
             ]
         },
         {
+            "name": "FunctionalBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "FUNCTIONAL_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeReference",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesis",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListBindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesis",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "NAMED_ARG_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "argName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
+                }
+            ]
+        },
+        {
             "name": "AsyncSendActionNode",
             "base": "ActionNode",
             "kind": "ASYNC_SEND_ACTION",
@@ -3263,6 +3323,11 @@
                 {
                     "name": "blockStatement",
                     "type": "BlockStatementNode"
+                },
+                {
+                    "name": "limitClause",
+                    "type": "LimitClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3694,6 +3759,11 @@
                     "isOptional": true
                 },
                 {
+                    "name": "transactionalKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
                     "name": "functionKeyword",
                     "type": "Token"
                 },
@@ -3723,6 +3793,290 @@
                 {
                     "name": "typeDescriptor",
                     "type": "TypeDescriptorNode"
+                }
+            ]
+        },
+        {
+            "name": "OnConflictClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CONFLICT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "conflictKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "LimitClauseNode",
+            "base": "ClauseNode",
+            "kind": "LIMIT_CLAUSE",
+            "attributes": [
+                {
+                    "name": "limitKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "JoinClauseNode",
+            "base": "ClauseNode",
+            "kind": "JOIN_CLAUSE",
+            "attributes": [
+                {
+                    "name": "outerKeyword",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "joinKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "typedBindingPattern",
+                    "type": "TypedBindingPatternNode"
+                },
+                {
+                    "name": "inKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "onCondition",
+                    "type": "OnClauseNode",
+                    "isOptional": true
+                }
+            ]
+        },
+        {
+            "name": "OnClauseNode",
+            "base": "ClauseNode",
+            "kind": "ON_CLAUSE",
+            "attributes": [
+                {
+                    "name": "onKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
+            "name": "ListMatchPatternNode",
+            "base": "Node",
+            "kind": "LIST_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBracket",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPatterns",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restMatchPattern",
+                    "type": "RestMatchPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBracket",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "RestMatchPatternNode",
+            "base": "Node",
+            "kind": "REST_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "ellipsisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "varKeywordToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "variableName",
+                    "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "MappingMatchPatternNode",
+            "base": "Node",
+            "kind": "MAPPING_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "openBraceToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "fieldMatchPatterns",
+                    "type": "FieldMatchPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "restMatchPattern",
+                    "type": "RestMatchPatternNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "closeBraceToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "FieldMatchPatternNode",
+            "base": "Node",
+            "kind": "FIELD_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "fieldNameNode",
+                    "type": "SimpleNameReferenceNode"
+                },
+                {
+                    "name": "colonToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "FunctionalMatchPatternNode",
+            "base": "Node",
+            "kind": "FUNCTIONAL_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeRef",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListMatchPatternNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesisToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgMatchPatternNode",
+            "base": "Node",
+            "kind": "NAMED_ARG_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "ParameterDocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "plusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameterName",
+                    "type": "Token"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "DOCUMENTATION_REFERENCE",
+            "attributes": [
+                {
+                    "name": "referenceType",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "backtickContent",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
                 }
             ]
         }

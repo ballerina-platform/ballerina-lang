@@ -37,9 +37,16 @@ public function createLetFunction(function(_Frame _frame) returns _Frame|error? 
     return new _LetFunction(letFunc);
 }
 
-public function createJoinFunction(_StreamPipeline joinedPipeline)
+public function createInnerJoinFunction(_StreamPipeline joinedPipeline,
+                                        function(_Frame _frame) returns boolean onCondition)
         returns _StreamFunction {
-    return new _JoinFunction(joinedPipeline);
+    return new _InnerJoinFunction(joinedPipeline, onCondition);
+}
+
+public function createOuterJoinFunction(_StreamPipeline joinedPipeline,
+                                        function(_Frame _frame) returns boolean onCondition)
+        returns _StreamFunction {
+    return new _OuterJoinFunction(joinedPipeline, onCondition);
 }
 
 public function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
@@ -68,8 +75,7 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<T
     return pipeline.getStream();
 }
 
-public function toArray(stream<Type, error?> strm) returns Type[]|error {
-    Type[] arr = [];
+public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);

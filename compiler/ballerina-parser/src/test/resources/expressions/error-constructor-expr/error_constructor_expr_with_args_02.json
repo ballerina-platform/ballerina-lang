@@ -15,7 +15,21 @@
           "children": [
             {
               "kind": "STRING_LITERAL",
-              "value": "ERROR_REASON"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "ERROR_REASON"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ]
         },
@@ -23,17 +37,13 @@
           "kind": "POSITIONAL_ARG",
           "children": [
             {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
+              "kind": "STRING_LITERAL",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_LITERAL",
+                  "value": "error message"
                 }
               ]
-            },
-            {
-              "kind": "STRING_LITERAL",
-              "value": "error message"
             }
           ]
         }

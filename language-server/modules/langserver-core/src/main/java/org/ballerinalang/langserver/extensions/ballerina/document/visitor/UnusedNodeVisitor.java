@@ -155,7 +155,9 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Common node visitor to override and remove assertion errors from BLangNodeVisitor methods.
@@ -165,7 +167,8 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     private String unitName;
     private Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges;
     private Map<Diagnostic.DiagnosticPosition, ASTModification> toBeDeletedRanges = new HashMap<>();
-    private Map<String, BLangImportPackage> imports = new HashMap<>();
+    private Map<String, BLangImportPackage> unusedImports = new HashMap<>();
+    private Set<String> usedImports = new HashSet<>();
     private Map<String, Diagnostic.DiagnosticPosition> variables = new HashMap<>();
 
     public UnusedNodeVisitor(String unitName, Map<Diagnostic.DiagnosticPosition, ASTModification> deleteRanges) {
@@ -175,7 +178,11 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     public Collection<BLangImportPackage> unusedImports() {
-        return imports.values();
+        return unusedImports.values();
+    }
+
+    public Set<String> usedImports() {
+        return usedImports;
     }
 
     public Collection<ASTModification> toBeDeletedRanges() {
@@ -183,13 +190,16 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     }
 
     private void addImportNode(BLangImportPackage importPkgNode) {
-        imports.put(importPkgNode.getAlias().getValue(), importPkgNode);
+        unusedImports.put(importPkgNode.getAlias().getValue(), importPkgNode);
     }
 
     private void removeImportNode(BLangIdentifier identifierNode) {
         Diagnostic.DiagnosticPosition range = getDeleteRange(identifierNode.getPosition());
         if (range == null) {
-            imports.remove(identifierNode.getValue());
+            BLangImportPackage bLangImportPackage = unusedImports.remove(identifierNode.getValue());
+            if (bLangImportPackage != null) {
+                usedImports.add(bLangImportPackage.getQualifiedPackageName());
+            }
         }
     }
 
@@ -253,12 +263,15 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
 
     @Override
     public void visit(BLangFunction funcNode) {
+        funcNode.getParameters().forEach(parm -> parm.accept(this));
         funcNode.getBody().accept(this);
     }
 
     @Override
     public void visit(BLangService serviceNode) {
-        // No implementation
+        serviceNode.getTypeDefinition().accept(this);
+        serviceNode.getResources().forEach(resource -> resource.accept(this));
+        serviceNode.getAttachedExprs().forEach(expr -> expr.accept(this));
     }
 
     @Override
@@ -279,8 +292,13 @@ public class UnusedNodeVisitor extends BaseNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable varNode) {
         addVariableNode(varNode);
-        varNode.getTypeNode().accept(this);
-        varNode.getInitialExpression().accept(this);
+        if (varNode.getTypeNode() != null) {
+            varNode.getTypeNode().accept(this);
+        }
+
+        if (varNode.getInitialExpression() != null) {
+            varNode.getInitialExpression().accept(this);
+        }
     }
 
     @Override

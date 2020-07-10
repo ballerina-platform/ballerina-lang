@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -127,7 +127,9 @@ public class InteropMethodGen {
                                          BIRPackage birModule,
                                          JvmPackageGen jvmPackageGen,
                                          JvmMethodGen jvmMethodGen,
-                                         LambdaMetadata lambdaGenMetadata) {
+                                         String moduleClassName,
+                                         String serviceName,
+                                         AsyncDataCollector asyncDataCollector) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
@@ -197,7 +199,9 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, null, false, false, null, lambdaGenMetadata);
+                                             strandParamIndex, true, birModule, null, moduleClassName,
+                                             asyncDataCollector);
+
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
@@ -286,7 +290,7 @@ public class InteropMethodGen {
         Label retLabel = labelGen.getLabel("return_lable");
         mv.visitLabel(retLabel);
         mv.visitLineNumber(birFunc.pos.sLine, retLabel);
-        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc, false, -1);
+        termGen.genReturnTerm(new BIRTerminator.Return(birFunc.pos), returnVarRefIndex, birFunc);
         mv.visitMaxs(200, 400);
         mv.visitEnd();
     }
@@ -496,26 +500,27 @@ public class InteropMethodGen {
         } else if (jType.jTag == JTypeTags.JARRAY) {
             JType eType = ((JType.JArrayType) jType).elementType;
             return "[" + getJTypeSignature(eType);
-        } else {
-            if (jType.jTag == JTypeTags.JBYTE) {
+        }
+
+        switch (jType.jTag) {
+            case JTypeTags.JBYTE:
                 return "B";
-            } else if (jType.jTag == JTypeTags.JCHAR) {
+            case JTypeTags.JCHAR:
                 return "C";
-            } else if (jType.jTag == JTypeTags.JSHORT) {
+            case JTypeTags.JSHORT:
                 return "S";
-            } else if (jType.jTag == JTypeTags.JINT) {
+            case JTypeTags.JINT:
                 return "I";
-            } else if (jType.jTag == JTypeTags.JLONG) {
+            case JTypeTags.JLONG:
                 return "J";
-            } else if (jType.jTag == JTypeTags.JFLOAT) {
+            case JTypeTags.JFLOAT:
                 return "F";
-            } else if (jType.jTag == JTypeTags.JDOUBLE) {
+            case JTypeTags.JDOUBLE:
                 return "D";
-            } else if (jType.jTag == JTypeTags.JBOOLEAN) {
+            case JTypeTags.JBOOLEAN:
                 return "Z";
-            } else {
+            default:
                 throw new BLangCompilerException(String.format("invalid element type: %s", jType));
-            }
         }
     }
 
@@ -531,26 +536,27 @@ public class InteropMethodGen {
                 sig += "[";
             }
 
-            if (eType.jTag == JTypeTags.JREF) {
-                return sig + "L" + getSignatureForJType(eType) + ";";
-            } else if (eType.jTag == JTypeTags.JBYTE) {
-                return sig + "B";
-            } else if (eType.jTag == JTypeTags.JCHAR) {
-                return sig + "C";
-            } else if (eType.jTag == JTypeTags.JSHORT) {
-                return sig + "S";
-            } else if (eType.jTag == JTypeTags.JINT) {
-                return sig + "I";
-            } else if (eType.jTag == JTypeTags.JLONG) {
-                return sig + "J";
-            } else if (eType.jTag == JTypeTags.JFLOAT) {
-                return sig + "F";
-            } else if (eType.jTag == JTypeTags.JDOUBLE) {
-                return sig + "D";
-            } else if (eType.jTag == JTypeTags.JBOOLEAN) {
-                return sig + "Z";
-            } else {
-                throw new BLangCompilerException(String.format("invalid element type: %s", eType));
+            switch (eType.jTag) {
+                case JTypeTags.JREF:
+                    return sig + "L" + getSignatureForJType(eType) + ";";
+                case JTypeTags.JBYTE:
+                    return sig + "B";
+                case JTypeTags.JCHAR:
+                    return sig + "C";
+                case JTypeTags.JSHORT:
+                    return sig + "S";
+                case JTypeTags.JINT:
+                    return sig + "I";
+                case JTypeTags.JLONG:
+                    return sig + "J";
+                case JTypeTags.JFLOAT:
+                    return sig + "F";
+                case JTypeTags.JDOUBLE:
+                    return sig + "D";
+                case JTypeTags.JBOOLEAN:
+                    return sig + "Z";
+                default:
+                    throw new BLangCompilerException(String.format("invalid element type: %s", eType));
             }
         } else {
             throw new BLangCompilerException(String.format("invalid element type: %s", jType));
@@ -616,21 +622,31 @@ public class InteropMethodGen {
         } else if (TypeTags.isStringTypeTag(bElementType.tag)) {
             mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBString",
                                String.format("(J)L%s;", JvmConstants.B_STRING_VALUE), true);
-        } else if (bElementType.tag == TypeTags.BOOLEAN) {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
-        } else if (bElementType.tag == TypeTags.BYTE) {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
-        } else if (bElementType.tag == TypeTags.FLOAT) {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
-        } else if (bElementType.tag == TypeTags.HANDLE) {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", String.format("(J)L%s;", OBJECT), true);
-            mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
         } else {
-            mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", String.format("(J)L%s;", OBJECT), true);
+            switch (bElementType.tag) {
+                case TypeTags.BOOLEAN:
+                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getBoolean", "(J)Z", true);
+                    break;
+                case TypeTags.BYTE:
+                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getByte", "(J)B", true);
+                    break;
+                case TypeTags.FLOAT:
+                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getFloat", "(J)D", true);
+                    break;
+                case TypeTags.HANDLE:
+                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", String.format("(J)L%s;", OBJECT),
+                            true);
+                    mv.visitTypeInsn(CHECKCAST, HANDLE_VALUE);
+                    break;
+                default:
+                    mv.visitMethodInsn(INVOKEINTERFACE, ARRAY_VALUE, "getRefValue", String.format("(J)L%s;", OBJECT),
+                            true);
+                    break;
+            }
         }
 
         // unwrap from handleValue
-        generateBToJCheckCast(mv, bElementType, (JType) jElementType);
+        generateBToJCheckCast(mv, bElementType, jElementType);
 
         // valueArray[index] = varArg[index]
         genArrayStore(mv, jElementType);
@@ -646,22 +662,32 @@ public class InteropMethodGen {
     private static void genArrayStore(MethodVisitor mv, JType jType) {
 
         int code;
-        if (jType.jTag == JTypeTags.JINT) {
-            code = IASTORE;
-        } else if (jType.jTag == JTypeTags.JLONG) {
-            code = LASTORE;
-        } else if (jType.jTag == JTypeTags.JDOUBLE) {
-            code = DASTORE;
-        } else if (jType.jTag == JTypeTags.JBYTE || jType.jTag == JTypeTags.JBOOLEAN) {
-            code = BASTORE;
-        } else if (jType.jTag == JTypeTags.JSHORT) {
-            code = SASTORE;
-        } else if (jType.jTag == JTypeTags.JCHAR) {
-            code = CASTORE;
-        } else if (jType.jTag == JTypeTags.JFLOAT) {
-            code = FASTORE;
-        } else {
-            code = AASTORE;
+        switch (jType.jTag) {
+            case JTypeTags.JINT:
+                code = IASTORE;
+                break;
+            case JTypeTags.JLONG:
+                code = LASTORE;
+                break;
+            case JTypeTags.JDOUBLE:
+                code = DASTORE;
+                break;
+            case JTypeTags.JBYTE:
+            case JTypeTags.JBOOLEAN:
+                code = BASTORE;
+                break;
+            case JTypeTags.JSHORT:
+                code = SASTORE;
+                break;
+            case JTypeTags.JCHAR:
+                code = CASTORE;
+                break;
+            case JTypeTags.JFLOAT:
+                code = FASTORE;
+                break;
+            default:
+                code = AASTORE;
+                break;
         }
 
         mv.visitInsn(code);
@@ -669,24 +695,35 @@ public class InteropMethodGen {
 
     private static void genArrayNew(MethodVisitor mv, JType elementType) {
 
-        if (elementType.jTag == JTypeTags.JINT) {
-            mv.visitIntInsn(NEWARRAY, T_INT);
-        } else if (elementType.jTag == JTypeTags.JLONG) {
-            mv.visitIntInsn(NEWARRAY, T_LONG);
-        } else if (elementType.jTag == JTypeTags.JDOUBLE) {
-            mv.visitIntInsn(NEWARRAY, T_DOUBLE);
-        } else if (elementType.jTag == JTypeTags.JBYTE || elementType.jTag == JTypeTags.JBOOLEAN) {
-            mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
-        } else if (elementType.jTag == JTypeTags.JSHORT) {
-            mv.visitIntInsn(NEWARRAY, T_SHORT);
-        } else if (elementType.jTag == JTypeTags.JCHAR) {
-            mv.visitIntInsn(NEWARRAY, T_CHAR);
-        } else if (elementType.jTag == JTypeTags.JFLOAT) {
-            mv.visitIntInsn(NEWARRAY, T_FLOAT);
-        } else if (elementType.jTag == JTypeTags.JREF || elementType.jTag == JTypeTags.JARRAY) {
-            mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
-        } else {
-            throw new BLangCompilerException(String.format("invalid type for var-arg: %s", elementType));
+        switch (elementType.jTag) {
+            case JTypeTags.JINT:
+                mv.visitIntInsn(NEWARRAY, T_INT);
+                break;
+            case JTypeTags.JLONG:
+                mv.visitIntInsn(NEWARRAY, T_LONG);
+                break;
+            case JTypeTags.JDOUBLE:
+                mv.visitIntInsn(NEWARRAY, T_DOUBLE);
+                break;
+            case JTypeTags.JBYTE:
+            case JTypeTags.JBOOLEAN:
+                mv.visitIntInsn(NEWARRAY, T_BOOLEAN);
+                break;
+            case JTypeTags.JSHORT:
+                mv.visitIntInsn(NEWARRAY, T_SHORT);
+                break;
+            case JTypeTags.JCHAR:
+                mv.visitIntInsn(NEWARRAY, T_CHAR);
+                break;
+            case JTypeTags.JFLOAT:
+                mv.visitIntInsn(NEWARRAY, T_FLOAT);
+                break;
+            case JTypeTags.JREF:
+            case JTypeTags.JARRAY:
+                mv.visitTypeInsn(ANEWARRAY, getSignatureForJType(elementType));
+                break;
+            default:
+                throw new BLangCompilerException(String.format("invalid type for var-arg: %s", elementType));
         }
     }
 

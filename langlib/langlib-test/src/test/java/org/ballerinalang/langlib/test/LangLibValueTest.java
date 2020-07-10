@@ -41,6 +41,7 @@ import static org.testng.Assert.assertNull;
  *
  * @since 1.0
  */
+@Test
 public class LangLibValueTest {
 
     private CompileResult compileResult;
@@ -166,7 +167,7 @@ public class LangLibValueTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test()
+    @Test
     public void xmlSequenceFragmentToString() {
         BValue[] returns = BRunUtil.invoke(compileResult, "xmlSequenceFragmentToString");
         Assert.assertEquals((returns[0]).stringValue(), "<def>DEF</def><ghi>1</ghi>");
@@ -208,7 +209,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric4" },
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
-                { "testCloneWithTypeNumeric7" }
+                { "testCloneWithTypeNumeric7" },
+                { "testCloneWithTypeStringArray" }
         };
     }
 }

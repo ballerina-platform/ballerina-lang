@@ -63,15 +63,12 @@ type GrantTypeConfig ClientCredentialsGrantConfig|PasswordGrantConfig|DirectToke
 #     }
 # });
 # ```
-#
-# + oauth2ProviderConfig - Outbound OAuth2 provider configurations
-# + oauth2CacheEntry - Outbound OAuth2 cache entry
 public type OutboundOAuth2Provider object {
 
     *auth:OutboundAuthProvider;
 
-    public GrantTypeConfig? oauth2ProviderConfig;
-    public OutboundOAuth2CacheEntry oauth2CacheEntry;
+    GrantTypeConfig? oauth2ProviderConfig;
+    OutboundOAuth2CacheEntry oauth2CacheEntry;
 
     # Provides authentication based on the provided OAuth2 configuration.
     #
@@ -146,6 +143,7 @@ public type OutboundOAuth2Provider object {
 # + scopes - Scope(s) of the access request
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
+# + parameters - Map of endpoint parameters use with the authorization endpoint
 # + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type ClientCredentialsGrantConfig record {|
@@ -155,6 +153,7 @@ public type ClientCredentialsGrantConfig record {|
     string[] scopes?;
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
+    map<string> parameters?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientConfiguration clientConfig = {};
 |};
@@ -170,6 +169,7 @@ public type ClientCredentialsGrantConfig record {|
 # + refreshConfig - Configurations for refreshing the access token
 # + clockSkewInSeconds - Clock skew in seconds
 # + retryRequest - Retry the request if the initial request returns a 401 response
+# + parameters - Map of endpoint parameters use with the authorization endpoint
 # + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type PasswordGrantConfig record {|
@@ -182,6 +182,7 @@ public type PasswordGrantConfig record {|
     RefreshConfig refreshConfig?;
     int clockSkewInSeconds = 0;
     boolean retryRequest = true;
+    map<string> parameters?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientConfiguration clientConfig = {};
 |};
@@ -206,11 +207,13 @@ public type DirectTokenConfig record {|
 #
 # + refreshUrl - Refresh token URL for the refresh token server
 # + scopes - Scope(s) of the access request
+# + parameters - Map of endpoint parameters use with the authorization endpoint
 # + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type RefreshConfig record {|
     string refreshUrl;
     string[] scopes?;
+    map<string> parameters?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientConfiguration clientConfig = {};
 |};
@@ -222,6 +225,7 @@ public type RefreshConfig record {|
 # + clientId - Client ID for authentication with the authorization endpoint
 # + clientSecret - Client secret for authentication with the authorization endpoint
 # + scopes - Scope(s) of the access request
+# + parameters - Map of endpoint parameters use with the authorization endpoint
 # + credentialBearer - Bearer of authentication credentials, which is sent to the authorization endpoint
 # + clientConfig - HTTP client configurations, which are used to call the authorization endpoint
 public type DirectTokenRefreshConfig record {|
@@ -230,6 +234,7 @@ public type DirectTokenRefreshConfig record {|
     string clientId;
     string clientSecret;
     string[] scopes?;
+    map<string> parameters?;
     http:CredentialBearer credentialBearer = http:AUTH_HEADER_BEARER;
     http:ClientConfiguration clientConfig = {};
 |};
@@ -253,12 +258,14 @@ public type OutboundOAuth2CacheEntry record {
 # + clientId - Client ID for the client credentials grant authentication
 # + clientSecret - Client secret for the client credentials grant authentication
 # + scopes - Scope(s) of the access request
+# + parameters - Map of endpoint parameters use with the authorization endpoint
 # + credentialBearer - Bearer of the authentication credentials, which is sent to the authorization endpoint
 type RequestConfig record {|
     string payload;
     string clientId?;
     string clientSecret?;
     string[]? scopes;
+    map<string>? parameters;
     http:CredentialBearer credentialBearer;
 |};
 
@@ -482,6 +489,7 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
             clientId: config.clientId,
             clientSecret: config.clientSecret,
             scopes: config?.scopes,
+            parameters: config?.parameters,
             credentialBearer: config.credentialBearer
         };
         clockSkewInSeconds = config.clockSkewInSeconds;
@@ -499,12 +507,14 @@ function getAccessTokenFromAuthorizationRequest(ClientCredentialsGrantConfig|Pas
                 clientId: clientId,
                 clientSecret: clientSecret,
                 scopes: config?.scopes,
+                parameters: config?.parameters,
                 credentialBearer: config.credentialBearer
             };
         } else {
             requestConfig = {
                 payload: "grant_type=password&username=" + config.username + "&password=" + config.password,
                 scopes: config?.scopes,
+                parameters: config?.parameters,
                 credentialBearer: config.credentialBearer
             };
         }
@@ -544,6 +554,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                     clientId: clientId,
                     clientSecret: clientSecret,
                     scopes: refreshConfig?.scopes,
+                    parameters: refreshConfig?.parameters,
                     credentialBearer: refreshConfig.credentialBearer
                 };
                 clientConfig = refreshConfig.clientConfig;
@@ -566,6 +577,7 @@ function getAccessTokenFromRefreshRequest(PasswordGrantConfig|DirectTokenConfig 
                 clientId: refreshConfig.clientId,
                 clientSecret: refreshConfig.clientSecret,
                 scopes: refreshConfig?.scopes,
+                parameters: refreshConfig?.parameters,
                 credentialBearer: refreshConfig.credentialBearer
             };
             clientConfig = refreshConfig.clientConfig;
@@ -621,6 +633,13 @@ function prepareRequest(RequestConfig config) returns http:Request|Error {
     }
     if (scopeString != "") {
         textPayload = textPayload + "&scope=" + scopeString.trim();
+    }
+
+    map<string>? parameters = config.parameters;
+    if (parameters is map<string>) {
+        foreach [string, string] [key, value] in parameters.entries() {
+            textPayload = textPayload + "&" + key.trim() + "=" + value.trim();
+        }
     }
 
     string? clientId = config?.clientId;

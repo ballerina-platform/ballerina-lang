@@ -113,7 +113,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '&', '|', Identifier}", 6, 21);
         BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
         BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '&', '|', Identifier}",
-                                  6, 29);
+                6, 29);
         BAssertUtil.validateError(result, 4, "extraneous input '}'", 8, 1);
     }
 

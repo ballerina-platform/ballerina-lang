@@ -25,8 +25,8 @@ message HelloResponse {
 
 gRPC allows client applications to directly call the server-side methods using the auto-generated stubs. Protocol Buffer compiler is used to generate the stubs for the specified language. In Ballerina, the stubs are generated using the built-in proto compiler. 
 
-For the guide on how to generate Ballerina code for Protocol Buffers definition, see [how to guide](https://ballerina.io/learn/how-to-generate-code-for-protocol-buffers/).
-For examples on the usage of the operation, see the [Proto to Ballerina Example](https://ballerina.io/learn/by-example/proto-to-ballerina.html).
+For the guide on how to generate Ballerina code for Protocol Buffers definition, see [how to guide](https://ballerina.io/swan-lake/learn/how-to-generate-code-for-protocol-buffers/).
+For examples on the usage of the operation, see the [Proto to Ballerina Example](https://ballerina.io/swan-lake/learn/by-example/proto-to-ballerina.html).
 
 ### gRPC Communication Patterns
 The common communication pattern between client and server is simple request-response style communication. However, with gRPC, you can leverage different inter-process communication patterns other than the simple request-response pattern.
@@ -70,7 +70,7 @@ headers.setEntry("id", "newrequest1");
 // Call the method in the service using a client stub.
 [string, grpc:Headers]|grpc:Error responseFromServer = blockingClient->hello("Ballerina", headers);
 ```
-For examples on the usage of the operation, see [Unary Ballerina Example](https://ballerina.io/learn/by-example/grpc-unary-blocking.html) and [Unary Non-Ballerina Example](https://ballerina.io/learn/by-example/grpc-unary-non-blocking.html)
+For examples on the usage of the operation, see [Unary Ballerina Example](https://ballerina.io/swan-lake/learn/by-example/grpc-unary-blocking.html) and [Unary Non-Ballerina Example](https://ballerina.io/swan-lake/learn/by-example/grpc-unary-non-blocking.html)
 
 #### Server streaming RPC
 In server-side streaming RPC, the sends back a sequence of responses after getting the client's request message. After sending all the server responses, the server marks the end of the stream by sending the server status details.
@@ -125,7 +125,7 @@ service HelloWorldMessageListener = service {
    }
 }
 ```
-For examples on the usage of the operation, see the [Server Streaming Example](https://ballerina.io/learn/by-example/grpc-server-streaming.html).
+For examples on the usage of the operation, see the [Server Streaming Example](https://ballerina.io/swan-lake/learn/by-example/grpc-server-streaming.html).
 
 #### Client streaming RPC
 In client streaming RPC, the client sends multiple messages to the server instead of a single request. The server sends back a single response to the client.
@@ -194,7 +194,7 @@ service HelloWorldMessageListener = service {
    }
 }
 ```
-For examples on the usage of the operation, see the [Client Streaming Example](https://ballerina.io/learn/by-example/grpc-client-streaming.html).
+For examples on the usage of the operation, see the [Client Streaming Example](https://ballerina.io/swan-lake/learn/by-example/grpc-client-streaming.html).
 
 #### Bidirectional Streaming RPC
 In bidirectional streaming RPC, the client is sending a request to the server as a stream of messages. The server also responds with a stream of messages.
@@ -263,7 +263,7 @@ service ChatMessageListener = service {
    }
 }
 ```
-For examples on the usage of the operation, see the [Bidirectional Streaming Example](https://ballerina.io/learn/by-example/grpc-bidirectional-streaming.html).
+For examples on the usage of the operation, see the [Bidirectional Streaming Example](https://ballerina.io/swan-lake/learn/by-example/grpc-bidirectional-streaming.html).
 
 ### Advanced Use cases
 
@@ -305,4 +305,4 @@ service HelloWorld on ep {
     });
 ```
 
-For examples on the usage of the operation, see the [Secured Unary Example](https://ballerina.io/learn/by-example/grpc-secured-unary.html).
+For examples on the usage of the operation, see the [Secured Unary Example](https://ballerina.io/swan-lake/learn/by-example/grpc-secured-unary.html).

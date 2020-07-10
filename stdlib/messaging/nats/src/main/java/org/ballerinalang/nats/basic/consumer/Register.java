@@ -61,7 +61,10 @@ public class Register {
             NatsMetricsReporter.reportConsumerError(NatsObservabilityConstants.ERROR_TYPE_SUBSCRIPTION);
             return Utils.createNatsError(errorMessage + " Cannot find subscription configuration.");
         }
-        String queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+        String queueName = null;
+        if (subscriptionConfig.containsKey(Constants.QUEUE_NAME)) {
+            queueName = subscriptionConfig.getStringValue(Constants.QUEUE_NAME).getValue();
+        }
         String subject = subscriptionConfig.getStringValue(Constants.SUBJECT).getValue();
         BRuntime runtime = BRuntime.getCurrentRuntime();
         ObjectValue connectionObject = (ObjectValue) listenerObject.get(Constants.CONNECTION_OBJ);

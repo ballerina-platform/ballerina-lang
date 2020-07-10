@@ -22,3 +22,15 @@ function testInvalidIntersection() {
 function testUnsupportedIntersection() {
     json & int x = 1;
 }
+
+type IntersectionWithInvalidRecordTypeAfter Bar & readonly;
+
+type Bar record {
+    future<int> ft;
+};
+
+type IntersectionWithInvalidObjectTypeAfter Baz & readonly;
+
+type Baz abstract object {
+    future<int> ft;
+};

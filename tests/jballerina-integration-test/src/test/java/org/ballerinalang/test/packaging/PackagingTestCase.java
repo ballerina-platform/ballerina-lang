@@ -56,6 +56,7 @@ import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -258,7 +259,7 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test ballerina version")
     public void testBallerinaVersion() throws Exception {
-        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersion());
+        LogLeecher clientLeecher = new LogLeecher(RepoUtils.getBallerinaVersionDisplayName());
         balClient.runMain("version", new String[0], envVariables, new String[]{},
                 new LogLeecher[]{clientLeecher}, tempProjectDirectory.toString());
     }
@@ -303,7 +304,7 @@ public class PackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
 

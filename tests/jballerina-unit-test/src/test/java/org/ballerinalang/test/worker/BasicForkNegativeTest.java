@@ -37,7 +37,7 @@ public class BasicForkNegativeTest {
         this.result = BCompileUtil.compile("test-src/workers/basic_fork_negative.bal");
     }
 
-    @Test
+    @Test(groups = "brokenOnNewParser")
     public void testBasicForkNegative() {
         Assert.assertEquals(result.getErrorCount(), 1, "Incorrect error count");
         BAssertUtil.validateError(result, 0, "empty fork statement is not allowed", 18, 5);

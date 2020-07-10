@@ -76,7 +76,7 @@ public abstract class LauncherImpl {
 
         // TODO: validate file path
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
-        boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
+        boolean debugTests = args.get("debugTests") != null && Boolean.parseBoolean((String) args.get("debugTests"));
         if (debugTests) {
             command.add("test");
             command.add("--debug");
@@ -91,7 +91,7 @@ public abstract class LauncherImpl {
 
         command.add(balFile);
 
-        boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
+        boolean networkLogs = args.get("networkLogs") != null && Boolean.parseBoolean((String) args.get("networkLogs"));
         if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
             command.add("--b7a.http.tracelog.host=localhost");

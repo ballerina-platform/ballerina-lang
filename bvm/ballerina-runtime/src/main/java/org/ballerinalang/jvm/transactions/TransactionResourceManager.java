@@ -20,6 +20,7 @@ package org.ballerinalang.jvm.transactions;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.FPValue;
+import org.ballerinalang.jvm.values.api.BArray;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +57,14 @@ public class TransactionResourceManager {
     private ConcurrentSkipListSet<String> failedLocalParticipantSet = new ConcurrentSkipListSet<>();
     private ConcurrentHashMap<String, ConcurrentSkipListSet<String>> localParticipants = new ConcurrentHashMap<>();
 
+    public Map<BArray, Object> transactionInfoMap;
+
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
         xidRegistry = new HashMap<>();
         committedFuncRegistry = new HashMap<>();
         abortedFuncRegistry = new HashMap<>();
+        transactionInfoMap = new HashMap<>();
     }
 
     public static TransactionResourceManager getInstance() {
@@ -124,7 +128,7 @@ public class TransactionResourceManager {
                                       FPValue aborted, Strand strand) {
         localParticipants.computeIfAbsent(gTransactionId, gid -> new ConcurrentSkipListSet<>()).add(transactionBlockId);
 
-        TransactionLocalContext transactionLocalContext = strand.transactionLocalContext;
+        TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         registerCommittedFunction(transactionBlockId, committed);
         registerAbortedFunction(transactionBlockId, aborted);
         transactionLocalContext.beginTransactionBlock(transactionBlockId);
@@ -312,7 +316,7 @@ public class TransactionResourceManager {
 
     private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
         List<FPValue> fpValueList = committedFuncRegistry.get(transactionId);
-        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true };
+        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);
@@ -327,7 +331,7 @@ public class TransactionResourceManager {
     private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
         List<FPValue> fpValueList = abortedFuncRegistry.get(transactionId);
         //TODO: Need to pass the retryManager to get the willRetry value.
-        Object[] args = { strand, strand.transactionLocalContext.getInfoRecord(), true, error, true, false, true };
+        Object[] args = { strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true };
         if (fpValueList != null) {
             for (int i = fpValueList.size(); i > 0; i--) {
                 FPValue fp = fpValueList.get(i - 1);

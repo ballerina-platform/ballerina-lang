@@ -33,6 +33,11 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
         testFile("module-var-decl/module_var_decl_source_01.bal", "module-var-decl/module_var_decl_assert_01.json");
     }
 
+    @Test
+    public void testFinalVarDecl() {
+        testFile("module-var-decl/module_var_decl_source_08.bal", "module-var-decl/module_var_decl_assert_08.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -63,5 +68,10 @@ public class ModuleVarDeclTest extends AbstractDeclarationTest {
     @Test
     public void testAdditionalTokensInConstAndListener() {
         testFile("module-var-decl/module_var_decl_source_07.bal", "module-var-decl/module_var_decl_assert_07.json");
+    }
+
+    @Test
+    public void testIncompleteQualifiedIdentifierInListner() {
+        testFile("module-var-decl/module_var_decl_source_09.bal", "module-var-decl/module_var_decl_assert_09.json");
     }
 }

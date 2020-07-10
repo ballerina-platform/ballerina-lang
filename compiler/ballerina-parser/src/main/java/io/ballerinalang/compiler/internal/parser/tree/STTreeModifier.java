@@ -44,6 +44,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STFunctionDefinitionNode functionDefinitionNode) {
         STNode metadata = modifyNode(functionDefinitionNode.metadata);
         STNode visibilityQualifier = modifyNode(functionDefinitionNode.visibilityQualifier);
+        STNode transactionalKeyword = modifyNode(functionDefinitionNode.transactionalKeyword);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
@@ -51,6 +52,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return functionDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
+                transactionalKeyword,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -648,12 +650,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STNamedArgumentNode transform(
             STNamedArgumentNode namedArgumentNode) {
-        STNode leadingComma = modifyNode(namedArgumentNode.leadingComma);
         STNode argumentName = modifyNode(namedArgumentNode.argumentName);
         STNode equalsToken = modifyNode(namedArgumentNode.equalsToken);
         STNode expression = modifyNode(namedArgumentNode.expression);
         return namedArgumentNode.modify(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -662,21 +662,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STPositionalArgumentNode transform(
             STPositionalArgumentNode positionalArgumentNode) {
-        STNode leadingComma = modifyNode(positionalArgumentNode.leadingComma);
         STNode expression = modifyNode(positionalArgumentNode.expression);
         return positionalArgumentNode.modify(
-                leadingComma,
                 expression);
     }
 
     @Override
     public STRestArgumentNode transform(
             STRestArgumentNode restArgumentNode) {
-        STNode leadingComma = modifyNode(restArgumentNode.leadingComma);
         STNode ellipsis = modifyNode(restArgumentNode.ellipsis);
         STNode expression = modifyNode(restArgumentNode.expression);
         return restArgumentNode.modify(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -1249,6 +1245,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STXmlTypeDescriptorNode transform(
+            STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        STNode xmlKeywordToken = modifyNode(xmlTypeDescriptorNode.xmlKeywordToken);
+        STNode xmlTypeParamsNode = modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode);
+        return xmlTypeDescriptorNode.modify(
+                xmlKeywordToken,
+                xmlTypeParamsNode);
+    }
+
+    @Override
     public STLetVariableDeclarationNode transform(
             STLetVariableDeclarationNode letVariableDeclarationNode) {
         STNode annotations = modifyNode(letVariableDeclarationNode.annotations);
@@ -1635,10 +1641,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryConstructType = modifyNode(queryExpressionNode.queryConstructType);
         STNode queryPipeline = modifyNode(queryExpressionNode.queryPipeline);
         STNode selectClause = modifyNode(queryExpressionNode.selectClause);
+        STNode onConflictClause = modifyNode(queryExpressionNode.onConflictClause);
+        STNode limitClause = modifyNode(queryExpressionNode.limitClause);
         return queryExpressionNode.modify(
                 queryConstructType,
                 queryPipeline,
-                selectClause);
+                selectClause,
+                onConflictClause,
+                limitClause);
     }
 
     @Override
@@ -1810,6 +1820,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFunctionalBindingPatternNode transform(
+            STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
+        return functionalBindingPatternNode.modify(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    @Override
+    public STNamedArgBindingPatternNode transform(
+            STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        STNode argName = modifyNode(namedArgBindingPatternNode.argName);
+        STNode equalsToken = modifyNode(namedArgBindingPatternNode.equalsToken);
+        STNode bindingPattern = modifyNode(namedArgBindingPatternNode.bindingPattern);
+        return namedArgBindingPatternNode.modify(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
+    @Override
     public STAsyncSendActionNode transform(
             STAsyncSendActionNode asyncSendActionNode) {
         STNode expression = modifyNode(asyncSendActionNode.expression);
@@ -1939,10 +1975,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode queryPipeline = modifyNode(queryActionNode.queryPipeline);
         STNode doKeyword = modifyNode(queryActionNode.doKeyword);
         STNode blockStatement = modifyNode(queryActionNode.blockStatement);
+        STNode limitClause = modifyNode(queryActionNode.limitClause);
         return queryActionNode.modify(
                 queryPipeline,
                 doKeyword,
-                blockStatement);
+                blockStatement,
+                limitClause);
     }
 
     @Override
@@ -2197,6 +2235,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
         STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
         STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
+        STNode transactionalKeyword = modifyNode(objectMethodDefinitionNode.transactionalKeyword);
         STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
         STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
         STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
@@ -2205,6 +2244,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 metadata,
                 visibilityQualifier,
                 remoteKeyword,
+                transactionalKeyword,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2219,6 +2259,176 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return distinctTypeDescriptorNode.modify(
                 distinctKeyword,
                 typeDescriptor);
+    }
+
+    @Override
+    public STOnConflictClauseNode transform(
+            STOnConflictClauseNode onConflictClauseNode) {
+        STNode onKeyword = modifyNode(onConflictClauseNode.onKeyword);
+        STNode conflictKeyword = modifyNode(onConflictClauseNode.conflictKeyword);
+        STNode expression = modifyNode(onConflictClauseNode.expression);
+        return onConflictClauseNode.modify(
+                onKeyword,
+                conflictKeyword,
+                expression);
+    }
+
+    @Override
+    public STLimitClauseNode transform(
+            STLimitClauseNode limitClauseNode) {
+        STNode limitKeyword = modifyNode(limitClauseNode.limitKeyword);
+        STNode expression = modifyNode(limitClauseNode.expression);
+        return limitClauseNode.modify(
+                limitKeyword,
+                expression);
+    }
+
+    @Override
+    public STJoinClauseNode transform(
+            STJoinClauseNode joinClauseNode) {
+        STNode outerKeyword = modifyNode(joinClauseNode.outerKeyword);
+        STNode joinKeyword = modifyNode(joinClauseNode.joinKeyword);
+        STNode typedBindingPattern = modifyNode(joinClauseNode.typedBindingPattern);
+        STNode inKeyword = modifyNode(joinClauseNode.inKeyword);
+        STNode expression = modifyNode(joinClauseNode.expression);
+        STNode onCondition = modifyNode(joinClauseNode.onCondition);
+        return joinClauseNode.modify(
+                outerKeyword,
+                joinKeyword,
+                typedBindingPattern,
+                inKeyword,
+                expression,
+                onCondition);
+    }
+
+    @Override
+    public STOnClauseNode transform(
+            STOnClauseNode onClauseNode) {
+        STNode onKeyword = modifyNode(onClauseNode.onKeyword);
+        STNode expression = modifyNode(onClauseNode.expression);
+        return onClauseNode.modify(
+                onKeyword,
+                expression);
+    }
+
+    @Override
+    public STListMatchPatternNode transform(
+            STListMatchPatternNode listMatchPatternNode) {
+        STNode openBracket = modifyNode(listMatchPatternNode.openBracket);
+        STNode matchPatterns = modifyNode(listMatchPatternNode.matchPatterns);
+        STNode restMatchPattern = modifyNode(listMatchPatternNode.restMatchPattern);
+        STNode closeBracket = modifyNode(listMatchPatternNode.closeBracket);
+        return listMatchPatternNode.modify(
+                openBracket,
+                matchPatterns,
+                restMatchPattern,
+                closeBracket);
+    }
+
+    @Override
+    public STRestMatchPatternNode transform(
+            STRestMatchPatternNode restMatchPatternNode) {
+        STNode ellipsisToken = modifyNode(restMatchPatternNode.ellipsisToken);
+        STNode varKeywordToken = modifyNode(restMatchPatternNode.varKeywordToken);
+        STNode variableName = modifyNode(restMatchPatternNode.variableName);
+        return restMatchPatternNode.modify(
+                ellipsisToken,
+                varKeywordToken,
+                variableName);
+    }
+
+    @Override
+    public STMappingMatchPatternNode transform(
+            STMappingMatchPatternNode mappingMatchPatternNode) {
+        STNode openBraceToken = modifyNode(mappingMatchPatternNode.openBraceToken);
+        STNode fieldMatchPatterns = modifyNode(mappingMatchPatternNode.fieldMatchPatterns);
+        STNode restMatchPattern = modifyNode(mappingMatchPatternNode.restMatchPattern);
+        STNode closeBraceToken = modifyNode(mappingMatchPatternNode.closeBraceToken);
+        return mappingMatchPatternNode.modify(
+                openBraceToken,
+                fieldMatchPatterns,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    @Override
+    public STFieldMatchPatternNode transform(
+            STFieldMatchPatternNode fieldMatchPatternNode) {
+        STNode fieldNameNode = modifyNode(fieldMatchPatternNode.fieldNameNode);
+        STNode colonToken = modifyNode(fieldMatchPatternNode.colonToken);
+        STNode matchPattern = modifyNode(fieldMatchPatternNode.matchPattern);
+        return fieldMatchPatternNode.modify(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
+    }
+
+    @Override
+    public STFunctionalMatchPatternNode transform(
+            STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
+        STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
+        STNode argListMatchPatternNode = modifyNode(functionalMatchPatternNode.argListMatchPatternNode);
+        STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public STNamedArgMatchPatternNode transform(
+            STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        STNode identifier = modifyNode(namedArgMatchPatternNode.identifier);
+        STNode equalToken = modifyNode(namedArgMatchPatternNode.equalToken);
+        STNode matchPattern = modifyNode(namedArgMatchPatternNode.matchPattern);
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
+    @Override
+    public STParameterDocumentationLineNode transform(
+            STParameterDocumentationLineNode parameterDocumentationLineNode) {
+        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
+        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
+        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
+        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
+        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
+        return parameterDocumentationLineNode.modify(
+                parameterDocumentationLineNode.kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    @Override
+    public STDocumentationReferenceNode transform(
+            STDocumentationReferenceNode documentationReferenceNode) {
+        STNode referenceType = modifyNode(documentationReferenceNode.referenceType);
+        STNode startBacktick = modifyNode(documentationReferenceNode.startBacktick);
+        STNode backtickContent = modifyNode(documentationReferenceNode.backtickContent);
+        STNode endBacktick = modifyNode(documentationReferenceNode.endBacktick);
+        return documentationReferenceNode.modify(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
+    }
+
+    @Override
+    public STDocumentationLineNode transform(
+            STDocumentationLineNode documentationLineNode) {
+        STNode hashToken = modifyNode(documentationLineNode.hashToken);
+        STNode documentElements = modifyNode(documentationLineNode.documentElements);
+        return documentationLineNode.modify(
+                documentationLineNode.kind,
+                hashToken,
+                documentElements);
     }
 
     // Tokens

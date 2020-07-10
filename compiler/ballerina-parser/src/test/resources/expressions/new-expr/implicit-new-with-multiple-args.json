@@ -17,26 +17,45 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             },
             {
               "kind": "POSITIONAL_ARG",
               "children": [
-                {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "10"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "10"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             },
@@ -44,17 +63,13 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
+                  "kind": "STRING_LITERAL",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_LITERAL",
+                      "value": "12"
                     }
                   ]
-                },
-                {
-                  "kind": "STRING_LITERAL",
-                  "value": "12"
                 }
               ]
             }

@@ -551,7 +551,7 @@ public class Types {
 
         if (targetTag == TypeTags.MAP && sourceTag == TypeTags.RECORD) {
             BRecordType recordType = (BRecordType) source;
-            return isAssignableRecordType(recordType, target);
+            return isAssignableRecordType(recordType, target, unresolvedTypes);
         }
 
         if (targetTag == TypeTags.RECORD && sourceTag == TypeTags.MAP) {
@@ -603,7 +603,7 @@ public class Types {
             }
 
             if (sourceTag == TypeTags.RECORD) {
-                return isAssignableRecordType((BRecordType) source, target);
+                return isAssignableRecordType((BRecordType) source, target, unresolvedTypes);
             }
         }
 
@@ -655,7 +655,12 @@ public class Types {
                 isArrayTypesAssignable((BArrayType) source, target, unresolvedTypes);
     }
 
-    private boolean isAssignableRecordType(BRecordType recordType, BType type) {
+    private boolean isAssignableRecordType(BRecordType recordType, BType type, Set<TypePair> unresolvedTypes) {
+        TypePair pair = new TypePair(recordType, type);
+        if (!unresolvedTypes.add(pair)) {
+            return true;
+        }
+
         BType targetType;
         switch (type.tag) {
             case TypeTags.MAP:
@@ -667,18 +672,19 @@ public class Types {
             default:
                 throw new IllegalArgumentException("Incompatible target type: " + type.toString());
         }
-        return recordFieldsAssignableToType(recordType, targetType);
+        return recordFieldsAssignableToType(recordType, targetType, unresolvedTypes);
     }
 
-    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType) {
+    private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType,
+                                                 Set<TypePair> unresolvedTypes) {
         for (BField field : recordType.fields.values()) {
-            if (!isAssignable(field.type, targetType)) {
+            if (!isAssignable(field.type, targetType, unresolvedTypes)) {
                 return false;
             }
         }
 
         if (!recordType.sealed) {
-            return isAssignable(recordType.restFieldType, targetType);
+            return isAssignable(recordType.restFieldType, targetType, unresolvedTypes);
         }
 
         return true;
@@ -739,6 +745,9 @@ public class Types {
                         isAssignable(fields.get(0).type, field.type))) {
                     return fields.get(0);
                 }
+                break;
+            case TypeTags.INTERSECTION:
+                return getTableConstraintField(((BIntersectionType) constraintType).effectiveType, fieldName);
         }
 
         return null;
@@ -964,24 +973,29 @@ public class Types {
     }
 
     boolean isSelectivelyImmutableType(BType type) {
-        return isSelectivelyImmutableType(type, false, new HashSet<>());
+        return isSelectivelyImmutableType(type, false, new HashSet<>(), false);
     }
 
-    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects) {
-        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>());
+    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, boolean forceCheck) {
+        return isSelectivelyImmutableType(type, disallowReadOnlyObjects, new HashSet<>(), forceCheck);
     }
 
     public boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes) {
-        return isSelectivelyImmutableType(type, false, unresolvedTypes);
+        return isSelectivelyImmutableType(type, false, unresolvedTypes, false);
     }
 
-    boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes) {
+    private boolean isSelectivelyImmutableType(BType type, Set<BType> unresolvedTypes, boolean forceCheck) {
+        return isSelectivelyImmutableType(type, false, unresolvedTypes, forceCheck);
+    }
+
+    private boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
+                                               boolean forceCheck) {
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
         }
 
-        if (((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
+        if (!forceCheck && ((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
             return true;
         }
 
@@ -1001,12 +1015,12 @@ public class Types {
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
                 return isInherentlyImmutableType(elementType) ||
-                        isSelectivelyImmutableType(elementType, unresolvedTypes);
+                        isSelectivelyImmutableType(elementType, unresolvedTypes, forceCheck);
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 for (BType tupMemType : tupleType.tupleTypes) {
                     if (!isInherentlyImmutableType(tupMemType) &&
-                            !isSelectivelyImmutableType(tupMemType, unresolvedTypes)) {
+                            !isSelectivelyImmutableType(tupMemType, unresolvedTypes, forceCheck)) {
                         return false;
                     }
                 }
@@ -1017,13 +1031,13 @@ public class Types {
                 }
 
                 return isInherentlyImmutableType(tupRestType) ||
-                        isSelectivelyImmutableType(tupRestType, unresolvedTypes);
+                        isSelectivelyImmutableType(tupRestType, unresolvedTypes, forceCheck);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
-                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck)) {
                         return false;
                     }
                 }
@@ -1034,11 +1048,11 @@ public class Types {
                 }
 
                 return isInherentlyImmutableType(recordRestType) ||
-                        isSelectivelyImmutableType(recordRestType, unresolvedTypes);
+                        isSelectivelyImmutableType(recordRestType, unresolvedTypes, forceCheck);
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
                 return isInherentlyImmutableType(constraintType) ||
-                        isSelectivelyImmutableType(constraintType, unresolvedTypes);
+                        isSelectivelyImmutableType(constraintType, unresolvedTypes, forceCheck);
             case TypeTags.OBJECT:
                 BObjectType objectType = (BObjectType) type;
 
@@ -1050,7 +1064,7 @@ public class Types {
                 for (BField field : objectType.fields.values()) {
                     BType fieldType = field.type;
                     if (!isInherentlyImmutableType(fieldType) &&
-                            !isSelectivelyImmutableType(fieldType, unresolvedTypes)) {
+                            !isSelectivelyImmutableType(fieldType, unresolvedTypes, forceCheck)) {
                         return false;
                     }
                 }
@@ -1058,16 +1072,20 @@ public class Types {
             case TypeTags.TABLE:
                 BType tableConstraintType = ((BTableType) type).constraint;
                 return isInherentlyImmutableType(tableConstraintType) ||
-                        isSelectivelyImmutableType(tableConstraintType, unresolvedTypes);
+                        isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck);
             case TypeTags.UNION:
                 boolean readonlyIntersectionExists = false;
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
-                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes)) {
+                            isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes,
+                                                       forceCheck)) {
                         readonlyIntersectionExists = true;
                     }
                 }
                 return readonlyIntersectionExists;
+            case TypeTags.INTERSECTION:
+                return isSelectivelyImmutableType(((BIntersectionType) type).effectiveType, false, unresolvedTypes,
+                                                  forceCheck);
         }
         return false;
     }

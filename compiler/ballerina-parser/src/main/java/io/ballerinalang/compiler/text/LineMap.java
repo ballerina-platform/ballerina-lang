@@ -75,15 +75,24 @@ class LineMap {
      * @return the {@code TextLine} to which the given position belongs to
      */
     private TextLine findLineFrom(int position) {
+        // Check boundary conditions
+        if (position == 0) {
+            return textLines[0];
+        } else if (position == textLines[length - 1].endOffset()) {
+            return textLines[length - 1];
+        }
+
         TextLine foundTextLine = null;
         int left = 0;
         int right = length - 1;
         while (left <= right) {
             int middle = (left + right) / 2;
-            if (textLines[middle].startOffset() <= position && position <= textLines[middle].endOffset()) {
+            int startOffset = textLines[middle].startOffset();
+            int endOffset = textLines[middle].endOffsetWithNewLines();
+            if (startOffset <= position && position < endOffset) {
                 foundTextLine = textLines[middle];
                 break;
-            } else if (textLines[middle].endOffset() < position) {
+            } else if (endOffset <= position) {
                 left = middle + 1;
             } else {
                 right = middle - 1;
@@ -91,5 +100,4 @@ class LineMap {
         }
         return foundTextLine;
     }
-
 }

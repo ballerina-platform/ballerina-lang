@@ -58,13 +58,17 @@ public type Thread "parent" | "any";
 
 # Describes Strand execution details for the runtime.
 #
-# + name - name of the dispatching policy (not yet supported).
+# + name - name of the strand.
+# + policy - specifies the dispatching policy (not yet supported).
 # + thread - specifies whether strand should run on parent strand's thread or in any available thread.
 public type StrandData record {|
 	string name?;
+	string policy?;
 	Thread thread = "parent";
 |};
 
 # Denotes new Strand execution semantics.
 public const annotation StrandData strand on source worker;
 
+# Denotes icon metadata related to types and functions.
+public const annotation record {| string path; |} icon on source type, source function;

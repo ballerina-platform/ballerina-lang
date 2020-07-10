@@ -47,6 +47,7 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
@@ -54,6 +55,7 @@ import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -74,7 +76,6 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
@@ -174,7 +175,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
             try {
                 CompletionUtil.pruneSource(context);
-                LSModuleCompiler.getBLangPackage(context, docManager, null, false, false);
+                LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -215,14 +216,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Hover hover;
             try {
                 hover = ReferencesUtil.getHover(context);
+            } catch (TokenOrSymbolNotFoundException e) {
+                hover = HoverUtil.getDefaultHoverObject();
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
-                hover = new Hover();
-                List<Either<String, MarkedString>> contents = new ArrayList<>();
-                contents.add(Either.forLeft(""));
-                hover.setContents(contents);
+                hover = HoverUtil.getDefaultHoverObject();
             }
             return hover;
         });
@@ -250,7 +250,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Prune the source and compile
                 SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false);
+                        LSCustomErrorStrategy.class, false, false, true);
 
                 docManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
@@ -374,7 +374,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         .withDocumentSymbolParams(fileUri)
                         .build();
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false);
+                        LSCustomErrorStrategy.class, false, false, true);
                 Optional<BLangCompilationUnit> documentCUnit = bLangPackage.getCompilationUnits().stream()
                         .filter(cUnit -> (fileUri.endsWith(cUnit.getName())))
                         .findFirst();
@@ -602,7 +602,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 BLangPackage bLangPkg = LSModuleCompiler.getBLangPackage(context, docManager,
                                                                          GotoImplementationCustomErrorStrategy.class,
-                                                                         false, false);
+                                                                         false, false, true);
                 List<Location> locations = getImplementationLocation(bLangPkg, context, position.getPosition(),
                                                                      lsDocument.getProjectRoot());
                 implementationLocations.addAll(locations);
@@ -654,7 +654,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     context.put(DocumentServiceKeys.IS_CACHE_SUPPORTED, true);
                     context.put(DocumentServiceKeys.IS_CACHE_OUTDATED_SUPPORTED, true);
                     LSModuleCompiler.getBLangPackages(context, docManager, LSCustomErrorStrategy.class, false,
-                            true, true);
+                            true, true, true);
                     // Populate the Standard Library Cache
                     CommonUtil.updateStdLibCache(context);
                     // Note: If the source is a cached stdlib source then return early and ignore sending diagnostics

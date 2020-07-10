@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/io;
+// import ballerina/io;
 
 type Person record {|
     string name = "";
@@ -115,7 +115,7 @@ function testTupleConversionFail() returns [T1, T2] | error {
     [T1, T1] x = [a, b];
     [T1, T2] x2;
     anydata y = x;
-    var result = y.cloneWithType([T1, T2]);
+    var result = y.cloneWithType(T1_T2);
     return result;
 }
 
@@ -158,12 +158,15 @@ function testConvertRecordToMapWithCyclicValueReferences() returns map<anydata>|
     p.parent = p2;
     anydata a = p;
     basicMatch(a);
-    map<anydata> m =  check trap p.cloneWithType(map<anydata>); // Cyclic value will be check when stamping the value.
+    map<anydata> m =  check trap p.cloneWithType(AnydataMap); // Cyclic value will be check when stamping the value.
     return m;
 }
 
 function basicMatch(any a) {
-    match a {
-            var {var1, var2, var3} => {io:println("Matched");}
-    }
+    // match a {
+    //         var {var1, var2, var3} => {io:println("Matched");}
+    // }
 }
+
+type AnydataMap map<anydata>;
+type T1_T2 [T1, T2];

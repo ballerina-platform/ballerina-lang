@@ -383,7 +383,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -402,7 +402,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -421,7 +421,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -440,7 +440,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 2);
     }
@@ -459,7 +459,7 @@ public class StubGeneratorTestCase {
                 "Expected functions not found in compile results.");
         assertEquals(((BLangPackage) compileResult.getAST()).globalVars.size(), 4,
                 "Expected global variables not found in compile results.");
-        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 5,
+        assertEquals(((BLangPackage) compileResult.getAST()).imports.size(), 6,
                 "Expected imports not found in compile results.");
         validateAttachedResources(compileResult, 0);
     }

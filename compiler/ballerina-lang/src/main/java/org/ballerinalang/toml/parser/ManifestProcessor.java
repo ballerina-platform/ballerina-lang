@@ -22,6 +22,7 @@ import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.toml.exceptions.TomlException;
+import org.ballerinalang.toml.model.BuildOptions;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
@@ -52,7 +53,7 @@ public class ManifestProcessor {
     private static final CompilerContext.Key<ManifestProcessor> MANIFEST_PROC_KEY = new CompilerContext.Key<>();
     private static final Pattern semVerPattern = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)");
     private final Manifest manifest;
-    
+
     public static ManifestProcessor getInstance(CompilerContext context) {
         try {
             ManifestProcessor manifestProcessor = context.get(MANIFEST_PROC_KEY);
@@ -79,7 +80,7 @@ public class ManifestProcessor {
     public Manifest getManifest() {
         return this.manifest;
     }
-    
+
     /**
      * Get the char stream of the content from file.
      *
@@ -94,7 +95,7 @@ public class ManifestProcessor {
         validateManifestDependencies(manifest);
         return manifest;
     }
-    
+
     /**
      * Get the char stream from string content.
      *
@@ -112,11 +113,11 @@ public class ManifestProcessor {
                                         "org-name=\"my_org\"\n" +
                                         "version=\"1.0.0\"\n");
             }
-            
+
             if (null == toml.getTable("project")) {
                 throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
             }
-            
+
             Manifest manifest = toml.to(Manifest.class);
             manifest.getProject().setOrgName(toml.getString("project.org-name"));
             validateManifestProject(manifest);
@@ -128,7 +129,7 @@ public class ManifestProcessor {
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
-    
+
     /**
      * Get the char stream from inputstream.
      *
@@ -146,13 +147,21 @@ public class ManifestProcessor {
                                         "org-name=\"my_org\"\n" +
                                         "version=\"1.0.0\"\n");
             }
-    
+
             if (null == toml.getTable("project")) {
                 throw new TomlException("invalid Ballerina.toml file: cannot find [project]");
             }
-            
+
             Manifest manifest = toml.to(Manifest.class);
             manifest.getProject().setOrgName(toml.getString("project.org-name"));
+            if (toml.contains("build-options")) {
+                Toml buildOptionsTable = toml.getTable("build-options");
+                BuildOptions buildOptions = new BuildOptions();
+                if (buildOptionsTable.contains("observability-included")) {
+                    buildOptions.setObservabilityIncluded(buildOptionsTable.getBoolean("observability-included"));
+                }
+                manifest.setBuildOptions(buildOptions);
+            }
             validateManifestProject(manifest);
             validateManifestDependencies(manifest);
             return manifest;
@@ -162,7 +171,7 @@ public class ManifestProcessor {
             throw new TomlException("invalid Ballerina.toml file: " + tomlErrMsg);
         }
     }
-    
+
     /**
      * Validate the project block in manifest.
      *
@@ -173,17 +182,17 @@ public class ManifestProcessor {
         if (null == manifest.getProject().getOrgName() || "".equals(manifest.getProject().getOrgName())) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'org-name' under [project]");
         }
-        
+
         if (null == manifest.getProject().getVersion() || "".equals(manifest.getProject().getVersion())) {
             throw new TomlException("invalid Ballerina.toml file: cannot find 'version' under [project]");
         }
-    
+
         Matcher semverMatcher = semVerPattern.matcher(manifest.getProject().getVersion());
         if (!semverMatcher.matches()) {
             throw new TomlException("invalid Ballerina.toml file: 'version' under [project] is not semver");
         }
     }
-    
+
     /**
      * Validate dependencies block in manifest.
      *
@@ -198,7 +207,7 @@ public class ManifestProcessor {
             }
         }
     }
-    
+
     /**
      * Lowercase the first letter of this string.
      *
@@ -208,7 +217,7 @@ public class ManifestProcessor {
     private static String lowerCaseFirstLetter(String content) {
         return content.substring(0, 1).toLowerCase(Locale.getDefault()) + content.substring(1);
     }
-    
+
     public static byte[] addDependenciesToManifest(ByteArrayInputStream manifestStream, List<Dependency> deps) {
         Map<String, Object> toml = new Toml().read(manifestStream).toMap();
         Map<String, Object> dependencies = new LinkedHashMap<>();
@@ -224,7 +233,7 @@ public class ManifestProcessor {
                 dependencies = updatedDependencies;
             }
         }
-    
+
         for (Dependency dep : deps) {
             dependencies.put(dep.getOrgName() + "/" + dep.getModuleName(), dep.getMetadata().getVersion());
         }

@@ -94,6 +94,15 @@ public class LexerTerminals {
     public static final String BASE16 = "base16";
     public static final String BASE64 = "base64";
     public static final String MATCH = "match";
+    public static final String CONFLICT = "conflict";
+    public static final String LIMIT = "limit";
+    public static final String JOIN = "join";
+    public static final String OUTER = "outer";
+    public static final String EQUALS = "equals";
+
+    // For BFM only
+    public static final String VARIABLE = "variable";
+    public static final String MODULE = "module";
 
     // Types
     public static final String INT = "int";

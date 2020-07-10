@@ -393,6 +393,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(letExpressionNode);
     }
 
+    public T transform(STXmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        return transformSyntaxNode(xmlTypeDescriptorNode);
+    }
+
     public T transform(STLetVariableDeclarationNode letVariableDeclarationNode) {
         return transformSyntaxNode(letVariableDeclarationNode);
     }
@@ -585,6 +589,14 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
+    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        return transformSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        return transformSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public T transform(STAsyncSendActionNode asyncSendActionNode) {
         return transformSyntaxNode(asyncSendActionNode);
     }
@@ -719,6 +731,58 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STDistinctTypeDescriptorNode distinctTypeDescriptorNode) {
         return transformSyntaxNode(distinctTypeDescriptorNode);
+    }
+
+    public T transform(STOnConflictClauseNode onConflictClauseNode) {
+        return transformSyntaxNode(onConflictClauseNode);
+    }
+
+    public T transform(STLimitClauseNode limitClauseNode) {
+        return transformSyntaxNode(limitClauseNode);
+    }
+
+    public T transform(STJoinClauseNode joinClauseNode) {
+        return transformSyntaxNode(joinClauseNode);
+    }
+
+    public T transform(STOnClauseNode onClauseNode) {
+        return transformSyntaxNode(onClauseNode);
+    }
+
+    public T transform(STListMatchPatternNode listMatchPatternNode) {
+        return transformSyntaxNode(listMatchPatternNode);
+    }
+
+    public T transform(STRestMatchPatternNode restMatchPatternNode) {
+        return transformSyntaxNode(restMatchPatternNode);
+    }
+
+    public T transform(STMappingMatchPatternNode mappingMatchPatternNode) {
+        return transformSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public T transform(STFieldMatchPatternNode fieldMatchPatternNode) {
+        return transformSyntaxNode(fieldMatchPatternNode);
+    }
+
+    public T transform(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
+    }
+
+    public T transform(STParameterDocumentationLineNode parameterDocumentationLineNode) {
+        return transformSyntaxNode(parameterDocumentationLineNode);
+    }
+
+    public T transform(STDocumentationReferenceNode documentationReferenceNode) {
+        return transformSyntaxNode(documentationReferenceNode);
+    }
+
+    public T transform(STDocumentationLineNode documentationLineNode) {
+        return transformSyntaxNode(documentationLineNode);
     }
 
     // Tokens

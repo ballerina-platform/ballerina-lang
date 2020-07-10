@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -395,12 +396,17 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return entry.symbol;
             }
 
-            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT &&
-                    ((BPackageSymbol) entry.symbol).compUnit.equals(compUnit)) {
-                ((BPackageSymbol) entry.symbol).isUsed = true;
-                return entry.symbol;
+            if ((entry.symbol.tag & SymTag.IMPORT) == SymTag.IMPORT) {
+                Name importCompUnit = ((BPackageSymbol) entry.symbol).compUnit;
+                //importCompUnit is null for predeclared modules
+                if (importCompUnit == null) {
+                    return entry.symbol;
+                } else if (importCompUnit.equals(compUnit)) {
+                    ((BPackageSymbol) entry.symbol).isUsed = true;
+                    return entry.symbol;
+                }
             }
-
+            
             entry = entry.next;
         }
 
@@ -1040,8 +1046,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         } else if (tableTypeNode.tableKeySpecifier != null) {
             BLangTableKeySpecifier tableKeySpecifier = tableTypeNode.tableKeySpecifier;
             List<String> fieldNameList = new ArrayList<>();
-            for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-                fieldNameList.add(identifier.value);
+            for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+                fieldNameList.add(((BLangIdentifier) identifier).value);
             }
             tableType.fieldNameList = fieldNameList;
             tableType.keyPos = tableKeySpecifier.pos;
@@ -1588,11 +1594,19 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BLangType bLangTypeOne = constituentTypeNodes.get(0);
         BType typeOne = resolveTypeNode(bLangTypeOne, env);
+
+        if (typeOne == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeOne, bLangTypeOne);
 
 
         BLangType bLangTypeTwo = constituentTypeNodes.get(1);
         BType typeTwo = resolveTypeNode(bLangTypeTwo, env);
+
+        if (typeTwo == symTable.noType) {
+            return symTable.noType;
+        }
         typeBLangTypeMap.put(typeTwo, bLangTypeTwo);
 
         boolean hasReadOnlyType = typeOne == symTable.readonlyType || typeTwo == symTable.readonlyType;
@@ -1609,6 +1623,10 @@ public class SymbolResolver extends BLangNodeVisitor {
 
                 if (!hasReadOnlyType) {
                     hasReadOnlyType = type == symTable.readonlyType;
+                }
+
+                if (type == symTable.noType) {
+                    return symTable.noType;
                 }
 
                 potentialIntersectionType = getPotentialReadOnlyIntersection(potentialIntersectionType, type);
@@ -1634,7 +1652,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return potentialIntersectionType;
         }
 
-        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true)) {
+        if (!types.isSelectivelyImmutableType(potentialIntersectionType, true, false)) {
             if (types.isSelectivelyImmutableType(potentialIntersectionType)) {
                 // This intersection would have been valid if not for `readonly object`s.
                 dlog.error(intersectionTypeNode.pos, DiagnosticCode.INVALID_READONLY_OBJECT_INTERSECTION_TYPE);

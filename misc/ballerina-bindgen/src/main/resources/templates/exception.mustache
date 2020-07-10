@@ -7,4 +7,4 @@ type {{shortExceptionName}}Data record {
     error cause?;
 };
 
-type {{shortExceptionName}} error<{{exceptionConstName}}, {{shortExceptionName}}Data>;
+{{accessModifier}}type {{shortExceptionName}} distinct error<{{shortExceptionName}}Data>;

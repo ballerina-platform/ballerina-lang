@@ -151,6 +151,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
+    private boolean observabilityIncluded;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -359,9 +362,11 @@ public class TestCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist,
+                observabilityIncluded);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
@@ -374,9 +379,9 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
-                .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
                 .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)

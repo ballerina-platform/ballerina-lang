@@ -48,9 +48,11 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * The runtime representation of table.
@@ -77,8 +79,6 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     private long noOfAddedEntries = 0;
 
     private boolean nextKeySupported;
-    public static final String IS_STRING_VALUE_PROP = "ballerina.bstring";
-    public static final boolean USE_BSTRING = System.getProperty(IS_STRING_VALUE_PROP) != null;
 
     public TableValueImpl(BTableType type) {
         this.type = type;
@@ -382,6 +382,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V putData(V data) {
+            checkInherentTypeViolation((MapValue) data, type);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry(data, data);
             UUID uuid = UUID.randomUUID();
             entries.put((long) uuid.hashCode(), entry);
@@ -417,6 +418,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public void addData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
@@ -460,6 +462,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         public V putData(V data) {
             MapValue dataMap = (MapValue) data;
+            checkInherentTypeViolation(dataMap, type);
             K key = this.keyWrapper.wrapKey(dataMap);
             Map.Entry<K, V> entry = new AbstractMap.SimpleEntry<>(key, data);
             Long hash = TableUtils.hash(key, null);
@@ -535,6 +538,16 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             keyToIndexMap.put(hash, noOfAddedEntries);
             indexToKeyMap.put(noOfAddedEntries, hash);
             noOfAddedEntries++;
+        }
+    }
+
+    // This method checks for inherent table type violation
+    private void checkInherentTypeViolation(MapValue dataMap, BTableType type) {
+        if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
+            String reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
+            String detail = "value type '" + dataMap.getType() + "' inconsistent with the inherent table type '"
+                    + type + "'";
+            throw BallerinaErrors.createError(reason, detail);
         }
     }
 

@@ -40,6 +40,7 @@ import static org.ballerinalang.jvm.observability.ObservabilityConstants.SERVER_
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_HTTP_URL;
 import static org.ballerinalang.jvm.observability.ObservabilityConstants.TAG_KEY_PROTOCOL;
+import static org.ballerinalang.net.http.HttpConstants.ON_MESSAGE_METADATA;
 
 /**
  * HTTP connector listener for Ballerina.
@@ -102,19 +103,19 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         if (ObserveUtils.isObservabilityEnabled()) {
             ObserverContext observerContext = new ObserverContext();
-            observerContext.setConnectorName(SERVER_CONNECTOR_HTTP);
+            observerContext.setObjectName(SERVER_CONNECTOR_HTTP);
             Map<String, String> httpHeaders = new HashMap<>();
             inboundMessage.getHeaders().forEach(entry -> httpHeaders.put(entry.getKey(), entry.getValue()));
             observerContext.addProperty(PROPERTY_TRACE_PROPERTIES, httpHeaders);
-            observerContext.addTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
-            observerContext.addTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
-            observerContext.addTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
+            observerContext.addMainTag(TAG_KEY_HTTP_METHOD, inboundMessage.getHttpMethod());
+            observerContext.addMainTag(TAG_KEY_PROTOCOL, (String) inboundMessage.getProperty(HttpConstants.PROTOCOL));
+            observerContext.addMainTag(TAG_KEY_HTTP_URL, inboundMessage.getRequestUrl());
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, observerContext);
         }
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         ObjectValue service = httpResource.getParentService().getBalService();
-        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), callback, properties,
-                        signatureParams);
+        Executor.submit(httpServicesRegistry.getScheduler(), service, httpResource.getName(), null,
+                        ON_MESSAGE_METADATA, callback, properties, signatureParams);
     }
 
     protected boolean accessed(HttpCarbonMessage inboundMessage) {

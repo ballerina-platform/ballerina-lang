@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
@@ -170,7 +171,7 @@ public class CreateTestExecutor implements LSCommandExecutor {
         // Compile the source file
         BLangPackage builtSourceFile;
         try {
-            builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, null, false, false);
+            builtSourceFile = LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
@@ -245,7 +246,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 }
             }
             return editParams;
-        } catch (TestGeneratorException | CompilationFailedException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException
+                | TestGeneratorException e) {
             String message = "Test generation failed!: " + e.getMessage();
             if (client != null) {
                 client.showMessage(new MessageParams(MessageType.Error, message));

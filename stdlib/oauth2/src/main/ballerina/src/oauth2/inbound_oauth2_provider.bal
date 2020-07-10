@@ -22,6 +22,8 @@ import ballerina/mime;
 import ballerina/stringutils;
 import ballerina/time;
 
+type JsonMap map<json>;
+
 # Represents the inbound OAuth2 provider, which calls the introspection server, validates the received credentials,
 # and performs authentication and authorization. The `oauth2:InboundOAuth2Provider` is an implementation of the
 # `auth:InboundAuthProvider` interface.
@@ -31,7 +33,6 @@ import ballerina/time;
 # };
 # oauth2:InboundOAuth2Provider inboundOAuth2Provider = new(introspectionServerConfig);
 # ```
-#
 public type InboundOAuth2Provider object {
 
     *auth:InboundAuthProvider;
@@ -63,6 +64,10 @@ public type InboundOAuth2Provider object {
                 auth:setAuthenticationContext("oauth2", credential);
                 auth:setPrincipal(validationResult?.username, validationResult?.username,
                                   getScopes(validationResult?.scopes));
+                map<json>|error introspectionResponseMap = validationResult.cloneWithType(JsonMap);
+                if (introspectionResponseMap is map<json>) {
+                    auth:setPrincipal(claims = introspectionResponseMap);
+                }
             }
             return validationResult.active;
         } else {

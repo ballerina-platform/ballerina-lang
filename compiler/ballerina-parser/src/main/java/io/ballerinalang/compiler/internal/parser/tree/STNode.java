@@ -204,12 +204,18 @@ public abstract class STNode {
         return sb.toString();
     }
 
-    public void toSourceCode(StringBuilder builder) {
+    public void writeTo(StringBuilder builder) {
         for (STNode child : this.childBuckets) {
             if (SyntaxUtils.isSTNodePresent(child)) {
-                child.toSourceCode(builder);
+                child.writeTo(builder);
             }
         }
+    }
+
+    public String toSourceCode() {
+        StringBuilder builder = new StringBuilder();
+        writeTo(builder);
+        return builder.toString();
     }
 
     protected void addChildren(STNode... children) {

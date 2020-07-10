@@ -79,7 +79,12 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "http://ballerinalang.com/ns1"
+                  "children": [
+                    {
+                      "kind": "STRING_LITERAL",
+                      "value": "http://ballerinalang.com/ns1"
+                    }
+                  ]
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -112,11 +117,16 @@
                 },
                 {
                   "kind": "STRING_LITERAL",
-                  "value": "http://ballerinalang.com/ns1",
-                  "trailingMinutiae": [
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_LITERAL",
+                      "value": "http://ballerinalang.com/ns1",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

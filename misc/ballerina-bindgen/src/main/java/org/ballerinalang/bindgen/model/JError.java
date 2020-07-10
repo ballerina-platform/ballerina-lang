@@ -27,6 +27,7 @@ import java.util.Locale;
 public class JError {
 
     private String exceptionName;
+    private String accessModifier;
     private String exceptionConstName;
     private String shortExceptionName;
 
@@ -43,5 +44,9 @@ public class JError {
 
     public String getExceptionConstName() {
         return exceptionConstName;
+    }
+
+    public void setAccessModifier(String accessModifier) {
+        this.accessModifier = accessModifier;
     }
 }

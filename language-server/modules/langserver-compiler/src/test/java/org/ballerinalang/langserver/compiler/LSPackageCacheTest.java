@@ -50,7 +50,7 @@ public class LSPackageCacheTest {
         PackageRepository packageRepository = new WorkspacePackageRepository(sourceRoot, documentManager);
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         CompilerContext context = LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                                        documentManager, false);
+                                                                        documentManager, false, true);
         documentManager.updateFile(filePath, content);
         // Compile test bal file
 //        LSModuleCompiler lsCompiler = new LSModuleCompiler(documentManager);

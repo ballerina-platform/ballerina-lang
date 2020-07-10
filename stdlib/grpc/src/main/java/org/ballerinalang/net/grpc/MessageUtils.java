@@ -120,7 +120,8 @@ public class MessageUtils {
             if (errorDescription != null) {
                 message =  statusException.getStatus().getDescription();
             } else if (statusException.getStatus().getCause() != null) {
-                message = statusException.getStatus().getCause().getMessage();
+                String causeMessage = statusException.getStatus().getCause().getMessage();
+                message = causeMessage == null ? UNKNOWN_ERROR_DETAIL : causeMessage;
             } else {
                 message = UNKNOWN_ERROR_DETAIL;
             }

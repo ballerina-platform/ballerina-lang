@@ -9,27 +9,12 @@
         <div class="navi-wrapper-content">
             {{> logo }}
             {{> currentModule }}
-            {{> allModules }}
         </div>
     </div>
-
-    <div class="ui vertical sidebar menu">
-        <div class="navi-wrapper-sidebar">
-            <div class="navi-wrapper-content">
-                {{> logo }}
-                
-                {{> currentModule }}
-                {{> allModules }}
-            </div>
-        </div>
-    </div>
-
-
-
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper module-wrapper">
-            <div id="search-impl"></div>
+            <div id="search-impl" class="search-bar"></div>
             <div id="main">
                 <h1>
                     {{> breadcrumb }}
@@ -39,10 +24,13 @@
                         Module : <span class="modules">{{ module.id }}</span>
                     {{/if}}
                 </h1>
+                {{#if module.version}}
+                    <div>Version : {{ module.version }}</div>
+                {{/if}}
                     {{{ module.description }}}
 
             {{#if module.records}}
-
+            {{#unless (areAllAnonymous module.records) }}
             <section class="method-content" id="records">
                 <div class="main-method-title here">
                     <a class="url-link" href="#records">
@@ -52,6 +40,7 @@
                 </div>
                 <table>
                     {{#each module.records}}
+                    {{#unless isAnonymous}}
                         <tr>
                             <td class="module-title truncate records" id="{{name}}" title="{{name}}">
                                 <a class="records {{#if isDeprecated}}strike{{/if}}" href="records/{{name}}.html">{{name}}</a>
@@ -63,12 +52,15 @@
                                 {{#if isAnonymous}}Anonymous record{{else}}{{{ editDescription description }}}{{/if}}
                             </td>
                         </tr>
+                    {{/unless}}
                     {{/each}}
                 </table>
             </section>
+            {{/unless}}
             {{/if}}
 
             {{#if module.objects}}
+            {{#unless (areAllAnonymous module.objects) }}
             <section class="method-content" id="objects">
                 <div class="main-method-title here">
                     <a class="url-link" href="#objects">
@@ -78,6 +70,7 @@
                 </div>
                 <table>
                     {{#each module.objects}}
+                    {{#unless isAnonymous}}
                         <tr>
                             <td class="module-title truncate objects" id="{{name}}" title="{{name}}">
                                 <a class="objects {{#if isDeprecated}}strike{{/if}}" href="objects/{{name}}.html">{{name}}</a>
@@ -89,9 +82,11 @@
                                 {{{ editDescription description }}}
                             </td>
                         </tr>
+                    {{/unless}}
                     {{/each}}
                 </table>
-             </section>  
+             </section>
+            {{/unless}}
             {{/if}}
 
             {{#if module.clients}}

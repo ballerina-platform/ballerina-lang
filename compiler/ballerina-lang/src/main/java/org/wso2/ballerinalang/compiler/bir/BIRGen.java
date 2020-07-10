@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -178,6 +179,7 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.ballerinalang.model.tree.NodeKind.INVOCATION;
 import static org.wso2.ballerinalang.compiler.desugar.AnnotationDesugar.ANNOTATION_DATA;
 import static org.wso2.ballerinalang.compiler.util.Constants.DESUGARED_MAPPING_CONSTR_KEY;
 
@@ -192,6 +194,7 @@ public class BIRGen extends BLangNodeVisitor {
             new CompilerContext.Key<>();
 
     public static final String DEFAULT_WORKER_NAME = "default";
+    public static final String CLONE_READ_ONLY = "cloneReadOnly";
     private BIRGenEnv env;
     private Names names;
     private final SymbolTable symTable;
@@ -304,19 +307,45 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void replaceMockedFunctions(BIRPackage birPkg, Map<String, String> mockFunctionMap) {
-        for (BIRFunction function : birPkg.functions) {
-            List<BIRBasicBlock> functionBasicBlocks = function.basicBlocks;
-            for (BIRBasicBlock functionBasicBlock : functionBasicBlocks) {
-                BIRTerminator bbTerminator = functionBasicBlock.terminator;
+        // Replace Mocked function calls in every function
+        replaceFunctions(birPkg.functions, mockFunctionMap);
+
+        // Replace Mocked Function calls in every service
+        if (birPkg.typeDefs.size() != 0) {
+            for (BIRTypeDefinition typeDef : birPkg.typeDefs) {
+                if (typeDef.type instanceof BServiceType) {
+                    // Replace Mocked function calls in every service function
+                    replaceFunctions(typeDef.attachedFuncs, mockFunctionMap);
+                }
+            }
+        }
+    }
+
+    private void replaceFunctions(List<BIRFunction> functionList, Map<String, String> mockFunctionMap) {
+        // Loop through all defined BIRFunctions in functionList
+        for (BIRFunction function : functionList) {
+            List<BIRBasicBlock> basicBlocks = function.basicBlocks;
+            for (BIRBasicBlock basicBlock : basicBlocks) {
+                BIRTerminator bbTerminator = basicBlock.terminator;
                 if (bbTerminator.kind.equals(InstructionKind.CALL)) {
                     //We get the callee and the name and generate 'calleepackage#name'
                     BIRTerminator.Call callTerminator = (BIRTerminator.Call) bbTerminator;
+
                     String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
                             + callTerminator.name.toString();
+                    // If the generated Key exists in the map, then use the old implementation
                     if (mockFunctionMap.get(functionKey) != null) {
                         // Just "get" the reference. If this doesnt work then it doesnt exist
                         String mockfunctionName = mockFunctionMap.get(functionKey);
                         callTerminator.name = new Name(mockfunctionName);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    }
+
+                    // If function in basic block exists in the MockFunctionMap
+                    if (mockFunctionMap.containsKey(callTerminator.name.getValue())) {
+                        // Replace the function call with the equivalent $MOCK_ substitiute
+                        String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
+                        callTerminator.name = new Name(desugarFunction);
                         callTerminator.calleePkg = function.pos.src.pkgID;
                     }
                 }
@@ -607,8 +636,10 @@ public class BIRGen extends BLangNodeVisitor {
         this.env.enclAnnotAttachments.add(annotAttachment);
     }
 
-    private boolean isCompileTimeAnnotationValue(BLangExpression expr) {
-        // TODO Compile time literal constants
+    private boolean isCompileTimeAnnotationValue(BLangExpression expression) {
+
+        BLangExpression expr = unwrapAnnotationExpressionFromCloneReadOnly(expression);
+
         switch (expr.getKind()) {
             case LITERAL:
             case NUMERIC_LITERAL:
@@ -654,7 +685,18 @@ public class BIRGen extends BLangNodeVisitor {
         }
     }
 
-    private BIRAnnotationValue createAnnotationValue(BLangExpression expr) {
+    private BLangExpression unwrapAnnotationExpressionFromCloneReadOnly(BLangExpression expr) {
+        if (expr.getKind() == INVOCATION) {
+            BLangInvocation invocation = (BLangInvocation) expr;
+            if (invocation.name.getValue().equals(CLONE_READ_ONLY)) {
+                return invocation.expr;
+            }
+        }
+        return expr;
+    }
+
+    private BIRAnnotationValue createAnnotationValue(BLangExpression expression) {
+        BLangExpression expr = unwrapAnnotationExpressionFromCloneReadOnly(expression);
         // TODO Compile time literal constants
         switch (expr.getKind()) {
             case LITERAL:
@@ -792,7 +834,9 @@ public class BIRGen extends BLangNodeVisitor {
             params.add(birVarDcl);
         }
         emit(new BIRNonTerminator.FPLoad(lambdaExpr.pos, lambdaExpr.function.symbol.pkgID, funcName, lhsOp, params,
-                getClosureMapOperands(lambdaExpr), lambdaExpr.type, lambdaExpr.function.symbol.schedulerPolicy));
+                                         getClosureMapOperands(lambdaExpr), lambdaExpr.type,
+                                         lambdaExpr.function.symbol.strandName,
+                                         lambdaExpr.function.symbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 
@@ -940,7 +984,7 @@ public class BIRGen extends BLangNodeVisitor {
                                                                   names.fromString(name), VarScope.GLOBAL,
                                                                   VarKind.GLOBAL, varNode.name.value);
         birVarDcl.setMarkdownDocAttachment(varNode.symbol.markdownDocumentation);
-        
+
         this.env.enclPkg.globalVars.add(birVarDcl);
 
         this.globalVarMap.put(varNode.symbol, birVarDcl);
@@ -1174,14 +1218,22 @@ public class BIRGen extends BLangNodeVisitor {
             this.env.enclBB.terminator = new BIRTerminator.FPCall(invocationExpr.pos, InstructionKind.FP_CALL,
                     fp, args, lhsOp, invocationExpr.async, thenBB);
         } else if (invocationExpr.async) {
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
+                    this.env);
+
             List<BIRAnnotationAttachment> annots = getStatementAnnotations(invocationExpr.annAttachments, this.env);
             this.env.enclBB.terminator = new BIRTerminator.AsyncCall(invocationExpr.pos, InstructionKind.ASYNC_CALL,
                     isVirtual, invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol),
-                    args, lhsOp, thenBB, annots);
+                    args, lhsOp, thenBB, annots, calleeAnnots, bInvokableSymbol.getFlags());
         } else {
+            BInvokableSymbol bInvokableSymbol = (BInvokableSymbol) invocationExpr.symbol;
+            List<BIRAnnotationAttachment> calleeAnnots = getStatementAnnotations(bInvokableSymbol.annAttachments,
+                    this.env);
+
             this.env.enclBB.terminator = new BIRTerminator.Call(invocationExpr.pos, InstructionKind.CALL, isVirtual,
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
-                    thenBB);
+                    thenBB, calleeAnnots, bInvokableSymbol.getFlags());
         }
 
         this.env.enclBB = thenBB;
@@ -2394,7 +2446,7 @@ public class BIRGen extends BLangNodeVisitor {
             return generateStringLiteral(null);
         }
 
-        // global-level, object-level, record-level namespace declarations will not have 
+        // global-level, object-level, record-level namespace declarations will not have
         // any interpolated content. hence the namespace URI is statically known.
         int ownerTag = nsSymbol.owner.tag;
         if ((ownerTag & SymTag.PACKAGE) == SymTag.PACKAGE ||
@@ -2495,7 +2547,7 @@ public class BIRGen extends BLangNodeVisitor {
         }
 
         emit(new BIRNonTerminator.FPLoad(fpVarRef.pos, funcSymbol.pkgID, funcName, lhsOp, params, new ArrayList<>(),
-                                         funcSymbol.retType, funcSymbol.schedulerPolicy));
+                                         funcSymbol.retType, funcSymbol.strandName, funcSymbol.schedulerPolicy));
         this.env.targetOperand = lhsOp;
     }
 

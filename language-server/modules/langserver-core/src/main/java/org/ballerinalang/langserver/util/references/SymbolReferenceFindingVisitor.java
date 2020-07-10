@@ -15,8 +15,8 @@
  */
 package org.ballerinalang.langserver.util.references;
 
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.LSNodeVisitor;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -159,14 +160,18 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     private List<BLangTypeDefinition> anonTypeDefinitions = new ArrayList<>();
     private HashMap<BSymbol, DiagnosticPos> workerVarDefMap = new HashMap<>();
 
-    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
+    public SymbolReferenceFindingVisitor(LSContext lsContext, Token tokenAtCursor, String pkgName,
+                                         boolean currentCUnitMode) {
         this.lsContext = lsContext;
 
         Boolean bDoNotSkipNullSymbols = lsContext.get(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS);
         this.doNotSkipNullSymbols = (bDoNotSkipNullSymbols == null) ? false : bDoNotSkipNullSymbols;
 
-        this.symbolReferences = lsContext.get(ReferencesKeys.REFERENCES_KEY);
-        this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
+        //TODO: Check can exisits previous reference
+        this.symbolReferences = new SymbolReferencesModel();
+        lsContext.put(ReferencesKeys.REFERENCES_KEY, this.symbolReferences);
+
+        this.tokenName = tokenAtCursor.text();
         TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
         if (position == null) {
             throw new IllegalStateException("Position information not available in the Operation Context");
@@ -177,8 +182,16 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
         this.pkgName = pkgName;
     }
 
-    public SymbolReferenceFindingVisitor(LSContext lsContext, String pkgName) {
-        this(lsContext, pkgName, false);
+    public SymbolReferenceFindingVisitor(LSContext lsContext, Token tokenAtCursor, String pkgName) {
+        this(lsContext, tokenAtCursor, pkgName, false);
+    }
+
+    public SymbolReferencesModel accept(BLangCompilationUnit compilationUnit) {
+        if (compilationUnit == null) {
+            return null;
+        }
+        visit(compilationUnit);
+        return this.symbolReferences;
     }
 
     @Override
@@ -920,6 +933,9 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     public void visit(BLangJoinClause joinClause) {
         this.acceptNode(joinClause.collection);
         this.acceptNode((BLangNode) joinClause.variableDefinitionNode);
+        if (joinClause.onClause != null) {
+            acceptNode((BLangNode) joinClause.onClause);
+        }
     }
 
     @Override
@@ -940,6 +956,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
         this.acceptNode(onConflictClause.expression);
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        this.acceptNode(limitClause.expression);
     }
 
     @Override
@@ -988,13 +1009,13 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     }
 
     protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
+        SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (bSymbol == null && !this.doNotSkipNullSymbols) {
             return;
         }
-        if ((!this.currentCUnitMode && symbolAtCursor.isPresent() && (symbolAtCursor.get().getSymbol() != bSymbol))) {
+        if ((!this.currentCUnitMode && (symbolAtCursor.getSymbol() != bSymbol))) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);
@@ -1039,7 +1060,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
     
     private Optional<BLangFunction> getWorkerFunctionFromPosition(DiagnosticPos position) {
         return this.workerLambdas.stream()
-                .filter(function -> function.defaultWorkerName.getPosition() == position)
+                .filter(function -> {
+                    DiagnosticPos namePosition = function.defaultWorkerName.getPosition();
+                    return namePosition.sLine == position.sLine && namePosition.eLine == position.eLine
+                            && namePosition.sCol == position.sCol && namePosition.eCol == position.eCol;
+                })
                 .findAny();
     }
     
@@ -1059,7 +1084,11 @@ public class SymbolReferenceFindingVisitor extends LSNodeVisitor {
 
     private BSymbol getWorkerSymbolForPosition(DiagnosticPos pos) {
         return this.workerVarDefMap.entrySet().stream()
-                .filter(entry -> entry.getValue() == pos)
+                .filter(workerPos -> {
+                    DiagnosticPos posValue = workerPos.getValue();
+                    return posValue.sLine == pos.sLine && posValue.eLine == pos.eLine
+                            && posValue.sCol == pos.sCol && posValue.eCol == pos.eCol;
+                })
                 .findAny()
                 .map(Map.Entry::getKey)
                 .orElse(null);

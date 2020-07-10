@@ -56,44 +56,46 @@ public class LSModuleCompiler {
     /**
      * Get the BLangPackage for a given program.
      *
-     * @param context            Language Server Context
-     * @param docManager         Document manager
-     * @param errStrategy        custom error strategy class
-     * @param compileFullProject updateAndCompileFile full project from the source root
+     * @param context              Language Server Context
+     * @param docManager           Document manager
+     * @param errStrategy          custom error strategy class
+     * @param compileFullProject   updateAndCompileFile full project from the source root
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
-     *
+     * @param enableNewParser      whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
      * @throws CompilationFailedException when compilation fails
      */
     public static BLangPackage getBLangPackage(LSContext context, WorkspaceDocumentManager docManager,
                                                Class<? extends ANTLRErrorStrategy> errStrategy,
-                                               boolean compileFullProject, boolean stopOnSemanticErrors)
+                                               boolean compileFullProject, boolean stopOnSemanticErrors,
+                                               boolean enableNewParser)
             throws CompilationFailedException {
         List<BLangPackage> bLangPackages = getBLangPackages(context, docManager, errStrategy,
-                                                            compileFullProject, false, stopOnSemanticErrors);
+                compileFullProject, false, stopOnSemanticErrors, enableNewParser);
         return bLangPackages.get(0);
     }
 
     /**
      * Get the all ballerina modules for a given project.
      *
-     * @param context            Language Server Context
-     * @param docManager         Document manager
-     * @param errStrategy        Custom error strategy class
+     * @param context              Language Server Context
+     * @param docManager           Document manager
+     * @param errStrategy          Custom error strategy class
      * @param stopOnSemanticErrors Whether stop compilation on semantic errors
-     * 
+     * @param enableNewParser      Whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
-     * @throws URISyntaxException when the uri of the source root is invalid
+     * @throws URISyntaxException         when the uri of the source root is invalid
      * @throws CompilationFailedException when the compiler throws any error
      */
     public static List<BLangPackage> getBLangModules(LSContext context, WorkspaceDocumentManager docManager,
                                                      Class<? extends ANTLRErrorStrategy> errStrategy,
-                                                     boolean stopOnSemanticErrors)
+                                                     boolean stopOnSemanticErrors, boolean enableNewParser)
             throws URISyntaxException, CompilationFailedException {
         String sourceRoot = Paths.get(new URI(context.get(DocumentServiceKeys.SOURCE_ROOT_KEY))).toString();
         PackageRepository pkgRepo = new WorkspacePackageRepository(sourceRoot, docManager);
 
-        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors);
+        CompilerContext compilerContext = prepareCompilerContext(pkgRepo, sourceRoot, docManager, stopOnSemanticErrors,
+                enableNewParser);
         Compiler compiler = LSCompilerUtil.getCompiler(context, compilerContext, errStrategy);
         return compilePackagesSafe(compiler, sourceRoot, false, context);
     }
@@ -101,20 +103,20 @@ public class LSModuleCompiler {
     /**
      * Get the BLangPackage for a given program.
      *
-     * @param context            Language Server Context
-     * @param docManager         Document manager
-     * @param errStrategy        custom error strategy class
-     * @param compileFullProject updateAndCompileFile full project from the source root
-     * @param clearProjectModules whether clear current project modules from ls package cache
+     * @param context              Language Server Context
+     * @param docManager           Document manager
+     * @param errStrategy          custom error strategy class
+     * @param compileFullProject   updateAndCompileFile full project from the source root
+     * @param clearProjectModules  whether clear current project modules from ls package cache
      * @param stopOnSemanticErrors whether stop compilation on semantic errors
-     *
+     * @param enableNewParser      whether enable new parser or not
      * @return {@link List}      A list of packages when compile full project
      * @throws CompilationFailedException Whenever compilation fails
      */
     public static List<BLangPackage> getBLangPackages(LSContext context, WorkspaceDocumentManager docManager,
                                                       Class<? extends ANTLRErrorStrategy> errStrategy,
                                                       boolean compileFullProject, boolean clearProjectModules,
-                                                      boolean stopOnSemanticErrors)
+                                                      boolean stopOnSemanticErrors, boolean enableNewParser)
             throws CompilationFailedException {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         Optional<String> unsavedFileId = LSCompilerUtil.getUntitledFileId(uri);
@@ -148,7 +150,7 @@ public class LSModuleCompiler {
         }
         context.put(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY, relativeFilePath);
         CompilerContext compilerContext = prepareCompilerContext(pkgID, pkgRepo, sourceDoc, docManager,
-                                                                 stopOnSemanticErrors);
+                stopOnSemanticErrors, enableNewParser);
 
         context.put(DocumentServiceKeys.SOURCE_ROOT_KEY, projectRoot);
         context.put(DocumentServiceKeys.CURRENT_PKG_NAME_KEY, pkgID.getNameComps().stream()
@@ -193,7 +195,7 @@ public class LSModuleCompiler {
      * @param compiler    {@link Compiler}
      * @param projectRoot project root
      * @param pkgName     package name or file name
-     * @param context   {@link LSContext}
+     * @param context     {@link LSContext}
      * @return {@link BLangPackage}
      * @throws CompilationFailedException thrown when compilation failed
      */
@@ -218,8 +220,8 @@ public class LSModuleCompiler {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                        projectRoot + "'}, served through cache within " + eTime +
-                                                        "ms");
+                                projectRoot + "'}, served through cache within " + eTime +
+                                "ms");
                     }
                     // Cache hit
                     return cacheEntry.get().getLeft();
@@ -233,7 +235,7 @@ public class LSModuleCompiler {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                projectRoot + "'}, compilation took " + eTime + "ms");
+                        projectRoot + "'}, compilation took " + eTime + "ms");
             }
             return bLangPackage;
         } catch (RuntimeException e) {
@@ -251,7 +253,7 @@ public class LSModuleCompiler {
      * @param compiler    {@link Compiler}
      * @param projectRoot project root
      * @param isBuild     if `True` builds all packages
-     * @param context   {@link LSContext}
+     * @param context     {@link LSContext}
      * @return a list of {@link BLangPackage}
      * @throws CompilationFailedException thrown when compilation failed
      */
@@ -277,8 +279,8 @@ public class LSModuleCompiler {
                         long endTime = System.nanoTime();
                         long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                         LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                        projectRoot + "'}, served through cache within " + eTime +
-                                                        "ms");
+                                projectRoot + "'}, served through cache within " + eTime +
+                                "ms");
                     }
                     // Cache hit
                     return cacheEntry.get().getRight();
@@ -292,7 +294,7 @@ public class LSModuleCompiler {
                 long endTime = System.nanoTime();
                 long eTime = TimeUnit.MILLISECONDS.convert(endTime - startTime, TimeUnit.NANOSECONDS);
                 LSClientLogger.logTrace("Operation '" + context.getOperation().getName() + "' {projectRoot: '" +
-                                                projectRoot + "'}, compilation took " + eTime + "ms");
+                        projectRoot + "'}, compilation took " + eTime + "ms");
             }
             return bLangPackages;
         } catch (RuntimeException e) {

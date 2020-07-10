@@ -501,7 +501,7 @@ public class TestUtil {
                 .withCommonParams(null, sourcePath.toUri().toString(), documentManager)
                 .build();
 
-        LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true);
+        LSModuleCompiler.getBLangPackage(context, documentManager, null, true, true, true);
         List<Diagnostic> diagnostics = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {

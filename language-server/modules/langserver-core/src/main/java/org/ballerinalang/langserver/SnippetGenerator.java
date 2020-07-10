@@ -101,6 +101,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get readonly keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getReadonlyKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.READONLY, "readonly ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get external keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -117,6 +127,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getTypeofKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.TYPEOF, "typeof ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get commit keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommitKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -753,16 +773,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Retry Statement Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getRetryStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.RETRY, "retry;", ItemResolverConstants.STATEMENT_TYPE,
-                                SnippetType.STATEMENT);
-    }
-
-    /**
      * Get Return Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -904,12 +914,21 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getTransactionStatementSnippet() {
-        String snippet = "transaction with retries = ${1:0} {" + CommonUtil.LINE_SEPARATOR
-                + "\t${2}" + CommonUtil.LINE_SEPARATOR + "} onretry {" + CommonUtil.LINE_SEPARATOR + "\t${3}"
-                + CommonUtil.LINE_SEPARATOR + "} committed {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
-                + CommonUtil.LINE_SEPARATOR + "} aborted {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
-                + CommonUtil.LINE_SEPARATOR + "}";
+        String snippet = "transaction {" + CommonUtil.LINE_SEPARATOR
+                + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                                SnippetType.STATEMENT);
+    }
+
+    /**
+     * Get Retry Transaction Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRetryTransactionStatementSnippet() {
+        String snippet = "retry transaction {" + CommonUtil.LINE_SEPARATOR
+                + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RETRY_TRANSACTION, snippet, ItemResolverConstants.STATEMENT_TYPE,
                                 SnippetType.STATEMENT);
     }
 
@@ -931,6 +950,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getVarKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.VAR_KEYWORD, "var ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get Rollback Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRollbackStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback;", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
