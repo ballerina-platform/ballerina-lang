@@ -84,6 +84,10 @@ public class WebSocketUtil {
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
     public static final String ERROR_MESSAGE = "Error occurred: ";
     public static final String LOG_MESSAGE = "{} {}";
+    public static final String EQUAL = "=";
+    public static final String SEMI_COLON = ";";
+    public static final String SPACE = " ";
+    public static final String COOKIE = "Cookie";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                WebSocketServerService wsService,
@@ -475,13 +479,7 @@ public class WebSocketUtil {
                                                      String scheme) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina
         clientConnectorConfig.setSubProtocols(WebSocketUtil.findNegotiableSubProtocols(clientEndpointConfig));
-        @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> headerValues = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
-                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
-        if (headerValues != null) {
-            clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
-        }
-
+        populateCustomHeaders(clientEndpointConfig, clientConnectorConfig);
         long idleTimeoutInSeconds = findTimeoutInSeconds(clientEndpointConfig,
                                                          WebSocketConstants.ANNOTATION_ATTR_IDLE_TIMEOUT, 0);
         if (idleTimeoutInSeconds > 0) {
@@ -489,7 +487,7 @@ public class WebSocketUtil {
         }
 
         clientConnectorConfig.setMaxFrameSize(findMaxFrameSize(clientEndpointConfig));
-
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> secureSocket =
                 (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
                         HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -502,12 +500,29 @@ public class WebSocketUtil {
                 clientEndpointConfig.getBooleanValue(WebSocketConstants.COMPRESSION_ENABLED_CONFIG));
     }
 
-    private static Map<String, String> getCustomHeaders(MapValue<BString, Object> headers) {
+    private static void populateCustomHeaders(MapValue<BString, Object> clientEndpointConfig,
+                                              WebSocketClientConnectorConfig clientConnectorConfig) {
         Map<String, String> customHeaders = new HashMap<>();
-        headers.entrySet().forEach(
-                entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())
-        );
-        return customHeaders;
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        MapValue<BString, Object> headers = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
+                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
+        @SuppressWarnings(WebSocketConstants.UNCHECKED)
+        MapValue<BString, Object> cookies = (MapValue<BString, Object>) clientEndpointConfig.
+                getMapValue(WebSocketConstants.COOKIES);
+        if (!headers.isEmpty()) {
+            headers.entrySet().forEach(
+                    entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())
+            );
+        }
+        if (!cookies.isEmpty()) {
+            StringBuilder cookieValue = new StringBuilder();
+            for (Map.Entry<BString, Object> entry : cookies.entrySet()) {
+            cookieValue.append(entry.getKey().toString()).append(EQUAL).append(entry.getValue().toString()).
+                    append(SEMI_COLON).append(SPACE);
+            }
+            customHeaders.put(COOKIE, cookieValue.toString());
+        }
+        clientConnectorConfig.addHeaders(customHeaders);
     }
 
     /**

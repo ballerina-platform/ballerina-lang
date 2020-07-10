@@ -172,7 +172,29 @@ public type WebSocketClient client object {
     
 };
 
-# Configurations for the WebSocket client endpoint.
+# Configurations for the WebSocket client.
+# Following fields are inherited from the other configuration records in addition to the Client specific
+# configs.
+#
+# |                                                                              |
+# |:---------------------------------------------------------------------------- |
+# | callbackService - Copied from CommonWebSocketClientConfiguration             |
+# | subProtocols - Copied from CommonWebSocketClientConfiguration                |
+# | customHeaders - Copied from CommonWebSocketClientConfiguration               |
+# | idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |
+# | readyOnConnect - Copied from CommonWebSocketClientConfiguration              |
+# | secureSocket - Copied from CommonWebSocketClientConfiguration                |
+# | maxFrameSize - Copied from CommonWebSocketClientConfiguration                |
+# | webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |
+# | handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |
+# | cookies - Copied from CommonWebSocketClientConfiguration                     |
+# + retryConfig - Retry related configurations
+public type WebSocketClientConfiguration record {|
+    *CommonWebSocketClientConfiguration;
+    WebSocketRetryConfig retryConfig?;
+|};
+
+# Common client configurations for WebSocket clients.
 #
 # + callbackService - The callback service of the client. Resources in this service gets called on the
 #                     receipt of messages from the server
@@ -190,8 +212,8 @@ public type WebSocketClient client object {
 # + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
 #                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
 #                               an error.If the value < 0, then the value sets to the default value(300).
-# + retryConfig - Retry related configurations
-public type WebSocketClientConfiguration record {|
+# + cookies - Cookie's name and value, which should be sent to the server
+public type CommonWebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
     map<string> customHeaders = {};
@@ -201,7 +223,7 @@ public type WebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
     int handShakeTimeoutInSeconds = 300;
-    WebSocketRetryConfig retryConfig?;
+    map<string> cookies?;
 |};
 
 # Retry configurations for WebSocket.
