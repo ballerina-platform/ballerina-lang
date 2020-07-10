@@ -25,10 +25,10 @@ import org.testng.annotations.Test;
 public class TableTypeTest extends AbstractTypesTest {
 
     // Valid source tests
+
     @Test
     public void testValidLocalLevelTableTypes() {
-        testTopLevelNode("table-type/table_type_source_01.bal",
-                "table-type/table_type_assert_01.json");
+        testTopLevelNode("table-type/table_type_source_01.bal", "table-type/table_type_assert_01.json");
     }
 
     @Test
@@ -41,20 +41,18 @@ public class TableTypeTest extends AbstractTypesTest {
 
     @Test
     public void testValidTableTypeAsReturnType() {
-        testTopLevelNode("table-type/table_type_source_06.bal",
-                "table-type/table_type_assert_06.json");
+        testTopLevelNode("table-type/table_type_source_06.bal", "table-type/table_type_assert_06.json");
     }
 
     @Test
     public void testValidTableTypeAsTypeDefinition() {
-        testTopLevelNode("table-type/table_type_source_07.bal",
-                "table-type/table_type_assert_07.json");
+        testTopLevelNode("table-type/table_type_source_07.bal", "table-type/table_type_assert_07.json");
     }
 
-    //Recovery tests
+    // Recovery tests
+
     @Test
     public void testInValidLocalLevelTableTypes() {
-        testTopLevelNode("table-type/table_type_source_08.bal",
-                "table-type/table_type_assert_08.json");
+        testTopLevelNode("table-type/table_type_source_08.bal", "table-type/table_type_assert_08.json");
     }
 }

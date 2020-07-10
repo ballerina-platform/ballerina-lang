@@ -36,15 +36,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Timer Task implementation to capture breakpoints from server stop events.
  */
-public class DeubgHitListener extends TimerTask {
+public class DebugHitListener extends TimerTask {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DeubgHitListener.class);
-    private final TestDAPClientConnector connector;
+    private static final Logger LOGGER = LoggerFactory.getLogger(DebugHitListener.class);
+    public static TestDAPClientConnector connector;
     private StoppedEventArguments debugHitContext;
     private BallerinaTestDebugPoint debugHitpoint;
     private boolean debugHitFound;
 
-    public DeubgHitListener(TestDAPClientConnector connector) {
+    public DebugHitListener(TestDAPClientConnector connector) {
         this.connector = connector;
         this.debugHitFound = false;
         this.debugHitContext = null;
