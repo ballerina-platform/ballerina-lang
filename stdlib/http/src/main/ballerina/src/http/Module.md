@@ -127,6 +127,7 @@ For more information, see the following.
 * [Client Endpoint](https://ballerina.io/learn/by-example/websocket-client.html)   
 * [Retry](https://ballerina.io/learn/by-example/websocket-retry.html)
 * [Failover](https://ballerina.io/learn/by-example/websocket-failover.html)
+* [WebSocket Cookie](https://ballerina.io/learn/by-example/websocket-cookie.html)
 
 ### Logging
 
