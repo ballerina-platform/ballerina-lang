@@ -125,17 +125,17 @@
                           ]
                         },
                         {
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
                           "kind": "NAMED_ARG",
                           "children": [
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "children": [
@@ -160,17 +160,17 @@
                           ]
                         },
                         {
+                          "kind": "COMMA_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
+                        {
                           "kind": "REST_ARG",
                           "children": [
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            },
                             {
                               "kind": "ELLIPSIS_TOKEN"
                             },

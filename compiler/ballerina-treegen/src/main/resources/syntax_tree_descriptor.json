@@ -673,7 +673,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -705,7 +705,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -1091,11 +1091,6 @@
             "kind": "NAMED_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "argumentName",
                     "type": "SimpleNameReferenceNode"
                 },
@@ -1115,11 +1110,6 @@
             "kind": "POSITIONAL_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "expression",
                     "type": "ExpressionNode"
                 }
@@ -1130,11 +1120,6 @@
             "base": "FunctionArgumentNode",
             "kind": "REST_ARG",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "ellipsis",
                     "type": "Token"
@@ -1533,7 +1518,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -2630,7 +2615,7 @@
                 },
                 {
                     "name": "parenthesizedArgList",
-                    "type": "Node"
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },
@@ -2662,7 +2647,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -3081,6 +3066,49 @@
                 {
                     "name": "variableName",
                     "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "FunctionalBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "FUNCTIONAL_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeReference",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesis",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListBindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesis",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "NAMED_ARG_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "argName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
                 }
             ]
         },

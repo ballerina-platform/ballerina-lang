@@ -40,7 +40,7 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
         return childInBucket(1);
     }
 
-    public Node parenthesizedArgList() {
+    public ParenthesizedArgList parenthesizedArgList() {
         return childInBucket(2);
     }
 
@@ -65,7 +65,7 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
     public ExplicitNewExpressionNode modify(
             Token newKeyword,
             TypeDescriptorNode typeDescriptor,
-            Node parenthesizedArgList) {
+            ParenthesizedArgList parenthesizedArgList) {
         if (checkForReferenceEquality(
                 newKeyword,
                 typeDescriptor,
@@ -92,7 +92,7 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
         private final ExplicitNewExpressionNode oldNode;
         private Token newKeyword;
         private TypeDescriptorNode typeDescriptor;
-        private Node parenthesizedArgList;
+        private ParenthesizedArgList parenthesizedArgList;
 
         public ExplicitNewExpressionNodeModifier(ExplicitNewExpressionNode oldNode) {
             this.oldNode = oldNode;
@@ -116,7 +116,7 @@ public class ExplicitNewExpressionNode extends NewExpressionNode {
         }
 
         public ExplicitNewExpressionNodeModifier withParenthesizedArgList(
-                Node parenthesizedArgList) {
+                ParenthesizedArgList parenthesizedArgList) {
             Objects.requireNonNull(parenthesizedArgList, "parenthesizedArgList must not be null");
             this.parenthesizedArgList = parenthesizedArgList;
             return this;

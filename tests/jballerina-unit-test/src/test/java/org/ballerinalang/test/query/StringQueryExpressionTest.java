@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.query;
 
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -122,18 +123,13 @@ public class StringQueryExpressionTest {
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithVarForStringResult() {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithVarForStringResult");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithListForStringResult() {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithListForStringResult");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
-        Assert.assertEquals(returnValues[1].stringValue(), "John ");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
     @Test(description = "Test simple query expression with var for string result")
@@ -147,9 +143,16 @@ public class StringQueryExpressionTest {
     @Test(description = "Test simple query expression with var for string result")
     public void testQueryExprWithUnionTypeForStringResult2() {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
+    @Test(description = "Test method access with casting in select clause", groups = {"disableOnOldParser"})
+    public void testMethodAccessWithCasting() {
+        CompileResult resultV2 = BCompileUtil.compile("test-src/query/string-query-expression-v2.bal");
+        BValue[] returnValues = BRunUtil.invoke(resultV2, "testMethodAccessWithCasting");
         Assert.assertNotNull(returnValues);
 
-        Assert.assertEquals(returnValues[0].stringValue(), "Ranjan ");
-        Assert.assertEquals(returnValues[1].stringValue(), "John ");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "Everyday Italian|Harry Potter|XQuery Kick Start|Learning XML|");
     }
 }

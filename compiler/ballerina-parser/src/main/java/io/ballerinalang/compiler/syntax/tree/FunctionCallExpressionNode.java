@@ -40,8 +40,8 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(2));
+    public SeparatedNodeList<FunctionArgumentNode> arguments() {
+        return new SeparatedNodeList<>(childInBucket(2));
     }
 
     public Token closeParenToken() {
@@ -70,7 +70,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
     public FunctionCallExpressionNode modify(
             Node functionName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 functionName,
@@ -100,7 +100,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         private final FunctionCallExpressionNode oldNode;
         private Node functionName;
         private Token openParenToken;
-        private NodeList<FunctionArgumentNode> arguments;
+        private SeparatedNodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
 
         public FunctionCallExpressionNodeModifier(FunctionCallExpressionNode oldNode) {
@@ -126,7 +126,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         }
 
         public FunctionCallExpressionNodeModifier withArguments(
-                NodeList<FunctionArgumentNode> arguments) {
+                SeparatedNodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;

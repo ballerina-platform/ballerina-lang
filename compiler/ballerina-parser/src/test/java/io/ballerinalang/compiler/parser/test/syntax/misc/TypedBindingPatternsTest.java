@@ -103,7 +103,19 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
         testFile("typed-binding-patterns/typed_binding_patterns_source_19.bal",
                 "typed-binding-patterns/typed_binding_patterns_assert_19.json");
     }
-    
+
+    @Test
+    public void testFunctionalBindingPattern() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_20.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_20.json");
+    }
+
+    @Test
+    public void testFunctionalBindingPatternInLetVarDecl() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_21.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_21.json");
+    }
+
     // Recovery tests
 
     @Test
@@ -142,4 +154,9 @@ public class TypedBindingPatternsTest extends AbstractMiscTest {
                 "typed-binding-patterns/typed_binding_patterns_assert_18.json");
     }
 
+    @Test
+    public void testFunctionalBindingPatternRecovery() {
+        testFile("typed-binding-patterns/typed_binding_patterns_source_22.bal",
+                "typed-binding-patterns/typed_binding_patterns_assert_22.json");
+    }
 }
