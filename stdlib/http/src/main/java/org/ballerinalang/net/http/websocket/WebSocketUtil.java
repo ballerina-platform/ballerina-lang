@@ -75,7 +75,7 @@ import javax.net.ssl.SSLException;
 /**
  * Utility class for WebSocket.
  */
-public class WebSocketUtil {
+public class    WebSocketUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketUtil.class);
     private static final BString CLIENT_ENDPOINT_CONFIG = StringUtils.fromString("config");
@@ -506,21 +506,23 @@ public class WebSocketUtil {
         @SuppressWarnings(WebSocketConstants.UNCHECKED)
         MapValue<BString, Object> headers = (MapValue<BString, Object>) clientEndpointConfig.getMapValue(
                 WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
-        @SuppressWarnings(WebSocketConstants.UNCHECKED)
-        MapValue<BString, Object> cookies = (MapValue<BString, Object>) clientEndpointConfig.
-                getMapValue(WebSocketConstants.COOKIES);
         if (!headers.isEmpty()) {
             headers.entrySet().forEach(
                     entry -> customHeaders.put(entry.getKey().getValue(), headers.get(entry.getKey()).toString())
             );
         }
-        if (!cookies.isEmpty()) {
-            StringBuilder cookieValue = new StringBuilder();
-            for (Map.Entry<BString, Object> entry : cookies.entrySet()) {
-            cookieValue.append(entry.getKey().toString()).append(EQUAL).append(entry.getValue().toString()).
-                    append(SEMI_COLON).append(SPACE);
+        if (clientEndpointConfig.getMapValue(WebSocketConstants.COOKIES) != null) {
+            @SuppressWarnings(WebSocketConstants.UNCHECKED)
+            MapValue<BString, Object> cookies = (MapValue<BString, Object>) clientEndpointConfig.
+                    getMapValue(WebSocketConstants.COOKIES);
+            if (!cookies.isEmpty()) {
+                StringBuilder cookieValue = new StringBuilder();
+                for (Map.Entry<BString, Object> entry : cookies.entrySet()) {
+                    cookieValue.append(entry.getKey().toString()).append(EQUAL).append(entry.getValue().toString()).
+                            append(SEMI_COLON).append(SPACE);
+                }
+                customHeaders.put(COOKIE, cookieValue.toString());
             }
-            customHeaders.put(COOKIE, cookieValue.toString());
         }
         clientConnectorConfig.addHeaders(customHeaders);
     }
