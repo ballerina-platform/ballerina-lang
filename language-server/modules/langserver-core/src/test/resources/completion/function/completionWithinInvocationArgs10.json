@@ -78,13 +78,13 @@
       }
     },
     {
-      "label": "getAsMap(string key)(map<anydata>)",
+      "label": "getAsMap(string key)(map<anydata> & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a map.\n```ballerina\n# map<anydata> configValue = config:getAsMap(\"http.listenerConfig\");\n# ```\n  \n**Params**  \n- `string` key: The key of the configuration to be retrieved  \n  \n**Returns** `map<anydata>`   \n- Configuration value mapped with the given key. If there is no mapping, an empty map will be returned  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as a map.\n```ballerina\n# map<anydata> configValue = config:getAsMap(\"http.listenerConfig\");\n# ```\n  \n**Params**  \n- `string` key: The key of the configuration to be retrieved  \n  \n**Returns** `map<anydata> & readonly`   \n- Configuration value mapped with the given key. If there is no mapping, an empty map will be returned  \n  \n"
         }
       },
       "sortText": "120",
@@ -96,13 +96,13 @@
       }
     },
     {
-      "label": "getAsArray(string key)(anydata[])",
+      "label": "getAsArray(string key)(anydata[] & readonly)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an array.\n```ballerina\n# int[]|error ports = int[].constructFrom(config:getAsArray(\"ports\"));\n# ```\n  \n**Params**  \n- `string` key: The key of the configuration to be retrieved  \n  \n**Returns** `anydata[]`   \n- Configuration value mapped with the given key. If there is no mapping, an empty array will be returned  \n  \n"
+          "value": "**Package:** _ballerina/config_  \n  \nRetrieves the specified configuration value as an array.\n```ballerina\n# int[]|error ports = int[].constructFrom(config:getAsArray(\"ports\"));\n# ```\n  \n**Params**  \n- `string` key: The key of the configuration to be retrieved  \n  \n**Returns** `anydata[] & readonly`   \n- Configuration value mapped with the given key. If there is no mapping, an empty array will be returned  \n  \n"
         }
       },
       "sortText": "120",
