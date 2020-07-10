@@ -50,6 +50,9 @@ public type Client abstract client object {
     #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(@untainted ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
 
+    public remote function call(@untainted ParameterizedCallQuery sqlQuery, typedesc<record {}>[]? rowTypes = ())
+    returns ProcedureCallResult|Error;
+
     # Close the SQL client.
     #
     # + return - Possible error during closing the client
@@ -73,4 +76,12 @@ function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Me
 
 function closeResult(ResultIterator iterator) returns Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
+} external;
+
+function getNextQueryResult(ProcedureCallResult callResult) returns boolean = @java:Method {
+    class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+} external;
+
+function closeCallResult(ProcedureCallResult callResult) returns Error? = @java:Method {
+    class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
 } external;

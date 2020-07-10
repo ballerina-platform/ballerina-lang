@@ -50,6 +50,15 @@ public type Client client object {
         }
     }
 
+    public remote function call(@untainted sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[]? rowTypes = ())
+    returns sql:ProcedureCallResult|sql:Error {
+        if (self.clientActive) {
+            return nativeCall(self, sqlQuery, rowTypes);
+        } else {
+            return sql:ApplicationError("JDBC Client is already closed, hence further operations are not allowed");
+        }
+    }
+
     public function close() returns sql:Error? {
         self.clientActive = false;
         return close(self);
@@ -84,6 +93,11 @@ returns sql:ExecutionResult|sql:Error = @java:Method {
 function nativeBatchExecute(Client sqlClient, sql:ParameterizedQuery[] sqlQueries)
 returns sql:ExecutionResult[]|sql:Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ExecuteUtils"
+} external;
+
+function nativeCall(Client sqlClient, sql:ParameterizedCallQuery sqlQuery, typedesc<record {}>[]? rowTypes)
+returns sql:ProcedureCallResult|sql:Error = @java:Method {
+    class: "org.ballerinalang.sql.utils.CallUtils"
 } external;
 
 function close(Client mysqlClient) returns sql:Error? = @java:Method {

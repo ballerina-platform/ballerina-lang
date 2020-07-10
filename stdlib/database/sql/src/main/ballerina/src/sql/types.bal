@@ -390,3 +390,41 @@ type ResultIterator object {
         }
     }
 };
+
+public type InParameter record {|
+    Value 'in;
+|};
+
+public type OutParameter record {|
+    Value? out = ();
+|};
+
+public type InOutParameter record {|
+    Value 'in;
+    Value? out = ();
+|};
+
+public type Parameter Value|InParameter|OutParameter|InOutParameter;
+
+# Represents Parameterized Call SQL Statement.
+#
+# + strings - The separated parts of the sql call query
+# + insertions - The values that should be filled in between the parts
+public type ParameterizedCallQuery abstract object {
+    public string[] strings;
+    public Parameter[] insertions;
+};
+
+# Object that is used to return stored procedure call results
+public type ProcedureCallResult object {
+    ExecutionResult? executionResult = ();
+    stream<record {}, Error>? queryResult = ();
+
+    function getNextQueryResult() returns boolean {
+        return getNextQueryResult(self);
+    }
+
+    function close() returns Error? {
+        return closeCallResult(self);
+    }
+};
