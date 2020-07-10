@@ -29,10 +29,21 @@ import com.github.jknack.handlebars.io.FileTemplateLoader;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.generator.model.Construct;
+import org.ballerinalang.docgen.generator.model.AnnotationsPageContext;
+import org.ballerinalang.docgen.generator.model.ClientPageContext;
+import org.ballerinalang.docgen.generator.model.ConstantsPageContext;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
+import org.ballerinalang.docgen.generator.model.ErrorsPageContext;
+import org.ballerinalang.docgen.generator.model.FunctionsPageContext;
+import org.ballerinalang.docgen.generator.model.ListenerPageContext;
+import org.ballerinalang.docgen.generator.model.ModulePageContext;
+import org.ballerinalang.docgen.generator.model.ObjectPageContext;
 import org.ballerinalang.docgen.generator.model.PageContext;
 import org.ballerinalang.docgen.generator.model.Record;
+import org.ballerinalang.docgen.generator.model.ProjectPageContext;
+import org.ballerinalang.docgen.generator.model.RecordPageContext;
 import org.ballerinalang.docgen.generator.model.Type;
+import org.ballerinalang.docgen.generator.model.TypesPageContext;
 import org.ballerinalang.docgen.generator.model.Variable;
 
 import java.io.File;
@@ -139,6 +150,55 @@ public class Writer {
                 String newDescription = description.replaceAll("<table>", "<table class=\"ui table row-border " +
                         "pad-left\">");
                 return newDescription;
+            });
+
+            handlebars.registerHelper("showSidebarList", (Helper<PageContext>) (page, options) -> {
+                if (page.getClass() == ModulePageContext.class || page instanceof ConstantsPageContext) {
+                    return false;
+                } else {
+                    return true;
+                }
+            });
+
+            handlebars.registerHelper("isModulePage", (Helper<PageContext>) (page, options) -> {
+                if (page.getClass() == ModulePageContext.class) {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            handlebars.registerHelper("addColon", (Helper<PageContext>) (page, options) -> {
+                if (page.getClass() == ObjectPageContext.class || page.getClass() == RecordPageContext.class ||
+                        page.getClass() == ClientPageContext.class || page.getClass() == ListenerPageContext.class)  {
+                    return true;
+                } else {
+                    return false;
+                }
+            });
+
+            handlebars.registerHelper("getType", (Helper<PageContext>) (page, options) -> {
+                if (page.getClass() == ObjectPageContext.class) {
+                    return "objects";
+                } else if (page.getClass() == ListenerPageContext.class) {
+                    return "listeners";
+                } else if (page.getClass() == ClientPageContext.class) {
+                    return "clients";
+                } else if (page.getClass() == AnnotationsPageContext.class) {
+                    return "annotations";
+                } else if (page.getClass() == RecordPageContext.class) {
+                    return "records";
+                } else if (page.getClass() == FunctionsPageContext.class) {
+                    return "functions";
+                } else if (page.getClass() == ConstantsPageContext.class) {
+                    return "constants";
+                } else if (page.getClass() == TypesPageContext.class) {
+                    return "types";
+                } else if (page.getClass() == ErrorsPageContext.class) {
+                    return "errors";
+                } else {
+                    return "";
+                }
             });
 
             handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
