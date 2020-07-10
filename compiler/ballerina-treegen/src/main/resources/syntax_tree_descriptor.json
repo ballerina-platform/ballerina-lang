@@ -3967,6 +3967,49 @@
             ]
         },
         {
+            "name": "FunctionalMatchPatternNode",
+            "base": "Node",
+            "kind": "FUNCTIONAL_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeRef",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListMatchPatternNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesisToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgMatchPatternNode",
+            "base": "Node",
+            "kind": "NAMED_ARG_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
             "name": "DocumentationNode",
             "base": "Node",
             "isAbstract": true

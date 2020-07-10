@@ -775,6 +775,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(fieldMatchPatternNode);
     }
 
+    public void visit(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
+    }
+
     public void visit(ParameterDocumentationLineNode parameterDocumentationLineNode) {
         visitSyntaxNode(parameterDocumentationLineNode);
     }

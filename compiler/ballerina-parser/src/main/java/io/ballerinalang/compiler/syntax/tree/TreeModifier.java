@@ -2980,6 +2980,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FunctionalMatchPatternNode transform(
+            FunctionalMatchPatternNode functionalMatchPatternNode) {
+        Node typeRef =
+                modifyNode(functionalMatchPatternNode.typeRef());
+        Token openParenthesisToken =
+                modifyToken(functionalMatchPatternNode.openParenthesisToken());
+        SeparatedNodeList<Node> argListMatchPatternNode =
+                modifySeparatedNodeList(functionalMatchPatternNode.argListMatchPatternNode());
+        Token closeParenthesisToken =
+                modifyToken(functionalMatchPatternNode.closeParenthesisToken());
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public NamedArgMatchPatternNode transform(
+            NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        IdentifierToken identifier =
+                modifyNode(namedArgMatchPatternNode.identifier());
+        Token equalToken =
+                modifyToken(namedArgMatchPatternNode.equalToken());
+        Node matchPattern =
+                modifyNode(namedArgMatchPatternNode.matchPattern());
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
+    @Override
     public ParameterDocumentationLineNode transform(
             ParameterDocumentationLineNode parameterDocumentationLineNode) {
         Token hashToken =
