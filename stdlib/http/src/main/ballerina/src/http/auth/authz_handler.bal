@@ -60,9 +60,8 @@ public type AuthzHandler object {
         string requestMethod = runtime:getInvocationContext().attributes[REQUEST_METHOD].toString();
 
         string userId = auth:getInvocationContext()?.userId ?: "";    // this is already validated at `canProcess` function
-        string[] userScopes = auth:getInvocationContext()?.scopes?: [];
-        string authzCacheKey = generateAuthzCacheKey(userId, userScopes, serviceName, resourceName,
-                               requestMethod);
+        string[] userScopes = auth:getInvocationContext()?.scopes ?: [];
+        string authzCacheKey = generateAuthzCacheKey(userId, userScopes, serviceName, resourceName, requestMethod);
 
         boolean authorized = auth:checkForScopeMatch(scopes, userScopes, authzCacheKey, self.positiveAuthzCache,
                                                      self.negativeAuthzCache);
