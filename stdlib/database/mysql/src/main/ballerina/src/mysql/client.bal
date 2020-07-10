@@ -81,7 +81,7 @@ public type Client client object {
         }
     }
 
-    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # Executes a batch of parameterized DDL or DML sql query provided by the user,
     # and returns the summary of the execution.
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
@@ -170,7 +170,7 @@ function createClient(Client mysqlClient, ClientConfiguration clientConf,
     class: "org.ballerinalang.mysql.NativeImpl"
 } external;
 
-function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowtype)
+function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType)
 returns stream <record {}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;

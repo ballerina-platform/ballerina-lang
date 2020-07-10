@@ -308,13 +308,13 @@ public type RowValue object {
     }
 };
 
-# Represents Parameterised SQL query.
+# Represents Parameterized SQL query.
 #
 # + strings - The separated parts of the sql query
 # + insertions - The values that should be filled in between the parts
 public type ParameterizedQuery abstract object {
-   public (string[] & readonly) strings;
-   public Value[] insertions;
+    public (string[] & readonly) strings;
+    public Value[] insertions;
 };
 
 # Constant indicating that the specific batch statement executed successfully

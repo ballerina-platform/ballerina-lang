@@ -22,7 +22,7 @@ public type Client client object {
     }
 
     public remote function query(@untainted string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType = ())
-    returns @tainted stream<record{}, sql:Error> {
+    returns @tainted stream <record {}, sql:Error> {
         if (self.clientActive) {
             return nativeQuery(self, sqlQuery, rowType);
         } else {
@@ -71,8 +71,8 @@ returns sql:Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.ClientUtils"
 } external;
 
-function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowtype)
-returns stream<record{}, sql:Error> = @java:Method {
+function nativeQuery(Client sqlClient, string|sql:ParameterizedQuery sqlQuery, typedesc<record {}>? rowType)
+returns stream <record {}, sql:Error> = @java:Method {
     class: "org.ballerinalang.sql.utils.QueryUtils"
 } external;
 

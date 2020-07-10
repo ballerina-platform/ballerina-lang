@@ -38,7 +38,7 @@ public type Client abstract client object {
     #           if any error occurred when executing the query
     public remote function execute(@untainted string|ParameterizedQuery sqlQuery) returns ExecutionResult|Error;
 
-    # Executes a batch of parameterised DDL or DML sql query provided by the user,
+    # Executes a batch of parameterized DDL or DML sql query provided by the user,
     # and returns the summary of the execution.
     #
     # + sqlQueries - The DDL or DML query such as INSERT, DELETE, UPDATE, etc as `ParameterizedQuery` with an array
@@ -57,20 +57,20 @@ public type Client abstract client object {
 };
 
 function closedStreamInvocationError() returns Error {
-   return ApplicationError("Stream is closed. Therefore, no operations are allowed further on the stream.");
+    return ApplicationError("Stream is closed. Therefore, no operations are allowed further on the stream.");
 }
 
-public function generateApplicationErrorStream(string message) returns stream<record{}, Error> {
+public function generateApplicationErrorStream(string message) returns stream <record {}, Error> {
     ApplicationError applicationErr = ApplicationError(message);
     ResultIterator resultIterator = new (err = applicationErr);
-    stream<record{}, Error> errorStream = new (resultIterator);
+    stream<record {}, Error> errorStream = new (resultIterator);
     return errorStream;
 }
 
 function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
+    class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
 } external;
 
 function closeResult(ResultIterator iterator) returns Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
+    class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
 } external;

@@ -57,7 +57,7 @@ import java.util.TimeZone;
  *
  * @since 1.2.0
  */
-public class RecordItertorUtils {
+public class RecordIteratorUtils {
     private static Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone(Constants.TIMEZONE_UTC.getValue()));
 
     public static Object nextResult(ObjectValue recordIterator) {
