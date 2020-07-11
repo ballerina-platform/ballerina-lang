@@ -185,7 +185,7 @@ public enum SyntaxKind {
     DOUBLE_GT_TOKEN(589, ">>"),
     TRIPPLE_GT_TOKEN(590, ">>>"),
 
-    // Documentation reference types of BFM
+    // Documentation reference types
     TYPE_DOC_REFERENCE_TOKEN(900, "type"),
     SERVICE_DOC_REFERENCE_TOKEN(901, "service"),
     VARIABLE_DOC_REFERENCE_TOKEN(902, "variable"),
@@ -195,6 +195,12 @@ public enum SyntaxKind {
     FUNCTION_DOC_REFERENCE_TOKEN(906, "function"),
     PARAMETER_DOC_REFERENCE_TOKEN(907, "parameter"),
     CONST_DOC_REFERENCE_TOKEN(908, "const"),
+
+    // Documentation syntax
+    DOC_PLUS_TOKEN(950, "+"),
+    DOC_DASH_TOKEN(951, "-"),
+    DOC_BACKTICK_TOKEN(952, "`"),
+    DOC_RETURN_KEYWORD(953, "return"),
 
     IDENTIFIER_TOKEN(1000),
     STRING_LITERAL(1001),
@@ -448,8 +454,8 @@ public enum SyntaxKind {
     DEPRECATION_DOCUMENTATION_LINE(4504),
     DOCUMENTATION_DESCRIPTION(4505),
     DOCUMENTATION_REFERENCE(4506),
-    PARAMETER_NAME(4507),
-    BACKTICK_CONTENT(4508),
+    DOC_PARAMETER_NAME(4507),
+    DOC_BACKTICK_CONTENT(4508),
     DEPRECATION_LITERAL(4509),
 
     INVALID(4),

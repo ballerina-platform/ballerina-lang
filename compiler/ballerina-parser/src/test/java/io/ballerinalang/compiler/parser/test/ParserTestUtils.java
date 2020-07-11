@@ -365,8 +365,8 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-            case PARAMETER_NAME:
-            case BACKTICK_CONTENT:
+            case DOC_PARAMETER_NAME:
+            case DOC_BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
                 return token.text();
             case XML_TEXT:
@@ -627,7 +627,7 @@ public class ParserTestUtils {
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
 
-            // Documentation reference types of BFM
+            // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
                 return SyntaxKind.TYPE_DOC_REFERENCE_TOKEN;
             case "SERVICE_DOC_REFERENCE_TOKEN":
@@ -646,6 +646,16 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN;
             case "CONST_DOC_REFERENCE_TOKEN":
                 return SyntaxKind.CONST_DOC_REFERENCE_TOKEN;
+
+            // Documentation syntax
+            case "DOC_PLUS_TOKEN":
+                return SyntaxKind.DOC_PLUS_TOKEN;
+            case "DOC_DASH_TOKEN":
+                return SyntaxKind.DOC_DASH_TOKEN;
+            case "DOC_BACKTICK_TOKEN":
+                return SyntaxKind.DOC_BACKTICK_TOKEN;
+            case "DOC_RETURN_KEYWORD":
+                return SyntaxKind.DOC_RETURN_KEYWORD;
 
             // Operators
             case "PLUS_TOKEN":
@@ -1198,10 +1208,10 @@ public class ParserTestUtils {
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
                 return SyntaxKind.DOCUMENTATION_REFERENCE;
-            case "PARAMETER_NAME":
-                return SyntaxKind.PARAMETER_NAME;
-            case "BACKTICK_CONTENT":
-                return SyntaxKind.BACKTICK_CONTENT;
+            case "DOC_PARAMETER_NAME":
+                return SyntaxKind.DOC_PARAMETER_NAME;
+            case "DOC_BACKTICK_CONTENT":
+                return SyntaxKind.DOC_BACKTICK_CONTENT;
             case "DEPRECATION_LITERAL":
                 return SyntaxKind.DEPRECATION_LITERAL;
 

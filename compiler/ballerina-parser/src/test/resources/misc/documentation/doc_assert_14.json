@@ -69,14 +69,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "typeDef"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -116,14 +116,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "helloWorld"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -163,14 +163,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "testVar"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -210,14 +210,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "testVar"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -257,14 +257,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "annot"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -304,14 +304,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "testModule"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -351,14 +351,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "add"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -398,14 +398,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "x"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -445,14 +445,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "constant"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",

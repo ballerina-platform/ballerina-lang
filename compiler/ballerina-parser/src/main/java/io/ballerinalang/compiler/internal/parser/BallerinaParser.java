@@ -13041,7 +13041,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseSingleDocumentationLine() {
         STNode hashToken = consume();
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.PLUS_TOKEN) {
+        if (nextToken.kind == SyntaxKind.DOC_PLUS_TOKEN) {
             return parseParameterDocumentationLine(hashToken);
         } else if (nextToken.kind == SyntaxKind.DEPRECATION_LITERAL) {
             return parseDeprecationDocumentationLine(hashToken);
@@ -13114,7 +13114,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode startBacktick = parseDocumentationBacktickToken();
-        STNode backtickContent = parseBacktickContent();
+        STNode backtickContent = parseDocumentationBacktickContent();
         STNode endBacktick = parseDocumentationBacktickToken();
 
         return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
@@ -13146,31 +13146,33 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseParameterDocumentationLine(STNode hashToken) {
         STNode plusToken = consume();
-        STNode parameterName = parseParameterName();
-        STNode minusToken = parseMinusToken();
+        STNode parameterName = parseDocumentationParameterName();
+        STNode dashToken = parseDocumentationDashToken();
 
         List<STNode> docElements = parseDocumentationElements();
         STNode docElementList = STNodeFactory.createNodeList(docElements);
 
         SyntaxKind kind;
-        if (parameterName.kind == SyntaxKind.RETURN_KEYWORD) {
+        if (parameterName.kind == SyntaxKind.DOC_RETURN_KEYWORD) {
             kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
         } else {
             kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
         }
 
-        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
+        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, dashToken,
                 docElementList);
     }
 
     private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
         switch (kind) {
             case DOCUMENTATION_DESCRIPTION:
-            case PLUS_TOKEN:
-            case PARAMETER_NAME:
-            case MINUS_TOKEN:
-            case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
+            case DOC_PLUS_TOKEN:
+            case DOC_PARAMETER_NAME:
+            case DOC_DASH_TOKEN:
+            case DOC_BACKTICK_TOKEN:
+            case DOC_BACKTICK_CONTENT:
+            case DOC_RETURN_KEYWORD:
+            case DEPRECATION_LITERAL:
                 return false;
             default:
                 return !isDocumentReferenceType(kind);
@@ -13182,54 +13184,54 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseParameterName() {
+    private STNode parseDocumentationParameterName() {
         SyntaxKind tokenKind = peek().kind;
-        if (tokenKind == SyntaxKind.PARAMETER_NAME || tokenKind == SyntaxKind.RETURN_KEYWORD) {
+        if (tokenKind == SyntaxKind.DOC_PARAMETER_NAME || tokenKind == SyntaxKind.DOC_RETURN_KEYWORD) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
+            return STNodeFactory.createMissingToken(SyntaxKind.DOC_PARAMETER_NAME);
         }
     }
 
     /**
-     * Parse minus token.
+     * Parse documentation dash token.
      *
      * @return Parsed node
      */
-    private STNode parseMinusToken() {
+    private STNode parseDocumentationDashToken() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.MINUS_TOKEN) {
+        if (token.kind == SyntaxKind.DOC_DASH_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.MINUS_TOKEN);
+            return STNodeFactory.createMissingToken(SyntaxKind.DOC_DASH_TOKEN);
         }
     }
 
     /**
-     * Parse back-tick token.
+     * Parse documentation back-tick token.
      *
      * @return Parsed node
      */
     private STNode parseDocumentationBacktickToken() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
+        if (token.kind == SyntaxKind.DOC_BACKTICK_TOKEN) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            return STNodeFactory.createMissingToken(SyntaxKind.DOC_BACKTICK_TOKEN);
         }
     }
 
     /**
-     * Parse back-tick content token.
+     * Parse documentation back-tick content token.
      *
      * @return Parsed node
      */
-    private STNode parseBacktickContent() {
+    private STNode parseDocumentationBacktickContent() {
         STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
+        if (token.kind == SyntaxKind.DOC_BACKTICK_CONTENT) {
             return consume();
         } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
+            return STNodeFactory.createMissingToken(SyntaxKind.DOC_BACKTICK_CONTENT);
         }
     }
 

@@ -46,14 +46,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "x"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
@@ -74,14 +74,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN"
+                                      "kind": "DOC_BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "DOC_BACKTICK_CONTENT",
                                       "value": "y"
                                     },
                                     {
-                                      "kind": "BACKTICK_TOKEN",
+                                      "kind": "DOC_BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -102,7 +102,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "PLUS_TOKEN",
+                              "kind": "DOC_PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -117,7 +117,7 @@
                               ]
                             },
                             {
-                              "kind": "PARAMETER_NAME",
+                              "kind": "DOC_PARAMETER_NAME",
                               "value": "x",
                               "trailingMinutiae": [
                                 {
@@ -127,7 +127,7 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN"
+                              "kind": "DOC_DASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -153,7 +153,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "PLUS_TOKEN",
+                              "kind": "DOC_PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -168,7 +168,7 @@
                               ]
                             },
                             {
-                              "kind": "PARAMETER_NAME",
+                              "kind": "DOC_PARAMETER_NAME",
                               "value": "y",
                               "trailingMinutiae": [
                                 {
@@ -178,7 +178,7 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN"
+                              "kind": "DOC_DASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -204,7 +204,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "PLUS_TOKEN",
+                              "kind": "DOC_PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -219,7 +219,7 @@
                               ]
                             },
                             {
-                              "kind": "RETURN_KEYWORD",
+                              "kind": "DOC_RETURN_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -228,7 +228,7 @@
                               ]
                             },
                             {
-                              "kind": "MINUS_TOKEN"
+                              "kind": "DOC_DASH_TOKEN"
                             },
                             {
                               "kind": "LIST",

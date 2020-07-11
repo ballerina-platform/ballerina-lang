@@ -1622,7 +1622,7 @@ public class BallerinaLexer extends AbstractLexer {
         processLeadingTrivia();
         reader.advance();
         switchMode(ParserMode.DOCUMENTATION_PARAMETER);
-        return getDocumentationSyntaxToken(SyntaxKind.PLUS_TOKEN);
+        return getDocumentationSyntaxToken(SyntaxKind.DOC_PLUS_TOKEN);
     }
 
     private STToken processDeprecationLiteralToken(int lookAheadCount) {
@@ -1671,7 +1671,7 @@ public class BallerinaLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.BACKTICK && reader.peek(1) != LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
-            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            return getDocumentationSyntaxToken(SyntaxKind.DOC_BACKTICK_TOKEN);
         }
 
         while (!reader.isEOF()) {
@@ -1840,9 +1840,9 @@ public class BallerinaLexer extends AbstractLexer {
                 reader.advance();
             }
             if (LexerTerminals.RETURN.equals(getLexeme())) {
-                token = getDocumentationSyntaxToken(SyntaxKind.RETURN_KEYWORD);
+                token = getDocumentationSyntaxToken(SyntaxKind.DOC_RETURN_KEYWORD);
             } else {
-                token =  getDocumentationLiteral(SyntaxKind.PARAMETER_NAME);
+                token =  getDocumentationLiteral(SyntaxKind.DOC_PARAMETER_NAME);
             }
             // If the parameter name is not followed by a minus token, switch the mode.
             if (peek() != LexerTerminals.MINUS) {
@@ -1852,7 +1852,7 @@ public class BallerinaLexer extends AbstractLexer {
         } else if (nextChar == LexerTerminals.MINUS) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.MINUS_TOKEN);
+            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.DOC_DASH_TOKEN);
         } else {
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
             return readDocumentationInternalToken();
@@ -1870,7 +1870,7 @@ public class BallerinaLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_BACKTICK_CONTENT);
-            return getDocumentationSyntaxToken(SyntaxKind.BACKTICK_TOKEN);
+            return getDocumentationSyntaxToken(SyntaxKind.DOC_BACKTICK_TOKEN);
         }
 
         while (isIdentifierInitialChar(peek())) {
@@ -1918,7 +1918,7 @@ public class BallerinaLexer extends AbstractLexer {
         if (nextToken == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
+            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.DOC_BACKTICK_TOKEN);
         }
 
         while (!reader.isEOF()) {
@@ -1935,6 +1935,6 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+        return getDocumentationLiteral(SyntaxKind.DOC_BACKTICK_CONTENT);
     }
 }
