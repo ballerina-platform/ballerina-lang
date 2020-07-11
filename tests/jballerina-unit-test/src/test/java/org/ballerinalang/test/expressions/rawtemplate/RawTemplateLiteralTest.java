@@ -107,7 +107,7 @@ public class RawTemplateLiteralTest {
     public void testCodeAnalyzerNegatives() {
         CompileResult errors = BCompileUtil.compile(
                 "test-src/expressions/rawtemplate/raw_template_negative_code_analyzer.bal");
-        validateError(errors, 0, "action invocation as an expression not allowed here", 22, 40);
+        validateError(errors, 0, "action invocation as an expression not allowed here", 22, 34);
         assertEquals(errors.getErrorCount(), 1);
     }
 

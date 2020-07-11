@@ -33,17 +33,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "POSITIONAL_ARG",
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
@@ -56,17 +56,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "NAMED_ARG",
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
@@ -103,21 +103,21 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "REST_ARG",
           "hasDiagnostics": true,
           "diagnostics": [
             "ERROR_ARG_FOLLOWED_BY_REST_ARG"
           ],
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "ELLIPSIS_TOKEN"
             },
@@ -131,17 +131,20 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
                         "kind": "POSITIONAL_ARG",
                         "children": [
-                          {
-                            "kind": "COMMA_TOKEN",
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
-                              }
-                            ]
-                          },
                           {
                             "kind": "DECIMAL_INTEGER_LITERAL",
                             "children": [

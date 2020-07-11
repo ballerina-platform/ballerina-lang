@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -33,20 +32,16 @@ public class NamedArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public SimpleNameReferenceNode argumentName() {
-        return childInBucket(1);
+        return childInBucket(0);
     }
 
     public Token equalsToken() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     public ExpressionNode expression() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     @Override
@@ -62,19 +57,16 @@ public class NamedArgumentNode extends FunctionArgumentNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "argumentName",
                 "equalsToken",
                 "expression"};
     }
 
     public NamedArgumentNode modify(
-            Token leadingComma,
             SimpleNameReferenceNode argumentName,
             Token equalsToken,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression)) {
@@ -82,7 +74,6 @@ public class NamedArgumentNode extends FunctionArgumentNode {
         }
 
         return NodeFactory.createNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -99,24 +90,15 @@ public class NamedArgumentNode extends FunctionArgumentNode {
      */
     public static class NamedArgumentNodeModifier {
         private final NamedArgumentNode oldNode;
-        private Token leadingComma;
         private SimpleNameReferenceNode argumentName;
         private Token equalsToken;
         private ExpressionNode expression;
 
         public NamedArgumentNodeModifier(NamedArgumentNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.argumentName = oldNode.argumentName();
             this.equalsToken = oldNode.equalsToken();
             this.expression = oldNode.expression();
-        }
-
-        public NamedArgumentNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public NamedArgumentNodeModifier withArgumentName(
@@ -142,7 +124,6 @@ public class NamedArgumentNode extends FunctionArgumentNode {
 
         public NamedArgumentNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     argumentName,
                     equalsToken,
                     expression);

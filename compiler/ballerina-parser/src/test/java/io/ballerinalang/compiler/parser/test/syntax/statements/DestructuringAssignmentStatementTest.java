@@ -38,11 +38,29 @@ public class DestructuringAssignmentStatementTest extends AbstractStatementTest 
                 "destructuring-assignment/mapping_binding_pattern_assert_01.json");
     }
 
+    @Test
+    public void testFunctionalBindingPattern() {
+        testFile("destructuring-assignment/functional_binding_pattern_source_01.bal",
+                "destructuring-assignment/functional_binding_pattern_assert_01.json");
+    }
+
+    @Test
+    public void testFunctionalBindingPatternAsMember() {
+        testFile("destructuring-assignment/functional_binding_pattern_source_02.bal",
+                "destructuring-assignment/functional_binding_pattern_assert_02.json");
+    }
+
     // Recovery tests
 
     @Test
     public void testListBindingPatternRecovery() {
         testFile("destructuring-assignment/list_binding_pattern_source_02.bal",
                 "destructuring-assignment/list_binding_pattern_assert_02.json");
+    }
+
+    @Test
+    public void testFunctionalBindingPatternRecovery() {
+        testFile("destructuring-assignment/functional_binding_pattern_source_03.bal",
+                "destructuring-assignment/functional_binding_pattern_assert_03.json");
     }
 }
