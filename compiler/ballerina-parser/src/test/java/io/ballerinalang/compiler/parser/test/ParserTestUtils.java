@@ -1101,6 +1101,10 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_BINDING_PATTERN;
             case "MAPPING_BINDING_PATTERN":
                 return SyntaxKind.MAPPING_BINDING_PATTERN;
+            case "FUNCTIONAL_BINDING_PATTERN":
+                return SyntaxKind.FUNCTIONAL_BINDING_PATTERN;
+            case "NAMED_ARG_BINDING_PATTERN":
+                return SyntaxKind.NAMED_ARG_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
@@ -1131,6 +1135,10 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
+            case "FUNCTIONAL_MATCH_PATTERN":
+                return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
+            case "NAMED_ARG_MATCH_PATTERN":
+                return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
 
             // XML template
             case "XML_ELEMENT":

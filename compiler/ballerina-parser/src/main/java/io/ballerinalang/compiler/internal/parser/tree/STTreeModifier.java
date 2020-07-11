@@ -650,12 +650,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STNamedArgumentNode transform(
             STNamedArgumentNode namedArgumentNode) {
-        STNode leadingComma = modifyNode(namedArgumentNode.leadingComma);
         STNode argumentName = modifyNode(namedArgumentNode.argumentName);
         STNode equalsToken = modifyNode(namedArgumentNode.equalsToken);
         STNode expression = modifyNode(namedArgumentNode.expression);
         return namedArgumentNode.modify(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -664,21 +662,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STPositionalArgumentNode transform(
             STPositionalArgumentNode positionalArgumentNode) {
-        STNode leadingComma = modifyNode(positionalArgumentNode.leadingComma);
         STNode expression = modifyNode(positionalArgumentNode.expression);
         return positionalArgumentNode.modify(
-                leadingComma,
                 expression);
     }
 
     @Override
     public STRestArgumentNode transform(
             STRestArgumentNode restArgumentNode) {
-        STNode leadingComma = modifyNode(restArgumentNode.leadingComma);
         STNode ellipsis = modifyNode(restArgumentNode.ellipsis);
         STNode expression = modifyNode(restArgumentNode.expression);
         return restArgumentNode.modify(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -1826,6 +1820,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFunctionalBindingPatternNode transform(
+            STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
+        return functionalBindingPatternNode.modify(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    @Override
+    public STNamedArgBindingPatternNode transform(
+            STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        STNode argName = modifyNode(namedArgBindingPatternNode.argName);
+        STNode equalsToken = modifyNode(namedArgBindingPatternNode.equalsToken);
+        STNode bindingPattern = modifyNode(namedArgBindingPatternNode.bindingPattern);
+        return namedArgBindingPatternNode.modify(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
+    @Override
     public STAsyncSendActionNode transform(
             STAsyncSendActionNode asyncSendActionNode) {
         STNode expression = modifyNode(asyncSendActionNode.expression);
@@ -2340,6 +2360,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return fieldMatchPatternNode.modify(
                 fieldNameNode,
                 colonToken,
+                matchPattern);
+    }
+
+    @Override
+    public STFunctionalMatchPatternNode transform(
+            STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
+        STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
+        STNode argListMatchPatternNode = modifyNode(functionalMatchPatternNode.argListMatchPatternNode);
+        STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public STNamedArgMatchPatternNode transform(
+            STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        STNode identifier = modifyNode(namedArgMatchPatternNode.identifier);
+        STNode equalToken = modifyNode(namedArgMatchPatternNode.equalToken);
+        STNode matchPattern = modifyNode(namedArgMatchPatternNode.matchPattern);
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
                 matchPattern);
     }
 

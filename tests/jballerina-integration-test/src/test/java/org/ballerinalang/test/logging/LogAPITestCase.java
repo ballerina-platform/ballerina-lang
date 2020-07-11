@@ -381,6 +381,100 @@ public class LogAPITestCase extends BaseTest {
         validateLog(logLines[8], "TRACE", "[]", functionOutput);
     }
 
+    @Test(description = "Tests setModuleLogLevel functionality")
+    public void testSetModuleLogLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[] { "hello" };
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 16, printLogLines(logLines));
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "ERROR", "[logorg/alpha]", "Logging error log from inside `alpha` module");
+
+        console.println(logLines[10]);
+        validateLog(logLines[10], "WARN", "[logorg/alpha]", "Logging warn log from inside `alpha` module");
+
+        console.println(logLines[11]);
+        validateLog(logLines[11], "ERROR", "[logorg/beta]", "Logging error log from inside `beta` module");
+
+        console.println(logLines[12]);
+        validateLog(logLines[12], "WARN", "[logorg/beta]", "Logging warn log from inside `beta` module");
+
+        console.println(logLines[13]);
+        validateLog(logLines[13], "INFO", "[logorg/beta]", "Logging info log from inside `beta` module");
+
+        console.println(logLines[14]);
+        validateLog(logLines[14], "DEBUG", "[logorg/beta]", "Logging debug log from inside `beta` module");
+
+        console.println(logLines[15]);
+        validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
+    }
+
+    @Test(description = "Tests setModuleLogLevel functionality when the user has set module log levels through console")
+    public void testSetModuleLogLevelWithConsoleArgs() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[] { "hello" , "--logorg/alpha.loglevel=DEBUG", "--logorg/beta.loglevel=OFF"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 16, printLogLines(logLines));
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "ERROR", "[logorg/alpha]", "Logging error log from inside `alpha` module");
+
+        console.println(logLines[10]);
+        validateLog(logLines[10], "WARN", "[logorg/alpha]", "Logging warn log from inside `alpha` module");
+
+        console.println(logLines[11]);
+        validateLog(logLines[11], "ERROR", "[logorg/beta]", "Logging error log from inside `beta` module");
+
+        console.println(logLines[12]);
+        validateLog(logLines[12], "WARN", "[logorg/beta]", "Logging warn log from inside `beta` module");
+
+        console.println(logLines[13]);
+        validateLog(logLines[13], "INFO", "[logorg/beta]", "Logging info log from inside `beta` module");
+
+        console.println(logLines[14]);
+        validateLog(logLines[14], "DEBUG", "[logorg/beta]", "Logging debug log from inside `beta` module");
+
+        console.println(logLines[15]);
+        validateLog(logLines[15], "ERROR", "[logorg/hello]", "Logging error log from inside `hello` module");
+    }
+
+    @Test(description = "Tests setModuleLogLevel functionality set in the module which is being called")
+    public void testSetModuleLogLevelFromModule() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[] { "omega" };
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 13, printLogLines(logLines));
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "ERROR", "[logorg/delta]", "Logging error log from inside `delta` module");
+
+        console.println(logLines[10]);
+        validateLog(logLines[10], "WARN", "[logorg/delta]", "Logging warn log from inside `delta` module");
+
+        console.println(logLines[11]);
+        validateLog(logLines[11], "INFO", "[logorg/delta]", "Logging info log from inside `delta` module");
+
+        console.println(logLines[12]);
+        validateLog(logLines[12], "DEBUG", "[logorg/delta]", "Logging debug log from inside `delta` module");
+    }
+
+    @Test(description = "Tests setModuleLogLevel functionality set in the main module and overridden at the " +
+            "sub-module which is being called")
+    public void testSetModuleLogLevelFromModuleOverridden() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[] { "omega2" };
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), projectDirPath, true);
+        String[] logLines = output.split("\n");
+        assertEquals(logLines.length, 10, printLogLines(logLines));
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "ERROR", "[logorg/delta2]", "Logging error log from inside `delta2` module");
+    }
+
     private void validateLog(String log, String logLevel, String logLocation, String logMsg) {
         assertTrue(log.contains(logLevel));
         assertTrue(log.contains(logLocation));

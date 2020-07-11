@@ -1665,7 +1665,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         DiagnosticPos pos = getPosition(unaryExprNode);
         SyntaxKind expressionKind = unaryExprNode.expression().kind();
-        SyntaxKind operatorKind = unaryExprNode.unaryOperator().kind();
         if (expressionKind == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
                 expressionKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL) {
             BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode);
@@ -2457,6 +2456,20 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (kind) {
             case ASYNC_SEND_ACTION:
                 return expressionStatement.expression().apply(this);
+            case WAIT_ACTION:
+                WaitActionNode waitActionNode =
+                        (WaitActionNode) expressionStatement.expression();
+                if (waitActionNode.waitFutureExpr().kind() == SyntaxKind.START_ACTION) {
+                    BLangWorkerSend bLangWorkerSend =
+                            (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
+                    bLangWorkerSend.expr = createExpression(expressionStatement.expression());
+                    bLangWorkerSend.pos = getPosition(expressionStatement);
+                    AsyncSendActionNode asyncSendActionNode =
+                            (AsyncSendActionNode) ((StartActionNode) waitActionNode.waitFutureExpr()).expression();
+                    bLangWorkerSend.setWorkerName(createIdentifier(asyncSendActionNode.peerWorker().name()));
+                    return bLangWorkerSend;
+                }
+                // Else fall through
             default:
                 BLangExpressionStmt bLExpressionStmt =
                         (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
@@ -2529,9 +2542,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(StartActionNode startActionNode) {
-        BLangExpression expression = createExpression(startActionNode.expression());
+        BLangNode expression = createActionOrExpression(startActionNode.expression());
 
-        BLangInvocation invocation = (BLangInvocation) expression;
+        BLangInvocation invocation;
+        if (!(expression instanceof BLangWorkerSend)) {
+            invocation = (BLangInvocation) expression;
+        } else {
+            invocation = (BLangInvocation) ((BLangWorkerSend) expression).expr;
+            expression = ((BLangWorkerSend) expression).expr;
+        }
+
         if (expression.getKind() == NodeKind.INVOCATION) {
             BLangActionInvocation actionInvocation = (BLangActionInvocation) TreeBuilder.createActionInvocation();
             actionInvocation.expr = invocation.expr;
@@ -3667,34 +3687,38 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangExpression createExpression(Node expression) {
-        if (isSimpleLiteral(expression.kind())) {
-            return createSimpleLiteral(expression);
-        } else if (expression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                   expression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
-                   expression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+        return (BLangExpression) createActionOrExpression(expression);
+    }
+
+    private BLangNode createActionOrExpression(Node actionOrExpression) {
+        if (isSimpleLiteral(actionOrExpression.kind())) {
+            return createSimpleLiteral(actionOrExpression);
+        } else if (actionOrExpression.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                   actionOrExpression.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                   actionOrExpression.kind() == SyntaxKind.IDENTIFIER_TOKEN) {
             // Variable References
-            BLangNameReference nameReference = createBLangNameReference(expression);
+            BLangNameReference nameReference = createBLangNameReference(actionOrExpression);
             BLangSimpleVarRef bLVarRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
-            bLVarRef.pos = getPosition(expression);
+            bLVarRef.pos = getPosition(actionOrExpression);
             bLVarRef.pkgAlias = this.createIdentifier((DiagnosticPos) nameReference.pkgAlias.getPosition(),
                                                       nameReference.pkgAlias.getValue());
             bLVarRef.variableName = this.createIdentifier((DiagnosticPos) nameReference.name.getPosition(),
                                                           nameReference.name.getValue());
             return bLVarRef;
-        } else if (expression.kind() == SyntaxKind.BRACED_EXPRESSION) {
+        } else if (actionOrExpression.kind() == SyntaxKind.BRACED_EXPRESSION) {
             BLangGroupExpr group = (BLangGroupExpr) TreeBuilder.createGroupExpressionNode();
-            group.expression = (BLangExpression) expression.apply(this);
-            group.pos = getPosition(expression);
+            group.expression = (BLangExpression) actionOrExpression.apply(this);
+            group.pos = getPosition(actionOrExpression);
             return group;
-        } else if (expression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
-            return createExpression(((ExpressionListItemNode) expression).expression());
-        } else if (isSimpleType(expression.kind())) {
+        } else if (actionOrExpression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
+            return createExpression(((ExpressionListItemNode) actionOrExpression).expression());
+        } else if (isSimpleType(actionOrExpression.kind())) {
             BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-            typeAccessExpr.pos = getPosition(expression);
-            typeAccessExpr.typeNode = createTypeNode(expression);
+            typeAccessExpr.pos = getPosition(actionOrExpression);
+            typeAccessExpr.typeNode = createTypeNode(actionOrExpression);
             return typeAccessExpr;
         } else {
-            return (BLangExpression) expression.apply(this);
+            return actionOrExpression.apply(this);
         }
     }
 

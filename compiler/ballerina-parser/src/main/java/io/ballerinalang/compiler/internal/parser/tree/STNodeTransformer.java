@@ -589,6 +589,14 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
+    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        return transformSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        return transformSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public T transform(STAsyncSendActionNode asyncSendActionNode) {
         return transformSyntaxNode(asyncSendActionNode);
     }
@@ -755,6 +763,14 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STFieldMatchPatternNode fieldMatchPatternNode) {
         return transformSyntaxNode(fieldMatchPatternNode);
+    }
+
+    public T transform(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
     }
 
     public T transform(STParameterDocumentationLineNode parameterDocumentationLineNode) {
