@@ -19,8 +19,6 @@ package org.ballerinalang.test.expressions.stamp;
 
 import org.ballerinalang.model.types.BErrorType;
 import org.ballerinalang.model.values.BError;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;

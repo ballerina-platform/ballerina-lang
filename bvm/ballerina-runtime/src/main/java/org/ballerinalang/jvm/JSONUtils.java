@@ -48,7 +48,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.JSON_OPERATION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorMessages.MAP_KEY_NOT_FOUND_ERROR;
