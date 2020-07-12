@@ -50,4 +50,7 @@ public interface BallerinaObjectFieldDefinition extends PsiElement {
   @Nullable
   PsiElement getPublic();
 
+  @Nullable
+  PsiElement getReadonly();
+
 }

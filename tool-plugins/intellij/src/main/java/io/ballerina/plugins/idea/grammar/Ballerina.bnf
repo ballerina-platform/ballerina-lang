@@ -99,7 +99,7 @@
         DECIMAL_INTEGER_LITERAL = "regexp:\d+"
   ]
 
-    extends("(Simple|Array|Nullable|Union|Group|Tuple|Object|InclusiveRecord|ExclusiveRecord)TypeName|BinaryAndExpression") = TypeName
+    extends("(DistinctSimple|Array|Nullable|Union|Group|Tuple|Object|Table|Intersection|InclusiveRecord|ExclusiveRecord)TypeName|BinaryAndExpression") = TypeName
 
     // This is to identify top level elements in a file.
     implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
@@ -131,11 +131,11 @@ DefinitionWithMultipleAnnotationAttachments ::= documentationString? AnnotationA
 DefinitionWithSingleAnnotationAttachment ::= documentationString? AnnotationAttachment Definition {pin=2 elementType=Definition}
 DefinitionWithoutAnnotationAttachments ::= documentationString? Definition {pin=2 elementType=Definition}
 
-Definition ::= TypeDefinition | ServiceDefinition | FunctionDefinition | AnnotationDefinition | ConstantDefinition | GlobalVariableDefinition {recoverWhile=TopLevelDefinitionRecover}
+Definition ::= TypeDefinition | ServiceDefinition | FunctionDefinition | AnnotationDefinition | ConstantDefinition | GlobalVariableDefinition | EnumDefinition {recoverWhile=TopLevelDefinitionRecover}
 private TopLevelDefinitionRecover ::= !(MARKDOWN_DOCUMENTATION_LINE_START|PARAMETER_DOCUMENTATION_START
 |RETURN_PARAMETER_DOCUMENTATION_START|AT|external|remote|client|abstract|public|type|typedesc|service|listener
 |function|enum|annotation|int|float|decimal|boolean|string|byte|map|xml|xmlns|json|table|any|stream|object|record
-|channel|const|final|var|future|identifier|'{')
+|channel|const|final|var|future|identifier|'{'|transactional|distinct|readonly)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                         type definitions                                                          //
@@ -153,7 +153,7 @@ private RecoverableOpenRecordContentRecover::= !(RIGHT_BRACE)
 
 ObjectTypeBody ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBodyContent RIGHT_BRACE {pin=2}
 ObjectBodyContent ::= (ObjectMethod | ObjectFieldDefinition | TypeReference)*
-ObjectFieldDefinition ::= documentationString? AnnotationAttachment* (public | private)? TypeName identifier ObjectFieldDefinitionContent (COMMA | SEMICOLON) {pin=5}
+ObjectFieldDefinition ::= documentationString? AnnotationAttachment* (public | private)? readonly? TypeName identifier ObjectFieldDefinitionContent (COMMA | SEMICOLON) {pin=6}
 ObjectFieldDefinitionContent ::= any {pin=1 recoverWhile=ObjectFieldDefinitionContentRecover}
 private ObjectFieldDefinitionContentRecover ::= !(COMMA | SEMICOLON)
 TypeReference ::= MUL SimpleTypeName SEMICOLON {pin=1}
@@ -182,7 +182,7 @@ private NestedReturnParamRecover ::= !(SEMICOLON | NESTED_LEFT_BRACE)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        function definitions                                                       //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-FunctionDefinition ::= (public|private)? remote? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {pin=3 methods=[getIdentifier]}
+FunctionDefinition ::= (public|private)? remote? transactional? function AnyIdentifierName FunctionSignature FunctionDefinitionBody {pin=4 methods=[getIdentifier]}
 
 AnyIdentifierName ::= identifier
 FunctionSignature ::= LEFT_PARENTHESIS RecoverableParameterContent RIGHT_PARENTHESIS returns? RecoverableReturnType {pin=1}
@@ -223,18 +223,26 @@ private varDefinition ::= final? var RecoverableVariableDefinitionContent SEMICO
 private listenerDefinition ::= public? listener RecoverableVariableDefinitionContent SEMICOLON {pin=2}
 private typedVariableDefinition ::= final? TypeName identifier ASSIGN RecoverableVarDefContent SEMICOLON {pin=3}
 
-TypeName ::= TupleTypeName | SimpleTypeName | GroupTypeName | ArrayTypeName | UnionTypeName | ObjectTypeName | NullableTypeName | InclusiveRecordTypeName | ExclusiveRecordTypeName
+TypeName ::= TupleTypeName | DistinctSimpleTypeName | GroupTypeName | ArrayTypeName | UnionTypeName | ObjectTypeName | NullableTypeName | InclusiveRecordTypeName | ExclusiveRecordTypeName | IntersectionTypeName | TableTypeName
 
-SimpleTypeName ::= NULL_LITERAL | any | anydata | handle | ValueTypeName | ReferenceTypeName | typedesc | NilLiteral
+DistinctSimpleTypeName ::= distinct? SimpleTypeName
+SimpleTypeName ::= NULL_LITERAL | any | anydata | handle | never | readonly | ValueTypeName | ReferenceTypeName | typedesc | NilLiteral
 
 ArrayTypeName ::= TypeName (LEFT_BRACKET (IntegerLiteral | MUL)? RIGHT_BRACKET)+
 NullableTypeName ::= TypeName <<nullableTypePredicate>> QUESTION_MARK
 UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS {pin=1}
 TupleTypeName ::=  LEFT_BRACKET ((TypeName (COMMA TypeName)* (COMMA TupleRestDescriptor)?) | TupleRestDescriptor) RIGHT_BRACKET {pin=1}
-ObjectTypeName ::= ((client? abstract) | (abstract? client?)) object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=2}
+ObjectTypeName ::= distinct? ((client? abstract) | (abstract? client?)) readonly? object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=4}
 InclusiveRecordTypeName ::=  record RecoverableBody
 ExclusiveRecordTypeName ::=  record LEFT_CLOSED_RECORD_DELIMITER RecoverableBodyContent RIGHT_CLOSED_RECORD_DELIMITER
+IntersectionTypeName ::= TypeName BIT_AND TypeName {pin=2}
+TableTypeName ::= table LT TypeName GT TableKeyConstraint? {pin=1}
+
+TableKeyConstraint ::= TableKeySpecifier | TableKeyTypeConstraint
+TableKeySpecifier ::= key LEFT_PARENTHESIS (identifier (COMMA identifier)*)? RIGHT_PARENTHESIS
+TableKeyTypeConstraint ::= key LT TypeName GT
+
 ObjectBody ::= {recoverWhile=ObjectBodyRecover}
 private ObjectBodyRecover ::= !(RIGHT_BRACE)
 
@@ -242,18 +250,17 @@ TupleRestDescriptor::= TypeName ELLIPSIS
 ReferenceTypeName ::= BuiltInReferenceTypeName | UserDefineTypeName
 UserDefineTypeName ::= NameReference
 ValueTypeName ::=   boolean | int | float | decimal | string | byte
-BuiltInReferenceTypeName ::= MapTypeName | FutureTypeName | XmlTypeName | JsonTypeName | StreamTypeName | TableTypeName | ServiceTypeName | TypeDescReferenceTypeName | ErrorTypeName | FunctionTypeName
+BuiltInReferenceTypeName ::= MapTypeName | FutureTypeName | XmlTypeName | JsonTypeName | StreamTypeName | ServiceTypeName | TypeDescReferenceTypeName | ErrorTypeName | FunctionTypeName
 
 MapTypeName ::= map LT TypeName GT {pin=1}
-FutureTypeName ::= future LT TypeName GT {pin=1}
+FutureTypeName ::= future (LT TypeName GT)? {pin=1}
 XmlTypeName ::= xml (LT TypeName GT)? {pin=1}
 JsonTypeName ::= json
-TableTypeName ::= table LT TypeName GT {pin=1}
-ErrorTypeName ::= error (LT TypeName (COMMA TypeName)? GT)? {pin=1}
+ErrorTypeName ::= error (LT (TypeName | MUL) GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName (COMMA TypeName)? GT)? {pin=1}
 FunctionTypeName ::= function
 ServiceTypeName ::= service
-TypeDescReferenceTypeName ::=  typedesc LT TypeName GT {pin=2}
+TypeDescReferenceTypeName ::=  typedesc (LT TypeName GT)? {pin=2}
 
 NilLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
 IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL
@@ -269,6 +276,11 @@ private GlobalVariableDefinitionRecover ::= !(SEMICOLON)
 ConstantDefinition ::= public? const RecoverableConstantContent SEMICOLON  {pin=2}
 RecoverableConstantContent ::= identifier {recoverWhile=ConstantDefinitionRecover}
 private ConstantDefinitionRecover ::= !(SEMICOLON)
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                           enum definitions                                                        //
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+EnumDefinition ::= documentationString? AnnotationAttachment* public? enum identifier RecoverableBody {pin=4}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                             annotations                                                           //
@@ -324,4 +336,4 @@ private unusedTokens ::= !(BOOLEAN_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_L
 |STRING_TEMPLATE_EXPRESSION_START|STRING_TEMPLATE_EXPRESSION_END|XML_LITERAL_START|XML_LITERAL_END|BITAND|BITXOR
 |BIT_COMPLEMENT|COMPOUND_BIT_OR|COMPOUND_BIT_AND|COMPOUND_BIT_XOR|ANNOTATION_ACCESS|OPTIONAL_FIELD_ACCESS
 |COMPOUND_LEFT_SHIFT|COMPOUND_RIGHT_SHIFT|HALF_OPEN_RANGE|DEFAULT|BASE_16_BLOB_LITERAL|BASE_64_BLOB_LITERAL
-|COMPOUND_LOGICAL_SHIFT|IGNORED_LEFT_BRACE|IGNORED_RIGHT_BRACE)
+|COMPOUND_LOGICAL_SHIFT|IGNORED_LEFT_BRACE|IGNORED_RIGHT_BRACE|limit|JOIN_EQUALS|commit|rollback|conflict)

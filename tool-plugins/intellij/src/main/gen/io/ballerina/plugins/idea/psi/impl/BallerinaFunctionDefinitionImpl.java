@@ -86,6 +86,12 @@ public class BallerinaFunctionDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
+  public PsiElement getTransactional() {
+    return findChildByType(TRANSACTIONAL);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getIdentifier() {
     return BallerinaPsiImplUtil.getIdentifier(this);
   }

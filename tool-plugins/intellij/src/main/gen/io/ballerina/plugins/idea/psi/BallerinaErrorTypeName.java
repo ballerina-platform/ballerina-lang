@@ -23,17 +23,17 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaErrorTypeName extends PsiElement {
 
-  @NotNull
-  List<BallerinaTypeName> getTypeNameList();
-
   @Nullable
-  PsiElement getComma();
+  BallerinaTypeName getTypeName();
 
   @Nullable
   PsiElement getGt();
 
   @Nullable
   PsiElement getLt();
+
+  @Nullable
+  PsiElement getMul();
 
   @NotNull
   PsiElement getError();
