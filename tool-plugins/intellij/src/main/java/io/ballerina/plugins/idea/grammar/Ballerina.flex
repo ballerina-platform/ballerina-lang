@@ -10,9 +10,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 %%
 
 %{
-   private boolean inStringTemplate = false;
+    private boolean inStringTemplate = false;
     private boolean inStringTemplateExpression = false;
     private boolean inQueryExpression = false;
+
+    private boolean inTransaction = false;
+    private boolean inTableType = false;
 
     // Added as a top level definition recovery strategy(so that the closing braces will only be sent for top-level
     // definitions)
@@ -206,9 +209,8 @@ UNUSED_RIGHT_BRACE = "}"
 
 %%
 <YYINITIAL> {
-    "__init"                                    { return OBJECT_INIT; }
+    "init"                                      { return OBJECT_INIT; }
 
-    "abort"                                     { return ABORT; }
     "aborted"                                   { return ABORTED; }
     "abstract"                                  { return ABSTRACT; }
     "annotation"                                { return ANNOTATION; }
@@ -225,15 +227,19 @@ UNUSED_RIGHT_BRACE = "}"
     "check"                                     { return CHECK; }
     "checkpanic"                                { return CHECKPANIC; }
     "client"                                    { return CLIENT; }
-    "committed"                                 { return COMMITTED; }
+    "conflict"                                  { return CONFLICT; }
     "const"                                     { return CONST; }
     "continue"                                  { return CONTINUE; }
+    "commit"                                    { if(inTransaction) {return COMMIT;}}
 
     "decimal"                                   { return DECIMAL; }
     "default"                                   { return DEFAULT; }
+    "distinct"                                  { return DISTINCT; }
 
     "else"                                      { return ELSE; }
+    "enum"                                      { return ENUM; }
     "error"                                     { return ERROR; }
+    "equals"                                    { return JOIN_EQUALS; }
     "external"                                  { return EXTERNAL; }
 
     "field"                                     { return TYPE_FIELD; }
@@ -256,17 +262,19 @@ UNUSED_RIGHT_BRACE = "}"
 
     "json"                                      { return JSON; }
 
+    "key"                                       { if(inTableType) { inTableType = false; return KEY; }}
     "let"                                       { return LET; }
     "listener"                                  { return LISTENER; }
+    "limit"                                     { return LIMIT; }
     "lock"                                      { return LOCK; }
 
     "map"                                       { return MAP; }
     "match"                                     { return MATCH; }
 
+    "never"                                     { return NEVER; }
     "new"                                       { return NEW; }
 
     "object"                                    { return OBJECT; }
-    "onretry"                                   { return ONRETRY; }
 
     "panic"                                     { return PANIC; }
     "parameter"                                 { return TYPE_PARAMETER; }
@@ -277,9 +285,9 @@ UNUSED_RIGHT_BRACE = "}"
     "remote"                                    { return REMOTE; }
     "resource"                                  { return RESOURCE; }
     "retry"                                     { return RETRY; }
-    "retries"                                   { return RETRIES; }
     "return"                                    { return RETURN; }
     "returns"                                   { return RETURNS; }
+    "rollBack"                                  { return ROLLBACK; }
 
     "service"                                   { return SERVICE; }
     "source"                                    { return SOURCE; }
@@ -287,8 +295,9 @@ UNUSED_RIGHT_BRACE = "}"
     "stream"                                    { return STREAM; }
     "string"                                    { return STRING; }
 
-    "table"                                     { return TABLE; }
-    "transaction"                               { return TRANSACTION; }
+    "table"                                     { inTableType = true; return TABLE; }
+    "transaction"                               { inTransaction = true; return TRANSACTION; }
+    "transactional"                             { return TRANSACTIONAL; }
     "trap"                                      { return TRAP; }
     "try"                                       { return TRY; }
     "type"                                      { return TYPE; }

@@ -64,6 +64,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitDistinctSimpleTypeName(@NotNull BallerinaDistinctSimpleTypeName o) {
+    visitTypeName(o);
+  }
+
+  public void visitEnumDefinition(@NotNull BallerinaEnumDefinition o) {
+    visitPsiElement(o);
+  }
+
   public void visitErrorTypeName(@NotNull BallerinaErrorTypeName o) {
     visitPsiElement(o);
   }
@@ -118,6 +126,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
 
   public void visitIntegerLiteral(@NotNull BallerinaIntegerLiteral o) {
     visitPsiElement(o);
+  }
+
+  public void visitIntersectionTypeName(@NotNull BallerinaIntersectionTypeName o) {
+    visitTypeName(o);
   }
 
   public void visitJsonTypeName(@NotNull BallerinaJsonTypeName o) {
@@ -289,15 +301,27 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitSimpleTypeName(@NotNull BallerinaSimpleTypeName o) {
-    visitTypeName(o);
+    visitPsiElement(o);
   }
 
   public void visitStreamTypeName(@NotNull BallerinaStreamTypeName o) {
     visitPsiElement(o);
   }
 
-  public void visitTableTypeName(@NotNull BallerinaTableTypeName o) {
+  public void visitTableKeyConstraint(@NotNull BallerinaTableKeyConstraint o) {
     visitPsiElement(o);
+  }
+
+  public void visitTableKeySpecifier(@NotNull BallerinaTableKeySpecifier o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTableKeyTypeConstraint(@NotNull BallerinaTableKeyTypeConstraint o) {
+    visitPsiElement(o);
+  }
+
+  public void visitTableTypeName(@NotNull BallerinaTableTypeName o) {
+    visitTypeName(o);
   }
 
   public void visitTupleRestDescriptor(@NotNull BallerinaTupleRestDescriptor o) {

@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement implements BallerinaObjectFieldDefinition {
+public class BallerinaTableKeySpecifierImpl extends ASTWrapperPsiElement implements BallerinaTableKeySpecifier {
 
-  public BallerinaObjectFieldDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaTableKeySpecifierImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectFieldDefinition(this);
+    visitor.visitTableKeySpecifier(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,62 +44,20 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaObjectFieldDefinitionContent getObjectFieldDefinitionContent() {
-    return findChildByClass(BallerinaObjectFieldDefinitionContent.class);
+  public PsiElement getLeftParenthesis() {
+    return findNotNullChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
   @NotNull
-  public BallerinaTypeName getTypeName() {
-    return findNotNullChildByClass(BallerinaTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationString getDocumentationString() {
-    return findChildByClass(BallerinaDocumentationString.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getComma() {
-    return findChildByType(COMMA);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSemicolon() {
-    return findChildByType(SEMICOLON);
+  public PsiElement getRightParenthesis() {
+    return findNotNullChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override
   @NotNull
-  public PsiElement getIdentifier() {
-    return findNotNullChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPrivate() {
-    return findChildByType(PRIVATE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getReadonly() {
-    return findChildByType(READONLY);
+  public PsiElement getKey() {
+    return findNotNullChildByType(KEY);
   }
 
 }

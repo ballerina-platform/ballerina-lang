@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaSimpleTypeName extends BallerinaTypeName {
+public interface BallerinaSimpleTypeName extends PsiElement {
 
   @Nullable
   BallerinaNilLiteral getNilLiteral();
@@ -43,6 +43,12 @@ public interface BallerinaSimpleTypeName extends BallerinaTypeName {
 
   @Nullable
   PsiElement getHandle();
+
+  @Nullable
+  PsiElement getNever();
+
+  @Nullable
+  PsiElement getReadonly();
 
   @Nullable
   PsiElement getTypedesc();

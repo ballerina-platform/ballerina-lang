@@ -24,17 +24,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
-import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements BallerinaDefinition {
+public class BallerinaDistinctSimpleTypeNameImpl extends BallerinaTypeNameImpl implements BallerinaDistinctSimpleTypeName {
 
-  public BallerinaDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaDistinctSimpleTypeNameImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDefinition(this);
+    visitor.visitDistinctSimpleTypeName(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,45 +42,15 @@ public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements Bal
   }
 
   @Override
-  @Nullable
-  public BallerinaAnnotationDefinition getAnnotationDefinition() {
-    return findChildByClass(BallerinaAnnotationDefinition.class);
+  @NotNull
+  public BallerinaSimpleTypeName getSimpleTypeName() {
+    return findNotNullChildByClass(BallerinaSimpleTypeName.class);
   }
 
   @Override
   @Nullable
-  public BallerinaConstantDefinition getConstantDefinition() {
-    return findChildByClass(BallerinaConstantDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaEnumDefinition getEnumDefinition() {
-    return findChildByClass(BallerinaEnumDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaFunctionDefinition getFunctionDefinition() {
-    return findChildByClass(BallerinaFunctionDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
-    return findChildByClass(BallerinaGlobalVariableDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaServiceDefinition getServiceDefinition() {
-    return findChildByClass(BallerinaServiceDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTypeDefinition getTypeDefinition() {
-    return findChildByClass(BallerinaTypeDefinition.class);
+  public PsiElement getDistinct() {
+    return findChildByType(DISTINCT);
   }
 
 }

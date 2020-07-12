@@ -21,21 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaTableTypeName extends BallerinaTypeName {
-
-  @Nullable
-  BallerinaTableKeyConstraint getTableKeyConstraint();
-
-  @Nullable
-  BallerinaTypeName getTypeName();
-
-  @Nullable
-  PsiElement getGt();
-
-  @Nullable
-  PsiElement getLt();
+public interface BallerinaTableKeySpecifier extends PsiElement {
 
   @NotNull
-  PsiElement getTable();
+  PsiElement getLeftParenthesis();
+
+  @NotNull
+  PsiElement getRightParenthesis();
+
+  @NotNull
+  PsiElement getKey();
 
 }

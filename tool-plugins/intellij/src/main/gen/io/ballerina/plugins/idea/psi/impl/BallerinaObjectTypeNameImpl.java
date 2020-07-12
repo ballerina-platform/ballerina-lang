@@ -72,9 +72,21 @@ public class BallerinaObjectTypeNameImpl extends BallerinaTypeNameImpl implement
   }
 
   @Override
+  @Nullable
+  public PsiElement getDistinct() {
+    return findChildByType(DISTINCT);
+  }
+
+  @Override
   @NotNull
   public PsiElement getObject() {
     return findNotNullChildByType(OBJECT);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getReadonly() {
+    return findChildByType(READONLY);
   }
 
 }

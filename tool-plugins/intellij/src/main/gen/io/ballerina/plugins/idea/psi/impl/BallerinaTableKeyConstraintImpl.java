@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements BallerinaDefinition {
+public class BallerinaTableKeyConstraintImpl extends ASTWrapperPsiElement implements BallerinaTableKeyConstraint {
 
-  public BallerinaDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaTableKeyConstraintImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitDefinition(this);
+    visitor.visitTableKeyConstraint(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -44,44 +44,14 @@ public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements Bal
 
   @Override
   @Nullable
-  public BallerinaAnnotationDefinition getAnnotationDefinition() {
-    return findChildByClass(BallerinaAnnotationDefinition.class);
+  public BallerinaTableKeySpecifier getTableKeySpecifier() {
+    return findChildByClass(BallerinaTableKeySpecifier.class);
   }
 
   @Override
   @Nullable
-  public BallerinaConstantDefinition getConstantDefinition() {
-    return findChildByClass(BallerinaConstantDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaEnumDefinition getEnumDefinition() {
-    return findChildByClass(BallerinaEnumDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaFunctionDefinition getFunctionDefinition() {
-    return findChildByClass(BallerinaFunctionDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaGlobalVariableDefinition getGlobalVariableDefinition() {
-    return findChildByClass(BallerinaGlobalVariableDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaServiceDefinition getServiceDefinition() {
-    return findChildByClass(BallerinaServiceDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTypeDefinition getTypeDefinition() {
-    return findChildByClass(BallerinaTypeDefinition.class);
+  public BallerinaTableKeyTypeConstraint getTableKeyTypeConstraint() {
+    return findChildByClass(BallerinaTableKeyTypeConstraint.class);
   }
 
 }
