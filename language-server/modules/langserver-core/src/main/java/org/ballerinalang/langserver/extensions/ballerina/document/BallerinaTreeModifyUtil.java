@@ -86,6 +86,8 @@ public class BallerinaTreeModifyUtil {
                 "\n} else {\n\n}\n");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
                 "\n}");
+        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");");
+        put("PROPERTY_STATEMENT", "$PROPERTY");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
