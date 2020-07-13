@@ -2511,6 +2511,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         bLangWaitForAll.keyValuePairs = exprs;
+        bLangWaitForAll.pos = getPosition(waitFields);
         return bLangWaitForAll;
     }
 
