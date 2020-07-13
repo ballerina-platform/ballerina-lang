@@ -48,6 +48,13 @@ public class LogAPITestCase extends BaseTest {
     private static final String logMessageTraceTestFileName = "print_trace_test.bal";
     private static final String logMessageErrorTestFileName = "print_error_test.bal";
     private static final String logMessageWarnTestFileName = "print_warn_test.bal";
+    private static final String setStrandLogLevelTestFileName = "set_strand_log_level_test.bal";
+    private static final String setStrandLogLevelWithPropagateTestFileName =
+            "set_strand_log_level_with_propagate_test.bal";
+    private static final String setStrandLogLevelWithPropagateTest2FileName =
+            "set_strand_log_level_with_propagate_test2.bal";
+    private static final String setStrandLogLevelWithPropagateTest3FileName =
+            "set_strand_log_level_with_propagate_test3.bal";
     private static final String logLevelProperty = "b7a.log.level";
 
     private static final String errLog = "ERROR level log";
@@ -473,6 +480,122 @@ public class LogAPITestCase extends BaseTest {
 
         console.println(logLines[9]);
         validateLog(logLines[9], "ERROR", "[logorg/delta2]", "Logging error log from inside `delta2` module");
+    }
+
+    @Test(description = "Tests setStrandLogLevel functionality")
+    public void testSetStrandLogLevel() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{setStrandLogLevelTestFileName, "--" + logLevelProperty + "=DEBUG"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 11);
+
+        console.println(logLines[4]);
+        validateLog(logLines[4], "ERROR", "[]", "Logging error log from inside main function");
+
+        console.println(logLines[5]);
+        validateLog(logLines[5], "ERROR", "[]", "Logging error log from inside foo function");
+
+        console.println(logLines[6]);
+        validateLog(logLines[6], "ERROR", "[]", "Logging error log from inside bar function");
+
+        console.println(logLines[7]);
+        validateLog(logLines[7], "ERROR", "[]", "Logging error log from inside foo function - worker w");
+
+        console.println(logLines[8]);
+        validateLog(logLines[8], "WARN", "[]", "Logging warn log from inside foo function - worker w");
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "INFO", "[]", "Logging info log from inside foo function - worker w");
+
+        console.println(logLines[10]);
+        validateLog(logLines[10], "DEBUG", "[]", "Logging debug log from inside foo function - worker w");
+    }
+
+    @Test(description = "Tests setStrandLogLevel functionality with propagation")
+    public void testSetStrandLogLevelWithPropagate() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{setStrandLogLevelWithPropagateTestFileName, "--" + logLevelProperty + "=DEBUG"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 8);
+
+        console.println(logLines[4]);
+        validateLog(logLines[4], "ERROR", "[]", "Logging error log from inside main function");
+
+        console.println(logLines[5]);
+        validateLog(logLines[5], "ERROR", "[]", "Logging error log from inside foo function");
+
+        console.println(logLines[6]);
+        validateLog(logLines[6], "ERROR", "[]", "Logging error log from inside bar function");
+
+        console.println(logLines[7]);
+        validateLog(logLines[7], "ERROR", "[]", "Logging error log from inside foo function - worker w");
+    }
+
+    @Test(description = "Tests setStrandLogLevel functionality with propagating to 2 levels")
+    public void testSetStrandLogLevelWithPropagate2() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{setStrandLogLevelWithPropagateTest2FileName, "--" + logLevelProperty + "=DEBUG"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 9);
+
+        console.println(logLines[4]);
+        validateLog(logLines[4], "ERROR", "[]", "Logging error log from inside main function");
+
+        console.println(logLines[5]);
+        validateLog(logLines[5], "ERROR", "[]", "Logging error log from inside foo function");
+
+        console.println(logLines[6]);
+        validateLog(logLines[6], "ERROR", "[]", "Logging error log from inside foo function - worker w1");
+
+        console.println(logLines[7]);
+        validateLog(logLines[7], "ERROR", "[]", "Logging error log from inside bar function");
+
+        console.println(logLines[8]);
+        validateLog(logLines[8], "ERROR", "[]", "Logging error log from inside bar function - worker w2");
+    }
+
+    @Test(description = "Tests setStrandLogLevel functionality with propagating to 2 levels and overridden at level 1")
+    public void testSetStrandLogLevelWithPropagate3() throws BallerinaTestException {
+        BMainInstance bMainInstance = new BMainInstance(balServer);
+        String[] args = new String[]{setStrandLogLevelWithPropagateTest3FileName, "--" + logLevelProperty + "=DEBUG"};
+        String output = bMainInstance.runMainAndReadStdOut("run", args, new HashMap<>(), logMessageTestFileLocation,
+                true);
+        String[] logLines = output.split("\n");
+
+        assertEquals(logLines.length, 12);
+
+        console.println(logLines[4]);
+        validateLog(logLines[4], "ERROR", "[]", "Logging error log from inside main function");
+
+        console.println(logLines[5]);
+        validateLog(logLines[5], "ERROR", "[]", "Logging error log from inside foo function");
+
+        console.println(logLines[6]);
+        validateLog(logLines[6], "ERROR", "[]", "Logging error log from inside foo function - worker w1");
+
+        console.println(logLines[7]);
+        validateLog(logLines[7], "WARN", "[]", "Logging warn log from inside foo function - worker w1");
+
+        console.println(logLines[8]);
+        validateLog(logLines[8], "ERROR", "[]", "Logging error log from inside bar function");
+
+        console.println(logLines[9]);
+        validateLog(logLines[9], "WARN", "[]", "Logging warn log from inside bar function");
+
+        console.println(logLines[10]);
+        validateLog(logLines[10], "ERROR", "[]", "Logging error log from inside bar function - worker w2");
+
+        console.println(logLines[11]);
+        validateLog(logLines[11], "WARN", "[]", "Logging warn log from inside bar function - worker w2");
     }
 
     private void validateLog(String log, String logLevel, String logLocation, String logMsg) {

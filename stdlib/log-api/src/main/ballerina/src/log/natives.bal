@@ -130,6 +130,6 @@ public function setModuleLogLevel(LogLevel logLevel, public string? moduleName =
 #
 # + logLevel - Log level to be set
 # + propagate - True if should propagate to child strand or else False.
-public function setStrandLogLevel(LogLevel logLevel, public boolean propagate=false) = @java:Method {
+public function setStrandLogLevel(LogLevel logLevel, public boolean propagate = false) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;

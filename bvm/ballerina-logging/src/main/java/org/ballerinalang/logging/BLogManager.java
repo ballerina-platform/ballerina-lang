@@ -314,7 +314,7 @@ public class BLogManager extends LogManager {
      *
      * @return true if propagation is enabled or else false
      */
-    public boolean strandLogLevelPropagate() {
+    public static boolean strandLogLevelPropagate() {
         return strandLogLevelPropagate;
     }
 
@@ -323,7 +323,17 @@ public class BLogManager extends LogManager {
      *
      * @param propagate propagate
      */
-    public void setStrandLogLevelPropagate(boolean propagate) {
+    public static void setStrandLogLevelPropagate(boolean propagate) {
         BLogManager.strandLogLevelPropagate = propagate;
+    }
+
+    /**
+     * Check whether log level is set for a given strand.
+     *
+     * @param strandId strand id
+     * @return true if log level is set
+     */
+    public boolean strandLogLevelSet(int strandId) {
+        return strandLoggerLevels.containsKey(strandId);
     }
 }
