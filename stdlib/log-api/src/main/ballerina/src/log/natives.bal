@@ -106,3 +106,30 @@ public function printWarn(anydata|(function () returns (anydata)) msg) = @java:M
 public function setModuleLogLevel(LogLevel logLevel, public string? moduleName = ()) = @java:Method {
     class: "org.ballerinalang.stdlib.log.Utils"
 } external;
+
+# Sets the strand log level. Following log levels are allowed.
+#
+# ERROR - error log level
+#
+# WARN - warn log level
+#
+# INFO - info log level
+#
+# DEBUG - debug log level
+#
+# TRACE - trace log level
+#
+# OFF - turns off logging
+#
+# ALL - enables all the log levels
+#
+# ```ballerina
+# log:setStrandLogLevel(log:DEBUG);
+# log:setStrandLogLevel(log:DEBUG, true);
+# ```
+#
+# + logLevel - Log level to be set
+# + propagate - True if should propagate to child strand or else False.
+public function setStrandLogLevel(LogLevel logLevel, public boolean propagate=false) = @java:Method {
+    class: "org.ballerinalang.stdlib.log.Utils"
+} external;

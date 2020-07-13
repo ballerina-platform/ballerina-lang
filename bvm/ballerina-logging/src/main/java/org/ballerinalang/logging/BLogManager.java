@@ -65,8 +65,10 @@ public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
+    private static boolean strandLogLevelPropagate;
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
+    private Map<Integer, BLogLevel> strandLoggerLevels = new HashMap<>();
     private BLogLevel ballerinaUserLogLevel = BLogLevel.INFO; // default to INFO
     private Logger httpTraceLogger;
     private Logger httpAccessLogger;
@@ -119,12 +121,31 @@ public class BLogManager extends LogManager {
     }
 
     /**
+     * Get the strand log level.
+     *
+     * @param strandId strand id
+     * @return strand log level
+     */
+    public BLogLevel getStrandLogLevel(int strandId) {
+        return strandLoggerLevels.containsKey(strandId) ? strandLoggerLevels.get(strandId) : ballerinaUserLogLevel;
+    }
+
+    /**
      * Checks if module log level has been enabled.
      *
      * @return true if module log level has been enabled, false if not.
      */
     public boolean isModuleLogLevelEnabled() {
         return loggerLevels.size() > 1;
+    }
+
+    /**
+     * Checks if strand log level has been enabled.
+     *
+     * @return true if strand log level has been enabled, false if not.
+     */
+    public boolean isStrandLogLevelEnabled() {
+        return strandLoggerLevels.size() > 0;
     }
 
     /**
@@ -276,5 +297,33 @@ public class BLogManager extends LogManager {
      */
     public void setModuleLogLevel(BLogLevel logLevel, String moduleName) {
         loggerLevels.put(moduleName, logLevel);
+    }
+
+    /**
+     * Sets the strand log level.
+     *
+     * @param logLevel log level
+     * @param strandId strand id
+     */
+    public void setStrandLogLevel(BLogLevel logLevel, int strandId) {
+        strandLoggerLevels.put(strandId, logLevel);
+    }
+
+    /**
+     * Checks whether propagation is enabled in setStrandLogLevel.
+     *
+     * @return true if propagation is enabled or else false
+     */
+    public boolean strandLogLevelPropagate() {
+        return strandLogLevelPropagate;
+    }
+
+    /**
+     * Enable or disable strand log level propagation.
+     *
+     * @param propagate propagate
+     */
+    public void setStrandLogLevelPropagate(boolean propagate) {
+        BLogManager.strandLogLevelPropagate = propagate;
     }
 }
