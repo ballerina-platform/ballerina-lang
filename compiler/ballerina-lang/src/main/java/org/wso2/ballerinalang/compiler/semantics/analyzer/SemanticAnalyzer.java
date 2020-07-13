@@ -787,7 +787,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void handleDeclaredWithVar(BLangVariable variable) {
         BLangExpression varRefExpr = variable.expr;
-        BType rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
+        BType rhsType;
+        if (varRefExpr == null) {
+            rhsType = symTable.semanticError;
+            variable.type = symTable.semanticError;
+            dlog.error(variable.pos, DiagnosticCode.VARIABLE_DECL_WITH_VAR_WITHOUT_INITIALIZER);
+        } else {
+            rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
+        }
 
         switch (variable.getKind()) {
             case VARIABLE:
@@ -825,6 +832,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 simpleVariable.symbol.type = rhsType;
                 break;
             case TUPLE_VARIABLE:
+                if (varRefExpr == null) {
+                    return;
+                }
+
                 if (variable.isDeclaredWithVar && variable.expr.getKind() == NodeKind.LIST_CONSTRUCTOR_EXPR) {
                     List<String> bindingPatternVars = new ArrayList<>();
                     List<BLangVariable> members = ((BLangTupleVariable) variable).memberVariables;
@@ -853,6 +864,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 break;
             case RECORD_VARIABLE:
+                if (varRefExpr == null) {
+                    return;
+                }
+
                 if (TypeTags.RECORD != rhsType.tag && TypeTags.MAP != rhsType.tag && TypeTags.JSON != rhsType.tag) {
                     dlog.error(varRefExpr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_RECORD_VAR, rhsType);
                     variable.type = symTable.semanticError;
@@ -866,6 +881,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
                 break;
             case ERROR_VARIABLE:
+                if (varRefExpr == null) {
+                    return;
+                }
+
                 if (TypeTags.ERROR != rhsType.tag) {
                     dlog.error(variable.expr.pos, DiagnosticCode.INVALID_TYPE_DEFINITION_FOR_ERROR_VAR, rhsType);
                     variable.type = symTable.semanticError;
@@ -2753,7 +2772,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private boolean validateVariableDefinition(BLangExpression expr) {
         // Following is invalid:
         // var a = new ;
-        if (expr.getKind() == NodeKind.TYPE_INIT_EXPR && ((BLangTypeInit) expr).userDefinedType == null) {
+        if (expr != null && expr.getKind() == NodeKind.TYPE_INIT_EXPR &&
+                ((BLangTypeInit) expr).userDefinedType == null) {
             dlog.error(expr.pos, DiagnosticCode.INVALID_ANY_VAR_DEF);
             return false;
         }
