@@ -27,7 +27,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -42,7 +42,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "value": "x",
                               "trailingMinutiae": [
                                 {
@@ -52,7 +52,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN"
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -78,7 +78,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -93,7 +93,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "value": "x1",
                               "trailingMinutiae": [
                                 {
@@ -103,7 +103,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN"
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",

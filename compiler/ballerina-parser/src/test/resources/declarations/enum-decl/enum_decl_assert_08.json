@@ -468,7 +468,6 @@
                           "hasDiagnostics": true,
                           "diagnostics": [
                             "ERROR_INVALID_TOKEN",
-                            "ERROR_INVALID_TOKEN",
                             "ERROR_INVALID_TOKEN"
                           ],
                           "value": "BLUE",
@@ -488,24 +487,12 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "HASH_TOKEN",
+                                "kind": "DOCUMENTATION_CONTENT_STRING",
+                                "value": "#doc\n",
                                 "leadingMinutiae": [
                                   {
                                     "kind": "WHITESPACE_MINUTIAE",
                                     "value": "  "
-                                  }
-                                ]
-                              }
-                            },
-                            {
-                              "kind": "INVALID_NODE_MINUTIAE",
-                              "invalidNode": {
-                                "kind": "DOCUMENTATION_DESCRIPTION",
-                                "value": "doc",
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "END_OF_LINE_MINUTIAE",
-                                    "value": "\n"
                                   }
                                 ]
                               }

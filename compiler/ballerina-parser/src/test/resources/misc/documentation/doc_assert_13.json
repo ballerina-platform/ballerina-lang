@@ -68,7 +68,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -83,7 +83,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "value": "no",
                               "trailingMinutiae": [
                                 {
@@ -93,7 +93,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN",
+                              "kind": "MINUS_TOKEN",
                               "isMissing": true
                             },
                             {
@@ -120,7 +120,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -135,11 +135,11 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "isMissing": true
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN",
+                              "kind": "MINUS_TOKEN",
                               "isMissing": true
                             },
                             {
@@ -176,14 +176,14 @@
                                   "kind": "DOCUMENTATION_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "dummy"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
@@ -208,7 +208,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -223,7 +223,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "value": "x",
                               "trailingMinutiae": [
                                 {
@@ -233,7 +233,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN"
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
@@ -259,7 +259,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -274,7 +274,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_PARAMETER_NAME",
+                              "kind": "PARAMETER_NAME",
                               "value": "y",
                               "trailingMinutiae": [
                                 {
@@ -284,7 +284,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN",
+                              "kind": "MINUS_TOKEN",
                               "isMissing": true
                             },
                             {
@@ -471,10 +471,10 @@
                                   "kind": "DOCUMENTATION_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "with no ending backtick",
                                       "trailingMinutiae": [
                                         {
@@ -484,7 +484,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN",
+                                      "kind": "BACKTICK_TOKEN",
                                       "isMissing": true
                                     }
                                   ]
@@ -560,10 +560,10 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "with no ending backtick",
                                       "trailingMinutiae": [
                                         {
@@ -573,7 +573,7 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN",
+                                      "kind": "BACKTICK_TOKEN",
                                       "isMissing": true
                                     }
                                   ]

@@ -37,14 +37,14 @@
                                   "kind": "DOCUMENTATION_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "dummy content"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN",
+                                      "kind": "BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",
@@ -84,14 +84,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "x"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     }
                                   ]
                                 },
@@ -112,14 +112,14 @@
                                       ]
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN"
+                                      "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_CONTENT",
+                                      "kind": "BACKTICK_CONTENT",
                                       "value": "y"
                                     },
                                     {
-                                      "kind": "DOC_BACKTICK_TOKEN",
+                                      "kind": "BACKTICK_TOKEN",
                                       "trailingMinutiae": [
                                         {
                                           "kind": "END_OF_LINE_MINUTIAE",

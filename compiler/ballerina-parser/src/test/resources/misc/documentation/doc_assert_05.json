@@ -27,7 +27,7 @@
                               "kind": "HASH_TOKEN"
                             },
                             {
-                              "kind": "DOC_PLUS_TOKEN",
+                              "kind": "PLUS_TOKEN",
                               "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -42,7 +42,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_RETURN_KEYWORD",
+                              "kind": "RETURN_KEYWORD",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -51,7 +51,7 @@
                               ]
                             },
                             {
-                              "kind": "DOC_DASH_TOKEN"
+                              "kind": "MINUS_TOKEN"
                             },
                             {
                               "kind": "LIST",
