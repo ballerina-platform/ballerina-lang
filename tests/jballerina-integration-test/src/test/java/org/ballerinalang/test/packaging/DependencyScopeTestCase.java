@@ -170,8 +170,8 @@ public class DependencyScopeTestCase extends BaseTest {
         moduleUtilsBuildLeecher.waitForText(5000);
 
         // Build TestProject3 without adding the provided scope jars to the toml
-        String warningMsg = "warning: wso2/utils:0.1.0 is missing a native library dependency - utils";
-        LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg);
+        String warningMsg = "warning: wso2/utils:0.1.0::utils:1:1: native dependency 'utils.jar' is missing";
+        LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
         moduleFooWarningLeecher.waitForText(5000);
