@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
 import io.ballerinalang.compiler.text.TextDocuments;
@@ -40,8 +39,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -79,9 +76,7 @@ public class BallerinaTriggerModifyUtil {
         String fileName = compilationPath.toFile().getName();
 
         String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument textDocument = TextDocuments.from(fileContent);
-        SyntaxTree oldSyntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
-        TextDocument oldTextDocument = oldSyntaxTree.textDocument();
+        TextDocument oldTextDocument = TextDocuments.from(fileContent);
 
         List<TextEdit> edits =
                 BallerinaTriggerModifyUtil.createTriggerEdits(oldTextDocument, oldTree, type.toUpperCase(), config);
@@ -89,12 +84,8 @@ public class BallerinaTriggerModifyUtil {
         //perform edits
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
-        String updatedSyntaxTreeString = "";
-        SyntaxTree updatedSyntaxTree = null;
         TextDocument newTextDoc = oldTextDocument.apply(textDocumentChange);
-        updatedSyntaxTreeString = newTextDoc.toString();
-        updatedSyntaxTree = SyntaxTree.from(newTextDoc);
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        documentManager.updateFile(compilationPath, newTextDoc.toString());
 
         //remove unused imports
         LSModuleCompiler.getBLangPackage(astContext, documentManager, LSCustomErrorStrategy.class,
@@ -104,14 +95,13 @@ public class BallerinaTriggerModifyUtil {
         UnusedNodeVisitor unusedNodeVisitor = new UnusedNodeVisitor(fileName, new HashMap<>());
         updatedTree.accept(unusedNodeVisitor);
         if (!unusedNodeVisitor.unusedImports().isEmpty()) {
-            TextDocument updatedTextDocument = TextDocuments.from(updatedSyntaxTreeString);
+            TextDocument updatedTextDocument = TextDocuments.from(newTextDoc.toString());
             edits = BallerinaTreeModifyUtil.getUnusedImportRanges(
                     unusedNodeVisitor.unusedImports(), updatedTextDocument);
             textDocumentChange = TextDocumentChange.from(edits.toArray(
                     new TextEdit[0]));
-            updatedSyntaxTree = SyntaxTree.from(updatedSyntaxTree, textDocumentChange);
-            updatedSyntaxTreeString = updatedSyntaxTree.toString();
-            documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+            newTextDoc = newTextDoc.apply(textDocumentChange);
+            documentManager.updateFile(compilationPath, newTextDoc.toString());
         }
 
         //Format bal file code
@@ -121,15 +111,10 @@ public class BallerinaTriggerModifyUtil {
         FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
         formattingUtil.accept(model);
 
-        updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
-        updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        newTextDoc = TextDocuments.from(FormattingSourceGen.getSourceOf(model));
+        documentManager.updateFile(compilationPath, newTextDoc.toString());
 
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
-        File outputFile = compilationPath.toFile();
-        try (FileWriter writer = new FileWriter(outputFile)) {
-            writer.write(updatedSyntaxTreeString);
-        }
+        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, newTextDoc.toString());
         return astContext;
     }
 

@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
@@ -43,8 +42,6 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -189,9 +186,7 @@ public class BallerinaTreeModifyUtil {
         oldTree.accept(unusedNodeVisitor);
 
         String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument textDocument = TextDocuments.from(fileContent);
-        SyntaxTree oldSyntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
-        TextDocument oldTextDocument = oldSyntaxTree.textDocument();
+        TextDocument oldTextDocument = TextDocuments.from(fileContent);
         List<TextEdit> edits =
                 BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
                         oldTextDocument);
@@ -210,9 +205,7 @@ public class BallerinaTreeModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
-        SyntaxTree updatedSyntaxTree = SyntaxTree.from(newTextDocument);
-        String updatedSyntaxTreeString = updatedSyntaxTree.toString();
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        documentManager.updateFile(compilationPath, newTextDocument.toString());
 
         //Format bal file code
         JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
@@ -221,14 +214,9 @@ public class BallerinaTreeModifyUtil {
         FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
         formattingUtil.accept(model);
 
-        updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
-        updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
-        File outputFile = compilationPath.toFile();
-        try (FileWriter writer = new FileWriter(outputFile)) {
-            writer.write(updatedSyntaxTreeString);
-        }
+        String formattedSource = FormattingSourceGen.getSourceOf(model);
+        documentManager.updateFile(compilationPath, formattedSource);
+        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
         return astContext;
     }
 
