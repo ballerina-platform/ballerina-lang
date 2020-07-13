@@ -3749,13 +3749,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
-        // Contextually expected type is NoType when `var` is used.
-        // Therefore consider the literal as of type RawTemplate
+        // Contextually expected type is NoType when `var` is used. When `var` is used, the literal is considered to
+        // be of type `RawTemplate`.
         if (expType == symTable.noType || containsAnyType(expType)) {
             return symTable.rawTemplateType;
         }
 
-        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType,
+        BType compatibleType = getCompatibleRawTemplateType(expType, rawTemplateLiteral.pos);
+        BType type = types.checkType(rawTemplateLiteral, compatibleType, symTable.rawTemplateType,
                                      DiagnosticCode.INVALID_RAW_TEMPLATE_TYPE);
 
         if (type == symTable.semanticError) {
@@ -3843,6 +3844,32 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return false;
+    }
+
+    private BType getCompatibleRawTemplateType(BType expType, DiagnosticPos pos) {
+        if (expType.tag != TypeTags.UNION) {
+            return expType;
+        }
+
+        BUnionType unionType = (BUnionType) expType;
+        List<BType> compatibleTypes = new ArrayList<>();
+
+        for (BType type : unionType.getMemberTypes()) {
+            if (types.isAssignable(type, symTable.rawTemplateType)) {
+                compatibleTypes.add(type);
+            }
+        }
+
+        if (compatibleTypes.size() == 0) {
+            return expType;
+        }
+
+        if (compatibleTypes.size() > 1) {
+            dlog.error(pos, DiagnosticCode.MULTIPLE_COMPATIBLE_RAW_TEMPLATE_TYPES, symTable.rawTemplateType, expType);
+            return symTable.semanticError;
+        }
+
+        return compatibleTypes.get(0);
     }
 
     @Override

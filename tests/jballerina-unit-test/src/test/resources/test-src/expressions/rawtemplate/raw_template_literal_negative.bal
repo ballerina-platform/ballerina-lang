@@ -154,3 +154,7 @@ public type Temp3 abstract object {
 function testReadonlyFieldMismatch() {
     Temp3 t = `Count:${1}${2}`;
 }
+
+function testAmbiguousTypes() {
+    ob:RawTemplate|Template1 rt = `Count: ${10}, ${20}`;
+}

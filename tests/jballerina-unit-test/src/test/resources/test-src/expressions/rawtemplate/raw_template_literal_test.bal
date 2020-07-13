@@ -263,6 +263,14 @@ function testAnyInUnion() {
     assert(20, <int>rt.insertions[1]);
 }
 
+function testAssignmentToUnion() {
+    Template1|string rt = `Count: ${10}, ${20}`;
+    Template1 t1 = <Template1>rt;
+
+    assert(<string[]>["Count: ", ", ", ""], t1.strings);
+    assert(<int[]>[10, 20], t1.insertions);
+}
+
 // Util functions
 
 function assert(anydata expected, anydata actual) {

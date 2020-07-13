@@ -104,6 +104,10 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "invalid literal for type 'Temp3': raw templates can only be assigned to " +
                 "abstract subtypes of 'ballerina/lang.object:1.0.0:RawTemplate'", 155, 15);
 
+        validateError(errors, indx++, "ambiguous type for raw template: found multiple types compatible with " +
+                "'ballerina/lang.object:1.0.0:RawTemplate' in '(ballerina/lang.object:1.0" +
+                ".0:RawTemplate|Template1)'", 159, 35);
+
         assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -150,7 +154,8 @@ public class RawTemplateLiteralTest {
                 {"testUseWithVar"},
                 {"testUseWithAny"},
                 {"testFixedLengthArrayFields"},
-                {"testAnyInUnion"}
+                {"testAnyInUnion"},
+                {"testAssignmentToUnion"}
         };
     }
 }
