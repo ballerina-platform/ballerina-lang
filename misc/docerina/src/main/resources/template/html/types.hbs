@@ -42,7 +42,11 @@
                             <ul>
                                 <li id="{{ name }}">
                                     <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
+                                    {{#if isTuple}}
+                                    <span class="type">  {{{ typeName this }}}</span></li>
+                                    {{else}}
                                     <span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
+                                    {{/if}}
                                 <li>
                                     {{#if isDeprecated}}
                                         <span class="stab">Deprecated</span>
