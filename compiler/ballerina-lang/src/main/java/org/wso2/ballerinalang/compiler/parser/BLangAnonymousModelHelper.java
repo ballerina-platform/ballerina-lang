@@ -111,7 +111,7 @@ public class BLangAnonymousModelHelper {
     }
 
     public String getNextRawTemplateTypeKey(PackageID packageID, Name rawTemplateTypeName) {
-        Integer nextValue = Optional.ofNullable(rawTemplateTypeCount.get(packageID)).orElse(0);
+        Integer nextValue = rawTemplateTypeCount.getOrDefault(packageID, 0);
         rawTemplateTypeCount.put(packageID, nextValue + 1);
         return RAW_TEMPLATE_TYPE + rawTemplateTypeName.value + "$" + nextValue;
     }
