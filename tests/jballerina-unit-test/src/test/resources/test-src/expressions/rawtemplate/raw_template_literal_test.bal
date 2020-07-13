@@ -240,7 +240,10 @@ function testIndirectAssignmentToConcreteType() {
     assert(<string[]>["Count: ", ", ", ""], rt.strings);
     assert(<int[]>[10, 20, 30], rt.insertions);
 
-    rt2.insertions.push(12.34);
+    error err = <error>trap rt2.insertions.push(12.34);
+
+    assert("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assert("incompatible types: expected 'int', found 'float'", <string>err.detail().get("message"));
 }
 
 type CompatibleObj object {
@@ -251,7 +254,10 @@ type CompatibleObj object {
 function testModifyStringsField() {
     Template1 rt = `Count: ${10}, ${20}`;
     CompatibleObj rt2 = rt;
-    rt2.strings.push("Invalid");
+    error err = <error>trap rt2.strings.push("Invalid");
+
+    assert("{ballerina/lang.array}InvalidUpdate", err.message());
+    assert("modification not allowed on readonly value", <string>err.detail().get("message"));
 }
 
 function testAnyInUnion() {
