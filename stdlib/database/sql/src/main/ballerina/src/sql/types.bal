@@ -417,14 +417,14 @@ public type ParameterizedCallQuery abstract object {
 
 # Object that is used to return stored procedure call results
 public type ProcedureCallResult object {
-    ExecutionResult? executionResult = ();
-    stream<record {}, Error>? queryResult = ();
+    public ExecutionResult? executionResult = ();
+    public stream<record {}, Error>? queryResult = ();
 
-    function getNextQueryResult() returns boolean {
+    public function getNextQueryResult() returns boolean {
         return getNextQueryResult(self);
     }
 
-    function close() returns Error? {
+    public function close() returns Error? {
         return closeCallResult(self);
     }
 };
