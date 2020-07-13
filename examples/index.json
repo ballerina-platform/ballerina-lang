@@ -1081,7 +1081,7 @@
             },
             {
                 "name": "Consumer Groups",
-                "url": "kafka-group_service"
+                "url": "kafka-group-service"
             },
             {
                 "name": "SASL Authentication - Consumer",
