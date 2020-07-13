@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaEnumDefinitionImpl extends ASTWrapperPsiElement implements BallerinaEnumDefinition {
+public class BallerinaRecoverableEnumContentImpl extends ASTWrapperPsiElement implements BallerinaRecoverableEnumContent {
 
-  public BallerinaEnumDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaRecoverableEnumContentImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitEnumDefinition(this);
+    visitor.visitRecoverableEnumContent(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,27 +43,9 @@ public class BallerinaEnumDefinitionImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
-  @Nullable
-  public BallerinaEnumBody getEnumBody() {
-    return findChildByClass(BallerinaEnumBody.class);
-  }
-
-  @Override
   @NotNull
-  public PsiElement getEnum() {
-    return findNotNullChildByType(ENUM);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
+  public PsiElement getAssign() {
+    return findNotNullChildByType(ASSIGN);
   }
 
 }

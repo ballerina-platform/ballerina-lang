@@ -68,7 +68,19 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitTypeName(o);
   }
 
+  public void visitEmptyEnumBody(@NotNull BallerinaEmptyEnumBody o) {
+    visitPsiElement(o);
+  }
+
+  public void visitEnumBody(@NotNull BallerinaEnumBody o) {
+    visitPsiElement(o);
+  }
+
   public void visitEnumDefinition(@NotNull BallerinaEnumDefinition o) {
+    visitTopLevelDefinition(o);
+  }
+
+  public void visitEnumMember(@NotNull BallerinaEnumMember o) {
     visitPsiElement(o);
   }
 
@@ -145,6 +157,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitMethodDefinition(@NotNull BallerinaMethodDefinition o) {
+    visitPsiElement(o);
+  }
+
+  public void visitMultiMemberEnumBody(@NotNull BallerinaMultiMemberEnumBody o) {
     visitPsiElement(o);
   }
 
@@ -260,6 +276,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
+  public void visitRecoverableEnumContent(@NotNull BallerinaRecoverableEnumContent o) {
+    visitPsiElement(o);
+  }
+
   public void visitRecoverableOpenRecordContent(@NotNull BallerinaRecoverableOpenRecordContent o) {
     visitPsiElement(o);
   }
@@ -301,6 +321,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitSimpleTypeName(@NotNull BallerinaSimpleTypeName o) {
+    visitPsiElement(o);
+  }
+
+  public void visitSingleMemberEnumBody(@NotNull BallerinaSingleMemberEnumBody o) {
     visitPsiElement(o);
   }
 

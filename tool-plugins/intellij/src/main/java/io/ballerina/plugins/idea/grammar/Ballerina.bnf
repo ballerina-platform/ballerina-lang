@@ -102,7 +102,7 @@
     extends("(DistinctSimple|Array|Nullable|Union|Group|Tuple|Object|Table|Intersection|InclusiveRecord|ExclusiveRecord)TypeName|BinaryAndExpression") = TypeName
 
     // This is to identify top level elements in a file.
-    implements("(Type|Service|GlobalVariable|Function|Annotation|Constant)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Type|Service|GlobalVariable|Function|Annotation|Constant|Enum)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
 
     generateTokenAccessors = true
 }
@@ -273,14 +273,21 @@ private GlobalVariableDefinitionRecover ::= !(SEMICOLON)
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                        constant definitions                                                       //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-ConstantDefinition ::= public? const RecoverableConstantContent SEMICOLON  {pin=2}
+ConstantDefinition ::= public? const RecoverableConstantContent SEMICOLON {pin=2}
 RecoverableConstantContent ::= identifier {recoverWhile=ConstantDefinitionRecover}
 private ConstantDefinitionRecover ::= !(SEMICOLON)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                           enum definitions                                                        //
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-EnumDefinition ::= documentationString? AnnotationAttachment* public? enum identifier RecoverableBody {pin=4}
+EnumDefinition ::= public? enum identifier EnumBody {pin=2 recoverWhile=RecoverableBodyContentRecover}
+EnumBody ::= MultiMemberEnumBody | SingleMemberEnumBody | EmptyEnumBody
+MultiMemberEnumBody ::= LEFT_BRACE EnumMember (COMMA EnumMember)+ RIGHT_BRACE {pin=3}
+SingleMemberEnumBody ::= LEFT_BRACE EnumMember RIGHT_BRACE
+EmptyEnumBody ::= LEFT_BRACE RIGHT_BRACE
+EnumMember ::= documentationString? AnnotationAttachment* identifier RecoverableEnumContent {pin=3}
+RecoverableEnumContent ::= ASSIGN {pin=1 recoverWhile=EnumContentRecover}
+private EnumContentRecover ::= !(COMMA|RIGHT_BRACE)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                             annotations                                                           //

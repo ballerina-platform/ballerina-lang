@@ -401,43 +401,102 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // documentationString? AnnotationAttachment* public? enum identifier RecoverableBody
+  // LEFT_BRACE RIGHT_BRACE
+  public static boolean EmptyEnumBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EmptyEnumBody")) return false;
+    if (!nextTokenIs(b, LEFT_BRACE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, LEFT_BRACE, RIGHT_BRACE);
+    exit_section_(b, m, EMPTY_ENUM_BODY, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // MultiMemberEnumBody | SingleMemberEnumBody | EmptyEnumBody
+  public static boolean EnumBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumBody")) return false;
+    if (!nextTokenIs(b, LEFT_BRACE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = MultiMemberEnumBody(b, l + 1);
+    if (!r) r = SingleMemberEnumBody(b, l + 1);
+    if (!r) r = EmptyEnumBody(b, l + 1);
+    exit_section_(b, m, ENUM_BODY, r);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // !(COMMA|RIGHT_BRACE)
+  static boolean EnumContentRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumContentRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !EnumContentRecover_0(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // COMMA|RIGHT_BRACE
+  private static boolean EnumContentRecover_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumContentRecover_0")) return false;
+    boolean r;
+    r = consumeToken(b, COMMA);
+    if (!r) r = consumeToken(b, RIGHT_BRACE);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // public? enum identifier EnumBody
   public static boolean EnumDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "EnumDefinition")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, ENUM_DEFINITION, "<enum definition>");
     r = EnumDefinition_0(b, l + 1);
-    r = r && EnumDefinition_1(b, l + 1);
-    r = r && EnumDefinition_2(b, l + 1);
     r = r && consumeTokens(b, 1, ENUM, IDENTIFIER);
-    p = r; // pin = 4
-    r = r && RecoverableBody(b, l + 1);
+    p = r; // pin = 2
+    r = r && EnumBody(b, l + 1);
+    exit_section_(b, l, m, r, p, RecoverableBodyContentRecover_parser_);
+    return r || p;
+  }
+
+  // public?
+  private static boolean EnumDefinition_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumDefinition_0")) return false;
+    consumeToken(b, PUBLIC);
+    return true;
+  }
+
+  /* ********************************************************** */
+  // documentationString? AnnotationAttachment* identifier RecoverableEnumContent
+  public static boolean EnumMember(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumMember")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ENUM_MEMBER, "<enum member>");
+    r = EnumMember_0(b, l + 1);
+    r = r && EnumMember_1(b, l + 1);
+    r = r && consumeToken(b, IDENTIFIER);
+    p = r; // pin = 3
+    r = r && RecoverableEnumContent(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // documentationString?
-  private static boolean EnumDefinition_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "EnumDefinition_0")) return false;
+  private static boolean EnumMember_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumMember_0")) return false;
     documentationString(b, l + 1);
     return true;
   }
 
   // AnnotationAttachment*
-  private static boolean EnumDefinition_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "EnumDefinition_1")) return false;
+  private static boolean EnumMember_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "EnumMember_1")) return false;
     while (true) {
       int c = current_position_(b);
       if (!AnnotationAttachment(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "EnumDefinition_1", c)) break;
+      if (!empty_element_parsed_guard_(b, "EnumMember_1", c)) break;
     }
-    return true;
-  }
-
-  // public?
-  private static boolean EnumDefinition_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "EnumDefinition_2")) return false;
-    consumeToken(b, PUBLIC);
     return true;
   }
 
@@ -952,6 +1011,48 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     boolean r;
     r = consumeToken(b, REMOTE);
     if (!r) r = consumeToken(b, RESOURCE);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // LEFT_BRACE EnumMember (COMMA EnumMember)+ RIGHT_BRACE
+  public static boolean MultiMemberEnumBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MultiMemberEnumBody")) return false;
+    if (!nextTokenIs(b, LEFT_BRACE)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, MULTI_MEMBER_ENUM_BODY, null);
+    r = consumeToken(b, LEFT_BRACE);
+    r = r && EnumMember(b, l + 1);
+    r = r && MultiMemberEnumBody_2(b, l + 1);
+    p = r; // pin = 3
+    r = r && consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // (COMMA EnumMember)+
+  private static boolean MultiMemberEnumBody_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MultiMemberEnumBody_2")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = MultiMemberEnumBody_2_0(b, l + 1);
+    while (r) {
+      int c = current_position_(b);
+      if (!MultiMemberEnumBody_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "MultiMemberEnumBody_2", c)) break;
+    }
+    exit_section_(b, m, null, r);
+    return r;
+  }
+
+  // COMMA EnumMember
+  private static boolean MultiMemberEnumBody_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "MultiMemberEnumBody_2_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, COMMA);
+    r = r && EnumMember(b, l + 1);
+    exit_section_(b, m, null, r);
     return r;
   }
 
@@ -1541,6 +1642,17 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // ASSIGN
+  public static boolean RecoverableEnumContent(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecoverableEnumContent")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, RECOVERABLE_ENUM_CONTENT, "<recoverable enum content>");
+    r = consumeToken(b, ASSIGN);
+    exit_section_(b, l, m, r, false, EnumContentRecover_parser_);
+    return r;
+  }
+
+  /* ********************************************************** */
   // any
   public static boolean RecoverableOpenRecordContent(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RecoverableOpenRecordContent")) return false;
@@ -1750,6 +1862,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, TYPEDESC);
     if (!r) r = NilLiteral(b, l + 1);
     exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // LEFT_BRACE EnumMember RIGHT_BRACE
+  public static boolean SingleMemberEnumBody(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "SingleMemberEnumBody")) return false;
+    if (!nextTokenIs(b, LEFT_BRACE)) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, LEFT_BRACE);
+    r = r && EnumMember(b, l + 1);
+    r = r && consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, m, SINGLE_MEMBER_ENUM_BODY, r);
     return r;
   }
 
@@ -3184,6 +3310,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   static final Parser ConstantDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return ConstantDefinitionRecover(b, l + 1);
+    }
+  };
+  static final Parser EnumContentRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return EnumContentRecover(b, l + 1);
     }
   };
   static final Parser ExprFuncBodyRecover_parser_ = new Parser() {
