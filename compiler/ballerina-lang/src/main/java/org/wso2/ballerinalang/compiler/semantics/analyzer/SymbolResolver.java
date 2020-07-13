@@ -1270,7 +1270,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private BType getTypedescParamValueType(List<BLangSimpleVariable> params, BSymbol varSym) {
         for (BLangSimpleVariable param : params) {
             if (param.name.value.equals(varSym.name.value)) {
-                if (param.expr == null) {
+                if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return ((BTypedescType) varSym.type).constraint;
                 }
 

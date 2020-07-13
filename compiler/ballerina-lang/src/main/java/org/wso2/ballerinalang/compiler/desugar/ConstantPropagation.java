@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
@@ -924,6 +925,11 @@ public class ConstantPropagation extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferTypedescExpr inferTypedescExpr) {
+        result = inferTypedescExpr;
+    }
+
+    @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
 
         if (varRefExpr.symbol == null) {
@@ -942,7 +948,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
             // from a simple literal
             if (constSymbol.literalType.tag <= TypeTags.BOOLEAN || constSymbol.literalType.tag == TypeTags.NIL) {
                 BLangConstRef constRef = ASTBuilderUtil.createBLangConstRef(varRefExpr.pos, constSymbol.literalType,
-                        constSymbol.value.value);
+                                                                            constSymbol.value.value);
                 constRef.variableName = varRefExpr.variableName;
                 constRef.symbol = constSymbol;
                 constRef.pkgAlias = varRefExpr.pkgAlias;

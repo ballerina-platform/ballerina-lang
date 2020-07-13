@@ -1872,6 +1872,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.defaultableParam = true;
+
+                if (varNode.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
+                    symbol.flags |= Flags.INFER;
+                }
             }
             paramSymbols.add(symbol);
         }

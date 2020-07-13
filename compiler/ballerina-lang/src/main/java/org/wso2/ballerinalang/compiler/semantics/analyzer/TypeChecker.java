@@ -108,6 +108,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferTypedescExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -171,6 +172,7 @@ import org.wso2.ballerinalang.compiler.util.NumericLiteralSupport;
 import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -236,6 +238,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private BLangAnonymousModelHelper anonymousModelHelper;
     private SemanticAnalyzer semanticAnalyzer;
     private ResolvedTypeBuilder typeBuilder;
+    private Unifier unifier;
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
     private SymbolEnv narrowedQueryEnv;
@@ -318,6 +321,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = Unifier.getInstance(context);
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -3840,6 +3844,15 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferTypedescExpr inferTypedescExpr) {
+        if (expType.tag != TypeTags.TYPEDESC) {
+            dlog.error(inferTypedescExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, symTable.typeDesc);
+            resultType = symTable.semanticError;
+        }
+        resultType = expType;
+    }
+
+    @Override
     public void visit(BLangNamedArgsExpression bLangNamedArgsExpression) {
         resultType = checkExpr(bLangNamedArgsExpression.expr, env, expType);
         bLangNamedArgsExpression.type = bLangNamedArgsExpression.expr.type;
@@ -4956,7 +4969,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
         if (Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)
                 && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.build(retType, iExpr);
+//            retType = typeBuilder.build(retType, iExpr);
+            retType = unifier.build(retType, expType, iExpr);
         }
 
         if (iExpr instanceof ActionNode && ((BLangInvocation.BLangActionInvocation) iExpr).async) {
