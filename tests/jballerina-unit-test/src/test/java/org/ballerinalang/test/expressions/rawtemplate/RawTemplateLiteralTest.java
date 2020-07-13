@@ -20,7 +20,6 @@ package org.ballerinalang.test.expressions.rawtemplate;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -119,20 +118,6 @@ public class RawTemplateLiteralTest {
         assertEquals(errors.getErrorCount(), 1);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp =
-                  ".*InherentTypeViolation message=incompatible types: expected 'int', found 'float'.*")
-    public void testIndirectAssignmentToConcreteType() {
-        BRunUtil.invoke(result, "testIndirectAssignmentToConcreteType");
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp =
-                  ".*InvalidUpdate message=modification not allowed on readonly value.*")
-    public void testModifyStringsField() {
-        BRunUtil.invoke(result, "testModifyStringsField");
-    }
-
     @Test(dataProvider = "FunctionNames")
     public void testRawTemplateLiteral(String func) {
         BRunUtil.invoke(result, func);
@@ -155,7 +140,9 @@ public class RawTemplateLiteralTest {
                 {"testUseWithAny"},
                 {"testFixedLengthArrayFields"},
                 {"testAnyInUnion"},
-                {"testAssignmentToUnion"}
+                {"testAssignmentToUnion"},
+                {"testIndirectAssignmentToConcreteType"},
+                {"testModifyStringsField"}
         };
     }
 }
