@@ -27,6 +27,7 @@ function testReadonlyRecordFields() {
     testSubTypingWithReadOnlyFields();
     testSubTypingWithReadOnlyFieldsViaReadOnlyType();
     testSubTypingWithReadOnlyFieldsNegative();
+    testIsCheckWithReadOnlyFieldsPositiveComposite();
 }
 
 type Student record {
@@ -356,6 +357,106 @@ function testSubTypingWithReadOnlyFieldsNegative() {
     assertTrue(grad is Graduate);
     assertFalse(undergrad is Person);
     assertFalse(grad is Person);
+}
+
+const HUNDRED = 100;
+
+type Baz record {|
+    HUNDRED i;
+    float|string f;
+    boolean b;
+    object {} a1;
+    json a2;
+    decimal d?;
+    () ad;
+    map<int>|boolean[] u;
+    readonly r;
+    Quuz q;
+    string|int...;
+|};
+
+type Qux record {|
+    readonly string|int i;
+    float f;
+    readonly boolean b?;
+    readonly int|Quux a1;
+    readonly any a2;
+    readonly int[] d?;
+    readonly anydata ad;
+    readonly map<any> u;
+    readonly int[] r;
+    readonly anydata|object {} q;
+    readonly json z;
+    string...;
+|};
+
+type Quux abstract object {
+    map<string> m;
+
+    function getMap() returns map<string>;
+};
+
+type Quuz record {|
+    int i;
+    float f;
+|};
+
+type ReadonlyQuux readonly object {
+    map<string> & readonly m;
+
+    function init(map<string> & readonly m) {
+        self.m = m;
+    }
+
+    function getMap() returns map<string> & readonly {
+        return self.m;
+    }
+};
+
+function testIsCheckWithReadOnlyFieldsPositiveComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    any a = b;
+    assertTrue(a is Qux);
+    assertTrue(a is Baz);
+
+    Baz f = <Baz> a;
+    assertEquality(HUNDRED, f.i);
+    assertEquality(12.0, f.f);
+    assertTrue(f.b);
+    assertTrue(f["a1"] is ReadonlyQuux);
+    assertEquality(<map<string>> {a: "hello", b: "world"}, (<ReadonlyQuux> f["a1"]).getMap());
+    assertEquality("anydata value", f["a2"]);
+    assertEquality((), f?.d);
+    assertEquality((), f.ad);
+    assertTrue(f.u is map<int> & readonly);
+    assertEquality(<map<int>> {a: 1, b: 2}, f.u);
+    assertTrue(f.r is int[] & readonly);
+    assertEquality(arr, f.r);
+    assertEquality(rec, f.q);
+    assertEquality(<Quuz> {i: 123, f: 988.42}, f.q);
+    assertEquality((), f["y"]);
+    assertEquality(1111, f["z"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
