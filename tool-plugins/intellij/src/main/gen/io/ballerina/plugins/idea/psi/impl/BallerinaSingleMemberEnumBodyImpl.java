@@ -27,14 +27,14 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import com.intellij.extapi.psi.ASTWrapperPsiElement;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaEnumDefinitionImpl extends ASTWrapperPsiElement implements BallerinaEnumDefinition {
+public class BallerinaSingleMemberEnumBodyImpl extends ASTWrapperPsiElement implements BallerinaSingleMemberEnumBody {
 
-  public BallerinaEnumDefinitionImpl(@NotNull ASTNode node) {
+  public BallerinaSingleMemberEnumBodyImpl(@NotNull ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitEnumDefinition(this);
+    visitor.visitSingleMemberEnumBody(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,27 +43,21 @@ public class BallerinaEnumDefinitionImpl extends ASTWrapperPsiElement implements
   }
 
   @Override
-  @Nullable
-  public BallerinaEnumBody getEnumBody() {
-    return findChildByClass(BallerinaEnumBody.class);
+  @NotNull
+  public BallerinaEnumMember getEnumMember() {
+    return findNotNullChildByClass(BallerinaEnumMember.class);
   }
 
   @Override
   @NotNull
-  public PsiElement getEnum() {
-    return findNotNullChildByType(ENUM);
+  public PsiElement getLeftBrace() {
+    return findNotNullChildByType(LEFT_BRACE);
   }
 
   @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getPublic() {
-    return findChildByType(PUBLIC);
+  @NotNull
+  public PsiElement getRightBrace() {
+    return findNotNullChildByType(RIGHT_BRACE);
   }
 
 }

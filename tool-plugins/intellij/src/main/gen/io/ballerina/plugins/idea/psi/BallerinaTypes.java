@@ -49,7 +49,10 @@ public interface BallerinaTypes {
   IElementType DOCUMENTATION_TEXT_CONTENT = new BallerinaCompositeElementType("DOCUMENTATION_TEXT_CONTENT");
   IElementType DOC_PARAMETER_DESCRIPTION = new BallerinaCompositeElementType("DOC_PARAMETER_DESCRIPTION");
   IElementType DOUBLE_BACKTICKED_BLOCK = new BallerinaCompositeElementType("DOUBLE_BACKTICKED_BLOCK");
+  IElementType EMPTY_ENUM_BODY = new BallerinaCompositeElementType("EMPTY_ENUM_BODY");
+  IElementType ENUM_BODY = new BallerinaCompositeElementType("ENUM_BODY");
   IElementType ENUM_DEFINITION = new BallerinaCompositeElementType("ENUM_DEFINITION");
+  IElementType ENUM_MEMBER = new BallerinaCompositeElementType("ENUM_MEMBER");
   IElementType ERROR_TYPE_NAME = new BallerinaCompositeElementType("ERROR_TYPE_NAME");
   IElementType EXCLUSIVE_RECORD_TYPE_NAME = new BallerinaCompositeElementType("EXCLUSIVE_RECORD_TYPE_NAME");
   IElementType EXPR_FUNCTION_BODY_SPEC = new BallerinaCompositeElementType("EXPR_FUNCTION_BODY_SPEC");
@@ -69,6 +72,7 @@ public interface BallerinaTypes {
   IElementType MAP_TYPE_NAME = new BallerinaCompositeElementType("MAP_TYPE_NAME");
   IElementType METHOD_DECLARATION = new BallerinaCompositeElementType("METHOD_DECLARATION");
   IElementType METHOD_DEFINITION = new BallerinaCompositeElementType("METHOD_DEFINITION");
+  IElementType MULTI_MEMBER_ENUM_BODY = new BallerinaCompositeElementType("MULTI_MEMBER_ENUM_BODY");
   IElementType NAMESPACE_DECLARATION = new BallerinaCompositeElementType("NAMESPACE_DECLARATION");
   IElementType NAME_REFERENCE = new BallerinaCompositeElementType("NAME_REFERENCE");
   IElementType NESTED_ANNOTATION_ATTACHMENT = new BallerinaCompositeElementType("NESTED_ANNOTATION_ATTACHMENT");
@@ -100,6 +104,7 @@ public interface BallerinaTypes {
   IElementType RECOVERABLE_BODY_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_BODY_CONTENT");
   IElementType RECOVERABLE_CLOSE_RECORD_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_CLOSE_RECORD_CONTENT");
   IElementType RECOVERABLE_CONSTANT_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_CONSTANT_CONTENT");
+  IElementType RECOVERABLE_ENUM_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_ENUM_CONTENT");
   IElementType RECOVERABLE_OPEN_RECORD_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_OPEN_RECORD_CONTENT");
   IElementType RECOVERABLE_PARAMETER_CONTENT = new BallerinaCompositeElementType("RECOVERABLE_PARAMETER_CONTENT");
   IElementType RECOVERABLE_RETURN_TYPE = new BallerinaCompositeElementType("RECOVERABLE_RETURN_TYPE");
@@ -116,6 +121,7 @@ public interface BallerinaTypes {
   IElementType SERVICE_TYPE_NAME = new BallerinaCompositeElementType("SERVICE_TYPE_NAME");
   IElementType SIMPLE_TYPE_NAME = new BallerinaCompositeElementType("SIMPLE_TYPE_NAME");
   IElementType SINGLE_BACKTICKED_BLOCK = new BallerinaCompositeElementType("SINGLE_BACKTICKED_BLOCK");
+  IElementType SINGLE_MEMBER_ENUM_BODY = new BallerinaCompositeElementType("SINGLE_MEMBER_ENUM_BODY");
   IElementType STREAM_TYPE_NAME = new BallerinaCompositeElementType("STREAM_TYPE_NAME");
   IElementType TABLE_KEY_CONSTRAINT = new BallerinaCompositeElementType("TABLE_KEY_CONSTRAINT");
   IElementType TABLE_KEY_SPECIFIER = new BallerinaCompositeElementType("TABLE_KEY_SPECIFIER");
@@ -428,8 +434,17 @@ public interface BallerinaTypes {
       else if (type == DOUBLE_BACKTICKED_BLOCK) {
         return new BallerinaDoubleBacktickedBlockImpl(node);
       }
+      else if (type == EMPTY_ENUM_BODY) {
+        return new BallerinaEmptyEnumBodyImpl(node);
+      }
+      else if (type == ENUM_BODY) {
+        return new BallerinaEnumBodyImpl(node);
+      }
       else if (type == ENUM_DEFINITION) {
         return new BallerinaEnumDefinitionImpl(node);
+      }
+      else if (type == ENUM_MEMBER) {
+        return new BallerinaEnumMemberImpl(node);
       }
       else if (type == ERROR_TYPE_NAME) {
         return new BallerinaErrorTypeNameImpl(node);
@@ -487,6 +502,9 @@ public interface BallerinaTypes {
       }
       else if (type == METHOD_DEFINITION) {
         return new BallerinaMethodDefinitionImpl(node);
+      }
+      else if (type == MULTI_MEMBER_ENUM_BODY) {
+        return new BallerinaMultiMemberEnumBodyImpl(node);
       }
       else if (type == NAMESPACE_DECLARATION) {
         return new BallerinaNamespaceDeclarationImpl(node);
@@ -581,6 +599,9 @@ public interface BallerinaTypes {
       else if (type == RECOVERABLE_CONSTANT_CONTENT) {
         return new BallerinaRecoverableConstantContentImpl(node);
       }
+      else if (type == RECOVERABLE_ENUM_CONTENT) {
+        return new BallerinaRecoverableEnumContentImpl(node);
+      }
       else if (type == RECOVERABLE_OPEN_RECORD_CONTENT) {
         return new BallerinaRecoverableOpenRecordContentImpl(node);
       }
@@ -628,6 +649,9 @@ public interface BallerinaTypes {
       }
       else if (type == SINGLE_BACKTICKED_BLOCK) {
         return new BallerinaSingleBacktickedBlockImpl(node);
+      }
+      else if (type == SINGLE_MEMBER_ENUM_BODY) {
+        return new BallerinaSingleMemberEnumBodyImpl(node);
       }
       else if (type == STREAM_TYPE_NAME) {
         return new BallerinaStreamTypeNameImpl(node);

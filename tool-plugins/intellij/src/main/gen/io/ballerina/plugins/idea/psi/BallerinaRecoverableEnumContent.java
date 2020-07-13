@@ -20,20 +20,10 @@ package io.ballerina.plugins.idea.psi;
 import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
-import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 
-public interface BallerinaEnumDefinition extends BallerinaTopLevelDefinition {
-
-  @Nullable
-  BallerinaEnumBody getEnumBody();
+public interface BallerinaRecoverableEnumContent extends PsiElement {
 
   @NotNull
-  PsiElement getEnum();
-
-  @Nullable
-  PsiElement getIdentifier();
-
-  @Nullable
-  PsiElement getPublic();
+  PsiElement getAssign();
 
 }
