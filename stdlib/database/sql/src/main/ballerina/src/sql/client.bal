@@ -50,7 +50,7 @@ public type Client abstract client object {
     #            can be accessed as `(<sql:BatchExecuteError> result).detail()?.executionResults`.
     public remote function batchExecute(@untainted ParameterizedQuery[] sqlQueries) returns ExecutionResult[]|Error;
 
-    public remote function call(@untainted ParameterizedCallQuery sqlQuery, typedesc<record {}>[]? rowTypes = ())
+    public remote function call(@untainted ParameterizedCallQuery sqlQuery, typedesc<record {}>[] rowTypes = [])
     returns ProcedureCallResult|Error;
 
     # Close the SQL client.

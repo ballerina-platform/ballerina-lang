@@ -18,13 +18,14 @@
 
 package org.ballerinalang.sql.utils;
 
+import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * This class holds the utility methods involved with executing the call statements.
  */
 public class CallUtils {
-    public static Object nativeCall(ObjectValue client, ObjectValue paramSQLString, Object recordTypes) {
+    public static Object nativeCall(ObjectValue client, ObjectValue paramSQLString, ArrayValue recordTypes) {
         return null;
     }
 }
