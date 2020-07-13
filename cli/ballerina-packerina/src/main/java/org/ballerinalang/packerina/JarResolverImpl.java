@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
+import org.ballerinalang.packerina.model.DependencyJar;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
@@ -306,9 +307,11 @@ public class JarResolverImpl implements JarResolver {
     }
 
     private void validateBaloDependencies(PackageID packageID, HashSet<Path> platformLibs, Path importDependencyPath) {
+        buildContext.missedJarMap.put(packageID, new DependencyJar());
         Manifest manifestFromBalo = RepoUtils.getManifestFromBalo(importDependencyPath);
         List<Library> baloDependencies = manifestFromBalo.getPlatform().libraries;
         HashSet<Path> baloCompileScopeDependencies = new HashSet<>();
+        DependencyJar jar = buildContext.missedJarMap.get(packageID);
         if (baloDependencies == null) {
             return;
         }
@@ -321,8 +324,7 @@ public class JarResolverImpl implements JarResolver {
 
         for (Path baloTomlLib : baloCompileScopeDependencies) {
             if (!platformLibs.contains(baloTomlLib)) {
-                buildContext.out().println("warning: " + packageID + " is missing a native library dependency - " +
-                        baloTomlLib);
+                jar.nativeLibs.add(baloTomlLib);
             }
         }
     }
