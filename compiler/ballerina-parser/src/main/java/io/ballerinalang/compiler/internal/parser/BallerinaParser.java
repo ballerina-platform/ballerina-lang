@@ -12996,8 +12996,18 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseDocumentationContentString() {
         STToken nextToken = consume();
-        TextDocument textDocument = TextDocuments.from(nextToken.toString());
-        AbstractTokenReader tokenReader = new TokenReader(new DocumentationLexer(textDocument.getCharacterReader()));
+        STNode leadingTrivia = nextToken.leadingMinutiae();
+        int bucketCount = leadingTrivia.bucketCount();
+
+        List<STNode> leadingTriviaList = new ArrayList<>();
+        for (int i = 0; i < bucketCount; i++) {
+            leadingTriviaList.add(nextToken.leadingMinutiae().childInBucket(i));
+        }
+
+        TextDocument textDocument = TextDocuments.from(nextToken.text());
+        AbstractTokenReader tokenReader = new TokenReader(new DocumentationLexer(textDocument.getCharacterReader(),
+                leadingTriviaList));
+
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
         return documentationParser.parse();
     }

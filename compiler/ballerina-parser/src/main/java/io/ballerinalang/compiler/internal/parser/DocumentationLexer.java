@@ -33,8 +33,9 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
-    public DocumentationLexer(CharReader charReader) {
+    public DocumentationLexer(CharReader charReader, List<STNode> leadingTriviaList) {
         super(charReader, ParserMode.DEFAULT);
+        this.leadingTriviaList = leadingTriviaList;
     }
 
     /**
@@ -67,7 +68,7 @@ public class DocumentationLexer extends AbstractLexer {
                 token = readDocumentationBacktickContentToken();
                 break;
             case DEFAULT:
-                processLeadingTrivia();
+                processLeadingTrivia2();
                 token = readToken();
                 break;
             default:
@@ -172,6 +173,13 @@ public class DocumentationLexer extends AbstractLexer {
      */
     private void processLeadingTrivia() {
         this.leadingTriviaList = new ArrayList<>(10);
+        processSyntaxTrivia(this.leadingTriviaList, true);
+    }
+
+    /**
+     * Process leading trivia.
+     */
+    private void processLeadingTrivia2() {
         processSyntaxTrivia(this.leadingTriviaList, true);
     }
 
@@ -307,6 +315,7 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(0);
         STNode trailingTrivia = processTrailingTrivia();
         // Check for the end of line minutiae and terminate the current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
@@ -319,6 +328,7 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(0);
         // We reach here only for the hash token, minus token and backtick token in the documentation mode.
         // Trivia for those tokens can only be an end of line.
         // Rest of the trivia after that belongs to the documentation description or the backtick content.
@@ -339,6 +349,7 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationLiteral(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(0);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         // Check for the end of line minutiae and terminate the current documentation mode.
@@ -352,6 +363,7 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getTemplateString(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        this.leadingTriviaList = new ArrayList<>(0);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
