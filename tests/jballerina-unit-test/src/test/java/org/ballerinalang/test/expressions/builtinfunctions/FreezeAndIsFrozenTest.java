@@ -44,9 +44,6 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  * @since 0.985.0
  */
 public class FreezeAndIsFrozenTest {
-
-    private static final String FREEZE_ERROR_OCCURRED_ERR_MSG =
-            "error occurred on freeze: 'freeze()' not allowed on 'PersonObj'";
     private static final String FREEZE_SUCCESSFUL = "freeze successful";
 
     private CompileResult result;
