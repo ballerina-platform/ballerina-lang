@@ -67,6 +67,12 @@ public class ErrorTest {
     }
 
     @Test
+    public void testFunctionCallInDetailArgExpr() {
+        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFunctionCallInDetailArgExpr");
+        Assert.assertEquals(errors[0].stringValue(), "Concurrent graph modification {code:\"1234\", details:{}}");
+    }
+
+    @Test
     public void testNegativeDistinctError() {
         int i = 0;
         BAssertUtil.validateError(negativeDistinctErrorRes, i++,

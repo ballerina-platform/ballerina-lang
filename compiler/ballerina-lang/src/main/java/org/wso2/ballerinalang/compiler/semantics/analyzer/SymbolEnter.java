@@ -1533,8 +1533,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                         .orElse(symTable.detailType);
 
-                BErrorType errorType = (BErrorType) typeDef.symbol.type;
-                errorType.detailType = detailType;
+                ((BErrorType) typeDef.symbol.type).detailType = detailType;
             } else if (typeDef.typeNode.type != null && typeDef.typeNode.type.tag == TypeTags.ERROR) {
                 BType type = symResolver.resolveTypeNode(typeDef.typeNode, pkgEnv);
                 ((BErrorType) typeDef.symbol.type).detailType = ((BErrorType) type).detailType;
