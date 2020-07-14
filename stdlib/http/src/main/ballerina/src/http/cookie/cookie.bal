@@ -230,7 +230,7 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     string cookieValue = cookieStringValue;
     string[] nameValuePairs = stringutils:split(cookieValue, SEMICOLON + SPACE);
     foreach var item in nameValuePairs {
-        if (stringutils:contains(item, EQUALS)) {
+        if (stringutils:matches(item, "^([^=]+)=.*$")) {
             string[] nameValue = stringutils:split(item, EQUALS);
             Cookie cookie;
             if (nameValue.length() > 1) {
