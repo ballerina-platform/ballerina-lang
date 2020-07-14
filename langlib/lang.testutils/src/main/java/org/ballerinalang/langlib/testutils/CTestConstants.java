@@ -33,6 +33,7 @@ public class CTestConstants {
     public static final String TEST_CALLFUNCTION_TAG = "callFunction";
     public static final String TEST_GROUP_TAG = "test-group";
     public static final String TEST_GROUPS_TAG = "tests-groups";
+    public static final String TEST_NEGATIVE_TAG = "nFile";
     public static final String TEST_NAME_TAG = "name";
     public static final String TEST_RETURN_TAG = "return";
     public static final String TEST_ERROR_TAG = "error";

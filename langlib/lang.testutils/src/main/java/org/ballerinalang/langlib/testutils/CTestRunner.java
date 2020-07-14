@@ -24,9 +24,16 @@ import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.Reader;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +52,10 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class CTestRunner {
+    public static final String FILE_READ_ERROR = "An error occurred while reading the file ";
+    public static final String BAL_EXTENSION = ".bal";
+    public static final String OUT_FILE_EXTENSION = ".out";
+    public static final String FAILED_STATUS = " failed! \n";
     private static final PrintStream outStream = System.out;
     private static final PrintStream errStream = System.err;
 
@@ -68,17 +79,25 @@ public class CTestRunner {
         }
     }
 
-    public void invokeTests(CTests cTests) {
+    public static void invokeTests(CTests cTests) {
         ArrayList<ReportDetails> records = new ArrayList<ReportDetails>();
-        if (cTests.getTestFunctions().size() == 0) {
+        if (cTests.getTestFunctions().size() == 0 && !cTests.isNegativeTestFlag()) {
             outStream.println("\tNo tests steps found\n");
             return;
         }
         CompileResult compileResult = BCompileUtil.compile(cTests.getPath());
-        if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
-            // TODO: implement function for negative tests
-            throw new RuntimeException(cTests.getPath() + " compilation failed! \n" + compileResult);
-        } else {
+        if (cTests.isNegativeTestFlag()) {
+            if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
+                String filePath = cTests.getPath().replace(BAL_EXTENSION, OUT_FILE_EXTENSION);
+                validateError(compileResult, cTests.getDescription(), filePath, records);
+            } else {
+                CTestSuite.failedTestCount++;
+                errStream.println(cTests.getPath() + FAILED_STATUS);
+            }
+        } else if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
+            CTestSuite.failedTestCount++;
+            errStream.println(cTests.getPath() + FAILED_STATUS + compileResult.toString());
+        }  else {
             for (TestFunction testFunction : cTests.getTestFunctions()) {
                 ReportDetails reportDetails = new ReportDetails();
                 reportDetails.setClassName(cTests.getPath());
@@ -96,7 +115,7 @@ public class CTestRunner {
                     returnValue = e.getCause().toString();
                 }
                 if (failFlag) {
-                    outStream.println(cTests.getPath() + " -> " + testFunction.getFunctionName() + "failed \n"
+                    outStream.println(cTests.getPath() + " -> " + testFunction.getFunctionName() + FAILED_STATUS
                             + returnValue);
                 }
                 long endTime = System.currentTimeMillis();
@@ -106,13 +125,16 @@ public class CTestRunner {
                 if (returnValue.equals(CTestConstants.TEST_PASSED_STATUS)) {
                     reportDetails.setTestStatus(CTestConstants.TEST_PASSED_STATUS);
                 } else {
+                    CTestSuite.failedTestCount++;
                     reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
                 }
                 records.add(reportDetails);
             }
         }
         //generate Html report
-        GenerateHtmlReportForTest.generateReport(cTests.getTestName(), records);
+        if (records.size() > 0) {
+            GenerateHtmlReportForTest.generateReport(cTests.getTestName(), records);
+        }
     }
 
     public static String invokeTestSteps(CompileResult compileResult, TestFunction testFunction,
@@ -137,7 +159,7 @@ public class CTestRunner {
     private static String invokeFunction(CompileResult compileResult, String functionName) {
         Object[] status = BRunUtil.cInvoke(compileResult, functionName, new Object[0], true);
         if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
-            CTestSuite.failedTestCount++;
+            status[0] = GenerateHtmlReportForTest.getDiff(status[0].toString());
         } else {
             status[0] = CTestConstants.TEST_PASSED_STATUS;
         }
@@ -158,7 +180,7 @@ public class CTestRunner {
                 status[1] = CTestConstants.TEST_FAILED_STATUS;
             }
             if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
-                CTestSuite.failedTestCount++;
+                status[0] = GenerateHtmlReportForTest.getDiff(status[0].toString());
                 break;
             } else {
                 status[0] = CTestConstants.TEST_PASSED_STATUS;
@@ -235,10 +257,9 @@ public class CTestRunner {
         String[] pStatus = new String[1];
         Object[] parameters = getJvmParamTypes(paramType, paramValue, pStatus);
         if (pStatus[0] != null) {
-            errStream.println(functionDetails[0] + " -> " + functionDetails[1] + " failed! \n" + pStatus[0]);
+            errStream.println(functionDetails[0] + " -> " + functionDetails[1] + FAILED_STATUS + pStatus[0]);
             parameters[0] = pStatus[0];
             status[0] = false;
-            CTestSuite.failedTestCount++;
         }
         return parameters;
     }
@@ -247,14 +268,16 @@ public class CTestRunner {
     private static String validateResult(Object actualValue, List<Map<String, String>> assertVariable,
                                          String[] functionDetails, String status) {
         String returnValue = null;
-        if (status.equals(CTestConstants.TEST_FAILED_STATUS)) {
-            CTestSuite.failedTestCount++;
-        } else {
+        if (!status.equals(CTestConstants.TEST_FAILED_STATUS)) {
             // check if the param type is valid
             boolean[] pStatus = {true};
             Object[] expectedValue = getJvmParams(assertVariable, pStatus, functionDetails);
             if (pStatus[0]) {
                 returnValue = assertValueEqual(actualValue, expectedValue[0], functionDetails);
+                if (returnValue != null && expectedValue[0] != null && actualValue != null) {
+                    returnValue = GenerateHtmlReportForTest.getDiff(expectedValue[0].toString(),
+                            actualValue.toString());
+                }
             } else {
                 returnValue = expectedValue[0].toString();
             }
@@ -302,8 +325,7 @@ public class CTestRunner {
         if (!TypeChecker.isEqual(expected, actual)) {
             msg = CTestConstants.TEST_FAIL_REASON +
                     " expected: [" + expected + "] but found: [" + actual + "]";
-            errStream.println(functionDetails[0] + "-> " + functionDetails[1] + " failed \n " + msg);
-            CTestSuite.failedTestCount++;
+            errStream.println(functionDetails[0] + "-> " + functionDetails[1] + FAILED_STATUS + msg);
         }
         return msg;
     }
@@ -326,10 +348,56 @@ public class CTestRunner {
         finished = exec.awaitTermination(60, TimeUnit.SECONDS);
         if (!finished) {
             exec.shutdownNow();
-            outStream.println(functionClassName + " => " + testFunction.getFunctionName() + " failed! ");
+            outStream.println(functionClassName + " => " + testFunction.getFunctionName() + FAILED_STATUS);
             throw new RuntimeException("Time limit exceeded.");
         }
         return future.get();
+    }
+
+    public static void validateError(CompileResult result, String className, String outFilePath,
+                                     ArrayList<ReportDetails> records) {
+        ReportDetails reportDetails = new ReportDetails();
+        reportDetails.setClassName(className);
+        reportDetails.setFunctionName(className);
+        long startTime = System.currentTimeMillis();
+        String actual = result.toString().replace("Compilation Failed:\n", "");
+        boolean[] status = {true};
+        String expected =  outFileReader(outFilePath, status);
+        if (status[0]) {
+            if (expected.equals(actual)) {
+                reportDetails.setTestStatus(CTestConstants.TEST_PASSED_STATUS);
+            } else {
+                reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+                CTestSuite.failedTestCount++;
+                errStream.println(className + FAILED_STATUS + CTestConstants.TEST_FAIL_REASON +
+                        " expected: [" + expected + "] but found: [" + actual + "]");
+                reportDetails.setStackTrace(GenerateHtmlReportForTest.getDiff(expected, actual));
+            }
+        } else {
+            reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+            CTestSuite.failedTestCount++;
+            reportDetails.setStackTrace(FILE_READ_ERROR + outFilePath);
+        }
+        long endTime = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        reportDetails.setExecutionTime(String.valueOf(totalTime));
+        records.add(reportDetails);
+    }
+
+    private static String outFileReader(String filePath, boolean[] status) {
+        StringBuilder outFileContent = new StringBuilder();
+        try (InputStream in = new FileInputStream(filePath);
+             Reader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
+             BufferedReader br = new BufferedReader(reader)) {
+            String currentLine;
+            while ((currentLine = br.readLine()) != null) {
+                outFileContent.append(currentLine).append("\n");
+            }
+        } catch (IOException e) {
+            status[0] = false;
+            errStream.println(FILE_READ_ERROR + filePath);
+        }
+        return outFileContent.toString();
     }
 }
 

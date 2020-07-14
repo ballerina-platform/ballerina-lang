@@ -31,6 +31,16 @@ public class CTests {
     private String testName;
     private String description;
     private String path;
+    private boolean negativeTestFlag = false;
+
+    public void setNegativeTestFlag() {
+        this.negativeTestFlag = true;
+    }
+
+    public boolean isNegativeTestFlag() {
+        return this.negativeTestFlag;
+    }
+
     private List<TestFunction> testFunctions = new ArrayList<>();
 
     public String getTestName() {

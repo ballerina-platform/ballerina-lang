@@ -52,18 +52,18 @@ public class TestMain {
         XMLValue xmlValue = readXml(testSuitePath);
         if (xmlValue != null) {
             InitializeTestSuite.extractPath(xmlValue, cTestSuite, absPath);
-            testSuiteInitilizer(cTestSuite);
+            testSuiteInitilizer(cTestSuite, absPath);
         } else {
             CTestSuite.failedTestCount++;
         }
     }
 
-    public static void testSuiteInitilizer(CTestSuite cTestSuite) {
+    public static void testSuiteInitilizer(CTestSuite cTestSuite, String absPath) {
         for (String groupPath : cTestSuite.getPaths()) {
             CTestGroup cTestGroup = new CTestGroup();
             XMLValue xmlValue = readXml(groupPath);
             if (xmlValue != null) {
-                InitializeTestSuite.fillGroup(xmlValue, cTestGroup);
+                InitializeTestSuite.fillGroup(xmlValue, cTestGroup, absPath);
                 cTestSuite.setTestGroup(cTestGroup);
             } else {
                 CTestSuite.failedTestCount++;

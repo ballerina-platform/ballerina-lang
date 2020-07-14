@@ -37,7 +37,7 @@ import java.util.Map;
 public class InitializeTestSuite {
 
     // Function For parsing Test-Group info
-    public static void fillGroup(XMLValue xmlValue, CTestGroup cTestGroup) {
+    public static void fillGroup(XMLValue xmlValue, CTestGroup cTestGroup, String absPath) {
         cTestGroup.setName(getAttributeValue(xmlValue.getAttributesMap()));
         XMLValue elements = xmlValue.children();
         for (int i = 0; i < elements.size(); i++) {
@@ -48,7 +48,7 @@ public class InitializeTestSuite {
                 } else if (subElement.getElementName().equals(CTestConstants.TEST_TAG)) {
                     CTests cTests = new CTests();
                     cTests.setTestName(getAttributeValue(subElement.getAttributesMap()));
-                    fillTest(subElement, cTests);
+                    fillTest(subElement, cTests, absPath);
                     cTestGroup.addTests(cTests);
                 }
             }
@@ -66,7 +66,7 @@ public class InitializeTestSuite {
     }
 
     // Function For parsing Test info
-    public static void fillTest(XMLValue xmlvalue, CTests cTests) {
+    public static void fillTest(XMLValue xmlvalue, CTests cTests, String absPath) {
         XMLValue testElements = xmlvalue.children();
         for (int i = 0; i < testElements.size(); i++) {
             XMLValue testArgs = testElements.getItem(i);
@@ -75,10 +75,14 @@ public class InitializeTestSuite {
                     cTests.setDescription(testArgs.children().toString());
                 } else if (testArgs.getElementName().equals(CTestConstants.TEST_FILE_TAG)) {
                     cTests.setPathName(testArgs.children().toString());
+                } else if (testArgs.getElementName().equals(CTestConstants.TEST_NEGATIVE_TAG)) {
+                    cTests.setNegativeTestFlag();
+                    String path = absPath + testArgs.children().toString();
+                    cTests.setPathName(path);
                 } else if (testArgs.getElementName().equals(CTestConstants.TEST_CALLFUNCTION_TAG)) {
                     cTests.addTestFunctions(callerfunction(testArgs));
                 } else {
-                    fillTest(testArgs, cTests);
+                    fillTest(testArgs, cTests, absPath);
                 }
             }
         }
@@ -126,7 +130,8 @@ public class InitializeTestSuite {
             if (param.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
                 Map<String, String> params = new HashMap<>();
                 String typeOfElem = param.getElementName();
-                String elementVal = param.children().toString();
+                //replace \n with the newline character
+                String elementVal = param.children().toString().replace("\\n", "\n");
                 params.put(typeOfElem, elementVal);
                 paramList.add(params);
             }

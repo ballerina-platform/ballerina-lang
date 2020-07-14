@@ -111,7 +111,7 @@ public class GenerateHtmlReportForTest {
                 writer
                         .append("<h3 class=\"failures\">" + reportDetails.getFunctionName() + "</h3>\n")
                         .append("<div style=\"width:100%;overflow:auto;background-color: #f7f7f7\" >\n")
-                        .append("<pre>" + getDiff(reportDetails.getStackTrace()) + "</pre>\n")
+                        .append("<pre>" + reportDetails.getStackTrace() + "</pre>\n")
                         .append("</div>\n");
             }
         }
@@ -131,7 +131,9 @@ public class GenerateHtmlReportForTest {
             String str1 = message.substring(i1 + 10, i2);
             String str2 = "";
             if (message.contains("\n")) {
-                str2 = message.substring(i2 + 12, message.indexOf("\n"));
+                if (message.indexOf("\n") > i2 + 12) {
+                    str2 = message.substring(i2 + 12, message.indexOf("\n"));
+                }
             } else {
                 str2 = message.substring(i2 + 12);
             }
@@ -141,6 +143,15 @@ public class GenerateHtmlReportForTest {
             message = message.replace(str1, textDiffHighlighter.leftStr);
             message = message.replace(str2, textDiffHighlighter.rightStr);
         }
+        return message;
+    }
+
+    public static String getDiff(String str1, String str2) {
+        StringsComparator comparator = new StringsComparator(str1, str2);
+        TextDiffHighlighter textDiffHighlighter = new TextDiffHighlighter();
+        comparator.getScript().visit(textDiffHighlighter);
+        String message = CTestConstants.TEST_FAIL_REASON + " expected: [" + textDiffHighlighter.leftStr +
+                "] but found: [" + textDiffHighlighter.rightStr + "]";
         return message;
     }
 }
