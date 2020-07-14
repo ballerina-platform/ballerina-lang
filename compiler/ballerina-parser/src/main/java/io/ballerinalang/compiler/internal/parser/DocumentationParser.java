@@ -43,7 +43,7 @@ public class DocumentationParser extends AbstractParser {
 
     @Override
     public STNode parse() {
-        return parseDocumentationString();
+        return parseDocumentationLines();
     }
 
     @Override
@@ -52,23 +52,23 @@ public class DocumentationParser extends AbstractParser {
     }
 
     /**
-     * Parse documentation string.
+     * Parse documentation lines.
      * <p>
      * <code>
-     * DocumentationString :=
+     * DocumentationLine :=
      *          ( DocumentationLine
      *          | ReferenceDocumentationLine
      *          | DeprecationDocumentationLine
      *          | ParameterDocumentationLine
      *          | ReturnParameterDocumentationLine
-     *          | InvalidDocumentationLine ) +
+     *          | InvalidDocumentationLine )
      * </code>
      * <p>
-     * Refer {@link BallerinaLexer#readDocumentationToken}
+     * Refer {@link DocumentationLexer}
      *
      * @return Parsed node
      */
-    private STNode parseDocumentationString() {
+    private STNode parseDocumentationLines() {
         List<STNode> docLines = new ArrayList<>();
         STToken nextToken = peek();
         while (nextToken.kind == SyntaxKind.HASH_TOKEN) {
@@ -108,7 +108,7 @@ public class DocumentationParser extends AbstractParser {
         docElements.add(0, deprecationLiteral);
 
         STNode docElementList = STNodeFactory.createNodeList(docElements);
-        return createDeprecationDocumentationLineNode(hashToken, docElementList);
+        return createMarkdownDeprecationDocumentationLineNode(hashToken, docElementList);
     }
 
     /**
@@ -124,15 +124,15 @@ public class DocumentationParser extends AbstractParser {
         switch (docElements.size()) {
             case 0:
                 // When documentation line is only a `#` token
-                return createDocumentationLineNode(hashToken, docElementList);
+                return createMarkdownDocumentationLineNode(hashToken, docElementList);
             case 1:
                 STNode docElement = docElements.get(0);
                 if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    return createDocumentationLineNode(hashToken, docElementList);
+                    return createMarkdownDocumentationLineNode(hashToken, docElementList);
                 }
                 // Else fall through
             default:
-                return createReferenceDocumentationLineNode(hashToken, docElementList);
+                return createMarkdownReferenceDocumentationLineNode(hashToken, docElementList);
         }
     }
 
@@ -200,13 +200,13 @@ public class DocumentationParser extends AbstractParser {
 
         SyntaxKind kind;
         if (parameterName.kind == SyntaxKind.RETURN_KEYWORD) {
-            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
+            kind = SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
         } else {
-            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
+            kind = SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE;
         }
 
-        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, dashToken,
-                docElementList);
+        return STNodeFactory.createMarkdownParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName,
+                dashToken, docElementList);
     }
 
     private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
@@ -281,18 +281,18 @@ public class DocumentationParser extends AbstractParser {
         }
     }
 
-    private STNode createDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
+    private STNode createMarkdownDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE, hashToken,
                 documentationElements);
     }
 
-    private STNode createDeprecationDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DEPRECATION_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
+    private STNode createMarkdownDeprecationDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE,
+                hashToken, documentationElements);
     }
 
-    private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
+    private STNode createMarkdownReferenceDocumentationLineNode(STNode hashToken, STNode documentationElements) {
+        return STNodeFactory.createMarkdownDocumentationLineNode(SyntaxKind.MARKDOWN_REFERENCE_DOCUMENTATION_LINE,
+                hashToken, documentationElements);
     }
 }

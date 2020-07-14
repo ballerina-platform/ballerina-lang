@@ -1307,7 +1307,7 @@ public class BallerinaLexer extends AbstractLexer {
     }
 
     /**
-     * Process and return documentation content string.
+     * Process and return documentation string.
      * <p>
      * <code>
      * DocumentationContentString := ( BlankSpace* # [DocumentationContent] )+
@@ -1321,7 +1321,7 @@ public class BallerinaLexer extends AbstractLexer {
      * Tab := 0x9
      * </code>
      *
-     * @return Documentation content string token
+     * @return Documentation string token
      */
     private STToken processDocumentationContentString() {
         int nextChar = peek();
@@ -1366,7 +1366,7 @@ public class BallerinaLexer extends AbstractLexer {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0)); // No trailing trivia
-        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_CONTENT_STRING, lexeme, leadingTrivia,
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_STRING, lexeme, leadingTrivia,
                 trailingTrivia);
     }
 

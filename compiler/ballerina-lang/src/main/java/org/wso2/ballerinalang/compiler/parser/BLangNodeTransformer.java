@@ -42,9 +42,7 @@ import io.ballerinalang.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerinalang.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerinalang.compiler.syntax.tree.DistinctTypeDescriptorNode;
-import io.ballerinalang.compiler.syntax.tree.DocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.DocumentationReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
 import io.ballerinalang.compiler.syntax.tree.ElseBlockNode;
 import io.ballerinalang.compiler.syntax.tree.EnumDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.EnumMemberNode;
@@ -98,6 +96,9 @@ import io.ballerinalang.compiler.syntax.tree.LockStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.MappingFieldNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.MatchClauseNode;
 import io.ballerinalang.compiler.syntax.tree.MatchStatementNode;
 import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
@@ -121,7 +122,6 @@ import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.ParenthesisedTypeDescriptorNode;
@@ -4137,8 +4137,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Optional<Node> documentationStringNode) {
-        if (!documentationStringNode.isPresent()) {
+    private BLangMarkdownDocumentation createMarkdownDocumentationAttachment(Optional<Node> markdownDocumentationNode) {
+        if (!markdownDocumentationNode.isPresent()) {
             return null;
         }
         BLangMarkdownDocumentation doc = (BLangMarkdownDocumentation) TreeBuilder.createMarkdownDocumentationNode();
@@ -4147,14 +4147,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LinkedList<BLangMarkdownParameterDocumentation> parameters = new LinkedList<>();
         LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
 
-        NodeList<Node> docLineList = ((DocumentationStringNode) documentationStringNode.get()).documentationLines();
+        NodeList<Node> docLineList = ((MarkdownDocumentationNode) markdownDocumentationNode.get()).documentationLines();
         BLangMarkdownParameterDocumentation bLangParaDoc = null;
         BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc = null;
         for (Node singleDocLine : docLineList) {
             switch (singleDocLine.kind()) {
-                case DOCUMENTATION_LINE:
-                case REFERENCE_DOCUMENTATION_LINE:
-                    DocumentationLineNode docLineNode = (DocumentationLineNode) singleDocLine;
+                case MARKDOWN_DOCUMENTATION_LINE:
+                case MARKDOWN_REFERENCE_DOCUMENTATION_LINE:
+                    MarkdownDocumentationLineNode docLineNode = (MarkdownDocumentationLineNode) singleDocLine;
                     NodeList<Node> docElements = docLineNode.documentElements();
                     String docText = addReferencesAndReturnDocumentationText(references, docElements);
 
@@ -4172,10 +4172,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         documentationLines.add(bLangDocLine);
                     }
                     break;
-                case PARAMETER_DOCUMENTATION_LINE:
+                case MARKDOWN_PARAMETER_DOCUMENTATION_LINE:
                     bLangParaDoc = new BLangMarkdownParameterDocumentation();
-                    ParameterDocumentationLineNode parameterDocLineNode =
-                            (ParameterDocumentationLineNode) singleDocLine;
+                    MarkdownParameterDocumentationLineNode parameterDocLineNode =
+                            (MarkdownParameterDocumentationLineNode) singleDocLine;
 
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
@@ -4189,10 +4189,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangParaDoc.pos = getPosition(parameterName);
                     parameters.add(bLangParaDoc);
                     break;
-                case RETURN_PARAMETER_DOCUMENTATION_LINE:
+                case MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE:
                     bLangReturnParaDoc = new BLangMarkdownReturnParameterDocumentation();
-                    ParameterDocumentationLineNode returnParaDocLineNode =
-                            (ParameterDocumentationLineNode) singleDocLine;
+                    MarkdownParameterDocumentationLineNode returnParaDocLineNode =
+                            (MarkdownParameterDocumentationLineNode) singleDocLine;
 
                     NodeList<Node> returnParaDocElements = returnParaDocLineNode.documentElements();
                     String returnParaDocText =
@@ -4202,10 +4202,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLangReturnParaDoc.pos = getPosition(returnParaDocLineNode);
                     doc.returnParameter = bLangReturnParaDoc;
                     break;
-                case DEPRECATION_DOCUMENTATION_LINE:
+                case MARKDOWN_DEPRECATION_DOCUMENTATION_LINE:
                     BLangMarkDownDeprecationDocumentation bLangDeprecationDoc =
                             new BLangMarkDownDeprecationDocumentation();
-                    DocumentationLineNode deprecationDocLineNode = (DocumentationLineNode) singleDocLine;
+                    MarkdownDocumentationLineNode deprecationDocLineNode =
+                            (MarkdownDocumentationLineNode) singleDocLine;
 
                     String lineText = ((Token) deprecationDocLineNode.documentElements().get(0)).text();
                     bLangDeprecationDoc.addDeprecationLine("# " + lineText);

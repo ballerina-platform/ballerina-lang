@@ -34,7 +34,7 @@ import java.util.List;
 public class DocumentationLexer extends AbstractLexer {
 
     public DocumentationLexer(CharReader charReader, List<STNode> leadingTriviaList) {
-        super(charReader, ParserMode.DEFAULT);
+        super(charReader, ParserMode.DOCUMENTATION_INIT);
         this.leadingTriviaList = leadingTriviaList;
     }
 
@@ -47,6 +47,10 @@ public class DocumentationLexer extends AbstractLexer {
     public STToken nextToken() {
         STToken token;
         switch (this.mode) {
+            case DOCUMENTATION_INIT:
+                processLeadingTrivia();
+                token = readDocumentationInitToken();
+                break;
             case DOCUMENTATION:
                 this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationToken();
@@ -67,10 +71,6 @@ public class DocumentationLexer extends AbstractLexer {
                 this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationBacktickContentToken();
                 break;
-            case DEFAULT:
-                processLeadingTrivia2();
-                token = readToken();
-                break;
             default:
                 token = null;
         }
@@ -80,22 +80,6 @@ public class DocumentationLexer extends AbstractLexer {
     /*
      * Private Methods
      */
-
-    private STToken readToken() {
-        reader.mark();
-        if (reader.isEOF()) {
-            return getSyntaxToken(SyntaxKind.EOF_TOKEN);
-        }
-
-        int nextChar = peek();
-        if (nextChar == LexerTerminals.HASH) {
-            reader.advance();
-            startMode(ParserMode.DOCUMENTATION);
-            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.HASH_TOKEN);
-        } else {
-            throw new IllegalStateException("documentation should always start with a hash");
-        }
-    }
 
     /**
      * Returns the next character from the reader, without consuming the stream.
@@ -172,15 +156,15 @@ public class DocumentationLexer extends AbstractLexer {
      * Process leading trivia.
      */
     private void processLeadingTrivia() {
-        this.leadingTriviaList = new ArrayList<>(10);
+        // new leading trivia will be added to the current leading trivia list
         processSyntaxTrivia(this.leadingTriviaList, true);
     }
 
     /**
-     * Process leading trivia.
+     * Reset leading trivia.
      */
-    private void processLeadingTrivia2() {
-        processSyntaxTrivia(this.leadingTriviaList, true);
+    private void resetLeadingTrivia() {
+        this.leadingTriviaList = new ArrayList<>(0);
     }
 
     /**
@@ -197,7 +181,7 @@ public class DocumentationLexer extends AbstractLexer {
     /**
      * Process syntax trivia and add it to the provided list.
      * <p>
-     * <code>syntax-trivia := whitespace | end-of-line | comments</code>
+     * <code>syntax-trivia := whitespace | end-of-line </code>
      *
      * @param triviaList List of trivia
      * @param isLeading Flag indicating whether the currently processing leading trivia or not
@@ -216,12 +200,6 @@ public class DocumentationLexer extends AbstractLexer {
                 case LexerTerminals.NEWLINE:
                     triviaList.add(processEndOfLine());
                     if (isLeading) {
-                        break;
-                    }
-                    return;
-                case LexerTerminals.SLASH:
-                    if (reader.peek(1) == LexerTerminals.SLASH) {
-                        triviaList.add(processComment());
                         break;
                     }
                     return;
@@ -283,41 +261,12 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
-    /**
-     * <p>
-     * Process a comment, and add it to trivia list.
-     * </p>
-     * <code>
-     * Comment := // AnyCharButNewline*
-     * <br/><br/>
-     * AnyCharButNewline := ^ 0xA
-     * </code>
-     */
-    private STNode processComment() {
-        // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
-        reader.advance(2);
-        int nextToken = peek();
-        while (!reader.isEOF()) {
-            switch (nextToken) {
-                case LexerTerminals.NEWLINE:
-                case LexerTerminals.CARRIAGE_RETURN:
-                    break;
-                default:
-                    reader.advance();
-                    nextToken = peek();
-                    continue;
-            }
-            break;
-        }
-
-        return STNodeFactory.createMinutiae(SyntaxKind.COMMENT_MINUTIAE, getLexeme());
-    }
-
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        this.leadingTriviaList = new ArrayList<>(0);
+        resetLeadingTrivia();
+
         STNode trailingTrivia = processTrailingTrivia();
-        // Check for the end of line minutiae and terminate the current documentation mode.
+        // check for end of line minutiae and terminate current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
         if (bucketCount > 0 &&
                 trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
@@ -328,7 +277,8 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        this.leadingTriviaList = new ArrayList<>(0);
+        resetLeadingTrivia();
+
         // We reach here only for the hash token, minus token and backtick token in the documentation mode.
         // Trivia for those tokens can only be an end of line.
         // Rest of the trivia after that belongs to the documentation description or the backtick content.
@@ -339,7 +289,7 @@ public class DocumentationLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.NEWLINE || nextChar == LexerTerminals.CARRIAGE_RETURN) {
             reader.mark();
             triviaList.add(processEndOfLine());
-            // End of line reached, Hence end the documentation mode
+            // end of line reached, hence end documentation mode
             endMode();
         }
 
@@ -349,10 +299,12 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken getDocumentationLiteral(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        this.leadingTriviaList = new ArrayList<>(0);
+        resetLeadingTrivia();
+
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        // Check for the end of line minutiae and terminate the current documentation mode.
+
+        // Check for end of line minutiae and terminate the current documentation mode.
         int bucketCount = trailingTrivia.bucketCount();
         if (bucketCount > 0 &&
                 trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
@@ -361,18 +313,35 @@ public class DocumentationLexer extends AbstractLexer {
         return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getTemplateString(SyntaxKind kind) {
+    private STToken getDocumentationDescriptionToken() {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        this.leadingTriviaList = new ArrayList<>(0);
+        resetLeadingTrivia();
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, lexeme, leadingTrivia,
+                trailingTrivia);
     }
 
-    private STToken getSyntaxToken(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * DOCUMENTATION_INIT Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readDocumentationInitToken() {
+        reader.mark();
+        if (reader.isEOF()) {
+            return getDocumentationSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.HASH) {
+            reader.advance();
+            startMode(ParserMode.DOCUMENTATION);
+            return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.HASH_TOKEN);
+        } else {
+            throw new IllegalStateException("documentation line should always start with a hash");
+        }
     }
 
     /*
@@ -414,8 +383,11 @@ public class DocumentationLexer extends AbstractLexer {
         // There could be spaces and tabs in between.
         lookAheadCount++;
         int lookAheadChar = reader.peek(lookAheadCount);
+
+        int whitespaceCount = 0;
         while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
             lookAheadCount++;
+            whitespaceCount++;
             lookAheadChar = reader.peek(lookAheadCount);
         }
 
@@ -434,11 +406,7 @@ public class DocumentationLexer extends AbstractLexer {
         processLeadingTrivia();
         reader.mark();
         reader.advance(); // Advance reader for #
-        int nextChar = peek();
-        while ((char) nextChar != deprecatedChars[0]) {
-            reader.advance(); // Advance reader for WS
-            nextChar = peek();
-        }
+        reader.advance(whitespaceCount); // Advance reader for WS
         reader.advance(10); // Advance reader for "Deprecated" word
         return getDocumentationLiteral(SyntaxKind.DEPRECATION_LITERAL);
     }
@@ -495,11 +463,10 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         if (getLexeme().isEmpty()) {
-            // Reaching here means,
-            // first immediate character itself belong to a documentation reference.
+            // Reaching here means, first immediate character itself belong to a documentation reference
             return readDocumentationReferenceTypeToken();
         }
-        return getTemplateString(SyntaxKind.DOCUMENTATION_DESCRIPTION);
+        return getDocumentationDescriptionToken();
     }
 
     private void processDocumentationCodeContent(boolean isTripleBacktick) {

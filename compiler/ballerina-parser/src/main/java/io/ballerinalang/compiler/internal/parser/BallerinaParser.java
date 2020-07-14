@@ -672,7 +672,7 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return null;
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
@@ -3246,7 +3246,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode metadata = parseMetaData(nextTokenKind);
@@ -4850,7 +4850,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
             case AS_KEYWORD:
             case IN_KEYWORD:
@@ -5284,7 +5284,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -5979,7 +5979,7 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
                 return false;
             case EOF_TOKEN:
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
@@ -6538,7 +6538,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -7099,8 +7099,8 @@ public class BallerinaParser extends AbstractParser {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-            case DOCUMENTATION_CONTENT_STRING:
-                docString = parseDocumentationContentString();
+            case DOCUMENTATION_STRING:
+                docString = parseMarkdownDocumentation();
                 annotations = parseAnnotations();
                 break;
             case AT_TOKEN:
@@ -10126,7 +10126,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
             case RESOURCE_KEYWORD:
             case LISTENER_KEYWORD:
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case PRIVATE_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -11415,7 +11415,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode metadata;
         switch (nextToken.kind) {
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextToken.kind);
                 break;
@@ -12994,26 +12994,45 @@ public class BallerinaParser extends AbstractParser {
         return errorCode;
     }
 
-    private STNode parseDocumentationContentString() {
+    /**
+     * Parse markdown documentation.
+     *
+     * @return markdown documentation node
+     */
+    private STNode parseMarkdownDocumentation() {
+        List<STNode> markdownDocLineList = new ArrayList<>();
 
-        List<STNode> multiLines = new ArrayList<>();
+        // With multi-line documentation, there could be more than one documentation string.
+        // e.g.
+        // # line1 (this is captured as one documentation string)
+        //
+        // # line2 (this is captured as another documentation string)
         STToken nextToken = peek();
-        while (nextToken.kind == SyntaxKind.DOCUMENTATION_CONTENT_STRING) {
-            STToken contentString = consume();
-            STNode parsedDocNode = parseSingleDocumentationContentString(contentString);
-            multiLines.add(parsedDocNode);
+        while (nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
+            STToken documentationString = consume();
+            STNode markdownDocLines = parseDocumentationString(documentationString);
+            markdownDocLineList.add(markdownDocLines);
             nextToken = peek();
         }
-        STNode arrangedDocLines = rearrangeMultiLines(multiLines);
-        return STNodeFactory.createDocumentationStringNode(arrangedDocLines);
+
+        STNode arrangedMarkdownDocLines = rearrangeMarkdownDocumentationLines(markdownDocLineList);
+        return STNodeFactory.createMarkdownDocumentationNode(arrangedMarkdownDocLines);
     }
 
-    private STNode parseSingleDocumentationContentString(STToken node) {
-        List<STNode> leadingTriviaList = getLeadingTriviaList(node.leadingMinutiae());
-        TextDocument textDocument = TextDocuments.from(node.text());
-        AbstractTokenReader tokenReader = new TokenReader(new DocumentationLexer(textDocument.getCharacterReader(),
-                leadingTriviaList));
+    /**
+     * Parse documentation string.
+     *
+     * @return markdown documentation line list node
+     */
+    private STNode parseDocumentationString(STToken documentationStringToken) {
+        List<STNode> leadingTriviaList = getLeadingTriviaList(documentationStringToken.leadingMinutiae());
+        TextDocument textDocument = TextDocuments.from(documentationStringToken.text());
+
+        DocumentationLexer documentationLexer = new DocumentationLexer(textDocument.getCharacterReader(),
+                leadingTriviaList);
+        AbstractTokenReader tokenReader = new TokenReader(documentationLexer);
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
+
         return documentationParser.parse();
     }
 
@@ -13027,15 +13046,18 @@ public class BallerinaParser extends AbstractParser {
         return leadingTriviaList;
     }
 
-    private STNode rearrangeMultiLines(List<STNode> multiLines) {
-        List<STNode> docLines = new ArrayList<>();
-        for (STNode line : multiLines) {
-            int bucketCount = line.bucketCount();
+    private STNode rearrangeMarkdownDocumentationLines(List<STNode> markdownDocLineList) {
+        List<STNode> arrangedDocLines = new ArrayList<>();
+
+        for (STNode markdownDocLines : markdownDocLineList) {
+            int bucketCount = markdownDocLines.bucketCount();
+
             for (int i = 0; i < bucketCount; i++) {
-                docLines.add(line.childInBucket(i));
+                STNode markdownDocLine = markdownDocLines.childInBucket(i);
+                arrangedDocLines.add(markdownDocLine);
             }
         }
-        return STNodeFactory.createNodeList(docLines);
+        return STNodeFactory.createNodeList(arrangedDocLines);
     }
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------
