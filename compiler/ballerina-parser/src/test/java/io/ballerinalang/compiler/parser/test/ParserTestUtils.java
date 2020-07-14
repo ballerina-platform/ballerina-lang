@@ -373,7 +373,7 @@ public class ParserTestUtils {
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
-            case DOCUMENTATION_CONTENT_STRING:
+            case DOCUMENTATION_STRING:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -1057,8 +1057,6 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_WORKER_DECLARATION;
             case "NAMED_WORKER_DECLARATOR":
                 return SyntaxKind.NAMED_WORKER_DECLARATOR;
-            case "DOCUMENTATION_STRING":
-                return SyntaxKind.DOCUMENTATION_STRING;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
@@ -1185,16 +1183,18 @@ public class ParserTestUtils {
                 return SyntaxKind.TEMPLATE_STRING;
 
             // Documentation
-            case "DOCUMENTATION_LINE":
-                return SyntaxKind.DOCUMENTATION_LINE;
-            case "REFERENCE_DOCUMENTATION_LINE":
-                return SyntaxKind.REFERENCE_DOCUMENTATION_LINE;
-            case "PARAMETER_DOCUMENTATION_LINE":
-                return SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
-            case "RETURN_PARAMETER_DOCUMENTATION_LINE":
-                return SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-            case "DEPRECATION_DOCUMENTATION_LINE":
-                return SyntaxKind.DEPRECATION_DOCUMENTATION_LINE;
+            case "MARKDOWN_DOCUMENTATION":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION;
+            case "MARKDOWN_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
+            case "MARKDOWN_REFERENCE_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_REFERENCE_DOCUMENTATION_LINE;
+            case "MARKDOWN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
@@ -1205,8 +1205,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BACKTICK_CONTENT;
             case "DEPRECATION_LITERAL":
                 return SyntaxKind.DEPRECATION_LITERAL;
-            case "DOCUMENTATION_CONTENT_STRING":
-                return SyntaxKind.DOCUMENTATION_CONTENT_STRING;
+            case "DOCUMENTATION_STRING":
+                return SyntaxKind.DOCUMENTATION_STRING;
 
             // Trivia
             case "EOF_TOKEN":

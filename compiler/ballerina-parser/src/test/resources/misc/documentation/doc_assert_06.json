@@ -15,13 +15,13 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -44,7 +44,7 @@
                           ]
                         },
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -67,7 +67,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -96,7 +96,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -125,7 +125,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -154,7 +154,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -183,7 +183,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -206,7 +206,7 @@
                           ]
                         },
                         {
-                          "kind": "DEPRECATION_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"

@@ -15,13 +15,13 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -44,7 +44,7 @@
                           ]
                         },
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
@@ -62,7 +62,7 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -141,7 +141,7 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -220,7 +220,7 @@
                           ]
                         },
                         {
-                          "kind": "PARAMETER_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_PARAMETER_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN"
@@ -379,13 +379,13 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "REFERENCE_DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_REFERENCE_DOCUMENTATION_LINE",
                           "children": [
                             {
                               "kind": "HASH_TOKEN",
