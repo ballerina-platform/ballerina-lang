@@ -2672,6 +2672,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnTypes.peek().add(exprType);
+        validateActionParentNode(failExpr.pos, failExpr);
     }
 
     @Override
