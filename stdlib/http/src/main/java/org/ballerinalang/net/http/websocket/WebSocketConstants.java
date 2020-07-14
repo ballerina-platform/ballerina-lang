@@ -79,7 +79,6 @@ public class WebSocketConstants {
     public static final BString CLIENT_URL_CONFIG = StringUtils.fromString("url");
     public static final BString CLIENT_SERVICE_CONFIG = StringUtils.fromString("callbackService");
     public static final BString CLIENT_CUSTOM_HEADERS_CONFIG = StringUtils.fromString("customHeaders");
-    public static final BString COOKIES = StringUtils.fromString("cookies");
     public static final BString CLIENT_READY_ON_CONNECT = StringUtils.fromString("readyOnConnect");
     public static final BString WEBSOCKET_UPGRADE_SERVICE_CONFIG = StringUtils.fromString("upgradeService");
 
