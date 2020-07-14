@@ -2616,16 +2616,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTransactionalExpr(BallerinaParser.TransactionalExprContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#failExpr}.
-	 * @param ctx the parse tree
-	 */
-	void enterFailExpr(BallerinaParser.FailExprContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#failExpr}.
-	 * @param ctx the parse tree
-	 */
-	void exitFailExpr(BallerinaParser.FailExprContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#commitAction}.
 	 * @param ctx the parse tree
 	 */

@@ -894,10 +894,6 @@ transactionalExpr
     :   TRANSACTIONAL
     ;
 
-failExpr
-    :   FAIL expression
-    ;
-
 commitAction
     :   COMMIT
     ;
