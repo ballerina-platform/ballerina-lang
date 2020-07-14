@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.exception.LSConnectorException;
+import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
@@ -61,6 +62,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -223,6 +225,33 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName(), request.getDisplayName(), ast, error);
         return CompletableFuture.supplyAsync(() -> response);
+    }
+
+    @Override
+    public CompletableFuture<BallerinaRecordResponse> record(BallerinaRecordRequest request) {
+        return null;
+    }
+
+    private BLangPackage getBLangPackage(String orgName, String moduleName, String version)
+            throws LSConnectorException, LSStdlibCacheException, UnsupportedEncodingException {
+        String cacheableKey = getCacheableKey(orgName, moduleName, version);
+        Path baloPath = getBaloPath(orgName, moduleName, version);
+        boolean isExternalModule = baloPath.toString().endsWith(".balo");
+        String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
+        if (isExternalModule) {
+            LSConnectorUtil.extract(baloPath, cacheableKey);
+        } else {
+            Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
+                    resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+            if (!Files.exists(destinationRoot)) {
+                LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
+            }
+            projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
+            moduleName = cacheableKey;
+        }
+        CompilerContext compilerContext = createNewCompilerContext(projectDir);
+        Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
+        return compiler.compile(moduleName);
     }
 
     private void populateConnectorRecords(ValueType type, Map<String, BLangTypeDefinition> records,
