@@ -162,27 +162,37 @@ public type WebSocketFailoverClient client object {
 };
 
 # Configurations for the WebSocket client endpoint.
-# Following fields are inherited from the other configuration records in addition to the Client specific
-# configs.
 #
-# |                                                                              |
-# |:---------------------------------------------------------------------------- |
-# | callbackService - Copied from CommonWebSocketClientConfiguration             |
-# | subProtocols - Copied from CommonWebSocketClientConfiguration                |
-# | customHeaders - Copied from CommonWebSocketClientConfiguration               |
-# | idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |
-# | readyOnConnect - Copied from CommonWebSocketClientConfiguration              |
-# | secureSocket - Copied from CommonWebSocketClientConfiguration                |
-# | maxFrameSize - Copied from CommonWebSocketClientConfiguration                |
-# | webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |
-# | handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |
-# | cookieConfig - Copied from CommonWebSocketClientConfiguration                |
+# + callbackService - The callback service of the client. Resources in this service gets called on the
+#                     receipt of messages from the server
+# + subProtocols - Negotiable sub protocols of   the client
+# + customHeaders - Custom headers, which should be sent to the server
+# + idleTimeoutInSeconds - Idle timeout of the client. Upon timeout, the `onIdleTimeout` resource (if defined)
+#                          of the client service will be triggered
+# + readyOnConnect - Set to `true` if the client is ready to receive messages as soon as the connection is established
+#                    This is set to `true` by default. If changed to `false`, the ready() function of the
+#                    `WebSocketFailoverClient` needs to be called once to start receiving messages
+# + secureSocket - SSL/TLS-related options
+# + maxFrameSize - The maximum payload size of a WebSocket frame in bytes
+#                  If this is not set, is negative, or is zero, the default frame size of 65536 will be used.
 # + targetUrls - The set of URLs, which are used to connect to the server
 # + failoverIntervalInMillis - The maximum number of milliseconds to delay a failover attempt
+# + webSocketCompressionEnabled - Enable support for compression in the             WebSocket
+# + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
+#                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
+#                               an error. If the value < 0, then the value sets to the default value(300)
 public type WebSocketFailoverClientConfiguration record {|
-    *CommonWebSocketClientConfiguration;
+    service? callbackService = ();
+    string[] subProtocols = [];
+    map<string> customHeaders = {};
+    int idleTimeoutInSeconds = -1;
+    boolean readyOnConnect = true;
+    ClientSecureSocket? secureSocket = ();
+    int maxFrameSize = 0;
     string[] targetUrls = [];
     int failoverIntervalInMillis = 1000;
+    boolean webSocketCompressionEnabled = true;
+    int handShakeTimeoutInSeconds = 300;
 |};
 
 function externFailoverInit(WebSocketFailoverClient wsClient) = @java:Method {
