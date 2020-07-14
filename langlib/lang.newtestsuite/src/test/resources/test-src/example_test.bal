@@ -56,8 +56,8 @@ function testAbs() returns decimal {
     return d1;
 }
 
-function sum(){
-    test:assertEquals(24, 24);
+function sum(int a) returns int {
+    return a + 10;
 }
 
 function testFail(){

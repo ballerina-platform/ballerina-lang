@@ -1213,8 +1213,7 @@ public class BRunUtil {
         return invoke(compileResult, function, functionName, new BValue[0], new Class<?>[0]);
     }
 
-    public static Object[] cInvoke(CompileResult compileResult, String functionName, Object[] args,
-                                   Class<?>[] paramTypes, boolean panicFlag) {
+    public static Object[] cInvoke(CompileResult compileResult, String functionName, Object[] args, boolean panicFlag) {
         Object[] jvmResult = new Object[2];
         BIRNode.BIRFunction function = null;
         //if the function name is invalid, mark it as failed
@@ -1227,22 +1226,17 @@ public class BRunUtil {
         }
         if (function != null) {
             args = addDefaultableBoolean(args);
-            paramTypes = addDefaultableBooleanType(paramTypes);
-            jvmResult = cInvoke(compileResult, function, functionName, args, paramTypes, panicFlag);
+            jvmResult = cInvoke(compileResult, function, functionName, args, panicFlag);
         }
         return jvmResult;
     }
 
     private static Object[] cInvoke(CompileResult compileResult, BIRNode.BIRFunction function, String functionName,
-                                    Object[] args, Class<?>[] paramTypes, boolean panicFlag) {
-        assert args.length == paramTypes.length;
-        Class<?>[] jvmParamTypes = new Class[paramTypes.length + 1];
-        jvmParamTypes[0] = Strand.class;
+                                    Object[] args, boolean panicFlag) {
         Object[] jvmArgs = new Object[args.length + 1];
 
         for (int i = 0; i < args.length; i++) {
             jvmArgs[i + 1] = args[i];
-            jvmParamTypes[i + 1] = paramTypes[i];
         }
 
         Object[] jvmResult = new Object[2];

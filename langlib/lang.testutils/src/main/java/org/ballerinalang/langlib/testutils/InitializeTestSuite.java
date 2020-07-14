@@ -95,20 +95,20 @@ public class InitializeTestSuite {
             if (xmlElemnets.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
                 if (xmlElemnets.getElementName().equals(CTestConstants.TEST_PARAMETERS_TAG)) {
                     paramList = getFunctionParams(xmlElemnets);
-                    testFunction.addParameterList(paramList);
+                    testFunction.addDataProvider(paramList);
                     testFunction.setParamFlag();
                 } else if (xmlElemnets.getElementName().equals(CTestConstants.TEST_ASSERT_TAG)) {
                     XMLValue xmlElment = xmlElemnets.children().getItem(1);
                     if (xmlElment.getElementName().equals(CTestConstants.TEST_ERROR_TAG)) {
                         paramList = getFunctionParams(xmlElemnets);
-                        testFunction.addAssertVal(paramList);
+                        testFunction.addAssertDataProvider(paramList);
                         testFunction.unSetPanicFlag();
                     } else if (xmlElment.getElementName().equals(CTestConstants.TEST_RETURN_TAG)) {
                         paramList = getFunctionParams(xmlElment.children());
-                        testFunction.addAssertVal(paramList);
+                        testFunction.addAssertDataProvider(paramList);
                     } else {
                         paramList = getFunctionParams(xmlElemnets);
-                        testFunction.addAssertVal(paramList);
+                        testFunction.addAssertDataProvider(paramList);
                     }
                     testFunction.setAssertParamFlag();
                 }

@@ -20,9 +20,24 @@
                         </return>
                     </assert>
                 </callFunction>
-                <callFunction name="testValueAssignment">
-                </callFunction>
+                <callFunction name="testValueAssignment"/>
                 <callFunction name="sum">
+                    <parameters>
+                        <int>10</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>20</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>2</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>12</int>
+                        </return>
+                    </assert>
                 </callFunction>
             </run>
         </steps>

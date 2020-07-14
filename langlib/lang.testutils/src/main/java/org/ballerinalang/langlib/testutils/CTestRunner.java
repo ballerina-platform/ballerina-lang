@@ -19,9 +19,7 @@ package org.ballerinalang.langlib.testutils;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.types.BNullType;
 import org.ballerinalang.jvm.values.DecimalValue;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
@@ -87,21 +85,19 @@ public class CTestRunner {
                 reportDetails.setFunctionName(testFunction.getFunctionName());
                 long startTime = System.currentTimeMillis();
                 boolean failFlag = false;
-                String returnValue = null;
-                String errCause = null;
+                String returnValue;
                 try {
                     returnValue = invokeWithTimeoutWithExecutor(compileResult, testFunction, cTests.getPath());
                 } catch (ExecutionException e) {
                     failFlag = true;
-                    errCause = e.getCause().toString();
+                    returnValue = e.getCause().toString();
                 } catch (InterruptedException e) {
                     failFlag = true;
-                    errCause = e.getCause().toString();
+                    returnValue = e.getCause().toString();
                 }
                 if (failFlag) {
-                    returnValue = CTestConstants.TEST_FAILED_STATUS;
                     outStream.println(cTests.getPath() + " -> " + testFunction.getFunctionName() + "failed \n"
-                            + errCause);
+                            + returnValue);
                 }
                 long endTime = System.currentTimeMillis();
                 long totalTime = endTime - startTime;
@@ -122,23 +118,24 @@ public class CTestRunner {
     public static String invokeTestSteps(CompileResult compileResult, TestFunction testFunction,
                                          String functionClassName) {
         String functionName = testFunction.getFunctionName();
-        String returnValue = null;
+        String returnValue;
         if (!testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
             returnValue = invokeFunction(compileResult, functionName);
         } else if (!testFunction.isAssertParamFlag() && testFunction.isParamFlag()) {
-            returnValue = invokeFunctionWithParam(compileResult, functionName, testFunction.getParameters());
+            returnValue = invokeFunctionWithParam(compileResult, functionName, functionClassName,
+                    testFunction.getDataProvider());
         } else if (testFunction.isAssertParamFlag() && !testFunction.isParamFlag()) {
-            returnValue = invokeFunctionWithAssert(compileResult, functionName,
-                    functionClassName, testFunction.getAssertVal(), testFunction.getPanicFlag());
+            returnValue = invokeFunctionWithAssert(compileResult, functionName, functionClassName,
+                    testFunction.getAssertDataProvider(), testFunction.getPanicFlag());
         } else {
             returnValue = invokeFunctionWithArgs(compileResult, functionName, functionClassName,
-                    testFunction.getParameters(), testFunction.getAssertVal(), testFunction.getPanicFlag());
+                    testFunction.getDataProvider(), testFunction.getAssertDataProvider(), testFunction.getPanicFlag());
         }
         return returnValue;
     }
 
     private static String invokeFunction(CompileResult compileResult, String functionName) {
-        Object[] status = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], true);
+        Object[] status = BRunUtil.cInvoke(compileResult, functionName, new Object[0], true);
         if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
             CTestSuite.failedTestCount++;
         } else {
@@ -148,50 +145,82 @@ public class CTestRunner {
     }
 
     private static String invokeFunctionWithParam(CompileResult compileResult, String functionName,
-                                                  List<Map<String, String>> parmas) {
-        int numberOfParams = parmas.size();
-        Object[] args = new Object[numberOfParams];
-        Class<?>[] jvmParamType = getJvmParams(parmas, args);
-        Object[] status = BRunUtil.cInvoke(compileResult, functionName, args, jvmParamType, true);
-        if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
-            CTestSuite.failedTestCount++;
-        } else {
-            status[0] = CTestConstants.TEST_PASSED_STATUS;
+                                          String functionClassName, List<List<Map<String, String>>> dataProvider) {
+        Object[] status = new Object[2];
+        String[] functionDetails = {functionClassName, functionName};
+        for (List<Map<String, String>> parmas:dataProvider) {
+            boolean[] pStatus = {true};
+            Object[] args = getJvmParams(parmas, pStatus, functionDetails);
+            if (pStatus[0]) {
+                status = BRunUtil.cInvoke(compileResult, functionName, args, true);
+            } else {
+                status[0] = args[0];
+                status[1] = CTestConstants.TEST_FAILED_STATUS;
+            }
+            if (status[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
+                CTestSuite.failedTestCount++;
+                break;
+            } else {
+                status[0] = CTestConstants.TEST_PASSED_STATUS;
+            }
         }
         return status[0].toString();
     }
 
     private static String invokeFunctionWithAssert(CompileResult compileResult, String functionName,
-                                   String functionClassName, List<Map<String, String>> assertVal, boolean panicFlag) {
+                   String functionClassName, List<List<Map<String, String>>> assertDataProvider, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
-        Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], new Class<?>[0], panicFlag);
-        String returnValue = validateResult(results[0], assertVal, functionDetails, results[1].toString());
-        if (returnValue == null && results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
-            returnValue = results[0].toString();
-        } else if (returnValue == null) {
-            returnValue = CTestConstants.TEST_PASSED_STATUS;
+        String returnValue = null;
+        for (List<Map<String, String>> params:assertDataProvider) {
+            Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], panicFlag);
+            returnValue = validateResult(results[0], params, functionDetails, results[1].toString());
+            if (returnValue == null) {
+                if (results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
+                    returnValue = results[0].toString();
+                    break;
+                } else {
+                    returnValue = CTestConstants.TEST_PASSED_STATUS;
+                }
+            } else {
+                break;
+            }
         }
         return returnValue;
     }
 
     private static String invokeFunctionWithArgs(CompileResult compileResult, String functionName,
-                                                 String functionClassName, List<Map<String, String>> parmas,
-                                                 List<Map<String, String>> assertVal, boolean panicFlag) {
+                                             String functionClassName, List<List<Map<String, String>>> dataProvider,
+                                             List<List<Map<String, String>>> assertDataProvider, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
-        int numberOfParams = parmas.size();
-        Object[] args = new Object[numberOfParams];
-        Class<?>[] jvmParamType = getJvmParams(parmas, args);
-        Object[] results = BRunUtil.cInvoke(compileResult, functionName, args, jvmParamType, panicFlag);
-        String returnValue = validateResult(results[0], assertVal, functionDetails, results[1].toString());
-        if (returnValue == null && results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
-            returnValue = results[0].toString();
-        } else if (returnValue == null) {
-            returnValue = CTestConstants.TEST_PASSED_STATUS;
+        Object[] results;
+        String returnValue = null;
+        int counter = 0;
+        for (List<Map<String, String>> params:dataProvider) {
+            boolean[] status = {true};
+            Object[] args = getJvmParams(params, status, functionDetails);
+            if (status[0]) {
+                results = BRunUtil.cInvoke(compileResult, functionName, args, panicFlag);
+                returnValue = validateResult(results[0], assertDataProvider.get(counter++), functionDetails,
+                        results[1].toString());
+                if (returnValue == null) {
+                    if (results[1].equals(CTestConstants.TEST_FAILED_STATUS)) {
+                        returnValue = results[0].toString();
+                        break;
+                    } else {
+                        returnValue = CTestConstants.TEST_PASSED_STATUS;
+                    }
+                } else {
+                    break;
+                }
+            } else {
+                returnValue = args[0].toString();
+                break;
+            }
         }
         return returnValue;
     }
 
-    private static Class<?>[] getJvmParams(List<Map<String, String>> parmas, Object[] args) {
+    private static Object[] getJvmParams(List<Map<String, String>> parmas, boolean[] status, String[] functionDetails) {
         int numberOfParams = parmas.size();
         String[] paramType = new String[numberOfParams];
         String[] paramValue = new String[numberOfParams];
@@ -203,7 +232,15 @@ public class CTestRunner {
                 i++;
             }
         }
-        return getJvmParamTypes(paramType, paramValue, args);
+        String[] pStatus = new String[1];
+        Object[] parameters = getJvmParamTypes(paramType, paramValue, pStatus);
+        if (pStatus[0] != null) {
+            errStream.println(functionDetails[0] + " -> " + functionDetails[1] + " failed! \n" + pStatus[0]);
+            parameters[0] = pStatus[0];
+            status[0] = false;
+            CTestSuite.failedTestCount++;
+        }
+        return parameters;
     }
 
     // check whether the return value of a function match with the expected value
@@ -213,60 +250,58 @@ public class CTestRunner {
         if (status.equals(CTestConstants.TEST_FAILED_STATUS)) {
             CTestSuite.failedTestCount++;
         } else {
-            Object[] expectedValue = new Object[1];
-            getJvmParams(assertVariable, expectedValue);
-            returnValue = assertValueEqual(actualValue, expectedValue[0], functionDetails);
+            // check if the param type is valid
+            boolean[] pStatus = {true};
+            Object[] expectedValue = getJvmParams(assertVariable, pStatus, functionDetails);
+            if (pStatus[0]) {
+                returnValue = assertValueEqual(actualValue, expectedValue[0], functionDetails);
+            } else {
+                returnValue = expectedValue[0].toString();
+            }
         }
         return returnValue;
     }
 
     // get the JVM values and Types for the xml values
-    private static Class<?>[] getJvmParamTypes(String[] paramType, String[] paramValue, Object[] args) {
-        Class<?>[] paramTypes = new Class<?>[paramType.length];
+    private static Object[] getJvmParamTypes(String[] paramType, String[] paramValue, String[] status) {
+        Object[] args = new Object[paramType.length];
         for (int i = 0; i < paramType.length; i++) {
             String type = paramType[i];
             switch (type) {
                 case CTestConstants.TEST_INT_TAG:
-                    paramTypes[i] = Long.class;
                     args[i] = Long.parseLong(paramValue[i]);
                     break;
                 case CTestConstants.TEST_ERROR_TAG:     // currently error value is considered as a string value
-                    paramTypes[i] = String.class;
                     args[i] = paramValue[i];
                     break;
                 case CTestConstants.TEST_STRING_TAG:
-                    paramTypes[i] = BString.class;
                     args[i] = StringUtils.fromString(paramValue[i]);
                     break;
                 case CTestConstants.TEST_BOOLEAN_TAG:
-                    paramTypes[i] = Boolean.class;
                     args[i] = Boolean.parseBoolean(paramValue[i]);
                     break;
                 case CTestConstants.TEST_DECIMAL_TAG:
-                    paramTypes[i] = DecimalValue.class;
                     args[i] = new DecimalValue(new BigDecimal(paramValue[i], MathContext.DECIMAL128).setScale(
                             1, BigDecimal.ROUND_HALF_EVEN));
                     break;
                 case CTestConstants.TEST_FLOAT_TAG:
-                    paramTypes[i] = Double.class;
                     args[i] = Double.parseDouble(paramValue[i]);
                     break;
                 case CTestConstants.TEST_NIL_TAG:
-                    paramTypes[i] = BNullType.class;
                     args[i] = null;
                     break;
                 default:
-                    throw new RuntimeException("unknown param type: " + type);
+                    status[0] = "unknown param type: " + type;
             }
         }
-        return paramTypes;
+        return args;
     }
 
     private static String assertValueEqual(Object actual, Object expected, String[] functionDetails) {
         String msg = null;
         if (!TypeChecker.isEqual(expected, actual)) {
             msg = CTestConstants.TEST_FAIL_REASON +
-                    " expected: [" + expected + "]  but found: [" + actual + "]";
+                    " expected: [" + expected + "] but found: [" + actual + "]";
             errStream.println(functionDetails[0] + "-> " + functionDetails[1] + " failed \n " + msg);
             CTestSuite.failedTestCount++;
         }

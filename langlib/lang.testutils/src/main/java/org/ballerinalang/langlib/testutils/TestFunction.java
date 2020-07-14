@@ -18,6 +18,7 @@
 
 package org.ballerinalang.langlib.testutils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -32,23 +33,23 @@ public class TestFunction implements CTestSteps {
     private boolean assertParamFlag = false;
     private boolean paramFlag = false;
     private boolean panicFlag = true;
-    private List<Map<String, String>> assertval;
-    private List<Map<String, String>> parameters;
+    private List<List<Map<String, String>>> assertDataProvider = new ArrayList<>();
+    private List<List<Map<String, String>>> dataProvider = new ArrayList<>();
 
-    public void addParameterList(List<Map<String, String>> parameters) {
-        this.parameters = parameters;
+    public void addDataProvider(List<Map<String, String>> parameters) {
+        this.dataProvider.add(parameters);
     }
 
-    public void addAssertVal(List<Map<String, String>> assertval) {
-        this.assertval = assertval;
+    public void addAssertDataProvider(List<Map<String, String>> parameters) {
+        this.assertDataProvider.add(parameters);
     }
 
-    public List<Map<String, String>> getAssertVal() {
-        return this.assertval;
+    public List<List<Map<String, String>>> getDataProvider() {
+        return this.dataProvider;
     }
 
-    public List<Map<String, String>> getParameters() {
-        return this.parameters;
+    public List<List<Map<String, String>>> getAssertDataProvider() {
+        return this.assertDataProvider;
     }
 
     public void setFunctionName(String functionName) {
