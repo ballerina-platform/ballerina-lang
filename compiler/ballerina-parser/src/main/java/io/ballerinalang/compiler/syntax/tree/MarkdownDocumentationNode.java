@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class DocumentationStringNode extends DocumentationNode {
+public class MarkdownDocumentationNode extends DocumentationNode {
 
-    public DocumentationStringNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public MarkdownDocumentationNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -52,19 +52,19 @@ public class DocumentationStringNode extends DocumentationNode {
                 "documentationLines"};
     }
 
-    public DocumentationStringNode modify(
+    public MarkdownDocumentationNode modify(
             NodeList<Node> documentationLines) {
         if (checkForReferenceEquality(
                 documentationLines.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createDocumentationStringNode(
+        return NodeFactory.createMarkdownDocumentationNode(
                 documentationLines);
     }
 
-    public DocumentationStringNodeModifier modify() {
-        return new DocumentationStringNodeModifier(this);
+    public MarkdownDocumentationNodeModifier modify() {
+        return new MarkdownDocumentationNodeModifier(this);
     }
 
     /**
@@ -72,23 +72,23 @@ public class DocumentationStringNode extends DocumentationNode {
      *
      * @since 2.0.0
      */
-    public static class DocumentationStringNodeModifier {
-        private final DocumentationStringNode oldNode;
+    public static class MarkdownDocumentationNodeModifier {
+        private final MarkdownDocumentationNode oldNode;
         private NodeList<Node> documentationLines;
 
-        public DocumentationStringNodeModifier(DocumentationStringNode oldNode) {
+        public MarkdownDocumentationNodeModifier(MarkdownDocumentationNode oldNode) {
             this.oldNode = oldNode;
             this.documentationLines = oldNode.documentationLines();
         }
 
-        public DocumentationStringNodeModifier withDocumentationLines(
+        public MarkdownDocumentationNodeModifier withDocumentationLines(
                 NodeList<Node> documentationLines) {
             Objects.requireNonNull(documentationLines, "documentationLines must not be null");
             this.documentationLines = documentationLines;
             return this;
         }
 
-        public DocumentationStringNode apply() {
+        public MarkdownDocumentationNode apply() {
             return oldNode.modify(
                     documentationLines);
         }

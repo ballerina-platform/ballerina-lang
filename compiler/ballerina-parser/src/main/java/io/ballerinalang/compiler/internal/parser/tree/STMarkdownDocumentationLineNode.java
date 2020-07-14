@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.DocumentationLineNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,11 +30,11 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationLineNode extends STDocumentationNode {
+public class STMarkdownDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
     public final STNode documentElements;
 
-    STDocumentationLineNode(
+    STMarkdownDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode documentElements) {
@@ -45,7 +45,7 @@ public class STDocumentationLineNode extends STDocumentationNode {
                 Collections.emptyList());
     }
 
-    STDocumentationLineNode(
+    STMarkdownDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode documentElements,
@@ -60,14 +60,14 @@ public class STDocumentationLineNode extends STDocumentationNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationLineNode(
+        return new STMarkdownDocumentationLineNode(
                 this.kind,
                 this.hashToken,
                 this.documentElements,
                 diagnostics);
     }
 
-    public STDocumentationLineNode modify(
+    public STMarkdownDocumentationLineNode modify(
             SyntaxKind kind,
             STNode hashToken,
             STNode documentElements) {
@@ -77,7 +77,7 @@ public class STDocumentationLineNode extends STDocumentationNode {
             return this;
         }
 
-        return new STDocumentationLineNode(
+        return new STMarkdownDocumentationLineNode(
                 kind,
                 hashToken,
                 documentElements,
@@ -85,7 +85,7 @@ public class STDocumentationLineNode extends STDocumentationNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationLineNode(this, position, parent);
+        return new MarkdownDocumentationLineNode(this, position, parent);
     }
 
     @Override
