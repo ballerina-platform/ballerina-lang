@@ -45,7 +45,7 @@ public class MultiModuleTestDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testMultiModuleDebugScenarios() throws BallerinaTestException {
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 24));
         addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 30));
