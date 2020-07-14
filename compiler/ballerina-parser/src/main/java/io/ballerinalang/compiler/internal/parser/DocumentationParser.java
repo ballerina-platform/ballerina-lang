@@ -76,8 +76,7 @@ public class DocumentationParser extends AbstractParser {
             nextToken = peek();
         }
 
-        STNode documentationLines = STNodeFactory.createNodeList(docLines);
-        return STNodeFactory.createDocumentationStringNode(documentationLines);
+        return STNodeFactory.createNodeList(docLines);
     }
 
     /**

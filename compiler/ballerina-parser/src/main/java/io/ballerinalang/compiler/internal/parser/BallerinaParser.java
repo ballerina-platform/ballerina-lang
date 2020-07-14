@@ -12995,21 +12995,47 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseDocumentationContentString() {
-        STToken nextToken = consume();
-        STNode leadingTrivia = nextToken.leadingMinutiae();
-        int bucketCount = leadingTrivia.bucketCount();
 
-        List<STNode> leadingTriviaList = new ArrayList<>();
-        for (int i = 0; i < bucketCount; i++) {
-            leadingTriviaList.add(nextToken.leadingMinutiae().childInBucket(i));
+        List<STNode> multiLines = new ArrayList<>();
+        STToken nextToken = peek();
+        while (nextToken.kind == SyntaxKind.DOCUMENTATION_CONTENT_STRING) {
+            STToken contentString = consume();
+            STNode parsedDocNode = parseSingleDocumentationContentString(contentString);
+            multiLines.add(parsedDocNode);
+            nextToken = peek();
         }
+        STNode arrangedDocLines = rearrangeMultiLines(multiLines);
+        return STNodeFactory.createDocumentationStringNode(arrangedDocLines);
+    }
 
-        TextDocument textDocument = TextDocuments.from(nextToken.text());
+    private STNode parseSingleDocumentationContentString(STToken node) {
+        List<STNode> leadingTriviaList = getLeadingTriviaList(node.leadingMinutiae());
+        TextDocument textDocument = TextDocuments.from(node.text());
         AbstractTokenReader tokenReader = new TokenReader(new DocumentationLexer(textDocument.getCharacterReader(),
                 leadingTriviaList));
-
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
         return documentationParser.parse();
+    }
+
+    private List<STNode> getLeadingTriviaList(STNode leadingMinutiaeNode) {
+        List<STNode> leadingTriviaList = new ArrayList<>();
+
+        int bucketCount = leadingMinutiaeNode.bucketCount();
+        for (int i = 0; i < bucketCount; i++) {
+            leadingTriviaList.add(leadingMinutiaeNode.childInBucket(i));
+        }
+        return leadingTriviaList;
+    }
+
+    private STNode rearrangeMultiLines(List<STNode> multiLines) {
+        List<STNode> docLines = new ArrayList<>();
+        for (STNode line : multiLines) {
+            int bucketCount = line.bucketCount();
+            for (int i = 0; i < bucketCount; i++) {
+                docLines.add(line.childInBucket(i));
+            }
+        }
+        return STNodeFactory.createNodeList(docLines);
     }
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------
