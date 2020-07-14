@@ -61,6 +61,10 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         // doTest();
     }
 
+    public void testEnum() {
+        doTest();
+    }
+
     public void testComments() {
         doTest();
     }
