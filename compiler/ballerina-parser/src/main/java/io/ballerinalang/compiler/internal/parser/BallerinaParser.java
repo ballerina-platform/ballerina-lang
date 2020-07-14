@@ -65,6 +65,7 @@ import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
+import jdk.nashorn.internal.runtime.regexp.joni.Syntax;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -3348,11 +3349,16 @@ public class BallerinaParser extends AbstractParser {
      * @return Type reference node
      */
     private STNode parseTypeReference() {
-        if (isSimpleType(peek().kind)) {
-            STToken builtInType = consume();
-            return createBuiltinSimpleNameReference(builtInType);
+        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
+        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+            typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return typeReference;
         }
-        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, false);
+        STNode dummy = STNodeFactory.createSimpleNameReferenceNode(
+                SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+        dummy = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(dummy, typeReference,
+                DiagnosticErrorCode.ONLY_TYPE_REFERENCE_ALLOWED_HERE);
+        return dummy;
     }
 
     private STNode parseTypeReference(boolean isInConditionalExpr) {

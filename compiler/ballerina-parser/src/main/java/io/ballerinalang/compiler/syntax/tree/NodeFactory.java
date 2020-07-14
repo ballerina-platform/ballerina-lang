@@ -1015,7 +1015,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TypeReferenceNode createTypeReferenceNode(
             Token asteriskToken,
-            Node typeName,
+            NameReferenceNode typeName,
             Token semicolonToken) {
         Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");

@@ -82,7 +82,26 @@
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_IDENTIFIER"
+                        "ONLY_TYPE_REFERENCE_ALLOWED_HERE"
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "TYPE_DESC",
+                            "hasDiagnostics": true,
+                            "children": [
+                              {
+                                "kind": "TYPE_DESC",
+                                "isMissing": true,
+                                "hasDiagnostics": true,
+                                "diagnostics": [
+                                  "ERROR_MISSING_TYPE_DESC"
+                                ]
+                              }
+                            ]
+                          }
+                        }
                       ]
                     }
                   ]
