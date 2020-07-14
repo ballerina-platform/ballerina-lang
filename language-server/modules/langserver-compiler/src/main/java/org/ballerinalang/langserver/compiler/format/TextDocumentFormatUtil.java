@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.Node;
@@ -207,6 +208,10 @@ public class TextDocumentFormatUtil {
         JsonArray type = getType(node);
         if (type != null) {
             nodeJson.add(SYMBOL_TYPE, type);
+        }
+        JsonObject typeInfo = getTypeInfo(node);
+        if (typeInfo != null) {
+            nodeJson.add("typeInfo", typeInfo);
         }
         if (node.getKind() == NodeKind.INVOCATION) {
 
@@ -412,6 +417,31 @@ public class TextDocumentFormatUtil {
             JsonArray jsonElements = new JsonArray();
             jsonElements.add(type.getKind().typeName());
             return jsonElements;
+        }
+        return null;
+    }
+
+    /**
+     * Get Type info of the node
+     *
+     * @param node Node to get the types
+     * @return {@link JsonArray}    Converted array value
+     */
+    public static JsonObject getTypeInfo(Node node) {
+        if (!(node instanceof BLangNode)) {
+            return null;
+        }
+        BType type = ((BLangNode) node).type;
+        if (node instanceof BLangInvocation) {
+            return null;
+        } else if (type != null &&  type.tsymbol != null &&  type.tsymbol.pkgID != null) {
+            PackageID pkgID = type.tsymbol.pkgID;
+            JsonObject typeObj = new JsonObject();
+            typeObj.addProperty("orgName", pkgID.getOrgName().value);
+            typeObj.addProperty("modName", pkgID.getName().value);
+            typeObj.addProperty("version", pkgID.getPackageVersion().value);
+            typeObj.addProperty("name", type.tsymbol.name.value);
+            return typeObj;
         }
         return null;
     }
