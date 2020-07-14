@@ -29,6 +29,7 @@ import io.ballerina.plugins.idea.psi.BallerinaAlias;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
 import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
+import io.ballerina.plugins.idea.psi.BallerinaEnumDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNestedAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
@@ -130,6 +131,9 @@ public class BallerinaAnnotator implements Annotator {
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                     // Highlights Worker names.
                 } else if (parent instanceof BallerinaAlias) {
+                    annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
+                } else if (parent instanceof BallerinaEnumDefinition) {
+                    // Highlights enum names.
                     annotateKeyword(element, holder, BallerinaSyntaxHighlightingColors.ENTITY_NAME, false);
                 }
             }
