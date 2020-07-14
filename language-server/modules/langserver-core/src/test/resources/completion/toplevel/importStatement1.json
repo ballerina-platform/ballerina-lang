@@ -182,14 +182,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/rabbitmq",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.future",
       "kind": "Module",
       "detail": "Module",
