@@ -36,6 +36,7 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.types.ValueType;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -52,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -229,29 +231,84 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     @Override
     public CompletableFuture<BallerinaRecordResponse> record(BallerinaRecordRequest request) {
-        return null;
-    }
+        String cacheableKey = getCacheableKey(request.getOrg(), request.getModule(), request.getVersion());
+        LSRecordCache recordCache = LSRecordCache.getInstance(lsContext);
 
-    private BLangPackage getBLangPackage(String orgName, String moduleName, String version)
-            throws LSConnectorException, LSStdlibCacheException, UnsupportedEncodingException {
-        String cacheableKey = getCacheableKey(orgName, moduleName, version);
-        Path baloPath = getBaloPath(orgName, moduleName, version);
-        boolean isExternalModule = baloPath.toString().endsWith(".balo");
-        String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
-        if (isExternalModule) {
-            LSConnectorUtil.extract(baloPath, cacheableKey);
-        } else {
-            Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
-                    resolve(ProjectDirConstants.SOURCE_DIR_NAME);
-            if (!Files.exists(destinationRoot)) {
-                LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
+        JsonElement ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
+                request.getVersion(), request.getName());
+        String error = "";
+        if (ast == null) {
+            try {
+                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                boolean isExternalModule = baloPath.toString().endsWith(".balo");
+                String moduleName = request.getModule();
+                String projectDir = CommonUtil.LS_CONNECTOR_CACHE_DIR.resolve(cacheableKey).toString();
+                if (isExternalModule) {
+                    LSConnectorUtil.extract(baloPath, cacheableKey);
+                } else {
+                    Path destinationRoot = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).
+                            resolve(ProjectDirConstants.SOURCE_DIR_NAME);
+                    if (!Files.exists(destinationRoot)) {
+                        LSStdLibCacheUtil.extract(baloPath, destinationRoot, moduleName, cacheableKey);
+                    }
+                    projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
+                    moduleName = cacheableKey;
+                }
+                CompilerContext compilerContext = createNewCompilerContext(projectDir);
+                Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
+                BLangPackage bLangPackage = compiler.compile(moduleName);
+
+                ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName());
+                bLangPackage.accept(connectorNodeVisitor);
+
+                VisibleEndpointVisitor visibleEndpointVisitor = new VisibleEndpointVisitor(compilerContext);
+                visibleEndpointVisitor.visit(bLangPackage);
+
+                Map<String, JsonElement> jsonRecords = new HashMap<>();
+                BLangTypeDefinition recordNode = null;
+                JsonElement recordJson = null;
+                for (Map.Entry<String, BLangTypeDefinition> recordEntry : connectorNodeVisitor.getRecords().entrySet()) {
+                    String key = recordEntry.getKey();
+                    BLangTypeDefinition record = recordEntry.getValue();
+                    JsonElement jsonAST = null;
+                    try {
+                        jsonAST = TextDocumentFormatUtil.generateJSON(record, new HashMap<>(),
+                                visibleEndpointVisitor.getVisibleEPsByNode());
+                    } catch (JSONGenerationException e) {
+                        String msg = "Operation 'ballerinaConnector/record' loading records" +
+                                key + " failed!";
+                        logError(msg, e, null, (Position) null);
+                    }
+                    if (record.getName() != null && record.getName().value.equals(request.getName())) {
+                        recordNode = record;
+                        recordJson = jsonAST;
+                    } else {
+                        jsonRecords.put(key, jsonAST);
+                    }
+                }
+                Gson gson = new Gson();
+                if (recordNode != null) {
+                    if (recordJson instanceof JsonObject) {
+                        JsonElement recordsJson = gson.toJsonTree(jsonRecords);
+                        ((JsonObject) recordJson).add("records", recordsJson);
+                    }
+                    recordCache.addRecordAST(request.getOrg(), request.getModule(),
+                            request.getVersion(), request.getName(), recordJson);
+                }
+
+                ast = recordCache.getRecordAST(request.getOrg(), request.getModule(),
+                        request.getVersion(), request.getName());
+            } catch (Exception e) {
+                String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
+                        request.getName() + " failed!";
+                error = e.getMessage();
+                logError(msg, e, null, (Position) null);
             }
-            projectDir = CommonUtil.LS_STDLIB_CACHE_DIR.resolve(cacheableKey).toString();
-            moduleName = cacheableKey;
+
         }
-        CompilerContext compilerContext = createNewCompilerContext(projectDir);
-        Compiler compiler = LSStdLibCacheUtil.getCompiler(compilerContext);
-        return compiler.compile(moduleName);
+        BallerinaRecordResponse response = new BallerinaRecordResponse(request.getOrg(), request.getModule(),
+                request.getVersion(), request.getName(), ast, error);
+        return CompletableFuture.supplyAsync(() -> response);
     }
 
     private void populateConnectorRecords(ValueType type, Map<String, BLangTypeDefinition> records,
