@@ -349,11 +349,13 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangBlockStmt commitBlockStatement = ASTBuilderUtil.createBlockStmt(pos);
 
         // Create temp output variable
+        // error? $outputVar$ = ();
         BLangSimpleVariableDef outputVariableDef = createCommitResultVarDef(env, pos);
         BLangSimpleVarRef outputVarRef = ASTBuilderUtil.createVariableRef(pos, outputVariableDef.var.symbol);
         commitBlockStatement.addStatement(outputVariableDef);
 
         // Clear failures
+        // boolean isFailed = getAndClearFailure();
         BInvokableSymbol transactionCleanerInvokableSymbol =
                 (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
                 GET_AND_CLEAR_FAILURE_TRANSACTION);
@@ -372,6 +374,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangBlockStmt failureHandlerBlockStatement = ASTBuilderUtil.createBlockStmt(pos);
 
         // Commit expr desugar implementation
+        //string|error commitResult = endTransaction(transactionID, transactionBlockID);
         BInvokableSymbol commitTransactionInvokableSymbol =
                 (BInvokableSymbol) symResolver.lookupLangLibMethodInModule(symTable.langTransactionModuleSymbol,
                 END_TRANSACTION);
@@ -393,6 +396,11 @@ public class TransactionDesugar extends BLangNodeVisitor {
         failureHandlerBlockStatement.addStatement(commitResultVariableDef);
 
         // Successful commit operation
+        // if(commitResult is string) {
+        //    cleanupTransactionContext();
+        // } else {
+        //    $outputVar$ = commitResult;
+        // }
         BLangIf commitResultValidationIf = ASTBuilderUtil.createIfStmt(pos, failureHandlerBlockStatement);
         BLangGroupExpr commitResultValidationGroupExpr = new BLangGroupExpr();
         commitResultValidationGroupExpr.type = symTable.booleanType;
@@ -407,6 +415,14 @@ public class TransactionDesugar extends BLangNodeVisitor {
         stmt.expr = createCleanupTrxStmt(pos);
         commitResultValidationIf.elseStmt = ASTBuilderUtil.createAssignmentStmt(pos, outputVarRef, commitResultVarRef);
         // Create failure validation
+        //if(!isFailed) {
+        //   string|error commitResult = endTransaction(transactionID, transactionBlockID);
+        //   if(commitResult is string) {
+        //      cleanupTransactionContext();
+        //   } else {
+        //      $outputVar$ = commitResult;
+        //   }
+        //}
         BLangIf failureValidationIf = ASTBuilderUtil.createIfStmt(pos, commitBlockStatement);
         BLangGroupExpr failureValidationGroupExpr = new BLangGroupExpr();
         failureValidationGroupExpr.type = symTable.booleanType;
@@ -423,6 +439,18 @@ public class TransactionDesugar extends BLangNodeVisitor {
         failureValidationIf.expr = failureValidationGroupExpr;
         failureValidationIf.body = failureHandlerBlockStatement;
 
+        // at this point;
+        //
+        // error? $outputVar$ = ();
+        // boolean isFailed = getAndClearFailure();
+        // if(!isFailed) {
+        //   string|error commitResult = endTransaction(transactionID, transactionBlockID);
+        //   if(commitResult is string) {
+        //      cleanupTransactionContext();
+        //   } else {
+        //      $outputVar$ = commitResult;
+        //   }
+        // }
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(commitBlockStatement,
                 outputVarRef);
         stmtExpr.type = symTable.errorOrNilType;
