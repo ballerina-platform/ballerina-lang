@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.preloading;
 
-import com.google.common.base.Strings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -124,7 +123,7 @@ public class LSPUtils {
             String balSdkPath = balSdk.first;
             boolean autoDetected = balSdk.second;
 
-            if (!Strings.isNullOrEmpty(balSdkPath)) {
+            if (!BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)) {
                 boolean success = doRegister(project, balSdkPath, autoDetected);
                 if (success && autoDetected) {
                     BallerinaPreloadingActivity.LOG.info(String.format("Auto-detected Ballerina Home: %s for the " +
