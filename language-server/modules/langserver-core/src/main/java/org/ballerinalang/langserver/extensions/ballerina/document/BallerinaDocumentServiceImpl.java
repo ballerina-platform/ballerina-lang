@@ -277,7 +277,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false, true);
+                    false, false, false);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(reply.getAst() != null);
         } catch (Throwable e) {
@@ -366,7 +366,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     fileUri, compilationPath, documentManager);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false, false,
-                    true);
+                    false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(reply.getAst() != null);
@@ -406,7 +406,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     fileUri, compilationPath, documentManager);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false,
-                    false, true);
+                    false, false);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(reply.getAst() != null);
