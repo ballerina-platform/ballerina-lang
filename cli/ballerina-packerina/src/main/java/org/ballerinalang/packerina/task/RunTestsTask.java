@@ -30,6 +30,7 @@ import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BFileUtil;
@@ -77,6 +78,8 @@ public class RunTestsTask implements Task {
     private final String[] args;
     private boolean report;
     private boolean coverage;
+    private boolean isSingleFunctionExecution;
+    private List<String> singleExecFunctions;
     private Path testJarPath;
     TestReport testReport;
 
@@ -90,10 +93,11 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
-                        List<String> disableGroupList) {
+                        List<String> disableGroupList, List<String> functionList) {
         this.args = args;
         this.report = report;
         this.coverage = coverage;
+        this.isSingleFunctionExecution = false;
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
             testerinaRegistry.setGroups(disableGroupList);
@@ -101,8 +105,10 @@ public class RunTestsTask implements Task {
         } else if (groupList != null) {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
+        } else if (functionList != null) {
+            isSingleFunctionExecution = true;
+            singleExecFunctions = functionList;
         }
-
         if (report || coverage) {
             testReport = new TestReport();
         }
@@ -133,6 +139,9 @@ public class RunTestsTask implements Task {
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
             TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+            if (isSingleFunctionExecution) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecFunctions));
+            }
             if (suite == null) {
                 if (!DOT.equals(bLangPackage.packageID.toString())) {
                     buildContext.out().println();
@@ -196,9 +205,9 @@ public class RunTestsTask implements Task {
     /**
      * Extract data from the given bLangPackage.
      *
-     * @param bLangPackage Ballerina package
+     * @param bLangPackage   Ballerina package
      * @param sourceRootPath Source root path
-     * @param jsonPath Path to the test json
+     * @param jsonPath       Path to the test json
      */
     private static void createTestJson(BLangPackage bLangPackage, TestSuite suite, Path sourceRootPath, Path jsonPath) {
         // set data
@@ -210,8 +219,8 @@ public class RunTestsTask implements Task {
         // add module functions
         bLangPackage.functions.forEach(function -> {
             String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                       bLangPackage.packageID.name.value,
-                                                                       getClassName(function.pos.src.cUnitName));
+                    bLangPackage.packageID.name.value,
+                    getClassName(function.pos.src.cUnitName));
             suite.addTestUtilityFunction(function.name.value, functionClassName);
         });
         // add test functions
@@ -221,8 +230,8 @@ public class RunTestsTask implements Task {
             suite.setTestStopFunctionName(bLangPackage.getTestablePkg().stopFunction.name.value);
             bLangPackage.getTestablePkg().functions.forEach(function -> {
                 String functionClassName = BFileUtil.getQualifiedClassName(bLangPackage.packageID.orgName.value,
-                                                                           bLangPackage.packageID.name.value,
-                                                                           getClassName(function.pos.src.cUnitName));
+                        bLangPackage.packageID.name.value,
+                        getClassName(function.pos.src.cUnitName));
                 suite.addTestUtilityFunction(function.name.value, functionClassName);
             });
         } else {
@@ -262,7 +271,7 @@ public class RunTestsTask implements Task {
     /**
      * Write the test report content into a json file.
      *
-     * @param out PrintStream object to print messages to console
+     * @param out        PrintStream object to print messages to console
      * @param testReport Data that are parsed to the json
      */
     private void generateHtmlReport(PrintStream out, TestReport testReport, Path jsonPath) {
@@ -418,6 +427,7 @@ public class RunTestsTask implements Task {
 
     /**
      * Loads the ModuleStatus object by reading a given Json.
+     *
      * @param statusJsonPath file path of json file
      * @return ModuleStatus object
      * @throws FileNotFoundException if file does not exist
