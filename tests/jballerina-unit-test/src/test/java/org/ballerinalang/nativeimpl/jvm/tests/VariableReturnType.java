@@ -65,7 +65,7 @@ public class VariableReturnType {
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
 
-    public static Object echo(BTypedesc td, BValue value) {
+    public static Object echo(BValue value, BTypedesc td) {
         return value;
     }
 
@@ -73,15 +73,15 @@ public class VariableReturnType {
         return value;
     }
 
-    public static BStream getStream(BTypedesc td, BStream value) {
+    public static BStream getStream(BStream value, BTypedesc td) {
         return value;
     }
 
-    public static TableValue getTable(BTypedesc td, TableValue value) {
+    public static TableValue getTable(TableValue value, BTypedesc td) {
         return value;
     }
 
-    public static BFunctionPointer getFunction(BTypedesc param, BTypedesc ret, BFunctionPointer fp) {
+    public static BFunctionPointer getFunction(BFunctionPointer fp, BTypedesc param, BTypedesc ret) {
         return fp;
     }
 
@@ -89,7 +89,7 @@ public class VariableReturnType {
         return td;
     }
 
-    public static BFuture getFuture(BTypedesc td, BFuture value) {
+    public static BFuture getFuture(BFuture value, BTypedesc td) {
         return value;
     }
 

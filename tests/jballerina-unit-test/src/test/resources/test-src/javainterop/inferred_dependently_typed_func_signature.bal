@@ -14,10 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml;
 import ballerina/java;
-
-type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 
 type Person record {
     readonly string name;
@@ -35,19 +32,19 @@ Person expPerson = {name: "John Doe", age: 20};
 // Test functions
 
 function testSimpleTypes() {
-    int i = getValue(int);
+    int i = getValue();
     assert(150, i);
 
-    float f = getValue(float);
+    float f = getValue();
     assert(12.34, f);
 
-    decimal d = getValue(decimal);
+    decimal d = getValue();
     assert(23.45d, d);
 
-    string s = getValue(string);
+    string s = getValue();
     assert("Hello World!", s);
 
-    boolean b = getValue(boolean);
+    boolean b = getValue();
     assert(true, b);
 }
 
@@ -63,43 +60,40 @@ function testVarRefInMapConstraint() {
     map<int> m1 = query("foo");
     assert(<map<int>>{"one": 10, "two": 20}, m1);
 
-    map<string> m2 = query("foo", rowType = string);
+    map<string> m2 = query("foo");
     assert(<map<string>>{"name": "Pubudu", "city": "Panadura"}, m2);
 }
 
 function testRuntimeCastError() {
-    map<anydata> m1 = query("foo", rowType = float);
+    map<anydata>|error m1 = trap query("foo");
+
+    error err = <error>m1;
+    assert("{ballerina}TypeCastError", err.message());
+    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", err.detail()["message"].toString());
 }
 
 function testVarRefUseInMultiplePlaces() {
-    [int, Person, float] tup1 = getTuple(int, Person);
+    [int, Person, float] tup1 = getTuple();
     assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
 }
 
-function testUnionTypes() {
-    int|Person u = getVariedUnion(1, int, Person);
-    assert(expPerson, u);
-}
-
 function testArrayTypes() {
-    int[] arr = getArray(int);
+    int[] arr = getArray();
     assert(<int[]>[10, 20, 30], arr);
 }
 
-function testCastingForInvalidValues() {
-    int x = getInvalidValue(int, Person);
-}
-
-//function testXML() {
-//    'xml:Element elem1 = xml `<hello>xml content</hello>`;
-//    xml<'xml:Element> x1 = getXML('xml:Element, elem1);
-//    assert(elem1, x1);
+//function testCastingForInvalidValues() {
+//    int|error x = trap getInvalidValue(td2 = Person);
+//
+//    error err = <error>x;
+//    assert("{ballerina}TypeCastError", err.message());
+//    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", err.detail()["message"].toString());
 //}
 
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
     stream<string> st = stringList.toStream();
-    stream<string> newSt = getStream(st, string);
+    stream<string> newSt = getStream(st);
     string s = "";
 
     error? err = newSt.forEach(function (string x) { s += x; });
@@ -114,19 +108,19 @@ function testTable() {
         { name: "Granier", age: 34, designation: "SE" }
     ];
 
-    table<Person> newTab = getTable(tab, Person);
+    table<Person> newTab = getTable(tab);
     assert(tab, newTab);
 }
 
 function testFunctionPointers() {
     function (anydata) returns int fn = s => 10;
-    function (string) returns int newFn = getFunction(fn, string, int);
+    function (string) returns int newFn = getFunction(fn);
     assertSame(fn, newFn);
     assert(fn("foo"), newFn("foo"));
 }
 
 function testTypedesc() {
-    typedesc<Person> tP = getTypedesc(Person);
+    typedesc<Person> tP = getTypedesc();
     assert(Person.toString(), tP.toString());
 }
 
@@ -158,22 +152,22 @@ type PersonTable table<Person>;
 type IntArray int[];
 
 function testComplexTypes() {
-    json j = echo(<json>{"name": "John Doe"}, json);
+    json j = echo(<json>{"name": "John Doe"});
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = echo(xml `<hello>xml content</hello>`, xml);
+    xml x = echo(xml `<hello>xml content</hello>`);
     assert(xml `<hello>xml content</hello>`, x);
 
-    int[] ar = echo(<IntArray>[20, 30, 40], IntArray);
+    int[] ar = echo(<IntArray>[20, 30, 40]);
     assert(<IntArray>[20, 30, 40], ar);
 
     PersonObj pObj = new("John", "Doe");
-    PersonObj nObj = echo(pObj, PersonObj);
+    PersonObj nObj = echo(pObj);
     assertSame(pObj, nObj);
 
     int[] intList = [10, 20, 30, 40, 50];
     stream<int> st = intList.toStream();
-    stream<int> newSt = echo(st, IntStream);
+    stream<int> newSt = echo(st);
     int tot = 0;
 
     error? err = newSt.forEach(function (int x) { tot+= x; });
@@ -186,7 +180,7 @@ function testComplexTypes() {
         { name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = echo(tab, PersonTable);
+    table<Person> newTab = echo(tab);
     assert(tab, newTab);
 }
 
@@ -198,72 +192,64 @@ function testFunctionAssignment() {
     string s = <string>fn(string);
     assert("Hello World!", s);
 
-    x = <int>fn(string);
+    var v = trap <int>fn(string);
+
+    error err = <error>v;
+    assert("{ballerina}TypeCastError", err.message());
+    assert("incompatible types: 'string' cannot be cast to 'int'", err.detail()["message"].toString());
 }
 
 
 // Interop functions
-function getValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getRecord(typedesc<anydata> td = Person) returns td = @java:Method {
+function getRecord(typedesc<anydata> td = <>) returns td = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getRecord",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function query(string q, typedesc<anydata> rowType = int) returns map<rowType> = @java:Method {
+function query(string q, typedesc<anydata> rowType = <>) returns map<rowType> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "query",
     paramTypes: ["org.ballerinalang.jvm.values.api.BString", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<float|boolean> td3 = float) returns [td1, td2, td3] = @java:Method {
+function getTuple(typedesc<int|string> td1 = <>, typedesc<record {}> td2 = <>, typedesc<float|boolean> td3 = <>) returns [td1, td2, td3] = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTuple",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getVariedUnion(int x, typedesc<int|string> td1, typedesc<record{ string name; }> td2) returns (td1|td2) = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-    name: "getVariedUnion",
-    paramTypes: ["long", "org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc"]
-} external;
-
-function getArray(typedesc<anydata> td) returns td[] = @java:Method {
+function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getArray",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getInvalidValue(typedesc<int|Person> td1, typedesc<Person> td2) returns td1 = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-    name: "getInvalidValue",
-    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc"]
-} external;
+//function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 = @java:Method {
+//    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+//    name: "getInvalidValue",
+//    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BTypedesc"]
+//} external;
 
-function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method {
-    class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-    name: "getXML",
-    paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc", "org.ballerinalang.jvm.values.api.BXML"]
-} external;
-
-function getStream(stream<anydata> value, typedesc<anydata> td) returns stream<td> = @java:Method {
+function getStream( stream<anydata> value, typedesc<anydata> td = <>) returns stream<td> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getStream",
     paramTypes: ["org.ballerinalang.jvm.values.api.BStream", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getTable(table<anydata> value, typedesc<anydata> td) returns table<td> = @java:Method {
+function getTable(table<anydata> value, typedesc<anydata> td = <>) returns table<td> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
     paramTypes: ["org.ballerinalang.jvm.values.TableValue", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param, typedesc<anydata> ret)
+function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param = <>, typedesc<anydata> ret = <>)
                                                                 returns function (param) returns ret = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
@@ -271,29 +257,30 @@ function getFunction(function (string|int) returns anydata fn, typedesc<anydata>
                     "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
+function getTypedesc(typedesc<anydata> td = <>) returns typedesc<td> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTypedesc",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getFuture(future<anydata> f, typedesc<anydata> td) returns future<td> = @java:Method {
+function getFuture(future<anydata> f, typedesc<anydata> td = <>) returns future<td> = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFuture",
     paramTypes: ["org.ballerinalang.jvm.values.api.BFuture", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function echo(any val, typedesc<any> td) returns td = @java:Method {
+function echo(any val, typedesc<any> td = <>) returns td = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "echo",
     paramTypes: ["org.ballerinalang.jvm.values.api.BValue", "org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
 
-function getValue2(typedesc<int|string> aTypeVar) returns aTypeVar = @java:Method {
+function getValue2(typedesc<int|string> aTypeVar = <>) returns aTypeVar = @java:Method {
     class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
     paramTypes: ["org.ballerinalang.jvm.values.api.BTypedesc"]
 } external;
+
 
 // Util functions
 function assert(anydata expected, anydata actual) {
