@@ -97,9 +97,13 @@ public class PackerinaTestUtils {
      *
      * @return token required to push the module.
      */
-    public static String getToken() {
+    public static String getToken() throws IOException {
+        String centralAccessToken = System.getenv("CENTRAL_ACCESS_TOKEN");
+        if (centralAccessToken == null || "".equals(centralAccessToken.trim())) {
+            throw new IOException("CENTRAL_ACCESS_TOKEN env variable is not set");
+        }
         // staging and dev both has the same access token
-        return new String(Base64.getDecoder().decode("YWYwMjkyODgtNjhkZC0zOTVmLTk5MzQtYTgyYWRjM2NlYzZi"));
+        return new String(Base64.getDecoder().decode(centralAccessToken));
     }
 
     /**

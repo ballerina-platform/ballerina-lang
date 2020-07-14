@@ -162,7 +162,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
      *
      * @return env directory variable array
      */
-    private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
+    private Map<String, String> addEnvVariables(Map<String, String> envVariables) throws IOException {
         envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", PackerinaTestUtils.getToken());
         return envVariables;
