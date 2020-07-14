@@ -50,7 +50,7 @@ public type Cookie object {
     #
     # + name - Name of the `http:Cookie`
     # + value - Value of the `http:Cookie`
-    public function init(string name, string? value) {
+    public function init(string name, string value) {
         self.name = name;
         self.value = value;
     }
