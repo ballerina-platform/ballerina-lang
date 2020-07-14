@@ -75,7 +75,12 @@ public abstract class LauncherImpl {
 
         // TODO: validate file path
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
-        boolean debugTests = args.get("debugTests") != null && (boolean) args.get("debugTests");
+        boolean debugTests = false;
+        if (args.get("debugTests") != null && args.get("debugTests") instanceof Boolean) {
+            debugTests = (boolean) args.get("debugTests");
+        } else if (args.get("debugTests") != null && args.get("debugTests") instanceof String) {
+            debugTests = Boolean.parseBoolean((String) args.get("debugTests"));
+        }
         if (debugTests) {
             command.add("test");
             command.add("--debug");
@@ -90,18 +95,29 @@ public abstract class LauncherImpl {
 
         command.add(balFile);
 
-        boolean networkLogs = args.get("networkLogs") != null && (boolean) args.get("networkLogs");
+        boolean networkLogs = false;
+        if (args.get("networkLogs") != null && args.get("networkLogs") instanceof Boolean) {
+            networkLogs = (boolean) args.get("networkLogs");
+        } else if (args.get("networkLogs") != null && args.get("networkLogs") instanceof String) {
+            networkLogs = Boolean.parseBoolean((String) args.get("networkLogs"));
+        }
         if (networkLogs && !debugTests) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
         }
 
-        ArrayList<String> commandOptions = (ArrayList<String>) args.get("commandOptions");
+        ArrayList<String> commandOptions = null;
+        if (args.get("commandOptions") instanceof ArrayList) {
+            commandOptions = (ArrayList<String>) args.get("commandOptions");
+        }
         commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
         command.addAll(commandOptions);
 
-        ArrayList<String> scriptArguments = (ArrayList<String>) args.get("scriptArguments");
+        ArrayList<String> scriptArguments = null;
+        if (args.get("commandOptions") instanceof ArrayList) {
+            scriptArguments = (ArrayList<String>) args.get("scriptArguments");
+        }
         scriptArguments = scriptArguments == null ? new ArrayList<>() : scriptArguments;
         command.addAll(scriptArguments);
         return command;
