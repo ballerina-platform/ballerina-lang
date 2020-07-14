@@ -17,6 +17,7 @@
 import ballerina/config;
 import ballerina/http;
 import ballerina/io;
+import ballerina/mime;
 
 listener http:Listener serviceEndpoint2 = new(9102);
 
@@ -252,6 +253,74 @@ service testRedirect on serviceEndpoint3 {
             io:println("Connector error!");
         }
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/doPost"
+    }
+    resource function PostClearText(http:Caller caller, http:Request req) {
+        http:Client endPoint3 = new("http://localhost:9103", endPoint3Config );
+        var response = endPoint3->post("/redirect1/handlePost", "Payload redirected");
+        if (response is http:Response) {
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                checkpanic caller->respond(<@untainted> value);
+            } else {
+                io:println("Payload error!");
+            }
+        } else {
+            io:println("Connector error!");
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/doSecurePut"
+    }
+    resource function testSecurePut(http:Caller caller, http:Request req) {
+        http:Client endPoint5 = new("https://localhost:9104", endPoint5Config );
+        var response = endPoint5->put("/redirect3/handlePost", "Secure payload");
+        if (response is http:Response) {
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                checkpanic caller->respond(<@untainted> value);
+            } else {
+                io:println("Payload error!");
+            }
+        } else {
+            io:println("Connector error!");
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/testMultipart"
+    }
+    resource function PostMultipart(http:Caller caller, http:Request req) {
+        http:Client endPoint3 = new("http://localhost:9103", endPoint3Config );
+
+        mime:Entity jsonBodyPart = new;
+        jsonBodyPart.setContentDisposition(getContentDisposition("json part"));
+        jsonBodyPart.setJson({"name": "wso2"});
+        mime:Entity[] bodyParts = [jsonBodyPart];
+        http:Request request = new;
+        request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
+
+        var response = endPoint3->post("/redirect1/handlePost", request);
+        if (response is http:Response) {
+            var value = response.getTextPayload();
+            if (value is string) {
+                value = value + ":" + response.resolvedRequestedURI;
+                checkpanic caller->respond(<@untainted> value);
+            } else {
+                io:println("Payload error!");
+            }
+        } else {
+            io:println("Connector error!");
+        }
+    }
 }
 
 @http:ServiceConfig {
@@ -344,6 +413,15 @@ service redirect1 on serviceEndpoint3 {
         string returnVal = (arr1 is string[] ? arr1[0] : "") + ":" + (arr2 is string[] ? arr2[0] : "");
         checkpanic caller->respond(<@untainted> returnVal);
     }
+
+    @http:ResourceConfig {
+        methods: ["POST", "PUT"]
+    }
+    resource function handlePost(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        checkpanic caller->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
+                "http://localhost:9102/redirect2/echo"]);
+    }
 }
 
 @http:ServiceConfig {
@@ -369,6 +447,35 @@ service redirect2 on serviceEndpoint2 {
         http:Response res = new;
         checkpanic caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
     }
+
+    @http:ResourceConfig {
+        methods: ["POST", "PUT"]
+    }
+    resource function echo(http:Caller caller, http:Request req) {
+        var value = req.getTextPayload();
+        if (value is string) {
+            value = "Received:" + value;
+            checkpanic caller->respond(<@untainted> value);
+        } else {
+            http:Response res = new;
+            var bodyParts = req.getBodyParts();
+            if (bodyParts is mime:Entity[]) {
+                foreach var part in bodyParts {
+                    var payload = part.getJson();
+                    if (payload is json) {
+                        res.setPayload(<@untainted> payload);
+                    } else {
+                        res.setPayload(<@untainted> payload.message());
+                    }
+                    break; //Accepts only one part
+                }
+            } else {
+                res.setPayload("Payload retrieval error!");
+                res.statusCode = 500;
+            }
+            checkpanic caller->respond(res);
+        }
+    }
 }
 
 @http:ServiceConfig {
@@ -393,4 +500,20 @@ service redirect3 on httpsEP {
     resource function finalResult(http:Caller caller, http:Request req) {
         checkpanic caller->respond("HTTPs Result");
     }
+
+    @http:ResourceConfig {
+        methods: ["PUT"]
+    }
+    resource function handlePost(http:Caller caller, http:Request req) {
+        http:Response res = new;
+        checkpanic caller->redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, [
+                "http://localhost:9103/redirect1/handlePost"]);
+    }
+}
+
+function getContentDisposition(string partName) returns mime:ContentDisposition {
+    mime:ContentDisposition contentDisposition = new;
+    contentDisposition.name = partName;
+    contentDisposition.disposition = "form-data";
+    return contentDisposition;
 }
