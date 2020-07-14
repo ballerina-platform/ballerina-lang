@@ -36,6 +36,12 @@ type Customer record {|
     int noOfItems;
 |};
 
+type CustomerProfile record {|
+    string name;
+    int age;
+    int noOfItems;
+|};
+
 type CustomerTable table<Customer> key(id, name);
 
 type CustomerValue record {|
@@ -139,7 +145,6 @@ function testQueryExprWithLetWhereAndOrderByClauses() returns Student[] {
 
 function testQueryExprWithOrderByClauseReturnTable() returns boolean {
     boolean testPassed = true;
-    error onConflictError = error("Key Conflict", message = "cannot insert.");
 
     Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
     Customer c2 = {id: 2, name: "James", noOfItems: 5};
@@ -163,7 +168,6 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
          }
          limit 3;
 
-
     if (customerTable is CustomerTable) {
         var itr = customerTable.iterator();
         Customer? customer = getCustomer(itr.next());
@@ -182,33 +186,74 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
 function testQueryExprWithOrderByClauseReturnStream() returns boolean {
     boolean testPassed = true;
 
-    Person2 p1 = {firstName: "Alex", lastName: "George", age: 23};
-    Person2 p2 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person2 p3 = {firstName: "John", lastName: "David", age: 33};
-    Person2 p4 = {firstName: "John", lastName: "Fonseka", age: 28};
+    Person2 p1 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person2 p2 = {firstName: "John", lastName: "David", age: 33};
+    Person2 p3 = {firstName: "John", lastName: "Fonseka", age: 28};
+    Person2 p4 = {firstName: "John", lastName: "Fonseka", age: 30};
+    Person2 p5 = {firstName: "John", lastName: "Fonseka", age: 20};
 
-    Person2[] personList = [p1, p2, p3, p4];
+    Customer c1 = {id: 1, name: "John", noOfItems: 25};
+    Customer c2 = {id: 2, name: "Frank", noOfItems: 20};
 
-    stream<Person2> outputPersonStream = stream from var person in personList
-        where person.firstName == "John"
-        let int newAge = 34
-        order by lastName descending
+    Person2[] personList = [p1, p2, p3, p4, p5];
+    Customer[] customerList = [c1, c2];
+
+    stream<Person2> outputPersonStream = stream from var person in personList.toStream()
+        from var customer in customerList
+        let string newLastName = "Turin"
+        let string newFirstName = "Johnas"
+        where customer.name == "John"
+        where person.lastName == "Fonseka"
+        order by age descending
         select {
-            firstName: person.firstName,
-            lastName: person.lastName,
-            age: newAge
+            firstName: newFirstName,
+            lastName: newLastName,
+            age: person.age
         };
 
     record {| Person2 value; |}? person = getPersonValue(outputPersonStream.next());
-    testPassed = testPassed && person?.value?.firstName == "John" && person?.value?.lastName == "Fonseka" &&
-    person?.value?.age == 34;
+    testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
+    person?.value?.age == 30;
 
     person = getPersonValue(outputPersonStream.next());
-    testPassed = testPassed && person?.value?.firstName == "John" && person?.value?.lastName == "David" &&
-    person?.value?.age == 34;
+    testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
+    person?.value?.age == 30;
+
+    person = getPersonValue(outputPersonStream.next());
+    testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
+    person?.value?.age == 28;
+
+    person = getPersonValue(outputPersonStream.next());
+    testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
+    person?.value?.age == 20;
 
     person = getPersonValue(outputPersonStream.next());
     testPassed = testPassed && person == ();
 
     return testPassed;
+}
+
+function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "James", noOfItems: 25};
+    Customer c4 = {id: 4, name: "James", noOfItems: 25};
+
+    Person2 p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person2 p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+    Customer[] customerList = [c1, c2, c3, c4];
+    Person2[] personList = [p1, p2];
+
+    CustomerProfile[] customerProfileList = from var customer in customerList
+         join var person in personList
+         on customer.name equals person.lastName
+         order by noOfItems
+         select {
+             name: person.firstName,
+             age : person.age,
+             noOfItems: customer.noOfItems
+         };
+
+    return customerProfileList;
 }
