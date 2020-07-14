@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -247,7 +248,10 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
         if (orderByClause != null) {
-            streamRef = addOrderFieldsAndDirection(queryBlock, orderByClause, streamRef);
+            BLangArrayLiteral orderArr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
+            orderArr.exprs = new ArrayList<>();
+            orderArr.type = new BArrayType(resolveExprType(queryExpr.type));
+            streamRef = sortStream(queryBlock, orderByClause, streamRef, orderArr);
         }
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
@@ -304,6 +308,54 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
         stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;
+    }
+
+    /**
+     * Get result type of the query output.
+     *
+     * @param type type of query expression.
+     * @return result type.
+     */
+    private BType resolveExprType(BType type) {
+        if (type.tag == TypeTags.STREAM) {
+            return ((BStreamType) type).constraint;
+        } else if (type.tag == TypeTags.TABLE) {
+            return ((BTableType) type).constraint;
+        } else if (type.tag == TypeTags.ARRAY) {
+            return ((BArrayType) type).eType;
+        } else if (type.tag == TypeTags.UNION) {
+            List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
+            for (BType t : exprTypes) {
+                BType returnType;
+                if (t.tag == TypeTags.STREAM) {
+                    returnType = ((BUnionType) type).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.STREAM)
+                            .findFirst().orElse(symTable.streamType);
+                    return ((BStreamType) returnType).constraint;
+                } else if (t.tag == TypeTags.TABLE) {
+                    returnType = ((BUnionType) type).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.TABLE)
+                            .findFirst().orElse(symTable.tableType);
+                    return ((BTableType) returnType).constraint;
+                }  else if (t.tag == TypeTags.ARRAY) {
+                    returnType = ((BUnionType) type).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                            .findFirst().orElse(symTable.arrayType);
+                    return ((BArrayType) returnType).eType;
+                } else if (t.tag == TypeTags.STRING) {
+                    returnType = ((BUnionType) type).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.STRING)
+                            .findFirst().orElse(symTable.stringType);
+                    return returnType;
+                } else if (t.tag == TypeTags.XML) {
+                    returnType = ((BUnionType) type).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.XML)
+                            .findFirst().orElse(symTable.xmlType);
+                    return returnType;
+                }
+            }
+        }
+        return type;
     }
 
     /**
@@ -578,8 +630,8 @@ public class QueryDesugar extends BLangNodeVisitor {
      * @param streamRef reference to the stream output.
      * @return variableReference to created order by function.
      */
-    BLangVariableReference addOrderFieldsAndDirection(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
-                                                      BLangVariableReference streamRef) {
+    BLangVariableReference sortStream(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
+                                                      BLangVariableReference streamRef, BLangArrayLiteral arr) {
 
         DiagnosticPos pos = orderByClause.pos;
 
@@ -602,7 +654,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         }
 
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION,
-                Lists.of(sortFieldsArrayExpr, sortModesArrayExpr, streamRef), pos);
+                Lists.of(sortFieldsArrayExpr, sortModesArrayExpr, streamRef, arr), pos);
     }
 
 

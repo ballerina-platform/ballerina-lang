@@ -2682,12 +2682,33 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
             } else if (clause.getKind() == NodeKind.ORDER_BY) {
                 BType resultType = queryExpr.type;
-                if (queryExpr.type.tag == TypeTags.ARRAY) {
-                    resultType = ((BArrayType) queryExpr.type).eType;
-                } else if (queryExpr.type.tag == TypeTags.TABLE) {
-                    resultType = ((BTableType) queryExpr.type).constraint;
-                } else if (queryExpr.type.tag == TypeTags.STREAM) {
-                    resultType = ((BStreamType) queryExpr.type).constraint;
+                if (resultType.tag == TypeTags.ARRAY) {
+                    resultType = ((BArrayType) resultType).eType;
+                } else if (resultType.tag == TypeTags.TABLE) {
+                    resultType = ((BTableType) resultType).constraint;
+                } else if (resultType.tag == TypeTags.STREAM) {
+                    resultType = ((BStreamType) resultType).constraint;
+                } else if (resultType.tag == TypeTags.UNION) {
+                    List<BType> exprTypes = new ArrayList<>(((BUnionType) resultType).getMemberTypes());
+                    for (BType t : exprTypes) {
+                        BType returnType;
+                        if (t.tag == TypeTags.STREAM) {
+                            returnType = ((BUnionType) resultType).getMemberTypes()
+                                    .stream().filter(m -> m.tag == TypeTags.STREAM)
+                                    .findFirst().orElse(symTable.streamType);
+                            resultType = ((BStreamType) returnType).constraint;
+                        } else if (t.tag == TypeTags.TABLE) {
+                            returnType = ((BUnionType) resultType).getMemberTypes()
+                                    .stream().filter(m -> m.tag == TypeTags.TABLE)
+                                    .findFirst().orElse(symTable.tableType);
+                            resultType = ((BTableType) returnType).constraint;
+                        } else if (t.tag == TypeTags.ARRAY) {
+                            returnType = ((BUnionType) resultType).getMemberTypes()
+                                    .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                                    .findFirst().orElse(symTable.arrayType);
+                            resultType = ((BArrayType) returnType).eType;
+                        }
+                    }
                 }
                 if (resultType.tag == TypeTags.RECORD) {
                     BRecordType recordType = (BRecordType) resultType;

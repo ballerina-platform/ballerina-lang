@@ -76,9 +76,8 @@ public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<T
     return pipeline.getStream();
 }
 
-public function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, stream<Type, error?> strm)
-returns stream<Type, error?> {
-    Type[] arr = [];
+public function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, stream<Type, error?> strm,
+@tainted Type[] arr) returns stream<Type, error?> {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
@@ -86,10 +85,75 @@ returns stream<Type, error?> {
     }
 
     StreamOrderBy streamOrderByObj = new StreamOrderBy(fieldNames, sortTypes);
-    arr = streamOrderByObj.topDownMergeSort(arr);
-    var untaintedArrVal = <@untainted>arr;
+    var sortedArr = <@untainted>streamOrderByObj.topDownMergeSort(arr);
 
-    return untaintedArrVal.toStream();
+    return sortedArr.toStream();
+}
+
+public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        arr.push(v.value);
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return arr;
+}
+
+public function toXML(stream<Type, error?> strm) returns xml {
+    xml result = 'xml:concat();
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        Type value = v.value;
+        if (value is xml) {
+            result = result + value;
+        }
+        v = strm.next();
+    }
+    return result;
+}
+
+public function toString(stream<Type, error?> strm) returns string {
+    string result = "";
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        Type value = v.value;
+        if (value is string) {
+            result += value;
+        }
+        v = strm.next();
+    }
+    return result;
+}
+
+public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+    record {| Type value; |}|error? v = strm.next();
+    while (v is record {| Type value; |}) {
+        error? e = trap tbl.add(<map<Type>> v.value);
+        if (e is error) {
+            if (err is error) {
+                return err;
+            }
+            return e;
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return tbl;
+}
+
+public function consumeStream(stream<Type, error?> strm) returns error? {
+    any|error? v = strm.next();
+    while (!(v is () || v is error)) {
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
 }
 
 public type StreamOrderBy object {
@@ -334,72 +398,6 @@ public type StreamOrderBy object {
     }
 
 };
-
-public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
-    record {| Type value; |}|error? v = strm.next();
-    while (v is record {| Type value; |}) {
-        arr.push(v.value);
-        v = strm.next();
-    }
-    if (v is error) {
-        return v;
-    }
-    return arr;
-}
-
-public function toXML(stream<Type, error?> strm) returns xml {
-    xml result = 'xml:concat();
-    record {| Type value; |}|error? v = strm.next();
-    while (v is record {| Type value; |}) {
-        Type value = v.value;
-        if (value is xml) {
-            result = result + value;
-        }
-        v = strm.next();
-    }
-    return result;
-}
-
-public function toString(stream<Type, error?> strm) returns string {
-    string result = "";
-    record {| Type value; |}|error? v = strm.next();
-    while (v is record {| Type value; |}) {
-        Type value = v.value;
-        if (value is string) {
-            result += value;
-        }
-        v = strm.next();
-    }
-    return result;
-}
-
-public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
-    record {| Type value; |}|error? v = strm.next();
-    while (v is record {| Type value; |}) {
-        error? e = trap tbl.add(<map<Type>> v.value);
-        if (e is error) {
-            if (err is error) {
-                return err;
-            }
-            return e;
-        }
-        v = strm.next();
-    }
-    if (v is error) {
-        return v;
-    }
-    return tbl;
-}
-
-public function consumeStream(stream<Type, error?> strm) returns error? {
-    any|error? v = strm.next();
-    while (!(v is () || v is error)) {
-        v = strm.next();
-    }
-    if (v is error) {
-        return v;
-    }
-}
 
 // TODO: This for debugging purposes, remove once completed.
 public function print(any|error? data) = external;
