@@ -30,11 +30,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
 import io.ballerina.plugins.idea.psi.BallerinaCloseRecordTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaDocumentationString;
+import io.ballerina.plugins.idea.psi.BallerinaEnumBody;
+import io.ballerina.plugins.idea.psi.BallerinaEnumDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinitionBody;
 import io.ballerina.plugins.idea.psi.BallerinaImportDeclaration;
 import io.ballerina.plugins.idea.psi.BallerinaMethodDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaMultiMemberEnumBody;
 import io.ballerina.plugins.idea.psi.BallerinaNestedRecoverableBody;
 import io.ballerina.plugins.idea.psi.BallerinaObjectMethod;
 import io.ballerina.plugins.idea.psi.BallerinaObjectTypeBody;
@@ -43,6 +46,7 @@ import io.ballerina.plugins.idea.psi.BallerinaOrgName;
 import io.ballerina.plugins.idea.psi.BallerinaRecoverableBody;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaServiceDefinitionBody;
+import io.ballerina.plugins.idea.psi.BallerinaSingleMemberEnumBody;
 import io.ballerina.plugins.idea.psi.BallerinaTypeBody;
 import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
@@ -68,6 +72,7 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         buildDocumentationFoldingRegions(descriptors, root);
         buildAnnotationFoldingRegions(descriptors, root);
         buildMultiCommentFoldingRegions(descriptors, root);
+        buildEnumFoldingRegions(descriptors, root);
     }
 
     private void buildImportFoldingRegion(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
@@ -185,6 +190,29 @@ public class BallerinaFoldingBuilder extends CustomFoldingBuilder implements Dum
         //     // Add folding descriptor.
         //     addFoldingDescriptor(descriptors, serviceNode, serviceBody, false);
         // }
+    }
+
+    private void buildEnumFoldingRegions(@NotNull List<FoldingDescriptor> descriptors, @NotNull PsiElement root) {
+        // Get all enum nodes.
+        Collection<BallerinaEnumDefinition> enumNodes = PsiTreeUtil.findChildrenOfType(root,
+                BallerinaEnumDefinition.class);
+        for (BallerinaEnumDefinition enumNode : enumNodes) {
+            // Get the enum body. This is used to calculate the start offset.
+            BallerinaEnumBody enumBody = PsiTreeUtil.getChildOfType(enumNode, BallerinaEnumBody.class);
+            if (enumBody == null) {
+                continue;
+            }
+            BallerinaMultiMemberEnumBody multiMemberEnumBody = PsiTreeUtil.getChildOfType(enumBody,
+                    BallerinaMultiMemberEnumBody.class);
+            if (multiMemberEnumBody != null) {
+                addFoldingDescriptor(descriptors, enumNode, multiMemberEnumBody, false);
+            }
+            BallerinaSingleMemberEnumBody singleMemberEnumBody = PsiTreeUtil.getChildOfType(enumBody,
+                    BallerinaSingleMemberEnumBody.class);
+            if (singleMemberEnumBody != null) {
+                addFoldingDescriptor(descriptors, enumNode, singleMemberEnumBody, false);
+            }
+        }
     }
 
     private void buildDocumentationFoldingRegions(@NotNull List<FoldingDescriptor> descriptors,
