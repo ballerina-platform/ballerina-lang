@@ -50,7 +50,7 @@ public type Cookie object {
     #
     # + name - Name of the `http:Cookie`
     # + value - Value of the `http:Cookie`
-    public function init(string name, string value) {
+    public function init(string name, string? value) {
         self.name = name;
         self.value = value;
     }
@@ -230,12 +230,17 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     string cookieValue = cookieStringValue;
     string[] nameValuePairs = stringutils:split(cookieValue, SEMICOLON + SPACE);
     foreach var item in nameValuePairs {
-        string[] nameValue = stringutils:split(item, EQUALS);
-        if (nameValue.length() > 1) {
-            Cookie cookie = new (nameValue[0], nameValue[1]);
+        if (stringutils:contains(item, EQUALS)) {
+            string[] nameValue = stringutils:split(item, EQUALS);
+            Cookie cookie;
+            if (nameValue.length() > 1) {
+                cookie = new (nameValue[0], nameValue[1]);
+            } else {
+                cookie = new (nameValue[0], "");
+            }
             cookiesInRequest.push(cookie);
         } else {
-            log:printError("Invalid cookie: " + item + ", which must be in the name-value pair[{name}={value}]].");
+            log:printError("Invalid cookie: " + item + ", which must be in the format as [{name}=].");
         }
     }
     return cookiesInRequest;
