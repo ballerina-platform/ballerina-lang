@@ -49,16 +49,20 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHANNEL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CHECKPANIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CLIENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMITTED;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONFLICT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_EXTENDED_FLOATING_POINT_NUMBER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_FLOATING_POINT_NUMBER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.DISTINCT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DO;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ELVIS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ENUM;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.ERROR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXTERNAL;
@@ -80,13 +84,17 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.INT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.JOIN_EQUALS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.JSON;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.KEY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LET;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.LIMIT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LINE_COMMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LISTENER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.LOCK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.MATCH;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEVER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULL_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.OBJECT;
@@ -100,6 +108,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.PRIVATE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.PUBLIC;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.QUOTED_STRING_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RARROW;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.READONLY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RECORD;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.REMOTE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RESOURCE;
@@ -107,6 +116,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRIES;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.RETURNS;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.ROLLBACK;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SELECT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SOURCE;
@@ -118,6 +128,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SYNCRARROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TABLE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.THROW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRANSACTIONAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRAP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TRY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.TYPE;
@@ -152,15 +163,14 @@ public class BallerinaParserDefinition implements ParserDefinition {
                     HEXADECIMAL_FLOATING_POINT_LITERAL);
 
     // excluding keywords "foreach" and "map", which are also used as Iterable operations.
-    public static final TokenSet KEYWORDS = TokenSet
-            .create(ABORT, ABORTED, ABSTRACT, ANNOTATION, ANY, ANYDATA, BOOLEAN, BREAK, BYTE, CATCH, CHANNEL,
-                    CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DECIMAL, ELSE, ERROR, EXTERNAL,
-                    FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN, INT, IS, JSON,
-                    LET, LISTENER, LOCK, MATCH, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC, PRIVATE, PUBLIC,
-                    RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE, START, STREAM, STRING,
-                    TABLE, TRANSACTION, TRY, TYPE, TYPE_FIELD, TYPE_PARAMETER, TYPEDESC, TYPEOF, TRAP, THROW, WAIT,
-                    WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT,
-                    WHERE, DO, FOREVER);
+    public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ABORTED, ABSTRACT, ANNOTATION, ANY, ANYDATA, BOOLEAN,
+            BREAK, BYTE, CATCH, CHANNEL, CHECK, CHECKPANIC, CLIENT, COMMITTED, CONST, CONTINUE, DECIMAL, DISTINCT, ELSE,
+            ENUM, ERROR, EXTERNAL, FAIL, FINAL, FINALLY, FLOAT, FLUSH, FORK, FUNCTION, FUTURE, HANDLE, IF, IMPORT, IN,
+            INT, IS, JSON, LET, LISTENER, LOCK, MATCH, NEVER, NEW, OBJECT, OBJECT_INIT, ONRETRY, PARAMETER, PANIC,
+            PRIVATE, PUBLIC, READONLY, RECORD, REMOTE, RESOURCE, RETRIES, RETRY, RETURN, RETURNS, SERVICE, SOURCE,
+            START, STREAM, STRING, TABLE, TRANSACTION, TRY, TYPE, TYPE_FIELD, TYPE_PARAMETER, TYPEDESC, TYPEOF, TRAP,
+            THROW, WAIT, WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL, FROM, ON, SELECT,
+            WHERE, DO, FOREVER, TRANSACTION, TRANSACTIONAL, COMMIT, ROLLBACK, CONFLICT, JOIN_EQUALS, LIMIT, KEY);
 
     public static final TokenSet OPERATORS = TokenSet.create(ELVIS, EQUAL_GT, LARROW, RARROW, SYNCRARROW);
 
