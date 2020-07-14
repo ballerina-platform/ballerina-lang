@@ -53,12 +53,11 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Util class for building concrete BType types from parameterized types.
@@ -70,7 +69,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private static final CompilerContext.Key<Unifier> UNIFIER_KEY = new CompilerContext.Key<>();
 
     private Map<String, BType> paramValueTypes;
-    private Set<BType> visitedTypes;
     private boolean isInvocation;
     private BLangInvocation invocation;
     private BLangDiagnosticLogHelper dlogHelper;
@@ -96,7 +94,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     public BType build(BType originalType, BType expType, BLangInvocation invocation) {
         this.isInvocation = invocation != null;
-        this.visitedTypes = new HashSet<>();
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
@@ -128,7 +125,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BMapType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? expType : ((BMapType) expType).constraint;
+        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BMapType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -142,7 +139,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BXMLType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? expType : ((BXMLType) expType).constraint;
+        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BXMLType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -161,7 +158,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BArrayType originalType, BType expType) {
-        BType expElemType = isDifferentTypeKind(originalType, expType) ? expType : ((BArrayType) expType).eType;
+        BType expElemType = isDifferentTypeKind(originalType, expType) ? null : ((BArrayType) expType).eType;
         BType newElemType = originalType.eType.accept(this, expElemType);
 
         if (newElemType == originalType.eType) {
@@ -186,9 +183,18 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BTupleType originalType, BType expType) {
         boolean hasNewType = false;
+        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
         List<BType> members = new ArrayList<>();
-        for (BType member : originalType.tupleTypes) {
-            BType newMem = member.accept(this, null);
+        List<BType> expTupleTypes = isDifferentType ? Collections.singletonList(null) :
+                ((BTupleType) expType).tupleTypes;
+        int delta = isDifferentType ? 0 : 1;
+
+        // TODO: Consider different tuple member list sizes
+        List<BType> tupleTypes = originalType.tupleTypes;
+        for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
+            BType member = tupleTypes.get(i);
+            BType expMember = expTupleTypes.get(j);
+            BType newMem = member.accept(this, expMember);
             members.add(newMem);
 
             if (newMem != member) {
@@ -198,7 +204,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         BType rest = originalType.restType;
         if (rest != null) {
-            rest = rest.accept(this, null);
+            BType expRestType = isDifferentType ? null : ((BTupleType) expType).restType;
+            rest = rest.accept(this, expRestType);
 
             if (rest != originalType.restType) {
                 hasNewType = true;
@@ -218,12 +225,13 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BStreamType originalType, BType expType) {
         boolean isDifferentType = isDifferentTypeKind(originalType, expType);
-        BType expConstraint = isDifferentType ? expType : ((BStreamType) expType).constraint;
+
+        BType expConstraint = isDifferentType ? null : ((BStreamType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         BType newError = null;
         if (originalType.error != null) {
-            BType expError = isDifferentType ? expType : ((BStreamType) expType).error;
+            BType expError = isDifferentType ? null : ((BStreamType) expType).error;
             newError = originalType.error.accept(this, expError);
         }
 
@@ -239,12 +247,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BTableType originalType, BType expType) {
         boolean isDifferentType = isDifferentTypeKind(originalType, expType);
-        BType expConstraint = isDifferentType ? expType : ((BTableType) expType).constraint;
+        BType expConstraint = isDifferentType ? null : ((BTableType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         BType newKeyTypeConstraint = null;
         if (originalType.keyTypeConstraint != null) {
-            BType expKeyConstraint = isDifferentType ? expType : ((BTableType) expType).keyTypeConstraint;
+            BType expKeyConstraint = isDifferentType ? null : ((BTableType) expType).keyTypeConstraint;
             originalType.keyTypeConstraint.accept(this, expKeyConstraint);
         }
 
@@ -264,10 +272,17 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BInvokableType originalType, BType expType) {
         boolean hasNewType = false;
+        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
         List<BType> paramTypes = new ArrayList<>();
+        List<BType> expParamTypes = isDifferentType ? Collections.singletonList(null) :
+                ((BInvokableType) expType).paramTypes;
+        int delta = isDifferentType ? 0 : 1;
 
-        for (BType type : originalType.paramTypes) {
-            BType newT = type.accept(this, null);
+        List<BType> bTypes = originalType.paramTypes;
+        for (int i = 0, j = 0; i < bTypes.size(); i++, j += delta) {
+            BType type = bTypes.get(i);
+            BType expParamType = expParamTypes.get(j);
+            BType newT = type.accept(this, expParamType);
             paramTypes.add(newT);
 
             if (newT != type) {
@@ -277,14 +292,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         BType rest = originalType.restType;
         if (rest != null) {
-            rest = rest.accept(this, null);
+            BType expRestType = isDifferentType ? null : ((BInvokableType) expType).restType;
+            rest = rest.accept(this, expRestType);
 
             if (rest != originalType.restType) {
                 hasNewType = true;
             }
         }
 
-        BType retType = originalType.retType.accept(this, null);
+        BType expRetType = isDifferentType ? null : ((BInvokableType) expType).retType;
+        BType retType = originalType.retType.accept(this, expRetType);
 
         if (!hasNewType && retType != originalType.retType) {
             return originalType;
@@ -321,7 +338,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BIntersectionType originalType, BType expType) {
         BType expEffectiveType = isDifferentTypeKind(originalType, expType) ?
-                expType : ((BIntersectionType) expType).effectiveType;
+                null : ((BIntersectionType) expType).effectiveType;
         BType newEffectiveType = originalType.effectiveType.accept(this, expEffectiveType);
 
         if (newEffectiveType == originalType.effectiveType) {
@@ -336,7 +353,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BErrorType originalType, BType expType) {
-        BType expDetailType = isDifferentTypeKind(originalType, expType) ? expType : ((BErrorType) expType).detailType;
+        BType expDetailType = isDifferentTypeKind(originalType, expType) ? null : ((BErrorType) expType).detailType;
         BType newDetail = originalType.detailType.accept(this, expDetailType);
 
         if (newDetail == originalType.detailType) {
@@ -350,7 +367,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BFutureType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? expType : ((BFutureType) expType).constraint;
+        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BFutureType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -377,7 +394,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BTypedescType originalType, BType expType) {
         BType expConstraint = isDifferentTypeKind(originalType, expType) ?
-                expType : ((BTypedescType) expType).constraint;
+                null : ((BTypedescType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -395,7 +412,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BType paramSymbolType = ((BTypedescType) originalType.paramSymbol.type).constraint;
-            if (types.isAssignable(expType, paramSymbolType)) {
+            if (expType != null && types.isAssignable(expType, paramSymbolType)) {
                 BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
                 typedescExpr.pos = this.invocation.pos;
                 typedescExpr.resolvedType = expType;
@@ -455,6 +472,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private boolean isDifferentTypeKind(BType source, BType target) {
         // TODO: Consider subtypes
+        if (target == null) {
+            return true;
+        }
+
         if (source.tag != target.tag) {
             return true;
         }
@@ -477,7 +498,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private void reset() {
-        this.visitedTypes = null;
         this.paramValueTypes = null;
         this.isInvocation = false;
     }
