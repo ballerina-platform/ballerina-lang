@@ -616,34 +616,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
 
         return new STNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
     }
 
     public static STNode createPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression) {
 
         return new STPositionalArgumentNode(
-                leadingComma,
                 expression);
     }
 
     public static STNode createRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
 
         return new STRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -981,13 +975,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STNamedWorkerDeclarator(
                 workerInitStatements,
                 namedWorkerDeclarations);
-    }
-
-    public static STNode createDocumentationStringNode(
-            STNode documentationLines) {
-
-        return new STDocumentationStringNode(
-                documentationLines);
     }
 
     public static STNode createBasicLiteralNode(
@@ -1702,6 +1689,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
+    public static STNode createFunctionalBindingPatternNode(
+            STNode typeReference,
+            STNode openParenthesis,
+            STNode argListBindingPatterns,
+            STNode closeParenthesis) {
+
+        return new STFunctionalBindingPatternNode(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    public static STNode createNamedArgBindingPatternNode(
+            STNode argName,
+            STNode equalsToken,
+            STNode bindingPattern) {
+
+        return new STNamedArgBindingPatternNode(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
     public static STNode createAsyncSendActionNode(
             STNode expression,
             STNode rightArrowToken,
@@ -2109,14 +2120,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode joinKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
-            STNode expression) {
+            STNode expression,
+            STNode onCondition) {
 
         return new STJoinClauseNode(
                 outerKeyword,
                 joinKeyword,
                 typedBindingPattern,
                 inKeyword,
-                expression);
+                expression,
+                onCondition);
     }
 
     public static STNode createOnClauseNode(
@@ -2150,6 +2163,102 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 ellipsisToken,
                 varKeywordToken,
                 variableName);
+    }
+
+    public static STNode createMappingMatchPatternNode(
+            STNode openBraceToken,
+            STNode fieldMatchPatterns,
+            STNode restMatchPattern,
+            STNode closeBraceToken) {
+
+        return new STMappingMatchPatternNode(
+                openBraceToken,
+                fieldMatchPatterns,
+                restMatchPattern,
+                closeBraceToken);
+    }
+
+    public static STNode createFieldMatchPatternNode(
+            STNode fieldNameNode,
+            STNode colonToken,
+            STNode matchPattern) {
+
+        return new STFieldMatchPatternNode(
+                fieldNameNode,
+                colonToken,
+                matchPattern);
+    }
+
+    public static STNode createFunctionalMatchPatternNode(
+            STNode typeRef,
+            STNode openParenthesisToken,
+            STNode argListMatchPatternNode,
+            STNode closeParenthesisToken) {
+
+        return new STFunctionalMatchPatternNode(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    public static STNode createNamedArgMatchPatternNode(
+            STNode identifier,
+            STNode equalToken,
+            STNode matchPattern) {
+
+        return new STNamedArgMatchPatternNode(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
+    public static STNode createMarkdownDocumentationNode(
+            STNode documentationLines) {
+
+        return new STMarkdownDocumentationNode(
+                documentationLines);
+    }
+
+    public static STNode createMarkdownDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STMarkdownDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
+    }
+
+    public static STNode createMarkdownParameterDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode plusToken,
+            STNode parameterName,
+            STNode minusToken,
+            STNode documentElements) {
+
+        return new STMarkdownParameterDocumentationLineNode(
+                kind,
+                hashToken,
+                plusToken,
+                parameterName,
+                minusToken,
+                documentElements);
+    }
+
+    public static STNode createDocumentationReferenceNode(
+            STNode referenceType,
+            STNode startBacktick,
+            STNode backtickContent,
+            STNode endBacktick) {
+
+        return new STDocumentationReferenceNode(
+                referenceType,
+                startBacktick,
+                backtickContent,
+                endBacktick);
     }
 }
 

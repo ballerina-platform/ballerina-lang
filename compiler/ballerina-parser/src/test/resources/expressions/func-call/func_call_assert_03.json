@@ -31,17 +31,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "POSITIONAL_ARG",
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "TRUE_KEYWORD",
               "children": [

@@ -1,97 +1,75 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Clients
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.clients}}
+        <li {{#equals client.name name}}class="active active-item"{{/equals}}>
+            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Clients</h3>
-                <ul>
-                    {{#each module.clients}}
-                        <li {{#equals client.name name}}class="active active-item"{{/equals}}>
-                            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
-                        </li>
+{{#partial "titleType" }}
+    Clients
+{{/partial}}
+{{#partial "title" }}
+    <span class="clients">{{ client.name }}</span>
+{{/partial}}
+
+{{#partial "content" }}
+    <p>{{{ client.description }}}</p>
+
+    <div class="constants">
+        <div class="method-sum">
+            {{#if client.initMethod}}
+                {{#client.initMethod}}
+                    {{> initMethod }}
+                {{/client.initMethod}}
+            {{/if}}
+
+            {{#if client.remoteMethods }}
+                <h2>Remote Methods</h2>
+                <table>
+                    {{#each client.remoteMethods}}
+                        <tr>
+                            <td class="module-title truncate functions" title="{{name}}"><a
+                                    class="functions" href="#{{name}}">{{name}}</a></td>
+                            <td class="module-desc">{{{ editDescription description }}}</td>
+                        </tr>
                     {{/each}}
-                </ul>
-            </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
-        </div>
-    </div>
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-        <div class="main-wrapper">
-            <div id="search-impl" class="search-bar"></div>
-            <div id="main">
-            <h1>
-                {{> breadcrumb }}
-                <span class="title-type">Clients - </span>
-                {{#if project.isSingleFile}}
-                    {{project.sourceFileName}}
-                {{else}}
-                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a> :
-                {{/if}}
-                <span class="clients">{{ client.name }}</span>
-            </h1>
-            <p>{{{ client.description }}}</p>
+                </table>
+            {{/if}}
 
-            <div class="constants">
-                <div class="method-sum">
-                    {{#if client.initMethod}}
-                        {{#client.initMethod}}
-                            {{> initMethod }}
-                        {{/client.initMethod}}
-                    {{/if}}
-
-                    {{#if client.remoteMethods }}
-                        <h2>Remote Methods</h2>
-                        <table>
-                            {{#each client.remoteMethods}}
-                                <tr>
-                                    <td class="module-title truncate functions" title="{{name}}"><a
-                                            class="functions" href="#{{name}}">{{name}}</a></td>
-                                    <td class="module-desc">{{{ description }}}</td>
-                                </tr>
-                            {{/each}}
-                        </table>
-                    {{/if}}
-
-                    {{#if client.otherMethods}}
-                        <h2>Methods</h2>
-                        <div class="method-list">
-                            {{#each client.otherMethods}}
-                                {{> methodSignature }}
-                            {{/each}}
-                        </div>
-                    {{/if}}
-                
-                    {{#if client.fields}}
-                        <h2>Fields</h2>
-                            {{#client}}    
-                                {{> fields }}
-                            {{/client}}
-                    {{/if}}
+            {{#if client.otherMethods}}
+                <h2>Methods</h2>
+                <div class="method-list">
+                    {{#each client.otherMethods}}
+                        {{> methodSignature }}
+                    {{/each}}
                 </div>
-
-                {{#if client.remoteMethods }}
-                    {{#each client.remoteMethods }}
-                        {{> method }}
-                    {{/each}}
-                {{/if}}
-
-                {{#if client.otherMethods }}
-                    {{#each client.otherMethods }}
-                        {{> method }}
-                    {{/each}}
-                {{/if}}
-            </div>
+            {{/if}}
+        
+            {{#if client.fields}}
+                <h2>Fields</h2>
+                    {{#client}}    
+                        {{> fields }}
+                    {{/client}}
+            {{/if}}
         </div>
-        </div>
+
+        {{#if client.remoteMethods }}
+            {{#each client.remoteMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
+
+        {{#if client.otherMethods }}
+            {{#each client.otherMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
     </div>
-</body>
+{{/partial}}
 
-{{> footer }}
+{{> layout}}
