@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.sdk;
 
-import com.google.common.base.Strings;
 import com.intellij.execution.configurations.PathEnvironmentVariableUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.ide.plugins.PluginManager;
@@ -376,7 +375,7 @@ public class BallerinaSdkUtils {
             StringBuilder contentBuilder = new StringBuilder();
             stream.forEach(s -> contentBuilder.append(s).append("\n"));
             String balHomePath = contentBuilder.toString().trim();
-            balHomePath = !Strings.isNullOrEmpty(balHomePath) && balHomePath.endsWith("/bin") ?
+            balHomePath = !stringIsNullOrEmpty(balHomePath) && balHomePath.endsWith("/bin") ?
                     balHomePath.replace("/bin", "/bin/ballerina") : "";
 
             // If a ballerina router script does not exist in this directory, falls-back to homebrew specific symlinks.
@@ -391,7 +390,7 @@ public class BallerinaSdkUtils {
 
     private static boolean isValidSdk(String sdkPath) {
 
-        if (Strings.isNullOrEmpty(sdkPath)) {
+        if (stringIsNullOrEmpty(sdkPath)) {
             return false;
         }
         // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
@@ -403,7 +402,7 @@ public class BallerinaSdkUtils {
 
     private static boolean hasLangServerSupport(String sdkPath) {
 
-        if (Strings.isNullOrEmpty(sdkPath)) {
+        if (stringIsNullOrEmpty(sdkPath)) {
             return false;
         }
         // Checks for either shell scripts or batch files, since the shell script recognition error in windows.
@@ -417,7 +416,7 @@ public class BallerinaSdkUtils {
 
     private static boolean hasWebviewSupport(String sdkPath) {
 
-        if (Strings.isNullOrEmpty(sdkPath)) {
+        if (stringIsNullOrEmpty(sdkPath)) {
             return false;
         }
         // Checks for composer library resource directory existence.
@@ -566,5 +565,9 @@ public class BallerinaSdkUtils {
         String sdkHomePath = sdkService.getSdkHomePath(module);
         String sdkVersionString = sdkService.getSdkVersion(module);
         return sdkHomePath != null && sdkVersionString != null ? getSdkSrcDir(sdkHomePath, sdkVersionString) : null;
+    }
+
+    public static boolean stringIsNullOrEmpty(@Nullable String string) {
+        return string == null || string.isEmpty();
     }
 }
