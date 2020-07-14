@@ -1947,8 +1947,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.TYPE_REFERENCE) {
             endContext();
             nextContext = ParserRuleContext.SEMICOLON;
-        }
-        else {
+        } else {
             throw new IllegalStateException(parentCtx.toString());
         }
 

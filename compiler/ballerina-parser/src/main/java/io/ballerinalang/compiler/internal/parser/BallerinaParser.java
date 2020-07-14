@@ -65,7 +65,6 @@ import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
-import jdk.nashorn.internal.runtime.regexp.joni.Syntax;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
