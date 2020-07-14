@@ -228,6 +228,8 @@ public class Generator {
             if (restParameter instanceof BLangSimpleVariable) {
                 BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                variable.type.isArrayType = false;
+                variable.type.isRestParam = true;
                 parameters.add(variable);
             }
         }

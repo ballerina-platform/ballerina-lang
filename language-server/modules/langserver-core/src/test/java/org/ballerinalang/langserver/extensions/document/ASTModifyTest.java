@@ -260,7 +260,7 @@ public class ASTModifyTest {
         ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
         ASTModification modification2 = new ASTModification(1, 1, 1, 1, "MAIN_START",
-                gson.fromJson("{}", JsonObject.class));
+                gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class));
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
                         "\"PARAMS\": []}", JsonObject.class));
@@ -299,7 +299,7 @@ public class ASTModifyTest {
         Gson gson = new Gson();
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
                 .modifyTriggerAndGetBallerinaAST(tempFile.toString(),
-                        "main", gson.fromJson("{}", JsonObject.class), this.serviceEndpoint);
+                        "main", gson.fromJson("{\"COMMENT\":\"\"}", JsonObject.class), this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
         ASTModification modification3 = new ASTModification(1, 1, 1, 1, "IMPORT",
@@ -335,19 +335,20 @@ public class ASTModifyTest {
         Gson gson = new Gson();
         BallerinaASTResponse astModifyResponse = LSExtensionTestUtil
                 .modifyTriggerAndGetBallerinaAST(tempFile.toString(), "service",
-                        gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\"," +
-                                " \"PORT\":\"9090\"}", JsonObject.class), this.serviceEndpoint);
+                        gson.fromJson("{\"SERVICE\":\"hello\", \"RESOURCE\":\"sayHello\", \"RES_PATH\":\"sayHello\","
+                                + "\"METHODS\":\"\\\"GET\\\"\", \"PORT\":\"9090\"}", JsonObject.class),
+                                this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
         ASTModification modification2 = new ASTModification(2, 1, 2, 1, "IMPORT",
                 gson.fromJson("{\"TYPE\":\"ballerina/nats\"}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(4, 1, 4, 1, "DECLARATION",
+        ASTModification modification3 = new ASTModification(11, 1, 11, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Connection\", \"VARIABLE\":\"connection\"," +
                         "\"PARAMS\": []}", JsonObject.class));
-        ASTModification modification4 = new ASTModification(4, 1, 4, 1, "DECLARATION",
+        ASTModification modification4 = new ASTModification(11, 1, 11, 1, "DECLARATION",
                 gson.fromJson("{\"TYPE\":\"nats:Producer\", \"VARIABLE\":\"producer\"," +
                         "\"PARAMS\": [\"connection\"]}", JsonObject.class));
-        ASTModification modification5 = new ASTModification(4, 1, 4, 1,
+        ASTModification modification5 = new ASTModification(11, 1, 11, 1,
                 "REMOTE_SERVICE_CALL",
                 gson.fromJson("{\"TYPE\":\"nats:Error?\", \"VARIABLE\":\"result\"," +
                         "\"CALLER\":\"producer\", \"FUNCTION\":\"publish\"," +

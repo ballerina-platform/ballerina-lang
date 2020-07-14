@@ -267,6 +267,9 @@ public class Writer {
         } else if (type.isArrayType) {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
+        } else if (type.isRestParam) {
+            label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
+                    + "</span>";
         } else if ("map".equals(type.category) && type.constraint != null) {
             label = "<span class=\"builtin-type\">" + type.name + "</span> <" +
                     getTypeLabel(type.constraint, context) + ">";
@@ -308,7 +311,12 @@ public class Writer {
     }
 
     private static String getSuffixes(Type type) {
-        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
+        String suffix = "";
+        if (type.isArrayType) {
+            suffix = StringUtils.repeat("[]", type.arrayDimensions);
+        } else if (type.isRestParam) {
+            suffix = "...";
+        }
         suffix += type.isNullable ? "?" : "";
         return suffix;
     }
