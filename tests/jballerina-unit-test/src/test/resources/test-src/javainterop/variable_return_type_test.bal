@@ -99,7 +99,7 @@ function testCastingForInvalidValues() {
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
     stream<string> st = stringList.toStream();
-    stream<string> newSt = getStream(string, st);
+    stream<string> newSt = getStream(st, string);
     string s = "";
 
     error? err = newSt.forEach(function (string x) { s += x; });
@@ -114,13 +114,13 @@ function testTable() {
         { name: "Granier", age: 34, designation: "SE" }
     ];
 
-    table<Person> newTab = getTable(Person, tab);
+    table<Person> newTab = getTable(tab, Person);
     assert(tab, newTab);
 }
 
 function testFunctionPointers() {
     function (anydata) returns int fn = s => 10;
-    function (string) returns int newFn = getFunction(string, int, fn);
+    function (string) returns int newFn = getFunction(fn, string, int);
     assertSame(fn, newFn);
     assert(fn("foo"), newFn("foo"));
 }
@@ -133,7 +133,7 @@ function testTypedesc() {
 function testFuture() {
     var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
-    future<string> fNew = getFuture(string, f);
+    future<string> fNew = getFuture(f, string);
     string res = wait fNew;
     assertSame(f, fNew);
     assert("Hello Pubudu", res);
@@ -174,22 +174,22 @@ type PersonTable table<Person>;
 type IntArray int[];
 
 function testComplexTypes() {
-    json j = echo(json, <json>{"name": "John Doe"});
+    json j = echo(<json>{"name": "John Doe"}, json);
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = echo(xml, xml `<hello>xml content</hello>`);
+    xml x = echo(xml `<hello>xml content</hello>`, xml);
     assert(xml `<hello>xml content</hello>`, x);
 
-    int[] ar = echo(IntArray, <IntArray>[20, 30, 40]);
+    int[] ar = echo(<IntArray>[20, 30, 40], IntArray);
     assert(<IntArray>[20, 30, 40], ar);
 
     PersonObj pObj = new("John", "Doe");
-    PersonObj nObj = echo(PersonObj, pObj);
+    PersonObj nObj = echo(pObj, PersonObj);
     assertSame(pObj, nObj);
 
     int[] intList = [10, 20, 30, 40, 50];
     stream<int> st = intList.toStream();
-    stream<int> newSt = echo(IntStream, st);
+    stream<int> newSt = echo(st, IntStream);
     int tot = 0;
 
     error? err = newSt.forEach(function (int x) { tot+= x; });
@@ -202,7 +202,7 @@ function testComplexTypes() {
         { name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = echo(PersonTable, tab);
+    table<Person> newTab = echo(tab, PersonTable);
     assert(tab, newTab);
 }
 
@@ -281,19 +281,19 @@ function getXML(typedesc<ItemType> td, xml value) returns xml<td> = @java:Method
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BXML"]
 } external;
 
-function getStream(typedesc<anydata> td, stream<anydata> value) returns stream<td> = @java:Method {
+function getStream(stream<anydata> value, typedesc<anydata> td) returns stream<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getStream",
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BStream"]
 } external;
 
-function getTable(typedesc<anydata> td, table<anydata> value) returns table<td> = @java:Method {
+function getTable(table<anydata> value, typedesc<anydata> td) returns table<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getTable",
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.values.TableValue"]
 } external;
 
-function getFunction(typedesc<anydata> param, typedesc<anydata> ret, function (string|int) returns anydata fn)
+function getFunction(function (string|int) returns anydata fn, typedesc<anydata> param, typedesc<anydata> ret)
                                                                 returns function (param) returns ret = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFunction",
@@ -307,13 +307,13 @@ function getTypedesc(typedesc<anydata> td) returns typedesc<td> = @java:Method {
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc"]
 } external;
 
-function getFuture(typedesc<anydata> td, future<anydata> f) returns future<td> = @java:Method {
+function getFuture(future<anydata> f, typedesc<anydata> td) returns future<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getFuture",
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BFuture"]
 } external;
 
-function echo(typedesc<any> td, any val) returns td = @java:Method {
+function echo(any val, typedesc<any> td) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "echo",
     paramTypes: ["org.ballerinalang.jvm.api.values.BTypedesc", "org.ballerinalang.jvm.api.values.BValue"]
