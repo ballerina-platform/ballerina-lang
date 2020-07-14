@@ -3348,6 +3348,10 @@ public class BallerinaParser extends AbstractParser {
      * @return Type reference node
      */
     private STNode parseTypeReference() {
+        if (isSimpleType(peek().kind)) {
+            STToken builtInType = consume();
+            return createBuiltinSimpleNameReference(builtInType);
+        }
         return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, false);
     }
 

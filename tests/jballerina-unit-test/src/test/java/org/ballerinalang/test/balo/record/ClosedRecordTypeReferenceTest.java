@@ -54,7 +54,7 @@ public class ClosedRecordTypeReferenceTest {
         compileResult = BCompileUtil.compile("test-src/record/closed_record_type_reference.bal");
     }
 
-    @Test(description = "Negative tests", groups = { "brokenOnNewParser" })
+    @Test(description = "Negative tests")
     public void negativeTests() {
         CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_reference_negative.bal");
         int index = 0;
