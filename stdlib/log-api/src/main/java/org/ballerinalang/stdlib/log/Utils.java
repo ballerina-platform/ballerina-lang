@@ -18,7 +18,9 @@
 
 package org.ballerinalang.stdlib.log;
 
+import org.ballerinalang.jvm.scheduling.LogContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.logging.util.BLogLevel;
 
@@ -29,25 +31,10 @@ import org.ballerinalang.logging.util.BLogLevel;
  */
 public class Utils extends AbstractLogFunction {
 
+    private static String logContext = "logContext";
+
     public static void printDebug(Object msg) {
-        boolean logLevelEnabled;
-        if (LOG_MANAGER.isStrandLogLevelEnabled()) {
-            if (LOG_MANAGER.strandLogLevelPropagate() && !LOG_MANAGER.strandLogLevelSet(Scheduler.getStrand().getId())
-                    && Scheduler.getStrand().parent != null) {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()).value() <=
-                        BLogLevel.DEBUG.value();
-                LOG_MANAGER.setStrandLogLevel(LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()),
-                        Scheduler.getStrand().getId());
-            } else {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().getId()).value() <=
-                        BLogLevel.DEBUG.value();
-            }
-        } else if (LOG_MANAGER.isModuleLogLevelEnabled()) {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(getPackagePath()).value() <= BLogLevel.DEBUG.value();
-        } else {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(".").value() <= BLogLevel.DEBUG.value();
-        }
-        if (logLevelEnabled) {
+        if (logLevelEnabled(BLogLevel.DEBUG, Scheduler.getStrand(), getPackagePath())) {
             logMessage(Scheduler.getStrand(), msg, BLogLevel.DEBUG, getPackagePath(),
                     (pkg, message) -> {
                         getLogger(pkg).debug(message);
@@ -56,24 +43,7 @@ public class Utils extends AbstractLogFunction {
     }
 
     public static void printError(Object msg, Object err) {
-        boolean logLevelEnabled;
-        if (LOG_MANAGER.isStrandLogLevelEnabled()) {
-            if (LOG_MANAGER.strandLogLevelPropagate() && !LOG_MANAGER.strandLogLevelSet(Scheduler.getStrand().getId())
-                    && Scheduler.getStrand().parent != null) {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()).value() <=
-                        BLogLevel.ERROR.value();
-                LOG_MANAGER.setStrandLogLevel(LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()),
-                        Scheduler.getStrand().getId());
-            } else {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().getId()).value() <=
-                        BLogLevel.ERROR.value();
-            }
-        } else if (LOG_MANAGER.isModuleLogLevelEnabled()) {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(getPackagePath()).value() <= BLogLevel.ERROR.value();
-        } else {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(".").value() <= BLogLevel.ERROR.value();
-        }
-        if (logLevelEnabled) {
+        if (logLevelEnabled(BLogLevel.ERROR, Scheduler.getStrand(), getPackagePath())) {
             logMessage(Scheduler.getStrand(), msg, BLogLevel.ERROR, getPackagePath(),
                     (pkg, message) -> {
                         String errorMsg = (err == null) ? "" : " : " + err.toString();
@@ -83,24 +53,7 @@ public class Utils extends AbstractLogFunction {
     }
 
     public static void printInfo(Object msg) {
-        boolean logLevelEnabled;
-        if (LOG_MANAGER.isStrandLogLevelEnabled()) {
-            if (LOG_MANAGER.strandLogLevelPropagate() && !LOG_MANAGER.strandLogLevelSet(Scheduler.getStrand().getId())
-                    && Scheduler.getStrand().parent != null) {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()).value() <=
-                        BLogLevel.INFO.value();
-                LOG_MANAGER.setStrandLogLevel(LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()),
-                        Scheduler.getStrand().getId());
-            } else {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().getId()).value() <=
-                        BLogLevel.INFO.value();
-            }
-        } else if (LOG_MANAGER.isModuleLogLevelEnabled()) {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(getPackagePath()).value() <= BLogLevel.INFO.value();
-        } else {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(".").value() <= BLogLevel.INFO.value();
-        }
-        if (logLevelEnabled) {
+        if (logLevelEnabled(BLogLevel.INFO, Scheduler.getStrand(), getPackagePath())) {
             logMessage(Scheduler.getStrand(), msg, BLogLevel.INFO, getPackagePath(),
                     (pkg, message) -> {
                         getLogger(pkg).info(message);
@@ -109,24 +62,7 @@ public class Utils extends AbstractLogFunction {
     }
 
     public static void printTrace(Object msg) {
-        boolean logLevelEnabled;
-        if (LOG_MANAGER.isStrandLogLevelEnabled()) {
-            if (LOG_MANAGER.strandLogLevelPropagate() && !LOG_MANAGER.strandLogLevelSet(Scheduler.getStrand().getId())
-                    && Scheduler.getStrand().parent != null) {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()).value() <=
-                        BLogLevel.TRACE.value();
-                LOG_MANAGER.setStrandLogLevel(LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()),
-                        Scheduler.getStrand().getId());
-            } else {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().getId()).value() <=
-                        BLogLevel.TRACE.value();
-            }
-        } else if (LOG_MANAGER.isModuleLogLevelEnabled()) {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(getPackagePath()).value() <= BLogLevel.TRACE.value();
-        } else {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(".").value() <= BLogLevel.TRACE.value();
-        }
-        if (logLevelEnabled) {
+        if (logLevelEnabled(BLogLevel.TRACE, Scheduler.getStrand(), getPackagePath())) {
             logMessage(Scheduler.getStrand(), msg, BLogLevel.TRACE, getPackagePath(),
                     (pkg, message) -> {
                         getLogger(pkg).trace(message);
@@ -135,28 +71,34 @@ public class Utils extends AbstractLogFunction {
     }
 
     public static void printWarn(Object msg) {
-        boolean logLevelEnabled;
-        if (LOG_MANAGER.isStrandLogLevelEnabled()) {
-            if (LOG_MANAGER.strandLogLevelPropagate() && !LOG_MANAGER.strandLogLevelSet(Scheduler.getStrand().getId())
-                    && Scheduler.getStrand().parent != null) {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()).value() <=
-                        BLogLevel.WARN.value();
-                LOG_MANAGER.setStrandLogLevel(LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().parent.getId()),
-                        Scheduler.getStrand().getId());
-            } else {
-                logLevelEnabled = LOG_MANAGER.getStrandLogLevel(Scheduler.getStrand().getId()).value() <=
-                        BLogLevel.WARN.value();
-            }
-        } else if (LOG_MANAGER.isModuleLogLevelEnabled()) {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(getPackagePath()).value() <= BLogLevel.WARN.value();
-        } else {
-            logLevelEnabled = LOG_MANAGER.getPackageLogLevel(".").value() <= BLogLevel.WARN.value();
-        }
-        if (logLevelEnabled) {
+        if (logLevelEnabled(BLogLevel.WARN, Scheduler.getStrand(), getPackagePath())) {
             logMessage(Scheduler.getStrand(), msg, BLogLevel.WARN, getPackagePath(),
                     (pkg, message) -> {
                         getLogger(pkg).warn(message);
                     });
+        }
+    }
+
+    private static boolean logLevelEnabled(BLogLevel logLevel, Strand strand, String pkg) {
+        LogContext logContext = (LogContext) strand.getProperty(Utils.logContext);
+        if (logContext != null) {
+            if (logContext.getLogLevel() != null) {
+                return logContext.getLogLevel().value() <= logLevel.value();
+            }
+        } else if (strand.parent != null) {
+            LogContext parentLogContext = (LogContext) strand.parent.getProperty(Utils.logContext);
+            if (parentLogContext != null) {
+                if (parentLogContext.getLogLevel() != null && parentLogContext.isPropagate()) {
+                    logContext = new LogContext(parentLogContext.getLogLevel(), true);
+                    strand.setProperty(Utils.logContext, logContext);
+                    return parentLogContext.getLogLevel().value() <= logLevel.value();
+                }
+            }
+        }
+        if (LOG_MANAGER.isModuleLogLevelEnabled()) {
+            return LOG_MANAGER.getPackageLogLevel(pkg).value() <= logLevel.value();
+        } else {
+            return LOG_MANAGER.getPackageLogLevel(".").value() <= logLevel.value();
         }
     }
 
@@ -173,7 +115,7 @@ public class Utils extends AbstractLogFunction {
 
     public static void setStrandLogLevel(BString logLevel, boolean propagate) {
         String level = logLevel.getValue();
-        LOG_MANAGER.setStrandLogLevel(BLogLevel.toBLogLevel(level), Scheduler.getStrand().getId());
-        LOG_MANAGER.setStrandLogLevelPropagate(propagate);
+        LogContext logContext = new LogContext(BLogLevel.toBLogLevel(level), propagate);
+        Scheduler.getStrand().setProperty(Utils.logContext, logContext);
     }
 }
