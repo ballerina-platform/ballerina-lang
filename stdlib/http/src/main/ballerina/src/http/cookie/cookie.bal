@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'int as ints;
+import ballerina/log;
 import ballerina/stringutils;
 import ballerina/time;
 
@@ -230,8 +231,12 @@ function parseCookieHeader(string cookieStringValue) returns Cookie[] {
     string[] nameValuePairs = stringutils:split(cookieValue, SEMICOLON + SPACE);
     foreach var item in nameValuePairs {
         string[] nameValue = stringutils:split(item, EQUALS);
-        Cookie cookie = new (nameValue[0], nameValue[1]);
-        cookiesInRequest.push(cookie);
+        if (nameValue.length() > 1) {
+            Cookie cookie = new (nameValue[0], nameValue[1]);
+            cookiesInRequest.push(cookie);
+        } else {
+            log:printError("Invalid cookie: " + item + ", which must be in the name-value pair[{name}={value}]].");
+        }
     }
     return cookiesInRequest;
 }
