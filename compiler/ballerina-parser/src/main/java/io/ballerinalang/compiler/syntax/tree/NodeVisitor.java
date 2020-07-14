@@ -331,10 +331,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(namedWorkerDeclarator);
     }
 
-    public void visit(DocumentationStringNode documentationStringNode) {
-        visitSyntaxNode(documentationStringNode);
-    }
-
     public void visit(BasicLiteralNode basicLiteralNode) {
         visitSyntaxNode(basicLiteralNode);
     }
@@ -783,16 +779,20 @@ public abstract class NodeVisitor {
         visitSyntaxNode(namedArgMatchPatternNode);
     }
 
-    public void visit(ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        visitSyntaxNode(parameterDocumentationLineNode);
+    public void visit(MarkdownDocumentationNode markdownDocumentationNode) {
+        visitSyntaxNode(markdownDocumentationNode);
+    }
+
+    public void visit(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        visitSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public void visit(DocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
-    }
-
-    public void visit(DocumentationLineNode documentationLineNode) {
-        visitSyntaxNode(documentationLineNode);
     }
 
     public void visit(OrderByClauseNode orderByClauseNode) {

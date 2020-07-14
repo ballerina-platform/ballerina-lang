@@ -977,13 +977,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 namedWorkerDeclarations);
     }
 
-    public static STNode createDocumentationStringNode(
-            STNode documentationLines) {
-
-        return new STDocumentationStringNode(
-                documentationLines);
-    }
-
     public static STNode createBasicLiteralNode(
             SyntaxKind kind,
             STNode literalToken) {
@@ -2220,7 +2213,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 matchPattern);
     }
 
-    public static STNode createParameterDocumentationLineNode(
+    public static STNode createMarkdownDocumentationNode(
+            STNode documentationLines) {
+
+        return new STMarkdownDocumentationNode(
+                documentationLines);
+    }
+
+    public static STNode createMarkdownDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STMarkdownDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
+    }
+
+    public static STNode createMarkdownParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -2228,7 +2239,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode minusToken,
             STNode documentElements) {
 
-        return new STParameterDocumentationLineNode(
+        return new STMarkdownParameterDocumentationLineNode(
                 kind,
                 hashToken,
                 plusToken,
