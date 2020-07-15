@@ -18,6 +18,7 @@
 
 package org.ballerinalang.packerina.task;
 
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
@@ -32,6 +33,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -137,12 +139,14 @@ public class RunExecutableTask implements Task {
     }
 
     private String getAllClassPaths(BLangPackage executableModule, BuildContext buildContext) {
+        JarResolver jarResolver = buildContext.get(BuildContextField.JAR_RESOLVER);
         StringJoiner cp = new StringJoiner(File.pathSeparator);
         // Adds executable thin jar path.
         cp.add(this.executableJarPath.toString());
         // Adds all the dependency paths for modules.
-        buildContext.moduleDependencyPathMap.get(executableModule.packageID).moduleLibs.forEach(path ->
-                cp.add(path.toString()));
+        HashSet<Path> dependencySet = new HashSet<>(jarResolver.allDependencies(executableModule));
+        dependencySet.add(jarResolver.getRuntimeJar());
+        dependencySet.forEach(path -> cp.add(path.toString()));
         // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
         // when running single bal files
         if (buildContext.getSourceType().equals(SINGLE_BAL_FILE)) {
