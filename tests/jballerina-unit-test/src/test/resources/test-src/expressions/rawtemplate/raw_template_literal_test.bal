@@ -203,8 +203,7 @@ function testUseWithVar() {
     var rt = `Hello ${name}!`;
     typedesc<any> td = typeof rt;
 
-    assert("typedesc $rawTemplate$RawTemplate$12",
-            td.toString());
+    assert("typedesc $rawTemplate$RawTemplate$12", td.toString());
 }
 
 function testUseWithAny() {
