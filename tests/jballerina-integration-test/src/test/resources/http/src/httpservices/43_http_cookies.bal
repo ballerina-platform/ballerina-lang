@@ -264,17 +264,17 @@ service cookie on new http:Listener(9253) {
         path: "/cookieBackend_13"
    }
     resource function validateCookie(http:Caller caller, http:Request req) {
-        http:Cookie[] reqstCookies=req.getCookies();
-        string meesage = "Valid cookies: ";
-        foreach http:Cookie cookie in  reqstCookies {
+        http:Cookie[] reqstCookies = req.getCookies();
+        string message = "Valid cookies: ";
+        foreach http:Cookie cookie in reqstCookies {
             var value = cookie.value;
             var name = cookie.name;
             if (value is string && name is string) {
-                meesage = meesage.concat(name, "=", value , ",");
+                message = meesage.concat(name, "=", value , ",");
             }
         }
         http:Response res = new;
-        res.setPayload(<@untainted> meesage);
+        res.setPayload(<@untainted> message);
         var result = caller->respond(res);
     }
 }
