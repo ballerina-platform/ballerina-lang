@@ -3326,14 +3326,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangRetrySpec createRetrySpec(RetryStatementNode retryStatementNode) {
         BLangRetrySpec retrySpec = (BLangRetrySpec) TreeBuilder.createRetrySpecNode();
-        retrySpec.pos = getPosition(retryStatementNode.retryBody());
         if (retryStatementNode.typeParameter().isPresent()) {
-            retrySpec.retryManagerType = createTypeNode(retryStatementNode.typeParameter().get().typeNode());
+            TypeParameterNode typeParam = retryStatementNode.typeParameter().get();
+            retrySpec.retryManagerType = createTypeNode(typeParam.typeNode());
+            retrySpec.pos = getPosition(typeParam);
         }
+
         if (retryStatementNode.arguments().isPresent()) {
-            for (Node argNode : retryStatementNode.arguments().get().arguments()) {
+            ParenthesizedArgList arg = retryStatementNode.arguments().get();
+            retrySpec.pos = getPosition(arg);
+            for (Node argNode : arg.arguments()) {
                 retrySpec.argExprs.add(createExpression(argNode));
             }
+        }
+
+        if (retrySpec.pos == null) {
+            retrySpec.pos = getPosition(retryStatementNode);
         }
         return retrySpec;
     }
