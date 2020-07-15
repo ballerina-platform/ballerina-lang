@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocumentChange;
@@ -43,8 +42,6 @@ import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -75,15 +72,21 @@ public class BallerinaTreeModifyUtil {
         put("REMOTE_SERVICE_CALL", "$TYPE $VARIABLE = $CALLER->$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
-        put("MAIN_START", "public function main() {\n");
+        put("MAIN_START", "$COMMENTpublic function main() {\n");
         put("MAIN_END", "}\n");
-        put("SERVICE_START", "service $SERVICE on new http:Listener($PORT) {\n" +
-                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n");
+        put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
+                "service $SERVICE on new http:Listener($PORT) {\n" +
+                "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
+                "    resource function $RESOURCE(http:Caller caller, http:Request req) {\n\n");
         put("SERVICE_END",
                 "    }\n" +
                         "}\n");
         put("IF_STATEMENT", "if ($CONDITION) {\n" +
                 "\n} else {\n\n}\n");
+        put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
+                "\n}");
+        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");");
+        put("PROPERTY_STATEMENT", "$PROPERTY");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
@@ -185,9 +188,7 @@ public class BallerinaTreeModifyUtil {
         oldTree.accept(unusedNodeVisitor);
 
         String fileContent = documentManager.getFileContent(compilationPath);
-        TextDocument textDocument = TextDocuments.from(fileContent);
-        SyntaxTree oldSyntaxTree = SyntaxTree.from(textDocument, compilationPath.toString());
-        TextDocument oldTextDocument = oldSyntaxTree.textDocument();
+        TextDocument oldTextDocument = TextDocuments.from(fileContent);
         List<TextEdit> edits =
                 BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
                         oldTextDocument);
@@ -205,9 +206,8 @@ public class BallerinaTreeModifyUtil {
 
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
-        SyntaxTree updatedSyntaxTree = SyntaxTree.from(oldSyntaxTree, textDocumentChange);
-        String updatedSyntaxTreeString = updatedSyntaxTree.toString();
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
+        TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
+        documentManager.updateFile(compilationPath, newTextDocument.toString());
 
         //Format bal file code
         JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
@@ -216,14 +216,9 @@ public class BallerinaTreeModifyUtil {
         FormattingVisitorEntry formattingUtil = new FormattingVisitorEntry();
         formattingUtil.accept(model);
 
-        updatedSyntaxTreeString = FormattingSourceGen.getSourceOf(model);
-        updatedSyntaxTree = SyntaxTree.from(TextDocuments.from(updatedSyntaxTreeString));
-        documentManager.updateFile(compilationPath, updatedSyntaxTreeString);
-        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SYNTAX_TREE, updatedSyntaxTree);
-        File outputFile = compilationPath.toFile();
-        try (FileWriter writer = new FileWriter(outputFile)) {
-            writer.write(updatedSyntaxTreeString);
-        }
+        String formattedSource = FormattingSourceGen.getSourceOf(model);
+        documentManager.updateFile(compilationPath, formattedSource);
+        astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
         return astContext;
     }
 

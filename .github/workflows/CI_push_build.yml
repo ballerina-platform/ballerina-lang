@@ -42,15 +42,7 @@ jobs:
         run: |
           export DISPLAY=':99.0'
           /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew build -x createJavadoc -x :jballerina-debugger-integration-test:test -x :jballerina-unit-test:test -x :language-server:language-server-core:test -x :jballerina-integration-test:test -x :ballerina-http:test -x :ballerina-kafka:test --max-workers=2 --scan
-
-          find ~/.gradle/caches/ -name "*.lock" -type f -delete
-
-      - name: Run few other tests
-        run: |
-          export DISPLAY=':99.0'
-          /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-          ./gradlew :jballerina-debugger-integration-test:test :jballerina-unit-test:test :ballerina-http:test :ballerina-kafka:test :language-server:language-server-core:test -x createJavadoc --no-parallel --scan
+          ./gradlew build -x createJavadoc -x :jballerina-integration-test:test --max-workers=2 --scan
 
           find ~/.gradle/caches/ -name "*.lock" -type f -delete
 

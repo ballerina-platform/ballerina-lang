@@ -27,9 +27,9 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.LabelGenerator;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -127,7 +127,9 @@ public class InteropMethodGen {
                                          BIRPackage birModule,
                                          JvmPackageGen jvmPackageGen,
                                          JvmMethodGen jvmMethodGen,
-                                         LambdaMetadata lambdaGenMetadata) {
+                                         String moduleClassName,
+                                         String serviceName,
+                                         AsyncDataCollector asyncDataCollector) {
 
         String currentPackageName = getPackageName(birModule.org.value, birModule.name.value, birModule.version.value);
 
@@ -197,7 +199,9 @@ public class InteropMethodGen {
 
             List<BIRBasicBlock> basicBlocks = birFunc.parameters.get(birFuncParam);
             jvmMethodGen.generateBasicBlocks(mv, basicBlocks, labelGen, errorGen, instGen, termGen, birFunc, -1, -1,
-                    strandParamIndex, true, birModule, null, lambdaGenMetadata);
+                                             strandParamIndex, true, birModule, null, moduleClassName,
+                                             asyncDataCollector);
+
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;

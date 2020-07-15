@@ -578,15 +578,52 @@
                       ]
                     },
                     {
-                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "kind": "FUNCTIONAL_BINDING_PATTERN",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "isMissing": true,
+                          "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_IDENTIFIER"
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "isMissing": true,
+                              "hasDiagnostics": true,
+                              "diagnostics": [
+                                "ERROR_MISSING_IDENTIFIER"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "OPEN_PAREN_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "id"
+                                    }
+                                  ]
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_PAREN_TOKEN",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
                           ]
                         }
                       ]
@@ -602,51 +639,11 @@
                   ]
                 },
                 {
-                  "kind": "BINARY_EXPRESSION",
-                  "hasDiagnostics": true,
+                  "kind": "SIMPLE_NAME_REFERENCE",
                   "children": [
                     {
-                      "kind": "BRACED_EXPRESSION",
-                      "children": [
-                        {
-                          "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "id"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "CLOSE_PAREN_TOKEN",
-                          "trailingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "PLUS_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_PLUS_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "SIMPLE_NAME_REFERENCE",
-                      "children": [
-                        {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "a"
-                        }
-                      ]
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
                     }
                   ]
                 },
