@@ -78,6 +78,9 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 #
 # + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
 # + token - Auth token (credential)
+# + userId - User ID of the authenticated user
+# + scopes - Authenticated user scopes
+# + claims - Claims of the authenticated user
 public function setInvocationContext(public string? scheme = (), public string? token = (),
                     public string? userId = (), public string[]? scopes = (), public map<any>? claims = ()) {
     InvocationContext invocationContext = getInvocationContext();
