@@ -150,7 +150,11 @@ public class Generator {
             // TODO: handle value type nodes
             added = true;
         } else if (kind == NodeKind.TUPLE_TYPE_NODE) {
-            // TODO: handle tuple type nodes
+            Type tupleType = Type.fromTypeNode(typeNode, module.id);
+            UnionType unionTupleType = new UnionType(typeName, description(typeDefinition), isDeprecated,
+                    tupleType.memberTypes);
+            unionTupleType.isTuple = true;
+            module.unionTypes.add(unionTupleType);
             added = true;
         } else if (kind == NodeKind.ERROR_TYPE) {
             BLangErrorType errorType = (BLangErrorType) typeNode;
@@ -224,6 +228,8 @@ public class Generator {
             if (restParameter instanceof BLangSimpleVariable) {
                 BLangSimpleVariable param = (BLangSimpleVariable) restParameter;
                 DefaultableVariable variable = getVariable(functionNode, param, module);
+                variable.type.isArrayType = false;
+                variable.type.isRestParam = true;
                 parameters.add(variable);
             }
         }
@@ -274,9 +280,11 @@ public class Generator {
         }
         BLangMarkdownDocumentation documentationNode = typeDefinition.getMarkdownDocumentationAttachment();
         List<DefaultableVariable> fields = getFields(recordType, recordType.fields, documentationNode, module);
-
-        module.records.add(new Record(recordName, description(typeDefinition),
-                isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
+        // only add records that are not empty
+        if (!fields.isEmpty()) {
+            module.records.add(new Record(recordName, description(typeDefinition),
+                    isDeprecated(typeDefinition.getAnnotationAttachments()), recordType.isAnonymous, fields));
+        }
     }
 
     private static List<DefaultableVariable> getFields(BLangNode node, List<BLangSimpleVariable> allFields,
@@ -338,10 +346,11 @@ public class Generator {
                                             Module module) {
         List<Function> functions = new ArrayList<>();
         String name = parent.getName().getValue();
-
+        boolean isAnonymous = false;
         // handle anonymous names
         if (name != null && name.contains("$anonType$")) {
             name = "T" + name.substring(name.lastIndexOf('$') + 1);
+            isAnonymous = true;
         }
 
         String description = description(parent);
@@ -371,12 +380,12 @@ public class Generator {
         }
 
         if (isEndpoint(objectType)) {
-            module.clients.add(new Client(name, description, isDeprecated, fields, functions));
+            module.clients.add(new Client(name, description, isDeprecated, fields, functions, isAnonymous));
         } else if (isListener(objectType)) {
-            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions));
+            module.listeners.add(new Listener(name, description, isDeprecated, fields, functions, isAnonymous));
         } else {
             module.objects.add(new Object(name, description, isDeprecated(parent.getAnnotationAttachments()), fields,
-                    functions));
+                    functions, isAnonymous));
         }
     }
 

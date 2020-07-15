@@ -42,6 +42,7 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Testing usage of multiple versions of same module.
@@ -162,7 +163,7 @@ public class MultipleVersionsModuleTestCase extends BaseTest {
      * @return env directory variable array
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", PackerinaTestUtils.getToken());
         return envVariables;
     }

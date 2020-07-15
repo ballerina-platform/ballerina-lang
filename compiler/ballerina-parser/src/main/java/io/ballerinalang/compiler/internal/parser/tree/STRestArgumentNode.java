@@ -31,58 +31,48 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STRestArgumentNode extends STFunctionArgumentNode {
-    public final STNode leadingComma;
     public final STNode ellipsis;
     public final STNode expression;
 
     STRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
         this(
-                leadingComma,
                 ellipsis,
                 expression,
                 Collections.emptyList());
     }
 
     STRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.REST_ARG, diagnostics);
-        this.leadingComma = leadingComma;
         this.ellipsis = ellipsis;
         this.expression = expression;
 
         addChildren(
-                leadingComma,
                 ellipsis,
                 expression);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STRestArgumentNode(
-                this.leadingComma,
                 this.ellipsis,
                 this.expression,
                 diagnostics);
     }
 
     public STRestArgumentNode modify(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 ellipsis,
                 expression)) {
             return this;
         }
 
         return new STRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression,
                 diagnostics);
