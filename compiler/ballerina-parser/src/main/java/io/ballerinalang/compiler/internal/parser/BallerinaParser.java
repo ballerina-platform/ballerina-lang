@@ -8487,9 +8487,14 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
 
-        openBrace = cloneWithDiagnosticIfListEmpty(namedWorkerDeclarations, openBrace,
-                DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT);
-        return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
+        STNode forkStmt =
+                STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
+        if (isNodeListEmpty(namedWorkerDeclarations)) {
+            return SyntaxErrors.addDiagnostic(forkStmt,
+                    DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT);
+        }
+
+        return forkStmt;
     }
 
     /**

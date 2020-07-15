@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
+import org.ballerinalang.jvm.values.MappingInitialValueEntry;
 import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.api.BValueCreator;
@@ -40,8 +41,8 @@ import java.util.Map;
  */
 public class GetConfig {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-    private static final BMapType mapType = new BMapType(BTypes.typeAnydata);
-    private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata);
+    private static final BMapType mapType = new BMapType(BTypes.typeAnydata, true);
+    private static final BArrayType arrayType = new BArrayType(BTypes.typeAnydata, -1, true);
 
     public static Object get(BString configKey, BString type) {
         try {
@@ -69,11 +70,15 @@ public class GetConfig {
 
     @SuppressWarnings("unchecked")
     private static MapValue<BString, Object> buildMapValue(Map<String, Object> section) {
-        MapValue<BString, Object> map = new MapValueImpl<>(mapType);
+        MappingInitialValueEntry.KeyValueEntry[] keyValues = new MappingInitialValueEntry.KeyValueEntry[section.size()];
+        int i = 0;
         for (Map.Entry<String, Object> entry : section.entrySet()) {
-            map.put(StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
+            MappingInitialValueEntry.KeyValueEntry keyValue = new MappingInitialValueEntry.KeyValueEntry(
+                    StringUtils.fromString(entry.getKey()), getConvertedValue(entry.getValue()));
+            keyValues[i] = keyValue;
+            i++;
         }
-        return map;
+        return new MapValueImpl<>(mapType, keyValues);
     }
 
     private static BArray buildArrayValue(List value) {
