@@ -4846,6 +4846,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         switch (tokenKind) {
+            case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case OPEN_BRACE_TOKEN:
             case CLOSE_PAREN_TOKEN:
@@ -4853,7 +4854,6 @@ public class BallerinaParser extends AbstractParser {
             case SEMICOLON_TOKEN:
             case COMMA_TOKEN:
             case PUBLIC_KEYWORD:
-            case EOF_TOKEN:
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
@@ -4861,7 +4861,6 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
             case AS_KEYWORD:
             case IN_KEYWORD:
-            case BACKTICK_TOKEN:
             case FROM_KEYWORD:
             case WHERE_KEYWORD:
             case LET_KEYWORD:
@@ -11765,6 +11764,16 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode startingBackTick = parseBacktickToken(ParserRuleContext.TEMPLATE_START);
+        if (startingBackTick.isMissing()) {
+            startingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            STNode endingBackTick = SyntaxErrors.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
+            STNode content = STNodeFactory.createEmptyNode();
+            STNode byteArrayLiteral =
+                    STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
+            byteArrayLiteral = SyntaxErrors.addDiagnostic(byteArrayLiteral, DiagnosticErrorCode.ERROR_MISSING_BYTE_ARRAY_CONTENT);
+            return byteArrayLiteral;
+        }
+
         STNode content = parseByteArrayContent(kind);
         return parseByteArrayLiteral(kind, type, startingBackTick, content);
     }
