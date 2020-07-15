@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import com.moandjiezana.toml.TomlWriter;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.LockFileImport;
@@ -25,14 +26,18 @@ import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.USER_REPO_BIR_DIRNAME;
 
 /**
  * Write Ballerina.lock to target after every build.
@@ -110,6 +115,7 @@ public class LockFileWriter {
     private List<LockFileImport> getImports(List<BPackageSymbol> moduleSymbols) {
         return moduleSymbols.stream()
                 .filter(symbol -> !"".equals(symbol.pkgID.version.value))
+                .filter(symbol -> isCachedBuiltInModule(symbol.pkgID))
                 .map(symbol -> new LockFileImport(symbol.pkgID.orgName.value, symbol.pkgID.name.value,
                         symbol.pkgID.version.value))
                 .distinct()
@@ -154,5 +160,34 @@ public class LockFileWriter {
         } catch (IOException ignore) {
             // ignore
         }
+    }
+
+    /**
+     * Check if this module exists in `cache` directory inside ballerina home.
+     *
+     * @param packageID package ID.
+     * @return if module exists in `cache` directory.
+     */
+    private boolean isCachedBuiltInModule(PackageID packageID) {
+        if (isBuiltInModule(packageID)) {
+            Path cachedModulePath = Paths
+                    .get(System.getProperty(ProjectDirConstants.BALLERINA_HOME), "cache", USER_REPO_BIR_DIRNAME,
+                            packageID.getOrgName().getValue(), packageID.getName().getValue());
+            return cachedModulePath.toFile().exists();
+
+        } else {
+            return true;
+        }
+    }
+
+    /**
+     * Check if module is a built in module.
+     *
+     * @param packageID package ID.
+     * @return if module org name equals to `ballerina` or `ballerinax`.
+     */
+    private boolean isBuiltInModule(PackageID packageID) {
+        String packageOrgName = packageID.orgName.getValue().trim();
+        return packageOrgName.equals("ballerina") || packageOrgName.equals("ballerinax");
     }
 }
