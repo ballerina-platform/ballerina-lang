@@ -25,7 +25,7 @@ type Char string;
 # + str - the string
 # + return - the number of characters (code points) in `str`
 public function length(string str) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.string.Length"
+    class: "org.ballerinalang.langlib.string.Length",
     name: "length"
 } external;
 
@@ -45,7 +45,7 @@ public function iterator(string str) returns abstract object {
 # + strs - strings to be concatenated
 # + return - concatenation of all of the `strs`; empty string if `strs` is empty
 public function concat(string... strs) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.Concat"
+    class: "org.ballerinalang.langlib.string.Concat",
     name: "concat"
 } external;
 
@@ -55,7 +55,7 @@ public function concat(string... strs) returns string = @java:Method {
 # + index - an index in `str`
 # + return - the Unicode code point of the character at `index` in `str`
 public function getCodePoint(string str, int index) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.string.GetCodePoint"
+    class: "org.ballerinalang.langlib.string.GetCodePoint",
     name: "getCodePoint"
 } external;
 
@@ -66,7 +66,7 @@ public function getCodePoint(string str, int index) returns int = @java:Method {
 # + endIndex - the ending index, exclusive
 # + return - substring consisting of characters with index >= startIndex and < endIndex
 public function substring(string str, int startIndex, int endIndex = str.length()) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.Substring"
+    class: "org.ballerinalang.langlib.string.Substring",
     name: "substring"
 } external;
 
@@ -80,7 +80,7 @@ public function substring(string str, int startIndex, int endIndex = str.length(
 # + return - an int that is less than, equal to or greater than zero,
 #    according as `str1` is less than, equal to or greater than `str2`
 public function codePointCompare(string str1, string str2) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.string.CodePointCompare"
+    class: "org.ballerinalang.langlib.string.CodePointCompare",
     name: "codePointCompare"
 } external;
 
@@ -91,7 +91,7 @@ public function codePointCompare(string str1, string str2) returns int = @java:M
 # + return - a string consisting of all of `strs` concatenated in order
 #     with `separator` in between them
 public function 'join(string separator, string... strs) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.Join"
+    class: "org.ballerinalang.langlib.string.Join",
     name: "join"
 } external;
 
@@ -103,7 +103,7 @@ public function 'join(string separator, string... strs) returns string = @java:M
 # + return - index of the first occurrence of `substr` in `str` that is >= `startIndex`,
 #    or `()` if there is no such occurrence
 public function indexOf(string str, string substr, int startIndex = 0) returns int? = @java:Method {
-    class: "org.ballerinalang.langlib.string.IndexOf"
+    class: "org.ballerinalang.langlib.string.IndexOf",
     name: "indexOf"
 } external;
 
@@ -115,7 +115,7 @@ public function indexOf(string str, string substr, int startIndex = 0) returns i
 # + return - index of the last occurrence of `substr` in `str` that is <= `startIndex`,
 #    or `()` if there is no such occurrence
 public function lastIndexOf(string str, string substr, int startIndex = str.length() - substr.length()) returns int? = @java:Method {
-    class: "org.ballerinalang.langlib.string.LastIndexOf"
+    class: "org.ballerinalang.langlib.string.LastIndexOf",
     name: "lastIndexOf"
 } external;
 
@@ -125,7 +125,7 @@ public function lastIndexOf(string str, string substr, int startIndex = str.leng
 # + substr - the starting string
 # + return - true if `str` starts with `substr`; false otherwise
 public function startsWith(string str, string substr) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.string.StartsWith"
+    class: "org.ballerinalang.langlib.string.StartsWith",
     name: "startsWith"
 } external;
 
@@ -135,7 +135,7 @@ public function startsWith(string str, string substr) returns boolean = @java:Me
 # + substr - the ending string
 # + return - true if `str` ends with `substr`; false otherwise
 public function endsWith(string str, string substr) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.string.EndsWith"
+    class: "org.ballerinalang.langlib.string.EndsWith",
     name: "endsWith"
 } external;
 
@@ -149,7 +149,7 @@ public function endsWith(string str, string substr) returns boolean = @java:Meth
 # + str - the string to be converted
 # + return - `str` with any occurrences of A-Z converted to a-z
 public function toLowerAscii(string str) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.ToLowerAscii"
+    class: "org.ballerinalang.langlib.string.ToLowerAscii",
     name: "toLowerAscii"
 } external;
 
@@ -159,7 +159,7 @@ public function toLowerAscii(string str) returns string = @java:Method {
 # + str - the string to be converted
 # + return - `str` with any occurrences of a-z converted to A-Z
 public function toUpperAscii(string str) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.ToUpperAscii"
+    class: "org.ballerinalang.langlib.string.ToUpperAscii",
     name: "toUpperAscii"
 } external;
 
@@ -171,7 +171,7 @@ public function toUpperAscii(string str) returns string = @java:Method {
 # + return - true if `str1` is the same as `str2`, treating upper-case and lower-case
 # ASCII letters as the same; false, otherwise
 public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.string.EqualsIgnoreCaseAscii"
+    class: "org.ballerinalang.langlib.string.EqualsIgnoreCaseAscii",
     name: "equalsIgnoreCaseAscii"
 } external;
 
@@ -181,7 +181,7 @@ public function equalsIgnoreCaseAscii(string str1, string str2) returns boolean 
 # + str - the string
 # + return - `str` with leading or trailing ASCII white space characters removed
 public function trim(string str) returns string = @java:Method {
-    class: "org.ballerinalang.langlib.string.Trim"
+    class: "org.ballerinalang.langlib.string.Trim",
     name: "trim"
 } external;
 
@@ -190,7 +190,7 @@ public function trim(string str) returns string = @java:Method {
 # + str - the string
 # + return - UTF-8 byte array
 public function toBytes(string str) returns byte[] = @java:Method {
-    class: "org.ballerinalang.langlib.string.ToBytes"
+    class: "org.ballerinalang.langlib.string.ToBytes",
     name: "toBytes"
 } external;
 
@@ -199,7 +199,7 @@ public function toBytes(string str) returns byte[] = @java:Method {
 # + bytes - UTF-8 byte array
 # + return - `bytes` converted to string or error
 public function fromBytes(byte[] bytes) returns string|error = @java:Method {
-    class: "org.ballerinalang.langlib.string.FromBytes"
+    class: "org.ballerinalang.langlib.string.FromBytes",
     name: "fromBytes"
 } external;
 
@@ -208,7 +208,7 @@ public function fromBytes(byte[] bytes) returns string|error = @java:Method {
 # + str - the string
 # + return - an array with a code point for each character of `str`
 public function toCodePointInts(string str) returns int[] = @java:Method {
-    class: "org.ballerinalang.langlib.string.ToCodePointInts"
+    class: "org.ballerinalang.langlib.string.ToCodePointInts",
     name: "toCodePointInts"
 } external;
 
@@ -217,7 +217,7 @@ public function toCodePointInts(string str) returns int[] = @java:Method {
 # + ch - a single character string
 # + return - the code point of `ch`
 public function toCodePointInt(Char ch) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.string.ToCodePointInt"
+    class: "org.ballerinalang.langlib.string.ToCodePointInt",
     name: "toCodePointInt"
 } external;
 
@@ -229,7 +229,7 @@ public function toCodePointInt(Char ch) returns int = @java:Method {
 # + return - a string with a character for each code point in `codePoints`; or an error
 # if any member of `codePoints` is not a valid code point
 public function fromCodePointInts(int[] codePoints) returns string|error = @java:Method {
-    class: "org.ballerinalang.langlib.string.FromCodePointInts"
+    class: "org.ballerinalang.langlib.string.FromCodePointInts",
     name: "fromCodePointInts"
 } external;
 
@@ -241,6 +241,6 @@ public function fromCodePointInts(int[] codePoints) returns string|error = @java
 # + return - a single character string whose code point is `codePoint`; or an error
 # if `codePoint` is not a valid code point
 public function fromCodePointInt(int codePoint) returns Char|error = @java:Method {
-    class: "org.ballerinalang.langlib.string.FromCodePointInt"
+    class: "org.ballerinalang.langlib.string.FromCodePointInt",
     name: "fromCodePointInt"
 } external;
