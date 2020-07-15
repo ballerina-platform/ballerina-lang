@@ -1326,15 +1326,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public DocumentationStringNode transform(
-            DocumentationStringNode documentationStringNode) {
-        NodeList<Node> documentationLines =
-                modifyNodeList(documentationStringNode.documentationLines());
-        return documentationStringNode.modify(
-                documentationLines);
-    }
-
-    @Override
     public BasicLiteralNode transform(
             BasicLiteralNode basicLiteralNode) {
         Token literalToken =
@@ -3013,20 +3004,42 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
-    public ParameterDocumentationLineNode transform(
-            ParameterDocumentationLineNode parameterDocumentationLineNode) {
+    public MarkdownDocumentationNode transform(
+            MarkdownDocumentationNode markdownDocumentationNode) {
+        NodeList<Node> documentationLines =
+                modifyNodeList(markdownDocumentationNode.documentationLines());
+        return markdownDocumentationNode.modify(
+                documentationLines);
+    }
+
+    @Override
+    public MarkdownDocumentationLineNode transform(
+            MarkdownDocumentationLineNode markdownDocumentationLineNode) {
         Token hashToken =
-                modifyToken(parameterDocumentationLineNode.hashToken());
-        Token plusToken =
-                modifyToken(parameterDocumentationLineNode.plusToken());
-        Token parameterName =
-                modifyToken(parameterDocumentationLineNode.parameterName());
-        Token minusToken =
-                modifyToken(parameterDocumentationLineNode.minusToken());
+                modifyToken(markdownDocumentationLineNode.hashToken());
         NodeList<Node> documentElements =
-                modifyNodeList(parameterDocumentationLineNode.documentElements());
-        return parameterDocumentationLineNode.modify(
-                parameterDocumentationLineNode.kind(),
+                modifyNodeList(markdownDocumentationLineNode.documentElements());
+        return markdownDocumentationLineNode.modify(
+                markdownDocumentationLineNode.kind(),
+                hashToken,
+                documentElements);
+    }
+
+    @Override
+    public MarkdownParameterDocumentationLineNode transform(
+            MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        Token hashToken =
+                modifyToken(markdownParameterDocumentationLineNode.hashToken());
+        Token plusToken =
+                modifyToken(markdownParameterDocumentationLineNode.plusToken());
+        Token parameterName =
+                modifyToken(markdownParameterDocumentationLineNode.parameterName());
+        Token minusToken =
+                modifyToken(markdownParameterDocumentationLineNode.minusToken());
+        NodeList<Node> documentElements =
+                modifyNodeList(markdownParameterDocumentationLineNode.documentElements());
+        return markdownParameterDocumentationLineNode.modify(
+                markdownParameterDocumentationLineNode.kind(),
                 hashToken,
                 plusToken,
                 parameterName,
@@ -3050,19 +3063,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
-    }
-
-    @Override
-    public DocumentationLineNode transform(
-            DocumentationLineNode documentationLineNode) {
-        Token hashToken =
-                modifyToken(documentationLineNode.hashToken());
-        NodeList<Node> documentElements =
-                modifyNodeList(documentationLineNode.documentElements());
-        return documentationLineNode.modify(
-                documentationLineNode.kind(),
-                hashToken,
-                documentElements);
     }
 
     // Tokens

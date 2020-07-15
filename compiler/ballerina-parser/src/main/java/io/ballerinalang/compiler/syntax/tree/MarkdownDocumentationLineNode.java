@@ -26,9 +26,9 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class ParameterDocumentationLineNode extends DocumentationNode {
+public class MarkdownDocumentationLineNode extends DocumentationNode {
 
-    public ParameterDocumentationLineNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public MarkdownDocumentationLineNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
@@ -36,20 +36,8 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
         return childInBucket(0);
     }
 
-    public Token plusToken() {
-        return childInBucket(1);
-    }
-
-    public Token parameterName() {
-        return childInBucket(2);
-    }
-
-    public Token minusToken() {
-        return childInBucket(3);
-    }
-
     public NodeList<Node> documentElements() {
-        return new NodeList<>(childInBucket(4));
+        return new NodeList<>(childInBucket(1));
     }
 
     @Override
@@ -66,39 +54,27 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
     protected String[] childNames() {
         return new String[]{
                 "hashToken",
-                "plusToken",
-                "parameterName",
-                "minusToken",
                 "documentElements"};
     }
 
-    public ParameterDocumentationLineNode modify(
+    public MarkdownDocumentationLineNode modify(
             SyntaxKind kind,
             Token hashToken,
-            Token plusToken,
-            Token parameterName,
-            Token minusToken,
             NodeList<Node> documentElements) {
         if (checkForReferenceEquality(
                 hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
                 documentElements.underlyingListNode())) {
             return this;
         }
 
-        return NodeFactory.createParameterDocumentationLineNode(
+        return NodeFactory.createMarkdownDocumentationLineNode(
                 kind,
                 hashToken,
-                plusToken,
-                parameterName,
-                minusToken,
                 documentElements);
     }
 
-    public ParameterDocumentationLineNodeModifier modify() {
-        return new ParameterDocumentationLineNodeModifier(this);
+    public MarkdownDocumentationLineNodeModifier modify() {
+        return new MarkdownDocumentationLineNodeModifier(this);
     }
 
     /**
@@ -106,65 +82,35 @@ public class ParameterDocumentationLineNode extends DocumentationNode {
      *
      * @since 2.0.0
      */
-    public static class ParameterDocumentationLineNodeModifier {
-        private final ParameterDocumentationLineNode oldNode;
+    public static class MarkdownDocumentationLineNodeModifier {
+        private final MarkdownDocumentationLineNode oldNode;
         private Token hashToken;
-        private Token plusToken;
-        private Token parameterName;
-        private Token minusToken;
         private NodeList<Node> documentElements;
 
-        public ParameterDocumentationLineNodeModifier(ParameterDocumentationLineNode oldNode) {
+        public MarkdownDocumentationLineNodeModifier(MarkdownDocumentationLineNode oldNode) {
             this.oldNode = oldNode;
             this.hashToken = oldNode.hashToken();
-            this.plusToken = oldNode.plusToken();
-            this.parameterName = oldNode.parameterName();
-            this.minusToken = oldNode.minusToken();
             this.documentElements = oldNode.documentElements();
         }
 
-        public ParameterDocumentationLineNodeModifier withHashToken(
+        public MarkdownDocumentationLineNodeModifier withHashToken(
                 Token hashToken) {
             Objects.requireNonNull(hashToken, "hashToken must not be null");
             this.hashToken = hashToken;
             return this;
         }
 
-        public ParameterDocumentationLineNodeModifier withPlusToken(
-                Token plusToken) {
-            Objects.requireNonNull(plusToken, "plusToken must not be null");
-            this.plusToken = plusToken;
-            return this;
-        }
-
-        public ParameterDocumentationLineNodeModifier withParameterName(
-                Token parameterName) {
-            Objects.requireNonNull(parameterName, "parameterName must not be null");
-            this.parameterName = parameterName;
-            return this;
-        }
-
-        public ParameterDocumentationLineNodeModifier withMinusToken(
-                Token minusToken) {
-            Objects.requireNonNull(minusToken, "minusToken must not be null");
-            this.minusToken = minusToken;
-            return this;
-        }
-
-        public ParameterDocumentationLineNodeModifier withDocumentElements(
+        public MarkdownDocumentationLineNodeModifier withDocumentElements(
                 NodeList<Node> documentElements) {
             Objects.requireNonNull(documentElements, "documentElements must not be null");
             this.documentElements = documentElements;
             return this;
         }
 
-        public ParameterDocumentationLineNode apply() {
+        public MarkdownDocumentationLineNode apply() {
             return oldNode.modify(
                     oldNode.kind(),
                     hashToken,
-                    plusToken,
-                    parameterName,
-                    minusToken,
                     documentElements);
         }
     }

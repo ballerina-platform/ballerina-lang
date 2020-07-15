@@ -311,8 +311,12 @@ public class Writer {
     }
 
     private static String getSuffixes(Type type) {
-        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
-        suffix = type.isRestParam ? "..." : "";
+        String suffix = "";
+        if (type.isArrayType) {
+            suffix = StringUtils.repeat("[]", type.arrayDimensions);
+        } else if (type.isRestParam) {
+            suffix = "...";
+        }
         suffix += type.isNullable ? "?" : "";
         return suffix;
     }

@@ -17,7 +17,7 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
-import io.ballerinalang.compiler.syntax.tree.DocumentationStringNode;
+import io.ballerinalang.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
@@ -30,20 +30,20 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STDocumentationStringNode extends STDocumentationNode {
+public class STMarkdownDocumentationNode extends STDocumentationNode {
     public final STNode documentationLines;
 
-    STDocumentationStringNode(
+    STMarkdownDocumentationNode(
             STNode documentationLines) {
         this(
                 documentationLines,
                 Collections.emptyList());
     }
 
-    STDocumentationStringNode(
+    STMarkdownDocumentationNode(
             STNode documentationLines,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_STRING, diagnostics);
+        super(SyntaxKind.MARKDOWN_DOCUMENTATION, diagnostics);
         this.documentationLines = documentationLines;
 
         addChildren(
@@ -51,25 +51,25 @@ public class STDocumentationStringNode extends STDocumentationNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STDocumentationStringNode(
+        return new STMarkdownDocumentationNode(
                 this.documentationLines,
                 diagnostics);
     }
 
-    public STDocumentationStringNode modify(
+    public STMarkdownDocumentationNode modify(
             STNode documentationLines) {
         if (checkForReferenceEquality(
                 documentationLines)) {
             return this;
         }
 
-        return new STDocumentationStringNode(
+        return new STMarkdownDocumentationNode(
                 documentationLines,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new DocumentationStringNode(this, position, parent);
+        return new MarkdownDocumentationNode(this, position, parent);
     }
 
     @Override
