@@ -107,18 +107,16 @@ public abstract class LauncherImpl {
             command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
         }
 
-        ArrayList<String> commandOptions = null;
+        ArrayList<String> commandOptions = new ArrayList<>();
         if (args.get("commandOptions") instanceof ArrayList) {
             commandOptions = (ArrayList<String>) args.get("commandOptions");
         }
-        commandOptions = commandOptions == null ? new ArrayList<>() : commandOptions;
         command.addAll(commandOptions);
 
-        ArrayList<String> scriptArguments = null;
+        ArrayList<String> scriptArguments = new ArrayList<>();
         if (args.get("commandOptions") instanceof ArrayList) {
             scriptArguments = (ArrayList<String>) args.get("scriptArguments");
         }
-        scriptArguments = scriptArguments == null ? new ArrayList<>() : scriptArguments;
         command.addAll(scriptArguments);
         return command;
     }
