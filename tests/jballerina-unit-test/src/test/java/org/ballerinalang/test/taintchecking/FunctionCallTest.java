@@ -76,8 +76,8 @@ public class FunctionCallTest {
         // BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_B, 25, 19);
 
         BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_I, 28, 9);
-        BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_B, 28, 10);
-        BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_S, 28, 10);
+        BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_B, 28, 12);
+        BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_S, 28, 12);
 
         BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_B, 31, 9);
         BAssertUtil.validateError(negativeResult, i++, TAINTED_VALUE_FOR_I, 31, 9);
