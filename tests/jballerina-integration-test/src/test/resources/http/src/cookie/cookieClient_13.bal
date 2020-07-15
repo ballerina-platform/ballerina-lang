@@ -27,9 +27,9 @@ public function main() {
         if (payload is string) {
             io:print(payload);
         } else {
-            io:print(payload.message());
+            io:print(payload.detail()["message"]);
         }
     } else {
-        io:print(resp.message());
+        io:print(resp.detail()["message"]);
     }
 }
