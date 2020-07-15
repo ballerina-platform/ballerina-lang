@@ -227,9 +227,6 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * 
      * @param values values to add to the start of the array
      */
-//    public void unshift(Object[] values) {
-//        unshift(0, values);
-//    }
 
     @Override
     public void unshift(Object[] values) {

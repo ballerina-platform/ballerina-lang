@@ -255,10 +255,6 @@ class JMethodResolver {
         }
     }
 
-    /*private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
-        return isValidParamBType(jType, bType, jMethodRequest, true);
-    }*/
-
     private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest, boolean isLastParam) {
 
         try {
