@@ -4269,8 +4269,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 Token startBacktick = docReferenceNode.startBacktick();
                 docText.append(startBacktick.isMissing() ? "" : startBacktick.text());
 
-                Token backtickContent = docReferenceNode.backtickContent();
-                String contentString = backtickContent.isMissing() ? "" : backtickContent.text();
+                Node backtickContent = docReferenceNode.backtickContent();
+                String contentString = backtickContent.isMissing() ? "" : backtickContent.toString();
                 bLangRefDoc.referenceName = contentString;
                 docText.append(contentString);
 

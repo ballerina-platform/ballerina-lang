@@ -33,6 +33,10 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
+    private boolean isSpecialKeywordInPlace = false;
+    private String identifierRegex = "[a-zA-Z][a-zA-Z0-9]*";
+    private String backtickExprRegex = "([a-zA-Z][a-zA-Z0-9]*:)?([a-zA-Z][a-zA-Z0-9]*[:.])?[a-zA-Z][a-zA-Z0-9]*\\(\\)";
+
     public DocumentationLexer(CharReader charReader, List<STNode> leadingTriviaList) {
         super(charReader, ParserMode.DOCUMENTATION_INIT);
         this.leadingTriviaList = leadingTriviaList;
@@ -70,6 +74,10 @@ public class DocumentationLexer extends AbstractLexer {
             case DOCUMENTATION_BACKTICK_CONTENT:
                 this.leadingTriviaList = new ArrayList<>(0);
                 token = readDocumentationBacktickContentToken();
+                break;
+            case DOCUMENTATION_BACKTICK_EXPR:
+                this.leadingTriviaList = new ArrayList<>(0);
+                token = readDocumentationBacktickExprToken();
                 break;
             default:
                 token = null;
@@ -261,6 +269,20 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
+    /**
+     * Set reset special keyword in place.
+     */
+    private void setSpecialKeywordInPlace() {
+        isSpecialKeywordInPlace = true;
+    }
+
+    /**
+     * Reset special keyword in place.
+     */
+    private void resetSpecialKeywordInPlace() {
+        isSpecialKeywordInPlace = false;
+    }
+
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         resetLeadingTrivia();
@@ -320,6 +342,14 @@ public class DocumentationLexer extends AbstractLexer {
         STNode trailingTrivia = processTrailingTrivia();
         return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_DESCRIPTION, lexeme, leadingTrivia,
                 trailingTrivia);
+    }
+
+    private STToken getIdentifierToken() {
+        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
+        resetLeadingTrivia();
+        String lexeme = getLexeme();
+        STNode trailingTrivia = processTrailingTrivia();
+        return STNodeFactory.createIdentifierToken(lexeme, leadingTrivia, trailingTrivia);
     }
 
     /*
@@ -628,6 +658,7 @@ public class DocumentationLexer extends AbstractLexer {
             reader.advance();
         }
 
+        setSpecialKeywordInPlace();
         return processReferenceType();
     }
 
@@ -669,9 +700,12 @@ public class DocumentationLexer extends AbstractLexer {
         if (nextToken == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
+            resetSpecialKeywordInPlace();
             return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
+        int lookAheadCount = 0;
+        String backtickStr = "";
         while (!reader.isEOF()) {
             switch (nextToken) {
                 case LexerTerminals.BACKTICK:
@@ -679,13 +713,59 @@ public class DocumentationLexer extends AbstractLexer {
                 case LexerTerminals.CARRIAGE_RETURN:
                     break;
                 default:
-                    reader.advance();
-                    nextToken = peek();
+                    backtickStr = backtickStr.concat(String.valueOf((char) nextToken));
+                    lookAheadCount++;
+                    nextToken = reader.peek(lookAheadCount);
                     continue;
             }
             break;
         }
 
-        return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+        if (!isSpecialKeywordInPlace) {
+            boolean hasMatch = backtickStr.matches(backtickExprRegex);
+            if (hasMatch) {
+                switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
+                return readDocumentationBacktickExprToken();
+            } else {
+                reader.advance(lookAheadCount);
+                return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+            }
+        }
+
+        reader.advance(lookAheadCount);
+        resetSpecialKeywordInPlace();
+
+        boolean isIdentifier = backtickStr.matches(identifierRegex);
+        return isIdentifier ? getIdentifierToken() : getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------------
+     * DOCUMENTATION_BACKTICK_EXPR Mode
+     * ------------------------------------------------------------------------------------------------------------
+     */
+
+    private STToken readDocumentationBacktickExprToken() {
+        reader.mark();
+        int nextChar = peek();
+        reader.advance();
+        switch (nextChar) {
+            case LexerTerminals.BACKTICK:
+                switchMode(ParserMode.DOCUMENTATION_INTERNAL);
+                return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
+            case LexerTerminals.DOT:
+                return getDocumentationSyntaxToken(SyntaxKind.DOT_TOKEN);
+            case LexerTerminals.COLON:
+                return getDocumentationSyntaxToken(SyntaxKind.COLON_TOKEN);
+            case LexerTerminals.OPEN_PARANTHESIS:
+                return getDocumentationSyntaxToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            case LexerTerminals.CLOSE_PARANTHESIS:
+                return getDocumentationSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            default:
+                while (isIdentifierFollowingChar(peek())) {
+                    reader.advance();
+                }
+                return getIdentifierToken();
+        }
     }
 }

@@ -72,7 +72,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "typeDef"
                                     },
                                     {
@@ -119,7 +119,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "helloWorld"
                                     },
                                     {
@@ -166,7 +166,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "testVar"
                                     },
                                     {
@@ -213,7 +213,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "testVar"
                                     },
                                     {
@@ -260,7 +260,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "annot"
                                     },
                                     {
@@ -307,7 +307,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "testModule"
                                     },
                                     {
@@ -354,7 +354,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "add"
                                     },
                                     {
@@ -401,7 +401,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "x"
                                     },
                                     {
@@ -448,7 +448,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "constant"
                                     },
                                     {

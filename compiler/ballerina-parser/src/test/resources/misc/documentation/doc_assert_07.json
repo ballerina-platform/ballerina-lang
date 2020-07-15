@@ -87,7 +87,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "x"
                                     },
                                     {
@@ -115,7 +115,7 @@
                                       "kind": "BACKTICK_TOKEN"
                                     },
                                     {
-                                      "kind": "BACKTICK_CONTENT",
+                                      "kind": "IDENTIFIER_TOKEN",
                                       "value": "y"
                                     },
                                     {

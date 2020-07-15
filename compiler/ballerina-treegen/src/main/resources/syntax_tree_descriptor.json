@@ -4072,7 +4072,7 @@
                 },
                 {
                     "name": "backtickContent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "endBacktick",
