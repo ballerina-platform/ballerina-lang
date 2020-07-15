@@ -4,7 +4,7 @@
 
 {{#partial "sidebarLists" }}
     {{#each module.errors}}
-        <li {{#equals errors.name name}}class="active"{{/equals}} onclick="menuLinkClick()"></li>
+        <li {{#equals errors.name name}}class="active"{{/equals}} onclick="menuLinkClick()">
             <a href="#{{name}}">{{name}}</a>
         </li>
     {{/each}}
