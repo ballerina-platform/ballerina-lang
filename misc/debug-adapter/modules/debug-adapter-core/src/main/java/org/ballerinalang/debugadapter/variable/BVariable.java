@@ -24,22 +24,24 @@ import org.eclipse.lsp4j.debug.Variable;
 public interface BVariable {
 
     /**
+     * Returns debug context information (i.e. owning stack frame and thread) of this variable instance.
+     *
+     * @return context information (i.e. owning stack frame and thread).
+     */
+    VariableContext getContext();
+
+    /**
      * Returns the value of the variable instance in string form. Each variable type implementation can have their
      * own implementation to compute/fetch its value.
      *
      * @return value of the variable instance, in string form.
      */
-    String getValue();
+    String computeValue();
 
     /**
-     * Returns variable information in a Debug Adapter Protocol compatible variable instance.
+     * Returns variable information in a Debug Adapter Protocol compatible format.
      *
      * @return a DAP compatible variable instance of the ballerina variable instance.
      */
     Variable getDapVariable();
-
-    /**
-     * Assigns the DAP representation of the given ballerina variable instance.
-     */
-    void setDapVariable(Variable dapVariable);
 }

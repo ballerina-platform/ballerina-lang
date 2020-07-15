@@ -155,9 +155,9 @@ nats:Connection connection = new("tls://localhost:4222", config = config);
 For information on the operations, which you can perform with this module, see the below **Functions**. 
 
 For examples on the usage of the connector, see the following.
-* [Basic Publisher and Subscriber Example](https://ballerina.io/learn/by-example/nats-basic-client.html).
-* [Basic Streaming Publisher and Subscriber Example](https://ballerina.io/learn/by-example/nats-streaming-client.html)
-* [Streaming Publisher and Subscriber With Data Binding Example](https://ballerina.io/learn/by-example/nats-streaming-consumer-with-data-binding.html)
-* [Durable Subscriptions Example](https://ballerina.io/learn/by-example/nats-streaming-durable-subscriptions.html)
-* [Queue Groups Example](https://ballerina.io/learn/by-example/nats-streaming-queue-group.html)
-* [Historical Message Replay Example](https://ballerina.io/learn/by-example/nats-streaming-start-position.html)
+* [Basic Publisher and Subscriber Example](https://ballerina.io/swan-lake/learn/by-example/nats-basic-client.html).
+* [Basic Streaming Publisher and Subscriber Example](https://ballerina.io/swan-lake/learn/by-example/nats-streaming-client.html)
+* [Streaming Publisher and Subscriber With Data Binding Example](https://ballerina.io/swan-lake/learn/by-example/nats-streaming-consumer-with-data-binding.html)
+* [Durable Subscriptions Example](https://ballerina.io/swan-lake/learn/by-example/nats-streaming-durable-subscriptions.html)
+* [Queue Groups Example](https://ballerina.io/swan-lake/learn/by-example/nats-streaming-queue-group.html)
+* [Historical Message Replay Example](https://ballerina.io/swan-lake/learn/by-example/nats-streaming-start-position.html)

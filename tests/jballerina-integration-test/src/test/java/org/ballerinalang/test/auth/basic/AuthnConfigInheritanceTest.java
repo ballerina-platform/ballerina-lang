@@ -28,6 +28,7 @@ import java.util.Map;
 
 /**
  * Test cases for authentication config inheritance scenarios.
+ * All the tokens/credentials used in this test are dummy tokens/credentials and used only for testing purposes.
  */
 @Test(groups = "auth-test")
 public class AuthnConfigInheritanceTest extends AuthBaseTest {

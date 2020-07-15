@@ -102,7 +102,6 @@ dependencies {
     dist project(':ballerina-cli-utils')
     dist project(':ballerina-tool')
     dist project(':ballerina-cli-module')
-    dist project(':ballerina-encoding')
     dist project(':ballerina-rt')
     dist project(':ballerina-choreo-extension-rt')
 
@@ -145,7 +144,6 @@ dependencies {
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     distBal project(path: ':testerina:testerina-core', configuration: 'baloImplementation')
-    distBal project(path: ':ballerina-encoding', configuration: 'baloImplementation')
 
     birJar project(path: ':metrics-extensions:ballerina-prometheus-extension', configuration: 'prometheusJar')
 
@@ -163,7 +161,6 @@ dependencies {
     balDoc project(path: ':ballerina-filepath', configuration: 'balDoc')
     balDoc project(path: ':ballerina-grpc', configuration: 'balDoc')
     balDoc project(path: ':ballerina-http', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-encoding', configuration: 'balDoc')
     balDoc project(path: ':ballerina-io', configuration: 'balDoc')
     balDoc project(path: ':ballerina-log-api', configuration: 'balDoc')
     balDoc project(path: ':ballerina-math', configuration: 'balDoc')
@@ -173,14 +170,12 @@ dependencies {
     balDoc project(path: ':ballerina-runtime-api', configuration: 'balDoc')
     balDoc project(path: ':ballerina-openapi', configuration: 'balDoc')
     balDoc project(path: ':ballerina-system', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-websub', configuration: 'balDoc')
     balDoc project(path: ':ballerina-task', configuration: 'balDoc')
     balDoc project(path: ':ballerina-time', configuration: 'balDoc')
     balDoc project(path: ':ballerina-transactions', configuration: 'balDoc')
     balDoc project(path: ':ballerina-xslt', configuration: 'balDoc')
     balDoc project(path: ':ballerina-kafka', configuration: 'balDoc')
     balDoc project(path: ':ballerina-nats', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-rabbitmq', configuration: 'balDoc')
     balDoc project(path: ':ballerina-stringutils', configuration: 'balDoc')
     balDoc project(path: ':ballerina-ldap', configuration: 'balDoc')
     balDoc project(path: ':ballerina-oauth2', configuration: 'balDoc')

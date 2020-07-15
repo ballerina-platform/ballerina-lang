@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.types.BArray;
@@ -23,21 +24,78 @@ import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
 import org.ballerinalang.debugadapter.variable.types.BError;
 import org.ballerinalang.debugadapter.variable.types.BFloat;
+import org.ballerinalang.debugadapter.variable.types.BFunction;
+import org.ballerinalang.debugadapter.variable.types.BFuture;
+import org.ballerinalang.debugadapter.variable.types.BHandle;
 import org.ballerinalang.debugadapter.variable.types.BInt;
 import org.ballerinalang.debugadapter.variable.types.BJson;
 import org.ballerinalang.debugadapter.variable.types.BMap;
 import org.ballerinalang.debugadapter.variable.types.BNil;
-import org.ballerinalang.debugadapter.variable.types.BObjectType;
-import org.ballerinalang.debugadapter.variable.types.BObjectValue;
+import org.ballerinalang.debugadapter.variable.types.BObject;
 import org.ballerinalang.debugadapter.variable.types.BRecord;
+import org.ballerinalang.debugadapter.variable.types.BService;
+import org.ballerinalang.debugadapter.variable.types.BStream;
 import org.ballerinalang.debugadapter.variable.types.BString;
+import org.ballerinalang.debugadapter.variable.types.BTable;
 import org.ballerinalang.debugadapter.variable.types.BTuple;
+import org.ballerinalang.debugadapter.variable.types.BTypeDesc;
 import org.ballerinalang.debugadapter.variable.types.BUnknown;
+import org.ballerinalang.debugadapter.variable.types.BXmlComment;
 import org.ballerinalang.debugadapter.variable.types.BXmlItem;
+import org.ballerinalang.debugadapter.variable.types.BXmlItemAttributeMap;
+import org.ballerinalang.debugadapter.variable.types.BXmlPi;
+import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
+import org.ballerinalang.debugadapter.variable.types.BXmlText;
 import org.eclipse.lsp4j.debug.Variable;
 
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
+
 /**
- * Factory implementation for ballerina variable types.
+ * Factory implementation of ballerina debug variable types.
+ * <br><br>
+ * Language Specification Version - 2020R1.
+ * <br><br>
+ * Supported Types
+ * <ul>
+ * <li> nil
+ * <li> boolean - true, false
+ * <li> int - 64-bit signed integers
+ * <li> float - 64-bit IEEE 754-2008 binary floating point numbers
+ * <li> decimal - decimal floating point numbers
+ * <li> string - a sequence of Unicode scalar values
+ * <li> array - an ordered list of values, optionally with a specific length, where a single type is specified for all
+ * members of the list
+ * <li> tuple - an ordered list of values, where a type is specified separately for each member of the list
+ * <li> map - a mapping from keys, which are strings, to values; specifies mappings in terms of a single type to which
+ * all keys are mapped
+ * <li> record - a mapping from keys, which are strings, to values; specifies maps in terms of names of fields
+ * (required keys) and value for each field
+ * <li> object - a combination of named fields and named methods
+ * <li> json - the union of (), int, float, decimal, string, and maps and arrays whose values are, recursively, json
+ * <li> XML - a sequence of zero or more elements, processing instructions, comments or text items
+ * <li> error - an indication that there has been an error, with a string identifying the reason for the error, and a
+ * mapping giving additional details about the error
+ * <li> future - a value to be returned by a function execution
+ * <li> handle - reference to externally managed storage
+ * <li> typedesc - a type descriptor
+ * <li> function - a function with 0 or more specified parameter types and a single return type
+ * <li> service - a collection of named methods, including resource methods
+ * <li> any - any value other than an error // Todo - show runtime type or "any"?
+ * <li> anydata - not an error and does not contain behavioral members // Todo - show runtime type or "anydata"?
+ * <li> union - the union of the component types // Todo - show runtime type or union type?
+ * <li> optional - the underlying type and () // Todo - show runtime type or optional type?
+ * <li> byte - int in the range 0 to 255 inclusive // Todo - show runtime type(int) or "byte"?
+ * <li> singleton - a single value described by a literal. // Todo - show runtime type?
+ * <li> table(Preview) - a two-dimensional collection of immutable values // Todo - show entries
+ * <li> stream(Preview) - a sequence of values that can be generated lazily // Todo - show values
+ * </ul>
+ * <br>
+ * To be implemented
+ * <ul>
+ * <li> never - no value
+ * </ul>
  */
 public class VariableFactory {
 
@@ -49,22 +107,15 @@ public class VariableFactory {
      * @param varName        variable name
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
-    public static BVariable getVariable(Value value, String parentTypeName, String varName) {
+    public static BVariable getVariable(VariableContext context, Value value, String parentTypeName, String varName) {
 
-        if (parentTypeName == null || parentTypeName.isEmpty() || varName == null || varName.isEmpty()
-                || varName.startsWith("$")) {
+        if (varName == null || varName.isEmpty() || varName.startsWith("$")) {
             return null;
         }
-
         Variable dapVariable = new Variable();
         dapVariable.setName(varName);
         if (value == null) {
-            // variables of "nil" type.
-            if (parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
-                return new BNil(dapVariable);
-            } else {
-                return null;
-            }
+            return new BNil(context, null, dapVariable);
         }
 
         Type valueType = value.type();
@@ -72,46 +123,71 @@ public class VariableFactory {
         if (valueTypeName.equals(JVMValueType.INT.getString())
                 || valueTypeName.equals(JVMValueType.J_INT.getString())
                 || valueTypeName.equals(JVMValueType.LONG.getString())
-                || valueTypeName.equals(JVMValueType.J_LONG.getString())
-        ) {
-            return new BInt(value, dapVariable);
+                || valueTypeName.equals(JVMValueType.J_LONG.getString())) {
+            return new BInt(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.BOOLEAN.getString())
                 || valueTypeName.equals(JVMValueType.J_BOOLEAN.getString())) {
-            return new BBoolean(value, dapVariable);
+            return new BBoolean(context, value, dapVariable);
         } else if (valueTypeName.equals(JVMValueType.DOUBLE.getString())
                 || valueTypeName.equals(JVMValueType.J_DOUBLE.getString())) {
-            return new BFloat(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.DECIMAL.getString())) {
-            return new BDecimal(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.BMPSTRING.getString())
-                || parentTypeName.equals(JVMValueType.NONBMPSTRING.getString())
-                || parentTypeName.equals(JVMValueType.J_STRING.getString())) {
-            return new BString(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.OBJECT_TYPE.getString())) {
-            return new BObjectType(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.OBJECT_VALUE.getString())) {
-            return new BObjectValue(value, dapVariable);
+            return new BFloat(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.DECIMAL.getString())) {
+            return new BDecimal(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.BMPSTRING.getString())
+                || valueTypeName.equals(JVMValueType.NONBMPSTRING.getString())
+                || valueTypeName.equals(JVMValueType.J_STRING.getString())) {
+            return new BString(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.ARRAY_VALUE.getString())) {
-            return new BArray(value, dapVariable);
+            return new BArray(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.TUPLE_VALUE.getString())) {
-            return new BTuple(value, dapVariable);
-        } else if (parentTypeName.equals(JVMValueType.J_OBJECT.getString())
-                && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
-            return new BJson(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())
-                && valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
-            return new BMap(value, dapVariable);
-        } else if (parentTypeName.contains(JVMValueType.MAP_VALUE.getString())
-                || (parentTypeName.contains("$value$") && valueTypeName.contains("$value$"))) {
-            return new BRecord(value, dapVariable);
+            return new BTuple(context, value, dapVariable);
         } else if (valueTypeName.contains(JVMValueType.ERROR_VALUE.getString())) {
-            return new BError(value, dapVariable);
-        } else if (valueTypeName.contains(JVMValueType.XML_ITEM.getString())) {
-            return new BXmlItem(value, dapVariable);
+            return new BError(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.TYPEDESC_VALUE.getString())) {
+            return new BTypeDesc(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.TABLE_VALUE.getString())) {
+            return new BTable(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.FP_VALUE.getString())) {
+            return new BFunction(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.FUTURE_VALUE.getString())) {
+            return new BFuture(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.HANDLE_VALUE.getString())) {
+            return new BHandle(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.STREAM_VALUE.getString())) {
+            return new BStream(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_TEXT.getString())) {
+            return new BXmlText(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_COMMENT.getString())) {
+            return new BXmlComment(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_PI.getString())) {
+            return new BXmlPi(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_SEQUENCE.getString())) {
+            return new BXmlSequence(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_ITEM.getString())) {
+            return new BXmlItem(context, value, dapVariable);
+        } else if (valueTypeName.equals(JVMValueType.XML_ATTRIB_MAP.getString())) {
+            return new BXmlItemAttributeMap(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
+            return new BService(context, value, dapVariable);
+        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+            // Todo - Remove checks on parentTypeName, after backend is fixed to contain correct BTypes for JSON
+            //  variables.
+            String bType = getBType(value);
+            if (bType.equals(BVariableType.JSON.getString())
+                    || parentTypeName.equals(JVMValueType.J_OBJECT.getString())) {
+                return new BJson(context, value, dapVariable);
+            } else if (bType.equals(BVariableType.MAP.getString())) {
+                return new BMap(context, value, dapVariable);
+            }
+        } else if (value instanceof ObjectReference) {
+            if (isObject(value)) {
+                return new BObject(context, value, dapVariable);
+            } else if (isRecord(value)) {
+                return new BRecord(context, value, dapVariable);
+            }
         }
-
         // If the variable doesn't match any of the above types, returns as a variable with type "unknown".
-        dapVariable.setType(parentTypeName);
-        return new BUnknown(value, dapVariable);
+        dapVariable.setType(valueTypeName);
+        return new BUnknown(context, value, dapVariable);
     }
 }

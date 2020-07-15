@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.openapi.exception.BallerinaOpenApiException;
 import org.ballerinalang.openapi.typemodel.BallerinaOpenApiPath;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
@@ -228,7 +229,8 @@ public class CreateOpenApiServiceResourceExecutor implements LSCommandExecutor {
             }
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Error while compiling the source!");
-        } catch (BallerinaOpenApiException | IOException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | BallerinaOpenApiException | TokenOrSymbolNotFoundException |
+                IOException e) {
             throw new LSCommandExecutorException("Couldn't find the function node!");
         }
         return null;

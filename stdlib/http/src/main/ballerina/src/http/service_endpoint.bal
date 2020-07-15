@@ -318,7 +318,7 @@ function addAuthFilters(ListenerConfiguration config) {
         AuthnFilter authnFilter = new(authHandlers);
 
         cache:Cache? positiveAuthzCache = auth.positiveAuthzCache ?: ();
-        cache:Cache? negativeAuthzCache = auth.positiveAuthzCache ?: ();
+        cache:Cache? negativeAuthzCache = auth.negativeAuthzCache ?: ();
         AuthzHandler authzHandler = new(positiveAuthzCache, negativeAuthzCache);
         Scopes? scopes = auth["scopes"];
         AuthzFilter authzFilter = new(authzHandler, scopes);

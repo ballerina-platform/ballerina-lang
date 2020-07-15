@@ -166,27 +166,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "encoding",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "encoding",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "110",
       "insertText": "java",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "110",
-      "insertText": "rabbitmq",
       "insertTextFormat": "Snippet"
     },
     {

@@ -34,14 +34,19 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -171,15 +176,46 @@ public class MockDesugar {
     }
 
     private List<BLangStatement> generateStatements() {
-        List<BLangStatement> statements = new ArrayList<>();
-
+        // <MockFunctionObj>.functionToMock = (functionToMock);
+        BLangAssignment bLangAssignment =
+                ASTBuilderUtil.createAssignmentStmt(bLangPackage.pos, generateFieldBasedAccess(), generateRHSExpr());
         // BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])
         BLangReturn blangReturn =
                 ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
 
+        List<BLangStatement> statements = new ArrayList<>();
+
+        statements.add(bLangAssignment);
         statements.add(blangReturn);
 
         return statements;
+    }
+
+    // <mockobj>.functionToMock =
+    private BLangFieldBasedAccess generateFieldBasedAccess() {
+        BLangVariableReference expr = getMockFunctionReference();
+        BLangIdentifier field = ASTBuilderUtil.createIdentifier(bLangPackage.pos, "functionToMock");
+
+        BLangFieldBasedAccess bLangFieldBasedAccess = ASTBuilderUtil.createFieldAccessExpr(expr, field);
+
+        bLangFieldBasedAccess.fieldKind = FieldKind.SINGLE;
+        bLangFieldBasedAccess.originalType = symTable.stringType;
+        bLangFieldBasedAccess.lhsVar = true;
+        bLangFieldBasedAccess.expectedType = symTable.stringType;
+        bLangFieldBasedAccess.type = symTable.stringType;
+
+        return bLangFieldBasedAccess;
+    }
+
+    // = (functionToMock)
+    private BLangLiteral generateRHSExpr() {
+        BType type = symTable.stringType;
+        Object value = this.originalFunction.name.value;
+
+        BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, type, value);
+        bLangLiteral.expectedType = type;
+
+        return bLangLiteral;
     }
 
     private BLangTypeConversionExpr generateTypeConversionExpression() {
@@ -196,14 +232,11 @@ public class MockDesugar {
     }
 
     private BLangInvocation generateBLangInvocation() {
-
-        BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol();     // Mock Handler
-        List<BLangExpression> argsExprs = generateInvocationRequiredArgs();  // Passed arguments
+        BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol();
+        List<BLangExpression> argsExprs = generateInvocationRequiredArgs();
 
         BLangInvocation bLangInvocation =
                 ASTBuilderUtil.createInvocationExprForMethod(bLangPackage.pos, invokableSymbol, argsExprs, symResolver);
-
-        // Additional statements
         bLangInvocation.pkgAlias = (BLangIdentifier) createIdentifier("test");
         bLangInvocation.argExprs = argsExprs;
         bLangInvocation.expectedType = bLangInvocation.type;
@@ -213,6 +246,7 @@ public class MockDesugar {
 
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
         BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
+
         BInvokableSymbol mockHandlerSymbol =
                 (BInvokableSymbol) testPkg.scope.lookup(new Name("mockHandler")).symbol;
 
@@ -222,11 +256,9 @@ public class MockDesugar {
     private List<BLangExpression> generateInvocationRequiredArgs() {
         List<BLangExpression> requiredArgs = new ArrayList<>();
 
-        // Reference for the Mock Function object
         BLangSimpleVarRef bLangSimpleVarRef = getMockFunctionReference();
         requiredArgs.add(bLangSimpleVarRef);
 
-        // Reference for the arguments
         BLangListConstructorExpr argumentArray = generateMockHandlerArgs();
         requiredArgs.add(argumentArray);
 
@@ -240,13 +272,13 @@ public class MockDesugar {
                 (BVarSymbol) bLangPackage.getTestablePkg().symbol.scope.lookup(new Name(mockObjName)).symbol;
 
         BLangSimpleVarRef bLangSimpleVarRef = ASTBuilderUtil.createVariableRef(bLangPackage.pos, mockObjectSymbol);
+
         return bLangSimpleVarRef;
     }
 
     private BLangListConstructorExpr generateMockHandlerArgs() {
         BLangListConstructorExpr argsList =
                 ASTBuilderUtil.createEmptyArrayLiteral(bLangPackage.pos, symTable.arrayAnydataType);
-
         List<BLangSimpleVarRef> argVariables =
                 ASTBuilderUtil.createVariableRefList(bLangPackage.pos, originalFunction.requiredParams);
 
