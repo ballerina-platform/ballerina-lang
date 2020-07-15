@@ -768,8 +768,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (constructorExpr.tableKeySpecifier != null &&
                 !constructorExpr.tableKeySpecifier.fieldNameIdentifierList.isEmpty()) {
             BLangTableKeySpecifier tableKeySpecifier = constructorExpr.tableKeySpecifier;
-            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(fieldName -> fieldName.value)
-                    .collect(Collectors.toList());
+            fieldNames = tableKeySpecifier.fieldNameIdentifierList.stream().map(identifier ->
+                    ((BLangIdentifier) identifier).value).collect(Collectors.toList());
         } else {
             return new ArrayList<>();
         }
@@ -893,6 +893,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         analyzeNode(joinClause.collection, env);
+        if (joinClause.onClause != null) {
+            analyzeNode((BLangNode) joinClause.onClause, env);
+        }
     }
 
     @Override

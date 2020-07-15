@@ -247,13 +247,12 @@ public class EventBus {
             Optional<Location> firstLocation =
                     allLineLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
             // We are going to add breakpoints for each and every line and continue the debugger.
-
             if (!firstLocation.isPresent()) {
                 return;
             }
             int nextStepPoint = firstLocation.get().lineNumber();
-
-            while (true) {
+            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
                 if (locations.size() > 0) {
                     Location nextStepLocation = locations.get(0);
@@ -265,13 +264,8 @@ public class EventBus {
                     }
                 }
                 nextStepPoint++;
-                if (nextStepPoint > lastLocation.get().lineNumber()) {
-                    break;
-                }
-            }
-
+            } while (nextStepPoint <= lastLocation.get().lineNumber());
             context.getDebuggee().resume();
-
             // We are resuming all threads, we need to notify debug client about this.
             ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
             continuedEventArguments.setAllThreadsContinued(true);

@@ -33,17 +33,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "POSITIONAL_ARG",
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
@@ -56,21 +56,21 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "NAMED_ARG",
           "hasDiagnostics": true,
           "diagnostics": [
             "ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG"
           ],
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
@@ -105,17 +105,20 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
+                        "kind": "COMMA_TOKEN",
+                        "trailingMinutiae": [
+                          {
+                            "kind": "WHITESPACE_MINUTIAE",
+                            "value": " "
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "kind": "INVALID_NODE_MINUTIAE",
+                      "invalidNode": {
                         "kind": "POSITIONAL_ARG",
                         "children": [
-                          {
-                            "kind": "COMMA_TOKEN",
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
-                              }
-                            ]
-                          },
                           {
                             "kind": "DECIMAL_INTEGER_LITERAL",
                             "children": [

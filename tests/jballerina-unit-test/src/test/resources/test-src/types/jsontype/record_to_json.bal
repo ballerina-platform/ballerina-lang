@@ -126,6 +126,27 @@ function testNestedRecordModification() {
     assert(expected, jR);
 }
 
+type Bar record {|
+    int i;
+    Bar? b = ();
+|};
+
+function testRecursiveCheckAgainstJson() {
+    Bar b1 = {i: 1};
+    Bar b2 = {i: 2, b: b1};
+
+    json j1 = b1;
+    assert(true, j1.i is int);
+    assert(1, <int> j1.i);
+    assert(true, j1.b is ());
+
+    json j2 = b2;
+    assert(true, j2.i is int);
+    assert(2, <int> j2.i);
+    assert(true, j2.b is Bar);
+    assert(b1, <Bar> j2.b);
+}
+
 // Util functions
 
 function assert(anydata expected, anydata actual) {

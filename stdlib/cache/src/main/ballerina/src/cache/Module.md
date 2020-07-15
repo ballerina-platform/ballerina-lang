@@ -87,4 +87,4 @@ A linked list is used for the eviction of the cache. According to the user-confi
 
 Furthermore, you can implement custom caching implementations based on different cache storage mechanisms (file, database. etc.) and different eviction policies (MRU, FIFO, etc.). Ballerina provides a "map-based cache" as the default cache implementation.
 
-For information on the operations, which you can perform with the cache module, see the below __Functions__. For examples on the usage of the operations, see [Cache Example](https://ballerina.io/learn/by-example/cache.html)
+For information on the operations, which you can perform with the cache module, see the below __Functions__. For examples on the usage of the operations, see [Cache Example](https://ballerina.io/swan-lake/learn/by-example/cache.html)

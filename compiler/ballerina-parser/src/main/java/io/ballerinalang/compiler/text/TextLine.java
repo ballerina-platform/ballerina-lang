@@ -32,7 +32,6 @@ public class TextLine {
     private final int endOffset;
     private final int lengthOfNewLineChars;
 
-
     TextLine(int lineNo, String text, int startOffset, int endOffset, int lengthOfNewLineChars) {
         this.text = text;
         this.lineNo = lineNo;
@@ -55,6 +54,10 @@ public class TextLine {
 
     public int endOffset() {
         return endOffset;
+    }
+
+    public int endOffsetWithNewLines() {
+        return endOffset + lengthOfNewLineChars;
     }
 
     public int length() {

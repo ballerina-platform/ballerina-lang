@@ -21,6 +21,7 @@ package org.ballerinalang.stdlib.file.service;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.AttachedFunction;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -32,7 +33,11 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 
 import java.util.Map;
 
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_NAME;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.MODULE_VERSION;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_MESSAGE;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_NAME;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_EVENT_OPERATION;
 import static org.ballerinalang.stdlib.file.utils.FileConstants.FILE_PACKAGE_ID;
@@ -46,6 +51,9 @@ public class FSListener implements LocalFileSystemListener {
     private BRuntime runtime;
     private ObjectValue service;
     private Map<String, AttachedFunction> attachedFunctionRegistry;
+    private static final StrandMetadata ON_MESSAGE_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                                 MODULE_NAME, MODULE_VERSION,
+                                                                                 RESOURCE_NAME_ON_MESSAGE);
 
     public FSListener(BRuntime runtime, ObjectValue service, Map<String, AttachedFunction> resourceRegistry) {
         this.runtime = runtime;
@@ -58,7 +66,8 @@ public class FSListener implements LocalFileSystemListener {
         Object[] parameters = getJvmSignatureParameters(fileEvent);
         AttachedFunction resource = getAttachedFunction(fileEvent.getEvent());
         if (resource != null) {
-            runtime.invokeMethodAsync(service, resource.getName(), new DirectoryCallback(), parameters);
+            runtime.invokeMethodAsync(service, resource.getName(), null, ON_MESSAGE_METADATA, new DirectoryCallback(),
+                                      parameters);
         } else {
             log.warn(String.format("FileEvent received for unregistered resource: [%s] %s", fileEvent.getEvent(),
                     fileEvent.getFileName()));

@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
@@ -977,9 +978,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<String> requiredFieldNames = new ArrayList<>();
         if (keySpecifier != null) {
-            for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
-                requiredFieldNames.add(identifier.value);
-                keySpecifierFieldNames.add(identifier.value);
+            for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
+                requiredFieldNames.add(((BLangIdentifier) identifierNode).value);
+                keySpecifierFieldNames.add(((BLangIdentifier) identifierNode).value);
             }
         }
 
@@ -1199,12 +1200,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             }
 
-            List<BLangIdentifier> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
+            List<IdentifierNode> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
                     fieldNameIdentifierList;
 
             int index = 0;
-            for (BLangIdentifier identifier : fieldNameIdentifierList) {
-                BField field = types.getTableConstraintField(constraintType, identifier.value);
+            for (IdentifierNode identifier : fieldNameIdentifierList) {
+                BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
                 if (!types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
@@ -1244,8 +1245,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
         List<String> fieldNamesList = new ArrayList<>();
-        for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-            fieldNamesList.add(identifier.value);
+        for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+            fieldNamesList.add(((BLangIdentifier) identifier).value);
         }
 
         return fieldNamesList;
@@ -2469,7 +2470,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         checkExpr(aInv.expr, this.env, symTable.noType);
-        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
+        BLangExpression varRef = aInv.expr;
 
         switch (varRef.type.tag) {
             case TypeTags.OBJECT:
@@ -2711,7 +2712,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.error != null) {
                     BType error = actualStreamType.error;
-                    if (!types.containsErrorType(error)) {
+                    if (error != symTable.neverType && !types.containsErrorType(error)) {
                         dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, error.toString());
                         resultType = symTable.semanticError;
                         return;
@@ -2725,6 +2726,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (nextReturnType == null) {
                     dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
                             constructType, expectedReturnType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                if (types.getErrorType(nextReturnType) == null && (types.getErrorType(expectedReturnType) != null)) {
+                    dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -2786,7 +2792,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error != null) {
+        if (streamType.error != symTable.neverType && streamType.error != null) {
             retTypeMembers.add(streamType.error);
         }
         retTypeMembers.add(symTable.nilType);
@@ -3974,7 +3980,7 @@ public class TypeChecker extends BLangNodeVisitor {
             final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
             if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
                 tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                        .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
                 return BUnionType.create(null, tableType, symTable.errorType);
             }
             return tableType;
@@ -4014,6 +4020,9 @@ public class TypeChecker extends BLangNodeVisitor {
         types.setInputClauseTypedBindingPatternType(joinClause);
         narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
+        if (joinClause.onClause != null) {
+            ((BLangOnClause) joinClause.onClause).accept(this);
+        }
     }
 
     @Override

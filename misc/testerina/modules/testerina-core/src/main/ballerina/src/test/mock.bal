@@ -16,11 +16,8 @@
 
 import ballerina/java;
 
-# Object mocking constants
-
+# Represents the placeholder to be given for object or record type arguments
 public const ANY = "__ANY__";
-
-# Object mocking errors
 
 # Represents the reason for the mock object related errors.
 public const INVALID_OBJECT_ERROR = "InvalidObjectError";
@@ -42,22 +39,8 @@ public type InvalidMemberFieldError distinct error;
 public const FUNCTION_CALL_ERROR = "FunctionCallError";
 public type FunctionCallError distinct error;
 
+# Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
-
-# Objects and functions related to object mocking
-
-# Creates and returns a mock object of provided type description.
-#
-# + T - type of object to create the mock
-# + mockObject - mock object to replace the original (optional)
-# + return - created mock object
-public function mock(typedesc<object {}> T, object{} mockObject = new) returns object{} {
-    object {}|Error mockExtResult = mockExt(T, mockObject);
-    if (mockExtResult is Error) {
-        panic mockExtResult;
-    }
-    return <object{}>mockExtResult;
-}
 
 # Prepares a provided default mock object for stubbing.
 #
@@ -240,7 +223,7 @@ public function when(MockFunction mockFunction) returns FunctionStub {
 }
 
 # Represents a MockFunction object
-public type MockFunction object {};
+public type MockFunction object { string functionToMock = ""; };
 
 # Represents an object that allows stubbing function invocations
 #
@@ -300,15 +283,12 @@ public type FunctionStub object {
     }
 };
 
-// Inter-op functions
-
-# Inter-op to create the mock object
+# Creates and returns a mock object of provided type description.
 #
-# + T - type description
-# + obj - mock object
-# + return - type casted mock object or and error if creation failed
-function mockExt(typedesc<object {}> T, object {} obj) returns object{}|Error = @java:Method {
-    name: "mock",
+# + T - type of object to create the mock
+# + mockObject - mock object to replace the original (optional)
+# + return - created mock object or throw an error if validation failed
+public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
@@ -377,7 +357,7 @@ function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.FunctionMock"
 } external;
 
-# Inter-op to call Mock Handler
+# Inter-op to handle function mocking.
 #
 # + mockFunction - mockFunction object
 # + args - function arguments

@@ -1,88 +1,42 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Annotations
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.annotations}}
+    <li {{#equals annotations.name name}}class="active" {{/equals}}>
+        <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
+    </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Annotations</h3>
+{{#partial "titleType" }}
+    Annotations
+{{/partial}}
+
+{{#partial "content" }}
+    <div class="annotations">
+        <div class="data-wrapper">
+            {{#each annotations}}
+            <div class="params-listing">
                 <ul>
-                    {{#each module.annotations}}
-                        <li {{#equals annotations.name name}}class="active"{{/equals}}>
-                            <a href="#{{name}}">{{name}}</a>
-                        </li>
-                    {{/each}}
+                    <li>
+                        <b {{#if isDeprecated}}class="strike" {{/if}}>{{ name }}</b>
+                        <span class="type">{{#if type}} <span {{#if isDeprecated}}class="strike"
+                                {{/if}}>{{{ typeName type }}}</span>{{/if}}</span>
+                        <img class="attach-icon" src="{{ rootPath }}html-template-resources/images/attach.svg">
+                        {{ attachmentPoints }}</li>
+                    <li>
+                        {{#if isDeprecated}}
+                        <span class="stab">Deprecated</span>
+                        {{/if}}
+                        {{{ description }}}
+                    </li>
                 </ul>
             </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
-            {{> allModules }}
+            {{/each}}
         </div>
     </div>
+{{/partial}}
 
-    <div class="ui vertical sidebar menu">
-        <div class="navi-wrapper-sidebar">
-            <div class="navi-wrapper-content">
-                {{> logo }}
-                <div class="primary-list">
-                    <h3>Annotations</h3>
-                    <ul>
-                        {{#each module.annotations}}
-                            <li {{#equals annotations.name name}}class="active"{{/equals}}>
-                                <a href="#{{name}}">{{name}}</a>
-                            </li>
-                        {{/each}}
-                    </ul>
-                </div>
-                <div class="ui divider"></div>
-                {{> currentModule }}
-                {{> allModules }}
-            </div>
-        </div>
-    </div>
-
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-        <div class="main-wrapper">
-            <div id="search-impl"></div>
-            <div id="main">
-             <h1>
-                 {{> breadcrumb }}
-                 <span class="title-type">Annotations - </span>
-                 {{#if project.isSingleFile}}
-                     {{project.sourceFileName}}
-                 {{else}}
-                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
-                 {{/if}}
-            </h1>
-            <div class="annotations">
-                <div class="data-wrapper">
-                    {{#each annotations}}
-                        <div class="params-listing">
-                            <ul>
-                                <li>
-                                    <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
-                                    <span class="type">{{#if type}} <span {{#if isDeprecated}}class="strike"{{/if}}>{{{ typeName type }}}</span>{{/if}}</span>
-                                    <img class="attach-icon" src="{{ rootPath }}html-template-resources/images/attach.svg">
-                                        {{ attachmentPoints }}</li>
-                                <li>
-                                    {{#if isDeprecated}}
-                                        <span class="stab">Deprecated</span>
-                                    {{/if}}
-                                    {{{ description }}}
-                                </li>
-                            </ul>
-                        </div>
-                    {{/each}}
-                </div>
-            </div>
-        </div>
-        </div>
-    </div>
-</body>
-
-{{> footer }}
+{{> layout}}

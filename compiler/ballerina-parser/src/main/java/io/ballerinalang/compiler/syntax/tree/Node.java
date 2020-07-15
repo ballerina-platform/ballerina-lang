@@ -25,6 +25,11 @@ import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextRange;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.function.Predicate;
+
 /**
  * This class represents a node in the syntax tree.
  *
@@ -57,6 +62,33 @@ public abstract class Node {
 
     public NonTerminalNode parent() {
         return parent;
+    }
+
+    public Optional<NonTerminalNode> ancestor(Predicate<Node> filter) {
+        NonTerminalNode parent = this.parent;
+
+        // null is returned if predicate doesnt match any of the ancestors
+        while (parent != null) {
+            if (filter.test(parent)) {
+                return Optional.of(parent);
+            }
+            parent = parent.parent();
+        }
+
+        return Optional.ofNullable(parent);
+    }
+
+    public List<NonTerminalNode> ancestors() {
+        List<NonTerminalNode> ancestors = new ArrayList<>();
+
+        NonTerminalNode parent = this.parent;
+
+        while (parent != null) {
+            ancestors.add(parent);
+            parent = parent.parent();
+        }
+
+        return ancestors;
     }
 
     public TextRange textRange() {
@@ -106,7 +138,8 @@ public abstract class Node {
 
         SyntaxTree syntaxTree = syntaxTree();
         TextDocument textDocument = syntaxTree.textDocument();
-        lineRange = LineRange.from(syntaxTree.filePath(), textDocument.linePositionFrom(textRange().startOffset()),
+        lineRange = LineRange.from(syntaxTree.filePath(),
+                textDocument.linePositionFrom(textRange().startOffset()),
                 textDocument.linePositionFrom(textRange().endOffset()));
         return lineRange;
     }
@@ -148,9 +181,7 @@ public abstract class Node {
      * @return source code as a string
      */
     public String toSourceCode() {
-        StringBuilder stringBuilder = new StringBuilder();
-        internalNode.toSourceCode(stringBuilder);
-        return stringBuilder.toString();
+        return internalNode.toSourceCode();
     }
 
     private SyntaxTree populateSyntaxTree() {

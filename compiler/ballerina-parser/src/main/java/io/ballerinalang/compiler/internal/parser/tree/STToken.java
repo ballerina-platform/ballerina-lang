@@ -117,9 +117,9 @@ public class STToken extends STNode {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        leadingMinutiae.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
         builder.append(kind.stringValue());
-        trailingMinutiae.toSourceCode(builder);
+        trailingMinutiae.writeTo(builder);
     }
 }

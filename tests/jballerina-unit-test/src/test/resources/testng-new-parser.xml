@@ -113,7 +113,7 @@
             <package name="org.ballerinalang.test.expressions.listconstructor.*"/>
             <package name="org.ballerinalang.test.expressions.rawtemplate.*"/>
             <package name="org.ballerinalang.test.object.*" />
-<!--            <package name="org.ballerinalang.test.documentation.*" />-->
+            <package name="org.ballerinalang.test.documentation.*" />
             <package name="org.ballerinalang.test.endpoint.*" />
             <package name="org.ballerinalang.test.packaging.*" />
             <package name="org.ballerinalang.test.types.xml.*" />
@@ -127,16 +127,23 @@
             <package name="org.ballerinalang.test.expressions.varref.*"/>
             <package name="org.ballerinalang.test.worker.*"/>
             <package name="org.ballerinalang.test.taintchecking.*"/>
-<!--            <package name="org.ballerinalang.test.statements.transaction.*"/>-->
             <package name="org.ballerinalang.test.functions.*"/>
             <package name="org.ballerinalang.test.javainterop.*"/>
             <package name="org.ballerinalang.test.execution.*" />
             <package name="org.ballerinalang.test.taintchecking*"/>
-            <package name="org.ballerinalang.test.query.*" />
+            <package name="org.ballerinalang.test.query.*"/>
+            <package name="org.ballerinalang.test.statements.retrystmt.*"/>
+            <package name="org.ballerinalang.test.types.readonly.*"/>
+            <package name="org.ballerinalang.test.strand.*"/>
         </packages>
 
         <classes>
+            <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.TransactionStmtTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.NestedTransactionTest"/>
+            <class name="org.ballerinalang.test.statements.transaction.NestedRetryTransactionStmtsTest" />
+            <class name="org.ballerinalang.test.statements.transaction.SetRollbackOnlyTest" />
             <class name="org.ballerinalang.test.statements.transaction.RetryTransactionStmtTest"></class>
             <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>

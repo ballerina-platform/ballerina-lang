@@ -34,7 +34,7 @@ public abstract class AbstractParserErrorHandler {
 
     protected final AbstractTokenReader tokenReader;
     private ArrayDeque<ParserRuleContext> ctxStack = new ArrayDeque<>();
-    private int previousIndex;
+    private int previousTokenIndex;
     private int itterCount;
 
     /**
@@ -50,7 +50,7 @@ public abstract class AbstractParserErrorHandler {
 
     public AbstractParserErrorHandler(AbstractTokenReader tokenReader) {
         this.tokenReader = tokenReader;
-        this.previousIndex = -1;
+        this.previousTokenIndex = -1;
         this.itterCount = 0;
     }
 
@@ -90,12 +90,12 @@ public abstract class AbstractParserErrorHandler {
             return fix;
         }
 
-        int currentIndex = this.tokenReader.getCurrentIndex();
-        if (currentIndex == this.previousIndex) {
+        int currentTokenIndex = this.tokenReader.getCurrentTokenIndex();
+        if (currentTokenIndex == this.previousTokenIndex) {
             itterCount++;
         } else {
             itterCount = 0;
-            previousIndex = currentIndex;
+            previousTokenIndex = currentTokenIndex;
         }
 
         if (itterCount < ITTER_LIMIT) {
@@ -478,7 +478,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @since 1.2.0
      */
-    enum Action {
+    protected enum Action {
         INSERT, REMOVE, KEEP;
     }
 }

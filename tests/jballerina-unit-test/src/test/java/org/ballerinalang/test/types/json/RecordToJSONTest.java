@@ -56,6 +56,7 @@ public class RecordToJSONTest {
                       "incompatible types: expected 'json', found 'record {| string name; record {| record {| int x; " +
                               "(int|string|typedesc)...; |} nestedL2; |} nestedL1; |}'",
                       52, 15);
+        validateError(result, indx++, "incompatible types: expected 'json', found 'Bar'", 63, 14);
         assertEquals(result.getErrorCount(), indx);
     }
 
@@ -75,5 +76,10 @@ public class RecordToJSONTest {
     @Test
     public void testNestedRecordModification() {
         BRunUtil.invoke(compileResult, "testNestedRecordModification");
+    }
+
+    @Test
+    public void testRecursiveCheckAgainstJson() {
+        BRunUtil.invoke(compileResult, "testRecursiveCheckAgainstJson");
     }
 }
