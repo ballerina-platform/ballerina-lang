@@ -20,8 +20,8 @@ package org.ballerinalang.docgen.generator.model;
  */
 public class ProjectPageContext extends PageContext {
     public Project project;
-    public ProjectPageContext(Project project, String title, String rootPath) {
-        super(rootPath, title);
+    public ProjectPageContext(Project project, String title, String rootPath, boolean excludeIndex) {
+        super(rootPath, title, excludeIndex);
         this.project = project;
     }
 }

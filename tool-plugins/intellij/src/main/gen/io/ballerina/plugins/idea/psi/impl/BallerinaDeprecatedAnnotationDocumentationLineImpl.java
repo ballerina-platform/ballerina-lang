@@ -44,6 +44,12 @@ public class BallerinaDeprecatedAnnotationDocumentationLineImpl extends ASTWrapp
 
   @Override
   @NotNull
+  public List<BallerinaDeprecateAnnotationDescriptionLine> getDeprecateAnnotationDescriptionLineList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDeprecateAnnotationDescriptionLine.class);
+  }
+
+  @Override
+  @NotNull
   public BallerinaDeprecatedAnnotationDocumentation getDeprecatedAnnotationDocumentation() {
     return findNotNullChildByClass(BallerinaDeprecatedAnnotationDocumentation.class);
   }

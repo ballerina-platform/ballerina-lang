@@ -10,7 +10,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents a JDBC client endpoint.\n"
+        "left": "Represents a JDBC client endpoint."
       },
       "sortText": "190",
       "insertText": "Client",
@@ -43,7 +43,7 @@
       "kind": "Event",
       "detail": "Union",
       "documentation": {
-        "left": "Represents a database or application level error returned from JDBC client remote functions.\n"
+        "left": "Represents a database or application level error returned from JDBC client remote functions."
       },
       "sortText": "200",
       "insertText": "Error",
@@ -83,7 +83,7 @@
       "label": "SQLType",
       "detail": "Union",
       "documentation": {
-        "left": "The SQL Datatype of the parameter.\n\n`VARCHAR` - Small, variable-length character string\n`CHAR` - Small, fixed-length character string\n`LONGVARCHAR` - Large, variable-length character string\n`NCHAR` - Small, fixed-length character string with unicode support\n`LONGNVARCHAR` - Large, variable-length character string with Unicode support\n\n`BIT` - Single bit value that can be zero or one, or nil\n`BOOLEAN` - Boolean value either True or false\n`TINYINT` - 8-bit integer value which may be unsigned or signed\n`SMALLINT` - 16-bit signed integer value which may be unsigned or signed\n`INTEGER` - 32-bit signed integer value which may be unsigned or signed\n`BIGINT` - 64-bit signed integer value which may be unsigned or signed\n\n`NUMERIC` - Fixed-precision and scaled decimal values\n`DECIMAL` - Fixed-precision and scaled decimal values\n`REAL` - Single precision floating point number\n`FLOAT` - Double precision floating point number\n`DOUBLE` - Double precision floating point number\n\n`BINARY` - Small, fixed-length binary value\n`BLOB` - Binary Large Object\n`LONGVARBINARY` - Large, variable-length binary value\n`VARBINARY` - Small, variable-length binary value\n\n`CLOB` - Character Large Object.\n`NCLOB` - Character large objects in multibyte national character set\n\n`DATE` - Date consisting of day, month, and year\n`TIME` - Time consisting of hours, minutes, and seconds\n`DATETIME` - Both DATE and TIME with additional a nanosecond field\n`TIMESTAMP` - Both DATE and TIME with additional a nanosecond field\n\n`ARRAY` - Composite data value that consists of zero or more elements of a specified data type\n`STRUCT` - User-defined structured type, consists of one or more attributes\n`REFCURSOR` - Cursor value\n"
+        "left": "The SQL Datatype of the parameter.\n\n`VARCHAR` - Small, variable-length character string\n`CHAR` - Small, fixed-length character string\n`LONGVARCHAR` - Large, variable-length character string\n`NCHAR` - Small, fixed-length character string with unicode support\n`LONGNVARCHAR` - Large, variable-length character string with Unicode support\n\n`BIT` - Single bit value that can be zero or one, or nil\n`BOOLEAN` - Boolean value either True or false\n`TINYINT` - 8-bit integer value which may be unsigned or signed\n`SMALLINT` - 16-bit signed integer value which may be unsigned or signed\n`INTEGER` - 32-bit signed integer value which may be unsigned or signed\n`BIGINT` - 64-bit signed integer value which may be unsigned or signed\n\n`NUMERIC` - Fixed-precision and scaled decimal values\n`DECIMAL` - Fixed-precision and scaled decimal values\n`REAL` - Single precision floating point number\n`FLOAT` - Double precision floating point number\n`DOUBLE` - Double precision floating point number\n\n`BINARY` - Small, fixed-length binary value\n`BLOB` - Binary Large Object\n`LONGVARBINARY` - Large, variable-length binary value\n`VARBINARY` - Small, variable-length binary value\n\n`CLOB` - Character Large Object.\n`NCLOB` - Character large objects in multibyte national character set\n\n`DATE` - Date consisting of day, month, and year\n`TIME` - Time consisting of hours, minutes, and seconds\n`DATETIME` - Both DATE and TIME with additional a nanosecond field\n`TIMESTAMP` - Both DATE and TIME with additional a nanosecond field\n\n`ARRAY` - Composite data value that consists of zero or more elements of a specified data type\n`STRUCT` - User-defined structured type, consists of one or more attributes\n`REFCURSOR` - Cursor value"
       },
       "sortText": "110",
       "insertText": "SQLType",
@@ -93,7 +93,7 @@
       "label": "Direction",
       "detail": "Union",
       "documentation": {
-        "left": "The direction of the parameter.\n\n`IN` - IN parameters are used to send values to stored procedures\n`OUT` - OUT parameters are used to get values from stored procedures\n`INOUT` - INOUT parameters are used to send values and get values from stored procedures\n"
+        "left": "The direction of the parameter.\n\n`IN` - IN parameters are used to send values to stored procedures\n`OUT` - OUT parameters are used to get values from stored procedures\n`INOUT` - INOUT parameters are used to send values and get values from stored procedures"
       },
       "sortText": "110",
       "insertText": "Direction",
@@ -137,7 +137,7 @@
       "kind": "Enum",
       "detail": "Union",
       "documentation": {
-        "left": "The parameter passed into the operations.\n"
+        "left": "The parameter passed into the operations."
       },
       "sortText": "160",
       "insertText": "Param",

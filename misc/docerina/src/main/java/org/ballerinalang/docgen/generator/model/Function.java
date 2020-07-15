@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +24,13 @@ import java.util.List;
  * Represent documentation for a Function.
  */
 public class Function extends Construct {
+    @Expose
     public boolean isRemote;
+    @Expose
     public boolean isExtern;
+    @Expose
     public List<DefaultableVariable> parameters = new ArrayList<>();
+    @Expose
     public List<Variable> returnParameters = new ArrayList<>();
 
     public Function(String name, String description, boolean isRemote, boolean isExtern, boolean isDeprecated,

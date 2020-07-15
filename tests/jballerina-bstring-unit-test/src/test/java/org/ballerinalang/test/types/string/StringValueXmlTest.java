@@ -56,7 +56,7 @@ public class StringValueXmlTest {
 
     @Test
     public void testXmlNamespace() {
-        testAndAssert("testXmlNamespace", 364);
+        testAndAssert("testXmlNamespace", 334);
     }
 
     @Test

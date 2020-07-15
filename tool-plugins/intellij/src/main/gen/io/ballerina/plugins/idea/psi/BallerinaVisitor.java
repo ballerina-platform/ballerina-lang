@@ -1164,7 +1164,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitPsiElement(o);
   }
 
-  public void visitDeprecateAnnotationDescriptionLin(@NotNull BallerinaDeprecateAnnotationDescriptionLin o) {
+  public void visitDeprecateAnnotationDescriptionLine(@NotNull BallerinaDeprecateAnnotationDescriptionLine o) {
     visitPsiElement(o);
   }
 
@@ -1173,6 +1173,14 @@ public class BallerinaVisitor extends PsiElementVisitor {
   }
 
   public void visitDeprecatedAnnotationDocumentationLine(@NotNull BallerinaDeprecatedAnnotationDocumentationLine o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecatedParametersDocumentation(@NotNull BallerinaDeprecatedParametersDocumentation o) {
+    visitPsiElement(o);
+  }
+
+  public void visitDeprecatedParametersDocumentationLine(@NotNull BallerinaDeprecatedParametersDocumentationLine o) {
     visitPsiElement(o);
   }
 

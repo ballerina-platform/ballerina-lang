@@ -55,6 +55,7 @@ import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -179,10 +180,10 @@ public class PackagingTestCase extends BaseTest {
         Assert.assertTrue(actualMsg.contains("0.1.0"));
     }
 
-    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull")
+    @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull", enabled = false)
     public void testPullCount() throws IOException {
         initializeSsl();
-        String url = RepoUtils.getStagingURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
+        String url = RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
         HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), "", 0, "", "");
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
@@ -302,7 +303,7 @@ public class PackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
 

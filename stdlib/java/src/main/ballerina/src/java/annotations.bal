@@ -63,6 +63,13 @@ public type FieldData record {|
     Class class;
 |};
 
+# Describes a Java class that corresponds to a Ballerina object.
+#
+# + class - The Java class represented by the Ballerina object.
+public type ObjectData record {|
+    Class class;
+|};
+
 # Describes a Java constructor, which provides an implementation of a Ballerina function of which the body is marked as
 # `external`. If the Ballerina function body is marked as `external`, it means that the implementation of the
 # function is not provided in the Ballerina source module.
@@ -112,3 +119,10 @@ public const annotation FieldData FieldGet on source external;
 # ```
 public const annotation FieldData FieldSet on source external;
 
+# Describes the Java class representing a Ballerina binding.
+# ```ballerina
+# @java:Binding {
+#   class: "java.io.File"
+# }
+# ```
+public const annotation ObjectData Binding on object type;

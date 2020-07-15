@@ -48,6 +48,7 @@ import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Test case for locking dependencies with Ballerina.lock file.
@@ -452,7 +453,7 @@ public class LockFileTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_STAGE_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
     

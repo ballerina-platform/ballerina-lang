@@ -56,7 +56,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.debugadapter.JBallerinaDebugServer.MODULE_VERSION_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
 
 /**
  * Listens and publishes events from JVM.
@@ -287,7 +289,7 @@ public class EventBus {
     }
 
     /**
-     * Extracts relative path of the source file location using JDI class-reference mappings.
+     * Extracts relative path of the source file location from JDI class-reference mappings.
      */
     private static String getRelativeSourcePath(ReferenceType refType, Breakpoint bp)
             throws AbsentInformationException {
@@ -304,7 +306,8 @@ public class EventBus {
         // relative path instead of the file name, for the ballerina module sources.
         //
         // Note: Directly using file separator as a regex will fail on windows.
-        String[] srcNames = sourceName.split(File.separatorChar == '\\' ? "\\\\" : File.separator);
+        String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
+        String[] srcNames = getSourceNames(sourceName);
         String fileName = srcNames[srcNames.length - 1];
         String relativePath = sourcePath.replace(sourceName, fileName);
 
@@ -318,6 +321,8 @@ public class EventBus {
                 relativePath = relativePath.replaceFirst(orgName, "src");
             }
         }
+        // Removes module version part from the JDI reference source path.
+        relativePath = relativePath.replaceFirst(fileSeparatorRegex + MODULE_VERSION_REGEX, "");
         return relativePath;
     }
 

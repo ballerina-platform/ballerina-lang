@@ -51,16 +51,20 @@ public class RepoUtils {
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/1.0";
-    private static final String STAGING_URL = "https://api.staging-central.ballerina.io";
-    private static final String PREPROD_URL = "https://api.preprod-central.ballerina.io/1.0";
+    private static final String STAGING_URL = "https://api.staging-central.ballerina.io/1.0";
+    private static final String DEV_URL = "https://api.dev-central.ballerina.io/1.0";
 
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
 
-    public static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
-            System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
-    public static final boolean BALLERINA_DEV_PREPROD_CENTRAL = Boolean.parseBoolean(
-            System.getenv("BALLERINA_DEV_PREPROD_CENTRAL"));
+    public static final String BALLERINA_STAGE_CENTRAL = "BALLERINA_STAGE_CENTRAL";
+    public static final String BALLERINA_DEV_CENTRAL = "BALLERINA_DEV_CENTRAL";
+    public static final boolean SET_BALLERINA_STAGE_CENTRAL = Boolean.parseBoolean(
+            System.getenv(BALLERINA_STAGE_CENTRAL));
+    public static final boolean SET_BALLERINA_DEV_CENTRAL = Boolean.parseBoolean(
+            System.getenv(BALLERINA_DEV_CENTRAL));
+
+    public static final String HOME_CACHE_DIR = "HOME_CACHE_DIR";
     
     /**
      * Create and get the home repository path.
@@ -70,15 +74,19 @@ public class RepoUtils {
     public static Path createAndGetHomeReposPath() {
         Path homeRepoPath;
         String homeRepoDir = System.getenv(ProjectDirConstants.HOME_REPO_ENV_KEY);
-        if (homeRepoDir == null || homeRepoDir.isEmpty()) {
+        String homeCacheDir = System.getProperty(HOME_CACHE_DIR);
+        if (homeRepoDir != null && !homeRepoDir.isEmpty()) {
+            // User has specified the home repo path with env variable.
+            homeRepoPath = Paths.get(homeRepoDir);
+        } else if (homeCacheDir != null && !homeCacheDir.isEmpty()) {
+            // If home cache is given we will use that
+            homeRepoPath = Paths.get(homeCacheDir);
+        } else {
             String userHomeDir = System.getProperty(USER_HOME);
             if (userHomeDir == null || userHomeDir.isEmpty()) {
                 throw new BLangCompilerException("Error creating home repository: unable to get user home directory");
             }
             homeRepoPath = Paths.get(userHomeDir, ProjectDirConstants.HOME_REPO_DEFAULT_DIRNAME);
-        } else {
-            // User has specified the home repo path with env variable.
-            homeRepoPath = Paths.get(homeRepoDir);
         }
 
         homeRepoPath = homeRepoPath.toAbsolutePath();
@@ -139,21 +147,12 @@ public class RepoUtils {
      * @return URL of the remote repository
      */
     public static String getRemoteRepoURL() {
-        if (BALLERINA_DEV_STAGE_CENTRAL) {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
             return STAGING_URL;
-        } else if (BALLERINA_DEV_PREPROD_CENTRAL) {
-            return PREPROD_URL;
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return DEV_URL;
         }
         return PRODUCTION_URL;
-    }
-
-    /**
-     * Get the staging URL.
-     *
-     * @return URL of the remote repository
-     */
-    public static String getStagingURL() {
-            return STAGING_URL;
     }
 
     public static Path getLibDir() {

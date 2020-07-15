@@ -15,6 +15,8 @@
  */
 package org.ballerinalang.docgen.generator.model;
 
+import com.google.gson.annotations.Expose;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,12 +25,12 @@ import java.util.stream.Collectors;
  * Represent documentation for a Listener.
  */
 public class Listener extends Object {
-
+    @Expose
     public List<Function> lifeCycleMethods = new ArrayList<>();
 
     public Listener(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
-            List<Function> methods) {
-        super(name, description, isDeprecated, fields, methods);
+            List<Function> methods, boolean isAnonymous) {
+        super(name, description, isDeprecated, fields, methods, isAnonymous);
         this.lifeCycleMethods = getLCMethods(methods);
         this.otherMethods = getOtherMethods(methods);
     }
