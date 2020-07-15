@@ -2718,6 +2718,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        if (exprStmtNode.expr.getKind() == NodeKind.FAIL) {
+            BLangFailExpr failExpr = (BLangFailExpr) exprStmtNode.expr;
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failExpr.expr.pos, failExpr.expr);
+            result = rewrite(stmt, env);
+            return;
+        }
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
         result = exprStmtNode;
     }
@@ -4861,25 +4867,6 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr, true);
-    }
-
-    @Override
-    public void visit(BLangFailExpr failExpr) {
-//        BLangCheckedExpr checkedExpr = ASTBuilderUtil.createCheckExpr(failExpr.pos, failExpr.expr,
-//                symTable.nilType);
-//        checkedExpr.equivalentErrorTypeList.add(symTable.errorType);
-
-        BLangReturn failReturnStmt = ASTBuilderUtil.createReturnStmt(failExpr.pos, failExpr.expr);
-        BLangBlockStmt failExprBlock = ASTBuilderUtil.createBlockStmt(failExpr.pos);
-        failExprBlock.addStatement(failReturnStmt);
-        BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(failExpr.pos, symTable.nilType, Names.NIL_VALUE);
-        BLangStatementExpression failReturnStmtExpr =
-                ASTBuilderUtil.createStatementExpression(failExprBlock, nilLiteral);
-        result = rewrite(failReturnStmtExpr, env);
-//        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-//        exprStmt.pos = failExpr.pos;
-//        exprStmt.expr = failReturnStmtExpr;
-//        result = rewrite(exprStmt, env);
     }
 
     private void visitCheckAndCheckPanicExpr(BLangCheckedExpr checkedExpr, boolean isCheckPanic) {
