@@ -40,3 +40,33 @@ public type InvocationContext record {|
 public function getInvocationContext() returns InvocationContext = @java:Method {
     class: "org.ballerinalang.stdlib.auth.nativeimpl.GetInvocationContext"
 } external;
+
+# Sets the authentication-related values to the invocation context.
+# ```ballerina
+# auth:setInvocationContext("jwt", "<credential>", "<userID>", <scopes>, <claims>);
+# ```
+#
+# + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
+# + token - Auth token (credential)
+# + userId - User ID of the authenticated user
+# + scopes - Authenticated user scopes
+# + claims - Claims of the authenticated user
+public function setInvocationContext(public string? scheme = (), public string? token = (),
+                    public string? userId = (), public string[]? scopes = (), public map<any>? claims = ()) {
+    InvocationContext invocationContext = getInvocationContext();
+    if (!(scheme is ())) {
+        invocationContext.scheme = scheme;
+    }
+    if (!(token is ())) {
+        invocationContext.token = token;
+    }
+    if (!(userId is ()) && userId != "") {
+        invocationContext.userId = userId;
+    }
+    if (!(scopes is ())) {
+        invocationContext.scopes = scopes;
+    }
+    if (!(claims is ())) {
+        invocationContext.claims = claims;
+    }
+}
