@@ -912,6 +912,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BType memberType : definedUnionType.getMemberTypes()) {
                 unionType.add(memberType);
             }
+            unionType.addAll(definedUnionType.getMemberTypes());
+//            definedUnionType.setExplicitUnion();
         }
 
         return definedType;

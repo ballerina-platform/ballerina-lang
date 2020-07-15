@@ -43,7 +43,7 @@ type GlobalConnectionPoolContainer object {
 
     function init() {
         // poolConfig record is frozen so that it cannot be modified during runtime
-        ConnectionPool frozenConfig = self.connectionPool.cloneReadOnly();
+        ConnectionPool frozenConfig = <ConnectionPool>self.connectionPool.cloneReadOnly();
         initGlobalPoolContainer(frozenConfig);
     }
 

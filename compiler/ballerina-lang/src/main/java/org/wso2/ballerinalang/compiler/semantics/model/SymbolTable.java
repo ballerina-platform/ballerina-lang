@@ -111,23 +111,21 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-    public final BType jsonType = new BJSONType(TypeTags.JSON, null);
+    private final BType jsonTypeInternal = new BJSONType(TypeTags.JSON, null);
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BType anydataType = new BAnydataType(TypeTags.ANYDATA, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
     public final BMapType mapAnydataType = new BMapType(TypeTags.MAP, anydataType, null);
-    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonType, null);
+    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonTypeInternal, null);
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
     public final BArrayType arrayAnydataType = new BArrayType(anydataType);
-    public final BArrayType arrayJsonType = new BArrayType(jsonType);
+    public final BArrayType arrayJsonType = new BArrayType(jsonTypeInternal);
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
-    public final BType jsonArrayType = new BArrayType(jsonType);
-    public final BType anydataArrayType = new BArrayType(anydataType);
     public final BType anyServiceType = new BServiceType(null);
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
@@ -137,6 +135,7 @@ public class SymbolTable {
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
     public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
+    public final BUnionType jsonType = BUnionType.create(null, jsonTypeInternal, mapJsonType, arrayJsonType);
 
     public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
     public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);

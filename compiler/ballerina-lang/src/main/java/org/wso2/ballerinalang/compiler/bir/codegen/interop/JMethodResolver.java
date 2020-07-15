@@ -451,10 +451,8 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType member : getJSONMemberTypes()) {
-                        if (isValidReturnBType(jType, member, jMethodRequest)) {
-                            return true;
-                        }
+                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest)) {
+                        return true;
                     }
 
                     return false;
@@ -521,13 +519,6 @@ class JMethodResolver {
         }
     }
 
-    private BType[] getJSONMemberTypes() {
-        // TODO can't we use a static instance of this?
-        return new BType[]{
-                this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
-                this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
-                this.symbolTable.arrayJsonType};
-    }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
                                        ParamTypeConstraint[] constraints) {

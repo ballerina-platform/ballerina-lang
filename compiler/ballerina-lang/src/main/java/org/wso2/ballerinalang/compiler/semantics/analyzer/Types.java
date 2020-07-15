@@ -204,17 +204,45 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
+    private boolean isJSON(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType bUnionType = (BUnionType) type;
+            if (isAssignable(symTable.jsonType, type)) {
+                return true;
+            }
+            return false;
+        }
+        return type.tag == TypeTags.JSON;
+    }
+
     public boolean isLax(BType type) {
+        Set<BType> visited = new HashSet<>();
+        return isLaxType(type, visited);
+    }
+
+    public boolean isLaxType(BType type, Set<BType> visited) {
+        if (visited.contains(type)) {
+            return true;
+        }
+        visited.add(type);
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
                 return true;
             case TypeTags.MAP:
-                return isLax(((BMapType) type).constraint);
+                return isLaxType(((BMapType) type).constraint, visited);
             case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
-        }
+                if (type == symTable.jsonType) {
+                    return true;
+                }
+                for (BType member : ((BUnionType) type).getMemberTypes()) {
+                    if (!isLaxType(member, visited)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
         return false;
     }
 
@@ -2297,6 +2325,11 @@ public class Types {
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
+
+        TypePair pair = new TypePair(source, target);
+        if (!unresolvedTypes.add(pair)) {
+            return true;
+        }
 
         if (source.tag == TypeTags.UNION) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
