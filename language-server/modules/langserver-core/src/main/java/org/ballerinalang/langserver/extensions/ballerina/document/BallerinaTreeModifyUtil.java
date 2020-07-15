@@ -84,9 +84,18 @@ public class BallerinaTreeModifyUtil {
         put("IF_STATEMENT", "if ($CONDITION) {\n" +
                 "\n} else {\n\n}\n");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
-                "\n}");
-        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");");
-        put("PROPERTY_STATEMENT", "$PROPERTY");
+                "\n}\n");
+        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");\n");
+        put("PROPERTY_STATEMENT", "$PROPERTY\n");
+        put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
+        put("TYPE_GUARD_IF", "if($VARIABLE is $TYPE) {\n" +
+                "$STATEMENT" +
+                "\n}\n");
+        put("TYPE_GUARD_ELSE_IF", "else if($VARIABLE is $TYPE) {\n" +
+                "\n}\n");
+        put("TYPE_GUARD_ELSE", " else {\n" +
+                "\n}\n");
+        put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
