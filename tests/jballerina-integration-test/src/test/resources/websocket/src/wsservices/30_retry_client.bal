@@ -22,7 +22,7 @@ service on new http:Listener(21030) {
 
     resource function onOpen(http:WebSocketCaller wsEp) {
         http:WebSocketClient wsClientEp = new("ws://localhost:15300/websocket", { callbackService:
-            retryClientCallbackService, readyOnConnect: false, retryConfig: {}, handShakeTimeoutInSeconds: 10});
+            retryClientCallbackService, readyOnConnect: false, retryConfig: {}, handShakeTimeoutInSeconds: 5});
         wsEp.setAttribute(ASSOCIATED_CONNECTION, wsClientEp);
         wsClientEp.setAttribute(ASSOCIATED_CONNECTION, wsEp);
         checkpanic wsClientEp->ready();

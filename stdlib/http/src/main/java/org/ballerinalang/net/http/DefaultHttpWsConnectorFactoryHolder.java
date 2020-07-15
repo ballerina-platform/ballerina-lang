@@ -20,10 +20,14 @@ package org.ballerinalang.net.http;
 
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 
+/**
+ * This class is to provide a static instance of the DefaultHttpWsConnectorFactory which will be shared when creating
+ * HTTP/gRPC client connector and HTTP/gRPC server connector.
+ */
 class DefaultHttpWsConnectorFactoryHolder {
-    private static DefaultHttpWsConnectorFactory httpConnfactory = new DefaultHttpWsConnectorFactory();
+    private static DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
-    static DefaultHttpWsConnectorFactory getHttpConnfactory() {
-        return httpConnfactory;
+    static DefaultHttpWsConnectorFactory getHttpConnectorFactory() {
+        return httpConnectorFactory;
     }
 }
