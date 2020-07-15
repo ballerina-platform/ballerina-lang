@@ -23,10 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaExprFunctionBodySpec extends PsiElement {
 
-  @Nullable
-  BallerinaExpression getExpression();
-
   @NotNull
   PsiElement getEqualGt();
+
+  @Nullable
+  PsiElement getIdentifier();
 
 }

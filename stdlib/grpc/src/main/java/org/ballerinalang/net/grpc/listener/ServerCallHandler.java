@@ -43,6 +43,7 @@ import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ID;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
+import static org.ballerinalang.net.grpc.GrpcConstants.ON_MESSAGE_METADATA;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderObject;
 
 /**
@@ -169,8 +170,8 @@ public abstract class ServerCallHandler {
         if (ObserveUtils.isObservabilityEnabled()) {
             properties.put(ObservabilityConstants.KEY_OBSERVER_CONTEXT, context);
         }
-        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), callback,
-                properties, requestParams);
+        resource.getRuntime().invokeMethodAsync(resource.getService(), resource.getFunctionName(), null,
+                                                ON_MESSAGE_METADATA, callback, properties, requestParams);
     }
 
     Object[] computeResourceParams(ServiceResource resource, Object requestParam, HttpHeaders headers,

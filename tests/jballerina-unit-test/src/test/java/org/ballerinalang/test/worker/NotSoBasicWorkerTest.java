@@ -126,7 +126,7 @@ public class NotSoBasicWorkerTest {
         Assert.assertEquals(ret.intValue(), 30);
     }
 
-    @Test(enabled = false)
+    @Test
     public void largeForkCreationTest() {
         BValue[] vals = BRunUtil.invoke(result, "largeForkCreationTest", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
@@ -163,9 +163,5 @@ public class NotSoBasicWorkerTest {
         BValue[] vals = BRunUtil.invoke(result, "testVoidFunction", new BValue[0]);
         Assert.assertEquals(vals.length, 1);
         Assert.assertTrue((((BInteger) vals[0]).intValue() == 10) || ((BInteger) vals[0]).intValue() == 5);
-        // Not applicable for jBallerina
-//        int pkgIndex = result.getProgFile().getEntryPackage().pkgIndex;
-//        Assert.assertTrue((result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 5) ||
-//                (result.getProgFile().globalMemArea.getIntField(pkgIndex, 0) == 10));
     }
 }

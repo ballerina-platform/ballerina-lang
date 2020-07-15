@@ -673,7 +673,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -705,7 +705,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -1091,11 +1091,6 @@
             "kind": "NAMED_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "argumentName",
                     "type": "SimpleNameReferenceNode"
                 },
@@ -1115,11 +1110,6 @@
             "kind": "POSITIONAL_ARG",
             "attributes": [
                 {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
                     "name": "expression",
                     "type": "ExpressionNode"
                 }
@@ -1130,11 +1120,6 @@
             "base": "FunctionArgumentNode",
             "kind": "REST_ARG",
             "attributes": [
-                {
-                    "name": "leadingComma",
-                    "type": "Token",
-                    "isOptional": true
-                },
                 {
                     "name": "ellipsis",
                     "type": "Token"
@@ -1533,7 +1518,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -1763,18 +1748,6 @@
                 {
                     "name": "namedWorkerDeclarations",
                     "type": "NamedWorkerDeclarationNode",
-                    "occurrences": "MULTIPLE"
-                }
-            ]
-        },
-        {
-            "name": "DocumentationStringNode",
-            "base": "Node",
-            "kind": "DOCUMENTATION_STRING",
-            "attributes": [
-                {
-                    "name": "documentationLines",
-                    "type": "Token",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -2630,7 +2603,7 @@
                 },
                 {
                     "name": "parenthesizedArgList",
-                    "type": "Node"
+                    "type": "ParenthesizedArgList"
                 }
             ]
         },
@@ -2662,7 +2635,7 @@
                 {
                     "name": "arguments",
                     "type": "FunctionArgumentNode",
-                    "occurrences": "MULTIPLE"
+                    "occurrences": "MULTIPLE_SEPARATED"
                 },
                 {
                     "name": "closeParenToken",
@@ -3081,6 +3054,49 @@
                 {
                     "name": "variableName",
                     "type": "SimpleNameReferenceNode"
+                }
+            ]
+        },
+        {
+            "name": "FunctionalBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "FUNCTIONAL_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeReference",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesis",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListBindingPatterns",
+                    "type": "BindingPatternNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesis",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgBindingPatternNode",
+            "base": "BindingPatternNode",
+            "kind": "NAMED_ARG_BINDING_PATTERN",
+            "attributes": [
+                {
+                    "name": "argName",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalsToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "bindingPattern",
+                    "type": "BindingPatternNode"
                 }
             ]
         },
@@ -3935,6 +3951,132 @@
                 {
                     "name": "matchPattern",
                     "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "FunctionalMatchPatternNode",
+            "base": "Node",
+            "kind": "FUNCTIONAL_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "typeRef",
+                    "type": "Node"
+                },
+                {
+                    "name": "openParenthesisToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "argListMatchPatternNode",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                },
+                {
+                    "name": "closeParenthesisToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "NamedArgMatchPatternNode",
+            "base": "Node",
+            "kind": "NAMED_ARG_MATCH_PATTERN",
+            "attributes": [
+                {
+                    "name": "identifier",
+                    "type": "IdentifierToken"
+                },
+                {
+                    "name": "equalToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "matchPattern",
+                    "type": "Node"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationNode",
+            "base": "Node",
+            "isAbstract": true
+        },
+        {
+            "name": "MarkdownDocumentationNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_DOCUMENTATION",
+            "attributes": [
+                {
+                    "name": "documentationLines",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownDocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownParameterDocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "plusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "parameterName",
+                    "type": "Token"
+                },
+                {
+                    "name": "minusToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "DocumentationReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "DOCUMENTATION_REFERENCE",
+            "attributes": [
+                {
+                    "name": "referenceType",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "backtickContent",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
                 }
             ]
         }

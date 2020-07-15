@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -33,12 +32,8 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public ExpressionNode expression() {
-        return childInBucket(1);
+        return childInBucket(0);
     }
 
     @Override
@@ -54,21 +49,17 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "expression"};
     }
 
     public PositionalArgumentNode modify(
-            Token leadingComma,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 expression)) {
             return this;
         }
 
         return NodeFactory.createPositionalArgumentNode(
-                leadingComma,
                 expression);
     }
 
@@ -83,20 +74,11 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
      */
     public static class PositionalArgumentNodeModifier {
         private final PositionalArgumentNode oldNode;
-        private Token leadingComma;
         private ExpressionNode expression;
 
         public PositionalArgumentNodeModifier(PositionalArgumentNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.expression = oldNode.expression();
-        }
-
-        public PositionalArgumentNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public PositionalArgumentNodeModifier withExpression(
@@ -108,7 +90,6 @@ public class PositionalArgumentNode extends FunctionArgumentNode {
 
         public PositionalArgumentNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     expression);
         }
     }

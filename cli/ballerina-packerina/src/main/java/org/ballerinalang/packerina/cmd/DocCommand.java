@@ -84,6 +84,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--fromJSON", "-fromJSON"}, description = "Generate API Docs from a JSON.")
     private String jsonLoc;
 
+    @CommandLine.Option(names = {"--templatePath", "-templatePath"}, description = "Location of the custom templates.")
+    private String templateLoc;
+
     @CommandLine.Option(names = {"--o", "-o"}, description = "Location to save API Docs.")
     private String outputLoc;
 
@@ -135,6 +138,19 @@ public class DocCommand implements BLauncherCmd {
         // validation and decide source root and source full path
         this.sourceRootPath = null != this.sourceRoot ?
                 Paths.get(this.sourceRoot).toAbsolutePath() : this.sourceRootPath;
+        // set custom template path
+        if (this.templateLoc != null) {
+            Path templatePath = Paths.get(this.templateLoc).toAbsolutePath();
+            if (Files.notExists(templatePath)) {
+                CommandUtil.printError(this.errStream,
+                        "cannot find template folder " + templatePath.toString(),
+                        null,
+                        false);
+                CommandUtil.exitError(true);
+                return;
+            }
+            System.setProperty("CUSTOM_TEMPLATE_PATH", templatePath.toString());
+        }
         // combine docs
         if (this.combine) {
             BuildContext buildContext = new BuildContext(this.sourceRootPath);
@@ -286,7 +302,8 @@ public class DocCommand implements BLauncherCmd {
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, true,
+                true);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);

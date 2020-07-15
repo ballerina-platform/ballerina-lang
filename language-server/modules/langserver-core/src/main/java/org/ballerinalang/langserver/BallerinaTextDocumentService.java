@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
@@ -176,7 +177,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
-                docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
@@ -188,6 +188,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
+                try {
+                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
+                            position.getPosition());
+                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -251,8 +257,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
                         LSCustomErrorStrategy.class, false, false, true);
-
-                docManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
@@ -289,6 +293,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new SignatureHelp();
             } finally {
+                try {
+                    docManager.resetPrunedContent(Paths.get(URI.create(uri)));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
+                            position.getPosition());
+                }
                 lock.ifPresent(Lock::unlock);
             }
         });
