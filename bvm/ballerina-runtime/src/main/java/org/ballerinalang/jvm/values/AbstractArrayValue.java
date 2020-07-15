@@ -26,7 +26,6 @@ import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
-import org.ballerinalang.jvm.values.api.BArray;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.io.ByteArrayOutputStream;
@@ -227,13 +226,10 @@ public abstract class AbstractArrayValue implements ArrayValue {
      * 
      * @param values values to add to the start of the array
      */
-    public void unshift(ArrayValue values) {
-        unshift(0, values);
-    }
 
     @Override
-    public void unshift(BArray values) {
-        unshift(0, (ArrayValue) values);
+    public void unshift(Object[] values) {
+        unshift(0, values);
     }
 
     @Override
@@ -388,7 +384,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
         }
     }
 
-    protected abstract void unshift(long index, ArrayValue vals);
+    protected abstract void unshift(long index, Object[] vals);
 
     protected abstract void checkFixedLength(long length);
 

@@ -286,7 +286,7 @@ public function fromBase64(string str) returns byte[]|error = @java:Method {
 # + return - Base16 string representation
 public function toBase16(byte[] arr) returns string = @java:Method {
     class: "org.ballerinalang.langlib.array.ToBase16",
-    name: "toBase64"
+    name: "toBase16"
 } external;
 
 # Returns the byte array that a string represents in Base16.
