@@ -2020,7 +2020,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         Set<Object> names = new HashSet<>();
         BType type = recordLiteral.type;
-        boolean isRecord = type != null && type.tag == TypeTags.RECORD;
+        boolean isRecord = type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
 
         // A record type is inferred for a record literal even if the contextually expected type is a map, if the

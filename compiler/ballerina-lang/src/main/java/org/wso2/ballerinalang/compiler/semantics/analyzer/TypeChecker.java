@@ -368,15 +368,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR ||
-                expr.expectedType == null ||
-                expr.expectedType.tag != TypeTags.MAP ||
-                expr.type.tag != TypeTags.RECORD) {
-            expr.expectedType = resultType;
-        }
-
         // If the expected type is a map, but a record type is inferred due to the presence of `readonly` fields in
         // the mapping constructor expression, we don't override the expected type.
+        if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR && expr.expectedType != null &&
+                expr.expectedType.tag == TypeTags.MAP && expr.type.tag == TypeTags.RECORD) {
+            return;
+        }
+
+        expr.expectedType = resultType;
     }
 
 
