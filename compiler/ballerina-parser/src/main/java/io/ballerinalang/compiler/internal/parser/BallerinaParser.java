@@ -11012,8 +11012,8 @@ public class BallerinaParser extends AbstractParser {
             waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
                     DiagnosticErrorCode.ERROR_MAPPING_CONSTRUCTOR_EXPR_AS_A_WAIT_EXPR);
         } else if (isAction(waitFutureExpr)) {
-            waitFutureExpr = SyntaxErrors.addDiagnostic(waitFutureExpr,
-                    DiagnosticErrorCode.ERROR_ACTION_AS_A_WAIT_EXPR);
+            waitFutureExpr =
+                    SyntaxErrors.addDiagnostic(waitFutureExpr, DiagnosticErrorCode.ERROR_ACTION_AS_A_WAIT_EXPR);
         }
         return waitFutureExpr;
     }
@@ -11770,7 +11770,8 @@ public class BallerinaParser extends AbstractParser {
             STNode content = STNodeFactory.createEmptyNode();
             STNode byteArrayLiteral =
                     STNodeFactory.createByteArrayLiteralNode(type, startingBackTick, content, endingBackTick);
-            byteArrayLiteral = SyntaxErrors.addDiagnostic(byteArrayLiteral, DiagnosticErrorCode.ERROR_MISSING_BYTE_ARRAY_CONTENT);
+            byteArrayLiteral =
+                    SyntaxErrors.addDiagnostic(byteArrayLiteral, DiagnosticErrorCode.ERROR_MISSING_BYTE_ARRAY_CONTENT);
             return byteArrayLiteral;
         }
 
@@ -12462,7 +12463,7 @@ public class BallerinaParser extends AbstractParser {
             case STRING_LITERAL:
                 return parseSimpleConstExpr();
             case IDENTIFIER_TOKEN:
-                //If it is an identifier it can be functional match pattern or const pattern
+                // If it is an identifier it can be functional match pattern or const pattern
                 STNode typeRefOrConstExpr = parseQualifiedIdentifier(ParserRuleContext.MATCH_PATTERN);
                 return parseFunctionalMatchPatternOrConsPattern(typeRefOrConstExpr);
             case VAR_KEYWORD:
@@ -12798,8 +12799,8 @@ public class BallerinaParser extends AbstractParser {
                 if (isMatchPatternEnd(peek().kind)) {
                     return typeRefOrConstExpr;
                 }
-                Solution solution = recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN,
-                        typeRefOrConstExpr);
+                Solution solution =
+                        recover(peek(), ParserRuleContext.FUNC_MATCH_PATTERN_OR_CONST_PATTERN, typeRefOrConstExpr);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -12830,16 +12831,16 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * Parse functional match pattern.
-     *<p>
-     *     functional-match-pattern := functionally-constructible-type-reference ( arg-list-match-pattern )
-     *     <br/>
-     *     functionally-constructible-type-reference := error | type-reference
-     *     <br/>
-     *     type-reference := identifier | qualified-identifier
-     *     <br/>
-     *     arg-list-match-pattern := positional-arg-match-patterns [, other-arg-match-patterns]
-     *    | other-arg-match-patterns
-     *</p>
+     * <p>
+     * functional-match-pattern := functionally-constructible-type-reference ( arg-list-match-pattern )
+     * <br/>
+     * functionally-constructible-type-reference := error | type-reference
+     * <br/>
+     * type-reference := identifier | qualified-identifier
+     * <br/>
+     * arg-list-match-pattern := positional-arg-match-patterns [, other-arg-match-patterns]
+     * | other-arg-match-patterns
+     * </p>
      *
      * @return Parsed functional match pattern node.
      */
@@ -12899,7 +12900,8 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      *     arg-match-pattern := match-pattern |   named-arg-match-pattern | rest-match-pattern
      * </code>
-     * <br/><br/>
+     * <br/>
+     * <br/>
      *
      * @return parsed arg match pattern node.
      */
@@ -12908,39 +12910,39 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseArgMatchPattern(SyntaxKind nextTokenKind) {
-            switch (nextTokenKind) {
-                case IDENTIFIER_TOKEN:
-                    return parseNamedOrPositionalArgMatchPattern();
-                case ELLIPSIS_TOKEN:
-                    return parseRestMatchPattern();
-                case OPEN_PAREN_TOKEN:
-                case NULL_KEYWORD:
-                case TRUE_KEYWORD:
-                case FALSE_KEYWORD:
-                case PLUS_TOKEN:
-                case MINUS_TOKEN:
-                case DECIMAL_INTEGER_LITERAL:
-                case HEX_INTEGER_LITERAL:
-                case DECIMAL_FLOATING_POINT_LITERAL:
-                case HEX_FLOATING_POINT_LITERAL:
-                case STRING_LITERAL:
-                case VAR_KEYWORD:
-                case OPEN_BRACKET_TOKEN:
-                case OPEN_BRACE_TOKEN:
-                case ERROR_KEYWORD:
-                    return parseMatchPattern();
-                default:
-                    Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN);
+        switch (nextTokenKind) {
+            case IDENTIFIER_TOKEN:
+                return parseNamedOrPositionalArgMatchPattern();
+            case ELLIPSIS_TOKEN:
+                return parseRestMatchPattern();
+            case OPEN_PAREN_TOKEN:
+            case NULL_KEYWORD:
+            case TRUE_KEYWORD:
+            case FALSE_KEYWORD:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case DECIMAL_FLOATING_POINT_LITERAL:
+            case HEX_FLOATING_POINT_LITERAL:
+            case STRING_LITERAL:
+            case VAR_KEYWORD:
+            case OPEN_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case ERROR_KEYWORD:
+                return parseMatchPattern();
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ARG_MATCH_PATTERN);
 
-                    // If the parser recovered by inserting a token, then try to re-parse the same
-                    // rule with the inserted token. This is done to pick the correct branch
-                    // to continue the parsing.
-                    if (solution.action == Action.REMOVE) {
-                        return solution.recoveredNode;
-                    }
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
 
-                    return parseArgMatchPattern(solution.tokenKind);
-            }
+                return parseArgMatchPattern(solution.tokenKind);
+        }
     }
 
     private STNode parseNamedOrPositionalArgMatchPattern() {
@@ -12962,7 +12964,8 @@ public class BallerinaParser extends AbstractParser {
      * Parses the next named arg match pattern.
      * <br/>
      * <code>named-arg-match-pattern := arg-name = match-pattern</code>
-     * <br/><br/>
+     * <br/>
+     * <br/>
      *
      * @return arg match pattern list node added the new arg match pattern
      */
@@ -13052,8 +13055,8 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> leadingTriviaList = getLeadingTriviaList(documentationStringToken.leadingMinutiae());
         TextDocument textDocument = TextDocuments.from(documentationStringToken.text());
 
-        DocumentationLexer documentationLexer = new DocumentationLexer(textDocument.getCharacterReader(),
-                leadingTriviaList);
+        DocumentationLexer documentationLexer =
+                new DocumentationLexer(textDocument.getCharacterReader(), leadingTriviaList);
         AbstractTokenReader tokenReader = new TokenReader(documentationLexer);
         DocumentationParser documentationParser = new DocumentationParser(tokenReader);
 
@@ -13991,32 +13994,34 @@ public class BallerinaParser extends AbstractParser {
 
         List<STNode> bindingPatterns = new ArrayList<>();
         STNode prevMember = parseMappingBindingPatternMember();
-        bindingPatterns.add(prevMember);
+        if (prevMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
+            bindingPatterns.add(prevMember);
+        }
         return parseMappingBindingPattern(openBrace, bindingPatterns, prevMember);
     }
 
-    private STNode parseMappingBindingPattern(STNode openBrace, List<STNode> bindingPatterns, STNode member) {
+    private STNode parseMappingBindingPattern(STNode openBrace, List<STNode> bindingPatterns, STNode prevMember) {
         STToken token = peek(); // get next valid token
         STNode mappingBindingPatternRhs = null;
-        while (!isEndOfMappingBindingPattern(token.kind) && member.kind != SyntaxKind.REST_BINDING_PATTERN) {
+        while (!isEndOfMappingBindingPattern(token.kind) && prevMember.kind != SyntaxKind.REST_BINDING_PATTERN) {
             mappingBindingPatternRhs = parseMappingBindingPatternEnd(token.kind);
             if (mappingBindingPatternRhs == null) {
                 break;
             }
 
             bindingPatterns.add(mappingBindingPatternRhs);
-            member = parseMappingBindingPatternMember();
-            if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
+            prevMember = parseMappingBindingPatternMember();
+            if (prevMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
                 break;
             }
-            bindingPatterns.add(member);
+            bindingPatterns.add(prevMember);
             token = peek();
         }
 
         // Separating out the rest-binding-pattern
         STNode restBindingPattern;
-        if (member.kind == SyntaxKind.REST_BINDING_PATTERN) {
-            restBindingPattern = member;
+        if (prevMember.kind == SyntaxKind.REST_BINDING_PATTERN) {
+            restBindingPattern = prevMember;
         } else {
             restBindingPattern = STNodeFactory.createEmptyNode();
         }
