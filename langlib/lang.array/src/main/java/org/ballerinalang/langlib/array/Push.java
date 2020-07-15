@@ -39,14 +39,14 @@ public class Push {
 
     private static final String FUNCTION_SIGNATURE = "push()";
 
-    public static void push(ArrayValue arr, ArrayValue vals) {
+    public static void push(ArrayValue arr, Object... vals) {
         BType arrType = arr.getType();
-        int nVals = vals.size();
+        int nVals = vals.length;
         switch (arrType.getTag()) {
             case TypeTags.ARRAY_TAG:
             case TypeTags.TUPLE_TAG:
                 for (int i = arr.size(), j = 0; j < nVals; i++, j++) {
-                    arr.add(i, vals.get(j));
+                    arr.add(i, vals[j]);
                 }
                 break;
             default:

@@ -161,7 +161,7 @@ public interface BArray extends BRefValue, BCollection {
      * Adds values to the start of an array.
      * @param values values to add to the start of the array
      */
-    void unshift(BArray values);
+    void unshift(Object[] values);
 
     /**
      * Get ref values array.

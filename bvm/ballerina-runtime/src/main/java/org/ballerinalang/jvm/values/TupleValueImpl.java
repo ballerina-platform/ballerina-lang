@@ -386,8 +386,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    public void unshift(BArray values) {
-        unshift(0, (TupleValueImpl) values);
+    public void unshift(Object[] values) {
+        unshift(0, values);
     }
 
     @Override
@@ -636,9 +636,9 @@ public class TupleValueImpl extends AbstractArrayValue {
     }
 
     @Override
-    protected void unshift(long index, ArrayValue vals) {
+    protected void unshift(long index, Object[] vals) {
         handleImmutableArrayValue();
-        unshiftArray(index, vals.size(), getCurrentArrayLength());
+        unshiftArray(index, vals.length, getCurrentArrayLength());
         addToRefArray(vals, (int) index);
     }
 
@@ -693,6 +693,13 @@ public class TupleValueImpl extends AbstractArrayValue {
             System.arraycopy(this.refValues, index + 1, this.refValues, index, nElemsToBeMoved);
         }
         this.size--;
+    }
+
+    private void addToRefArray(Object[] vals, int startIndex) {
+        int endIndex = startIndex + vals.length;
+        for (int i = startIndex, j = 0; i < endIndex; i++, j++) {
+            add(i, vals[j]);
+        }
     }
 
     private void addToRefArray(ArrayValue vals, int startIndex) {
