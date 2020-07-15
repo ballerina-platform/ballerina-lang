@@ -43,36 +43,6 @@ public class BallerinaFunctionTypeNameImpl extends ASTWrapperPsiElement implemen
   }
 
   @Override
-  @Nullable
-  public BallerinaParameterList getParameterList() {
-    return findChildByClass(BallerinaParameterList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaParameterTypeNameList getParameterTypeNameList() {
-    return findChildByClass(BallerinaParameterTypeNameList.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaReturnParameter getReturnParameter() {
-    return findChildByClass(BallerinaReturnParameter.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getLeftParenthesis() {
-    return findNotNullChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
-  }
-
-  @Override
   @NotNull
   public PsiElement getFunction() {
     return findNotNullChildByType(FUNCTION);

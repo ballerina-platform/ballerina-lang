@@ -18,7 +18,7 @@
 public type RawTemplate abstract object {
 
     # The string literal parts of the raw template.
-    public string[] strings;
+    public (readonly & string[]) strings;
 
     # The expressions given within the interpolations of the raw template.
     public (any|error)[] insertions;
