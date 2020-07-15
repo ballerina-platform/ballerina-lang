@@ -104,8 +104,10 @@ public class CodeGenerator {
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
 
         if (type.equals(GEN_CLIENT)) {
-            srcPath = srcPath.resolve("client");
-            implPath = implPath.resolve("client");
+            if (srcPackage.equals("")) {
+                srcPath = srcPath.resolve("client");
+                implPath = implPath.resolve("client");
+            }
 
             if (Files.notExists(srcPath)) {
                 Files.createDirectory(srcPath);
@@ -134,9 +136,9 @@ public class CodeGenerator {
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generateClient(String executionPath, String definitionPath, String outPath)
+    public void generateClient(String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, null, outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, serviceName, outPath);
     }
 
     /**
