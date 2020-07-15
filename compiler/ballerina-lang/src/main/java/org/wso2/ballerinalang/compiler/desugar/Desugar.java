@@ -4433,11 +4433,11 @@ public class Desugar extends BLangNodeVisitor {
                                                                     DiagnosticPos pos) {
         // TODO: Use the anon model helper to generate the object name?
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-        Name objectClassName = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        Name objectClassName = names.fromString(
+                anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
         final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
-        BObjectTypeSymbol classTSymbol = (BObjectTypeSymbol) Symbols
-                .createObjectSymbol(updatedFlags, objectClassName, env.enclPkg.packageID, null,
-                                    env.enclPkg.symbol);
+        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(updatedFlags, objectClassName,
+                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol);
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);
