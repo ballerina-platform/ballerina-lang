@@ -227,10 +227,10 @@ public type CommonWebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
     int handShakeTimeoutInSeconds = 300;
-    Cookie[] cookies?;
+    map<string> cookies?;
 |};
 
-# Adds cookies to the request.
+# Adds cookies to the custom header.
 #
 # + config - Represents the cookies to be added
 public function addCookies(WebSocketClientConfiguration config) {

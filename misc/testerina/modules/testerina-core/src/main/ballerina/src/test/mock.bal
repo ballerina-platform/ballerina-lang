@@ -288,7 +288,7 @@ public type FunctionStub object {
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObj = new) returns T = @java:Method {
+public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 

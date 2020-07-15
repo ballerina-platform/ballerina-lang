@@ -16,6 +16,7 @@
 
 package io.ballerina.plugins.idea.configuration;
 
+import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +34,8 @@ public class BallerinaProjectSettings implements Serializable {
     private boolean stdlibGotoDef = true;
 
     public static BallerinaProjectSettings getStoredSettings(@NotNull Project project) {
-        BallerinaProjectSettingsComponent component = project.getComponent(BallerinaProjectSettingsComponent.class);
+        BallerinaProjectSettingsComponent component = ServiceManager.getService(project,
+                BallerinaProjectSettingsComponent.class);
         if (component == null) {
             //in the default settings there is no project available and thus no project components.
             return new BallerinaProjectSettings();

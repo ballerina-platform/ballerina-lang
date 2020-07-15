@@ -35,6 +35,9 @@ public type WebSocketFailoverClient client object {
     # + config - The `WebSocketFailoverClientConfiguration` of the endpoint
     public function init(public WebSocketFailoverClientConfiguration config) {
         self.url = config.targetUrls[0];
+        if (config is WebSocketClientConfiguration) {
+            addCookies(config);
+        }
         self.config = config;
         return externFailoverInit(self);
     }
@@ -162,8 +165,6 @@ public type WebSocketFailoverClient client object {
 };
 
 # Configurations for the WebSocket client endpoint.
-# Following fields are inherited from the other configuration records in addition to the Client specific
-# configs.
 #
 # |                                                                              |
 # |:---------------------------------------------------------------------------- |

@@ -84,10 +84,6 @@ public class WebSocketUtil {
             WebSocketConstants.SEPARATOR + WebSocketConstants.FAILOVER_WEBSOCKET_CLIENT;
     public static final String ERROR_MESSAGE = "Error occurred: ";
     public static final String LOG_MESSAGE = "{} {}";
-    public static final String EQUAL = "=";
-    public static final String SEMI_COLON = ";";
-    public static final String SPACE = " ";
-    public static final String COOKIE = "Cookie";
 
     public static ObjectValue createAndPopulateWebSocketCaller(WebSocketConnection webSocketConnection,
                                                                WebSocketServerService wsService,
