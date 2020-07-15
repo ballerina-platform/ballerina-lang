@@ -76,9 +76,9 @@ public abstract class LauncherImpl {
         // TODO: validate file path
         ArrayList<String> command = new ArrayList<>(ballerinaExec);
         boolean debugTests = false;
-        if (args.get("debugTests") != null && args.get("debugTests") instanceof Boolean) {
+        if (args.get("debugTests") instanceof Boolean) {
             debugTests = (boolean) args.get("debugTests");
-        } else if (args.get("debugTests") != null && args.get("debugTests") instanceof String) {
+        } else if (args.get("debugTests") instanceof String) {
             debugTests = Boolean.parseBoolean((String) args.get("debugTests"));
         }
         if (debugTests) {
@@ -96,12 +96,12 @@ public abstract class LauncherImpl {
         command.add(balFile);
 
         boolean networkLogs = false;
-        if (args.get("networkLogs") != null && args.get("networkLogs") instanceof Boolean) {
+        if (args.get("networkLogs") instanceof Boolean) {
             networkLogs = (boolean) args.get("networkLogs");
-        } else if (args.get("networkLogs") != null && args.get("networkLogs") instanceof String) {
+        } else if (args.get("networkLogs") instanceof String) {
             networkLogs = Boolean.parseBoolean((String) args.get("networkLogs"));
         }
-        if (networkLogs && !debugTests) {
+        if (networkLogs && !debugTests && args.get("networkLogsPort") instanceof Double) {
             Double networkLogsPort = (Double) args.get("networkLogsPort");
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + networkLogsPort.intValue());
@@ -114,7 +114,7 @@ public abstract class LauncherImpl {
         command.addAll(commandOptions);
 
         ArrayList<String> scriptArguments = new ArrayList<>();
-        if (args.get("commandOptions") instanceof ArrayList) {
+        if (args.get("scriptArguments") instanceof ArrayList) {
             scriptArguments = (ArrayList<String>) args.get("scriptArguments");
         }
         command.addAll(scriptArguments);
