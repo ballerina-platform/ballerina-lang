@@ -42,20 +42,6 @@ public type FunctionCallError distinct error;
 # Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
 
-
-# Creates and returns a mock object of provided type description.
-#
-# + T - type of object to create the mock
-# + mockObject - mock object to replace the original (optional)
-# + return - created mock object
-public function mock(typedesc<object {}> T, object{} mockObject = new) returns object{} {
-    object {}|Error mockExtResult = mockExt(T, mockObject);
-    if (mockExtResult is Error) {
-        panic mockExtResult;
-    }
-    return <object{}>mockExtResult;
-}
-
 # Prepares a provided default mock object for stubbing.
 #
 # + mockObject - created default mock object
@@ -297,14 +283,12 @@ public type FunctionStub object {
     }
 };
 
-
-# Inter-op to create the mock object
+# Creates and returns a mock object of provided type description.
 #
-# + T - type description
-# + obj - mock object
-# + return - type casted mock object or and error if creation failed
-function mockExt(typedesc<object {}> T, object {} obj) returns object{}|Error = @java:Method {
-    name: "mock",
+# + T - type of object to create the mock
+# + mockObject - mock object to replace the original (optional)
+# + return - created mock object or throw an error if validation failed
+public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 
