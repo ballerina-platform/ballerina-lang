@@ -25,7 +25,6 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.PrintStream;
 
 /**
  * Test cases for HTTP cookies.
@@ -179,9 +178,6 @@ public class HTTPCookiesTestCase extends HttpBaseTest {
         BMainInstance bMainInstance = new BMainInstance(balServer);
         String output = bMainInstance.runMainAndReadStdOut("run", new String[]{
                 "cookieClient_13.bal"}, balFilePath);
-        PrintStream asd = System.out;
-        asd.println("###########");
-        asd.println(output);
         Assert.assertTrue(output.contains("Valid cookies: user=John,asd="));
     }
 }
