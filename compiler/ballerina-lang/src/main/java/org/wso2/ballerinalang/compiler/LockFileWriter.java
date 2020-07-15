@@ -115,7 +115,7 @@ public class LockFileWriter {
     private List<LockFileImport> getImports(List<BPackageSymbol> moduleSymbols) {
         return moduleSymbols.stream()
                 .filter(symbol -> !"".equals(symbol.pkgID.version.value))
-                .filter(symbol -> isCachedBuiltInModule(symbol.pkgID))
+                .filter(symbol -> isModuleShouldAddedToLockFile(symbol.pkgID))
                 .map(symbol -> new LockFileImport(symbol.pkgID.orgName.value, symbol.pkgID.name.value,
                         symbol.pkgID.version.value))
                 .distinct()
@@ -163,19 +163,26 @@ public class LockFileWriter {
     }
 
     /**
-     * Check if this module exists in `cache` directory inside ballerina home.
+     * Check if this module should be added to lock file.
+     * `lang` modules and built-in modules not exists in `BAL_HOME/cache/bir` directory avoided in the lock file.
      *
      * @param packageID package ID.
-     * @return if module exists in `cache` directory.
+     * @return is module should be added to lock file.
      */
-    private boolean isCachedBuiltInModule(PackageID packageID) {
+    private boolean isModuleShouldAddedToLockFile(PackageID packageID) {
         if (isBuiltInModule(packageID)) {
+            // `lang` modules should be avoided in lock file
+            if (packageID.getName().getValue().startsWith("lang.")) {
+                return false;
+            }
+
+            // built in modules in `BAL_HOME/cache/bir` directory should be added to lock file
             Path cachedModulePath = Paths
                     .get(System.getProperty(ProjectDirConstants.BALLERINA_HOME), "cache", USER_REPO_BIR_DIRNAME,
                             packageID.getOrgName().getValue(), packageID.getName().getValue());
             return cachedModulePath.toFile().exists();
-
         } else {
+            // Non built in modules should be added to lock file
             return true;
         }
     }
