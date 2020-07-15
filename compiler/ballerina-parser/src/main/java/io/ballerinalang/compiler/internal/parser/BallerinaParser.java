@@ -6143,6 +6143,40 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
     }
 
+    private STNode getMappingConstructureExpr(STNode ambiguousNode) {
+        if (isEmpty(ambiguousNode)) {
+            return ambiguousNode;
+        }
+
+        switch (ambiguousNode.kind) {
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
+                STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) ambiguousNode;
+                List<STNode> fieldList = new ArrayList<>();
+                for (int i = 0; i < innerList.members.size(); i++) {
+                    STNode field = innerList.members.get(i);
+                    STNode fieldNode;
+                    if (field.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                        STQualifiedNameReferenceNode qualifiedNameRefNode = (STQualifiedNameReferenceNode) field;
+                        STNode readOnlyKeyword = STNodeFactory.createEmptyNode();
+                        STNode fieldName = qualifiedNameRefNode.modulePrefix;
+                        STNode colon = qualifiedNameRefNode.colon;
+                        STNode valueExpr = getExpression(qualifiedNameRefNode.identifier);
+                        fieldNode = STNodeFactory.createSpecificFieldNode(readOnlyKeyword, fieldName, colon,
+                                valueExpr);
+                    } else {
+                        fieldNode = getExpression(field);
+                    }
+
+                    fieldList.add(fieldNode);
+                }
+                STNode fields = STNodeFactory.createNodeList(fieldList);
+                return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken,
+                        fields, innerList.collectionEndToken);
+            default:
+                return ambiguousNode;
+        }
+    }
+
     /**
      * Parse string literal.
      *
@@ -15437,7 +15471,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAssignmentStmtRhs(bindingPattern);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
             default:
-                // If this is followed by an assignment, then treat thsi node as mapping-binding pattern.
+                // If this is followed by an assignment, then treat this node as mapping-binding pattern.
                 if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
                     switchContext(ParserRuleContext.ASSIGNMENT_STMT);
                     bindingPattern = getBindingPattern(bpOrConstructor);
@@ -15446,7 +15480,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // else treat as expression.
                 switchContext(ParserRuleContext.EXPRESSION_STATEMENT);
-                expr = getExpression(bpOrConstructor);
+                expr = getMappingConstructureExpr(bpOrConstructor);
                 expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, expr, false, true);
                 return parseStatementStartWithExprRhs(expr);
         }
