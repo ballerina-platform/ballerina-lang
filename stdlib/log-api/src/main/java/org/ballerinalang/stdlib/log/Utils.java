@@ -19,6 +19,7 @@
 package org.ballerinalang.stdlib.log;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.logging.util.BLogLevel;
 
 /**
@@ -102,5 +103,16 @@ public class Utils extends AbstractLogFunction {
                         getLogger(pkg).warn(message);
                     });
         }
+    }
+
+    public static void setModuleLogLevel(BString logLevel, Object moduleName) {
+        String module;
+        if (moduleName == null) {
+            module = getPackagePath();
+        } else {
+            module = moduleName.toString();
+        }
+        String level = logLevel.getValue();
+        LOG_MANAGER.setModuleLogLevel(BLogLevel.toBLogLevel(level), module);
     }
 }

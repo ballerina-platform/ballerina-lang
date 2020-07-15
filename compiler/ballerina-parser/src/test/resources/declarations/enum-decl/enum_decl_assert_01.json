@@ -15,18 +15,31 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
-                          "value": "#this is doc comment",
-                          "trailingMinutiae": [
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "this is doc comment",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -242,24 +255,37 @@
                       "kind": "METADATA",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_STRING",
+                          "kind": "MARKDOWN_DOCUMENTATION",
                           "children": [
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_LINE",
-                                  "value": "#this is green",
-                                  "leadingMinutiae": [
+                                  "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
+                                      "kind": "HASH_TOKEN",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "  "
+                                        }
+                                      ]
+                                    },
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "DOCUMENTATION_DESCRIPTION",
+                                          "value": "this is green",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -316,12 +342,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "annotationsss",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "annotationsss",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -481,7 +512,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "read-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "read-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -524,7 +560,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "green-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "green-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -559,12 +600,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "checkmising",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "checkmising",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -600,7 +646,12 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD"
+                      "kind": "TRUE_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -673,7 +724,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -695,24 +751,37 @@
                       "kind": "METADATA",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_STRING",
+                          "kind": "MARKDOWN_DOCUMENTATION",
                           "children": [
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_LINE",
-                                  "value": "#parents can be null",
-                                  "leadingMinutiae": [
+                                  "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
+                                      "kind": "HASH_TOKEN",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "  "
+                                        }
+                                      ]
+                                    },
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "DOCUMENTATION_DESCRIPTION",
+                                          "value": "parents can be null",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -736,12 +805,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "checknull",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "checknull",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -777,7 +851,12 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "NULL_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },

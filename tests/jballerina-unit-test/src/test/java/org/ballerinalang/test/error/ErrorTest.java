@@ -39,7 +39,6 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = { "brokenOnJBallerina" })
 public class ErrorTest {
 
     private CompileResult errorTestResult;
@@ -185,7 +184,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
@@ -257,44 +256,48 @@ public class ErrorTest {
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
 
-    @Test(groups = "brokenOnErrorChange")
+    @Test
     public void testErrorNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 18);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "incompatible types: expected 'reason one|reason two', found 'string'", 26, 31);
+                "invalid error detail type 'map<any>', expected a subtype of 'map<(anydata|readonly)>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "incompatible types: expected 'reason one', found 'reason two'", 31, 31);
+                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type 'int', expected a subtype of 'string'", 41, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'map<any>', "
-                + "expected a subtype of 'record {| string message?; error cause?; (anydata|error)...; |}'", 41, 33);
-        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'boolean', expected a subtype "
-                + "of 'record {| string message?; error cause?; (anydata|error)...; |}'", 42, 36);
+                "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type '1.0f', expected a subtype of 'string'", 45, 7);
+                "invalid error detail type 'boolean', expected a subtype of 'map<(anydata|readonly)>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                                  "invalid error reason type 'boolean', expected a subtype of 'string'", 48, 11);
+                "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
-        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 43);
-        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 42);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 36);
+        BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'UserDefErrorOne'", 56, 27);
+                "missing mandatory error message argument in call to error constructor", 56, 27);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'MyError'", 57, 19);
+                "missing mandatory error message argument in call to error constructor", 57, 19);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer type of the error from '(UserDefErrorOne|UserDefErrorTwo)'", 75, 12);
+                "missing mandatory error message argument in call to error constructor", 96, 18);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'RNError'", 96, 18);
+                "missing mandatory error message argument in call to error constructor", 97, 21);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot infer reason from error constructor: 'RNStrError'", 97, 21);
+                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "error reason is mandatory for direct error constructor", 112, 28);
+                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
-        BAssertUtil.validateError(negativeCompileResult, i,
-                "incompatible types: expected 'error<string, " +
-                        "record {| string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 73);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error<record {| " +
+                        "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'int'", 127, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'string'", 128, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
     @DataProvider(name = "userDefTypeAsReasonTests")
@@ -348,7 +351,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test
+    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {

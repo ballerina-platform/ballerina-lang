@@ -30,8 +30,13 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "T"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_BRACKET_TOKEN"
@@ -88,8 +93,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "v"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "v"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -124,15 +134,25 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "T"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "k1"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "k1"
+                            }
+                          ]
                         },
                         {
                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -143,8 +163,13 @@
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "k2"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "k2"
+                        }
+                      ]
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
@@ -200,8 +225,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "v"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "v"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -236,8 +266,13 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "T"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_BRACKET_TOKEN"
@@ -288,8 +323,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "v"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "v"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -324,15 +364,25 @@
                       "kind": "ARRAY_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "T"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "T"
+                            }
+                          ]
                         },
                         {
                           "kind": "OPEN_BRACKET_TOKEN"
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "k1"
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "k1"
+                            }
+                          ]
                         },
                         {
                           "kind": "CLOSE_BRACKET_TOKEN"
@@ -343,8 +393,13 @@
                       "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "k2"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "k2"
+                        }
+                      ]
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
@@ -384,8 +439,13 @@
               ]
             },
             {
-              "kind": "IDENTIFIER_TOKEN",
-              "value": "v"
+              "kind": "SIMPLE_NAME_REFERENCE",
+              "children": [
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "v"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -482,12 +542,17 @@
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "T",
-                                      "leadingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -558,12 +623,17 @@
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "T",
-                                      "leadingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -571,8 +641,13 @@
                                       "kind": "OPEN_BRACKET_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "k1"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "k1"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "CLOSE_BRACKET_TOKEN"
@@ -583,8 +658,13 @@
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "k2"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k2"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "CLOSE_BRACKET_TOKEN",
@@ -652,12 +732,17 @@
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "T",
-                                      "leadingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -722,12 +807,17 @@
                                   "kind": "ARRAY_TYPE_DESC",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "T",
-                                      "leadingMinutiae": [
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
                                         {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "T",
+                                          "leadingMinutiae": [
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "    "
+                                            }
+                                          ]
                                         }
                                       ]
                                     },
@@ -735,8 +825,13 @@
                                       "kind": "OPEN_BRACKET_TOKEN"
                                     },
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "k1"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "k1"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "CLOSE_BRACKET_TOKEN"
@@ -747,8 +842,13 @@
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "k2"
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k2"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "CLOSE_BRACKET_TOKEN",

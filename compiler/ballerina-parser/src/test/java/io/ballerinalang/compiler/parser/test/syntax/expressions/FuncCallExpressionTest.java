@@ -63,7 +63,7 @@ public class FuncCallExpressionTest extends AbstractExpressionsTest {
     // Recovery tests
 
     @Test
-    public void testMissingClosinParen() {
+    public void testMissingClosingParen() {
         test("foo(", "func-call/func_call_assert_06.json");
     }
 
@@ -93,5 +93,25 @@ public class FuncCallExpressionTest extends AbstractExpressionsTest {
         test("foo(1)(2)", "func-call/func_call_assert_15.json");
         test("foo(1)bar(", "func-call/func_call_assert_13.json");
         test("\"hello world\"()", "func-call/func_call_assert_14.json");
+    }
+
+    @Test
+    public void testPositionalArgAfterNamedArg() {
+        test("foo(5, a, age = 18, 10)", "func-call/func_call_assert_16.json");
+    }
+
+    @Test
+    public void testPositionalArgAfterRestArg() {
+        test("foo(5, a, age = 18, ...subjects, 10)", "func-call/func_call_assert_17.json");
+    }
+
+    @Test
+    public void testNamedArgAfterRestArg() {
+        test("foo(5, a, age = 18, ...subjects, b = 10)", "func-call/func_call_assert_18.json");
+    }
+
+    @Test
+    public void testInvalidArgsAfterNamedArg() {
+        test("foo(5, a, age = 18, 10, ...subjects, b = 10)", "func-call/func_call_assert_19.json");
     }
 }

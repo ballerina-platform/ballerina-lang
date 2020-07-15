@@ -70,17 +70,22 @@
                   "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "   "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "INT_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "   "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -114,12 +119,17 @@
                   "kind": "REMOTE_METHOD_CALL_ACTION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -133,8 +143,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -146,8 +161,13 @@
                           "kind": "POSITIONAL_ARG",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -173,26 +193,31 @@
               "kind": "ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x",
-                  "leadingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "   "
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "   "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -209,12 +234,17 @@
                   "kind": "REMOTE_METHOD_CALL_ACTION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -228,8 +258,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -241,8 +276,13 @@
                           "kind": "POSITIONAL_ARG",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -268,26 +308,31 @@
               "kind": "COMPOUND_ASSIGNMENT_STATEMENT",
               "children": [
                 {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "x",
-                  "leadingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "   "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "x",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "   "
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "   "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -307,12 +352,17 @@
                   "kind": "REMOTE_METHOD_CALL_ACTION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -326,8 +376,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -339,8 +394,13 @@
                           "kind": "POSITIONAL_ARG",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -392,12 +452,17 @@
                   "kind": "REMOTE_METHOD_CALL_ACTION",
                   "children": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "a",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -411,8 +476,13 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b"
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"
@@ -424,8 +494,13 @@
                           "kind": "POSITIONAL_ARG",
                           "children": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c"
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "c"
+                                }
+                              ]
                             }
                           ]
                         }

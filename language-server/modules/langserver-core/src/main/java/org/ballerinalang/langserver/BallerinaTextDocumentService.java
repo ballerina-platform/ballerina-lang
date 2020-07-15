@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
@@ -47,6 +48,7 @@ import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
+import org.ballerinalang.langserver.hover.HoverUtil;
 import org.ballerinalang.langserver.implementation.GotoImplementationCustomErrorStrategy;
 import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
@@ -54,6 +56,7 @@ import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -74,7 +77,6 @@ import org.eclipse.lsp4j.DocumentSymbolParams;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.LocationLink;
-import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.ReferenceParams;
@@ -175,7 +177,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
             try {
                 CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
-                docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
                 CompletionUtil.resolveSymbols(context);
@@ -187,6 +188,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
+                try {
+                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
+                            position.getPosition());
+                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -215,14 +222,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             Hover hover;
             try {
                 hover = ReferencesUtil.getHover(context);
+            } catch (TokenOrSymbolNotFoundException e) {
+                hover = HoverUtil.getDefaultHoverObject();
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
-                hover = new Hover();
-                List<Either<String, MarkedString>> contents = new ArrayList<>();
-                contents.add(Either.forLeft(""));
-                hover.setContents(contents);
+                hover = HoverUtil.getDefaultHoverObject();
             }
             return hover;
         });
@@ -251,8 +257,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
                         LSCustomErrorStrategy.class, false, false, true);
-
-                docManager.resetPrunedContent(Paths.get(URI.create(uri)));
                 // Capture visible symbols of the cursor position
                 SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
                 bLangPackage.accept(signatureTreeVisitor);
@@ -289,6 +293,12 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 logError(msg, e, position.getTextDocument(), position.getPosition());
                 return new SignatureHelp();
             } finally {
+                try {
+                    docManager.resetPrunedContent(Paths.get(URI.create(uri)));
+                } catch (WorkspaceDocumentException e) {
+                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
+                            position.getPosition());
+                }
                 lock.ifPresent(Lock::unlock);
             }
         });

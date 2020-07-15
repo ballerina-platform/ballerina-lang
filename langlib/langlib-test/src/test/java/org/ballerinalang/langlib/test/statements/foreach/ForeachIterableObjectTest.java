@@ -84,7 +84,7 @@ public class ForeachIterableObjectTest {
 
     }
 
-    @Test(enabled = false)
+    @Test
     public void testIterableObjectErrors() {
         Assert.assertEquals(negativeResult.getErrorCount(), 9);
         int i = 0;

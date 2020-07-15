@@ -30,11 +30,16 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "STRING_TYPE_DESC",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -59,7 +64,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello1.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello1.com"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -88,17 +98,22 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "STRING_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -130,7 +145,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello2.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello2.com"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -171,11 +191,16 @@
               ]
             },
             {
-              "kind": "STRING_KEYWORD",
-              "trailingMinutiae": [
+              "kind": "STRING_TYPE_DESC",
+              "children": [
                 {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "STRING_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -200,7 +225,12 @@
             },
             {
               "kind": "STRING_LITERAL",
-              "value": "http://hello3.com"
+              "children": [
+                {
+                  "kind": "STRING_LITERAL",
+                  "value": "http://hello3.com"
+                }
+              ]
             },
             {
               "kind": "SEMICOLON_TOKEN",
@@ -229,17 +259,22 @@
               "kind": "TYPED_BINDING_PATTERN",
               "children": [
                 {
-                  "kind": "STRING_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "STRING_TYPE_DESC",
+                  "children": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "STRING_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },

@@ -20,7 +20,6 @@ test:MockFunction mock_stringAdd = new();
 }
 test:MockFunction mock_floatAdd = new();
 
-
 //
 //  MOCK FUNCTIONS
 //
@@ -33,6 +32,14 @@ public function mockIntAdd2(int a, int b) returns (int) {
     return a * b;
 }
 
+public function mockIntAdd3(int a, int b) returns (float) {
+    return 10.0;
+}
+
+public function mockIntAdd4(int a) returns (int) {
+    return a;
+}
+
 public function mockStringAdd(string str1) returns (string) {
     return "Hello " + str1;
 }
@@ -41,11 +48,9 @@ public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
 }
 
-
 //
 // TESTS
 //
-
 
 @test:Config {
 }
@@ -61,9 +66,9 @@ public function call_Test1() {
     test:when(mock_stringAdd).call("mockStringAdd");
     test:assertEquals(stringAdd("Ibaqu"), "Hello Ibaqu");
 
-    // // FloatAdd
-    // test:when(mock_floatAdd).call("mockFloatAdd");
-    // test:assertEquals(floatAdd(10.6, 4.5), 15);
+     // FloatAdd
+     test:when(mock_floatAdd).call("mockFloatAdd");
+     test:assertEquals(floatAdd(10.6, 4.5), 6.1);
 }
 
 @test:Config {
@@ -81,6 +86,30 @@ public function call_Test2() {
 
     // Switch again
     test:when(mock_intAdd).call("mockIntAdd1");
+    test:assertEquals(intAdd(10, 6), 4);
+}
+
+@test:Config {
+}
+public function call_Test3() {
+    io:println("[call_Test3] Test invalid mock function");
+    test:when(mock_intAdd).call("invalidMockFunction");
+    test:assertEquals(intAdd(10, 6), 4);
+}
+
+@test:Config {
+}
+public function call_Test4() {
+    io:println("[call_Test4] Test mock function with invalid return type");
+    test:when(mock_intAdd).call("mockIntAdd3");
+    test:assertEquals(intAdd(10, 6), 4);
+}
+
+@test:Config {
+}
+public function call_Test5() {
+    io:println("[call_Test4] Test mock function with invalid parameters");
+    test:when(mock_intAdd).call("mockIntAdd4");
     test:assertEquals(intAdd(10, 6), 4);
 }
 

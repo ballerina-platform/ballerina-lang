@@ -27,7 +27,7 @@ import java.nio.file.Path;
 /**
  * Null Object for ObserverbilitySymbolCollector interface.
  *
- * @since 1.3.0
+ * @since 2.0.0
  */
 public class NullObservabiltySymbolCollector implements ObservabilitySymbolCollector {
     @Override

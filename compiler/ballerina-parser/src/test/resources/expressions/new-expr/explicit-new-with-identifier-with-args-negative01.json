@@ -12,12 +12,17 @@
       ]
     },
     {
-      "kind": "IDENTIFIER_TOKEN",
-      "value": "Foo",
-      "trailingMinutiae": [
+      "kind": "SIMPLE_NAME_REFERENCE",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "IDENTIFIER_TOKEN",
+          "value": "Foo",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -41,7 +46,21 @@
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "1"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "1"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "COMMA_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ]
             },
@@ -49,17 +68,13 @@
               "kind": "POSITIONAL_ARG",
               "children": [
                 {
-                  "kind": "COMMA_TOKEN",
-                  "trailingMinutiae": [
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "a"
                     }
                   ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
                 }
               ]
             }

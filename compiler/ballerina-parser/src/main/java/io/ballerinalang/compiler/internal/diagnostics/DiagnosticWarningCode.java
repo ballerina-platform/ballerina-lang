@@ -28,9 +28,11 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     ;
 
     String diagnosticId;
+    String messageKey;
 
-    DiagnosticWarningCode(String diagnosticId) {
+    DiagnosticWarningCode(String diagnosticId, String messageKey) {
         this.diagnosticId = diagnosticId;
+        this.messageKey = messageKey;
     }
 
     @Override
@@ -41,5 +43,10 @@ public enum DiagnosticWarningCode implements DiagnosticCode {
     @Override
     public String diagnosticId() {
         return diagnosticId;
+    }
+
+    @Override
+    public String messageKey() {
+        return messageKey;
     }
 }

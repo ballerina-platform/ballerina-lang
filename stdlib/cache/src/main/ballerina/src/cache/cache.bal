@@ -14,6 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
 import ballerina/task;
 import ballerina/time;
 
@@ -45,14 +46,13 @@ boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
-    resource function onTrigger(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+    //resource function onTrigger(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+    resource function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
-            lock {
-                cleanupInProgress = true;
-                cleanup(entries, list, evictionPolicy);
-                cleanupInProgress = false;
-            }
+            cleanupInProgress = true;
+            cleanup(cache, list, evictionPolicy);
+            cleanupInProgress = false;
         }
     }
 };
@@ -67,7 +67,6 @@ public type Cache object {
     private AbstractEvictionPolicy evictionPolicy;
     private float evictionFactor;
     private int defaultMaxAgeInSeconds;
-    private map<Node> entries = {};
     private LinkedList list;
 
     # Called when a new `cache:Cache` object is created.
@@ -97,6 +96,9 @@ public type Cache object {
             head: (),
             tail: ()
         };
+
+        externInit(self, self.capacity);
+
         int? cleanupIntervalInSeconds = cacheConfig?.cleanupIntervalInSeconds;
         if (cleanupIntervalInSeconds is int) {
             task:TimerConfiguration timerConfiguration = {
@@ -104,8 +106,7 @@ public type Cache object {
                 initialDelayInMillis: cleanupIntervalInSeconds
             };
             task:Scheduler cleanupScheduler = new(timerConfiguration);
-            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self.entries, self.list,
-                                                                  self.evictionPolicy);
+            task:SchedulerError? result = cleanupScheduler.attach(cleanupService, self, self.list, self.evictionPolicy);
             if (result is task:SchedulerError) {
                 panic prepareError("Failed to create the cache cleanup task.", result);
             }
@@ -125,41 +126,40 @@ public type Cache object {
     #                     valid forever.
     # + return - `()` if successfully added to the cache or `Error` if a `()` value is inserted to the cache.
     public function put(string key, any value, int maxAgeInSeconds = -1) returns Error? {
-        lock {
-            if (value is ()) {
-                return prepareErrorWithDebugLog("Unsupported cache value '()' for the key: " + key + ".");
-            }
-            // If the current cache is full (i.e. size = capacity), evict cache.
-            if (self.size() == self.capacity) {
-                evict(self.entries, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);
-            }
-
-            // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
-            // `defaultMaxAgeInSeconds` property.
-            int calculatedExpTime = -1;
-            if (maxAgeInSeconds != -1 && maxAgeInSeconds > 0) {
-                calculatedExpTime = time:nanoTime() + (maxAgeInSeconds * 1000 * 1000 * 1000);
-            } else {
-                if (self.defaultMaxAgeInSeconds != -1) {
-                    calculatedExpTime = time:nanoTime() + (self.defaultMaxAgeInSeconds * 1000 * 1000 * 1000);
-                }
-            }
-
-            CacheEntry entry = {
-                key: key,
-                data: value,
-                expTime: calculatedExpTime
-            };
-            Node newNode = { value: entry };
-
-            if (self.hasKey(key)) {
-                Node oldNode = self.entries.get(key);
-                self.evictionPolicy.replace(self.list, newNode, oldNode);
-            } else {
-                self.evictionPolicy.put(self.list, newNode);
-            }
-            self.entries[key] = newNode;
+        if (value is ()) {
+            return prepareError("Unsupported cache value '()' for the key: " + key + ".",
+                                logLevel = LOG_LEVEL_DEBUG);
         }
+        // If the current cache is full (i.e. size = capacity), evict cache.
+        if (self.size() == self.capacity) {
+            evict(self, self.list, self.evictionPolicy, self.capacity, self.evictionFactor);
+        }
+
+        // Calculate the `expTime` of the cache entry based on the `maxAgeInSeconds` property and
+        // `defaultMaxAgeInSeconds` property.
+        int calculatedExpTime = -1;
+        if (maxAgeInSeconds != -1 && maxAgeInSeconds > 0) {
+            calculatedExpTime = time:nanoTime() + (maxAgeInSeconds * 1000 * 1000 * 1000);
+        } else {
+            if (self.defaultMaxAgeInSeconds != -1) {
+                calculatedExpTime = time:nanoTime() + (self.defaultMaxAgeInSeconds * 1000 * 1000 * 1000);
+            }
+        }
+
+        CacheEntry entry = {
+            key: key,
+            data: value,
+            expTime: calculatedExpTime
+        };
+        Node newNode = { value: entry };
+
+        if (self.hasKey(key)) {
+            Node oldNode = externGet(self, key);
+            self.evictionPolicy.replace(self.list, newNode, oldNode);
+        } else {
+            self.evictionPolicy.put(self.list, newNode);
+        }
+        externPut(self, key, newNode);
     }
 
     # Returns the cached value associated with the provided key.
@@ -168,42 +168,41 @@ public type Cache object {
     # + return - The cached value associated with the provided key or an `Error` if the provided cache key is not
     #            exisiting in the cache or any error occurred while retrieving the value from the cache.
     public function get(string key) returns any|Error {
-        lock {
-            if (!self.hasKey(key)) {
-                return prepareErrorWithDebugLog("Cache entry from the given key: " + key + ", is not available.");
-            }
-
-            Node node = self.entries.get(key);
-            CacheEntry entry = <CacheEntry>node.value;
-
-            // Check whether the cache entry is already expired. Even though the cache cleaning task is configured
-            // and runs in predefined intervals, sometimes the cache entry might not have been removed at this point
-            // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
-            if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
-                self.evictionPolicy.remove(self.list, node);
-                return removeEntry(self.entries, key);
-            }
-
-            self.evictionPolicy.get(self.list, node);
-            return entry.data;
+        if (!self.hasKey(key)) {
+            return prepareError("Cache entry from the given key: " + key + ", is not available.",
+                                logLevel = LOG_LEVEL_DEBUG);
         }
+
+        Node node = externGet(self, key);
+        CacheEntry entry = <CacheEntry>node.value;
+
+        // Check whether the cache entry is already expired. Even though the cache cleaning task is configured
+        // and runs in predefined intervals, sometimes the cache entry might not have been removed at this point
+        // even though it is expired. So this check guarantees that the expired cache entries will not be returned.
+        if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
+            self.evictionPolicy.remove(self.list, node);
+            externRemove(self, key);
+            return ();
+        }
+
+        self.evictionPolicy.get(self.list, node);
+        return entry.data;
     }
 
     # Discards a cached value from the cache.
     #
     # + key - Key of the cache value, which needs to be discarded from the cache
     # + return - `()` if successfully discarded the value or an `Error` if the provided cache key is not present in the
-    #            cache or if any error occurred while discarding the value from the cache.
+    #            cache
     public function invalidate(string key) returns Error? {
-        lock {
-            if (!self.hasKey(key)) {
-                return prepareErrorWithDebugLog("Cache entry from the given key: " + key + ", is not available.");
-            }
-
-            Node node = self.entries.get(key);
-            self.evictionPolicy.remove(self.list, node);
-            return removeEntry(self.entries, key);
+        if (!self.hasKey(key)) {
+            return prepareError("Cache entry from the given key: " + key + ", is not available.",
+                                logLevel = LOG_LEVEL_DEBUG);
         }
+
+        Node node = externGet(self, key);
+        self.evictionPolicy.remove(self.list, node);
+        externRemove(self, key);
     }
 
     # Discards all the cached values from the cache.
@@ -211,10 +210,8 @@ public type Cache object {
     # + return - `()` if successfully discarded all the values from the cache or an `Error` if any error occurred while
     # discarding all the values from the cache.
     public function invalidateAll() returns Error? {
-        lock {
-            self.evictionPolicy.clear(self.list);
-            return removeAllEntries(self.entries);
-        }
+        self.evictionPolicy.clear(self.list);
+        externRemoveAll(self);
     }
 
     # Checks whether the given key has an associated cached value.
@@ -223,21 +220,21 @@ public type Cache object {
     # + return - `true` if a cached value is available for the provided key or `false` if there is no cached value
     #            associated for the given key
     public function hasKey(string key) returns boolean {
-        return self.entries.hasKey(key);
+        return externHasKey(self, key);
     }
 
     # Returns a list of all the keys from the cache.
     #
     # + return - Array of all the keys from the cache
     public function keys() returns string[] {
-        return self.entries.keys();
+        return externKeys(self);
     }
 
     # Returns the size of the cache.
     #
     # + return - The size of the cache
     public function size() returns int {
-        return self.entries.length();
+        return externSize(self);
     }
 
     # Returns the capacity of the cache.
@@ -248,14 +245,13 @@ public type Cache object {
     }
 };
 
-function evict(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity,
-               float evictionFactor) {
+function evict(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy, int capacity, float evictionFactor) {
     int evictionKeysCount = <int>(capacity * evictionFactor);
     foreach int i in 1...evictionKeysCount {
         Node? node = evictionPolicy.evict(list);
         if (node is Node) {
             CacheEntry entry = <CacheEntry>node.value;
-            Error? result = removeEntry(entries, entry.key);
+            externRemove(cache, entry.key);
             // The return result (error which occurred due to unavailability of the key or nil) is ignored
             // since no purpose of handling it.
         } else {
@@ -264,15 +260,17 @@ function evict(map<Node> entries, LinkedList list, AbstractEvictionPolicy evicti
     }
 }
 
-function cleanup(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
-    if (entries.length() == 0) {
+function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
+    if (externSize(cache) == 0) {
         return;
     }
-    foreach Node node in entries {
+    //foreach Node node in entries {
+    foreach string key in externKeys(cache) {
+        Node node = externGet(cache, key);
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
             evictionPolicy.remove(list, node);
-            Error? result = removeEntry(entries, entry.key);
+            externRemove(cache, entry.key);
             // The return result (error which occurred due to unavailability of the key or nil) is ignored
             // since no purpose of handling it.
             return;
@@ -280,16 +278,34 @@ function cleanup(map<Node> entries, LinkedList list, AbstractEvictionPolicy evic
     }
 }
 
-function removeEntry(map<Node> entries, string key) returns Error? {
-    var result = trap entries.remove(key);
-    if (result is error) {
-        return prepareErrorWithDebugLog("Error while removing the entry (key: " + key + ") from the map. ", result);
-    }
-}
+function externInit(Cache cache, int capacity) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
 
-function removeAllEntries(map<Node> entries) returns Error? {
-    var result = trap entries.removeAll();
-    if (result is error) {
-        return prepareErrorWithDebugLog("Error while removing all the entries from the map.", result);
-    }
-}
+function externPut(Cache cache, string key, Node value) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externGet(Cache cache, string key) returns Node = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externRemove(Cache cache, string key) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externRemoveAll(Cache cache) = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externHasKey(Cache cache, string key) returns boolean = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externKeys(Cache cache) returns string[] = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;
+
+function externSize(Cache cache) returns int = @java:Method {
+    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+} external;

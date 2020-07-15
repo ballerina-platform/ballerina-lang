@@ -73,6 +73,17 @@ public abstract class AbstractLexer {
     }
 
     /**
+     * Switch from current operation mode to the given operation mode in the lexer.
+     *
+     * @param mode Mode to switch on to
+     */
+    public void switchMode(ParserMode mode) {
+        this.modeStack.pop();
+        this.mode = mode;
+        this.modeStack.push(mode);
+    }
+
+    /**
      * End the current mode the mode of the lexer and fall back the previous mode.
      */
     public void endMode() {
@@ -103,6 +114,6 @@ public abstract class AbstractLexer {
     }
 
     protected void reportLexerError(DiagnosticCode diagnosticCode, Object... args) {
-        diagnostics.add(new STNodeDiagnostic(diagnosticCode, args));
+        diagnostics.add(SyntaxErrors.createDiagnostic(diagnosticCode, args));
     }
 }

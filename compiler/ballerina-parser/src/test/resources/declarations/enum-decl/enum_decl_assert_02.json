@@ -1,5 +1,6 @@
 {
   "kind": "MODULE_PART",
+  "hasDiagnostics": true,
   "children": [
     {
       "kind": "LIST",
@@ -7,26 +8,41 @@
     },
     {
       "kind": "LIST",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "ENUM_DECLARATION",
+          "hasDiagnostics": true,
           "children": [
             {
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
-                          "value": "#this is doc comment",
-                          "trailingMinutiae": [
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "this is doc comment",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -42,6 +58,24 @@
             },
             {
               "kind": "ENUM_KEYWORD",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN"
+              ],
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "BITWISE_AND_TOKEN",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "WHITESPACE_MINUTIAE",

@@ -27,6 +27,8 @@ import java.util.ServiceLoader;
 
 /**
  * Used to analyze ballerina code and store observabilty symbols in the Ballerina program artifact.
+ *
+ * @since 2.0.0
  */
 public class ObserverbilitySymbolCollectorRunner {
     private static final CompilerContext.Key<ObservabilitySymbolCollector> OBSERVARBILITY_SYMBOL_COLLECTOR_KEY =

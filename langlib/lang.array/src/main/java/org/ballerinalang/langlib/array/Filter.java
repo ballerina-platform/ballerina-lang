@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
@@ -31,6 +32,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
@@ -46,13 +49,16 @@ import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 )
 public class Filter {
 
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, ARRAY_LANG_LIB,
+                                                                      ARRAY_VERSION, "filter");
+
     public static ArrayValue filter(Strand strand, ArrayValue arr, FPValue<Object, Boolean> func) {
         ArrayValue newArr = new ArrayValueImpl((BArrayType) arr.getType());
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{strand, arr.get(index.incrementAndGet()),
                                                                true},
                                                        result -> {

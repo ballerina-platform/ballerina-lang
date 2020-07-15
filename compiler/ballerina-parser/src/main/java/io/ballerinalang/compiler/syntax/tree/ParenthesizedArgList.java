@@ -36,8 +36,8 @@ public class ParenthesizedArgList extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(1));
+    public SeparatedNodeList<FunctionArgumentNode> arguments() {
+        return new SeparatedNodeList<>(childInBucket(1));
     }
 
     public Token closeParenToken() {
@@ -64,7 +64,7 @@ public class ParenthesizedArgList extends NonTerminalNode {
 
     public ParenthesizedArgList modify(
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 openParenToken,
@@ -91,7 +91,7 @@ public class ParenthesizedArgList extends NonTerminalNode {
     public static class ParenthesizedArgListModifier {
         private final ParenthesizedArgList oldNode;
         private Token openParenToken;
-        private NodeList<FunctionArgumentNode> arguments;
+        private SeparatedNodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
 
         public ParenthesizedArgListModifier(ParenthesizedArgList oldNode) {
@@ -109,7 +109,7 @@ public class ParenthesizedArgList extends NonTerminalNode {
         }
 
         public ParenthesizedArgListModifier withArguments(
-                NodeList<FunctionArgumentNode> arguments) {
+                SeparatedNodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;

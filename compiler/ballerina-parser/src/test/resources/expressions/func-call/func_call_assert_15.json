@@ -6,8 +6,13 @@
       "kind": "FUNCTION_CALL",
       "children": [
         {
-          "kind": "IDENTIFIER_TOKEN",
-          "value": "foo"
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "foo"
+            }
+          ]
         },
         {
           "kind": "OPEN_PAREN_TOKEN"
@@ -20,7 +25,12 @@
               "children": [
                 {
                   "kind": "DECIMAL_INTEGER_LITERAL",
-                  "value": "1"
+                  "children": [
+                    {
+                      "kind": "DECIMAL_INTEGER_LITERAL",
+                      "value": "1"
+                    }
+                  ]
                 }
               ]
             }
@@ -47,7 +57,12 @@
         },
         {
           "kind": "DECIMAL_INTEGER_LITERAL",
-          "value": "2"
+          "children": [
+            {
+              "kind": "DECIMAL_INTEGER_LITERAL",
+              "value": "2"
+            }
+          ]
         },
         {
           "kind": "CLOSE_PAREN_TOKEN"

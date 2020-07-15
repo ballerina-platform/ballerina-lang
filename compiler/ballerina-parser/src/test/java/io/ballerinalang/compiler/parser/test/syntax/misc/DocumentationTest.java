@@ -26,9 +26,37 @@ import org.testng.annotations.Test;
  */
 public class DocumentationTest extends AbstractMiscTest {
 
+    // Valid syntax
+
     @Test
-    public void testBasicDocumentation() {
+    public void testSimpleDocumentationLine() {
+        testFile("documentation/doc_source_03.bal", "documentation/doc_assert_03.json");
+    }
+
+    @Test
+    public void testSimpleParameterDocumentationLine() {
+        testFile("documentation/doc_source_04.bal", "documentation/doc_assert_04.json");
+    }
+
+    @Test
+    public void testSimpleReturnParameterDocumentationLine() {
+        testFile("documentation/doc_source_05.bal", "documentation/doc_assert_05.json");
+    }
+
+    @Test
+    public void testSimpleDeprecationDocumentationLine() {
+        testFile("documentation/doc_source_06.bal", "documentation/doc_assert_06.json");
+    }
+
+    @Test
+    public void testSimpleReferenceDocumentationLine() {
+        testFile("documentation/doc_source_07.bal", "documentation/doc_assert_07.json");
+    }
+
+    @Test
+    public void testDocumentation() {
         testFile("documentation/doc_source_01.bal", "documentation/doc_assert_01.json");
+        testFile("documentation/doc_source_12.bal", "documentation/doc_assert_12.json");
     }
 
     @Test
@@ -36,6 +64,40 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_02.bal", "documentation/doc_assert_02.json");
     }
 
-    // Recovery tests
+    @Test
+    public void testObjectFieldDocumentation() {
+        testFile("documentation/doc_source_08.bal", "documentation/doc_assert_08.json");
+    }
 
+    @Test
+    public void testServiceBodyBlockDocumentation() {
+        testFile("documentation/doc_source_09.bal", "documentation/doc_assert_09.json");
+    }
+
+    @Test
+    public void testTippleBacktickDocumentation() {
+        testFile("documentation/doc_source_10.bal", "documentation/doc_assert_10.json");
+    }
+
+    @Test
+    public void testDoubleBacktickDocumentation() {
+        testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
+    }
+
+    @Test
+    public void testDocReferenceWithSpecialKeywords() {
+        testFile("documentation/doc_source_14.bal", "documentation/doc_assert_14.json");
+    }
+
+    @Test
+    public void testMultiLineDocumentation() {
+        testFile("documentation/doc_source_15.bal", "documentation/doc_assert_15.json");
+    }
+
+    // Invalid Syntax
+
+    @Test
+    public void testInvalidDocumentation() {
+        testFile("documentation/doc_source_13.bal", "documentation/doc_assert_13.json");
+    }
 }

@@ -15,13 +15,23 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
+import org.ballerinalang.compiler.CompilerOptionName;
+import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
+import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -30,6 +40,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -37,6 +48,11 @@ import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
+import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
+import static org.ballerinalang.compiler.CompilerOptionName.PRESERVE_WHITESPACE;
+import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
 /**
  * Utility operations for the standard library cache.
@@ -84,8 +100,8 @@ public class LSStdLibCacheUtil {
                 .resolve(ProjectDirConstants.SOURCE_DIR_NAME);
         extract(baloPath, destinationRoot, moduleName, cacheableKey);
     }
-    
-    private static void extract(Path baloPath, Path destinationRoot, String moduleName, String cacheableKey)
+
+    public static void extract(Path baloPath, Path destinationRoot, String moduleName, String cacheableKey)
             throws LSStdlibCacheException {
         Path rootParent = destinationRoot.getParent();
         if (rootParent == null) {
@@ -99,7 +115,7 @@ public class LSStdLibCacheUtil {
         }
         if (!Files.exists(baloPath)) {
             throw new LSStdlibCacheException("Invalid module source root provided for module: ["
-                                                     + cacheableKey + "]");
+                    + cacheableKey + "]");
         }
 
         // Create the new extract root
@@ -190,7 +206,7 @@ public class LSStdLibCacheUtil {
         return getCacheableKey(orgName, moduleName, version);
     }
 
-    private static String getCacheableKey(String orgName, String moduleName, String version) {
+    public static String getCacheableKey(String orgName, String moduleName, String version) {
         return orgName + "_" + moduleName + "_" +
                 (version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
     }
@@ -207,14 +223,39 @@ public class LSStdLibCacheUtil {
         Path manifestPath = projectPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME);
         Files.write(manifestPath, Collections.singletonList(TOML_CONTENT));
     }
-    
+
     static String readModuleVersionFromDir(Path moduleDir) throws LSStdlibCacheException {
         String[] filesList = moduleDir.toFile().list();
         if (filesList == null || filesList.length > 1 || (filesList.length > 0
                 && !filesList[0].matches("([0-9]*\\.[0-9]*\\.[0-9]*)"))) {
             throw new LSStdlibCacheException("Could not find a matching version directory");
         }
-        
+
         return filesList[0];
+    }
+
+    private static CompilerContext createNewCompilerContext(String projectDir) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, projectDir);
+        options.put(COMPILER_PHASE, CompilerPhase.DESUGAR.toString());
+        options.put(PRESERVE_WHITESPACE, Boolean.toString(false));
+        options.put(OFFLINE, Boolean.toString(true));
+        options.put(CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(true));
+        context.put(SourceDirectory.class, new FileSystemProjectDirectory(Paths.get(projectDir)));
+        context.put(DiagnosticListener.class, new CollectDiagnosticListener());
+        return context;
+    }
+
+    public static Compiler getCompiler(String projectDir) throws UnsupportedEncodingException {
+        Compiler compiler = Compiler.getInstance(createNewCompilerContext(projectDir));
+        compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        return compiler;
+    }
+
+    public static Compiler getCompiler(CompilerContext compilerContext) throws UnsupportedEncodingException {
+        Compiler compiler = Compiler.getInstance(compilerContext);
+        compiler.setOutStream(new LSCompilerUtil.EmptyPrintStream());
+        return compiler;
     }
 }

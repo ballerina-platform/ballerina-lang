@@ -55,9 +55,18 @@ public type CommitHandler function(Info info);
 public type RollbackHandler function(Info info, error? cause, boolean willRetry);
 
 
-public function onCommit(CommitHandler handler) = external;
+public transactional function onCommit(CommitHandler handler) = external;
 
-public function onRollback(RollbackHandler handler) = external;
+public transactional function onRollback(RollbackHandler handler) = external;
 
-public function info() returns Info = external;
+public transactional function info() returns Info = external;
 
+public transactional function setRollbackOnly(error? e) = external;
+
+public transactional function getRollbackOnly() returns boolean = external;
+
+public transactional function setData(readonly e) = external;
+
+public transactional function getData() returns readonly = external;
+
+public function getInfo(byte[] xid) returns Info? = external;

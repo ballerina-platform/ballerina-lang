@@ -28,6 +28,8 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Implementation of this interface analyze the AST of the Ballerina program
  * and generate symbol data to be used for observability purposes.
+ *
+ * @since 2.0.0
  */
 public interface ObservabilitySymbolCollector {
     void init(CompilerContext context);

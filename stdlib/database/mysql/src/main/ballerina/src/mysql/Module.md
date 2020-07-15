@@ -31,7 +31,7 @@ run the BAL file by executing the `ballerina run` command.
 
 ### Client
 To access a database, you must first create a 
-[mysql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/clients/Client.html) object. 
+[mysql:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/clients/Client.html) object. 
 The examples for creating a MySQL client can be found below.
 
 #### Creating a client
@@ -44,17 +44,17 @@ The `dbClient2` receives the host, username, and password. Since the properties 
 in the `jdbc:Client`, you can pass it without named params.
 
 The `dbClient3` uses the named params to pass the attributes since it is skipping some params in the constructor. 
-Further [mysql:Options](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/records/Options.html) 
+Further [mysql:Options](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/records/Options.html) 
 is passed to configure the SSL and connection timeout in the MySQL client. 
 
 Similarly, the `dbClient4` uses the named params and it provides an unshared connection pool in the type of 
-[sql:ConnectionPool](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/records/ConnectionPool.html) 
+[sql:ConnectionPool](https://ballerina.io/swan-lake/learn/api-docs/ballerina/sql/records/ConnectionPool.html) 
 to be used within the client. 
-For more details about connection pooling, see the [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
+For more details about connection pooling, see the [SQL Module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/sql/index.html).
 
 ```ballerina
-mysql:Client dbClient1 = new ();
-mysql:Client dbClient2 = new ("localhost", "rootUser", "rooPass", 
+mysql:Client|sql:Error dbClient1 = new ();
+mysql:Client|sql:Error dbClient2 = new ("localhost", "rootUser", "rooPass", 
                               "information_schema", 3306);
                               
 mysql:Options mysqlOptions = {
@@ -63,19 +63,19 @@ mysql:Options mysqlOptions = {
   },
   connectTimeoutInSeconds: 10
 };
-mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
+mysql:Client|sql:Error dbClient3 = new (user = "rootUser", password = "rootPass",
                               options = mysqlOptions);
-mysql:Client dbClient3 = new (user = "rootUser", password = "rootPass",
+mysql:Client|sql:Error dbClient4 = new (user = "rootUser", password = "rootPass",
                               connectionPool = {maxOpenConnections: 5});
 ```
 You can find more details about each property in the
-[mysql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/clients/Client.html) constructor. 
+[mysql:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/clients/Client.html) constructor. 
 
-The [mysql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/mysql/clients/Client.html) references 
-[sql:Client](https://ballerina.io/learn/api-docs/ballerina/api-docs/sql/clients/Client.html) and all the operations 
+The [mysql:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/mysql/clients/Client.html) references 
+[sql:Client](https://ballerina.io/swan-lake/learn/api-docs/ballerina/sql/clients/Client.html) and all the operations 
 defined by the `sql:Client` will be supported by the `mysql:Client` as well. 
 
-For more information on all the operations supported by the `mysql:Client`, which include the below, see the [SQL Module](https://ballerina.io/learn/api-docs/ballerina/sql/index.html).
+For more information on all the operations supported by the `mysql:Client`, which include the below, see the [SQL Module](https://ballerina.io/swan-lake/learn/api-docs/ballerina/sql/index.html).
 
 1. Connection Pooling
 2. Querying data

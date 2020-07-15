@@ -249,11 +249,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLogHelper dlog;
     private TypeChecker typeChecker;
     private Stack<WorkerActionSystem> workerActionSystemStack = new Stack<>();
-    private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
-    private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
-    private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
+    private Stack<Boolean> loopWithinTransactionCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithinTransactionCheckStack = new Stack<>();
+    private Stack<Boolean> doneWithinTransactionCheckStack = new Stack<>();
     private Stack<Boolean> transactionalFuncCheckStack = new Stack<>();
-    private Stack<Boolean> returnWithinRetryCheckStack = new Stack<>();
+    private Stack<Boolean> returnWithinLambdaWrappingCheckStack = new Stack<>();
+    private BLangTransaction innerTransactionBlock = null;
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -263,9 +264,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCount;
     private int rollbackCount;
     private boolean withinTransactionScope;
+    private boolean withinTransactionBlock;
     private boolean commitRollbackAllowed;
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
+    private boolean queryToTableWithKey;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -416,8 +419,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void visitFunction(BLangFunction funcNode) {
         SymbolEnv invokableEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
-        this.returnWithintransactionCheckStack.push(true);
-        this.doneWithintransactionCheckStack.push(true);
+        this.returnWithinTransactionCheckStack.push(true);
+        this.doneWithinTransactionCheckStack.push(true);
         this.returnTypes.push(new LinkedHashSet<>());
         this.transactionalFuncCheckStack.push(funcNode.flagSet.contains(Flag.TRANSACTIONAL));
         this.resetFunction();
@@ -442,8 +445,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
         this.returnTypes.pop();
-        this.returnWithintransactionCheckStack.pop();
-        this.doneWithintransactionCheckStack.pop();
+        this.returnWithinTransactionCheckStack.pop();
+        this.doneWithinTransactionCheckStack.pop();
         this.transactionalFuncCheckStack.pop();
     }
 
@@ -498,7 +501,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTransaction transactionNode) {
-        checkExperimentalFeatureValidity(ExperimentalFeatures.TRANSACTIONS, transactionNode.pos);
         this.checkStatementExecutionValidity(transactionNode);
         //Check whether transaction statement occurred in a transactional scope
         if (!transactionalFuncCheckStack.empty() && transactionalFuncCheckStack.peek()) {
@@ -506,34 +508,57 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
         boolean previousWithinTxScope = this.withinTransactionScope;
+        boolean previousWithinTrxBlock = this.withinTransactionBlock;
         int previousCommitCount = this.commitCount;
         int previousRollbackCount = this.rollbackCount;
         boolean prevCommitRollbackAllowed = this.commitRollbackAllowed;
         this.commitRollbackAllowed = true;
         this.commitCount = 0;
         this.rollbackCount = 0;
-        this.withinTransactionScope = true;
-        this.loopWithintransactionCheckStack.push(false);
-        this.returnWithintransactionCheckStack.push(false);
-        this.doneWithintransactionCheckStack.push(false);
-        this.transactionCount++;
-        if (this.transactionCount > 1) {
-            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
+
+        if (this.withinTransactionBlock) {
+            this.innerTransactionBlock = transactionNode;
         }
+
+        this.withinTransactionScope = true;
+
+        if (!this.withinTransactionBlock) {
+            this.withinTransactionBlock = true;
+        }
+
+        this.loopWithinTransactionCheckStack.push(false);
+        this.returnWithinTransactionCheckStack.push(false);
+        this.doneWithinTransactionCheckStack.push(false);
+        this.returnWithinLambdaWrappingCheckStack.push(false);
+        this.transactionCount++;
+//        if (this.transactionCount > 1) {
+//            this.dlog.error(transactionNode.pos, DiagnosticCode.NESTED_TRANSACTIONS_ARE_INVALID);
+//        }
         analyzeNode(transactionNode.transactionBody, env);
         if (commitCount < 1) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.INVALID_COMMIT_COUNT);
         }
+        transactionNode.statementBlockReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
         this.transactionCount--;
         this.withinTransactionScope = previousWithinTxScope;
+        this.withinTransactionBlock = previousWithinTrxBlock;
         this.commitCount = previousCommitCount;
         this.rollbackCount = previousRollbackCount;
         this.commitRollbackAllowed = prevCommitRollbackAllowed;
+        if (this.innerTransactionBlock != null) {
+            transactionNode.statementBlockReturns = this.innerTransactionBlock.statementBlockReturns;
+        }
+
+        if (!this.withinTransactionBlock) {
+            this.innerTransactionBlock = null;
+        }
+
         this.resetLastStatement();
 
-        this.returnWithintransactionCheckStack.pop();
-        this.loopWithintransactionCheckStack.pop();
-        this.doneWithintransactionCheckStack.pop();
+        this.returnWithinTransactionCheckStack.pop();
+        this.loopWithinTransactionCheckStack.pop();
+        this.doneWithinTransactionCheckStack.pop();
     }
 
     @Override
@@ -582,11 +607,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        this.returnWithinRetryCheckStack.push(false);
+        this.returnWithinLambdaWrappingCheckStack.push(false);
         retryNode.retrySpec.accept(this);
         retryNode.retryBody.accept(this);
-        retryNode.retryBodyReturns = this.returnWithinRetryCheckStack.peek();
-        this.returnWithinRetryCheckStack.pop();
+        retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
+        this.returnWithinLambdaWrappingCheckStack.pop();
     }
 
     @Override
@@ -604,11 +629,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetryTransaction retryTransaction) {
-        this.returnWithinRetryCheckStack.push(false);
         analyzeNode(retryTransaction.retrySpec, env);
         analyzeNode(retryTransaction.transaction, env);
-        retryTransaction.transactionReturns = this.returnWithinRetryCheckStack.peek();
-        this.returnWithinRetryCheckStack.pop();
     }
 
     private void checkUnreachableCode(BLangStatement stmt) {
@@ -652,9 +674,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.dlog.error(returnStmt.pos, DiagnosticCode.RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
-        if (!this.returnWithinRetryCheckStack.empty()) {
-            this.returnWithinRetryCheckStack.pop();
-            this.returnWithinRetryCheckStack.push(true);
+        if (!this.returnWithinLambdaWrappingCheckStack.empty()) {
+            this.returnWithinLambdaWrappingCheckStack.pop();
+            this.returnWithinLambdaWrappingCheckStack.push(true);
         }
         this.statementReturns = true;
         analyzeExpr(returnStmt.expr);
@@ -1305,7 +1327,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForeach foreach) {
-        this.loopWithintransactionCheckStack.push(true);
+        this.loopWithinTransactionCheckStack.push(true);
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(foreach);
         this.loopCount++;
@@ -1313,13 +1335,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.resetLastStatement();
-        this.loopWithintransactionCheckStack.pop();
+        this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(foreach.collection);
     }
 
     @Override
     public void visit(BLangWhile whileNode) {
-        this.loopWithintransactionCheckStack.push(true);
+        this.loopWithinTransactionCheckStack.push(true);
         boolean statementReturns = this.statementReturns;
         this.checkStatementExecutionValidity(whileNode);
         this.loopCount++;
@@ -1327,7 +1349,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.loopCount--;
         this.statementReturns = statementReturns;
         this.resetLastStatement();
-        this.loopWithintransactionCheckStack.pop();
+        this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
     }
 
@@ -2643,6 +2665,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
+        queryToTableWithKey = queryExpr.isTable() && !queryExpr.fieldNameIdentifierList.isEmpty();
         int fromCount = 0;
         for (BLangNode clause : queryExpr.getQueryClauses()) {
             if (clause.getKind() == NodeKind.FROM) {
@@ -2686,6 +2709,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         analyzeExpr(joinClause.collection);
+        if (joinClause.onClause != null) {
+            analyzeNode((BLangNode) joinClause.onClause, env);
+        }
     }
 
     @Override
@@ -2713,6 +2739,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangOnConflictClause onConflictClause) {
         analyzeExpr(onConflictClause.expression);
+        if (!queryToTableWithKey) {
+            dlog.error(onConflictClause.pos, DiagnosticCode.ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER);
+        }
     }
 
     @Override
@@ -2985,11 +3014,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean checkNextBreakValidityInTransaction() {
-        return !this.loopWithintransactionCheckStack.peek() && transactionCount > 0 && withinTransactionScope;
+        return !this.loopWithinTransactionCheckStack.peek() && transactionCount > 0 && withinTransactionScope;
     }
 
     private boolean checkReturnValidityInTransaction() {
-        return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
+        return (this.returnWithinTransactionCheckStack.empty() || !this.returnWithinTransactionCheckStack.peek())
                 && transactionCount > 0 && withinTransactionScope;
     }
 
@@ -3194,7 +3223,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
      * @since JBallerina 1.0.0
      */
     private enum ExperimentalFeatures {
-        TRANSACTIONS("transaction"),
         LOCK("lock"),
         XML_ACCESS("xml access expression"),
         XML_ATTRIBUTES_ACCESS("xml attribute expression"),

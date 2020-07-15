@@ -54,7 +54,7 @@ public class RetryStmtTest {
         BAssertUtil.validateError(managerNegative, index++, "undefined symbol 'value'", 16, 28);
     }
 
-    @Test(description = "Test retry statement with errors")
+    @Test(description = "Test retry statement with errors", groups = { "brokenOnNewParser"})
     public void testRetryStatementNegativeCases() {
         Assert.assertEquals(retryStmtNegative.getErrorCount(), 2);
         int index = 0;

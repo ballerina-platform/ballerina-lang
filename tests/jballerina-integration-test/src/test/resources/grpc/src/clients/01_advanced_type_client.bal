@@ -19,6 +19,11 @@ import ballerina/io;
 HelloWorldBlockingClient HelloWorldBlockingEp = new("http://localhost:9091");
 const string ERROR_MSG_FORMAT = "Error from Connector: %s";
 
+type PersonTypedesc typedesc<Person>;
+type StockQuoteTypedesc typedesc<StockQuote>;
+type StockQuotesTypedesc typedesc<StockQuotes>;
+type StockNamesTypedesc typedesc<StockNames>;
+
 // Enable when you need to test locally.
 //public function main() {
 //    Person p = {
@@ -170,7 +175,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<Person>);
+        var value = result.cloneWithType(PersonTypedesc);
         if (value is Person) {
             return [value, resHeaders];
         } else {
@@ -183,7 +188,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<StockQuote>);
+        var value = result.cloneWithType(StockQuoteTypedesc);
         if (value is StockQuote) {
             return [value, resHeaders];
         } else {
@@ -205,7 +210,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<StockQuotes>);
+        var value = result.cloneWithType(StockQuotesTypedesc);
         if (value is StockQuotes) {
             return [value, resHeaders];
         } else {
@@ -219,7 +224,7 @@ public type HelloWorldBlockingClient client object {
         anydata result = ();
         grpc:Headers resHeaders;
         [result, resHeaders] = payload;
-        var value = result.cloneWithType(typedesc<StockNames>);
+        var value = result.cloneWithType(StockNamesTypedesc);
         if (value is StockNames) {
             return [value, resHeaders];
         } else {

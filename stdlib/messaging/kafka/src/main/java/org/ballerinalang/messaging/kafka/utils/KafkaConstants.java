@@ -19,6 +19,7 @@
 package org.ballerinalang.messaging.kafka.utils;
 
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -259,6 +260,10 @@ public class KafkaConstants {
     public static final String FUNCTION_DESERIALIZE = "deserialize";
     public static final String FUNCTION_CLOSE = "close";
 
+    // Subscription handler function names
+    public static final String FUNCTION_ON_PARTITION_REVOKED = "onPartitionsRevoked";
+    public static final String FUNCTION_ON_PARTITION_ASSIGNED =  "onPartitionsAssigned";
+
     // Warning suppression
     public static final String UNCHECKED = "unchecked";
 
@@ -267,4 +272,22 @@ public class KafkaConstants {
     public static final String CLIENT_ID = "client.id";
     public static final String SCHEMA_REGISTRY_URL = "schema.registry.url";
     public static final String SPECIFIC_AVRO_READER = "specific.avro.reader";
+
+
+    // Strand meta data
+    public static final StrandMetadata ON_MESSAGE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, KAFKA_RESOURCE_ON_MESSAGE);
+    public static final StrandMetadata ON_SERIALIZE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_SERIALIZE);
+    public static final StrandMetadata ON_DESERIALIZE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_DESERIALIZE);
+    public static final StrandMetadata ON_CLOSE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION, FUNCTION_CLOSE);
+    public static final StrandMetadata ON_PARTITION_REVOKED_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
+                               FUNCTION_ON_PARTITION_REVOKED);
+    public static final StrandMetadata ON_PARTITION_ASSIGNED_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, KAFKA_PACKAGE_NAME, VERSION,
+                               FUNCTION_ON_PARTITION_ASSIGNED);
+
 }

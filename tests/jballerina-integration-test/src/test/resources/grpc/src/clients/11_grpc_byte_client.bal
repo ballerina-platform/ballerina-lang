@@ -23,6 +23,8 @@ import ballerina/grpc;
 //    io:println(response);
 //}
 
+type ByteArrayTypedesc typedesc<byte[]>;
+
 function testByteArray() returns (string) {
     byteServiceBlockingClient blockingEp  = new ("http://localhost:9101");
     string statement = "Lion in Town.";
@@ -83,7 +85,7 @@ public type byteServiceBlockingClient client object {
         grpc:Headers resHeaders = new;
         anydata result = ();
         [result, resHeaders] = unionResp;
-        var value = result.cloneWithType(typedesc<byte[]>);
+        var value = result.cloneWithType(ByteArrayTypedesc);
         if (value is byte[]) {
             return [value, resHeaders];
         } else {

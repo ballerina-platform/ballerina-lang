@@ -158,3 +158,13 @@ function testSubTypingWithReadOnlyFieldsNegative() {
     };
     OptionalId opId = mp;
 }
+
+type Quux record {|
+    int id;
+    readonly string code?;
+|};
+
+function testInvalidOptionalFieldUpdate() {
+    Quux q = {id: 100};
+    q.code = "quux";
+}

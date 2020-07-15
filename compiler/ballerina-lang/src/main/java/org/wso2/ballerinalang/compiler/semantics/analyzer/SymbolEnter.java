@@ -65,10 +65,13 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -111,6 +114,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
@@ -663,6 +667,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case CONSTRAINED_TYPE:
                 checkErrors(unresolvedType, ((BLangConstrainedType) currentTypeNode).constraint, visitedNodes);
+                break;
+            case TABLE_TYPE:
+                checkErrors(unresolvedType, ((BLangTableTypeNode) currentTypeNode).constraint, visitedNodes);
                 break;
             case USER_DEFINED_TYPE:
                 String currentTypeNodeName = ((BLangUserDefinedType) currentTypeNode).typeName.value;
@@ -1360,21 +1367,84 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         switch (type.tag) {
-            case TypeTags.RECORD:
-//                BRecordType recordType = (BRecordType) type;
-//                return recordType.fields.stream().allMatch(field -> types.isAnydata(field.type)) &&
-//                        (recordType.sealed || types.isAnydata(recordType.restFieldType));
             case TypeTags.MAP:
-//                return types.isAnydata(((BMapType) type).constraint);
-                return true;
+                BType constraintType = ((BMapType) type).constraint;
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields.values()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                        return false;
+                    }
+                }
+
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                return (elementType.tag == TypeTags.MAP || elementType.tag == TypeTags.RECORD) &&
-                        isValidAnnotationType(elementType);
+                if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
+                    return isValidAnnotationType(elementType);
+                }
+                return false;
         }
 
         return types.isAssignable(type, symTable.trueType);
     }
+
+    private boolean isAnyDataOrReadOnlyTypeSkippingObjectType(BType type) {
+        if (type == symTable.semanticError) {
+            return false;
+        }
+        switch (type.tag) {
+            case TypeTags.OBJECT:
+                return true;
+            case TypeTags.RECORD:
+                BRecordType recordType = (BRecordType) type;
+                for (BField field : recordType.fields.values()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                        return false;
+                    }
+                }
+                BType recordRestType = recordType.restFieldType;
+                if (recordRestType == null || recordRestType == symTable.noType) {
+                    return true;
+                }
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
+            case TypeTags.MAP:
+                BType constraintType = ((BMapType) type).constraint;
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
+            case TypeTags.UNION:
+                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                for (BType tupMemType : tupleType.getTupleTypes()) {
+                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(tupMemType)) {
+                        return false;
+                    }
+                }
+                BType tupRestType = tupleType.restType;
+                if (tupRestType == null) {
+                    return true;
+                }
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(tupRestType);
+            case TypeTags.TABLE:
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BTableType) type).constraint);
+            case TypeTags.ARRAY:
+                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BArrayType) type).getElementType());
+        }
+
+        return types.isAssignable(type, symTable.anydataOrReadOnlyType);
+    }
+
 
     /**
      * Visit each compilation unit (.bal file) and add each top-level node
@@ -1584,7 +1654,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateReadOnlyIntersectionTypeDefinitions(List<BLangTypeDefinition> typeDefNodes) {
-        List<BType> loggedTypes = new ArrayList<>();
+        Set<BType> loggedTypes = new HashSet<>();
 
         for (BLangTypeDefinition typeDefNode : typeDefNodes) {
             BLangType typeNode = typeDefNode.typeNode;
@@ -1599,11 +1669,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 BIntersectionType intersectionType = (BIntersectionType) currentType;
 
                 BType effectiveType = intersectionType.effectiveType;
-                if (loggedTypes.contains(effectiveType)) {
+                if (!loggedTypes.add(effectiveType)) {
                     continue;
                 }
-
-                loggedTypes.add(effectiveType);
 
                 boolean hasNonReadOnlyElement = false;
                 for (BType constituentType : intersectionType.getConstituentTypes()) {
@@ -1646,10 +1714,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
-            if (loggedTypes.contains(immutableType)) {
+            if (!loggedTypes.add(immutableType)) {
                 continue;
             }
-            loggedTypes.add(immutableType);
 
             if (!types.isSelectivelyImmutableType(mutableType, false, true)) {
                 dlog.error(typeDefNode.typeNode.pos, DiagnosticCode.INVALID_INTERSECTION_TYPE, immutableType);

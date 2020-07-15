@@ -27,7 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyChoreoExtensionTask;
 import org.ballerinalang.packerina.task.CopyExecutableTask;
 import org.ballerinalang.packerina.task.CopyModuleJarTask;
 import org.ballerinalang.packerina.task.CopyNativeLibTask;
@@ -43,8 +42,6 @@ import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunCompilerPluginTask;
 import org.ballerinalang.packerina.task.RunTestsTask;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.LauncherUtils;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -181,8 +178,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private boolean coverage;
 
-    @CommandLine.Option(names = "--with-choreo", description = "package Choreo extension in the executable jar")
-    private boolean withChoreo;
+    @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
+            "JAR file(s).")
+    private boolean observabilityIncluded;
 
     public void execute() {
         if (this.helpFlag) {
@@ -399,16 +397,14 @@ public class BuildCommand implements BLauncherCmd {
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
         options.put(PRESERVE_WHITESPACE, "true");
         options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
+
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
-        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist);
+        JarResolver jarResolver = JarResolverImpl.getInstance(buildContext, skipCopyLibsFromDist,
+                observabilityIncluded);
         buildContext.put(BuildContextField.JAR_RESOLVER, jarResolver);
         buildContext.setOut(outStream);
         buildContext.setErr(errStream);
-
-        Manifest manifest = ManifestProcessor.getInstance(compilerContext).getManifest();
-        boolean isChoreoExtensionSkipped = !(withChoreo ||
-                (manifest.getBuildOptions() != null && manifest.getBuildOptions().isWithChoreo()));
 
         boolean isSingleFileBuild = buildContext.getSourceType().equals(SINGLE_BAL_FILE);
         // output path is the current directory if -o flag is not given.
@@ -419,12 +415,11 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CreateTargetDirTask()) // create target directory
                 .addTask(new ResolveMavenDependenciesTask()) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CreateLockFileTask(), this.skipLock || isSingleFileBuild)  // create a lock file if
                                                             // the given skipLock flag does not exist(projects only)
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the BALOs for modules (projects only)
-                .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)
-                .addTask(new CopyChoreoExtensionTask(), isChoreoExtensionSkipped)   // copy the Choreo extension
                 .addTask(new CreateJarTask(skipCopyLibsFromDist))   // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new CopyObservabilitySymbolsTask(), isSingleFileBuild)

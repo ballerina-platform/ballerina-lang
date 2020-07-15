@@ -27,7 +27,7 @@ public interface BallerinaAnnotationAttachment extends PsiElement {
   BallerinaNameReference getNameReference();
 
   @Nullable
-  BallerinaRecordLiteral getRecordLiteral();
+  BallerinaRecoverableBody getRecoverableBody();
 
   @NotNull
   PsiElement getAt();

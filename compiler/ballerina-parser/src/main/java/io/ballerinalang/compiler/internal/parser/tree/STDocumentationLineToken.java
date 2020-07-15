@@ -44,7 +44,7 @@ public class STDocumentationLineToken extends STToken {
                              STNode leadingTrivia,
                              STNode trailingTrivia,
                              Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia, diagnostics);
+        super(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 
@@ -76,9 +76,9 @@ public class STDocumentationLineToken extends STToken {
     }
 
     @Override
-    public void toSourceCode(StringBuilder builder) {
-        leadingMinutiae.toSourceCode(builder);
+    public void writeTo(StringBuilder builder) {
+        leadingMinutiae.writeTo(builder);
         builder.append(text);
-        trailingMinutiae.toSourceCode(builder);
+        trailingMinutiae.writeTo(builder);
     }
 }

@@ -29,21 +29,20 @@ import org.testng.annotations.Test;
  */
 public class AnnotationDeclarationTest {
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = {"disableOnOldParser"})
     public void testSourceOnlyAnnotDeclWithoutSource() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/annotations/source_only_annot_without_source_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 6);
-        BAssertUtil.validateError(compileResult, 0, "mismatched input 'var'. expecting {'service', 'resource', " +
-                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 17, 30);
-        BAssertUtil.validateError(compileResult, 1, "mismatched input 'annotation'. expecting {'service', 'resource'," +
-                " 'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 18, 28);
-        BAssertUtil.validateError(compileResult, 2, "mismatched input 'const'. expecting {'service', 'resource', " +
-                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 19, 22);
-        BAssertUtil.validateError(compileResult, 4, "mismatched input 'external'. expecting {'service', 'resource', " +
-                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 20, 45);
-        BAssertUtil.validateError(compileResult, 5, "mismatched input 'listener'. expecting {'service', 'resource', " +
-                "'function', 'object', 'record', 'parameter', 'source', 'field', 'type', 'return'}", 21, 37);
+        Assert.assertEquals(compileResult.getErrorCount(), 7);
+        BAssertUtil.validateError(compileResult, 0,
+                "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 17, 1);
+        BAssertUtil.validateError(compileResult, 1, "missing source keyword", 17, 30);
+        BAssertUtil.validateError(compileResult, 2, "missing source keyword", 18, 28);
+        BAssertUtil.validateError(compileResult, 3,
+                "annotation declaration with 'source' attach point(s) should be a 'const' declaration", 19, 1);
+        BAssertUtil.validateError(compileResult, 4, "missing source keyword", 19, 22);
+        BAssertUtil.validateError(compileResult, 5, "missing source keyword", 20, 45);
+        BAssertUtil.validateError(compileResult, 6, "missing source keyword", 21, 37);
     }
 
     @Test
@@ -60,9 +59,12 @@ public class AnnotationDeclarationTest {
     @Test
     public void testInvalidAnnotType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/annotations/annots_with_invalid_type.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0, "annotation declaration requires a subtype of 'true', " +
-                "'map<anydata>' or 'map<anydata>[]', but found 'int'", 17, 12);
+                "'map<anydata|readonly>' or 'map<anydata|readonly>[]', but found 'int'", 17, 12);
+        BAssertUtil.validateError(compileResult, 1,
+                                  "annotation declaration requires a subtype of 'true', 'map<anydata|readonly>' or " +
+                                          "'map<anydata|readonly>[]', but found 'true[]'", 22, 12);
     }
 
     @Test

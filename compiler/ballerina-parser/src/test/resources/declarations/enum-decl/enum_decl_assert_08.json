@@ -18,18 +18,31 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
-                          "value": "#this is doc comment",
-                          "trailingMinutiae": [
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                          "children": [
                             {
-                              "kind": "END_OF_LINE_MINUTIAE",
-                              "value": "\n"
+                              "kind": "HASH_TOKEN"
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": [
+                                {
+                                  "kind": "DOCUMENTATION_DESCRIPTION",
+                                  "value": "this is doc comment",
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    }
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         }
@@ -101,11 +114,28 @@
                 },
                 {
                   "kind": "ENUM_MEMBER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN"
+                      ],
                       "value": "B",
                       "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "PERCENT_TOKEN",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ]
+                          }
+                        },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "    "
@@ -146,12 +176,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "annots",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "annots",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -179,7 +214,12 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "5"
+                      "children": [
+                        {
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "5"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -214,11 +254,16 @@
                     },
                     {
                       "kind": "DECIMAL_INTEGER_LITERAL",
-                      "value": "7",
-                      "leadingMinutiae": [
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "DECIMAL_INTEGER_LITERAL",
+                          "value": "7",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     }
@@ -323,11 +368,35 @@
               "children": [
                 {
                   "kind": "ENUM_MEMBER",
+                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_INVALID_TOKEN",
+                        "ERROR_INVALID_TOKEN"
+                      ],
                       "value": "RED",
                       "leadingMinutiae": [
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "OPEN_BRACE_TOKEN"
+                          }
+                        },
+                        {
+                          "kind": "INVALID_NODE_MINUTIAE",
+                          "invalidNode": {
+                            "kind": "CLOSE_BRACE_TOKEN",
+                            "trailingMinutiae": [
+                              {
+                                "kind": "END_OF_LINE_MINUTIAE",
+                                "value": "\n"
+                              }
+                            ]
+                          }
+                        },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": "  "
@@ -391,18 +460,54 @@
                       ]
                     },
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "BLUE",
-                      "leadingMinutiae": [
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "  "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
+                          "kind": "IDENTIFIER_TOKEN",
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_INVALID_TOKEN",
+                            "ERROR_INVALID_TOKEN"
+                          ],
+                          "value": "BLUE",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "EQUAL_TOKEN",
+                                "trailingMinutiae": [
+                                  {
+                                    "kind": "END_OF_LINE_MINUTIAE",
+                                    "value": "\n"
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "INVALID_NODE_MINUTIAE",
+                              "invalidNode": {
+                                "kind": "DOCUMENTATION_STRING",
+                                "value": "#doc\n",
+                                "leadingMinutiae": [
+                                  {
+                                    "kind": "WHITESPACE_MINUTIAE",
+                                    "value": "  "
+                                  }
+                                ]
+                              }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "  "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -501,6 +606,25 @@
             },
             {
               "kind": "OPEN_BRACE_TOKEN",
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_INVALID_TOKEN"
+              ],
+              "leadingMinutiae": [
+                {
+                  "kind": "INVALID_NODE_MINUTIAE",
+                  "invalidNode": {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "ExtraEnumName",
+                    "trailingMinutiae": [
+                      {
+                        "kind": "WHITESPACE_MINUTIAE",
+                        "value": " "
+                      }
+                    ]
+                  }
+                }
+              ],
               "trailingMinutiae": [
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
@@ -542,7 +666,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "read-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "read-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -585,7 +714,12 @@
                     },
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "green-color"
+                      "children": [
+                        {
+                          "kind": "STRING_LITERAL",
+                          "value": "green-color"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -627,7 +761,12 @@
                       ]
                     },
                     {
-                      "kind": "TRUE_KEYWORD"
+                      "kind": "TRUE_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "TRUE_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -665,11 +804,16 @@
                       "children": [
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "22",
-                          "trailingMinutiae": [
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": " "
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "22",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
                             }
                           ]
                         },
@@ -683,12 +827,17 @@
                           ]
                         },
                         {
-                          "kind": "IDENTIFIER_TOKEN",
-                          "value": "attributes",
-                          "leadingMinutiae": [
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
                             {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "  "
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "attributes",
+                              "leadingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "  "
+                                }
+                              ]
                             }
                           ]
                         }
@@ -712,24 +861,37 @@
                       "kind": "METADATA",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_STRING",
+                          "kind": "MARKDOWN_DOCUMENTATION",
                           "children": [
                             {
                               "kind": "LIST",
                               "children": [
                                 {
-                                  "kind": "DOCUMENTATION_LINE",
-                                  "value": "#doc cmt",
-                                  "leadingMinutiae": [
+                                  "kind": "MARKDOWN_DOCUMENTATION_LINE",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "  "
-                                    }
-                                  ],
-                                  "trailingMinutiae": [
+                                      "kind": "HASH_TOKEN",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "  "
+                                        }
+                                      ]
+                                    },
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "LIST",
+                                      "children": [
+                                        {
+                                          "kind": "DOCUMENTATION_DESCRIPTION",
+                                          "value": "doc cmt",
+                                          "trailingMinutiae": [
+                                            {
+                                              "kind": "END_OF_LINE_MINUTIAE",
+                                              "value": "\n"
+                                            }
+                                          ]
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -753,12 +915,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "value": "annots",
-                                  "trailingMinutiae": [
+                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                  "children": [
                                     {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "annots",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "END_OF_LINE_MINUTIAE",
+                                          "value": "\n"
+                                        }
+                                      ]
                                     }
                                   ]
                                 }
@@ -801,7 +968,12 @@
                         },
                         {
                           "kind": "DECIMAL_INTEGER_LITERAL",
-                          "value": "5"
+                          "children": [
+                            {
+                              "kind": "DECIMAL_INTEGER_LITERAL",
+                              "value": "5"
+                            }
+                          ]
                         }
                       ]
                     }
@@ -845,7 +1017,12 @@
                       ]
                     },
                     {
-                      "kind": "NULL_KEYWORD"
+                      "kind": "NULL_KEYWORD",
+                      "children": [
+                        {
+                          "kind": "NULL_KEYWORD"
+                        }
+                      ]
                     }
                   ]
                 },
@@ -889,7 +1066,25 @@
       ]
     },
     {
-      "kind": "EOF_TOKEN"
+      "kind": "EOF_TOKEN",
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_INVALID_TOKEN"
+      ],
+      "leadingMinutiae": [
+        {
+          "kind": "INVALID_NODE_MINUTIAE",
+          "invalidNode": {
+            "kind": "CLOSE_BRACE_TOKEN",
+            "trailingMinutiae": [
+              {
+                "kind": "END_OF_LINE_MINUTIAE",
+                "value": "\n"
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

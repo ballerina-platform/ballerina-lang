@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
+import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.expressions.NamedArgNode;
@@ -205,9 +206,17 @@ import static org.wso2.ballerinalang.compiler.util.Constants.WORKER_LAMBDA_VAR_P
 public class TypeChecker extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<TypeChecker> TYPE_CHECKER_KEY = new CompilerContext.Key<>();
-    private static Set<String> modifierFunctions = new HashSet<>();
+    private static Set<String> listLengthModifierFunctions = new HashSet<>();
+    private static Map<String, HashSet<String>> modifierFunctions = new HashMap<>();
 
     private static final String TABLE_TNAME = "table";
+
+    private static final String LIST_LANG_LIB = "lang.array";
+    private static final String MAP_LANG_LIB = "lang.map";
+    private static final String TABLE_LANG_LIB = "lang.table";
+    private static final String VALUE_LANG_LIB = "lang.value";
+    private static final String XML_LANG_LIB = "lang.xml";
+
     private static final String FUNCTION_NAME_PUSH = "push";
     private static final String FUNCTION_NAME_POP = "pop";
     private static final String FUNCTION_NAME_SHIFT = "shift";
@@ -242,10 +251,46 @@ public class TypeChecker extends BLangNodeVisitor {
     private DiagnosticCode diagCode;
 
     static {
-        modifierFunctions.add(FUNCTION_NAME_PUSH);
-        modifierFunctions.add(FUNCTION_NAME_POP);
-        modifierFunctions.add(FUNCTION_NAME_SHIFT);
-        modifierFunctions.add(FUNCTION_NAME_UNSHIFT);
+        listLengthModifierFunctions.add(FUNCTION_NAME_PUSH);
+        listLengthModifierFunctions.add(FUNCTION_NAME_POP);
+        listLengthModifierFunctions.add(FUNCTION_NAME_SHIFT);
+        listLengthModifierFunctions.add(FUNCTION_NAME_UNSHIFT);
+
+        modifierFunctions.put(LIST_LANG_LIB, new HashSet<String>() {{
+            add("remove");
+            add("removeAll");
+            add("setLength");
+            add("reverse");
+            add("sort");
+            add("pop");
+            add("push");
+            add("shift");
+            add("unshift");
+        }});
+
+        modifierFunctions.put(MAP_LANG_LIB, new HashSet<String>() {{
+            add("remove");
+            add("removeIfHasKey");
+            add("removeAll");
+        }});
+
+        modifierFunctions.put(TABLE_LANG_LIB, new HashSet<String>() {{
+            add("put");
+            add("add");
+            add("remove");
+            add("removeIfHasKey");
+            add("removeAll");
+        }});
+
+        modifierFunctions.put(VALUE_LANG_LIB, new HashSet<String>() {{
+            add("mergeJson");
+        }});
+
+        modifierFunctions.put(XML_LANG_LIB, new HashSet<String>() {{
+            add("setName");
+            add("setChildren");
+            add("strip");
+        }});
     }
 
     public static TypeChecker getInstance(CompilerContext context) {
@@ -933,9 +978,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<String> requiredFieldNames = new ArrayList<>();
         if (keySpecifier != null) {
-            for (BLangIdentifier identifier : keySpecifier.fieldNameIdentifierList) {
-                requiredFieldNames.add(identifier.value);
-                keySpecifierFieldNames.add(identifier.value);
+            for (IdentifierNode identifierNode : keySpecifier.fieldNameIdentifierList) {
+                requiredFieldNames.add(((BLangIdentifier) identifierNode).value);
+                keySpecifierFieldNames.add(((BLangIdentifier) identifierNode).value);
             }
         }
 
@@ -1155,12 +1200,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 return false;
             }
 
-            List<BLangIdentifier> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
+            List<IdentifierNode> fieldNameIdentifierList = tableConstructorExpr.tableKeySpecifier.
                     fieldNameIdentifierList;
 
             int index = 0;
-            for (BLangIdentifier identifier : fieldNameIdentifierList) {
-                BField field = types.getTableConstraintField(constraintType, identifier.value);
+            for (IdentifierNode identifier : fieldNameIdentifierList) {
+                BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
                 if (!types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
@@ -1200,8 +1245,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private List<String> getTableKeyNameList(BLangTableKeySpecifier tableKeySpecifier) {
         List<String> fieldNamesList = new ArrayList<>();
-        for (BLangIdentifier identifier : tableKeySpecifier.fieldNameIdentifierList) {
-            fieldNamesList.add(identifier.value);
+        for (IdentifierNode identifier : tableKeySpecifier.fieldNameIdentifierList) {
+            fieldNamesList.add(((BLangIdentifier) identifier).value);
         }
 
         return fieldNamesList;
@@ -2252,9 +2297,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     continue;
                 }
 
-                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY) &&
-                        // allow updates at compile-time for optional fields since it could be the first update.
-                        Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED);
+                return Symbols.isFlagOn(field.symbol.flags, Flags.READONLY);
             }
             return recordType.sealed;
         }
@@ -2427,7 +2470,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Find the variable reference expression type
         checkExpr(aInv.expr, this.env, symTable.noType);
-        BLangVariableReference varRef = (BLangVariableReference) aInv.expr;
+        BLangExpression varRef = aInv.expr;
 
         switch (varRef.type.tag) {
             case TypeTags.OBJECT:
@@ -2470,14 +2513,44 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkInLangLib(BLangInvocation iExpr, BType varRefType) {
-        boolean langLibMethodExists = checkLangLibMethodInvocationExpr(iExpr, varRefType);
-        if (!langLibMethodExists) {
+        BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, varRefType);
+        if (langLibMethodSymbol == symTable.notFoundSymbol) {
             dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FUNCTION_IN_TYPE, iExpr.name.value, iExpr.expr.type);
             resultType = symTable.semanticError;
             return;
         }
 
+        if (checkInvalidImmutableValueUpdate(iExpr, varRefType, langLibMethodSymbol)) {
+            return;
+        }
+
         checkIllegalStorageSizeChangeMethodCall(iExpr, varRefType);
+    }
+
+    private boolean checkInvalidImmutableValueUpdate(BLangInvocation iExpr, BType varRefType,
+                                                     BSymbol langLibMethodSymbol) {
+        if (!Symbols.isFlagOn(varRefType.flags, Flags.READONLY)) {
+            return false;
+        }
+
+        String packageId = langLibMethodSymbol.pkgID.name.value;
+
+        if (!modifierFunctions.containsKey(packageId)) {
+            return false;
+        }
+
+        String funcName = langLibMethodSymbol.name.value;
+        if (!modifierFunctions.get(packageId).contains(funcName)) {
+            return false;
+        }
+
+        if (funcName.equals("mergeJson") && varRefType.tag != TypeTags.MAP) {
+            return false;
+        }
+
+        dlog.error(iExpr.pos, DiagnosticCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE, varRefType);
+        resultType = symTable.semanticError;
+        return true;
     }
 
     private boolean isFixedLengthList(BType type) {
@@ -2501,7 +2574,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkIllegalStorageSizeChangeMethodCall(BLangInvocation iExpr, BType varRefType) {
         String invocationName = iExpr.name.getValue();
-        if (!modifierFunctions.contains(invocationName)) {
+        if (!listLengthModifierFunctions.contains(invocationName)) {
             return;
         }
 
@@ -2567,9 +2640,12 @@ public class TypeChecker extends BLangNodeVisitor {
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
                 type.tsymbol);
         if (funcSymbol == symTable.notFoundSymbol) {
-            if (!checkLangLibMethodInvocationExpr(iExpr, type)) {
+            BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
+            if (langLibMethodSymbol == symTable.notFoundSymbol) {
                 dlog.error(iExpr.name.pos, DiagnosticCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
                 resultType = symTable.semanticError;
+            } else {
+                checkInvalidImmutableValueUpdate(iExpr, type, langLibMethodSymbol);
             }
             return false;
         }
@@ -2636,7 +2712,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BStreamType actualStreamType = (BStreamType) actualType;
                 if (actualStreamType.error != null) {
                     BType error = actualStreamType.error;
-                    if (!types.containsErrorType(error)) {
+                    if (error != symTable.neverType && !types.containsErrorType(error)) {
                         dlog.error(cIExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, error.toString());
                         resultType = symTable.semanticError;
                         return;
@@ -2650,6 +2726,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (nextReturnType == null) {
                     dlog.error(iteratorExpr.pos, DiagnosticCode.MISSING_REQUIRED_METHOD_NEXT,
                             constructType, expectedReturnType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
+                if (types.getErrorType(nextReturnType) == null && (types.getErrorType(expectedReturnType) != null)) {
+                    dlog.error(iteratorExpr.pos, DiagnosticCode.INVALID_STREAM_CONSTRUCTOR_EXP_TYPE, iteratorExpr);
                     resultType = symTable.semanticError;
                     return;
                 }
@@ -2711,7 +2792,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error != null) {
+        if (streamType.error != symTable.neverType && streamType.error != null) {
             retTypeMembers.add(streamType.error);
         }
         retTypeMembers.add(symTable.nilType);
@@ -3899,7 +3980,7 @@ public class TypeChecker extends BLangNodeVisitor {
             final BTableType tableType = new BTableType(TypeTags.TABLE, actualType, symTable.tableType.tsymbol);
             if (!queryExpr.fieldNameIdentifierList.isEmpty()) {
                 tableType.fieldNameList = queryExpr.fieldNameIdentifierList.stream()
-                        .map(identifier -> identifier.value).collect(Collectors.toList());
+                        .map(identifier -> ((BLangIdentifier) identifier).value).collect(Collectors.toList());
                 return BUnionType.create(null, tableType, symTable.errorType);
             }
             return tableType;
@@ -3939,6 +4020,9 @@ public class TypeChecker extends BLangNodeVisitor {
         types.setInputClauseTypedBindingPatternType(joinClause);
         narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
+        if (joinClause.onClause != null) {
+            ((BLangOnClause) joinClause.onClause).accept(this);
+        }
     }
 
     @Override
@@ -4237,7 +4321,9 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticCode.INVALID_RESOURCE_FUNCTION_INVOCATION);
         }
 
-        if (PackageID.isLangLibPackageID(pkgSymbol.pkgID)) {
+        boolean langLibPackageID = PackageID.isLangLibPackageID(pkgSymbol.pkgID);
+
+        if (langLibPackageID) {
             // This will enable, type param support, if the function is called directly.
             this.env = SymbolEnv.createInvocationEnv(iExpr, this.env);
         }
@@ -4245,6 +4331,10 @@ public class TypeChecker extends BLangNodeVisitor {
         // This is used in the code generation phase.
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
+
+        if (langLibPackageID && !iExpr.argExprs.isEmpty()) {
+            checkInvalidImmutableValueUpdate(iExpr, iExpr.argExprs.get(0).type, funcSymbol);
+        }
     }
 
     private void markAndRegisterClosureVariable(BSymbol symbol, DiagnosticPos pos) {
@@ -4604,12 +4694,16 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private boolean checkLangLibMethodInvocationExpr(BLangInvocation iExpr, BType bType) {
+        return getLangLibMethod(iExpr, bType) != symTable.notFoundSymbol;
+    }
+
+    private BSymbol getLangLibMethod(BLangInvocation iExpr, BType bType) {
 
         Name funcName = names.fromString(iExpr.name.value);
         BSymbol funcSymbol = symResolver.lookupLangLibMethod(bType, funcName);
 
         if (funcSymbol == symTable.notFoundSymbol) {
-            return false;
+            return symTable.notFoundSymbol;
         }
 
         iExpr.symbol = funcSymbol;
@@ -4622,7 +4716,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkInvocationParamAndReturnType(iExpr);
         this.env = enclEnv;
 
-        return true;
+        return funcSymbol;
     }
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {

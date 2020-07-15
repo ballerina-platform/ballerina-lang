@@ -55,6 +55,12 @@ public class BLangDiagnosticLogHelper implements DiagnosticLog {
         this.nonConsoleDLog = new ErrorCountingBLangDiagnosticLog();
     }
 
+    // Please node that, this method exist only to report syntax errors coming from the new parser
+    // We will remove this method once we merge diagnostic reporting approaches in the new parser and semantic analyzer
+    public void error(DiagnosticPos pos, String message, DiagnosticCode code) {
+        this.currentLog.error(pos, message, code);
+    }
+
     public void error(DiagnosticPos pos, DiagnosticCode code, Object... args) {
         this.currentLog.error(pos, code, args);
     }
