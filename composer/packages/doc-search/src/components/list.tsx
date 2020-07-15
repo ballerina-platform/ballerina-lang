@@ -35,6 +35,7 @@ interface ListState {
     filteredTypes: any[];
     filteredClients: any[];
     filteredListeners: any[];
+    filteredAnnotations: any[];
     searchText: string;
 }
 
@@ -51,6 +52,7 @@ export class List extends React.Component<ListProps, ListState> {
             filteredTypes: [],
             filteredClients: [],
             filteredListeners: [],
+            filteredAnnotations: [],
             searchText: this.props.searchTxt
         };
         this.handleChange = this.handleChange.bind(this);
@@ -78,7 +80,8 @@ export class List extends React.Component<ListProps, ListState> {
             filteredErrors: this.props.searchJson.errors,
             filteredTypes: this.props.searchJson.types,
             filteredClients: this.props.searchJson.clients,
-            filteredListeners: this.props.searchJson.listeners
+            filteredListeners: this.props.searchJson.listeners,
+            filteredAnnotations: this.props.searchJson.annotations
         });
         this.handleChange();
     }
@@ -93,7 +96,8 @@ export class List extends React.Component<ListProps, ListState> {
             filteredErrors: nextProps.searchJson.errors,
             filteredTypes: nextProps.searchJson.types,
             filteredClients: nextProps.searchJson.clients,
-            filteredListeners: nextProps.searchJson.listeners
+            filteredListeners: nextProps.searchJson.listeners,
+            filteredAnnotations: nextProps.searchJson.annotations
         });
         this.handleChange();
     }
@@ -117,6 +121,7 @@ export class List extends React.Component<ListProps, ListState> {
         let currentTypesList = [];
         let currentClientsList = [];
         let currentListenersList = [];
+        let currentAnnotationsList = [];
         // Variable to hold the filtered list before putting into state
         let newModuleList = [];
         let newFunctionsList = [];
@@ -127,6 +132,7 @@ export class List extends React.Component<ListProps, ListState> {
         let newTypesList = [];
         let newClientsList = [];
         let newListenersList = [];
+        let newAnnotationsList = [];
         // If the search bar isn't empty
         if (searchTxt !== "") {
             // Assign the original list to currentList
@@ -139,6 +145,7 @@ export class List extends React.Component<ListProps, ListState> {
             currentTypesList = this.props.searchJson.types;
             currentClientsList = this.props.searchJson.clients;
             currentListenersList = this.props.searchJson.listeners;
+            currentAnnotationsList = this.props.searchJson.annotations;
             // Use .filter() to determine which items should be displayed
             // based on the search terms
             newModuleList = currentModuleList.filter((item: any) => {
@@ -200,6 +207,12 @@ export class List extends React.Component<ListProps, ListState> {
                 return lc.includes(filter);
             });
 
+            newAnnotationsList = currentAnnotationsList.filter((item: any) => {
+                const lc = item.id.toLowerCase();
+                const filter = searchTxt.toLowerCase();
+                return lc.includes(filter);
+            });
+
         } else {
             if (mainDiv != null) {
                 mainDiv.classList.remove('hidden');
@@ -215,7 +228,8 @@ export class List extends React.Component<ListProps, ListState> {
             filteredErrors: newErrorsList,
             filteredTypes: newTypesList,
             filteredClients: newClientsList,
-            filteredListeners: newListenersList
+            filteredListeners: newListenersList,
+            filteredAnnotations: newAnnotationsList
         });
     }
 
@@ -233,7 +247,8 @@ export class List extends React.Component<ListProps, ListState> {
                         this.state.filteredFunctions.length == 0 && this.state.filteredRecords.length == 0 &&
                         this.state.filteredConstants.length == 0 && this.state.filteredTypes.length == 0 &&
                         this.state.filteredErrors.length == 0 && this.state.filteredClients.length == 0 &&
-                        this.state.filteredListeners.length == 0 && <p>No results found</p>
+                        this.state.filteredListeners.length == 0 && this.state.filteredAnnotations.length == 0
+                        && <p>No results found</p>
                         }
                         {this.state.filteredModules.length > 0 &&
                             <div>
@@ -246,7 +261,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.id + "/index.html"} className="objects">
                                                     {item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -265,7 +280,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/objects/" + item.id + ".html"}
                                                      className="objects">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -275,7 +290,7 @@ export class List extends React.Component<ListProps, ListState> {
 
                         {this.state.filteredClients.length > 0 &&
                             <div>
-                                <h3>Clients: {this.state.filteredObjects.length}</h3>
+                                <h3>Clients: {this.state.filteredClients.length}</h3>
                                 <table>
                                     <tbody>
                                         {this.state.filteredClients.map(item => (
@@ -284,7 +299,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/clients/" + item.id + ".html"}
                                                      className="clients">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -304,7 +319,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     ".html"}
                                                      className="listeners">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -323,7 +338,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/functions.html#" + item.id}
                                                     className="functions">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -342,7 +357,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/records/" + item.id + ".html"}
                                                      className="records">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -361,7 +376,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/constants.html#" + item.id}
                                                     className="constant">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -380,7 +395,7 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/types.html#" + item.id}
                                                     className="types">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
@@ -399,13 +414,33 @@ export class List extends React.Component<ListProps, ListState> {
                                                     <a href={rootPath + item.moduleId + "/errors.html#" + item.id}
                                                     className="errors">{item.moduleId + ": " + item.id}</a></td>
                                                 <td className="search-desc"><span
-                                                dangerouslySetInnerHTML={{ __html: item.searchString }} /></td>
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
                         }
+
+                        {this.state.filteredAnnotations.length > 0 &&
+                            <div>
+                                <h3>Annotations: {this.state.filteredAnnotations.length}</h3>
+                                <table>
+                                    <tbody>
+                                        {this.state.filteredAnnotations.map(item => (
+                                            <tr>
+                                                <td className="search-title" id={item.id} title={item.id}>
+                                                    <a href={rootPath + item.moduleId + "/annotations.html#" + item.id}
+                                                    className="annotations">{item.moduleId + ": " + item.id}</a></td>
+                                                <td className="search-desc"><span
+                                                dangerouslySetInnerHTML={{ __html: item.description }} /></td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+
                     </div>
                 }
             </div>
