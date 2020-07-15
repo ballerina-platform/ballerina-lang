@@ -18,7 +18,7 @@ import ballerina/java;
 
 # Represents the `runtime:InvocationContext`.
 #
-# + authenticationContext - Authentication context instance
+# + id - Unique ID generated when initiating the invocation context
 # + attributes - Map of context attributes
 public type InvocationContext record {|
     string id;
