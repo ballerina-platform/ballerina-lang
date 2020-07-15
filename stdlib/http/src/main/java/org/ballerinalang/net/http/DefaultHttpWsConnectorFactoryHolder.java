@@ -21,14 +21,9 @@ package org.ballerinalang.net.http;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 
 class DefaultHttpWsConnectorFactoryHolder {
-    private static DefaultHttpWsConnectorFactory httpConnfactory = new DefaultHttpWsConnectorFactory();
-    private static DefaultHttpWsConnectorFactory wsConnectorFactory = new DefaultHttpWsConnectorFactory();
+    private static volatile DefaultHttpWsConnectorFactory httpConnfactory = new DefaultHttpWsConnectorFactory();
 
     static DefaultHttpWsConnectorFactory getHttpConnfactory() {
         return httpConnfactory;
-    }
-
-    static DefaultHttpWsConnectorFactory getWsConnfactory() {
-        return wsConnectorFactory;
     }
 }
