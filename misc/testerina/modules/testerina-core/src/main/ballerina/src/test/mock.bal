@@ -226,7 +226,7 @@ public function when(MockFunction mockFunction) returns FunctionStub {
 public type MockFunction object {
     string functionToMock = "";
     string functionToMockPackage = "";
-    };
+};
 
 # Represents an object that allows stubbing function invocations
 #

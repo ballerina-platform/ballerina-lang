@@ -119,7 +119,7 @@ public class MockDesugar {
             this.originalFunction = getOriginalFunction(functionName);
         } else {
             // Extract the name and the package details
-            String packageName = functionName.substring(functionName.indexOf("/") + 1, functionName.indexOf(":"));
+            String packageName = functionName.substring(functionName.indexOf('/') + 1, functionName.indexOf(':'));
             functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
             this.importFunction = getImportFunction(functionName, packageName);
         }
@@ -130,12 +130,17 @@ public class MockDesugar {
         // Create the Base function with the name
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
 
-        generatedMock.requiredParams = generateRequiredParams();        // Required Params
-        generatedMock.restParam = generateRestParam();                  // Rest Param
-        generatedMock.returnTypeNode = generateReturnTypeNode();        // Return Type Node
-        generatedMock.body = generateBody();                            // Body
-        generatedMock.type = generateSymbolInvokableType();             // Invokable Type
-        generatedMock.symbol = generateSymbol(functionName);            // Invokable Symbol
+        if (this.originalFunction != null || this.importFunction != null) {
+            generatedMock.requiredParams = generateRequiredParams();        // Required Params
+            generatedMock.restParam = generateRestParam();                  // Rest Param
+            generatedMock.returnTypeNode = generateReturnTypeNode();        // Return Type Node
+            generatedMock.body = generateBody();                            // Body
+            generatedMock.type = generateSymbolInvokableType();             // Invokable Type
+            generatedMock.symbol = generateSymbol(functionName);            // Invokable Symbol
+        } else {
+            throw new IllegalStateException("Mock Function and Function to Mock cannot be null");
+        }
+
         return generatedMock;
     }
 
@@ -150,15 +155,15 @@ public class MockDesugar {
     }
 
     private BInvokableSymbol getImportFunction(String functionName, String packageName) {
-        BInvokableSymbol importFunction = null;
-        importFunction = getInvokableSymbol(functionName, packageName, this.bLangPackage.getImports());
+        BInvokableSymbol bInvokableSymbol =
+                getInvokableSymbol(functionName, packageName, this.bLangPackage.getImports());
 
-        if (importFunction == null) {
-            importFunction =
-                    getInvokableSymbol(functionName, packageName,  this.bLangPackage.getTestablePkg().getImports());
+        if (bInvokableSymbol == null) {
+            bInvokableSymbol =
+                    getInvokableSymbol(functionName, packageName, this.bLangPackage.getTestablePkg().getImports());
         }
 
-        return importFunction;
+        return bInvokableSymbol;
     }
 
     private BInvokableSymbol getInvokableSymbol(String functionName,
@@ -177,7 +182,7 @@ public class MockDesugar {
     }
 
     private List<BLangSimpleVariable> generateRequiredParams() {
-        List<BLangSimpleVariable> requiredParams = null;
+        List<BLangSimpleVariable> requiredParams;
 
         if (this.originalFunction == null) {
             requiredParams = generateImportRequiredParams();
@@ -219,7 +224,7 @@ public class MockDesugar {
     }
 
     private BLangType generateReturnTypeNode() {
-        BLangType returnTypeNode = null;
+        BLangType returnTypeNode;
 
         if (this.originalFunction == null) {
             returnTypeNode = generateImportReturnTypeNode();
@@ -253,9 +258,9 @@ public class MockDesugar {
     }
 
     private BInvokableType generateSymbolInvokableType() {
-        BInvokableType bInvokableType = null;
+        BInvokableType bInvokableType;
 
-        if (this.originalFunction == null) {
+        if (this.originalFunction == null && this.importFunction != null) {
             bInvokableType = (BInvokableType) this.importFunction.type;
         } else {
             bInvokableType = (BInvokableType) this.originalFunction.symbol.type;
@@ -325,8 +330,7 @@ public class MockDesugar {
     // = (functionToMock)
     private BLangLiteral generateRHSExpr(String val) {
         BType type = symTable.stringType;
-        Object value = val;
-        BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, type, value);
+        BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, type, val);
         bLangLiteral.expectedType = type;
 
         return bLangLiteral;
@@ -390,7 +394,7 @@ public class MockDesugar {
         BLangListConstructorExpr argsList =
                 ASTBuilderUtil.createEmptyArrayLiteral(bLangPackage.pos, symTable.arrayAnydataType);
 
-        List<BLangSimpleVarRef> argVariables = null;
+        List<BLangSimpleVarRef> argVariables;
         if (originalFunction == null) {
             argVariables =
                     ASTBuilderUtil.createVariableRefList(bLangPackage.pos, generateImportRequiredParams());
@@ -416,7 +420,7 @@ public class MockDesugar {
     }
 
     private BType generateType() {
-        BType type = null;
+        BType type;
 
         if (originalFunction == null) {
             type = this.importFunction.retType;
