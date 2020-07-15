@@ -3317,6 +3317,17 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "WebSocketClientConfiguration",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for the WebSocket client.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                                                                              |\n|:---------------------------------------------------------------------------- |\n| callbackService - Copied from CommonWebSocketClientConfiguration             |\n| subProtocols - Copied from CommonWebSocketClientConfiguration                |\n| customHeaders - Copied from CommonWebSocketClientConfiguration               |\n| idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |\n| readyOnConnect - Copied from CommonWebSocketClientConfiguration              |\n| secureSocket - Copied from CommonWebSocketClientConfiguration                |\n| maxFrameSize - Copied from CommonWebSocketClientConfiguration                |\n| webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |\n| handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |\n| cookies - Copied from CommonWebSocketClientConfiguration                     |"
+      },
+      "sortText": "180",
+      "insertText": "WebSocketClientConfiguration",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
       "kind": "Function",
       "detail": "Function",

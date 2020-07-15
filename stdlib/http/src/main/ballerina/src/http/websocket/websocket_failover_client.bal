@@ -35,8 +35,11 @@ public type WebSocketFailoverClient client object {
     # + config - The `WebSocketFailoverClientConfiguration` of the endpoint
     public function init(public WebSocketFailoverClientConfiguration config) {
         self.url = config.targetUrls[0];
-        if (config is WebSocketClientConfiguration) {
-            addCookies(config);
+        if (config is WebSocketFailoverClientConfiguration) {
+            var cookiesToAdd = config["cookies"];
+            if (cookiesToAdd is Cookie[]) {
+                addCookies(cookiesToAdd);
+            }
         }
         self.config = config;
         return externFailoverInit(self);

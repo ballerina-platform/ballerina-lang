@@ -38,7 +38,10 @@ public type WebSocketClient client object {
     public function init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
         if (config is WebSocketClientConfiguration) {
-            addCookies(config);
+            var cookiesToAdd = config["cookies"];
+            if (cookiesToAdd is Cookie[]) {
+                addCookies(config);
+            }
         }
         self.config = config ?: {};
         self.initEndpoint();
@@ -227,31 +230,28 @@ public type CommonWebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
     int handShakeTimeoutInSeconds = 300;
-    map<string> cookies?;
+    Cookie[] cookies?;
 |};
 
 # Adds cookies to the custom header.
 #
 # + config - Represents the cookies to be added
 public function addCookies(WebSocketClientConfiguration config) {
-    var cookiesToAdd = config["cookies"];
-    if (cookiesToAdd is Cookie[]) {
-        string cookieheader = "";
-        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
-        foreach var cookie in sortedCookies {
-            var cookieName = cookie.name;
-            var cookieValue = cookie.value;
-            if (cookieName is string && cookieValue is string) {
-                cookieheader = cookieheader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
-            }
-            cookie.lastAccessedTime = time:currentTime();
+    string cookieheader = "";
+    Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+    foreach var cookie in sortedCookies {
+        var cookieName = cookie.name;
+        var cookieValue = cookie.value;
+        if (cookieName is string && cookieValue is string) {
+            cookieheader = cookieheader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
         }
-        if (cookieheader != "") {
-            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
-            map<string> headers = config["customHeaders"];
-            headers["Cookie"] = cookieheader;
-            config["customHeaders"] = headers;
-        }
+        cookie.lastAccessedTime = time:currentTime();
+    }
+    if (cookieheader != "") {
+        cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+        map<string> headers = config["customHeaders"];
+        headers["Cookie"] = cookieheader;
+        config["customHeaders"] = headers;
     }
 }
 
