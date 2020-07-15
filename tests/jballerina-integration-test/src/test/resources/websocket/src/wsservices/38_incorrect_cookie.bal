@@ -47,8 +47,11 @@ service on new http:Listener(21038) {
             if (loginMessage is error) {
                 io:println("Login failed", loginMessage);
             } else {
+                http:Cookie[] cookies = [];
+                http:Cookie cookie = new ("sid", "5674533222");
+                cookies[0] = cookie;
                 http:WebSocketClient wsClientEp = new ("ws://localhost:21036/cookie-demo/ws",
-                                config = {callbackService: ErrorCookieService, cookies: {sid: "5674533222"}});
+                                config = {callbackService: ErrorCookieService, cookies: cookies});
             }
         } else {
             log:printError(loginResp.message());

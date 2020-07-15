@@ -48,16 +48,8 @@ service on new http:Listener(21037) {
                 io:println("Login failed", loginMessage);
             } else {
                 http:Cookie[] cookies = loginResp.getCookies();
-                map<string> wsCookies = {};
-                foreach var cookie in cookies {
-                    var cookieName = cookie.name;
-                    var cookieValue = cookie.value;
-                    if (cookieName is string && cookieValue is string) {
-                        wsCookies[cookieName] = cookieValue;
-                    }
-                }
                 http:WebSocketClient wsClientEp = new ("ws://localhost:21036/cookie-demo/ws",
-                                config = {callbackService: CookieService, cookies: wsCookies});
+                                config = {callbackService: CookieService, cookies: cookies});
                 var err = wsClientEp->pushText("Hello World!");
                 if (err is error) {
                     io:println(err);

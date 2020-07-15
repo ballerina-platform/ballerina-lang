@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/java;
+import ballerina/time;
 
 # Represents a WebSocket client endpoint.
 public type WebSocketClient client object {
@@ -36,6 +37,9 @@ public type WebSocketClient client object {
     # + config - The configurations to be used when initializing the client
     public function init(string url, public WebSocketClientConfiguration? config = ()) {
         self.url = url;
+        if (config is WebSocketClientConfiguration) {
+            addCookies(config);
+        }
         self.config = config ?: {};
         self.initEndpoint();
     }
@@ -212,7 +216,7 @@ public type WebSocketClientConfiguration record {|
 # + handShakeTimeoutInSeconds - Time (in seconds) that a connection waits to get the response of
 #                               the webSocket handshake. If the timeout exceeds, then the connection is terminated with
 #                               an error.If the value < 0, then the value sets to the default value(300).
-# + cookies - Name and value of the cookies, which should be sent to the server
+# + cookies - An Array of `http:Cookie`
 public type CommonWebSocketClientConfiguration record {|
     service? callbackService = ();
     string[] subProtocols = [];
@@ -223,8 +227,33 @@ public type CommonWebSocketClientConfiguration record {|
     int maxFrameSize = 0;
     boolean webSocketCompressionEnabled = true;
     int handShakeTimeoutInSeconds = 300;
-    map<string> cookies?;
+    Cookie[] cookies?;
 |};
+
+# Adds cookies to the request.
+#
+# + config - Represents the cookies to be added
+public function addCookies(WebSocketClientConfiguration config) {
+    var cookiesToAdd = config["cookies"];
+    if (cookiesToAdd is Cookie[]) {
+        string cookieheader = "";
+        Cookie[] sortedCookies = cookiesToAdd.sort(comparator);
+        foreach var cookie in sortedCookies {
+            var cookieName = cookie.name;
+            var cookieValue = cookie.value;
+            if (cookieName is string && cookieValue is string) {
+                cookieheader = cookieheader + cookieName + EQUALS + cookieValue + SEMICOLON + SPACE;
+            }
+            cookie.lastAccessedTime = time:currentTime();
+        }
+        if (cookieheader != "") {
+            cookieheader = cookieheader.substring(0, cookieheader.length() - 2);
+            map<string> headers = config["customHeaders"];
+            headers["Cookie"] = cookieheader;
+            config["customHeaders"] = headers;
+        }
+    }
+}
 
 # Retry configurations for WebSocket.
 #
