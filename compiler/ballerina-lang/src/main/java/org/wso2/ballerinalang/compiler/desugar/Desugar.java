@@ -291,7 +291,6 @@ public class Desugar extends BLangNodeVisitor {
     private static final String LENGTH_FUNCTION_NAME = "length";
     private static final String ERROR_REASON_NULL_REFERENCE_ERROR = "NullReferenceException";
     private static final String CLONE_WITH_TYPE = "cloneWithType";
-    private static final String SLICE_LANGLIB_METHOD = "slice";
     private static final String PUSH_LANGLIB_METHOD = "push";
     private static final String DESUGARED_VARARG_KEY = "$vararg$";
 
@@ -5361,8 +5360,9 @@ public class Desugar extends BLangNodeVisitor {
         int originalRequiredArgCount = iExpr.requiredArgs.size();
 
         // Constructs used when the vararg provides args for required/defaultable params.
-        BLangExpression varargRef = null;
+        BLangSimpleVarRef varargRef = null;
         BLangBlockStmt blockStmt = null;
+        BType varargVarType = null;
 
         int restArgCount = restArgs.size();
 
@@ -5374,7 +5374,7 @@ public class Desugar extends BLangNodeVisitor {
             // to use for member access when adding such required arguments from the vararg.
             BLangExpression expr = ((BLangRestArgsExpression) restArgs.get(restArgCount - 1)).expr;
             DiagnosticPos varargExpPos = expr.pos;
-            BType varargVarType = expr.type;
+            varargVarType = expr.type;
             String varargVarName = DESUGARED_VARARG_KEY + this.varargCount++;
 
             BVarSymbol varargVarSymbol = new BVarSymbol(0, names.fromString(varargVarName), this.env.scope.owner.pkgID,
@@ -5441,21 +5441,74 @@ public class Desugar extends BLangNodeVisitor {
             stmtExpression.type = firstNonRestArg.type;
             iExpr.requiredArgs.add(0, stmtExpression);
 
-            // The original value passed as the vararg has to now be sliced to pass only the args for the rest param,
-            // if there is a rest param.
+            // If there's no rest param, the vararg only provided for required/defaultable params.
             if (invokableSymbol.restParam == null) {
+                restArgs.remove(0);
                 return;
             }
 
+            // If there is a rest param, the vararg could provide for the rest param too.
+            // Create a new array with just the members of the original vararg specified for the rest param.
+            // All the values in the original list passed as a vararg, that were not passed for a
+            // required/defaultable parameter are added to the new array.
+            BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
+            BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
+            DiagnosticPos pos = restArgsExpression.pos;
+
+            BLangArrayLiteral newArrayLiteral = createArrayLiteralExprNode();
+            newArrayLiteral.type = restParamType;
+
+            String name = DESUGARED_VARARG_KEY + this.varargCount++;
+            BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(name), this.env.scope.owner.pkgID,
+                                                  restParamType, this.env.scope.owner);
+            BLangSimpleVarRef arrayVarRef = ASTBuilderUtil.createVariableRef(pos, varSymbol);
+
+            BLangSimpleVariable var = createVariable(pos, name, restParamType, newArrayLiteral, varSymbol);
+            BLangSimpleVariableDef varDef = ASTBuilderUtil.createVariableDef(pos);
+            varDef.var = var;
+            varDef.type = restParamType;
+
             BLangLiteral startIndex = createIntLiteral(invokableSymbol.params.size() - originalRequiredArgCount);
-            BLangInvocation sliceInvocation =
-                    createLangLibInvocationNode(SLICE_LANGLIB_METHOD, varargRef,
-                                                new ArrayList<BLangExpression>() {{
-                                                    add(startIndex);
-                                                }},
-                                                varargRef.type, varargRef.pos);
-            restArgs.remove(0);
-            restArgs.add(addConversionExprIfRequired(sliceInvocation, invokableSymbol.restParam.type));
+            BLangInvocation lengthInvocation = createLengthInvocation(pos, varargRef);
+            BLangInvocation intRangeInvocation = replaceWithIntRange(pos, startIndex,
+                                                                     getModifiedIntRangeEndExpr(lengthInvocation));
+
+            BLangForeach foreach = (BLangForeach) TreeBuilder.createForeachNode();
+            foreach.pos = pos;
+            foreach.collection = intRangeInvocation;
+            types.setForeachTypedBindingPatternType(foreach);
+
+            final BLangSimpleVariable foreachVariable = ASTBuilderUtil.createVariable(pos, "$foreach$i",
+                                                                                      foreach.varType);
+            foreachVariable.symbol = new BVarSymbol(0, names.fromIdNode(foreachVariable.name),
+                                                    this.env.scope.owner.pkgID, foreachVariable.type,
+                                                    this.env.scope.owner);
+            BLangSimpleVarRef foreachVarRef = ASTBuilderUtil.createVariableRef(pos, foreachVariable.symbol);
+            foreach.variableDefinitionNode = ASTBuilderUtil.createVariableDef(pos, foreachVariable);
+            foreach.isDeclaredWithVar = true;
+            BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
+
+            BLangIndexBasedAccess valueExpr = ASTBuilderUtil.createIndexAccessExpr(varargRef, foreachVarRef);
+            valueExpr.type = varargVarType.tag == TypeTags.ARRAY ? ((BArrayType) varargVarType).eType :
+                    symTable.anyType; // Use any for tuple since it's a ref array.
+
+            BLangExpression pushExpr = addConversionExprIfRequired(valueExpr, restParamType.eType);
+            BLangExpressionStmt expressionStmt = createExpressionStmt(pos, foreachBody);
+            BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
+                                                                         new ArrayList<BLangExpression>() {{
+                                                                             add(pushExpr);
+                                                                         }}, restParamType, pos);
+            pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
+            expressionStmt.expr = pushInvocation;
+            foreach.body = foreachBody;
+            BLangBlockStmt newArrayBlockStmt = createBlockStmt(pos);
+            newArrayBlockStmt.addStatement(varDef);
+            newArrayBlockStmt.addStatement(foreach);
+
+            BLangStatementExpression newArrayStmtExpression = createStatementExpression(newArrayBlockStmt, arrayVarRef);
+            newArrayStmtExpression.type = restParamType;
+
+            restArgs.add(addConversionExprIfRequired(newArrayStmtExpression, restParamType));
             return;
         }
 
