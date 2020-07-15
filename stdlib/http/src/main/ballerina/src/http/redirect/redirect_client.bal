@@ -398,19 +398,17 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
         return httpVerb;
     }
     log:printDebug(function() returns string {
-            return "unsupported redirect status code" + statusCode.toString();
-        });
+        return "unsupported redirect status code" + statusCode.toString();
+    });
     return ();
 }
 
-function createRedirectRequest(Request request, boolean allowAuthorizationHeader) returns Request {
-    if (allowAuthorizationHeader) {
+function createRedirectRequest(Request request, boolean allowAuthHeaders) returns Request {
+    if (allowAuthHeaders) {
         return request;
     }
     request.removeHeader(AUTHORIZATION);
-    request.removeHeader("Proxy-Authenticate");
-    request.removeHeader("Proxy-Authorization");
-    request.removeHeader("WWW-Authenticate");
+    request.removeHeader(PROXY_AUTHORIZATION);
     return request;
 }
 

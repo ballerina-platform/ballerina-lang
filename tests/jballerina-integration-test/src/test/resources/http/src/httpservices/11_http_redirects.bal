@@ -261,7 +261,7 @@ service testRedirect on serviceEndpoint3 {
     resource function PostClearText(http:Caller caller, http:Request request) {
         http:Client endPoint4 = new("http://localhost:9103", endPoint4Config );
         http:Request req = new;
-        req.setHeader("proxy-authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
+        req.setHeader("Proxy-Authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
         req.setTextPayload("Payload redirected");
         var response = endPoint4->post("/redirect1/handlePost", req);
         if (response is http:Response) {
@@ -283,7 +283,7 @@ service testRedirect on serviceEndpoint3 {
     }
     resource function testSecurePut(http:Caller caller, http:Request request) {
         http:Request req = new;
-        req.setHeader("proxy-authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
+        req.setHeader("Proxy-Authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
         req.setTextPayload("Secure payload");
         var response = endPoint5->put("/redirect3/handlePost", req);
         if (response is http:Response) {

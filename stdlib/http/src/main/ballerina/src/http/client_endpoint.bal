@@ -380,9 +380,8 @@ public type ClientSecureSocket record {|
 #
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
-# + allowAuthHeaders - By default Authorization, Proxy-Authenticate, Proxy-Authorization and WWW-Authenticate
-#                      headers are removed from the redirect requests. Set it to true if Auth headers are needed
-#                      to be sent during the redirection
+# + allowAuthHeaders - By default Authorization and Proxy-Authorization headers are removed from the redirect requests.
+#                      Set it to true if Auth headers are needed to be sent during the redirection
 public type FollowRedirects record {|
     boolean enabled = false;
     int maxCount = 5;
