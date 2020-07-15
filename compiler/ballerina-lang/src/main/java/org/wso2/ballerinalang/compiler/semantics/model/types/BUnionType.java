@@ -43,15 +43,15 @@ import java.util.stream.Stream;
 public class BUnionType extends BType implements UnionType {
 
     public BIntersectionType immutableType;
-
-    private boolean nullable;
-
-    private LinkedHashSet<BType> memberTypes;
-    private Optional<Boolean> isAnyData = Optional.empty();
-    private Optional<Boolean> isPureType = Optional.empty();
     public boolean resolvingToString = false;
     public boolean resolvingPureData = false;
     public boolean resolvingAnyData = false;
+
+    private boolean nullable;
+    private LinkedHashSet<BType> memberTypes;
+    private Optional<Boolean> isAnyData = Optional.empty();
+    private Optional<Boolean> isPureType = Optional.empty();
+    private boolean iteratingMembers = false; // TODO: not thread safe
 
     protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
@@ -95,10 +95,15 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if (this.resolvingToString) {
+        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
             return this.tsymbol.name.value;
         }
+        // This logic is added to prevent duplicate recursive calls to toString
+        if (this.resolvingToString) {
+            return "T";
+        }
         this.resolvingToString = true;
+
         boolean hasNilType = false;
         StringJoiner joiner = new StringJoiner(getKind().typeName());
         long count = 0L;
@@ -213,7 +218,7 @@ public class BUnionType extends BType implements UnionType {
      *
      * @param types Types to be added to the union.
      */
-    public void addAll(LinkedHashSet<BType> types) {
+    public void addAll(Set<BType> types) {
         types.forEach(this::add);
     }
 

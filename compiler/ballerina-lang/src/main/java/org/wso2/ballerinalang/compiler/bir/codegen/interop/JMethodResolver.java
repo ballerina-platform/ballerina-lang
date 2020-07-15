@@ -497,10 +497,8 @@ class JMethodResolver {
                         return true;
                     }
 
-                    for (BType member : getJSONMemberTypes()) {
-                        if (isValidReturnBType(jType, member, jMethodRequest)) {
-                            return true;
-                        }
+                    if (isValidReturnBType(jType, symbolTable.jsonType, jMethodRequest)) {
+                        return true;
                     }
 
                     return false;
