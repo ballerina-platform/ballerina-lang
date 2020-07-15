@@ -52,7 +52,7 @@ OPTIONS
            function can be grouped using the 'groups' parameter within the
            '@test:Config' annotation.
 
-       --functions <test_function_name, ...>
+       --tests <test_function_name, ...>
            Specifies the test functions to be executed. A specific set of
            test functions can be executed using this command.
 
@@ -106,7 +106,7 @@ EXAMPLES
            $ ballerina test --groups group_x  --all
 
         Run only the given set of functions in current project.
-           $ ballerina test --functions testFunction --all
+           $ ballerina test --tests testFunction --all
 
         Run tests in single bal file.
            $ ballerina test main_test.bal

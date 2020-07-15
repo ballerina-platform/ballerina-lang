@@ -23,6 +23,8 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
+
 /**
  * Test class containing tests related to selective function tests.
  */
@@ -34,14 +36,14 @@ public class SelectedFunctionTest extends BaseTestCase {
     @BeforeClass
     public void setup() throws BallerinaTestException {
         balClient = new BMainInstance(balServer);
-        projectPath = basicTestsProjectPath.toString();
+        projectPath = singleFilesProjectPath.resolve("single-test-execution").toString();
     }
 
     @Test
     public void testSingleFunctionExecution() throws BallerinaTestException {
         String msg = "1 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--functions", "testFunc", "beforeEachAfterEach"},
+        balClient.runMain("test", new String[]{"--tests", "testFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
@@ -50,7 +52,7 @@ public class SelectedFunctionTest extends BaseTestCase {
     public void testDependentFunctionExecution() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--functions", "testFunc2", "beforeEachAfterEach"},
+        balClient.runMain("test", new String[]{"--tests", "testFunc2", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
@@ -59,17 +61,37 @@ public class SelectedFunctionTest extends BaseTestCase {
     public void testMultipleFunctionExecution() throws BallerinaTestException {
         String msg = "2 passing";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--functions", "testFunc,testFunc2",
-                "beforeEachAfterEach"}, null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        balClient.runMain("test", new String[]{"--tests", "testFunc,testFunc2",
+                "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
 
     @Test
     public void testNonExistingFunctionExecution() throws BallerinaTestException {
-        String msg = "No tests found";
+        String msg = "No tests found with the given name/s";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--functions", "nonExistingFunc", "--all"},
+        balClient.runMain("test", new String[]{"--tests", "nonExistingFunc", "single-test-execution.bal"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testDisabledFunctionExecution() throws BallerinaTestException {
+        String msg = "No tests found with the given name/s";
+        LogLeecher clientLeecher = new LogLeecher(msg);
+        balClient.runMain("test", new String[]{"--tests", "testDisabledFunc", "single-test-execution.bal"},
+                null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
+        clientLeecher.waitForText(20000);
+    }
+
+    @Test
+    public void testDependentDisabledFunctionExecution() throws BallerinaTestException {
+        String errMsg = "error: Test [testDependentDisabledFunc] depends on function [testDisabledFunc], " +
+                "but it couldn't be found.";
+        LogLeecher clientLeecher = new LogLeecher(errMsg, ERROR);
+        balClient.runMain("test", new String[]{"--tests", "testDependentDisabledFunc",
+                        "single-test-execution.bal"}, null, new String[]{}, new LogLeecher[]{clientLeecher},
+                projectPath);
         clientLeecher.waitForText(20000);
     }
 }

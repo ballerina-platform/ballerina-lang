@@ -149,8 +149,8 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--home-cache", description = "Custom home cache")
     private String homeCache;
 
-    @CommandLine.Option(names = "--functions", split = ",", description = "Test functions to be executed")
-    private List<String> functionList;
+    @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
+    private List<String> testList;
 
     public void execute() {
         if (this.helpFlag) {
@@ -210,7 +210,7 @@ public class TestCommand implements BLauncherCmd {
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
-        } else if ((groupList != null || disableGroupList != null) && functionList != null) {
+        } else if ((groupList != null || disableGroupList != null) && testList != null) {
             CommandUtil.printError(this.errStream,
                     "Cannot specify --functions flag along with --groups/--disable-groups flags at the same time",
                     "ballerina test --functions <testFunction1, ...> <module-name> | -a | --all",
@@ -220,7 +220,7 @@ public class TestCommand implements BLauncherCmd {
         }
 
         if ((listGroups && disableGroupList != null) || (listGroups && groupList != null) ||
-                (listGroups && functionList != null)) {
+                (listGroups && testList != null)) {
             CommandUtil.printError(this.errStream,
                     "Cannot specify both --list-groups and --disable-groups/--groups/--functions flags at the " +
                             "same time",
@@ -397,7 +397,7 @@ public class TestCommand implements BLauncherCmd {
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
                 // run tests
-                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, functionList),
+                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, testList),
                         listGroups)
                 .build();
 
