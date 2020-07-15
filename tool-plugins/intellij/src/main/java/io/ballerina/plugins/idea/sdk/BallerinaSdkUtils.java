@@ -45,7 +45,6 @@ import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.util.Function;
 import com.intellij.util.ObjectUtils;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.configuration.BallerinaProjectSettings;
 import io.ballerina.plugins.idea.preloading.BallerinaCmdException;
 import io.ballerina.plugins.idea.preloading.OSUtils;
@@ -64,6 +63,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import static com.intellij.util.containers.ContainerUtil.newLinkedHashSet;
@@ -75,8 +75,9 @@ import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_EXEC_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_HOME_CMD;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_NAME;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_LS_LAUNCHER_PATH;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_NEW_VERSION_FILE_PATH;
 import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_PLUGIN_ID;
-import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_PATTERN;
+import static io.ballerina.plugins.idea.BallerinaConstants.BALLERINA_VERSION_FILE_PATH;
 import static io.ballerina.plugins.idea.preloading.OSUtils.MAC;
 import static io.ballerina.plugins.idea.preloading.OSUtils.UNIX;
 import static io.ballerina.plugins.idea.preloading.OSUtils.WINDOWS;
@@ -89,6 +90,13 @@ public class BallerinaSdkUtils {
     private static final Logger LOG = Logger.getInstance(BallerinaSdkUtils.class);
     private static final Key<String> VERSION_DATA_KEY = Key.create("BALLERINA_VERSION_KEY");
 
+    // Sem-var compatible version pattern prior to Swan Lake release.
+    public static final Pattern BALLERINA_OLD_VERSION_PATTERN = Pattern.compile("(\\d+\\.\\d+(\\.\\d+)?(-.+)?)");
+
+    // Swan lake release version constants.
+    public static final Pattern BALLERINA_SWANLAKE_VERSION_PATTERN = Pattern.compile("(swan[-_]?lake)");
+    private static final String BALLERINA_SWAN_LAKE_VERSION_TEXT = "2.0.0-SwanLake";
+
     private static final String INSTALLER_PATH_UNIX = "/usr/bin/ballerina";
     private static final String INSTALLER_PATH_MAC = "/etc/paths.d/ballerina";
     private static final String HOMEBREW_PATH_MAC = "/usr/local/bin/ballerina";
@@ -96,7 +104,6 @@ public class BallerinaSdkUtils {
     private static final String INSTALLER_PATH_WINDOWS = "C:\\Program Files\\Ballerina\\ballerina";
 
     private BallerinaSdkUtils() {
-
     }
 
     @Nullable
@@ -151,16 +158,14 @@ public class BallerinaSdkUtils {
             VirtualFile sdkRoot = VirtualFileManager.getInstance().findFileByUrl(VfsUtilCore.pathToUrl(sdkPath));
             if (sdkRoot != null) {
                 String cachedVersion = sdkRoot.getUserData(VERSION_DATA_KEY);
-                if (cachedVersion != null) {
-                    return !cachedVersion.isEmpty() ? cachedVersion : null;
+                if (!stringIsNullOrEmpty(cachedVersion)) {
+                    return cachedVersion;
                 }
 
-                VirtualFile versionFile = sdkRoot.findFileByRelativePath(
-                        BallerinaConstants.BALLERINA_VERSION_FILE_PATH);
+                VirtualFile versionFile = sdkRoot.findFileByRelativePath(BALLERINA_VERSION_FILE_PATH);
                 if (versionFile == null) {
                     VfsRootAccess.allowRootAccess();
-                    versionFile = sdkRoot.findFileByRelativePath(
-                            BallerinaConstants.BALLERINA_NEW_VERSION_FILE_PATH);
+                    versionFile = sdkRoot.findFileByRelativePath(BALLERINA_NEW_VERSION_FILE_PATH);
                 }
                 // Please note that if the above versionFile is null, we can check on other locations as well.
                 if (versionFile != null) {
@@ -207,9 +212,15 @@ public class BallerinaSdkUtils {
 
     @Nullable
     public static String parseBallerinaVersion(@NotNull String text) {
-        Matcher matcher = BALLERINA_VERSION_PATTERN.matcher(text);
+        // Checks for versions prior to Swan Lake release.
+        Matcher matcher = BALLERINA_OLD_VERSION_PATTERN.matcher(text);
         if (matcher.find()) {
             return matcher.group(1);
+        }
+        // Checks for swan lake specific version patterns.
+        Matcher swanLakeMatcher = BALLERINA_SWANLAKE_VERSION_PATTERN.matcher(text);
+        if (swanLakeMatcher.find()) {
+            return BALLERINA_SWAN_LAKE_VERSION_TEXT;
         }
         return null;
     }
