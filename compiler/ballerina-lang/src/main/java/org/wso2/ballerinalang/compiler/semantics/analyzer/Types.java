@@ -208,17 +208,98 @@ public class Types {
         return type.tag == TypeTags.JSON;
     }
 
+    private boolean isJSONType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType bUnionType = (BUnionType) type;
+            if (isSameType(symTable.jsonType, type)) {
+                return true;
+            }
+            return false;
+        }
+        return type.tag == TypeTags.JSON;
+    }
+
+    private boolean isAnydataType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType bUnionType = (BUnionType) type;
+            if (isSameType(symTable.anydataType, type)) {
+                return true;
+            }
+            return false;
+        }
+        return type.tag == TypeTags.ANYDATA;
+    }
+
     public boolean isLax(BType type) {
+        Set<BType> visited = new HashSet<>();
+        int result = isLaxType(type, visited);
+        if (result == 1) {
+            return true;
+        }
+        return false;
+    }
+
+    public int isLaxType(BType type, Set<BType> visited) {
+        if (!visited.add(type)) {
+            return -1;
+        }
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
+                return 1;
+            case TypeTags.MAP:
+                return isLaxType(((BMapType) type).constraint, visited);
+            case TypeTags.UNION:
+                if (isSameType(type, symTable.jsonType)) {
+                    visited.add(type);
+                    return 1;
+                }
+                boolean atleastOneLaxType = false;
+                for (BType member : ((BUnionType) type).getMemberTypes()) {
+                    int result = isLaxType(member, visited);
+                    if (result == -1) {
+                        continue;
+                    }
+                    if (result == 0) {
+                        return 0;
+                    }
+                    atleastOneLaxType = true;
+                }
+                return atleastOneLaxType? 1 : 0;
+        }
+        return 0;
+    }
+
+    public boolean isLaxType(BType type, Map<BType, Boolean> visited) {
+        if (visited.containsKey(type)) {
+            return visited.get(type);
+        }
+        switch (type.tag) {
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
+                visited.put(type, true);
                 return true;
             case TypeTags.MAP:
-                return isLax(((BMapType) type).constraint);
+                boolean result = isLaxType(((BMapType) type).constraint, visited);
+                visited.put(type, result);
+                return result;
             case TypeTags.UNION:
-                return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isLax);
-        }
+                if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
+                    visited.put(type, true);
+                    return true;
+                }
+                for (BType member : ((BUnionType) type).getMemberTypes()) {
+                    if (!isLaxType(member, visited)) {
+                        visited.put(type, false);
+                        return false;
+                    }
+                }
+                visited.put(type, true);
+                return true;
+            }
+        visited.put(type, false);
         return false;
     }
 
@@ -611,8 +692,14 @@ public class Types {
             return true;
         }
 
-        if (targetTag == TypeTags.ANYDATA && !containsErrorType(source) && source.isAnydata()) {
-            return true;
+        if (isAnydataType(target) && !containsErrorType(source) && source.isAnydata()) {
+            if (source.isAnydata()) {
+                return true;
+            }
+            if (isAnydataType(source)) {
+                return true;
+            }
+            return false;
         }
 
         if (targetTag == TypeTags.READONLY &&
@@ -2380,6 +2467,11 @@ public class Types {
     private boolean isAssignableToUnionType(BType source, BType target, Set<TypePair> unresolvedTypes) {
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
+
+        TypePair pair = new TypePair(source, target);
+        if (!unresolvedTypes.add(pair)) {
+            return true;
+        }
 
         if (source.tag == TypeTags.UNION) {
             sourceTypes.addAll(getEffectiveMemberTypes((BUnionType) source));
