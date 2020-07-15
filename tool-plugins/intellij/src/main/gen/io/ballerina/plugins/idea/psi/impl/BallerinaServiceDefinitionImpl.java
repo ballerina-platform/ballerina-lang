@@ -44,14 +44,14 @@ public class BallerinaServiceDefinitionImpl extends ASTWrapperPsiElement impleme
 
   @Override
   @Nullable
-  public BallerinaExpressionList getExpressionList() {
-    return findChildByClass(BallerinaExpressionList.class);
+  public BallerinaRecoverableAttachmentContent getRecoverableAttachmentContent() {
+    return findChildByClass(BallerinaRecoverableAttachmentContent.class);
   }
 
   @Override
   @Nullable
-  public BallerinaServiceBody getServiceBody() {
-    return findChildByClass(BallerinaServiceBody.class);
+  public BallerinaServiceDefinitionBody getServiceDefinitionBody() {
+    return findChildByClass(BallerinaServiceDefinitionBody.class);
   }
 
   @Override
