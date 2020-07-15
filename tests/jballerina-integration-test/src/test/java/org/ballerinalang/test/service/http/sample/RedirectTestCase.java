@@ -129,7 +129,8 @@ public class RedirectTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                                                                                          "service1/doPost"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Received:Payload redirected:http://localhost:9102/redirect2/echo",
+        Assert.assertEquals(response.getData(),
+                            "Received:Payload redirected:Proxy:http://localhost:9102/redirect2/echo",
                             "Incorrect resolvedRequestedURI");
     }
 
@@ -138,7 +139,7 @@ public class RedirectTestCase extends HttpBaseTest {
         HttpResponse response = HttpClientRequest.doGet(serverInstance.getServiceURLHttp(servicePort,
                                                                                          "service1/doSecurePut"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Received:Secure payload:http://localhost:9102/redirect2/echo",
+        Assert.assertEquals(response.getData(), "Received:Secure payload:No Proxy:http://localhost:9102/redirect2/echo",
                             "Incorrect resolvedRequestedURI");
     }
 

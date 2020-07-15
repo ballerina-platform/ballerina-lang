@@ -349,7 +349,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
-        HttpResponse|ClientError result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+        HttpResponse|ClientError result = invokeEndpoint("",
+            createRedirectRequest(request, redirectClient.redirectConfig.allowAuthHeaders),
             redirectMethod, retryClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
@@ -402,11 +403,14 @@ function getRedirectMethod(HttpOperation httpVerb, Response response) returns Ht
     return ();
 }
 
-function createRedirectRequest(int statusCode, Request request) returns Request {
-    if (statusCode == STATUS_SEE_OTHER) {
-        request.removeHeader(TRANSFER_ENCODING);
-        request.removeHeader(CONTENT_LENGTH);
+function createRedirectRequest(Request request, boolean allowAuthorizationHeader) returns Request {
+    if (allowAuthorizationHeader) {
+        return request;
     }
+    request.removeHeader(AUTHORIZATION);
+    request.removeHeader("Proxy-Authenticate");
+    request.removeHeader("Proxy-Authorization");
+    request.removeHeader("WWW-Authenticate");
     return request;
 }
 

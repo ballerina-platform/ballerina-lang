@@ -375,12 +375,18 @@ public type ClientSecureSocket record {|
 |};
 
 # Provides configurations for controlling the endpoint's behaviour in response to HTTP redirect related responses.
+# The response status codes of 301, 302, and 303 are redirected using a GET request while 300, 305, 307, and 308
+# status codes use the original request HTTP method during redirection.
 #
 # + enabled - Enable/disable redirection
 # + maxCount - Maximum number of redirects to follow
+# + allowAuthHeaders - By default Authorization, Proxy-Authenticate, Proxy-Authorization and WWW-Authenticate
+#                      headers are removed from the redirect requests. Set it to true if Auth headers are needed
+#                      to be sent during the redirection
 public type FollowRedirects record {|
     boolean enabled = false;
     int maxCount = 5;
+    boolean allowAuthHeaders = false;
 |};
 
 # Proxy server configurations to be used with the HTTP client endpoint.

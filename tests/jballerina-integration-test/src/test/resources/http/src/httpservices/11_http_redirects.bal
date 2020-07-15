@@ -46,6 +46,10 @@ http:ClientConfiguration endPoint3Config = {
     followRedirects: { enabled: true }
 };
 
+http:ClientConfiguration endPoint4Config = {
+    followRedirects: { enabled: true, allowAuthHeaders : true }
+};
+
 http:ClientConfiguration endPoint5Config = {
     followRedirects: { enabled: true },
     secureSocket: {
@@ -56,6 +60,12 @@ http:ClientConfiguration endPoint5Config = {
     }
 };
 
+http:Client endPoint1 = new("http://localhost:9103", endPoint1Config );
+http:Client endPoint2 = new("http://localhost:9103", endPoint2Config );
+http:Client endPoint3 = new("http://localhost:9102", endPoint3Config );
+http:Client endPoint4 = new("http://localhost:9103");
+http:Client endPoint5 = new("https://localhost:9104", endPoint5Config );
+
 @http:ServiceConfig {
     basePath: "/service1"
 }
@@ -65,7 +75,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/"
     }
     resource function redirectClient(http:Caller caller, http:Request req) {
-        http:Client endPoint1 = new("http://localhost:9103", endPoint1Config );
         var response = endPoint1->get("/redirect1");
         http:Response finalResponse = new;
         if (response is http:Response) {
@@ -81,7 +90,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/maxRedirect"
     }
     resource function maxRedirectClient(http:Caller caller, http:Request req) {
-        http:Client endPoint1 = new("http://localhost:9103", endPoint1Config );
         var response = endPoint1->get("/redirect1/round1");
         if (response is http:Response) {
             string value = "";
@@ -100,7 +108,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/crossDomain"
     }
     resource function crossDomain(http:Caller caller, http:Request req) {
-        http:Client endPoint2 = new("http://localhost:9103", endPoint2Config );
         var response = endPoint2->get("/redirect1/round1");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -120,7 +127,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/noRedirect"
     }
     resource function NoRedirect(http:Caller caller, http:Request req) {
-        http:Client endPoint3 = new("http://localhost:9102", endPoint3Config );
         var response = endPoint3->get("/redirect2");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -140,7 +146,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/qpWithRelativePath"
     }
     resource function qpWithRelativePath(http:Caller caller, http:Request req) {
-        http:Client endPoint2 = new("http://localhost:9103", endPoint2Config );
         var response = endPoint2->get("/redirect1/qpWithRelativePath");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -160,7 +165,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/qpWithAbsolutePath"
     }
     resource function qpWithAbsolutePath(http:Caller caller, http:Request req) {
-        http:Client endPoint2 = new("http://localhost:9103", endPoint2Config );
         var response = endPoint2->get("/redirect1/qpWithAbsolutePath");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -180,7 +184,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/originalRequestWithQP"
     }
     resource function originalRequestWithQP(http:Caller caller, http:Request req) {
-        http:Client endPoint2 = new("http://localhost:9103", endPoint2Config );
         var response = endPoint2->get("/redirect1/round4?key=value&lang=ballerina");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -200,7 +203,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/test303"
     }
     resource function test303(http:Caller caller, http:Request req) {
-        http:Client endPoint3 = new("http://localhost:9102", endPoint3Config );
         var response = endPoint3->post("/redirect2/test303", "Test value!");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -220,7 +222,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/redirectOff"
     }
     resource function redirectOff(http:Caller caller, http:Request req) {
-        http:Client endPoint4 = new("http://localhost:9103");
         var response = endPoint4->get("/redirect1/round1");
         if (response is http:Response) {
             string value = "";
@@ -239,7 +240,6 @@ service testRedirect on serviceEndpoint3 {
         path: "/httpsRedirect"
     }
     resource function redirectWithHTTPs(http:Caller caller, http:Request req) {
-        http:Client endPoint5 = new("https://localhost:9104", endPoint5Config );
         var response = endPoint5->get("/redirect3");
         if (response is http:Response) {
             var value = response.getTextPayload();
@@ -258,9 +258,12 @@ service testRedirect on serviceEndpoint3 {
         methods: ["GET"],
         path: "/doPost"
     }
-    resource function PostClearText(http:Caller caller, http:Request req) {
-        http:Client endPoint3 = new("http://localhost:9103", endPoint3Config );
-        var response = endPoint3->post("/redirect1/handlePost", "Payload redirected");
+    resource function PostClearText(http:Caller caller, http:Request request) {
+        http:Client endPoint4 = new("http://localhost:9103", endPoint4Config );
+        http:Request req = new;
+        req.setHeader("proxy-authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
+        req.setTextPayload("Payload redirected");
+        var response = endPoint4->post("/redirect1/handlePost", req);
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
@@ -278,9 +281,11 @@ service testRedirect on serviceEndpoint3 {
         methods: ["GET"],
         path: "/doSecurePut"
     }
-    resource function testSecurePut(http:Caller caller, http:Request req) {
-        http:Client endPoint5 = new("https://localhost:9104", endPoint5Config );
-        var response = endPoint5->put("/redirect3/handlePost", "Secure payload");
+    resource function testSecurePut(http:Caller caller, http:Request request) {
+        http:Request req = new;
+        req.setHeader("proxy-authorization", "Basic YWxhZGRpbjpvcGVuc2VzYW1l");
+        req.setTextPayload("Secure payload");
+        var response = endPoint5->put("/redirect3/handlePost", req);
         if (response is http:Response) {
             var value = response.getTextPayload();
             if (value is string) {
@@ -300,7 +305,6 @@ service testRedirect on serviceEndpoint3 {
     }
     resource function PostMultipart(http:Caller caller, http:Request req) {
         http:Client endPoint3 = new("http://localhost:9103", endPoint3Config );
-
         mime:Entity jsonBodyPart = new;
         jsonBodyPart.setContentDisposition(getContentDisposition("json part"));
         jsonBodyPart.setJson({"name": "wso2"});
@@ -452,9 +456,16 @@ service redirect2 on serviceEndpoint2 {
         methods: ["POST", "PUT"]
     }
     resource function echo(http:Caller caller, http:Request req) {
+        string hasAuthHeader = "No Proxy";
+        if (req.hasHeader("Proxy-Authorization")) {
+            hasAuthHeader = "Proxy";
+        }
+
+
+
         var value = req.getTextPayload();
         if (value is string) {
-            value = "Received:" + value;
+            value = "Received:" + value + ":" + hasAuthHeader;
             checkpanic caller->respond(<@untainted> value);
         } else {
             http:Response res = new;
