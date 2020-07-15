@@ -258,4 +258,25 @@ service cookie on new http:Listener(9253) {
             var result = caller->respond(res);
         }
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/cookieBackend_13"
+   }
+    resource function validateCookie(http:Caller caller, http:Request req) {
+        http:Cookie[] reqstCookies=req.getCookies();
+        string meesage = "Valid cookies: ";
+        string output = "";
+        foreach http:Cookie cookie in  reqstCookies {
+            var value = cookie.value;
+            var name = cookie.name;
+            if (value is string && name is string) {
+                meesage = meesage.concat(name, "=", value , ",");
+            }
+        }
+        http:Response res = new;
+        output = meesage.substring(0, meesage.length() - 2);
+        res.setPayload(<@untainted> output);
+        var result = caller->respond(res);
+    }
 }
