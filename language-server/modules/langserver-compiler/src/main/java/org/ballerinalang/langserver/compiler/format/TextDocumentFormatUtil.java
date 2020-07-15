@@ -422,10 +422,10 @@ public class TextDocumentFormatUtil {
     }
 
     /**
-     * Get Type info of the node
+     * Get Type info of the node.
      *
      * @param node Node to get the types
-     * @return {@link JsonArray}    Converted array value
+     * @return {@link JsonObject} TypeInfo object.
      */
     public static JsonObject getTypeInfo(Node node) {
         if (!(node instanceof BLangNode)) {
