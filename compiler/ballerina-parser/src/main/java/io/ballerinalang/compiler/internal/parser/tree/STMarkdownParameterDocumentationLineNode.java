@@ -17,9 +17,9 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.ParameterDocumentationLineNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.Collection;
@@ -30,14 +30,14 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STParameterDocumentationLineNode extends STDocumentationNode {
+public class STMarkdownParameterDocumentationLineNode extends STDocumentationNode {
     public final STNode hashToken;
     public final STNode plusToken;
     public final STNode parameterName;
     public final STNode minusToken;
     public final STNode documentElements;
 
-    STParameterDocumentationLineNode(
+    STMarkdownParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -54,7 +54,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
                 Collections.emptyList());
     }
 
-    STParameterDocumentationLineNode(
+    STMarkdownParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -78,7 +78,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STParameterDocumentationLineNode(
+        return new STMarkdownParameterDocumentationLineNode(
                 this.kind,
                 this.hashToken,
                 this.plusToken,
@@ -88,7 +88,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
                 diagnostics);
     }
 
-    public STParameterDocumentationLineNode modify(
+    public STMarkdownParameterDocumentationLineNode modify(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -104,7 +104,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
             return this;
         }
 
-        return new STParameterDocumentationLineNode(
+        return new STMarkdownParameterDocumentationLineNode(
                 kind,
                 hashToken,
                 plusToken,
@@ -115,7 +115,7 @@ public class STParameterDocumentationLineNode extends STDocumentationNode {
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new ParameterDocumentationLineNode(this, position, parent);
+        return new MarkdownParameterDocumentationLineNode(this, position, parent);
     }
 
     @Override
