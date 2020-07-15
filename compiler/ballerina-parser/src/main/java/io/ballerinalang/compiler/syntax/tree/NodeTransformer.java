@@ -332,10 +332,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(namedWorkerDeclarator);
     }
 
-    public T transform(DocumentationStringNode documentationStringNode) {
-        return transformSyntaxNode(documentationStringNode);
-    }
-
     public T transform(BasicLiteralNode basicLiteralNode) {
         return transformSyntaxNode(basicLiteralNode);
     }
@@ -784,16 +780,20 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(namedArgMatchPatternNode);
     }
 
-    public T transform(ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        return transformSyntaxNode(parameterDocumentationLineNode);
+    public T transform(MarkdownDocumentationNode markdownDocumentationNode) {
+        return transformSyntaxNode(markdownDocumentationNode);
+    }
+
+    public T transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        return transformSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public T transform(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        return transformSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public T transform(DocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
-    }
-
-    public T transform(DocumentationLineNode documentationLineNode) {
-        return transformSyntaxNode(documentationLineNode);
     }
 
     // Tokens
