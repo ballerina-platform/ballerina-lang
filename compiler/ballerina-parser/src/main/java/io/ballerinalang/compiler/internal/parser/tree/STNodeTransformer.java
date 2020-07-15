@@ -321,10 +321,6 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(namedWorkerDeclarator);
     }
 
-    public T transform(STDocumentationStringNode documentationStringNode) {
-        return transformSyntaxNode(documentationStringNode);
-    }
-
     public T transform(STBasicLiteralNode basicLiteralNode) {
         return transformSyntaxNode(basicLiteralNode);
     }
@@ -589,6 +585,14 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
+    public T transform(STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        return transformSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public T transform(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        return transformSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public T transform(STAsyncSendActionNode asyncSendActionNode) {
         return transformSyntaxNode(asyncSendActionNode);
     }
@@ -739,6 +743,46 @@ public abstract class STNodeTransformer<T> {
 
     public T transform(STOnClauseNode onClauseNode) {
         return transformSyntaxNode(onClauseNode);
+    }
+
+    public T transform(STListMatchPatternNode listMatchPatternNode) {
+        return transformSyntaxNode(listMatchPatternNode);
+    }
+
+    public T transform(STRestMatchPatternNode restMatchPatternNode) {
+        return transformSyntaxNode(restMatchPatternNode);
+    }
+
+    public T transform(STMappingMatchPatternNode mappingMatchPatternNode) {
+        return transformSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public T transform(STFieldMatchPatternNode fieldMatchPatternNode) {
+        return transformSyntaxNode(fieldMatchPatternNode);
+    }
+
+    public T transform(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
+    }
+
+    public T transform(STMarkdownDocumentationNode markdownDocumentationNode) {
+        return transformSyntaxNode(markdownDocumentationNode);
+    }
+
+    public T transform(STMarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        return transformSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public T transform(STMarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        return transformSyntaxNode(markdownParameterDocumentationLineNode);
+    }
+
+    public T transform(STDocumentationReferenceNode documentationReferenceNode) {
+        return transformSyntaxNode(documentationReferenceNode);
     }
 
     // Tokens

@@ -127,4 +127,4 @@ Samples for this operation can be found below.
 email:Email|email:Error emailResponse = imapClient->read();
 ```
 
-For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operation, see the [Send and Receive Emails Example](https://ballerina.io/learn/by-example/send-and-receive-emails.html).
+For information on the operations, which you can perform with this module, see the below **Functions**. For examples on the usage of the operation, see the [Send and Receive Emails Example](https://ballerina.io/swan-lake/learn/by-example/send-and-receive-emails.html).

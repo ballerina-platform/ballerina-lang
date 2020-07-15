@@ -17,36 +17,51 @@
 package org.ballerinalang.debugadapter.variable.types;
 
 import com.sun.jdi.Value;
-import com.sun.tools.jdi.ObjectReferenceImpl;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getFieldValue;
+import static org.ballerinalang.debugadapter.variable.VariableUtils.getStringValue;
 
 /**
  * Ballerina xml variable type.
  */
 public class BXmlItem extends BCompoundVariable {
 
-    private final ObjectReferenceImpl jvmValueRef;
+    private static final String FIELD_CHILDREN = "children";
+    private static final String FIELD_ATTRIBUTES = "attributes";
 
-    public BXmlItem(Value value, Variable dapVariable) {
-        this.jvmValueRef = value instanceof ObjectReferenceImpl ? (ObjectReferenceImpl) value : null;
-        dapVariable.setType(BVariableType.XML.getString());
-        dapVariable.setValue(this.getValue());
-        this.setDapVariable(dapVariable);
-        this.computeChildVariables();
+    public BXmlItem(VariableContext context, Value value, Variable dapVariable) {
+        super(context, BVariableType.XML, value, dapVariable);
     }
 
     @Override
-    public String getValue() {
-        return jvmValueRef.toString();
+    public String computeValue() {
+        try {
+            return getStringValue(context, jvmValue);
+        } catch (Exception ignored) {
+            return UNKNOWN_VALUE;
+        }
     }
 
     @Override
-    public void computeChildVariables() {
-        // Todo
-        this.setChildVariables(new HashMap<>());
+    public Map<String, Value> computeChildVariables() {
+        Map<String, Value> childMap = new HashMap<>();
+        try {
+            Optional<Value> children = getFieldValue(jvmValue, FIELD_CHILDREN);
+            Optional<Value> attributes = getFieldValue(jvmValue, FIELD_ATTRIBUTES);
+            children.ifPresent(value -> childMap.put(FIELD_CHILDREN, value));
+            attributes.ifPresent(value -> childMap.put(FIELD_ATTRIBUTES, value));
+            return childMap;
+        } catch (Exception e) {
+            return childMap;
+        }
     }
 }

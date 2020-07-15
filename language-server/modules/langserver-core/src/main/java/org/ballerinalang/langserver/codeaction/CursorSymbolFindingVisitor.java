@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -47,7 +47,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -62,15 +61,18 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
     private Predicate<DiagnosticPos> isWithinNode;
 
-    public CursorSymbolFindingVisitor(LSContext lsContext, String pkgName, boolean currentCUnitMode) {
-        super(lsContext, pkgName, currentCUnitMode);
+    public CursorSymbolFindingVisitor(Token tokenAtCursor,
+                                      LSContext lsContext, String pkgName, boolean currentCUnitMode) {
+        super(lsContext, tokenAtCursor, pkgName, currentCUnitMode);
         this.lsContext = lsContext;
 
         Boolean bDoNotSkipNullSymbols = lsContext.get(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS);
         this.doNotSkipNullSymbols = (bDoNotSkipNullSymbols == null) ? false : bDoNotSkipNullSymbols;
 
-        this.symbolReferences = lsContext.get(ReferencesKeys.REFERENCES_KEY);
-        this.tokenName = lsContext.get(NodeContextKeys.NODE_NAME_KEY);
+        this.symbolReferences = new SymbolReferencesModel();
+        lsContext.put(ReferencesKeys.REFERENCES_KEY, this.symbolReferences);
+
+        this.tokenName = tokenAtCursor.text();
         TextDocumentPositionParams position = lsContext.get(DocumentServiceKeys.POSITION_KEY);
         if (position == null) {
             throw new IllegalStateException("Position information not available in the Operation Context");
@@ -88,13 +90,13 @@ public class CursorSymbolFindingVisitor extends SymbolReferenceFindingVisitor {
 
     @Override
     protected void addSymbol(BLangNode bLangNode, BSymbol bSymbol, boolean isDefinition, DiagnosticPos position) {
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
+        SymbolReferencesModel.Reference symbolAtCursor = this.symbolReferences.getReferenceAtCursor();
         // Here, tsymbol check has been added in order to support the finite types
         // TODO: Handle finite type. After the fix check if it falsely capture symbols in other files with same name
         if (bSymbol == null && !this.doNotSkipNullSymbols) {
             return;
         }
-        if (symbolAtCursor.isPresent()) {
+        if (symbolAtCursor != null) {
             return;
         }
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(position);

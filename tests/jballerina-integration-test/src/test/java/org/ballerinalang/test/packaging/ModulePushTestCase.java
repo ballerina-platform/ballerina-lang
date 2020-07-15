@@ -31,6 +31,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
+
 /**
  * Testing pushing a module from central by specifying the access token as an environment variable.
  *
@@ -92,7 +94,7 @@ public class ModulePushTestCase extends BaseTest {
      * @return env directory variable array
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         envVariables.put("BALLERINA_CENTRAL_ACCESS_TOKEN", PackerinaTestUtils.getToken());
         return envVariables;
     }

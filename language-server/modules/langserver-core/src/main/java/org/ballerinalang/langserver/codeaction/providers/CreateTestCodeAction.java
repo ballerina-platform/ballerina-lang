@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Command;
@@ -90,7 +91,7 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
             }
             return actions;
 
-        } catch (CompilationFailedException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException e) {
             // ignore
         }
         return null;
@@ -108,7 +109,7 @@ public class CreateTestCodeAction extends AbstractCodeActionProvider {
 
     private static boolean isTopLevelNode(String uri, WorkspaceDocumentManager docManager, LSContext context,
                                           Position pos)
-            throws CompilationFailedException, WorkspaceDocumentException {
+            throws CompilationFailedException, WorkspaceDocumentException, TokenOrSymbolNotFoundException {
         LSDocumentIdentifier lsDocument = docManager.getLSDocument(CommonUtil.getPathFromURI(uri).get());
         context.put(ReferencesKeys.OFFSET_CURSOR_N_TRY_NEXT_BEST, true);
         SymbolReferencesModel.Reference refAtCursor = ReferencesUtil.getReferenceAtCursor(context, lsDocument, pos);

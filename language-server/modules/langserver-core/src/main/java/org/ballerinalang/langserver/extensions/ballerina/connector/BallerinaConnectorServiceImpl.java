@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
@@ -52,6 +51,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -61,7 +61,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -139,7 +138,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         JsonElement ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                 request.getVersion(), request.getName());
-
+        String error = "";
         if (ast == null) {
             try {
                 Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
@@ -214,14 +213,15 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
                 ast = connectorCache.getConnectorConfig(request.getOrg(), request.getModule(),
                         request.getVersion(), request.getName());
-            } catch (UnsupportedEncodingException | LSStdlibCacheException | LSConnectorException e) {
+            } catch (Exception e) {
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
+                error = e.getMessage();
                 logError(msg, e, null, (Position) null);
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
-                request.getVersion(), request.getName(), request.getDisplayName() , ast);
+                request.getVersion(), request.getName(), request.getDisplayName(), ast, error);
         return CompletableFuture.supplyAsync(() -> response);
     }
 
@@ -242,6 +242,12 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 connectorRecords.put(recordName, jsonRecords.get(recordName));
                 ((RecordTypeNode) recordNode.getTypeNode()).getFields().forEach(f -> {
                             populateConnectorRecords(((BLangVariable) f).type, records, jsonRecords, connectorRecords);
+                        }
+                );
+
+                ((RecordTypeNode) recordNode.getTypeNode()).getTypeReferences().forEach(r -> {
+                            populateConnectorRecords(((BLangUserDefinedType) r).type, records,
+                                    jsonRecords, connectorRecords);
                         }
                 );
             }

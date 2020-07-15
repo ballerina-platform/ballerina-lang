@@ -244,7 +244,6 @@ function testTrxHandlers() returns string {
     return ss;
 }
 
-
 function testWithinTrxMode() returns string {
     string ss;
     transactions:Info transInfo;

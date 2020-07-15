@@ -36,13 +36,14 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class QueryExprWithQueryConstructTypeTest {
 
-    private CompileResult result;
-    private CompileResult negativeResult;
+    private CompileResult result, negativeResult, semanticsNegativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/query-expr-with-query-construct-type.bal");
         negativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-negative.bal");
+        semanticsNegativeResult = BCompileUtil.compile("test-src/query/query-expr-query-construct-type-semantics" +
+                "-negative.bal");
     }
 
     @Test(description = "Test query expr returning a stream ")
@@ -181,5 +182,13 @@ public class QueryExprWithQueryConstructTypeTest {
                 91, 21);
         validateError(negativeResult, index, "type 'error' not allowed here; expected " +
                 "an 'error' or a subtype of 'error'.", 91, 21);
+    }
+
+    @Test(description = "Test semantic negative scenarios for query expr with query construct type")
+    public void testSemanticNegativeScenarios() {
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 1);
+        validateError(semanticsNegativeResult, 0, "on conflict can only be used with queries which produce tables " +
+                        "with key specifiers",
+                39, 13);
     }
 }
