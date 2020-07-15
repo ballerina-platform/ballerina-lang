@@ -61,11 +61,11 @@ public type InboundOAuth2Provider object {
         IntrospectionResponse|Error validationResult = validateOAuth2Token(credential, self.introspectionServerConfig);
         if (validationResult is IntrospectionResponse) {
             if (validationResult.active) {
-                auth:setAuthInvocationContext("oauth2", credential, validationResult?.username,
+                auth:setInvocationContext("oauth2", credential, validationResult?.username,
                                         getScopes(validationResult?.scopes));
                 map<json>|error introspectionResponseMap = validationResult.cloneWithType(JsonMap);
                 if (introspectionResponseMap is map<json>) {
-                    auth:setAuthInvocationContext(claims = introspectionResponseMap);
+                    auth:setInvocationContext(claims = introspectionResponseMap);
                 }
             }
             return validationResult.active;

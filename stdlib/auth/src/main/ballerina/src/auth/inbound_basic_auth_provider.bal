@@ -84,7 +84,7 @@ public type InboundBasicAuthProvider object {
         }
         if (authenticated) {
             string[] scopes = getScopes(username, self.basicAuthConfig.tableName);
-            setAuthInvocationContext("basic", credential, username, scopes);
+            setInvocationContext("basic", credential, username, scopes);
         }
         return authenticated;
     }

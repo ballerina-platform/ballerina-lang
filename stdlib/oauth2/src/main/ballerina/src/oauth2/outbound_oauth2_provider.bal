@@ -94,7 +94,7 @@ public type OutboundOAuth2Provider object {
             if (authToken is string) {
                 return authToken;
             }
-            return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and auth token is not defined in the authentication context at invocation context.");
+            return prepareAuthError("Failed to generate OAuth2 token since OAuth2 provider config is not defined and OAuth2 token is not defined at auth:InvocationContext.");
         } else {
             string|Error authToken = generateOAuth2Token(oauth2ProviderConfig, self.oauth2CacheEntry);
             if (authToken is string) {
