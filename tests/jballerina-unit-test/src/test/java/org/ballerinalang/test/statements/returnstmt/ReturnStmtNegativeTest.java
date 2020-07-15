@@ -46,7 +46,8 @@ public class ReturnStmtNegativeTest {
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
         Assert.assertEquals(result.getErrorCount(), 3);
-        BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string,int]', found 'string'", 2, 12);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string,int]', found 'string'", 2,
+                12);
         BAssertUtil.validateError(result, 1, "invalid token '\"sameera\"'", 2, 31);
         BAssertUtil.validateError(result, 2, "invalid token ','", 2, 31);
     }
