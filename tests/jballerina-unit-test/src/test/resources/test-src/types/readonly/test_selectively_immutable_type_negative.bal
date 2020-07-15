@@ -234,13 +234,14 @@ function testInvalidMemberWithConstructorReadOnlyCast() {
 }
 
 function testInvalidValueForEffectiveReadOnlyCast() {
-    NeverImmutable|map<int> w = <readonly> {x: start getInt()};
+    future<int> f = start getInt();
+    NeverImmutable|map<int> w = <readonly> {x: f};
 
-    float[] f = [11.2, 12.122];
-    stream<float> str = f.toStream();
-    string[]|stream<float>[] x = <readonly> [str, f.toStream()];
+    float[] a = [11.2, 12.122];
+    stream<float> str = a.toStream();
+    string[]|stream<float>[] x = <readonly> [str, a.toStream()];
 
-    NeverImmutable ni = <readonly> {x: start getInt()};
+    NeverImmutable ni = <readonly> {x: f};
 }
 
 type NeverImmutable record {
