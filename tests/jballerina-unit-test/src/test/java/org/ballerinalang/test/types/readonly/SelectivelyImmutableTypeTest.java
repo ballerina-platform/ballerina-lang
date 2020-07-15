@@ -93,13 +93,13 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
-        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 237, 54);
-        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 46);
-        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 51);
-        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 243, 25);
+        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 238, 48);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 51);
+        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 244, 25);
         validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 243, 36);
-        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 243, 46);
+                "'other'", 244, 36);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 244, 40);
 
         assertEquals(result.getErrorCount(), index);
     }

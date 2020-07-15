@@ -76,10 +76,10 @@ function testReadOnlyWithNeverReadOnlyFields() {
 
     NonReadOnlyFields rec1 = {readonly x, readonly "y": bArr.toStream(), readonly "s": "str"};
     record {|future<any>...;|}|NonReadOnlyFields rec2 = {readonly x, readonly "y": bArr.toStream()};
-
     stream<boolean> y = bArr.toStream();
-    map<any|error> mp1 = {readonly x: start getInt(), readonly y};
-    map<any|error>|map<future<int>> mp2 = {i: 1, readonly x: start getInt(), readonly y};
+    future<int> f = start getInt();
+    map<any|error> mp1 = {readonly x: f, readonly y};
+    map<any|error>|map<future<int>> mp2 = {i: 1, readonly x: f, readonly y};
 }
 
 function getInt() returns int => 1;
