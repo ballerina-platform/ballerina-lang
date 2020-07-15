@@ -73,19 +73,19 @@ public function extractUsernameAndPassword(string credential) returns [string, s
 
 # Sets the authentication-related values to the invocation context.
 # ```ballerina
-# auth:setAuthInvocationContext("jwt", "<credential>", "<userID>", <scopes>, <claims>);
+# auth:setInvocationContext("jwt", "<credential>", "<userID>", <scopes>, <claims>);
 # ```
 #
 # + scheme - Auth scheme (`JWT`, `LDAP`, `OAuth2`, `Basic`, etc.)
-# + authToken - Auth token (credential)
-public function setAuthInvocationContext(public string? scheme = (), public string? authToken = (),
+# + token - Auth token (credential)
+public function setInvocationContext(public string? scheme = (), public string? token = (),
                     public string? userId = (), public string[]? scopes = (), public map<any>? claims = ()) {
     InvocationContext invocationContext = getInvocationContext();
     if (!(scheme is ())) {
         invocationContext.scheme = scheme;
     }
-    if (!(authToken is ())) {
-        invocationContext.token = authToken;
+    if (!(token is ())) {
+        invocationContext.token = token;
     }
     if (!(userId is ()) && userId != "") {
         invocationContext.userId = userId;

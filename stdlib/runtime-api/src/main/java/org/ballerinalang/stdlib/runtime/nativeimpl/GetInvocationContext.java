@@ -41,7 +41,7 @@ public class GetInvocationContext {
         return getInvocationContextRecord(Scheduler.getStrand());
     }
 
-    private static final String INVOCATION_CONTEXT_PROPERTY = "RuntimeInvocationContext";
+    private static final String RUNTIME_INVOCATION_CONTEXT_PROPERTY = "RuntimeInvocationContext";
     private static final String STRUCT_TYPE_INVOCATION_CONTEXT = "InvocationContext";
     private static final String INVOCATION_ID_KEY = "id";
     private static final String INVOCATION_ATTRIBUTES = "attributes";
@@ -49,10 +49,10 @@ public class GetInvocationContext {
 
     private static MapValue<BString, Object> getInvocationContextRecord(Strand strand) {
         MapValue<BString, Object> invocationContext =
-                (MapValue<BString, Object>) strand.getProperty(INVOCATION_CONTEXT_PROPERTY);
+                (MapValue<BString, Object>) strand.getProperty(RUNTIME_INVOCATION_CONTEXT_PROPERTY);
         if (invocationContext == null) {
             invocationContext = initInvocationContext();
-            strand.setProperty(INVOCATION_CONTEXT_PROPERTY, invocationContext);
+            strand.setProperty(RUNTIME_INVOCATION_CONTEXT_PROPERTY, invocationContext);
         }
         return invocationContext;
     }
