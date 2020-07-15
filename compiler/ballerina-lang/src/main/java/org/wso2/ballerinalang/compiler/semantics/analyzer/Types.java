@@ -216,33 +216,37 @@ public class Types {
     }
 
     public boolean isLax(BType type) {
-        Set<BType> visited = new HashSet<>();
+        Map<BType, Boolean> visited = new LinkedHashMap<>();
         return isLaxType(type, visited);
     }
 
-    public boolean isLaxType(BType type, Set<BType> visited) {
-        if (visited.contains(type)) {
-            return true;
+    public boolean isLaxType(BType type, Map<BType, Boolean> visited) {
+        if (visited.containsKey(type)) {
+            return visited.get(type);
         }
-        visited.add(type);
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
+                visited.put(type, true);
                 return true;
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
             case TypeTags.UNION:
                 if (type == symTable.jsonType) {
+                    visited.put(type, true);
                     return true;
                 }
                 for (BType member : ((BUnionType) type).getMemberTypes()) {
                     if (!isLaxType(member, visited)) {
+                        visited.put(type, false);
                         return false;
                     }
                 }
+                visited.put(type, true);
                 return true;
             }
+        visited.put(type, false);
         return false;
     }
 
