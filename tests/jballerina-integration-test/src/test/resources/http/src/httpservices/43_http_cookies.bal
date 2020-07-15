@@ -270,7 +270,7 @@ service cookie on new http:Listener(9253) {
             var value = cookie.value;
             var name = cookie.name;
             if (value is string && name is string) {
-                message = meesage.concat(name, "=", value , ",");
+                message = message.concat(name, "=", value , ",");
             }
         }
         http:Response res = new;
