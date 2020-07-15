@@ -142,7 +142,11 @@ public class SearchJson {
         this.listeners = listeners;
     }
 
-    public List<ConstructSearchJson> getAnnotations() { return annotations; }
+    public List<ConstructSearchJson> getAnnotations() {
+        return annotations;
+    }
 
-    public void setAnnotations(List<ConstructSearchJson> annotations) { this.annotations = annotations; }
+    public void setAnnotations(List<ConstructSearchJson> annotations) {
+        this.annotations = annotations;
+    }
 }
