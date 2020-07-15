@@ -4,7 +4,7 @@ This module provides the default authentication provider configurations, which c
 
 #### Invocation Context
 
-The Invocation Context is a data holder, which is created per request and preserved for a single request-response flow. It comprises of auth related information such as authentication scheme, auth token and authenticated user's id, claims and scopes. 
+The Invocation Context is a data holder, which is created per request and preserved for a single request-response flow. It comprises of auth-related information such as authentication scheme, auth token, and authenticated user's ID, claims, and scopes. 
 
 The following code snippet shows how to access the `auth:InvocationContext` and how to set the data and retrieve them.
 
@@ -14,7 +14,7 @@ auth:InvocationContext invocationContext = auth:getInvocationContext();
 invocationContext.token = "eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ";
 ```
 
-Retrieve data from invocation context.
+Retrieve data from the invocation context.
 ```ballerina
 string? authToken = auth:getInvocationContext()?.token;
 ```

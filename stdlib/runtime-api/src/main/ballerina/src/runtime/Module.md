@@ -1,6 +1,6 @@
 ## Module Overview
 
-This module provides functions to interact with the ballerina runtime and the runtime invocation context.
+This module provides functions to interact with the Ballerina runtime and the runtime invocation context.
 
 #### Invocation Context
 
@@ -20,7 +20,7 @@ string serviceName = runtime:getInvocationContext().attributes["SERVICE_NAME"].t
 
 #### Sleep the current strand
 
-Following is the code snippet for pausing the current strand for 1000 milliseconds.
+The following is the code snippet for pausing the current strand for 1000 milliseconds.
 
 ```ballerina
 runtime:sleep(1000);

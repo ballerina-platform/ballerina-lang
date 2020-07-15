@@ -59,7 +59,7 @@ public type AuthzHandler object {
         string resourceName = runtime:getInvocationContext().attributes[RESOURCE_NAME].toString();
         string requestMethod = runtime:getInvocationContext().attributes[REQUEST_METHOD].toString();
 
-        string userId = auth:getInvocationContext()?.userId ?: "";    // this is already validated at `canProcess` function
+        string userId = auth:getInvocationContext()?.userId ?: "";    // This is already validated in the `canProcess` function.
         string[] userScopes = auth:getInvocationContext()?.scopes ?: [];
         string authzCacheKey = generateAuthzCacheKey(userId, userScopes, serviceName, resourceName, requestMethod);
 
