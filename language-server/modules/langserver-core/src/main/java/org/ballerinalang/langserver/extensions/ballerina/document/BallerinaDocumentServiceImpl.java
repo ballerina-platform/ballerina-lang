@@ -34,6 +34,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
+import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
@@ -50,6 +51,8 @@ import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.openapi.CodeGenerator;
 import org.ballerinalang.openapi.model.GenSrcFile;
 import org.ballerinalang.openapi.utils.GeneratorConstants;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
+import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -277,9 +280,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false, false);
+                    false, false, true);
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(reply.getAst() != null);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
@@ -288,6 +291,27 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             lock.ifPresent(Lock::unlock);
         }
         return CompletableFuture.supplyAsync(() -> reply);
+    }
+
+    private boolean isParseSuccess(LSContext astContext) {
+        BLangPackage bLangPackage = astContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY);
+        if (bLangPackage != null) {
+            List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
+            CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
+            if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
+                diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+            }
+            return !diagnostics.stream().anyMatch(diagnostic -> {
+                DiagnosticCode code = diagnostic.getCode();
+                return (code == DiagnosticCode.SYNTAX_ERROR)
+                        || (code == DiagnosticCode.INVALID_TOKEN)
+                        || (code == DiagnosticCode.MISSING_TOKEN)
+                        || (code == DiagnosticCode.EXTRANEOUS_INPUT)
+                        || (code == DiagnosticCode.MISMATCHED_INPUT)
+                        || (code == DiagnosticCode.INVALID_SHIFT_OPERATOR);
+            });
+        }
+        return false;
     }
 
     @Override
@@ -366,10 +390,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     fileUri, compilationPath, documentManager);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false, false,
-                    false);
+                    true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(reply.getAst() != null);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
@@ -406,10 +430,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     fileUri, compilationPath, documentManager);
             LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
                     LSCustomErrorStrategy.class, false,
-                    false, false);
+                    false, true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
-            reply.setParseSuccess(reply.getAst() != null);
+            reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
