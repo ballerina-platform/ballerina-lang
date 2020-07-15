@@ -16,7 +16,6 @@
 
 package io.ballerina.plugins.idea.debugger;
 
-import com.google.common.base.Strings;
 import com.intellij.xdebugger.frame.XExecutionStack;
 import com.intellij.xdebugger.frame.XSuspendContext;
 import org.eclipse.lsp4j.debug.StackFrame;
@@ -28,6 +27,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static io.ballerina.plugins.idea.BallerinaConstants.BAL_FILE_EXT;
+import static org.eclipse.xtext.xbase.lib.StringExtensions.isNullOrEmpty;
 
 /**
  * Represent a Ballerina suspended context. Created in debug hits.
@@ -85,7 +85,7 @@ public class BallerinaSuspendContext extends XSuspendContext {
 
         String fileName = frame.getSource().getName();
         String filePath = frame.getSource().getPath();
-        if (frame.getSource() == null || Strings.isNullOrEmpty(fileName) || Strings.isNullOrEmpty(filePath)) {
+        if (frame.getSource() == null || isNullOrEmpty(fileName) || isNullOrEmpty(filePath)) {
             return false;
         }
 

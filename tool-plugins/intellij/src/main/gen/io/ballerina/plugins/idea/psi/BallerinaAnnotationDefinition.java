@@ -24,11 +24,8 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 
 public interface BallerinaAnnotationDefinition extends BallerinaTopLevelDefinition {
 
-  @NotNull
-  List<BallerinaAttachmentPoint> getAttachmentPointList();
-
   @Nullable
-  BallerinaTypeName getTypeName();
+  BallerinaRecoverableAnnotationContent getRecoverableAnnotationContent();
 
   @Nullable
   PsiElement getSemicolon();
@@ -38,12 +35,6 @@ public interface BallerinaAnnotationDefinition extends BallerinaTopLevelDefiniti
 
   @Nullable
   PsiElement getConst();
-
-  @Nullable
-  PsiElement getIdentifier();
-
-  @Nullable
-  PsiElement getOn();
 
   @Nullable
   PsiElement getPublic();
