@@ -5449,6 +5449,8 @@ public class Desugar extends BLangNodeVisitor {
 
             // If there is a rest param, the vararg could provide for the rest param too.
             // Create a new array with just the members of the original vararg specified for the rest param.
+            // All the values in the original list passed as a vararg, that were not passed for a
+            // required/defaultable parameter are added to the new array.
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
             DiagnosticPos pos = restArgsExpression.pos;
