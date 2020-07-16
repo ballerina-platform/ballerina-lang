@@ -248,6 +248,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
         if (orderByClause != null) {
+            // Type[] arr passed to order by helper
             BLangArrayLiteral orderArr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
             orderArr.exprs = new ArrayList<>();
             orderArr.type = new BArrayType(resolveExprType(queryExpr.type));
@@ -325,32 +326,16 @@ public class QueryDesugar extends BLangNodeVisitor {
             return ((BArrayType) type).eType;
         } else if (type.tag == TypeTags.UNION) {
             List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-            for (BType t : exprTypes) {
-                BType returnType;
-                if (t.tag == TypeTags.STREAM) {
-                    returnType = ((BUnionType) type).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.STREAM)
-                            .findFirst().orElse(symTable.streamType);
+            for (BType returnType : exprTypes) {
+                if (returnType.tag == TypeTags.STREAM) {
                     return ((BStreamType) returnType).constraint;
-                } else if (t.tag == TypeTags.TABLE) {
-                    returnType = ((BUnionType) type).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.TABLE)
-                            .findFirst().orElse(symTable.tableType);
+                } else if (returnType.tag == TypeTags.TABLE) {
                     return ((BTableType) returnType).constraint;
-                }  else if (t.tag == TypeTags.ARRAY) {
-                    returnType = ((BUnionType) type).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
-                            .findFirst().orElse(symTable.arrayType);
+                }  else if (returnType.tag == TypeTags.ARRAY) {
                     return ((BArrayType) returnType).eType;
-                } else if (t.tag == TypeTags.STRING) {
-                    returnType = ((BUnionType) type).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.STRING)
-                            .findFirst().orElse(symTable.stringType);
+                } else if (returnType.tag == TypeTags.STRING) {
                     return returnType;
-                } else if (t.tag == TypeTags.XML) {
-                    returnType = ((BUnionType) type).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.XML)
-                            .findFirst().orElse(symTable.xmlType);
+                } else if (returnType.tag == TypeTags.XML) {
                     return returnType;
                 }
             }

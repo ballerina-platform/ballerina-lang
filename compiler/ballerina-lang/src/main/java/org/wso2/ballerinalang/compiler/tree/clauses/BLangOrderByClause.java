@@ -30,7 +30,7 @@ import java.util.StringJoiner;
 /**
  * Implementation of "order by" clause statement.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangOrderByClause extends BLangNode implements OrderByClauseNode {
     public List<OrderKeyNode> orderByKeyList = new ArrayList<>();

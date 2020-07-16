@@ -790,7 +790,6 @@ public class TreeBuilder {
         return new BLangOrderByClause();
     }
 
-
     public static SelectClauseNode createSelectClauseNode() {
         return new BLangSelectClause();
     }

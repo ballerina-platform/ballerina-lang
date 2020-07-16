@@ -33,7 +33,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 /**
  * This contains methods to test order by clause in query expression.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class OrderByClauseTest {
     private CompileResult result;

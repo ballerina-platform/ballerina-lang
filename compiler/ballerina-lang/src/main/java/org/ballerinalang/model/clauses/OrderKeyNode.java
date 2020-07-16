@@ -22,7 +22,9 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
 /**
- * @since 2.0.0
+ * The interface with the APIs to implement the order key in "order by" clause.
+ *
+ * @since Swan Lake
  */
 public interface OrderKeyNode extends Node {
     void setOrderKey(ExpressionNode orderVar);

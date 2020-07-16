@@ -27,7 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 /**
  * Implementation of order keys specified in "order by" clause statement.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class BLangOrderKey extends BLangNode implements OrderKeyNode {
     public BLangExpression expression;
