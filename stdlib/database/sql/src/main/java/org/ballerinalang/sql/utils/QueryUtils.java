@@ -44,6 +44,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.sql.utils.Utils.closeResources;
+import static org.ballerinalang.sql.utils.Utils.getColumnDefinitions;
+import static org.ballerinalang.sql.utils.Utils.getDefaultStreamConstraint;
+import static org.ballerinalang.sql.utils.Utils.getSqlQuery;
+import static org.ballerinalang.sql.utils.Utils.setParams;
+
 /**
  * This class provides the util implementation which executes sql queries.
  *
@@ -65,19 +71,19 @@ public class QueryUtils {
                 if (paramSQLString instanceof StringValue) {
                     sqlQuery = ((StringValue) paramSQLString).getValue();
                 } else {
-                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                    sqlQuery = getSqlQuery((AbstractObjectValue) paramSQLString);
                 }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery);
                 if (paramSQLString instanceof AbstractObjectValue) {
-                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                    setParams(connection, statement, (AbstractObjectValue) paramSQLString);
                 }
                 resultSet = statement.executeQuery();
                 List<ColumnDefinition> columnDefinitions;
                 BStructureType streamConstraint;
                 if (recordType == null) {
-                    columnDefinitions = Utils.getColumnDefinitions(resultSet, null);
-                    BRecordType defaultRecord = Utils.getDefaultStreamConstraint();
+                    columnDefinitions = getColumnDefinitions(resultSet, null);
+                    BRecordType defaultRecord = getDefaultStreamConstraint();
                     Map<String, BField> fieldMap = new HashMap<>();
                     for (ColumnDefinition column : columnDefinitions) {
                         int flags = Flags.PUBLIC;
@@ -93,21 +99,21 @@ public class QueryUtils {
                     streamConstraint = defaultRecord;
                 } else {
                     streamConstraint = (BStructureType) ((TypedescValue) recordType).getDescribingType();
-                    columnDefinitions = Utils.getColumnDefinitions(resultSet, streamConstraint);
+                    columnDefinitions = getColumnDefinitions(resultSet, streamConstraint);
                 }
                 return new StreamValue(new BStreamType(streamConstraint), Utils.createRecordIterator(resultSet,
                         statement, connection, columnDefinitions, streamConstraint));
             } catch (SQLException e) {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLDatabaseError(e,
                         "Error while executing sql query: " + sqlQuery + ". ");
-                return new StreamValue(new BStreamType(Utils.getDefaultStreamConstraint()), createRecordIterator(errorValue));
+                return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
             } catch (ApplicationError applicationError) {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
                 ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(applicationError.getMessage());
                 return getErrorStream(recordType, errorValue);
             } catch (Throwable e) {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
                 String message = e.getMessage();
                 if (message == null) {
                     message = e.getClass().getName();
@@ -117,15 +123,14 @@ public class QueryUtils {
                 return getErrorStream(recordType, errorValue);
             }
         } else {
-            ErrorValue errorValue = ErrorGenerator.getSQLApplicationError(
-                    "Client is not properly initialized!");
+            ErrorValue errorValue = ErrorGenerator.getSQLApplicationError("Client is not properly initialized!");
             return getErrorStream(recordType, errorValue);
         }
     }
 
     private static StreamValue getErrorStream(Object recordType, ErrorValue errorValue) {
         if (recordType == null) {
-            return new StreamValue(new BStreamType(Utils.getDefaultStreamConstraint()), createRecordIterator(errorValue));
+            return new StreamValue(new BStreamType(getDefaultStreamConstraint()), createRecordIterator(errorValue));
         } else {
             return new StreamValue(new BStreamType(((TypedescValue) recordType).getDescribingType()),
                     createRecordIterator(errorValue));

@@ -70,24 +70,24 @@ public class PoolKey {
             int typeTag = type.getTag();
             int valueHashCode;
             switch (typeTag) {
-            case TypeTags.STRING_TAG:
-            case TypeTags.DECIMAL_TAG:
-                valueHashCode = value.hashCode();
-                break;
-            case TypeTags.BYTE_TAG:
-            case TypeTags.INT_TAG:
-                long longValue = (Long) value;
-                valueHashCode = (int) (longValue ^ (longValue >>> 32));
-                break;
-            case TypeTags.FLOAT_TAG:
-                long longValueConvertedFromDouble = Double.doubleToLongBits((Double) value);
-                valueHashCode = (int) (longValueConvertedFromDouble ^ (longValueConvertedFromDouble >>> 32));
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                valueHashCode = ((Boolean) value ? 1 : 0);
-                break;
-            default:
-                throw new AssertionError("type " + type.getName() + " shouldn't have occurred");
+                case TypeTags.STRING_TAG:
+                case TypeTags.DECIMAL_TAG:
+                    valueHashCode = value.hashCode();
+                    break;
+                case TypeTags.BYTE_TAG:
+                case TypeTags.INT_TAG:
+                    long longValue = (Long) value;
+                    valueHashCode = (int) (longValue ^ (longValue >>> 32));
+                    break;
+                case TypeTags.FLOAT_TAG:
+                    long longValueConvertedFromDouble = Double.doubleToLongBits((Double) value);
+                    valueHashCode = (int) (longValueConvertedFromDouble ^ (longValueConvertedFromDouble >>> 32));
+                    break;
+                case TypeTags.BOOLEAN_TAG:
+                    valueHashCode = ((Boolean) value ? 1 : 0);
+                    break;
+                default:
+                    throw new AssertionError("type " + type.getName() + " shouldn't have occurred");
             }
             hashCode = hashCode + keyHashCode + valueHashCode;
         }

@@ -48,7 +48,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.ballerinalang.sql.utils.Utils.closeResources;
 import static org.ballerinalang.sql.utils.Utils.getGeneratedKeys;
+import static org.ballerinalang.sql.utils.Utils.getSqlQuery;
+import static org.ballerinalang.sql.utils.Utils.setParams;
 
 /**
  * This class holds the utility methods involved with executing the query which does not return rows.
@@ -70,12 +73,12 @@ public class ExecuteUtils {
                 if (paramSQLString instanceof StringValue) {
                     sqlQuery = ((StringValue) paramSQLString).getValue();
                 } else {
-                    sqlQuery = Utils.getSqlQuery((AbstractObjectValue) paramSQLString);
+                    sqlQuery = getSqlQuery((AbstractObjectValue) paramSQLString);
                 }
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 if (paramSQLString instanceof AbstractObjectValue) {
-                    Utils.setParams(connection, statement, (AbstractObjectValue) paramSQLString);
+                    setParams(connection, statement, (AbstractObjectValue) paramSQLString);
                 }
                 int count = statement.executeUpdate();
                 Object lastInsertedId = null;
@@ -97,7 +100,7 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + sqlQuery + ". " + e.getMessage());
             } finally {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(
@@ -119,11 +122,11 @@ public class ExecuteUtils {
             try {
                 Object[] paramSQLObjects = paramSQLStrings.getValues();
                 AbstractObjectValue parameterizedQuery = (AbstractObjectValue) paramSQLObjects[0];
-                sqlQuery = Utils.getSqlQuery(parameterizedQuery);
+                sqlQuery = getSqlQuery(parameterizedQuery);
                 parameters.add(parameterizedQuery);
                 for (int i = 1; i < paramSQLStrings.size(); i++) {
                     parameterizedQuery = (AbstractObjectValue) paramSQLObjects[i];
-                    String paramSQLQuery = Utils.getSqlQuery(parameterizedQuery);
+                    String paramSQLQuery = getSqlQuery(parameterizedQuery);
 
                     if (sqlQuery.equals(paramSQLQuery)) {
                         parameters.add(parameterizedQuery);
@@ -135,7 +138,7 @@ public class ExecuteUtils {
                 connection = SQLDatasourceUtils.getConnection(strand, client, sqlDatasource);
                 statement = connection.prepareStatement(sqlQuery, Statement.RETURN_GENERATED_KEYS);
                 for (AbstractObjectValue param : parameters) {
-                    Utils.setParams(connection, statement, param);
+                    setParams(connection, statement, param);
                     statement.addBatch();
                 }
                 int[] counts = statement.executeBatch();
@@ -174,7 +177,7 @@ public class ExecuteUtils {
                 return ErrorGenerator.getSQLApplicationError("Error while executing sql query: "
                         + e.getMessage());
             } finally {
-                Utils.closeResources(strand, resultSet, statement, connection);
+                closeResources(strand, resultSet, statement, connection);
             }
         } else {
             return ErrorGenerator.getSQLApplicationError(

@@ -73,7 +73,7 @@ public class ErrorGenerator {
         valueMap.put(Constants.ErrorRecordFields.SQL_STATE, sqlState);
         valueMap.put(Constants.ErrorRecordFields.EXECUTION_RESULTS,
                 BValueCreator.createArrayValue(executionResults.toArray(), new BArrayType(
-                  new BRecordType(Constants.EXECUTION_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0 , false, 0))));
+                        new BRecordType(Constants.EXECUTION_RESULT_RECORD, Constants.SQL_PACKAGE_ID, 0, false, 0))));
 
         MapValue<BString, Object> sqlClientErrorDetailRecord = BallerinaValues.
                 createRecordValue(Constants.SQL_PACKAGE_ID, Constants.BATCH_EXECUTE_ERROR_DETAIL, valueMap);

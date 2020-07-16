@@ -89,7 +89,7 @@ public class ClientUtils {
                 .setDatasourceName(datasourceName)
                 .setOptions(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.OPTIONS))
                 .setConnectionPool(sqlDatasourceParams.getMapValue(Constants.SQLParamsFields.CONNECTION_POOL),
-                                   globalConnectionPool)
+                        globalConnectionPool)
                 .setPoolProperties(poolProperties);
     }
 
