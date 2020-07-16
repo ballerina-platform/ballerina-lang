@@ -54,6 +54,7 @@ import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionListItemNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
+import io.ballerinalang.compiler.syntax.tree.FailExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternFullNode;
 import io.ballerinalang.compiler.syntax.tree.FieldBindingPatternNode;
@@ -273,6 +274,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1599,6 +1601,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(FailExpressionNode failExpressionNode) {
+        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+        failExpr.pos = getPosition(failExpressionNode);
+        failExpr.expr = createExpression(failExpressionNode.expression());
+        return failExpr;
+    }
+
+    @Override
     public BLangNode transform(TypeTestExpressionNode typeTestExpressionNode) {
         BLangTypeTestExpr typeTestExpr = (BLangTypeTestExpr) TreeBuilder.createTypeTestExpressionNode();
         typeTestExpr.expr = createExpression(typeTestExpressionNode.expression());
@@ -1636,6 +1646,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     fieldVar.variableName = createIdentifier(((SpecificFieldNode) field).fieldName());
                     fieldVar.pkgAlias = createIdentifier(null, "");
                     fieldVar.pos = fieldVar.variableName.pos;
+                    fieldVar.readonly = specificField.readonlyKeyword().isPresent();
                     bLiteralNode.fields.add(fieldVar);
                 } else {
                     BLangRecordKeyValueField bLRecordKeyValueField =
@@ -1644,6 +1655,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLRecordKeyValueField.key =
                             new BLangRecordLiteral.BLangRecordKey(createExpression(specificField.fieldName()));
                     bLRecordKeyValueField.key.computedKey = false;
+                    bLRecordKeyValueField.readonly = specificField.readonlyKeyword().isPresent();
                     bLiteralNode.fields.add(bLRecordKeyValueField);
                 }
             }
@@ -3976,7 +3988,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 position = matcher.end() - 2;
                 matcher = UNICODE_PATTERN.matcher(text);
             }
-            text = StringEscapeUtils.unescapeJava(text);
+            if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
+                text = StringEscapeUtils.unescapeJava(text);
+            }
 
             typeTag = TypeTags.STRING;
             value = text;

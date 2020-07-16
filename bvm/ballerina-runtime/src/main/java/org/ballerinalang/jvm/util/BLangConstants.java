@@ -99,6 +99,7 @@ public class BLangConstants {
                                                                          "runtime", "0.5.0");
     public static final BPackage BALLERINA_LANG_ERROR_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX,
                                                                             "lang.error", "1.0.0");
+    public static final BPackage BALLERINA_AUTH_PKG_ID = new BPackage(BALLERINA_BUILTIN_PKG_PREFIX, "auth", "1.0.0");
 
     public static final String STRING_LANG_LIB = "lang.string";
     public static final String MAP_LANG_LIB = "lang.map";
