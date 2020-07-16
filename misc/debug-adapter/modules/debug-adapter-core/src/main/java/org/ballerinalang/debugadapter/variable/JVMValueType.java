@@ -34,13 +34,26 @@ public enum JVMValueType {
     BMPSTRING("org.ballerinalang.jvm.values.BmpStringValue"),
     NONBMPSTRING("org.ballerinalang.jvm.values.NonBmpStringValue"),
     DECIMAL("org.ballerinalang.jvm.values.DecimalValue"), // todo - parent var name
-    OBJECT_TYPE("org.ballerinalang.jvm.types.BObjectType"),
     OBJECT_VALUE("org.ballerinalang.jvm.values.ObjectValue"),
     ARRAY_VALUE("org.ballerinalang.jvm.values.ArrayValue"),
     TUPLE_VALUE("org.ballerinalang.jvm.values.TupleValue"),
     MAP_VALUE("org.ballerinalang.jvm.values.MapValue"),
     ERROR_VALUE("org.ballerinalang.jvm.values.ErrorValue"),
-    XML_ITEM("org.ballerinalang.jvm.values.XMLItem");
+    TYPEDESC_VALUE("org.ballerinalang.jvm.values.TypedescValue"),
+    FUTURE_VALUE("org.ballerinalang.jvm.values.FutureValue"),
+    HANDLE_VALUE("org.ballerinalang.jvm.values.HandleValue"),
+    STREAM_VALUE("org.ballerinalang.jvm.values.StreamValue"),
+    TABLE_VALUE("org.ballerinalang.jvm.values.TableValue"),
+    XML_COMMENT("org.ballerinalang.jvm.values.XMLComment"),
+    XML_ITEM("org.ballerinalang.jvm.values.XMLItem"),
+    XML_PI("org.ballerinalang.jvm.values.XMLPi"),
+    XML_SEQUENCE("org.ballerinalang.jvm.values.XMLSequence"),
+    XML_TEXT("org.ballerinalang.jvm.values.XMLText"),
+    XML_ATTRIB_MAP("org.ballerinalang.jvm.values.AttributeMapValueImpl"),
+    FP_VALUE("org.ballerinalang.jvm.values.FPValue"),
+    ANON_SERVICE("anonService"),
+    BTYPE_OBJECT("BObjectType"),
+    BTYPE_RECORD("BRecordType");
 
     private final String value;
 

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangTransaction extends BLangStatement implements TransactionNode {
 
     public BLangBlockStmt transactionBody;
+    public boolean statementBlockReturns;
 
     public BLangTransaction() {
     }

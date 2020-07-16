@@ -52,6 +52,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fromJsonStringWithType(typedesc<anydata> t)((t|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a string in JSON format to a user-specified type.\nThis is a combination of `fromJsonString` followed by\n`fromJsonWithType`.  \n**Params**  \n- `typedesc<anydata>` t: type to convert to  \n  \n**Returns** `(t|error)`   \n- value belonging to `t`, or error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonStringWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "createFilterFunction()(_StreamFunction)",
       "kind": "Function",
       "detail": "Function",
@@ -94,6 +112,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fromJsonWithType(typedesc<anydata> t)((t|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\nThis works the same as `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to  \n  \n**Returns** `(t|error)`   \n- value belonging to `t`, or error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "toArray()((any|error)[])",
       "kind": "Function",
       "detail": "Function",
@@ -108,18 +144,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createJoinFunction()(_StreamFunction)",
+      "label": "createOuterJoinFunction(function (ballerina/lang.query:0.0.1:_Frame) returns (boolean) onCondition)(_StreamFunction)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `_StreamFunction`   \n  \n"
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `function (ballerina/lang.query:0.0.1:_Frame) returns (boolean)` onCondition  \n  \n**Returns** `_StreamFunction`   \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "createJoinFunction()",
-      "insertTextFormat": "Snippet"
+      "insertText": "createOuterJoinFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "toJsonString()(string)",
@@ -212,6 +252,20 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "toJson()(json)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\nThis does a deep copy of `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\n  \n  \n  \n**Returns** `json`   \n- representation of `v` as value of type json  \nThis panics if `v` has cycles.  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "mergeJson(json j2)((json|error))",
@@ -421,6 +475,24 @@
       },
       "sortText": "120",
       "insertText": "forEach(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "createInnerJoinFunction(function (ballerina/lang.query:0.0.1:_Frame) returns (boolean) onCondition)(_StreamFunction)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n**Params**  \n- `function (ballerina/lang.query:0.0.1:_Frame) returns (boolean)` onCondition  \n  \n**Returns** `_StreamFunction`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "createInnerJoinFunction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

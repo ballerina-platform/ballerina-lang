@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/cache;
+import ballerina/java;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 import ballerina/lang.'int;
@@ -512,17 +512,21 @@ function invalidateResponses(HttpCache httpCache, Response inboundResponse, stri
     // TODO: Improve this logic in accordance with the spec
     if (isCacheableStatusCode(inboundResponse.statusCode) &&
         inboundResponse.statusCode >= 200 && inboundResponse.statusCode < 400) {
-        cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
-        if (result is cache:Error) {
-            log:printDebug(function() returns string {
-                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-            });
+        if (httpCache.cache.hasKey(getCacheKey(GET, path))) {
+            cache:Error? result = httpCache.cache.invalidate(getCacheKey(GET, path));
+            if (result is cache:Error) {
+                log:printDebug(function() returns string {
+                    return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+                });
+            }
         }
-        result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
-        if (result is cache:Error) {
-            log:printDebug(function() returns string {
-                return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
-            });
+        if (httpCache.cache.hasKey(getCacheKey(HEAD, path))) {
+            cache:Error? result = httpCache.cache.invalidate(getCacheKey(HEAD, path));
+            if (result is cache:Error) {
+                log:printDebug(function() returns string {
+                    return "Failed to remove the key: " + getCacheKey(GET, path) + " from the cache.";
+                });
+            }
         }
     }
 }
@@ -773,6 +777,11 @@ function getDateValue(Response inboundResponse) returns int {
 }
 
 function getWarningAgent() returns string {
-    string ballerinaVersion = runtime:getProperty("ballerina.version");
+    string ballerinaVersion = getProperty("ballerina.version");
     return "ballerina-http-caching-client/" + ballerinaVersion;
 }
+
+function getProperty(@untainted string name) returns string = @java:Method {
+    name: "getProperty",
+    class: "org.ballerinalang.net.http.util.CacheUtils"
+} external;

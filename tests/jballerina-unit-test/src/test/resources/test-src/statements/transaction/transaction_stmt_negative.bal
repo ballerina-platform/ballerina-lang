@@ -1,3 +1,4 @@
+import ballerina/lang.'transaction as transactions;
 
 function commitExpMissingInTransactionStmt(int i) returns (string) {
     string a = "start";
@@ -218,4 +219,42 @@ function testNestedTrxBlocks() returns (string) {
         var commitResOuter = commit;
     }
     return a;
+}
+
+function testTrxHandlers() returns string {
+    string ss = "started";
+    transactions:Info transInfo;
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+        ss = ss + " trxAborted";
+    };
+
+    var onCommitFunc = function(transactions:Info? info) {
+        ss = ss + " trxCommited";
+    };
+
+    transaction {
+        var commitRes = commit;
+        transactions:onRollback(onRollbackFunc);
+        transactions:onCommit(onCommitFunc);
+        boolean isRollbackOnly = transactions:getRollbackOnly();
+    }
+    transInfo = transactions:info();
+
+    ss += " endTrx";
+    return ss;
+}
+
+function testWithinTrxMode() returns string {
+    string ss;
+    transactions:Info transInfo;
+
+    transaction {
+        ss = "started";
+        if (!transactional) {
+            transInfo = transactions:info();
+        }
+        var commitRes = commit;
+    }
+    ss += " endTrx";
+    return ss;
 }

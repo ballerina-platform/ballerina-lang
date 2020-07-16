@@ -95,7 +95,7 @@ function testStreamConstruct() returns boolean {
 function testStreamConstructWithFilter() returns boolean {
     boolean testPassed = true;
     NumberGenerator numGen = new NumberGenerator();
-    var intStream = new stream<int,error>(numGen);
+    var intStream = new stream<int>(numGen);
 
     stream<int,error> oddNumberStream = intStream.filter(function (int intVal) returns boolean {
         return intVal % 2 == 1;
@@ -317,5 +317,68 @@ function testIteratorWithErrorUnion() returns boolean {
     returnedVal = getRecordValue(intStreamB.next());
     testPassed = testPassed && (<int>returnedVal["value"] == 4);
 
+    return testPassed;
+}
+
+type NeverNumberGenerator object {
+    int i = 0;
+    public function next() returns record {| int value; |}?|never {
+        self.i += 1;
+        if (self.i < 3) {
+            return { value: self.i };
+        }
+    }
+};
+
+function testStreamConstructWithNever() returns boolean {
+    boolean testPassed = true;
+
+    NumberGenerator numGen = new();
+    stream<int> numberStream1 = new stream<int,never>(numGen);
+    stream<int, never> numberStream2 = new(numGen);
+
+    record {| int value; |}? number1 = getRecordValue(numberStream1.next());
+    testPassed = testPassed && (number1?.value == 1);
+
+    record {| int value; |}? number2 = getRecordValue(numberStream2.next());
+    testPassed = testPassed && (number2?.value == 2);
+
+    NeverNumberGenerator neverNumGen = new();
+    stream<int|never> neverNumStream = new(neverNumGen);
+
+    record {| int value; |}? neverNum1 = neverNumStream.next();
+    record {| int value; |}? neverNum2 = neverNumStream.next();
+    record {| int value; |}? neverNum3 = neverNumStream.next();
+    testPassed = testPassed && (neverNum3 == ());
+
+    return testPassed;
+}
+
+type NumberStreamGenerator object {
+    public function next() returns record {| stream<int> value; |}? {
+         NumberGenerator numGen = new();
+         stream<int> numberStream = new (numGen);
+         return { value: numberStream};
+    }
+};
+
+function testStreamOfStreams() returns boolean {
+    boolean testPassed = false;
+    NumberStreamGenerator numStreamGen = new();
+    stream<stream<int>> numberStream = new (numStreamGen);
+    record {| stream<int> value; |}? nextStream1 = numberStream.next();
+    stream<int>? str1 = nextStream1?.value;
+    if(str1 is stream) {
+        record {| int value; |}? val = str1.next();
+        int? num = val?.value;
+        testPassed = (num == 1);
+    }
+    record {| stream<int> value; |}? nextStream2 = numberStream.next();
+    stream<int>? str2 = nextStream2?.value;
+    if(str2 is stream) {
+       record {| int value; |}? val = str2.next();
+       int? num = val?.value;
+       testPassed = testPassed && (num == 1);
+    }
     return testPassed;
 }

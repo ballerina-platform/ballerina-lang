@@ -25,7 +25,7 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 public interface BallerinaTypeDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
-  BallerinaFiniteType getFiniteType();
+  BallerinaTypeBody getTypeBody();
 
   @Nullable
   PsiElement getSemicolon();

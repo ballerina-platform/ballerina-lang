@@ -21,12 +21,12 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.BallerinaWorkspaceService;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.command.testgen.TestGeneratorException;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.command.ExecuteCommandKeys;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
@@ -40,6 +40,7 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.CreateFile;
 import org.eclipse.lsp4j.Location;
@@ -245,7 +246,8 @@ public class CreateTestExecutor implements LSCommandExecutor {
                 }
             }
             return editParams;
-        } catch (TestGeneratorException | CompilationFailedException | WorkspaceDocumentException e) {
+        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException
+                | TestGeneratorException e) {
             String message = "Test generation failed!: " + e.getMessage();
             if (client != null) {
                 client.showMessage(new MessageParams(MessageType.Error, message));

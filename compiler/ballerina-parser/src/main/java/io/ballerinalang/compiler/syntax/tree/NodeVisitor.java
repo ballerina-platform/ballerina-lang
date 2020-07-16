@@ -143,6 +143,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(FailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }
@@ -329,10 +333,6 @@ public abstract class NodeVisitor {
 
     public void visit(NamedWorkerDeclarator namedWorkerDeclarator) {
         visitSyntaxNode(namedWorkerDeclarator);
-    }
-
-    public void visit(DocumentationStringNode documentationStringNode) {
-        visitSyntaxNode(documentationStringNode);
     }
 
     public void visit(BasicLiteralNode basicLiteralNode) {
@@ -599,6 +599,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
+    public void visit(FunctionalBindingPatternNode functionalBindingPatternNode) {
+        visitSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public void visit(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+        visitSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public void visit(AsyncSendActionNode asyncSendActionNode) {
         visitSyntaxNode(asyncSendActionNode);
     }
@@ -749,6 +757,46 @@ public abstract class NodeVisitor {
 
     public void visit(OnClauseNode onClauseNode) {
         visitSyntaxNode(onClauseNode);
+    }
+
+    public void visit(ListMatchPatternNode listMatchPatternNode) {
+        visitSyntaxNode(listMatchPatternNode);
+    }
+
+    public void visit(RestMatchPatternNode restMatchPatternNode) {
+        visitSyntaxNode(restMatchPatternNode);
+    }
+
+    public void visit(MappingMatchPatternNode mappingMatchPatternNode) {
+        visitSyntaxNode(mappingMatchPatternNode);
+    }
+
+    public void visit(FieldMatchPatternNode fieldMatchPatternNode) {
+        visitSyntaxNode(fieldMatchPatternNode);
+    }
+
+    public void visit(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
+    }
+
+    public void visit(MarkdownDocumentationNode markdownDocumentationNode) {
+        visitSyntaxNode(markdownDocumentationNode);
+    }
+
+    public void visit(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        visitSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public void visit(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        visitSyntaxNode(markdownParameterDocumentationLineNode);
+    }
+
+    public void visit(DocumentationReferenceNode documentationReferenceNode) {
+        visitSyntaxNode(documentationReferenceNode);
     }
 
     // Tokens

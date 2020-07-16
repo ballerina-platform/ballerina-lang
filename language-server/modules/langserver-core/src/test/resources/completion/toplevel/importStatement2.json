@@ -22,14 +22,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/jwt",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/jwt",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.boolean",
       "kind": "Module",
       "detail": "Module",
@@ -182,27 +174,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/encoding",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/encoding",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/java",
       "kind": "Module",
       "detail": "Module",
       "sortText": "120",
       "insertText": "ballerina/java",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/rabbitmq",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "120",
-      "insertText": "ballerina/rabbitmq",
       "insertTextFormat": "Snippet"
     },
     {

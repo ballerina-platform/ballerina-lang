@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -291,6 +292,8 @@ public class BLangPackageBuilder {
 
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
+    private Stack<BLangNode> inputClauseStack = new Stack<>();
+
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
     private Stack<ServiceNode> serviceNodeStack = new Stack<>();
@@ -336,7 +339,6 @@ public class BLangPackageBuilder {
     private long isInErrorType = 0;
 
     private boolean isInQuery = false;
-    private boolean isInOnCondition = false;
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -1642,7 +1644,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        keyValue.isReadonly = isReadonly;
+        keyValue.readonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1714,7 +1716,7 @@ public class BLangPackageBuilder {
     void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
         BLangRecordLiteral.BLangRecordVarNameField varNameField =
                 (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-        varNameField.isReadonly = isReadonly;
+        varNameField.readonly = isReadonly;
         createSimpleVariableReference(pos, ws, varNameField);
     }
 
@@ -1960,6 +1962,14 @@ public class BLangPackageBuilder {
         addExpressionNode(checkPanicExpr);
     }
 
+    void createFailExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+        failExpr.pos = pos;
+        failExpr.addWS(ws);
+        failExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(failExpr);
+    }
+
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -1990,6 +2000,15 @@ public class BLangPackageBuilder {
 
     void startFromClause() {
         this.isInQuery = true;
+        this.inputClauseStack.push((BLangNode) TreeBuilder.createFromClauseNode());
+    }
+
+    void finishFromClause() {
+        this.isInQuery = false;
+    }
+
+    void startJoinClause() {
+        this.inputClauseStack.push((BLangNode) TreeBuilder.createJoinClauseNode());
     }
 
     void createClauseWithSimpleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
@@ -1997,18 +2016,12 @@ public class BLangPackageBuilder {
                                                         boolean isFromClause, boolean isOuterJoin) {
         BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
                 false, false, isDeclaredWithVar);
-
         if ((!this.bindingPatternIdentifierWS.isEmpty() && !isInQuery) || !this.bindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.bindingPatternIdentifierWS.pop());
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
-
-        if (isFromClause) {
-            isInQuery = false;
-        }
-
-        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
+        addInputClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
     void createClauseWithRecordVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
@@ -2021,11 +2034,7 @@ public class BLangPackageBuilder {
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.var.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
-
-        if (isFromClause) {
-            isInQuery = false;
-        }
-        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
+        addInputClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
     void createClauseWithErrorVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
@@ -2038,11 +2047,7 @@ public class BLangPackageBuilder {
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
-
-        if (isFromClause) {
-            isInQuery = false;
-        }
-        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
+        addInputClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
     void createClauseWithTupleVariableDefStatement(DiagnosticPos pos, Set<Whitespace> ws,
@@ -2055,21 +2060,18 @@ public class BLangPackageBuilder {
         } else if (!this.queryBindingPatternIdentifierWS.isEmpty()) {
             variableDefinitionNode.addWS(this.queryBindingPatternIdentifierWS.pop());
         }
-
-        if (isFromClause) {
-            isInQuery = false;
-        }
-        addClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
+        addInputClause(pos, ws, variableDefinitionNode, isDeclaredWithVar, isFromClause, isOuterJoin);
     }
 
-    private void addClause(DiagnosticPos pos, Set<Whitespace> ws,
-                           VariableDefinitionNode variableDefinitionNode,
-                           boolean isDeclaredWithVar, boolean isFromClause, boolean isOuterJoin) {
+    private void addInputClause(DiagnosticPos pos, Set<Whitespace> ws,
+                                VariableDefinitionNode variableDefinitionNode,
+                                boolean isDeclaredWithVar, boolean isFromClause, boolean isOuterJoin) {
         BLangInputClause inputClause;
         if (isFromClause) {
-            inputClause = (BLangFromClause) TreeBuilder.createFromClauseNode();
+            inputClause = (BLangFromClause) inputClauseStack.pop();
         } else {
-            inputClause = (BLangJoinClause) TreeBuilder.createJoinClauseNode();
+            inputClause = (BLangJoinClause) inputClauseStack.pop();
+            ((BLangJoinClause) inputClause).isOuterJoin = isOuterJoin;
         }
         inputClause.addWS(ws);
         inputClause.pos = pos;
@@ -2077,13 +2079,7 @@ public class BLangPackageBuilder {
         inputClause.setVariableDefinitionNode(variableDefinitionNode);
         inputClause.setCollection(this.exprNodeStack.pop());
         inputClause.isDeclaredWithVar = isDeclaredWithVar;
-        inputClause.isOuterJoin = isOuterJoin;
         queryClauseStack.push(inputClause);
-
-    }
-
-    void startOnClause() {
-        this.isInOnCondition = true;
     }
 
     void createOnClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2091,9 +2087,8 @@ public class BLangPackageBuilder {
         onClause.addWS(ws);
         onClause.pos = pos;
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
-        queryClauseStack.push(onClause);
-
-        isInOnCondition = false;
+        BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
+        joinClause.onClause = onClause;
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {

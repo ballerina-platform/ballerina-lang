@@ -55,6 +55,7 @@ public enum DiagnosticCode {
     INVALID_READONLY_INTERSECTION_TYPE("invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("invalid.readonly.object.type"),
+    INVALID_READONLY_MAPPING_FIELD("invalid.readonly.mapping.field"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -410,6 +411,8 @@ public enum DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
+    FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("fail.expr.no.matching.error.return.in.encl.invokable"),
+
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),
     INVALID_ACTION_INVOCATION_AS_EXPR("invalid.action.invocation.as.expr"),
@@ -425,6 +428,7 @@ public enum DiagnosticCode {
 
     // Streaming related codes
     INVALID_STREAM_CONSTRUCTOR("invalid.stream.constructor"),
+    INVALID_STREAM_CONSTRUCTOR_EXP_TYPE("invalid.stream.constructor.expected.type"),
     NOT_ALLOWED_STREAM_USAGE_WITH_FROM("invalid.stream.usage.with.from"),
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
@@ -446,6 +450,7 @@ public enum DiagnosticCode {
             ("key.constraint.not.supported.for.table.with.map.constraint"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE_DUE_AMBIGUITY("cannot.infer.member.type.for.table.due.ambiguity"),
     CANNOT_INFER_MEMBER_TYPE_FOR_TABLE("cannot.infer.member.type.for.table"),
+    ON_CONFLICT_ONLY_WORKS_WITH_TABLES_WITH_KEY_SPECIFIER("on.conflict.only.works.with.tables.with.key.specifier"),
 
 
     // Taint checking related codes
@@ -551,6 +556,7 @@ public enum DiagnosticCode {
     INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
 
     INVALID_RAW_TEMPLATE_TYPE("invalid.raw.template.type"),
+    MULTIPLE_COMPATIBLE_RAW_TEMPLATE_TYPES("multiple.compatible.raw.template.types"),
     INVALID_NUM_STRINGS("invalid.num.of.strings"),
     INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),

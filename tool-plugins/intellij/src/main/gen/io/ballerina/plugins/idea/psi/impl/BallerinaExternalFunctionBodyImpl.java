@@ -55,9 +55,9 @@ public class BallerinaExternalFunctionBodyImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getExternal() {
-    return findNotNullChildByType(EXTERNAL);
+    return findChildByType(EXTERNAL);
   }
 
 }

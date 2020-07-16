@@ -16,6 +16,7 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
+import org.ballerinalang.langserver.commons.trace.TraceRecord;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 /**

@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -60,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -329,6 +331,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr checkedExpr) {
         checkedExpr.expr = rewrite(checkedExpr.expr);
         result = checkedExpr;
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        failExpr.expr = rewrite(failExpr.expr);
+        result = failExpr;
     }
 
     @Override
@@ -839,6 +847,9 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangJoinClause joinClause) {
         joinClause.collection = rewrite(joinClause.collection);
+        if (joinClause.onClause != null) {
+            joinClause.onClause = (OnClauseNode) rewrite((BLangNode) joinClause.onClause);
+        }
         result = joinClause;
     }
 

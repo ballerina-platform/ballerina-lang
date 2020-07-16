@@ -42,6 +42,15 @@ public class ConditionalExpressionTest extends AbstractExpressionsTest {
         test("a ? (b) : c ? (d) : e", "conditional-expr/conditional_expr_assert_04.json");
         test("a ? b:c : d", "conditional-expr/conditional_expr_assert_05.json");
         test("a ? b:c ?: d:e : f", "conditional-expr/conditional_expr_assert_06.json");
+        test("a ? b.c :\"d\"", "conditional-expr/conditional_expr_assert_17.json");
+        test("a ? b?.c :\"d\"", "conditional-expr/conditional_expr_assert_18.json");
+        test("a ? b.@c :\"d\"", "conditional-expr/conditional_expr_assert_19.json");
+        test("a ? trap b :\"c\"", "conditional-expr/conditional_expr_assert_20.json");
+        test("a ? typeof b :\"c\"", "conditional-expr/conditional_expr_assert_21.json");
+        test("a ? ~b :\"c\"", "conditional-expr/conditional_expr_assert_22.json");
+        test("a ? check b :\"c\"", "conditional-expr/conditional_expr_assert_23.json");
+        test("a ? <string> b :\"c\"", "conditional-expr/conditional_expr_assert_24.json");
+        test("a ? b is c :\"d\"", "conditional-expr/conditional_expr_assert_25.json");
     }
 
     // Recovery tests

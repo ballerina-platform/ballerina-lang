@@ -60,6 +60,7 @@ function testInvocationWithArgVarargMix() {
     testMethodInvocationWithArgVarargMixWithoutDefaultableParam();
     testMethodInvocationWithArgVarargMixWithDefaultableParam();
     testMethodVarargEvaluationCount();
+    testVarargForParamsOfDifferentKinds();
 }
 
 function testInvocationWithArgVarargMixWithoutDefaultableParam() {
@@ -288,6 +289,33 @@ type Foo client object {
         return [i, s, checkpanic t.cloneWithType(StringArray)];
     }
 };
+
+type ArgsAsRecord record {
+    boolean b;
+    int i;
+    string[] s;
+};
+
+function testVarargForParamsOfDifferentKinds() {
+    [int, string...] x = [1, "foo"];
+    ArgsAsRecord rec = takeParamsOfDifferentKinds(true, ...x);
+    assertTrue(rec.b);
+    assertValueEquality(1, rec.i);
+    assertValueEquality(1, rec.s.length());
+    assertValueEquality("foo", rec.s[0]);
+
+    [boolean, int, string...] y = [false, 2, "bar", "baz"];
+    rec = takeParamsOfDifferentKinds(...y);
+    assertFalse(rec.b);
+    assertValueEquality(2, rec.i);
+    assertValueEquality(2, rec.s.length());
+    assertValueEquality("bar", rec.s[0]);
+    assertValueEquality("baz", rec.s[1]);
+}
+
+function takeParamsOfDifferentKinds(boolean b, int i, string... s) returns ArgsAsRecord {
+    return {b, i, s};
+}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

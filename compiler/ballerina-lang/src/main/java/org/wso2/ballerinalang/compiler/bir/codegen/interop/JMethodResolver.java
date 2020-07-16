@@ -32,6 +32,7 @@ import org.ballerinalang.jvm.values.api.BXML;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -342,6 +343,8 @@ class JMethodResolver {
                         }
                     }
                     return true;
+                case TypeTags.INTERSECTION:
+                    return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -484,6 +487,8 @@ class JMethodResolver {
                         }
                     }
                     return false;
+                case TypeTags.INTERSECTION:
+                    return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;

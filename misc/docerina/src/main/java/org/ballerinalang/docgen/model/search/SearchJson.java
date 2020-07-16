@@ -31,6 +31,9 @@ public class SearchJson {
     private List<ConstructSearchJson> constants;
     private List<ConstructSearchJson> errors;
     private List<ConstructSearchJson> types;
+    private List<ConstructSearchJson> clients;
+    private List<ConstructSearchJson> listeners;
+    private List<ConstructSearchJson> annotations;
 
     public SearchJson(List<ModuleSearchJson> modules,
                       List<ConstructSearchJson> objects,
@@ -38,7 +41,10 @@ public class SearchJson {
                       List<ConstructSearchJson> records,
                       List<ConstructSearchJson> constants,
                       List<ConstructSearchJson> errors,
-                      List<ConstructSearchJson> types) {
+                      List<ConstructSearchJson> types,
+                      List<ConstructSearchJson> clients,
+                      List<ConstructSearchJson> listeners,
+                      List<ConstructSearchJson> annotations) {
         this.modules = modules;
         this.objects = objects;
         this.functions = functions;
@@ -46,6 +52,9 @@ public class SearchJson {
         this.constants = constants;
         this.errors = errors;
         this.types = types;
+        this.clients = clients;
+        this.listeners = listeners;
+        this.annotations = annotations;
     }
 
     public SearchJson() {
@@ -56,6 +65,9 @@ public class SearchJson {
         this.constants = new ArrayList<>();
         this.errors = new ArrayList<>();
         this.types = new ArrayList<>();
+        this.clients = new ArrayList<>();
+        this.listeners = new ArrayList<>();
+        this.annotations = new ArrayList<>();
     }
 
     public List<ModuleSearchJson> getModules() {
@@ -112,5 +124,29 @@ public class SearchJson {
 
     public void setTypes(List<ConstructSearchJson> types) {
         this.types = types;
+    }
+
+    public List<ConstructSearchJson> getClients() {
+        return clients;
+    }
+
+    public void setClients(List<ConstructSearchJson> clients) {
+        this.clients = clients;
+    }
+
+    public List<ConstructSearchJson> getListeners() {
+        return listeners;
+    }
+
+    public void setListeners(List<ConstructSearchJson> listeners) {
+        this.listeners = listeners;
+    }
+
+    public List<ConstructSearchJson> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<ConstructSearchJson> annotations) {
+        this.annotations = annotations;
     }
 }

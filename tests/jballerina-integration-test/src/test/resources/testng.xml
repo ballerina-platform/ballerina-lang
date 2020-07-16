@@ -127,11 +127,7 @@
             <class name="org.ballerinalang.test.auth.basic.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthnWithMultipleHandlersTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthzCacheTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.AuthnWithExpiredCertificateTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.TokenPropagationTest"/>
-            <class name="org.ballerinalang.test.auth.jwt.SignatureValidationTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthzCacheTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
             <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
@@ -196,6 +192,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
+<!--            <class name="org.ballerinalang.test.service.websocket.CookieTest"/>-->
 <!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
         </classes>
     </test>
@@ -248,36 +245,6 @@
 <!--            <class name="org.ballerinalang.test.security.HTTPResponseXMLSecurityTestCase"/>-->
 <!--        </classes>-->
 <!--    </test>-->
-
-    <test name="ballerina-websub-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubBaseTest"/>
-            <!-- WebSubServiceExtensionTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubServiceExtensionProjectTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubCoreFunctionalityTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubContentTypeSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubDiscoveryWithMultipleSubscribersTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.basic.WebSubRedirectionTestCase"/>
-             <class name="org.ballerinalang.test.service.websub.basic.WebSubStartupFunctionalityTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-websub-advanced-config-tests" parallel="false">
-        <parameter name="enableJBallerinaTests" value="true"/>
-        <classes>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubAdvancedBaseTest"/>
-            <!-- DummyTestCase or any other test which does not have @BeforeClass and belongs to the
-                "websub-test" group needs to be the first test to run to ensure @BeforeGroup is executed before
-                @BeforeClass in test classes which have @BeforeClass -->
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubDummyTestCase"/>
-            <class name="org.ballerinalang.test.service.websub.advanced.WebSubSecureHubTestCase"/>
-<!--            <class name="org.ballerinalang.test.service.websub.advanced.WebSubPersistenceTestCase"/>-->
-        </classes>
-    </test>
 
     <test name="ballerina-data-streaming-tests" parallel="false">
         <groups>

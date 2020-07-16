@@ -5,7 +5,7 @@ Ballerina supports Observability out of the box. This module provides user api's
 
 To observe Ballerina code, the '--b7a.observability.enabled=true' property should be given when starting the service. 
 i.e. `ballerina run hello_world.bal --b7a.observability.enabled=true'
-For more information on Ballerina Observability visit [How to Observe Ballerina Services](https://ballerina.io/v1-2/learn/how-to-observe-ballerina-code/).
+For more information on Ballerina Observability visit [How to Observe Ballerina Services](https://ballerina.io/swan-lake/learn/how-to-observe-ballerina-code/).
 
 ## Tracing
 Tracing provides information regarding the roundtrip of a service invocation based on the concept of spans, which are 

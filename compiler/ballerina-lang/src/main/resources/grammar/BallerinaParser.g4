@@ -816,6 +816,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
+    |   FAIL expression                                                     # failExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
@@ -922,7 +923,7 @@ letClause
     ;
 
 joinClause
-    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN (typeName | VAR) bindingPattern) IN expression onClause?
     ;
 
 fromClause
@@ -934,7 +935,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
+    :   fromClause (fromClause | joinClause | letClause | whereClause)*
     ;
 
 queryConstructType
