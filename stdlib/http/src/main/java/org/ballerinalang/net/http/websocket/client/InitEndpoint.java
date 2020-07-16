@@ -49,7 +49,7 @@ public class InitEndpoint {
         Strand strand = Scheduler.getStrand();
         String remoteUrl = webSocketClient.getStringValue(WebSocketConstants.CLIENT_URL_CONFIG).getValue();
         WebSocketService wsService = WebSocketUtil.validateAndCreateWebSocketService(strand, clientEndpointConfig);
-        HttpWsConnectorFactory connectorFactory = HttpUtil.createWsConnectionFactory();
+        HttpWsConnectorFactory connectorFactory = HttpUtil.createHttpWsConnectionFactory();
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(remoteUrl);
         String scheme = URI.create(remoteUrl).getScheme();
         WebSocketUtil.populateClientConnectorConfig(clientEndpointConfig, clientConnectorConfig, scheme);
