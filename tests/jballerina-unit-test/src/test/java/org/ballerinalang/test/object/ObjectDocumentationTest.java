@@ -40,10 +40,10 @@ public class ObjectDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.")
+    @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
+        Assert.assertEquals(compileResult.getWarnCount(), 0 );
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation docNode = ((BLangTypeDefinition) packageNode.getTypeDefinitions()
                 .get(0)).markdownDocumentationAttachment;
@@ -53,23 +53,23 @@ public class ObjectDocumentationTest {
         Assert.assertEquals(docNode.getParameters().size(), 3);
         Assert.assertEquals(docNode.getParameters().get(0).getParameterName().getValue(), "a");
         Assert.assertEquals(docNode.getParameters().get(0).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation `field a` documentation");
+                EMPTY_STRING), "annotation ``field a`` documentation");
 
         Assert.assertEquals(docNode.getParameters().get(1).getParameterName().getValue(), "b");
         Assert.assertEquals(docNode.getParameters().get(1).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation `field b` documentation");
+                EMPTY_STRING), "annotation ``field b`` documentation");
         Assert.assertEquals(docNode.getParameters().get(2).getParameterName().getValue(), "c");
         Assert.assertEquals(docNode.getParameters().get(2).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation `field c` documentation");
+                EMPTY_STRING), "annotation ``field c`` documentation");
 
         docNode = ((BLangAnnotation) packageNode.getAnnotations().get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(docNode);
     }
 
-    @Test(description = "Test doc struct.", groups = { "brokenOnNewParser" })
+    @Test(description = "Test doc struct.", groups = { "disableOnOldParser" })
     public void testDocStruct() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_doc_annotation.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation dNode =
                 ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
@@ -88,7 +88,7 @@ public class ObjectDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "brokenOnNewParser" })
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));

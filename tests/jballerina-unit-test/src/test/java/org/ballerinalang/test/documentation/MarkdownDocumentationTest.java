@@ -172,7 +172,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNull(returnParameter);
     }
 
-    @Test(description = "Test doc type")
+    @Test(description = "Test doc type", groups = { "disableOnOldParser" })
     public void testDocType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_type.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -224,7 +224,7 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).referenceName, "annot");
     }
 
-    @Test(description = "Test doc function")
+    @Test(description = "Test doc function", groups = { "disableOnOldParser" })
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -321,7 +321,7 @@ public class MarkdownDocumentationTest {
 
     }
 
-    @Test(description = "Test doc negative cases.")
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
@@ -579,7 +579,7 @@ public class MarkdownDocumentationTest {
                 "    # ```");
     }
 
-    @Test(description = "Test doc multiple.")
+    @Test(description = "Test doc multiple.", groups = { "disableOnOldParser" })
     public void testMultiple() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_multiple.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
