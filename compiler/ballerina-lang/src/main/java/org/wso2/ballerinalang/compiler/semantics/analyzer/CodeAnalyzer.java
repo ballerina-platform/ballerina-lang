@@ -2023,7 +2023,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         Set<Object> names = new HashSet<>();
         BType type = recordLiteral.type;
-        boolean isOpenRecord = type != null && type.tag == TypeTags.RECORD && !((BRecordType) type).sealed;
+        boolean isRecord = type.tag == TypeTags.RECORD;
+        boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
+
+        // A record type is inferred for a record literal even if the contextually expected type is a map, if the
+        // mapping constructor expression has `readonly` fields.
+        boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
+                recordLiteral.expectedType.tag == TypeTags.MAP;
+
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
@@ -2071,7 +2078,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                         recordLiteral.expectedType.getKind().typeName(), name);
                     }
 
-                    if (isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
+                    if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
@@ -2086,6 +2093,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     names.add(name);
                 }
             }
+        }
+
+        if (isInferredRecordForMapCET) {
+            recordLiteral.expectedType = type;
         }
     }
 

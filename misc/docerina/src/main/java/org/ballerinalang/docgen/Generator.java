@@ -124,11 +124,13 @@ public class Generator {
             addDocForObjectType(objectType, typeDefinition, module);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
-            BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
-            List<String> values = enumNode.getValueSet().stream()
-                    .map(java.lang.Object::toString)
-                    .collect(Collectors.toList());
-            module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), isDeprecated, values));
+            if (!typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
+                BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
+                List<String> values = enumNode.getValueSet().stream()
+                        .map(java.lang.Object::toString)
+                        .collect(Collectors.toList());
+                module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), isDeprecated, values));
+            }
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;

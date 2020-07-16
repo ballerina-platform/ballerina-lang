@@ -56,6 +56,8 @@ function testImmutableTypes() {
     testImmutableUnion();
     testDefaultValuesOfFields();
     testUnionReadOnlyFields();
+    testReadOnlyCastConstructingReadOnlyValues();
+    testReadOnlyCastConstructingReadOnlyValuesPropagation();
 }
 
 function testSimpleInitializationForSelectivelyImmutableTypes() {
@@ -926,6 +928,78 @@ function testUnionReadOnlyFields() {
 
     Array arr = <Array> rec.keys;
     assertTrue(arr.values.isReadOnly());
+}
+
+function testReadOnlyCastConstructingReadOnlyValues() {
+    map<int> readOnlyMap = <readonly> {q: 1, w: 2, e: 3};
+    map<int> mutableMap = {q: 1, w: 2, e: 3};
+
+    assertTrue(readOnlyMap is map<int> & readonly);
+    assertTrue(readOnlyMap.isReadOnly());
+    assertFalse(mutableMap is map<int> & readonly);
+    assertFalse(mutableMap.isReadOnly());
+
+    int[]|boolean[][] arr = [
+        <readonly> [true, false],
+        [true, true, false]
+    ];
+
+    assertTrue(arr is boolean[][]);
+    assertFalse(arr is boolean[][] & readonly);
+
+    boolean[][] bArr = <boolean[][]> arr;
+
+    boolean[] b1 = bArr[0];
+    assertTrue(b1.isReadOnly());
+    assertTrue(b1 is readonly & boolean[]);
+    assertEquality(<boolean[]> [true, false], b1);
+
+    boolean[] b2 = bArr[1];
+    assertFalse(b2.isReadOnly());
+    assertFalse(b2 is readonly & boolean[]);
+    assertEquality(<boolean[]> [true, true, false], b2);
+
+    Quota|future<int> qf = <readonly> {initial: 25, factor: 3.4, "mode": "default"};
+    assertTrue(qf is Quota);
+
+    Quota q = <Quota> qf;
+    assertTrue(q is Quota & readonly);
+    assertTrue(q.isReadOnly());
+    assertEquality(25, q.initial);
+    assertEquality(3.4, q.factor);
+    assertEquality("default", q["mode"]);
+    assertEquality((), q["missing"]);
+}
+
+function testReadOnlyCastConstructingReadOnlyValuesPropagation() {
+    anydata[] & readonly c = [1, 2];
+
+    record {
+        int i;
+        string[] s;
+    } rec = <readonly> {
+        i: 1,
+        s: ["hello", "ballerina"],
+        "b": {
+            x: false,
+            y: 2.0
+        },
+        "c": c
+    };
+
+    assertTrue(rec is readonly & record {|int i; string[] s; map<anydata> b; anydata[] c;|});
+    var val = <record {|int i; string[] s; map<anydata> b; anydata[] c;|}> rec;
+
+    assertEquality(1, val.i);
+
+    assertTrue(val.s is string[] & readonly);
+    assertEquality(<string[]> ["hello", "ballerina"], val.s);
+
+    assertTrue(val.b is map<anydata> & readonly);
+    assertEquality(<map<anydata>> {x: false, y: 2.0}, val.b);
+
+    assertTrue(val.c is anydata[] & readonly);
+    assertEquality(<anydata[]> [1, 2], val.c);
 }
 
 type AssertionError error;

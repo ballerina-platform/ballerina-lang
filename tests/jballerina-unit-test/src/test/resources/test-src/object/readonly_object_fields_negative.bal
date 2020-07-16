@@ -165,3 +165,17 @@ function testSubTypingWithReadOnlyFieldsNegative() {
     AbstractPerson ap = g;
     Person p3 = ap;
 }
+
+function testReadOnlyModifierInStringRepresentation() {
+    object {
+        int i = 2;
+        string s = "world";
+        boolean b = false;
+    } b = new;
+
+    object {
+        readonly int i = 2;
+        string s = "world";
+        readonly boolean b = true;
+    } y = b;
+}
