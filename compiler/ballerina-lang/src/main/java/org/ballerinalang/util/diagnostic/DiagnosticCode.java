@@ -412,6 +412,8 @@ public enum DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("checked.expr.invalid.usage.only.error.types.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("checked.expr.no.matching.error.return.in.encl.invokable"),
 
+    FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE("fail.expr.no.matching.error.return.in.encl.invokable"),
+
     START_REQUIRE_INVOCATION("start.require.invocation"),
     INVALID_EXPR_STATEMENT("invalid.expr.statement"),
     INVALID_ACTION_INVOCATION_AS_EXPR("invalid.action.invocation.as.expr"),

@@ -16,14 +16,16 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
-import org.ballerinalang.langserver.client.ExtendedLanguageClientAware;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClientAware;
+import org.ballerinalang.langserver.commons.service.spi.ExtendedLanguageServerService;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.LSClientLogger;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.extensions.AbstractExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ExtendedLanguageServer;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorService;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorServiceImpl;
@@ -69,7 +71,8 @@ import static org.ballerinalang.langserver.Experimental.SEMANTIC_SYNTAX_HIGHLIGH
 /**
  * Language server implementation for Ballerina.
  */
-public class BallerinaLanguageServer implements ExtendedLanguageServer, ExtendedLanguageClientAware {
+public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
+        implements ExtendedLanguageServer, ExtendedLanguageClientAware {
     private ExtendedLanguageClient client = null;
     private TextDocumentService textService;
     private WorkspaceService workspaceService;
@@ -88,6 +91,7 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     }
 
     public BallerinaLanguageServer(WorkspaceDocumentManager documentManager) {
+        super(documentManager);
         LSGlobalContext lsGlobalContext = new LSGlobalContext(LSContextOperation.LS_INIT);
         lsGlobalContext.put(LSGlobalContextKeys.LANGUAGE_SERVER_KEY, this);
         lsGlobalContext.put(LSGlobalContextKeys.DOCUMENT_MANAGER_KEY, documentManager);
@@ -175,10 +179,16 @@ public class BallerinaLanguageServer implements ExtendedLanguageServer, Extended
     public CompletableFuture<Object> shutdown() {
         shutdown = 0;
         ballerinaTraceListener.stopListener();
+        for (ExtendedLanguageServerService service : extendedServices) {
+            service.shutdown();
+        }
         return CompletableFuture.supplyAsync(Object::new);
     }
 
     public void exit() {
+        for (ExtendedLanguageServerService service : extendedServices) {
+            service.exit(shutdown);
+        }
         System.exit(shutdown);
     }
 

@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.BallerinaLanguageServer;
 import org.ballerinalang.langserver.DocumentServiceOperationContext;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
@@ -35,7 +36,6 @@ import org.ballerinalang.langserver.compiler.exception.CompilationFailedExceptio
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.HighlightingFailedException;
 import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightProvider;
-import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ClientCapabilities;
