@@ -100,6 +100,10 @@ public class LexerTerminals {
     public static final String OUTER = "outer";
     public static final String EQUALS = "equals";
 
+    // For BFM only
+    public static final String VARIABLE = "variable";
+    public static final String MODULE = "module";
+
     // Types
     public static final String INT = "int";
     public static final String FLOAT = "float";

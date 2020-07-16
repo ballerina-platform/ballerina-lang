@@ -40,7 +40,7 @@ public function setConfig(string key, string|int|float|boolean value) = @java:Me
     class: "org.ballerinalang.stdlib.config.SetConfig"
 } external;
 
-function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<any>|anydata[] = @java:Method {
+function get(@untainted string key, ValueType vType) returns string|int|float|boolean|map<anydata>|anydata[] = @java:Method {
     name: "get",
     class: "org.ballerinalang.stdlib.config.GetConfig"
 } external;

@@ -327,9 +327,9 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
                 "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 45);
+                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 39);
         validateError(compileResult, index++,
-                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 64);
+                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 51);
         validateError(compileResult, index++,
                       "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
                       82, 43);

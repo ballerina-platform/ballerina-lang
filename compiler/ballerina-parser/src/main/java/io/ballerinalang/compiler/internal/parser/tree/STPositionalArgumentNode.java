@@ -31,49 +31,39 @@ import java.util.Collections;
  * @since 2.0.0
  */
 public class STPositionalArgumentNode extends STFunctionArgumentNode {
-    public final STNode leadingComma;
     public final STNode expression;
 
     STPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression) {
         this(
-                leadingComma,
                 expression,
                 Collections.emptyList());
     }
 
     STPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.POSITIONAL_ARG, diagnostics);
-        this.leadingComma = leadingComma;
         this.expression = expression;
 
         addChildren(
-                leadingComma,
                 expression);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STPositionalArgumentNode(
-                this.leadingComma,
                 this.expression,
                 diagnostics);
     }
 
     public STPositionalArgumentNode modify(
-            STNode leadingComma,
             STNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 expression)) {
             return this;
         }
 
         return new STPositionalArgumentNode(
-                leadingComma,
                 expression,
                 diagnostics);
     }

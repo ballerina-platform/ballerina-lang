@@ -368,15 +368,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (expr.getKind() != NodeKind.RECORD_LITERAL_EXPR ||
-                expr.expectedType == null ||
-                expr.expectedType.tag != TypeTags.MAP ||
-                expr.type.tag != TypeTags.RECORD) {
-            expr.expectedType = resultType;
-        }
-
         // If the expected type is a map, but a record type is inferred due to the presence of `readonly` fields in
         // the mapping constructor expression, we don't override the expected type.
+        if (expr.getKind() == NodeKind.RECORD_LITERAL_EXPR && expr.expectedType != null &&
+                expr.expectedType.tag == TypeTags.MAP && expr.type.tag == TypeTags.RECORD) {
+            return;
+        }
+
+        expr.expectedType = resultType;
     }
 
 
@@ -592,14 +591,15 @@ public class TypeChecker extends BLangNodeVisitor {
                 types.isCharLiteralValue((String) literalValue)) {
             return symTable.charStringType;
         } else {
-            if (this.expType.tag == TypeTags.FINITE) {
-                boolean foundMember = types.isAssignableToFiniteType(this.expType, literalExpr);
+            BType expected = getResolvedIntersectionType(this.expType);
+            if (expected.tag == TypeTags.FINITE) {
+                boolean foundMember = types.isAssignableToFiniteType(expected, literalExpr);
                 if (foundMember) {
                     setLiteralValueForFiniteType(literalExpr, literalType);
                     return literalType;
                 }
-            } else if (this.expType.tag == TypeTags.UNION) {
-                BUnionType unionType = (BUnionType) this.expType;
+            } else if (expected.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) expected;
                 boolean foundMember = unionType.getMemberTypes()
                         .stream()
                         .anyMatch(memberType -> types.isAssignableToFiniteType(memberType, literalExpr));
@@ -3977,13 +3977,14 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType determineRawTemplateLiteralType(BLangRawTemplateLiteral rawTemplateLiteral, BType expType) {
-        // Contextually expected type is NoType when `var` is used.
-        // Therefore consider the literal as of type RawTemplate
-        if (expType == symTable.noType || expType == symTable.anyType) {
+        // Contextually expected type is NoType when `var` is used. When `var` is used, the literal is considered to
+        // be of type `RawTemplate`.
+        if (expType == symTable.noType || containsAnyType(expType)) {
             return symTable.rawTemplateType;
         }
 
-        BType type = types.checkType(rawTemplateLiteral, expType, symTable.rawTemplateType,
+        BType compatibleType = getCompatibleRawTemplateType(expType, rawTemplateLiteral.pos);
+        BType type = types.checkType(rawTemplateLiteral, compatibleType, symTable.rawTemplateType,
                                      DiagnosticCode.INVALID_RAW_TEMPLATE_TYPE);
 
         if (type == symTable.semanticError) {
@@ -4013,8 +4014,9 @@ public class TypeChecker extends BLangNodeVisitor {
         return type;
     }
 
-    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType listType, DiagnosticCode code,
-                                             DiagnosticPos pos) {
+    private boolean evaluateRawTemplateExprs(List<? extends BLangExpression> exprs, BType fieldType,
+                                             DiagnosticCode code, DiagnosticPos pos) {
+        BType listType = getResolvedIntersectionType(fieldType);
         boolean errored = false;
 
         if (listType.tag == TypeTags.ARRAY) {
@@ -4054,6 +4056,48 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         return errored;
+    }
+
+    private BType getResolvedIntersectionType(BType type) {
+        return type.tag != TypeTags.INTERSECTION ? type : ((BIntersectionType) type).effectiveType;
+    }
+
+    private boolean containsAnyType(BType type) {
+        if (type == symTable.anyType) {
+            return true;
+        }
+
+        if (type.tag == TypeTags.UNION) {
+            return ((BUnionType) type).getMemberTypes().contains(symTable.anyType);
+        }
+
+        return false;
+    }
+
+    private BType getCompatibleRawTemplateType(BType expType, DiagnosticPos pos) {
+        if (expType.tag != TypeTags.UNION) {
+            return expType;
+        }
+
+        BUnionType unionType = (BUnionType) expType;
+        List<BType> compatibleTypes = new ArrayList<>();
+
+        for (BType type : unionType.getMemberTypes()) {
+            if (types.isAssignable(type, symTable.rawTemplateType)) {
+                compatibleTypes.add(type);
+            }
+        }
+
+        if (compatibleTypes.size() == 0) {
+            return expType;
+        }
+
+        if (compatibleTypes.size() > 1) {
+            dlog.error(pos, DiagnosticCode.MULTIPLE_COMPATIBLE_RAW_TEMPLATE_TYPES, symTable.rawTemplateType, expType);
+            return symTable.semanticError;
+        }
+
+        return compatibleTypes.get(0);
     }
 
     @Override

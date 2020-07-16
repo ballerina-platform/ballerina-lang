@@ -91,16 +91,16 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
         validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
         validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
-        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 237, 54);
-        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 46);
-        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 241, 51);
-        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 243, 25);
-        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 243, 46);
+        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 238, 48);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 51);
+        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 244, 25);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 244, 40);
 
         validateError(result, index++, "cannot update 'readonly' value of type " +
-                "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 258, 5);
+                "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
         validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
-                      261, 5);
+                      262, 5);
 
         assertEquals(result.getErrorCount(), index);
     }
