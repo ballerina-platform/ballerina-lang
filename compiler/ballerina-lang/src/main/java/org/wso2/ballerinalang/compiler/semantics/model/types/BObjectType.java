@@ -36,7 +36,6 @@ public class BObjectType extends BStructureType implements ObjectType {
 
     private static final String OBJECT = "object";
     private static final String SPACE = " ";
-    private static final String DOLLAR = "$";
     private static final String PUBLIC = "public";
     private static final String PRIVATE = "private";
     private static final String LEFT_CURL = "{";
@@ -73,7 +72,7 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public String toString() {
 
-        if (tsymbol.name.value.startsWith(DOLLAR)) {
+        if (shouldPrintShape(tsymbol.name)) {
             StringBuilder sb = new StringBuilder();
             sb.append(OBJECT).append(SPACE).append(LEFT_CURL);
             for (BField field : fields.values()) {
@@ -100,6 +99,11 @@ public class BObjectType extends BStructureType implements ObjectType {
                 sb.append(SPACE).append(fun).append(SEMI_COLON);
             }
             sb.append(SPACE).append(RIGHT_CURL);
+
+            if (Symbols.isFlagOn(tsymbol.flags, Flags.READONLY)) {
+                sb.append(" & readonly");
+            }
+
             return sb.toString();
         }
         return this.tsymbol.toString();

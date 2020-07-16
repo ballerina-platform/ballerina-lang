@@ -1281,7 +1281,16 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
+
                 BType listCompatibleMemType = getListConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1307,8 +1316,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     exprToLog = nodeCloner.clone(listConstructor);
                 }
 
-                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
-                           getInferredTupleType(exprToLog, symTable.noType));
+                BType inferredTupleType = getInferredTupleType(exprToLog, symTable.noType);
+
+                if (!erroredExpType && inferredTupleType != symTable.semanticError) {
+                    dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, inferredTupleType);
+                }
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(listConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES,
@@ -1363,8 +1375,15 @@ public class TypeChecker extends BLangNodeVisitor {
             listConstructor.cloneAttempt++;
             exprToLog = nodeCloner.clone(listConstructor);
         }
-        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
-                   getInferredTupleType(exprToLog, symTable.noType));
+
+        if (bType == symTable.semanticError) {
+            // Ignore the return value, we only need to visit the expressions.
+            getInferredTupleType(exprToLog, symTable.semanticError);
+        } else {
+            dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
+                       getInferredTupleType(exprToLog, symTable.noType));
+        }
+
         return symTable.semanticError;
     }
 
@@ -1697,7 +1716,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1718,7 +1745,9 @@ public class TypeChecker extends BLangNodeVisitor {
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
-                reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                if (!erroredExpType) {
+                    reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                }
                 validateSpecifiedFields(mappingConstructor, symTable.semanticError);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
@@ -1814,6 +1843,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType == symTable.semanticError) {
+            return;
+        }
+
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                        DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
