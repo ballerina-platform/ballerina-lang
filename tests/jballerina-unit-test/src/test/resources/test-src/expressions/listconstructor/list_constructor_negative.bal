@@ -48,3 +48,24 @@ function testInvalidAssignmentForInferredTuple() {
     |} v1 = tup[1];
     float v2 = tup[2];
 }
+
+function testInferringForReadOnlyNonReadOnlyMemberNegative() {
+    int[] arr = [1, 2];
+
+    future<()> ft = start testInferringForReadOnlyNonReadOnlyMemberNegative();
+
+    readonly rd = [1, arr, ft];
+}
+
+function testInferringForReadOnlyNegativeInUnion() {
+    map<boolean|int> mp = {
+        i: 1,
+        b: true
+    };
+
+    readonly|int[] rd = [1, mp];
+
+    boolean[] & readonly arr = [];
+
+    boolean[][]|readonly br = [arr];
+}

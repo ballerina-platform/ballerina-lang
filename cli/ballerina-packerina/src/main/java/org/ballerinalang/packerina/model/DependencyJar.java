@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
@@ -20,13 +20,10 @@ import java.nio.file.Path;
 import java.util.HashSet;
 
 /**
- * Class for holding contents of executable jar.
+ * Class for holding native libraries.
  *
- * @since 1.0.4
+ * @since 2.0.0
  */
-public class ExecutableJar {
-
-    public HashSet<Path> moduleLibs = new HashSet<>();
-
-    public HashSet<Path> testLibs = new HashSet<>();
+public class DependencyJar {
+    public HashSet<Path> nativeLibs = new HashSet<>();
 }

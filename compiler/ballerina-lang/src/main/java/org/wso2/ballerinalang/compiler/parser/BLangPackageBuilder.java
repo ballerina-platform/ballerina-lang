@@ -1643,7 +1643,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        keyValue.isReadonly = isReadonly;
+        keyValue.readonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1715,7 +1715,7 @@ public class BLangPackageBuilder {
     void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
         BLangRecordLiteral.BLangRecordVarNameField varNameField =
                 (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-        varNameField.isReadonly = isReadonly;
+        varNameField.readonly = isReadonly;
         createSimpleVariableReference(pos, ws, varNameField);
     }
 

@@ -120,6 +120,16 @@ function testGetCookies(http:Request req) returns http:Cookie[] {
     return cookiesInRequest;
 }
 
+function testGetCookiesWithEmptyValue(http:Request req) returns http:Cookie[] {
+    http:Cookie cookie1 = new("SID1", "");
+    cookie1.domain = "google.com";
+    cookie1.path = "/sample";
+    http:Cookie[] cookiesToAdd = [cookie1];
+    req.addCookies(cookiesToAdd);
+    http:Cookie[] cookiesInRequest = req.getCookies();
+    return cookiesInRequest;
+}
+
 listener http:MockListener mockEP = new(9090);
 
 @http:ServiceConfig { basePath: "/hello" }
