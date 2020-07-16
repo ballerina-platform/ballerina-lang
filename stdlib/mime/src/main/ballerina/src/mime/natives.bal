@@ -620,7 +620,7 @@ function externHasHeader(Entity entity, string headerName, HeaderPosition positi
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
 # + charset - Charset to be used. This is used only with the string input
 # + return - An encoded `string` if the given input is of type string, an encoded `byte[]` if the given input is of
-#            type byte[], an encoded `io:ReadableByteChannel` if the given input is of type `io:ReadableByteChannel`,
+#            type byte[], an encoded `io:ReadableByteChannel` if the given input is of type ``io:ReadableByteChannel``,
 #            or else a `mime:EncodeError` record in case of errors
 public function base64Encode((string|byte[]|io:ReadableByteChannel) contentToBeEncoded, string charset = "utf-8")
                 returns (string|byte[]|io:ReadableByteChannel|EncodeError) = @java:Method {
