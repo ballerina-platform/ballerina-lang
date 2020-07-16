@@ -33,7 +33,7 @@ import static org.testng.Assert.assertTrue;
  *
  * @since 0.990.4
  */
-@Test(groups = { "brokenOnNewParser" })
+
 public class MainFunctionsTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
@@ -90,7 +90,7 @@ public class MainFunctionsTest {
         assertTrue(result.errorOutput.contains("message=error message"), "invalid error message");
     }
 
-    @Test
+    @Test(groups = { "disableOnOldParser" })
     public void invalidMainFunctionSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/main.function/test_main_function_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 5);
@@ -98,9 +98,9 @@ public class MainFunctionsTest {
         validateError(negativeResult, 1, "invalid type 'typedesc' as 'main' function parameter, expected anydata",
                       17, 15);
         validateError(negativeResult, 2, "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata",
-                      17, 32);
+                      17, 30);
         validateError(negativeResult, 3, "invalid type 'FooObject[]' as 'main' function parameter, expected anydata",
-                      17, 57);
+                      17, 55);
         validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of " +
                               "'error?' containing '()'", 17, 81);
     }
