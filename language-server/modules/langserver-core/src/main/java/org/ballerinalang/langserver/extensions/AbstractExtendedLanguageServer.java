@@ -25,6 +25,7 @@ import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethod;
 import org.eclipse.lsp4j.jsonrpc.json.JsonRpcMethodProvider;
 import org.eclipse.lsp4j.jsonrpc.services.ServiceEndpoints;
+import org.eclipse.lsp4j.services.LanguageServer;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -41,7 +42,7 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.logError;
  * @see ExtendedLanguageServerService
  * @since 2.0.0
  */
-public abstract class AbstractExtendedLanguageServer implements Endpoint, JsonRpcMethodProvider {
+public abstract class AbstractExtendedLanguageServer implements LanguageServer, Endpoint, JsonRpcMethodProvider {
     protected List<ExtendedLanguageServerService> extendedServices = new ArrayList<>();
     private Map<String, JsonRpcMethod> supportedMethods;
     private final Multimap<String, Endpoint> extensionServices = LinkedListMultimap.create();
@@ -68,7 +69,7 @@ public abstract class AbstractExtendedLanguageServer implements Endpoint, JsonRp
             Map<String, JsonRpcMethod> extensions = new LinkedHashMap<>();
             for (ExtendedLanguageServerService ext : this.extendedServices) {
                 if (ext != null) {
-                    ext.init(documentManager);
+                    ext.init(documentManager, this);
                     Map<String, JsonRpcMethod> supportedExtensions = ext.supportedMethods();
                     for (Map.Entry<String, JsonRpcMethod> entry : supportedExtensions.entrySet()) {
                         if (supportedMethods.containsKey(entry.getKey())) {
