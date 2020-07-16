@@ -1095,10 +1095,6 @@ public class HttpUtil {
         return DefaultHttpWsConnectorFactoryHolder.getHttpConnectorFactory();
     }
 
-    public static HttpWsConnectorFactory createWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
-    }
-
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
         Optional<ObserverContext> observerContext = ObserveUtils.getObserverContextOfCurrentFrame(strand);
         observerContext.ifPresent(ctx -> {
