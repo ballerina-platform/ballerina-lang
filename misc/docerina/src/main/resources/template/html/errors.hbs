@@ -4,7 +4,7 @@
 
 {{#partial "sidebarLists" }}
     {{#each module.errors}}
-        <li {{#equals errors.name name}}class="active"{{/equals}} onclick="menuLinkClick()"></li>
+        <li {{#equals errors.name name}}class="active"{{/equals}} onclick="menuLinkClick()">
             <a href="#{{name}}">{{name}}</a>
         </li>
     {{/each}}
@@ -20,7 +20,7 @@
             {{#each errors}}
                 <div class="params-listing">
                     <ul>
-                        <li>
+                        <li id="{{ name }}">
                             <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }} </b>
                             <span class="type">{{#if detailType }}{{{ typeName detailType }}}{{/if}}</span>
                             {{ attachmentPoints }}

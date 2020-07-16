@@ -1636,6 +1636,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     fieldVar.variableName = createIdentifier(((SpecificFieldNode) field).fieldName());
                     fieldVar.pkgAlias = createIdentifier(null, "");
                     fieldVar.pos = fieldVar.variableName.pos;
+                    fieldVar.readonly = specificField.readonlyKeyword().isPresent();
                     bLiteralNode.fields.add(fieldVar);
                 } else {
                     BLangRecordKeyValueField bLRecordKeyValueField =
@@ -1644,6 +1645,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     bLRecordKeyValueField.key =
                             new BLangRecordLiteral.BLangRecordKey(createExpression(specificField.fieldName()));
                     bLRecordKeyValueField.key.computedKey = false;
+                    bLRecordKeyValueField.readonly = specificField.readonlyKeyword().isPresent();
                     bLiteralNode.fields.add(bLRecordKeyValueField);
                 }
             }
@@ -3976,7 +3978,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 position = matcher.end() - 2;
                 matcher = UNICODE_PATTERN.matcher(text);
             }
-            text = StringEscapeUtils.unescapeJava(text);
+            if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
+                text = StringEscapeUtils.unescapeJava(text);
+            }
 
             typeTag = TypeTags.STRING;
             value = text;
