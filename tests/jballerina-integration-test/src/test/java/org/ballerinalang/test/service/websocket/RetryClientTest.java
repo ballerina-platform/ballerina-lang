@@ -51,7 +51,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests the retry function with the maximum count using the WebSocket client (" +
-            "Restart the server twice and send the data for every restart)", enabled = false)
+            "Restart the server twice and send the data for every restart)")
     public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
@@ -66,7 +66,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests the retry function using the WebSocket client (Restart the server and " +
-            "check the maximum count", enabled = false)
+            "check the maximum count")
     public void testBinaryFrameForRetryWithMaxCount() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
         remoteServer = initiateServer();
@@ -82,7 +82,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests the `countDownLatch` for the retry function using the WebSocket client (" +
-            "Restart the server and check the countDownLatch for handshake)", enabled = false)
+            "Restart the server and check the countDownLatch for handshake)")
     public void testCountdownLatchForRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
