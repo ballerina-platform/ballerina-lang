@@ -29,7 +29,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
+import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
@@ -57,14 +57,15 @@ public class FromJsonStringWithType {
     public static Object fromJsonStringWithType(Strand strand, BString value, TypedescValue t) {
 
         String str = value.getValue();
-        if (str.equals("null")) {
-            return null;
-        }
         try {
-            Object jsonFromString = JSONParser.parse(str);
-            return FromJsonWithType.fromJsonWithType(strand, jsonFromString, t);
+            if (str.equals("null")) {
+                return FromJsonWithType.fromJsonWithType(strand, null, t);
+            } else {
+                Object jsonFromString = JSONParser.parse(str);
+                return FromJsonWithType.fromJsonWithType(strand, jsonFromString, t);
+            }
         } catch (BallerinaException e) {
-            return BallerinaErrors.createError(StringUtils.fromString(CONSTRUCT_FROM_CONVERSION_ERROR),
+            return BallerinaErrors.createError(StringUtils.fromString(VALUE_LANG_LIB_CONVERSION_ERROR),
                     StringUtils.fromString(e.getMessage()));
         }
     }

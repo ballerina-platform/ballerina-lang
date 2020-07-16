@@ -42,7 +42,6 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
-import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.TupleValueImpl;
@@ -126,12 +125,8 @@ public class FromJsonWithType {
             case TypeTags.TUPLE_TAG:
                 newValue = convertArray((ArrayValue) value, matchingType, unresolvedValues, t, strand);
                 break;
-            case TypeTags.ERROR_TAG:
-                newValue = ((RefValue) value).copy(new HashMap<>());
-                break;
             default:
-                if (((matchingType.getTag() >= TypeTags.XML_ELEMENT_TAG &&
-                        matchingType.getTag() <= TypeTags.XML_TEXT_TAG) || matchingType.getTag() == TypeTags.XML_TAG)) {
+                if (TypeTags.isXMLTypeTag(matchingType.getTag())) {
                     try {
                         newValue = XMLFactory.parse(((StringValue) value).getValue());
                         break;
@@ -163,15 +158,15 @@ public class FromJsonWithType {
         switch (targetType.getTag()) {
             case TypeTags.MAP_TAG:
                 MapValueImpl<BString, Object> newMap = new MapValueImpl<>(targetType);
+                BType constraintType = ((BMapType) targetType).getConstrainedType();
                 for (Map.Entry entry : map.entrySet()) {
-                    BType constraintType = ((BMapType) targetType).getConstrainedType();
                     putToMap(newMap, entry, constraintType, unresolvedValues, t, strand);
                 }
                 return newMap;
             case TypeTags.RECORD_TYPE_TAG:
                 BRecordType recordType = (BRecordType) targetType;
                 MapValueImpl<BString, Object> newRecord;
-                if (t != null && t.getDescribingType() == targetType) {
+                if (t.getDescribingType() == targetType) {
                     newRecord = (MapValueImpl<BString, Object>) t.instantiate(strand);
                 } else {
                     newRecord = (MapValueImpl<BString, Object>) BallerinaValues
@@ -192,8 +187,6 @@ public class FromJsonWithType {
             case TypeTags.JSON_TAG:
                 BType matchingType = TypeConverter.resolveMatchingTypeForUnion(map, targetType);
                 return convert(map, matchingType, unresolvedValues, t, strand);
-            default:
-                break;
         }
         // should never reach here
         throw BallerinaErrors.createConversionError(map, targetType);
@@ -224,24 +217,19 @@ public class FromJsonWithType {
             case TypeTags.JSON_TAG:
                 newArray = new ArrayValueImpl((BArrayType) BTypes.typeJsonArray);
                 for (int i = 0; i < array.size(); i++) {
-                    Object newValue = convert(array.get(i), BTypes.typeJSON, unresolvedValues, t, strand);
+                    Object newValue = convert(array.get(i), targetType, unresolvedValues, t, strand);
                     newArray.add(i, newValue);
                 }
                 return newArray;
             case TypeTags.TABLE_TAG:
                 BTableType tableType = (BTableType) targetType;
-
-                BTableType newTableType = new BTableType(tableType.getConstrainedType(),
-                        tableType.getFieldNames(), false);
-                TableValueImpl newTable = new TableValueImpl(newTableType);
+                TableValueImpl newTable = new TableValueImpl(tableType);
                 for (int i = 0; i < array.size(); i++) {
                     MapValueImpl mapValue = (MapValueImpl) convert(array.get(i), tableType.getConstrainedType(),
                             unresolvedValues, t, strand);
                     newTable.add(mapValue);
                 }
                 return newTable;
-            default:
-                break;
         }
         // should never reach here
         throw BallerinaErrors.createConversionError(array, targetType);

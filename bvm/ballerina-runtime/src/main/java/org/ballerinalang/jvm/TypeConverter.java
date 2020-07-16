@@ -294,8 +294,6 @@ public class TypeConverter {
                         convertibleTypes.add(targetType);
                     }
                     break;
-                default:
-                    break;
             }
         }
         return convertibleTypes;

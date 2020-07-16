@@ -20,7 +20,6 @@ package org.ballerinalang.langlib.value;
 import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
-import org.ballerinalang.jvm.TypeConverter;
 import org.ballerinalang.jvm.commons.TypeValuePair;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -82,13 +81,8 @@ public class ToJson {
 
         BType sourceType = TypeChecker.getType(value);
 
-        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG) {
-            if (TypeChecker.checkIsType(value, jsonType)) {
-                return value;
-            } else {
-                // Has to be a numeric conversion.
-                return TypeConverter.convertValues(jsonType, value);
-            }
+        if (sourceType.getTag() <= TypeTags.BOOLEAN_TAG && TypeChecker.checkIsType(value, jsonType)) {
+            return value;
         }
 
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
