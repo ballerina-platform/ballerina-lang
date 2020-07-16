@@ -1908,6 +1908,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.referenceName = source.referenceName;
         clone.kind = source.kind;
         clone.type = source.type;
+        clone.hasParserWarnings = source.hasParserWarnings;
     }
 
     @Override

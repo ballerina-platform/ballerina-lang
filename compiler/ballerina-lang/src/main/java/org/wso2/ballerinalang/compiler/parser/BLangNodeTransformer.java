@@ -4258,26 +4258,69 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 BLangMarkdownReferenceDocumentation bLangRefDoc = new BLangMarkdownReferenceDocumentation();
                 DocumentationReferenceNode docReferenceNode = (DocumentationReferenceNode) element;
 
+                DiagnosticPos pos = getPosition(docReferenceNode);
+                bLangRefDoc.pos = pos;
+
+                Token startBacktick = docReferenceNode.startBacktick();
+                Node backtickContent = docReferenceNode.backtickContent();
+                Token endBacktick = docReferenceNode.endBacktick();
+
+                String contentString = backtickContent.isMissing() ? "" : backtickContent.toString();
+                bLangRefDoc.referenceName = contentString;
+
                 bLangRefDoc.type = DocumentationReferenceType.BACKTICK_CONTENT;
-                docReferenceNode.referenceType().ifPresent(
+                Optional<Token> referenceType = docReferenceNode.referenceType();
+                referenceType.ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
+                            if (backtickContent.kind() == SyntaxKind.BACKTICK_CONTENT) {
+                                // backtick content preceded by a special keyword, should be an identifier
+                                bLangRefDoc.hasParserWarnings = true;
+                                dlog.warning(pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER, contentString);
+                            } else {
+                                bLangRefDoc.identifier = ((Token)backtickContent).text();
+                            }
                             docText.append(refType.toString());
                         }
                 );
 
-                Token startBacktick = docReferenceNode.startBacktick();
+                if (!referenceType.isPresent() && backtickContent.kind() == SyntaxKind.BACKTICK_CONTENT) {
+                    // reaching here means, backtick content is not in one of x(), m:x(), T.y(), m:T.y() formats
+                    // no warning is logged for this case
+                    bLangRefDoc.hasParserWarnings = true;
+                }
+
+                if (!referenceType.isPresent() && backtickContent.kind() != SyntaxKind.BACKTICK_CONTENT) {
+                    if (backtickContent.kind() == SyntaxKind.FUNCTION_CALL) {
+                        Node funcName = (((FunctionCallExpressionNode) backtickContent).functionName());
+                        if (funcName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                            QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) funcName;
+                            bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
+                            bLangRefDoc.identifier = qualifiedRef.identifier().text();
+                        } else {
+                            SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) funcName;
+                            bLangRefDoc.identifier = simpleRef.name().text();
+                        }
+                    } else if (backtickContent.kind() == SyntaxKind.METHOD_CALL) {
+                        MethodCallExpressionNode methodCallExprNode = (MethodCallExpressionNode) backtickContent;
+                        bLangRefDoc.identifier =
+                                ((SimpleNameReferenceNode) methodCallExprNode.methodName()).name().text();
+                        Node refName = methodCallExprNode.expression();
+                        if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                            QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) refName;
+                            bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
+                            bLangRefDoc.typeName = qualifiedRef.identifier().text();
+                        } else {
+                            SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) refName;
+                            bLangRefDoc.typeName = simpleRef.name().text();
+                        }
+                    }
+
+                }
+
                 docText.append(startBacktick.isMissing() ? "" : startBacktick.text());
-
-                Node backtickContent = docReferenceNode.backtickContent();
-                String contentString = backtickContent.isMissing() ? "" : backtickContent.toString();
-                bLangRefDoc.referenceName = contentString;
                 docText.append(contentString);
-
-                Token endBacktick = docReferenceNode.endBacktick();
                 docText.append(endBacktick.isMissing() ? "" : endBacktick.text());
-
-                bLangRefDoc.pos = getPosition(docReferenceNode);
                 references.add(bLangRefDoc);
             } else if (element.kind() == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
                 Token docDescription = (Token) element;
