@@ -55,6 +55,7 @@ public enum DiagnosticCode {
     INVALID_READONLY_INTERSECTION_TYPE("invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("invalid.readonly.object.type"),
+    INVALID_READONLY_MAPPING_FIELD("invalid.readonly.mapping.field"),
     STREAM_INVALID_CONSTRAINT("stream.invalid.constraint"),
     STREAM_INIT_NOT_ALLOWED_HERE("stream.initialization.not.allowed.here"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
@@ -553,6 +554,7 @@ public enum DiagnosticCode {
     INVALID_TYPEDESC_PARAM("invalid.typedesc.param"),
 
     INVALID_RAW_TEMPLATE_TYPE("invalid.raw.template.type"),
+    MULTIPLE_COMPATIBLE_RAW_TEMPLATE_TYPES("multiple.compatible.raw.template.types"),
     INVALID_NUM_STRINGS("invalid.num.of.strings"),
     INVALID_NUM_INSERTIONS("invalid.num.of.insertions"),
     INVALID_RAW_TEMPLATE_ASSIGNMENT("invalid.raw.template.assignment"),

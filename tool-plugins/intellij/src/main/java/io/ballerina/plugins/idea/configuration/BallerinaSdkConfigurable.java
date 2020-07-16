@@ -212,7 +212,7 @@ public class BallerinaSdkConfigurable implements SearchableConfigurable, Configu
             myAlarm.addRequest(() -> {
                 String version = BallerinaSdkUtils.retrieveBallerinaVersion(BallerinaSdkUtils.adjustSdkPath(sdkPath));
                 ApplicationManager.getApplication().invokeLater(() -> {
-                    if (!Disposer.isDisposed(myDisposable)) {
+                    if (!Disposer.isDisposed(myDisposable) && version != null) {
                         setVersion(version);
                     }
                 }, ModalityState.any());

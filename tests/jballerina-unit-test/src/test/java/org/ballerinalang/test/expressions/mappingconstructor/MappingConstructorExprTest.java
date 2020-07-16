@@ -36,14 +36,16 @@ public class MappingConstructorExprTest {
     private CompileResult varNameFieldResult;
     private CompileResult inferRecordResult;
     private CompileResult spreadOpFieldResult;
+    private CompileResult readOnlyFieldResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/mappingconstructor/mapping_constructor.bal");
-        inferRecordResult = BCompileUtil.compile("test-src/expressions/mappingconstructor" +
-                                                         "/mapping_constructor_infer_record.bal");
+        inferRecordResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/mapping_constructor_infer_record.bal");
         varNameFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/var_name_field.bal");
         spreadOpFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/spread_op_field.bal");
+        readOnlyFieldResult = BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field.bal");
     }
 
     @Test(dataProvider = "mappingConstructorTests")
@@ -57,7 +59,8 @@ public class MappingConstructorExprTest {
                 { "testMappingConstuctorWithAnyACET" },
                 { "testMappingConstuctorWithAnydataACET" },
                 { "testMappingConstuctorWithJsonACET" },
-                { "testNonAmbiguousMapUnionTarget" }
+                { "testNonAmbiguousMapUnionTarget" },
+                { "testTypeWithReadOnlyInUnionCET" }
         };
     }
 
@@ -215,7 +218,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 16);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -233,10 +236,18 @@ public class MappingConstructorExprTest {
                 "|}'", 90, 13);
         validateError(compileResult, index++, "incompatible types: expected 'record {| int...; |}', found 'record {| " +
                 "int x; int y; (string|boolean)...; |}'", 95, 30);
-        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'record {| |}'", 98, 17);
-        validateError(compileResult, index, "incompatible types: expected 'record {| int i; boolean b; decimal a; " +
+        validateError(compileResult, index++, "incompatible types: expected 'boolean', found 'record {| |} & readonly'",
+                      98, 17);
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int i; boolean b; decimal a; " +
                 "float f; anydata...; |}', found 'record {| (int|string) i; boolean b; decimal a; float f?; anydata.." +
                 ".; |}'", 126, 12);
+        validateError(compileResult, index++,
+                      "a type compatible with mapping constructor expressions not found in type 'other'", 137, 19);
+        validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Rec1'", 139, 9);
+        validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'future'", 140, 12);
+        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
+                "type '(readonly|int[])'", 150, 25);
+        validateError(compileResult, index, "ambiguous type '(map<map<json>>|readonly)'", 157, 34);
     }
 
     @Test(dataProvider = "inferRecordTypeTests")
@@ -254,7 +265,105 @@ public class MappingConstructorExprTest {
                 { "testMappingConstrExprWithNoACET" },
                 { "testMappingConstrExprWithNoACET2" },
                 { "testInferredRecordTypeWithOptionalTypeFieldViaSpreadOp" },
-                { "testInferenceWithMappingConstrExprAsSpreadExpr" }
+                { "testInferenceWithMappingConstrExprAsSpreadExpr" },
+                { "testInferringForReadOnly" },
+                { "testInferringForReadOnlyInUnion" },
+                { "testValidReadOnlyWithDifferentFieldKinds" },
+                { "testValidReadOnlyInUnionWithDifferentFieldKinds" }
         };
+    }
+
+    @Test(dataProvider = "readOnlyFieldTests", groups = "disableOnOldParser")
+    public void testReadOnlyFields(String test) {
+        BRunUtil.invoke(readOnlyFieldResult, test);
+    }
+
+    @DataProvider(name = "readOnlyFieldTests")
+    public Object[][] readOnlyFieldTests() {
+        return new Object[][] {
+                { "testBasicReadOnlyField1" },
+                { "testBasicReadOnlyField2" },
+                { "testComplexReadOnlyField" },
+                { "testInferredTypeReadOnlynessWithReadOnlyFields" },
+                { "testReadOnlyBehaviourWithRecordACETInUnionCET" },
+                { "testReadOnlyFieldsWithSimpleMapCET" },
+                { "testReadOnlyBehaviourWithMapACETInUnionCET" },
+                { "testReadOnlyFieldForAlreadyReadOnlyField" },
+                { "testReadOnlyFieldWithInferredType" },
+                { "testInferredTypeWithAllReadOnlyFields" },
+                { "testIdentifierKeysInConstructorWithReadOnlyFieldsForMap" },
+                { "testFieldTypeNarrowing" }
+        };
+    }
+
+    @Test(groups = "disableOnOldParser")
+    public void testReadOnlyFieldsSemanticNegative() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/expressions/mappingconstructor/readonly_field_negative.bal");
+        int index = 0;
+
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      33, 35);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(Employee|Details)'", 34, 27);
+        validateError(compileResult, index++, "incompatible types: expected '(Employee & readonly)', found 'Employee'",
+                      40, 18);
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      42, 22);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((Details & readonly)|string)', found 'Details'", 54, 49);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(map<string>|map<(Details|string)>)'",
+                      55, 42);
+        validateError(compileResult, index++,
+                      "incompatible types: expected 'map<((Details|string) & readonly)> & readonly', " +
+                              "found 'map<(Details|string)>'", 61, 18);
+        validateError(compileResult, index++, "incompatible types: expected '(Details & readonly)', found 'Details'",
+                      63, 13);
+        validateError(compileResult, index++,
+                      "invalid 'readonly' mapping field 'x': 'future<int>' can never be 'readonly'", 77, 40);
+        validateError(compileResult, index++,
+                      "incompatible types: expected 'any & readonly', found 'stream<boolean>'", 77, 57);
+        validateError(compileResult, index++, "incompatible mapping constructor expression for type '(" +
+                "record {| future<any>...; |}|NonReadOnlyFields)'", 78, 57);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any & readonly)|error)', found 'future<int>'", 81, 39);
+        validateError(compileResult, index++,
+                      "incompatible types: expected '((any & readonly)|error)', found 'stream<boolean>'", 81, 51);
+        validateError(compileResult, index++,
+                      "incompatible mapping constructor expression for type '(map<(any|error)>|map<future<int>>)'",
+                      82, 43);
+
+        validateError(compileResult, index++, "incompatible types: expected 'record {| int i; anydata...; |}', found " +
+                "'record {| readonly (Details & readonly) d1; readonly (Details & readonly) d2; " +
+                "record {| string str; |} d3; readonly record {| string str; readonly int count; |} & readonly d4; " +
+                "int...; |}'", 108, 27);
+        validateError(compileResult, index++, "cannot update 'readonly' record field 'd1' in 'record {| readonly " +
+                "(Details & readonly) d1; readonly (Details & readonly) d2; record {| string str; |} d3; " +
+                "readonly record {| string str; readonly int count; |} & readonly d4; int...; |}'", 109, 5);
+        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
+                "type 'other'", 109, 14);
+        validateError(compileResult, index++, "cannot update 'readonly' record field 'd1' in 'record {| readonly " +
+                "(Details & readonly) d1; readonly (Details & readonly) d2; record {| string str; |} d3; " +
+                "readonly record {| string str; readonly int count; |} & readonly d4; int...; |}'", 113, 5);
+        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
+                "type 'other'", 119, 16);
+        validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 120, 18);
+        validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 122, 23);
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
+    @Test
+    public void testReadOnlyFieldsCodeAnalysisNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/expressions/mappingconstructor/readonly_field_code_analysis_negative.bal");
+        int index = 0;
+
+        validateError(compileResult, index++, "invalid key 'math': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 31, 9);
+        validateError(compileResult, index++, "invalid key 'science': identifiers cannot be used as rest field keys, " +
+                "expected a string literal or an expression", 39, 9);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 }

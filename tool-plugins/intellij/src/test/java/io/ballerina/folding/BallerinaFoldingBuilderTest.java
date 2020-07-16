@@ -52,15 +52,16 @@ public class BallerinaFoldingBuilderTest extends BallerinaCodeInsightFixtureTest
         doTest();
     }
 
-    public void testWorker() {
-        doTest();
-    }
-
     public void testDocumentation() {
         doTest();
     }
 
     public void testAnnotation() {
+        // Todo - Enable
+        // doTest();
+    }
+
+    public void testEnum() {
         doTest();
     }
 

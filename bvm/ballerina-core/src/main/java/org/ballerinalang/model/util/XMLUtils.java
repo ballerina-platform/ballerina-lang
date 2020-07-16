@@ -257,20 +257,6 @@ public class XMLUtils {
         return new BXMLSequence(concatSeq);
     }
 
-    //TODO Table remove - Fix
-//    /**
-//     * Converts a {@link BTable} to {@link BXML}.
-//     *
-//     * @param table {@link BTable} to convert
-//     * @return converted {@link BXML}
-//     */
-//    @SuppressWarnings("rawtypes")
-//    public static BXML tableToXML(BTable table) {
-//        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-//        omSourcedElement.init(new TableOMDataSource(table, null, null));
-//        return new BXMLItem(omSourcedElement);
-//    }
-
     /**
      * Create an element type BXML.
      *
