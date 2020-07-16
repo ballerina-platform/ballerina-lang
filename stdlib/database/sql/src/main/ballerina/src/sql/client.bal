@@ -78,7 +78,7 @@ function closeResult(ResultIterator iterator) returns Error? = @java:Method {
     class: "org.ballerinalang.sql.utils.RecordIteratorUtils"
 } external;
 
-function getNextQueryResult(ProcedureCallResult callResult) returns boolean = @java:Method {
+function getNextQueryResult(ProcedureCallResult callResult) returns boolean|Error = @java:Method {
     class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
 } external;
 

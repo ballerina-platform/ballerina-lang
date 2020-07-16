@@ -25,7 +25,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
  */
 public class ProcedureCallResultUtils {
 
-    public static boolean getNextQueryResult(ObjectValue procedureCallResult) {
+    public static Object getNextQueryResult(ObjectValue procedureCallResult) {
         return true;
     }
 

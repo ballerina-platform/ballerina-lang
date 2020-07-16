@@ -423,7 +423,7 @@ public type ProcedureCallResult object {
     public ExecutionResult? executionResult = ();
     public stream<record {}, Error>? queryResult = ();
 
-    public function getNextQueryResult() returns boolean {
+    public function getNextQueryResult() returns boolean|Error {
         return getNextQueryResult(self);
     }
 
