@@ -2760,7 +2760,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else if (type.tag == TypeTags.NIL) {
             return true;
         } else if (type.tag == TypeTags.UNION) {
-            if(((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
+            if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
                 return true;
             } else {
                 return false;

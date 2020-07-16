@@ -635,6 +635,10 @@ public class QueryDesugar extends BLangNodeVisitor {
 
         DiagnosticPos pos = orderByClause.pos;
 
+        // order by name descending, age ascending
+        // sortFieldsArrayExpr keeps the ordering fields --> name, age
+        // sortModesArrayExpr keeps the order direction --> false, true
+
         BLangArrayLiteral sortFieldsArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortFieldsArrayExpr.exprs = new ArrayList<>();
         sortFieldsArrayExpr.type = new BArrayType(symTable.stringType);
