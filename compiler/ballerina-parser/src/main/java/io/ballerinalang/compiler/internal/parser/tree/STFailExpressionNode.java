@@ -28,7 +28,7 @@ import java.util.Collections;
 /**
  * This is a generated internal syntax tree node.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class STFailExpressionNode extends STExpressionNode {
     public final STNode failKeyword;
