@@ -46,6 +46,7 @@ dependencies {
     implementation 'com.atlassian.commonmark:commonmark-ext-gfm-tables'
     implementation 'org.apache.commons:commons-lang3'
     implementation 'commons-io:commons-io'
+    implementation 'com.google.code.gson:gson:2.7'
     implementation 'org.slf4j:slf4j-api'
     distBal project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     distBal project(path: ':ballerina-http', configuration: 'baloImplementation')

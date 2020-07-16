@@ -42,6 +42,13 @@ OPTIONS
        -a, --all
            Build documentation for all the modules of a project.
 
+       -toJSON, --toJSON
+           Generates a JSON containing all the documentation data.
+
+       -excludeIndex, --excludeIndex
+           Prevents project index from being generated.
+
+
 
 EXAMPLES
        Generate API documentation for all modules in the current project.
