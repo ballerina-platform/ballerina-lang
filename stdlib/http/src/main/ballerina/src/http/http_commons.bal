@@ -141,6 +141,8 @@ public type ResponseMessage Response|string|xml|json|byte[]|io:ReadableByteChann
 # `NONE`: No operation should be performed
 public type HttpOperation HTTP_FORWARD|HTTP_GET|HTTP_POST|HTTP_DELETE|HTTP_OPTIONS|HTTP_PUT|HTTP_PATCH|HTTP_HEAD
                                                                                                 |HTTP_SUBMIT|HTTP_NONE;
+# Defines the safe HTTP operations which do not modify resource representation.
+type safeHttpOperation HTTP_GET|HTTP_HEAD|HTTP_OPTIONS;
 
 // Common type used for HttpFuture and Response used for resiliency clients.
 type HttpResponse Response|HttpFuture;
