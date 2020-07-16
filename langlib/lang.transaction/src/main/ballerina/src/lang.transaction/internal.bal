@@ -512,7 +512,7 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
 public transactional function endTransaction(string transactionId, string transactionBlockId)
         returns @tainted string|error? {
-
+    setContextAsNonTransactional();
     if (getRollbackOnly()) {
         return getRollbackOnlyError();
     }
@@ -625,3 +625,5 @@ function uuid() returns string = external;
 function timeNow() returns int = external;
 
 function getRollbackOnlyError() returns error? = external;
+
+function setContextAsNonTransactional() = external;
