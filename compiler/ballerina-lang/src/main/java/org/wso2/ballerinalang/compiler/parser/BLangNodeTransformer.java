@@ -1131,7 +1131,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 funcDefNode.functionSignature(), funcDefNode.functionBody(), funcDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
-        bLFunction.pos = getPosition(funcDefNode);
+        if (funcDefNode.visibilityQualifier().isPresent()) {
+            bLFunction.pos = getPosition(funcDefNode.visibilityQualifier().get());
+        } else {
+            bLFunction.pos = getPosition(funcDefNode.functionKeyword());
+        }
+
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(funcDefNode.metadata().documentationString());
         return bLFunction;
