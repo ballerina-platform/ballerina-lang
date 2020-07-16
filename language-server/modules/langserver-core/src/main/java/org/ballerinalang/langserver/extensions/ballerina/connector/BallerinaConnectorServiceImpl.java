@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
 import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
