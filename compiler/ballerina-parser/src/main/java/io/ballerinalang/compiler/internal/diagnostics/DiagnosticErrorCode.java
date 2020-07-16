@@ -213,7 +213,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_TUPLE_MEMBER("BCE108", "error.missing.tuple.member"),
     ERROR_EXPRESSION_EXPECTED_ACTION_FOUND("BCE109", "error.expression.expected.action.found"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE109", "error.missing.key.expr.in.member.access.expr"),
-    ONLY_TYPE_REFERENCE_ALLOWED_HERE("BCE110", "error.only.type.reference.allowed.here"),
+    ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS("BCE110", "error.only.type.reference.allowed.here.as.type.inclusions"),
 
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE200", "error.missing.annotation.attach.point"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE201", "error.missing.let.variable.declaration"),

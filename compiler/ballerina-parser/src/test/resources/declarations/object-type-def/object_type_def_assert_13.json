@@ -82,7 +82,7 @@
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ONLY_TYPE_REFERENCE_ALLOWED_HERE"
+                        "ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS"
                       ],
                       "trailingMinutiae": [
                         {
