@@ -415,7 +415,10 @@ public type ParameterizedCallQuery abstract object {
     public Parameter[] insertions;
 };
 
-# Object that is used to return stored procedure call results
+# Object that is used to return stored procedure call results.
+#
+# + executionResult - Summary of the execution of DML/DLL query.
+# + queryResult - Results from SQL query.
 public type ProcedureCallResult object {
     public ExecutionResult? executionResult = ();
     public stream<record {}, Error>? queryResult = ();
