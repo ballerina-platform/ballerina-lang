@@ -91,6 +91,7 @@ public class WebSocketConstants {
     public static final BString TARGET_URLS = StringUtils.fromString("targetUrls");
     public static final String FAILOVER_CONTEXT = "failoverContext";
     public static final String CONNECTOR_FACTORY = "connectorFactory";
+    public static final String CONNECTOR_CONFIG = "connectorConfig";
     public static final String FAILOVER_WEBSOCKET_CLIENT = "WebSocketFailoverClient";
     public static final String FULL_FAILOVER_WEBSOCKET_CLIENT_NAME = BLangConstants.BALLERINA_PACKAGE_PREFIX +
             PACKAGE_HTTP + SEPARATOR + HTTP_MODULE_VERSION + SEPARATOR + FAILOVER_WEBSOCKET_CLIENT;

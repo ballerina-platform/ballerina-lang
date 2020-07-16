@@ -286,8 +286,10 @@ public class WebSocketUtil {
             }
             createDelay(calculateWaitingTime(retryConnectorConfig.getInterval(), retryConnectorConfig.getMaxInterval(),
                     retryConnectorConfig.getBackOfFactor(), noOfReconnectAttempts));
-            establishWebSocketConnection((WebSocketClientConnector) webSocketClient.getNativeData(WebSocketConstants.
-                    CLIENT_CONNECTOR), webSocketClient, wsService);
+            WebSocketClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory().createWsClientConnector(
+                    (WebSocketClientConnectorConfig) webSocketClient.getNativeData(WebSocketConstants.
+                            CONNECTOR_CONFIG));
+            establishWebSocketConnection(clientConnector, webSocketClient, wsService);
             return true;
         }
         if (logger.isDebugEnabled()) {
