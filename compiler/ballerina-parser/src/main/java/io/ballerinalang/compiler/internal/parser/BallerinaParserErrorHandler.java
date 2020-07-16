@@ -1944,9 +1944,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.MATCH_BODY;
         } else if (parentCtx == ParserRuleContext.MATCH_BODY) {
             nextContext = ParserRuleContext.RIGHT_DOUBLE_ARROW;
-        } else if (parentCtx == ParserRuleContext.TYPE_REFERENCE) {
-            endContext();
-            nextContext = ParserRuleContext.SEMICOLON;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -3190,6 +3187,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
+            case TYPE_REFERENCE:
+                endContext();
+                return ParserRuleContext.SEMICOLON;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
                 // Then the rhs of this is definitely an expression-rhs
