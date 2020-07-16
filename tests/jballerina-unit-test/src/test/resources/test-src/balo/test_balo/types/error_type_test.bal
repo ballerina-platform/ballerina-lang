@@ -62,3 +62,9 @@ function performInvalidCastWithDistinctErrorType() returns error? {
     error? e = trap testDistinctTypeFromAnotherPackageInATypeDefWithACastNegative();
     return e;
 }
+
+function testErrorDetailDefinedAfterErrorDef() returns er:PostDefinedError {
+    er:NewPostDefinedError e = er:NewPostDefinedError("New error", code = "ABCD");
+    er:PostDefinedError k = e;
+    return k;
+}

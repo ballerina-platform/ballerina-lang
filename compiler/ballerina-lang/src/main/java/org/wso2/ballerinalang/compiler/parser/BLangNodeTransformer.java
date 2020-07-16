@@ -114,6 +114,7 @@ import io.ballerinalang.compiler.syntax.tree.NewExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
@@ -758,7 +759,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             if (detail != null) {
                 errorType.detailType = detail;
-                if (errorTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
+                NonTerminalNode parent = errorTypeDescriptorNode.parent();
+                if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+                    parent = parent.parent();
+                }
+                if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
                     return deSugarTypeAsUserDefType(errorType);
                 }
             } else {

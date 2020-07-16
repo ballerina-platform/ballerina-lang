@@ -1535,8 +1535,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 ((BErrorType) typeDef.symbol.type).detailType = detailType;
             } else if (typeDef.typeNode.type != null && typeDef.typeNode.type.tag == TypeTags.ERROR) {
-                BType type = symResolver.resolveTypeNode(typeDef.typeNode, pkgEnv);
-                ((BErrorType) typeDef.symbol.type).detailType = ((BErrorType) type).detailType;
+                BType detailType = ((BErrorType) typeDef.typeNode.type).detailType;
+                if (detailType == symTable.noType) {
+                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeDef.typeNode, pkgEnv);
+                    ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
+                }
             }
         }
     }
