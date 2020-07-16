@@ -48,6 +48,7 @@ public class TransactionLocalContext {
     private Object rollbackOnlyError;
     private Object transactionData;
     private BArray transactionId;
+    private boolean isTransactional;
 
     private TransactionLocalContext(String globalTransactionId, String url, String protocol, Object infoRecord) {
         this.globalTransactionId = globalTransactionId;
@@ -60,6 +61,7 @@ public class TransactionLocalContext {
         this.transactionBlockIdStack = new Stack<>();
         this.transactionFailure = new Stack<>();
         this.rollbackOnlyError = null;
+        this.isTransactional = true;
         this.transactionId = BValueCreator.createArrayValue(globalTransactionId.getBytes());
         transactionResourceManager.transactionInfoMap.put(transactionId, infoRecord);
     }
@@ -229,6 +231,14 @@ public class TransactionLocalContext {
 
     public Object getInfoRecord() {
         return transactionResourceManager.transactionInfoMap.get(transactionId);
+    }
+
+    public boolean isTransactional() {
+        return isTransactional;
+    }
+
+    public void setTransactional(boolean transactional) {
+        isTransactional = transactional;
     }
 
     /**
