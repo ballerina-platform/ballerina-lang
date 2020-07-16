@@ -127,4 +127,5 @@ branches:
     - release-stage
     - new-transaction-impl
     - stage
+    - master
     - /^ballerina-\d*[.]\d*[.]x$/
