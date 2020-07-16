@@ -826,9 +826,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
-                    bLangFunction.objInitFunction = true;
-                    // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
-                    objectTypeNode.initFunction = bLangFunction;
+                    if (objectTypeNode.initFunction == null) {
+                        bLangFunction.objInitFunction = true;
+                        // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
+                        objectTypeNode.initFunction = bLangFunction;
+                    } else {
+                        objectTypeNode.addFunction(bLangFunction);
+                    }
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
                 }
