@@ -1373,9 +1373,9 @@
           "value": "The HTTP response status code: 407 Proxy Authentication Required"
         }
       },
-      "sortText":"130",
-      "insertText":"STATUS_PROXY_AUTHENTICATION_REQUIRED",
-      "insertTextFormat":"Snippet"
+      "sortText": "130",
+      "insertText": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "STATUS_REQUEST_TIMEOUT",
