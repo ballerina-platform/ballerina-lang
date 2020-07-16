@@ -87,6 +87,7 @@ public class BallerinaTreeModifyUtil {
                 "\n}");
         put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");");
         put("PROPERTY_STATEMENT", "$PROPERTY");
+        put("RETURN_STATEMENT", "return $RETURN_EXPR;");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
