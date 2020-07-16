@@ -133,6 +133,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(checkExpressionNode);
     }
 
+    public T transform(STFailExpressionNode failExpressionNode) {
+        return transformSyntaxNode(failExpressionNode);
+    }
+
     public T transform(STFieldAccessExpressionNode fieldAccessExpressionNode) {
         return transformSyntaxNode(fieldAccessExpressionNode);
     }

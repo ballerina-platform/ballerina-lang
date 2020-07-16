@@ -97,6 +97,7 @@ START       : 'start' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 CHECKPANIC  : 'checkpanic' ;
+FAIL        : 'fail' ;
 PRIMARYKEY  : 'primarykey' ;
 IS          : 'is' ;
 FLUSH       : 'flush' ;

@@ -143,6 +143,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(FailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }

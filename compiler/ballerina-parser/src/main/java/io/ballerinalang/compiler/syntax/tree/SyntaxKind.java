@@ -124,6 +124,7 @@ public enum SyntaxKind {
     STREAM_KEYWORD(267, "stream"),
     READONLY_KEYWORD(268, "readonly"),
     DISTINCT_KEYWORD(269, "distinct"),
+    FAIL_KEYWORD(270, "fail"),
 
     // Separators
     OPEN_BRACE_TOKEN(500, "{"),
@@ -294,6 +295,7 @@ public enum SyntaxKind {
     XML_STEP_EXPRESSION(1334),
     XML_NAME_PATTERN_CHAIN(1335),
     XML_ATOMIC_NAME_PATTERN(1336),
+    FAIL_EXPRESSION(1336),
 
     // Type descriptors
     TYPE_DESC(2000),
@@ -345,6 +347,7 @@ public enum SyntaxKind {
     WAIT_ACTION(2509),
     QUERY_ACTION(2510),
     COMMIT_ACTION(2511),
+    FAIL_ACTION(2512),
 
     // Other
     RETURN_TYPE_DESCRIPTOR(3000),

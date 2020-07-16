@@ -380,6 +380,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createFailExpressionNode(
+            SyntaxKind kind,
+            STNode failKeyword,
+            STNode expression) {
+
+        return new STFailExpressionNode(
+                kind,
+                failKeyword,
+                expression);
+    }
+
     public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,

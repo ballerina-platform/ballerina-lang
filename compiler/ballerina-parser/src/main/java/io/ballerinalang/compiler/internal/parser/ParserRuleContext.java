@@ -358,6 +358,7 @@ public enum ParserRuleContext {
     JOIN_KEYWORD("join"),
     OUTER_KEYWORD("outer"),
     VAR_KEYWORD("var"),
+    FAIL_KEYWORD("fail"),
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     ASCENDING_KEYWORD("ascending"),

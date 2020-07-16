@@ -2805,6 +2805,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitFailExpression(BallerinaParser.FailExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createFailExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) {
         if (isInErrorState) {
             return;

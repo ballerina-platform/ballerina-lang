@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
+package org.ballerinalang.langserver.commons.semantichighlighter;
 
 import java.util.ArrayList;
 
