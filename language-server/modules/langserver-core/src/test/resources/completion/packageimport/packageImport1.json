@@ -1373,9 +1373,9 @@
           "value": "The HTTP response status code: 407 Proxy Authentication Required"
         }
       },
-      "sortText": "130",
-      "insertText": "STATUS_PROXY_AUTHENTICATION_REQUIRED",
-      "insertTextFormat": "Snippet"
+      "sortText":"130",
+      "insertText":"STATUS_PROXY_AUTHENTICATION_REQUIRED",
+      "insertTextFormat":"Snippet"
     },
     {
       "label": "STATUS_REQUEST_TIMEOUT",
@@ -3317,15 +3317,15 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label":"WebSocketClientConfiguration",
-      "kind":"Struct",
-      "detail":"Record",
-      "documentation":{
-        "left":"Configurations for the WebSocket client.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                                                                              |\n|:---------------------------------------------------------------------------- |\n| callbackService - Copied from CommonWebSocketClientConfiguration             |\n| subProtocols - Copied from CommonWebSocketClientConfiguration                |\n| customHeaders - Copied from CommonWebSocketClientConfiguration               |\n| idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |\n| readyOnConnect - Copied from CommonWebSocketClientConfiguration              |\n| secureSocket - Copied from CommonWebSocketClientConfiguration                |\n| maxFrameSize - Copied from CommonWebSocketClientConfiguration                |\n| webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |\n| handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |\n| cookies - Copied from CommonWebSocketClientConfiguration                     |"
+      "label": "WebSocketClientConfiguration",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Configurations for the WebSocket client.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                                                                              |\n|:---------------------------------------------------------------------------- |\n| callbackService - Copied from CommonWebSocketClientConfiguration             |\n| subProtocols - Copied from CommonWebSocketClientConfiguration                |\n| customHeaders - Copied from CommonWebSocketClientConfiguration               |\n| idleTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration        |\n| readyOnConnect - Copied from CommonWebSocketClientConfiguration              |\n| secureSocket - Copied from CommonWebSocketClientConfiguration                |\n| maxFrameSize - Copied from CommonWebSocketClientConfiguration                |\n| webSocketCompressionEnabled - Copied from CommonWebSocketClientConfiguration |\n| handShakeTimeoutInSeconds - Copied from CommonWebSocketClientConfiguration   |\n| cookies - Copied from CommonWebSocketClientConfiguration                     |"
       },
-      "sortText":"180",
-      "insertText":"WebSocketClientConfiguration",
-      "insertTextFormat":"Snippet"
+      "sortText": "180",
+      "insertText": "WebSocketClientConfiguration",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "extractAuthorizationHeaderValue(http:Request req)(string)",
@@ -3429,6 +3429,24 @@
       },
       "sortText": "120",
       "insertText": "createHttpSecureClient(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "addCookies((http:WebSocketClientConfiguration|http:WebSocketFailoverClientConfiguration) config)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nAdds cookies to the custom header.\n  \n**Params**  \n- `(http:WebSocketClientConfiguration|http:WebSocketFailoverClientConfiguration)` config: Represents the cookies to be added"
+        }
+      },
+      "sortText": "120",
+      "insertText": "addCookies(${1});",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

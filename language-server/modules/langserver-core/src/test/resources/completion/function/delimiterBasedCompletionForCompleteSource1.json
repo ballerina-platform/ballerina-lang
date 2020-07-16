@@ -3434,6 +3434,24 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "addCookies((http:WebSocketClientConfiguration|http:WebSocketFailoverClientConfiguration) config)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/http:1.0.0_  \n  \nAdds cookies to the custom header.\n  \n**Params**  \n- `(http:WebSocketClientConfiguration|http:WebSocketFailoverClientConfiguration)` config: Represents the cookies to be added"
+        }
+      },
+      "sortText": "120",
+      "insertText": "addCookies(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
