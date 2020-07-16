@@ -391,10 +391,6 @@ type ResultIterator object {
     }
 };
 
-public type InParameter record {|
-    Value 'in;
-|};
-
 public type OutParameter record {|
     Value? out = ();
 |};
@@ -404,14 +400,14 @@ public type InOutParameter record {|
     Value? out = ();
 |};
 
-public type Parameter Value|InParameter|OutParameter|InOutParameter;
+public type Parameter Value|OutParameter|InOutParameter;
 
 # Represents Parameterized Call SQL Statement.
 #
 # + strings - The separated parts of the sql call query
 # + insertions - The values that should be filled in between the parts
 public type ParameterizedCallQuery abstract object {
-    public string[] strings;
+    public (string[] & readonly) strings;
     public Parameter[] insertions;
 };
 
