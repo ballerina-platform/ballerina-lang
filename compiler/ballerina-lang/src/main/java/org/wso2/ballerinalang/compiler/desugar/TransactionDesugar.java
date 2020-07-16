@@ -185,13 +185,14 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(shouldCleanUpVariableDef);
         shouldCleanUpVariableRef = ASTBuilderUtil.createVariableRef(pos, shouldCleanUpVariable.symbol);
 
-        //
+        //transactions:Info? prevAttempt = ();
         BLangSimpleVariableDef prevAttemptVarDef = createPrevAttemptInfoVarDef(env, pos);
         transactionBlockStmt.stmts.add(prevAttemptVarDef);
         this.prevAttemptInfoRef = ASTBuilderUtil.createVariableRef(pos, prevAttemptVarDef.var.symbol);
         this.transactionBlockID = ASTBuilderUtil.createVariableRef(pos, transactionBlockIDVariable.symbol);
 
         // Invoke startTransaction method and get a transaction id
+        //string transactionId = "";
         BType transactionIDType = symTable.stringType;
         BVarSymbol transactionIDVarSymbol = new BVarSymbol(0, new Name("transactionId" + uniqueId),
                 env.scope.owner.pkgID, transactionIDType, env.scope.owner);
@@ -209,23 +210,32 @@ public class TransactionDesugar extends BLangNodeVisitor {
         env.scope.define(prevAttemptVarDef.var.symbol.name, prevAttemptVarDef.var.symbol);
         env.scope.define(shouldCleanUpVariable.symbol.name, shouldCleanUpVariable.symbol);
 
+        // wraps content within transaction statement inside a lambda function
+        //
+        //  function (transactions:Info prevAttempt) returns any|error {
+        //    <"Content in transaction block goes here">
+        //  };
         BLangType transactionReturnType = ASTBuilderUtil.createTypeNode(symTable.anyOrErrorType);
-
         BLangSimpleVariable trxMainFuncParamPrevAttempt = createPrevAttemptVariable(env, pos);
         BLangLambdaFunction trxMainFunc = desugar.createLambdaFunction(transactionNode.pos, "$trxFunc$",
                 Lists.of(trxMainFuncParamPrevAttempt), transactionReturnType, transactionNode.transactionBody.stmts,
                 env, transactionNode.transactionBody.scope);
 
+        // transactionId = startTransaction(1, prevAttempt)
         BLangInvocation startTransactionInvocation = createStartTransactionInvocation(pos, transactionBlockIDLiteral,
                 ASTBuilderUtil.createVariableRef(pos, trxMainFuncParamPrevAttempt.symbol));
         BLangAssignment startTrxAssignment =
                 ASTBuilderUtil.createAssignmentStmt(pos, ASTBuilderUtil.createVariableRef(pos, transactionIDVarSymbol),
                 startTransactionInvocation);
 
+        //prevAttempt = info();
         BLangAssignment infoAssignment = createPrevAttemptInfoInvocation(pos);
         ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(0, startTrxAssignment);
         ((BLangBlockFunctionBody) trxMainFunc.function.body).stmts.add(1, infoAssignment);
 
+        //  var $trxFunc$ = function (transactions:Info prevAttempt) returns any|error {
+        //    <"Content in transaction block goes here">
+        //  };
         BVarSymbol transactionVarSymbol = new BVarSymbol(0, names.fromString("$trxFunc$"),
                 env.scope.owner.pkgID, trxMainFunc.type, trxMainFunc.function.symbol);
         BLangSimpleVariable transactionLambdaVariable = ASTBuilderUtil.createVariable(pos, "trxFunc",
@@ -237,6 +247,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
         transactionBlockStmt.stmts.add(transactionLambdaVariableDef);
 
         // Add lambda function call
+        // (any|error) result = $trxFunc$(prevAttempt);
         BLangInvocation transactionLambdaInvocation = new BLangInvocation.BFunctionPointerInvocation(pos,
                 transactionLambdaVarRef, transactionLambdaVariable.symbol, symTable.anyOrErrorType);
         transactionLambdaInvocation.argExprs = Lists.of(desugar.rewrite(prevAttemptInfoRef, env));
@@ -257,6 +268,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
         transactionBlockStmt.stmts.add(trxFuncVarDef);
 
+        // if ($shouldCleanUp$) {
+        //      cleanupTransactionContext();
+        // }
         BLangIf cleanValidationIf = ASTBuilderUtil.createIfStmt(pos, transactionBlockStmt);
         BLangGroupExpr cleanValidationGroupExpr = new BLangGroupExpr();
         BLangSimpleVarRef shouldCleanUpRef = ASTBuilderUtil.createVariableRef(pos, shouldCleanUpVariable.symbol);
@@ -266,6 +280,9 @@ public class TransactionDesugar extends BLangNodeVisitor {
         BLangExpressionStmt stmt = ASTBuilderUtil.createExpressionStmt(pos, cleanValidationIf.body);
         stmt.expr = createCleanupTrxStmt(pos);
 
+        //if (transactional && result1 is error) {
+        //   rollbackTransaction(transactionBlockId1, <error?> result1);
+        // }
         createRollbackIfFailed(transactionNode.pos, transactionBlockStmt, resultSymbol);
         return transactionBlockStmt;
     }
@@ -303,6 +320,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     }
 
     private BLangSimpleVariable createPrevAttemptVariable(SymbolEnv env, DiagnosticPos pos) {
+        // transactions:Info? prevAttempt = ();
         BSymbol infoRecordSymbol = symResolver.
                 lookupSymbolInMainSpace(symTable.pkgEnvMap.get(symTable.langTransactionModuleSymbol),
                 TRANSACTION_INFO_RECORD);
