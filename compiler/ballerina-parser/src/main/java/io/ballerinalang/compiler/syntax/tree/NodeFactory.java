@@ -3014,20 +3014,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stDocumentationReferenceNode.createUnlinkedFacade();
     }
 
-    public static DocumentationLineNode createDocumentationLineNode(
-            SyntaxKind kind,
-            Token hashToken,
-            NodeList<Node> documentElements) {
-        Objects.requireNonNull(hashToken, "hashToken must not be null");
-        Objects.requireNonNull(documentElements, "documentElements must not be null");
-
-        STNode stDocumentationLineNode = STNodeFactory.createDocumentationLineNode(
-                kind,
-                hashToken.internalNode(),
-                documentElements.underlyingListNode().internalNode());
-        return stDocumentationLineNode.createUnlinkedFacade();
-    }
-
     public static OrderByClauseNode createOrderByClauseNode(
             Token orderKeyword,
             Token byKeyword,

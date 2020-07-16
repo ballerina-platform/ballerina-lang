@@ -1,30 +1,12 @@
-type Person record {|
-   int id;
-   string fname;
-   Lname lname;
-   Address[] addrList;
-   map<float> tokens;
-   boolean isUndergrad;
-|};
-
-type Address record {|
-   string addr;
-|};
-
-type Lname record {|
-   string lname;
-|};
-
 type Student record {|
-   int pid;
-   string firstname;
-   Lname lastname;
-   Address[] addressList;
-   map<float> userTokens;
+   int id;
+   string? fname;
+   float fee;
+   decimal impact;
    boolean isUndergrad;
 |};
 
-type Person2 record {|
+type Person record {|
     string firstName;
     string lastName;
     int age;
@@ -49,7 +31,7 @@ type CustomerValue record {|
 |};
 
 type PersonValue record {|
-    Person2 value;
+    Person value;
 |};
 
 function getCustomer(record {| Customer value; |}? returnedVal) returns Customer? {
@@ -60,7 +42,7 @@ function getCustomer(record {| Customer value; |}? returnedVal) returns Customer
     }
 }
 
-function getPersonValue((record {| Person2 value; |}|error?)|(record {| Person2 value; |}?) returnedVal)
+function getPersonValue((record {| Person value; |}|error?)|(record {| Person value; |}?) returnedVal)
 returns PersonValue? {
     var result = returnedVal;
     if (result is PersonValue) {
@@ -70,77 +52,74 @@ returns PersonValue? {
     }
 }
 
-function testQueryExprWithOrderByClause() returns Student[] {
-    Person p1 = {id: 4, fname: "Zander", lname: {lname: "George"}, addrList: [{addr: "B"}, {addr: "A"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
-    Person p2 = {id: 6, fname: "Ranjan", lname: {lname: "Fonseka"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: false};
-    Person p3 = {id: 4, fname: "Nina", lname: {lname: "Frost"}, addrList: [{addr: "A"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
-    Person p4 = {id: 6, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:2, two:3, three:3}, isUndergrad: false};
-    Person p5 = {id: 6, fname: "Sanjiva", lname: {lname: "Herman"} , addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
-    Person p6 = {id: 6, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "A"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: false};
-    Person p7 = {id: 4, fname: "Xyla", lname: {lname: "George"}, addrList: [{addr: "B"}, {addr: "A"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: false};
-    Person p8= {id: 6, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:2, two:3, three:3}, isUndergrad: true};
-    Person p9= {id: 6, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:2, two:3, three:2}, isUndergrad: false};
-    Person p10= {id: 6, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:2, two:2, three:5}, isUndergrad: true};
-    Person p11 = {id: 4, fname: "Nina", lname: {lname: "Frost"}, addrList: [{addr: "A"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: false};
+function testQueryExprWithOrderByClause() returns boolean {
+    boolean testPassed = true;
 
-    Person[] personList = [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11];
+    Student s1 = {id: 1, fname: "John", fee: 2000.56, impact: 0.4, isUndergrad: true};
+    Student s2 = {id: 2, fname: "John", fee: 2000.56, impact: 0.45, isUndergrad: true};
+    Student s3 = {id: 2, fname: (), fee: 4000.56, impact: 0.4, isUndergrad: true};
+    Student s4 = {id: 2, fname: "Kate", fee: 2000.56, impact: 0.4, isUndergrad: true};
 
-    Student[] studentList =
-       from var person in personList
-       order by pid descending, lastname ascending, addressList ascending, userTokens descending, firstname descending
-       select {
-           pid: person.id,
-           firstname : person.fname,
-           lastname : person.lname,
-           addressList : person.addrList,
-           userTokens : person.tokens,
-           isUndergrad : person.isUndergrad
-       };
+    Student[] studentList = [s1, s2, s3, s4];
 
-    return studentList;
+    Student[] opStudentList = from var student in studentList
+       order by fname descending, impact
+       select student;
+
+    testPassed = testPassed &&  opStudentList[0] ==  studentList[3];
+    testPassed = testPassed &&  opStudentList[1] ==  studentList[0];
+    testPassed = testPassed &&  opStudentList[2] ==  studentList[1];
+    testPassed = testPassed &&  opStudentList[3] ==  studentList[2];
+
+    return testPassed;
 }
 
-function testQueryExprWithLetWhereAndOrderByClauses() returns Student[] {
-    Person p1 = {id: 4, fname: "Zander", lname: {lname: "George"}, addrList: [{addr: "B"}, {addr: "A"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
-    Person p2 = {id: 3, fname: "Ranjan", lname: {lname: "Fonseka"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: false};
-    Person p3 = {id: 5, fname: "Nina", lname: {lname: "Frost"}, addrList: [{addr: "A"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
-    Person p4 = {id: 1, fname: "Sanjiva", lname: {lname: "Weeravarana"}, addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:2, two:3, three:3}, isUndergrad: false};
-    Person p5 = {id: 5, fname: "Sanjiva", lname: {lname: "Herman"} , addrList: [{addr: "C"}, {addr: "B"}],
-              tokens: {one:1, two:2, three:3}, isUndergrad: true};
+function testQueryExprWithOrderByClause2() returns boolean {
+    boolean testPassed = true;
 
+    Student s1 = {id: 1, fname: "John", fee: 2000.56, impact: 0.4, isUndergrad: true};
+    Student s2 = {id: 2, fname: "John", fee: 2000.56, impact: 0.45, isUndergrad: false};
+    Student s3 = {id: 2, fname: (), fee: 4000.56, impact: 0.4, isUndergrad: false};
+    Student s4 = {id: 2, fname: "Kate", fee: 2000.56, impact: 0.4, isUndergrad: true};
 
-    Person[] personList = [p1, p2, p3, p4, p5];
+    Student[] studentList = [s1, s2, s3, s4];
 
-    Student[] studentList =
-       from var person in personList
-       let boolean status = false
-       where person.id > 3
-       order by pid, lastname descending
-       select {
-           pid: person.id,
-           firstname : person.fname,
-           lastname : person.lname,
-           addressList : person.addrList,
-           userTokens : person.tokens,
-           isUndergrad : status
-       };
+    Student[] opStudentList = from var student in studentList
+       order by isUndergrad, fee
+       select student;
 
-    return studentList;
+    testPassed = testPassed &&  opStudentList[0] ==  studentList[1];
+    testPassed = testPassed &&  opStudentList[1] ==  studentList[2];
+    testPassed = testPassed &&  opStudentList[2] ==  studentList[3];
+    testPassed = testPassed &&  opStudentList[3] ==  studentList[0];
+
+    return testPassed;
+}
+
+function testQueryExprWithOrderByClause3() returns Customer[] {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 5, name: "James", noOfItems: 5};
+    Customer c3 = {id: 7, name: "James", noOfItems: 25};
+    Customer c4 = {id: 0, name: "James", noOfItems: 25};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+    Customer[] customerList = [c1, c2, c3, c4];
+    Person[] personList = [p1, p2];
+
+    Customer[] opCustomerList = from var customer in customerList
+           from var person in personList
+           let string customerName = "Johns"
+           where person.lastName == "James"
+           order by id descending
+           select {
+               id: customer.id,
+               name: customerName,
+               noOfItems: customer.noOfItems
+           };
+
+    return  opCustomerList;
 }
 
 function testQueryExprWithOrderByClauseReturnTable() returns boolean {
@@ -151,11 +130,11 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
     Customer c3 = {id: 3, name: "James", noOfItems: 25};
     Customer c4 = {id: 4, name: "James", noOfItems: 25};
 
-    Person2 p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person2 p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
 
     Customer[] customerList = [c1, c2, c3, c4];
-    Person2[] personList = [p1, p2];
+    Person[] personList = [p1, p2];
 
     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
          from var person in personList
@@ -186,19 +165,19 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
 function testQueryExprWithOrderByClauseReturnStream() returns boolean {
     boolean testPassed = true;
 
-    Person2 p1 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
-    Person2 p2 = {firstName: "John", lastName: "David", age: 33};
-    Person2 p3 = {firstName: "John", lastName: "Fonseka", age: 28};
-    Person2 p4 = {firstName: "John", lastName: "Fonseka", age: 30};
-    Person2 p5 = {firstName: "John", lastName: "Fonseka", age: 20};
+    Person p1 = {firstName: "Ranjan", lastName: "Fonseka", age: 30};
+    Person p2 = {firstName: "John", lastName: "David", age: 33};
+    Person p3 = {firstName: "John", lastName: "Fonseka", age: 28};
+    Person p4 = {firstName: "John", lastName: "Fonseka", age: 30};
+    Person p5 = {firstName: "John", lastName: "Fonseka", age: 20};
 
     Customer c1 = {id: 1, name: "John", noOfItems: 25};
     Customer c2 = {id: 2, name: "Frank", noOfItems: 20};
 
-    Person2[] personList = [p1, p2, p3, p4, p5];
+    Person[] personList = [p1, p2, p3, p4, p5];
     Customer[] customerList = [c1, c2];
 
-    stream<Person2> outputPersonStream = stream from var person in personList.toStream()
+    stream<Person> outputPersonStream = stream from var person in personList.toStream()
         from var customer in customerList
         let string newLastName = "Turin"
         let string newFirstName = "Johnas"
@@ -211,7 +190,7 @@ function testQueryExprWithOrderByClauseReturnStream() returns boolean {
             age: person.age
         };
 
-    record {| Person2 value; |}? person = getPersonValue(outputPersonStream.next());
+    record {| Person value; |}? person = getPersonValue(outputPersonStream.next());
     testPassed = testPassed && person?.value?.firstName == "Johnas" && person?.value?.lastName == "Turin" &&
     person?.value?.age == 30;
 
@@ -239,11 +218,11 @@ function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
     Customer c3 = {id: 3, name: "James", noOfItems: 25};
     Customer c4 = {id: 4, name: "James", noOfItems: 25};
 
-    Person2 p1 = {firstName: "Amy", lastName: "Melina", age: 23};
-    Person2 p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
 
     Customer[] customerList = [c1, c2, c3, c4];
-    Person2[] personList = [p1, p2];
+    Person[] personList = [p1, p2];
 
     CustomerProfile[] customerProfileList = from var customer in customerList
          join var person in personList

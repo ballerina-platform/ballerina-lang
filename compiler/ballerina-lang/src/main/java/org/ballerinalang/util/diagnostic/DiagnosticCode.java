@@ -431,6 +431,8 @@ public enum DiagnosticCode {
     ERROR_TYPE_EXPECTED("error.type.expected"),
     MISSING_REQUIRED_METHOD_NEXT("missing.required.method.next"),
 
+    ORDER_BY_NOT_SUPPORTED("order.by.not.supported"),
+
     // Table related codes
     TABLE_CONSTRAINT_INVALID_SUBTYPE("invalid.table.constraint.subtype"),
     TABLE_KEY_SPECIFIER_MISMATCH("table.key.specifier.mismatch"),

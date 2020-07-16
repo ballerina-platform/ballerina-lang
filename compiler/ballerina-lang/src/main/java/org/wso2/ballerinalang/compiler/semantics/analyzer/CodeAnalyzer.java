@@ -2692,49 +2692,81 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     }
                 }
             } else if (clause.getKind() == NodeKind.ORDER_BY) {
-                BType resultType = queryExpr.type;
-                if (resultType.tag == TypeTags.ARRAY) {
-                    resultType = ((BArrayType) resultType).eType;
-                } else if (resultType.tag == TypeTags.TABLE) {
-                    resultType = ((BTableType) resultType).constraint;
-                } else if (resultType.tag == TypeTags.STREAM) {
-                    resultType = ((BStreamType) resultType).constraint;
-                } else if (resultType.tag == TypeTags.UNION) {
-                    List<BType> exprTypes = new ArrayList<>(((BUnionType) resultType).getMemberTypes());
-                    for (BType t : exprTypes) {
-                        BType returnType;
-                        if (t.tag == TypeTags.STREAM) {
-                            returnType = ((BUnionType) resultType).getMemberTypes()
-                                    .stream().filter(m -> m.tag == TypeTags.STREAM)
-                                    .findFirst().orElse(symTable.streamType);
-                            resultType = ((BStreamType) returnType).constraint;
-                        } else if (t.tag == TypeTags.TABLE) {
-                            returnType = ((BUnionType) resultType).getMemberTypes()
-                                    .stream().filter(m -> m.tag == TypeTags.TABLE)
-                                    .findFirst().orElse(symTable.tableType);
-                            resultType = ((BTableType) returnType).constraint;
-                        } else if (t.tag == TypeTags.ARRAY) {
-                            returnType = ((BUnionType) resultType).getMemberTypes()
-                                    .stream().filter(m -> m.tag == TypeTags.ARRAY)
-                                    .findFirst().orElse(symTable.arrayType);
-                            resultType = ((BArrayType) returnType).eType;
-                        }
-                    }
-                }
-                if (resultType.tag == TypeTags.RECORD) {
-                    BRecordType recordType = (BRecordType) resultType;
-                    Map<String, BField> recordFields = recordType.fields;
-                    for (OrderKeyNode orderKeyNode : ((BLangOrderByClause) clause).getOrderKeyList()) {
-                        if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
-                            dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
-                                    DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
-                                    ((BLangOrderKey) orderKeyNode).expression, resultType);
-                        }
-                    }
-                }
+                checkOrderFieldValidity(queryExpr.type, (BLangOrderByClause) clause);
             }
             analyzeNode(clause, env);
         }
+    }
+
+    private void checkOrderFieldValidity(BType resultType, BLangOrderByClause clause) {
+        if (resultType.tag == TypeTags.ARRAY) {
+            resultType = ((BArrayType) resultType).eType;
+        } else if (resultType.tag == TypeTags.TABLE) {
+            resultType = ((BTableType) resultType).constraint;
+        } else if (resultType.tag == TypeTags.STREAM) {
+            resultType = ((BStreamType) resultType).constraint;
+        } else if (resultType.tag == TypeTags.UNION) {
+            List<BType> exprTypes = new ArrayList<>(((BUnionType) resultType).getMemberTypes());
+            for (BType t : exprTypes) {
+                BType returnType;
+                if (t.tag == TypeTags.STREAM) {
+                    returnType = ((BUnionType) resultType).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.STREAM)
+                            .findFirst().orElse(symTable.streamType);
+                    resultType = ((BStreamType) returnType).constraint;
+                } else if (t.tag == TypeTags.TABLE) {
+                    returnType = ((BUnionType) resultType).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.TABLE)
+                            .findFirst().orElse(symTable.tableType);
+                    resultType = ((BTableType) returnType).constraint;
+                } else if (t.tag == TypeTags.ARRAY) {
+                    returnType = ((BUnionType) resultType).getMemberTypes()
+                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
+                            .findFirst().orElse(symTable.arrayType);
+                    resultType = ((BArrayType) returnType).eType;
+                }
+            }
+        }
+        if (resultType.tag == TypeTags.RECORD) {
+            BRecordType recordType = (BRecordType) resultType;
+            Map<String, BField> recordFields = recordType.fields;
+            for (OrderKeyNode orderKeyNode : clause.getOrderKeyList()) {
+                if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
+                    dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
+                            DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
+                            ((BLangOrderKey) orderKeyNode).expression, resultType);
+                } else if (orderKeyNode.getOrderKey().toString() != null) {
+                    BType exprType = recordFields.get(orderKeyNode.getOrderKey().toString()).type;
+                    if (!checkBasicType(exprType)) {
+                        dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
+                                DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean checkBasicType(BType type) {
+        if (type.tag == TypeTags.INT) {
+            return true;
+        } else if (type.tag == TypeTags.FLOAT) {
+            return true;
+        } else if (type.tag == TypeTags.DECIMAL) {
+            return true;
+        } else if (type.tag == TypeTags.STRING) {
+            return true;
+        } else if (type.tag == TypeTags.BOOLEAN) {
+            return true;
+        } else if (type.tag == TypeTags.NIL) {
+            return true;
+        } else if (type.tag == TypeTags.UNION) {
+            if(((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override

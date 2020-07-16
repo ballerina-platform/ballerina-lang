@@ -958,7 +958,7 @@ queryExpr
     ;
 
 queryAction
-    :   queryPipeline orderByClause? doClause limitClause?
+    :   queryPipeline doClause limitClause?
     ;
 
 //reusable productions

@@ -2261,17 +2261,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 endBacktick);
     }
 
-    public static STNode createDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode documentElements) {
-
-        return new STDocumentationLineNode(
-                kind,
-                hashToken,
-                documentElements);
-    }
-
     public static STNode createOrderByClauseNode(
             STNode orderKeyword,
             STNode byKeyword,
