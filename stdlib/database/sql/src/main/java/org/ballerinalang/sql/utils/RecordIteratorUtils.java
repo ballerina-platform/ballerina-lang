@@ -52,6 +52,8 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 
+import static org.ballerinalang.sql.utils.Utils.cleanUpConnection;
+
 /**
  * This class provides functionality for the `RecordIterator` to iterate through the sql result set.
  *
@@ -222,30 +224,6 @@ public class RecordIteratorUtils {
         ResultSet resultSet = (ResultSet) recordIterator.getNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD);
         Statement statement = (Statement) recordIterator.getNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD);
         Connection connection = (Connection) recordIterator.getNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD);
-        if (resultSet != null) {
-            try {
-                resultSet.close();
-                recordIterator.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
-            }
-        }
-        if (statement != null) {
-            try {
-                statement.close();
-                recordIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
-            }
-        }
-        if (connection != null) {
-            try {
-                connection.close();
-                recordIterator.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, null);
-            } catch (SQLException e) {
-                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the connection. ");
-            }
-        }
-        return null;
+        return cleanUpConnection(recordIterator, resultSet, statement, connection);
     }
 }

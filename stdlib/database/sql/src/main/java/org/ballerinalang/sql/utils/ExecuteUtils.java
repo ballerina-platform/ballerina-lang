@@ -39,16 +39,16 @@ import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+
+import static org.ballerinalang.sql.utils.Utils.getGeneratedKeys;
 
 /**
  * This class holds the utility methods involved with executing the query which does not return rows.
@@ -180,26 +180,6 @@ public class ExecuteUtils {
             return ErrorGenerator.getSQLApplicationError(
                     "Client is not properly initialized!");
         }
-    }
-
-    private static Object getGeneratedKeys(ResultSet rs) throws SQLException {
-        ResultSetMetaData metaData = rs.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        if (columnCount > 0) {
-            int sqlType = metaData.getColumnType(1);
-            switch (sqlType) {
-                case Types.TINYINT:
-                case Types.SMALLINT:
-                case Types.INTEGER:
-                case Types.BIGINT:
-                case Types.BIT:
-                case Types.BOOLEAN:
-                    return rs.getLong(1);
-                default:
-                    return rs.getString(1);
-            }
-        }
-        return null;
     }
 
     private static boolean isDdlStatement(String query) {

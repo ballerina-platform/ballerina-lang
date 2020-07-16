@@ -18,18 +18,22 @@
 
 package org.ballerinalang.sql.utils;
 
+import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
+import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BField;
+import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.types.BStructureType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.BXMLType;
+import org.ballerinalang.jvm.types.TypeFlags;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -61,6 +65,7 @@ import java.sql.Connection;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.RowId;
 import java.sql.SQLException;
 import java.sql.SQLXML;
@@ -72,10 +77,12 @@ import java.sql.Types;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 
 /**
@@ -128,7 +135,7 @@ class Utils {
     }
 
     static void setParams(Connection connection, PreparedStatement preparedStatement, AbstractObjectValue paramString)
-        throws SQLException, ApplicationError, IOException {
+            throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedQueryFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
             Object object = arrayValue.get(i);
@@ -1160,5 +1167,181 @@ class Utils {
                         bType.getTag() == TypeTags.DECIMAL_TAG ||
                         bType.getTag() == TypeTags.JSON_TAG;
         }
+    }
+
+    public static Object getGeneratedKeys(ResultSet rs) throws SQLException {
+        ResultSetMetaData metaData = rs.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        if (columnCount > 0) {
+            int sqlType = metaData.getColumnType(1);
+            switch (sqlType) {
+                case Types.TINYINT:
+                case Types.SMALLINT:
+                case Types.INTEGER:
+                case Types.BIGINT:
+                case Types.BIT:
+                case Types.BOOLEAN:
+                    return rs.getLong(1);
+                default:
+                    return rs.getString(1);
+            }
+        }
+        return null;
+    }
+
+    public static ObjectValue createRecordIterator(ResultSet resultSet,
+                                                   Statement statement,
+                                                   Connection connection, List<ColumnDefinition> columnDefinitions,
+                                                   BStructureType streamConstraint) {
+        ObjectValue resultIterator = BallerinaValues.createObjectValue(Constants.SQL_PACKAGE_ID,
+                Constants.RESULT_ITERATOR_OBJECT, new Object[1]);
+        resultIterator.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, resultSet);
+        resultIterator.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, statement);
+        resultIterator.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, connection);
+        resultIterator.addNativeData(Constants.COLUMN_DEFINITIONS_DATA_FIELD, columnDefinitions);
+        resultIterator.addNativeData(Constants.RECORD_TYPE_DATA_FIELD, streamConstraint);
+        return resultIterator;
+    }
+
+    public static BRecordType getDefaultStreamConstraint() {
+        BRecordType defaultRecord = new BRecordType("$stream$anon$constraint$",
+                new BPackage("ballerina", "lang.annotations", "0.0.0"), 0, false,
+                TypeFlags.asMask(TypeFlags.ANYDATA, TypeFlags.PURETYPE));
+        defaultRecord.restFieldType = BTypes.typeAnydata;
+        return defaultRecord;
+    }
+
+    public static List<ColumnDefinition> getColumnDefinitions(ResultSet resultSet, BStructureType streamConstraint)
+            throws SQLException, ApplicationError {
+        List<ColumnDefinition> columnDefs = new ArrayList<>();
+        Set<String> columnNames = new HashSet<>();
+        ResultSetMetaData rsMetaData = resultSet.getMetaData();
+        int cols = rsMetaData.getColumnCount();
+        for (int i = 1; i <= cols; i++) {
+            String colName = rsMetaData.getColumnLabel(i);
+            if (columnNames.contains(colName)) {
+                String tableName = rsMetaData.getTableName(i).toUpperCase(Locale.getDefault());
+                colName = tableName + "." + colName;
+            }
+            int sqlType = rsMetaData.getColumnType(i);
+            String sqlTypeName = rsMetaData.getColumnTypeName(i);
+            boolean isNullable = true;
+            if (rsMetaData.isNullable(i) == ResultSetMetaData.columnNoNulls) {
+                isNullable = false;
+            }
+            columnDefs.add(generateColumnDefinition(colName, sqlType, sqlTypeName, streamConstraint, isNullable));
+            columnNames.add(colName);
+        }
+        return columnDefs;
+    }
+
+    private static ColumnDefinition generateColumnDefinition(String columnName, int sqlType, String sqlTypeName,
+                                                             BStructureType streamConstraint, boolean isNullable)
+            throws ApplicationError {
+        String ballerinaFieldName = null;
+        BType ballerinaType = null;
+        if (streamConstraint != null) {
+            for (Map.Entry<String, BField> field : streamConstraint.getFields().entrySet()) {
+                if (field.getKey().equalsIgnoreCase(columnName)) {
+                    ballerinaFieldName = field.getKey();
+                    ballerinaType = validFieldConstraint(sqlType, field.getValue().type);
+                    if (ballerinaType == null) {
+                        throw new ApplicationError(field.getValue().type.getName() + " cannot be mapped to sql type '"
+                                + sqlTypeName + "'");
+                    }
+                    break;
+                }
+            }
+            if (ballerinaFieldName == null) {
+                throw new ApplicationError("No mapping field found for SQL table column '" + columnName + "'"
+                        + " in the record type '" + streamConstraint.getName() + "'");
+            }
+        } else {
+            ballerinaType = getDefaultBallerinaType(sqlType);
+            ballerinaFieldName = columnName;
+        }
+        return new ColumnDefinition(columnName, ballerinaFieldName, sqlType, sqlTypeName, ballerinaType, isNullable);
+
+    }
+
+    private static BType getDefaultBallerinaType(int sqlType) {
+        switch (sqlType) {
+            case Types.ARRAY:
+                return new BArrayType(BTypes.typeAnydata);
+            case Types.CHAR:
+            case Types.VARCHAR:
+            case Types.LONGVARCHAR:
+            case Types.NCHAR:
+            case Types.NVARCHAR:
+            case Types.LONGNVARCHAR:
+            case Types.CLOB:
+            case Types.NCLOB:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            case Types.TIMESTAMP_WITH_TIMEZONE:
+            case Types.TIME_WITH_TIMEZONE:
+                return BTypes.typeString;
+            case Types.TINYINT:
+            case Types.SMALLINT:
+            case Types.INTEGER:
+            case Types.BIGINT:
+                return BTypes.typeInt;
+            case Types.BIT:
+            case Types.BOOLEAN:
+                return BTypes.typeBoolean;
+            case Types.NUMERIC:
+            case Types.DECIMAL:
+                return BTypes.typeDecimal;
+            case Types.REAL:
+            case Types.FLOAT:
+            case Types.DOUBLE:
+                return BTypes.typeFloat;
+            case Types.BLOB:
+            case Types.BINARY:
+            case Types.VARBINARY:
+            case Types.LONGVARBINARY:
+            case Types.ROWID:
+                return new BArrayType(BTypes.typeByte);
+            case Types.REF:
+            case Types.STRUCT:
+                return getDefaultStreamConstraint();
+            case Types.SQLXML:
+                return BTypes.typeXML;
+            default:
+                return BTypes.typeAnydata;
+        }
+    }
+
+    public static Object cleanUpConnection(ObjectValue ballerinaObject, ResultSet resultSet,
+                                           Statement statement, Connection connection) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+                ballerinaObject.addNativeData(Constants.RESULT_SET_NATIVE_DATA_FIELD, null);
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+                ballerinaObject.addNativeData(Constants.STATEMENT_NATIVE_DATA_FIELD, null);
+            } catch (SQLException e) {
+                return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the result set. ");
+            }
+        }
+        Strand strand = Scheduler.getStrand();
+        if (!strand.isInTransaction() || !strand.currentTrxContext.hasTransactionBlock()) {
+            if (connection != null) {
+                try {
+                    connection.close();
+                    ballerinaObject.addNativeData(Constants.CONNECTION_NATIVE_DATA_FIELD, null);
+                } catch (SQLException e) {
+                    return ErrorGenerator.getSQLDatabaseError(e, "Error while closing the connection. ");
+                }
+            }
+        }
+        return null;
     }
 }
