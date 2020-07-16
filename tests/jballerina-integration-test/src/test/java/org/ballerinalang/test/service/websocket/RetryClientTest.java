@@ -60,7 +60,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi madam");
         restartServerAndGiveTimeClientConnectToServer();
         CountDownLatch latch = new CountDownLatch(1);
-        latch.await(30, TimeUnit.SECONDS);
+        latch.await(10, TimeUnit.SECONDS);
         sendBinaryDataAndAssert();
         closeConnection();
     }
@@ -82,7 +82,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     }
 
     @Test(description = "Tests the `countDownLatch` for the retry function using the WebSocket client (" +
-            "Restart the server and check the countDownLatch for handshake)")
+            "Restart the server and check the countDownLatch for handshake)", enabled = false)
     public void testCountdownLatchForRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
