@@ -43,6 +43,7 @@ public class BRecordType extends BStructureType implements RecordType {
     private static final String REST = "...";
     public static final String OPTIONAL = "?";
     public static final String EMPTY = "";
+    public static final String READONLY = "readonly";
     public boolean sealed;
     public BType restFieldType;
     private Optional<Boolean> isAnyData = Optional.empty();
@@ -82,7 +83,13 @@ public class BRecordType extends BStructureType implements RecordType {
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE).append(CLOSE_LEFT);
             for (BField field : fields.values()) {
-                sb.append(SPACE).append(field.type).append(SPACE).append(field.name)
+                sb.append(SPACE);
+
+                if (Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                    sb.append(READONLY).append(SPACE);
+                }
+
+                sb.append(field.type).append(SPACE).append(field.name)
                         .append(Symbols.isOptional(field.symbol) ? OPTIONAL : EMPTY).append(SEMI);
             }
             if (sealed) {

@@ -62,7 +62,7 @@ public class RawTemplateLiteralTest {
         validateError(errors, indx++, "invalid raw template: expected 2 insertion(s), but found " +
                 "1 insertion(s)", 51, 19);
         validateError(errors, indx++, "incompatible types: expected 'anydata', found 'Template'", 56, 46);
-        validateError(errors, indx++, "incompatible types: expected '((Foo|Bar) & readonly)', found 'string'", 70, 16);
+        validateError(errors, indx++, "incompatible types: expected '(Foo|Bar)', found 'string'", 70, 16);
         validateError(errors, indx++, "invalid raw template assignment: 'Template1' should be an abstract object",
                       82, 19);
         validateError(errors, indx++, "invalid raw template assignment: 'object { public (string[] & readonly) " +
