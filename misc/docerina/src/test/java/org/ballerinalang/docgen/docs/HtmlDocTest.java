@@ -22,7 +22,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.generator.model.Client;
-import org.ballerinalang.docgen.generator.model.DefaultableVarible;
+import org.ballerinalang.docgen.generator.model.DefaultableVariable;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.Object;
@@ -150,10 +150,10 @@ public class HtmlDocTest {
         Record record = records.get(0);
         Assert.assertEquals(record.name, "User");
 
-        List<DefaultableVarible> fields = record.fields;
+        List<DefaultableVariable> fields = record.fields;
         Assert.assertEquals(fields.size(), 2);
 
-        DefaultableVarible field = fields.get(0);
+        DefaultableVariable field = fields.get(0);
         Assert.assertEquals(field.name, "name");
         Assert.assertEquals(field.description, "<p>name of the user</p>\n");
 
@@ -188,7 +188,7 @@ public class HtmlDocTest {
 
         Assert.assertEquals(object.name, "Test");
 
-        List<DefaultableVarible> fields = object.fields;
+        List<DefaultableVariable> fields = object.fields;
         Assert.assertEquals(fields.size(), 2);
         Assert.assertEquals(fields.get(0).name, "url");
         Assert.assertEquals(fields.get(1).name, "path");

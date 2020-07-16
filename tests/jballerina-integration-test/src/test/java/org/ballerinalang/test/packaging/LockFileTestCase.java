@@ -109,7 +109,7 @@ public class LockFileTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Test building TestProject1 and then pushing it's modules.")
+    @Test(enabled = false, description = "Test building TestProject1 and then pushing it's modules.")
     public void testBuildAndPushTestProject1() throws BallerinaTestException {
         // Build module
         String module1BaloFileName = module1Name + "-"

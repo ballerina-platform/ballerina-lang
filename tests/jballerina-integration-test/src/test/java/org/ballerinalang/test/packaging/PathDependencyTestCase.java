@@ -197,7 +197,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test()
+    @Test(enabled = false)
     public void testBaloPathCase4() throws BallerinaTestException, IOException {
         Path caseResources = tempTestResources.resolve("case4");
         // Build bee module of TestProject1
@@ -450,7 +450,7 @@ public class PathDependencyTestCase extends BaseTest {
      *
      * @throws BallerinaTestException Error when executing the commands.
      */
-    @Test(description = "Case8: Test single bal file using external module with interop dependency",
+    @Test(enabled = false, description = "Case8: Test single bal file using external module with interop dependency",
     dependsOnMethods = "testBaloPathCase7")
     public void testBaloSingleBalFileCase8() throws BallerinaTestException, IOException {
 
