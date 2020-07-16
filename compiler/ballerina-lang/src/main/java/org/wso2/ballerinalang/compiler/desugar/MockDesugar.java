@@ -61,6 +61,8 @@ import java.util.Set;
  */
 public class MockDesugar {
 
+    private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
+    private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
@@ -68,8 +70,11 @@ public class MockDesugar {
     private BInvokableSymbol importFunction;
     private String mockFnObjectName;
 
-    private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
-    private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private MockDesugar(CompilerContext context) {
+        context.put(MOCK_DESUGAR_KEY, this);
+        this.symTable = SymbolTable.getInstance(context);
+        this.symResolver = SymbolResolver.getInstance(context);
+    }
 
     public static MockDesugar getInstance(CompilerContext context) {
         MockDesugar desugar = context.get(MOCK_DESUGAR_KEY);
@@ -79,10 +84,12 @@ public class MockDesugar {
         return desugar;
     }
 
-    private MockDesugar(CompilerContext context) {
-        context.put(MOCK_DESUGAR_KEY, this);
-        this.symTable = SymbolTable.getInstance(context);
-        this.symResolver = SymbolResolver.getInstance(context);
+    private static IdentifierNode createIdentifier(String value) {
+        IdentifierNode node = TreeBuilder.createIdentifierNode();
+        if (value != null) {
+            node.setValue(value);
+        }
+        return node;
     }
 
     public void generateMockFunctions(BLangPackage pkgNode) {
@@ -95,8 +102,10 @@ public class MockDesugar {
         // Get the set of functions to generate
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
 
-        for (String function: mockFunctionSet) {
-            pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
+        for (String function : mockFunctionSet) {
+            if (!function.contains("~")) {
+                pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
+            }
         }
     }
 
@@ -203,6 +212,7 @@ public class MockDesugar {
                             bVarSymbol.type, null, bVarSymbol);
             bLangSimpleVariables.add(bLangSimpleVariable);
         }
+
 
         return bLangSimpleVariables;
     }
@@ -397,7 +407,7 @@ public class MockDesugar {
         List<BLangSimpleVarRef> argVariables;
         if (originalFunction == null) {
             argVariables =
-                    ASTBuilderUtil.createVariableRefList(bLangPackage.pos, generateImportRequiredParams());
+                    ASTBuilderUtil.createVariableRefList(bLangPackage.pos, generateMockHandlerImportReqParams());
         } else {
             argVariables =
                     ASTBuilderUtil.createVariableRefList(bLangPackage.pos, originalFunction.requiredParams);
@@ -411,12 +421,25 @@ public class MockDesugar {
         return argsList;
     }
 
-    private static IdentifierNode createIdentifier(String value) {
-        IdentifierNode node = TreeBuilder.createIdentifierNode();
-        if (value != null) {
-            node.setValue(value);
+    private List<BLangSimpleVariable> generateMockHandlerImportReqParams() {
+        List<BLangSimpleVariable> bLangSimpleVariables = new ArrayList<>();
+
+        if (!this.importFunction.params.isEmpty()) {
+            for (BVarSymbol bVarSymbol : this.importFunction.params) {
+                BLangSimpleVariable bLangSimpleVariable =
+                        ASTBuilderUtil.createVariable(bLangPackage.pos, bVarSymbol.name.getValue(),
+                                bVarSymbol.type, null, bVarSymbol);
+                bLangSimpleVariables.add(bLangSimpleVariable);
+            }
+        } else if (this.importFunction.restParam != null) {
+            BVarSymbol bVarSymbol = this.importFunction.restParam;
+            BLangSimpleVariable bLangSimpleVariable =
+                    ASTBuilderUtil.createVariable(bLangPackage.pos, bVarSymbol.name.getValue(),
+                            bVarSymbol.type, null, bVarSymbol);
+            bLangSimpleVariables.add(bLangSimpleVariable);
         }
-        return node;
+
+        return bLangSimpleVariables;
     }
 
     private BType generateType() {

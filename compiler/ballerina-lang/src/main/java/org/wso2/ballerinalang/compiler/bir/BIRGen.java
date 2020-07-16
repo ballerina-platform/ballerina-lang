@@ -216,6 +216,7 @@ public class BIRGen extends BLangNodeVisitor {
 
     // Required variables for Mock function implementation
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_DELIMITER = "~";
 
     private ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
 
@@ -334,11 +335,19 @@ public class BIRGen extends BLangNodeVisitor {
                     String functionKey = callTerminator.calleePkg.toString() + MOCK_ANNOTATION_DELIMITER
                             + callTerminator.name.toString();
 
+                    String legacyKey = callTerminator.calleePkg.toString() + MOCK_FN_DELIMITER
+                            + callTerminator.name.toString();
+
                     // If function in basic block exists in the MockFunctionMap
                     if (mockFunctionMap.containsKey(functionKey)) {
                         // Replace the function call with the equivalent $MOCK_ substitiute
                         String desugarFunction = "$MOCK_" + callTerminator.name.getValue();
                         callTerminator.name = new Name(desugarFunction);
+                        callTerminator.calleePkg = function.pos.src.pkgID;
+                    } else if (mockFunctionMap.get(legacyKey) != null) {
+                        // Just "get" the reference. If this doesnt work then it doesnt exist
+                        String mockfunctionName = mockFunctionMap.get(legacyKey);
+                        callTerminator.name = new Name(mockfunctionName);
                         callTerminator.calleePkg = function.pos.src.pkgID;
                     }
                 }

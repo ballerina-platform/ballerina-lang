@@ -29,29 +29,6 @@
       ]
     },
     {
-      "label": "test:Mock",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "130",
-      "insertText": "test:Mock {\n\t${1}\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/test;\n"
-        }
-      ]
-    },
-    {
       "label": "test:BeforeSuite",
       "kind": "Property",
       "detail": "Annotation",
@@ -144,19 +121,11 @@
       ]
     },
     {
-      "label": "http:ResourceConfig",
+      "label": "test:Mock",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "130",
-      "insertText": "http:ResourceConfig {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "transactions:Participant",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "130",
-      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertText": "test:Mock {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -170,9 +139,17 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/transactions;\n"
+          "newText": "import ballerina/test;\n"
         }
       ]
+    },
+    {
+      "label": "http:ResourceConfig",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "http:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "observe:Observable",
@@ -194,6 +171,29 @@
             }
           },
           "newText": "import ballerina/observe;\n"
+        }
+      ]
+    },
+    {
+      "label": "transactions:Participant",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "130",
+      "insertText": "transactions:Participant {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 1,
+              "character": 0
+            },
+            "end": {
+              "line": 1,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/transactions;\n"
         }
       ]
     },
