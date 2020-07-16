@@ -34,7 +34,7 @@ public class BLangFailExpr extends BLangExpression implements FailExpressionNode
 
     public BLangExpression expr;
 
-    // This list caches types that are equivalent to the error type which are returned by the rhs expression.
+    // This list catches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 
     @Override
