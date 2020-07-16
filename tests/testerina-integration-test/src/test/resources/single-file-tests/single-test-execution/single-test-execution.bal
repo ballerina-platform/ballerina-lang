@@ -33,7 +33,7 @@ public function testFunc2() {
 
 // Disabled function
 @test:Config {
-    enable: true
+    enable: false
 }
 public function testDisabledFunc() {
     io:println("testDisabledFunc");
@@ -47,5 +47,5 @@ public function testDisabledFunc() {
 }
 public function testDependentDisabledFunc() {
     io:println("testDependentDisabledFunc");
-    test:assertEquals(testString, "beforeEachdisabled");
+    test:assertEquals(testString, "beforeEachdisabledafterEachbeforeEach");
 }
