@@ -286,7 +286,9 @@ public class WebSocketUtil {
             }
             createDelay(calculateWaitingTime(retryConnectorConfig.getInterval(), retryConnectorConfig.getMaxInterval(),
                     retryConnectorConfig.getBackOfFactor(), noOfReconnectAttempts));
-            WebSocketClientConnector clientConnector = HttpUtil.createHttpWsConnectionFactory().createWsClientConnector(
+            WebSocketClientConnector clientConnector = ((HttpWsConnectorFactory) webSocketClient
+                    .getNativeData(WebSocketConstants.
+                            CONNECTOR_FACTORY)).createWsClientConnector(
                     (WebSocketClientConnectorConfig) webSocketClient.getNativeData(WebSocketConstants.
                             CONNECTOR_CONFIG));
             establishWebSocketConnection(clientConnector, webSocketClient, wsService);
