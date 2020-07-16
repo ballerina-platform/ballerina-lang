@@ -15,13 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
+package org.ballerinalang.langserver.commons.semantichighlighter;
 /**
  * Represents the data model for Semantic Highlighting Information.
  *
  * @since 1.2.0
  */
-class SemanticHighlightingInformation {
+public class SemanticHighlightingInformation {
     private final int line;
     private final String token;
 
