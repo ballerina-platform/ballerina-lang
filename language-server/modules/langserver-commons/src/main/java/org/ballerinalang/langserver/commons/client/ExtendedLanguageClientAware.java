@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.client;
+package org.ballerinalang.langserver.commons.client;
 
 /**
  * Extended LanguageClientAware interface.
