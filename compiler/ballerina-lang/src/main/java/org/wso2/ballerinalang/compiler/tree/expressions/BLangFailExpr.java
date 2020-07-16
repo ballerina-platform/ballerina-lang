@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.List;
 
 /**
- * {@code FailExpressionNode} represents a expression which forces to return error.
+ * {@code FailExpressionNode} represents an expression which forces to return error.
  *
  * @since Swan Lake
  */
