@@ -50,6 +50,13 @@ public final class Constants {
     public static final String COLUMN_DEFINITIONS_DATA_FIELD = "ColumnDefinition";
     public static final String RECORD_TYPE_DATA_FIELD = "recordType";
 
+    public static final String PROCEDURE_CALL_RESULT = "ProcedureCallResult";
+    public static final String TYPE_DESCRIPTIONS_NATIVE_DATA_FIELD = "TypeDescription";
+    public static final String RESULT_SET_COUNT_NATIVE_DATA_FIELD = "ResultSetCount";
+    public static final String RESULT_SET_TOTAL_NATIVE_DATA_FIELD = "ResultSetTotal";
+    public static final BString EXECUTION_RESULT_FIELD = fromString("executionResult");
+    public static final BString QUERY_RESULT_FIELD = fromString("queryResult");
+
     public static final BString TIMEZONE_UTC = fromString("UTC");
 
     public static final String EXECUTION_RESULT_RECORD = "ExecutionResult";
