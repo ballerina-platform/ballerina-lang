@@ -4597,6 +4597,11 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        result = rewriteExpr(failExpr.expr);
+    }
+
     // Generated expressions. Following expressions are not part of the original syntax
     // tree which is coming out of the parser
 

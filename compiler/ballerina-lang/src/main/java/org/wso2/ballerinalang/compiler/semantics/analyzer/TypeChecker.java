@@ -3892,9 +3892,22 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
             dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
             resultType = symTable.semanticError;
+            return;
         }
 
-        resultType = errorExpressionType;
+        BType exprExpType;
+        if (expType == symTable.noType) {
+            exprExpType = symTable.noType;
+        } else if (types.isAssignable(errorExpressionType, expType)) {
+            exprExpType = errorExpressionType;
+        } else {
+            dlog.error(failExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
+                    symTable.errorType, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = exprExpType;
     }
 
     @Override

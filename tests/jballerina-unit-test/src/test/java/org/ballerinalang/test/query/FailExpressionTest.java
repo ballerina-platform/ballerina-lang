@@ -37,12 +37,10 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
 public class FailExpressionTest {
 
     private CompileResult result;
-    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/query/fail-expression.bal");
-        negativeResult = BCompileUtil.compile("test-src/query/fail-expression-negative.bal");
     }
 
     @Test(description = "Test fail expression basic syntax")
@@ -55,13 +53,34 @@ public class FailExpressionTest {
                 "Custom error thrown explicitly.");
     }
 
+    @Test(description = "Test fail action basic syntax")
+    public void testFailAction() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testFailAction");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertTrue(returnValues[0] instanceof BError);
+        Assert.assertEquals(((BError) returnValues[0]).getMessage(),
+                "Custom error thrown explicitly.");
+    }
+
     @Test(description = "Test negative cases in fail expr")
-    public void testFailExprNegative() {
+    public void testFailActionNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/query/fail-action-negative.bal");
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         int index = 0;
 
         validateError(negativeResult, index++,
                 "type 'err' not allowed here; expected an 'error' or a subtype of 'error'.",
                 5, 10);
+    }
+
+    @Test(description = "Test negative cases in fail expr")
+    public void testFailExprNegative() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/query/fail-expression-negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        int index = 0;
+
+        validateError(negativeResult, index++,
+                "this function must return a result", 2, 1);
     }
 }

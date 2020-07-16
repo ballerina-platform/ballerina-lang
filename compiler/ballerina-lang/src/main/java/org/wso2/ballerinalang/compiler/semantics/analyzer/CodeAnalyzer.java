@@ -2657,22 +2657,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFailExpr failExpr) {
-        this.statementReturns = true;
         analyzeExpr(failExpr.expr);
 
-        if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
-            // Check at module level.
-            return;
+        if (failExpr.expectedType.tag == symTable.noType.tag) {
+            this.statementReturns = true;
+            if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+                // Check at module level.
+                return;
+            }
+
+            BType exprType = env.enclInvokable.getReturnTypeNode().type;
+
+            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
+                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            }
+
+            returnTypes.peek().add(exprType);
+            validateActionParentNode(failExpr.pos, failExpr);
         }
-
-        BType exprType = env.enclInvokable.getReturnTypeNode().type;
-
-        if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
-            dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
-        }
-
-        returnTypes.peek().add(exprType);
-        validateActionParentNode(failExpr.pos, failExpr);
     }
 
     @Override
