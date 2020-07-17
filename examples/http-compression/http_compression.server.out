@@ -1,6 +1,6 @@
 # To start the services, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run http_compression.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run http_compression.bal
 # Service deployment
 ballerina: started HTTP/WS listener 0.0.0.0:9092
 ballerina: started HTTP/WS listener 0.0.0.0:9090

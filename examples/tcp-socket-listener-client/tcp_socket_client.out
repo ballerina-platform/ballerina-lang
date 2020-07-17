@@ -1,6 +1,6 @@
 # To run the client, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run tcp_socket_client.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run tcp_socket_client.bal
 
 # Print the response that is obtained from the server.
 Hello Ballerina back

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run publisher.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run publisher.bal
 Subject : demo
 [ballerina/nats] Connection established with server nats://localhost:4222
 Message : First Message

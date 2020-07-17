@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run kafka_message_consumer_service.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run kafka_message_consumer_service.bal
 
 # If the listener started successfully, the following lines will be printed in
 # the Console.

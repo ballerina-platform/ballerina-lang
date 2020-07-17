@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run subscriber.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run subscriber.bal
 Received message : First Message
 
 # Stop the subscriber and publish some messages while it is stopped.
@@ -8,5 +8,5 @@ Received message : First Message
 # All messages which had been published while the subscriber
 # wasn't running should be received.
 
-$ ballerina run subscriber.bal
+ballerina run subscriber.bal
 Received message : Second Message

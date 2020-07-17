@@ -1,6 +1,6 @@
 # Start multipartDemoService
 # The cURL command, which you need to execute to decode a multipart request
-$ curl -F "part1={\"name\":\"ballerina\"};type=application/json" http://localhost:9090/multiparts/decode -H "Content-Type: multipart/mixed" -H 'Expect:'
+curl -F "part1={\"name\":\"ballerina\"};type=application/json" http://localhost:9090/multiparts/decode -H "Content-Type: multipart/mixed" -H 'Expect:'
 --ac4875939cf6b158
 content-type: application/json
 content-disposition: form-data;name="part1"
@@ -10,7 +10,7 @@ content-id: 0
 --ac4875939cf6b158--
 
 # The cURL command, which you need to execute to encode the parts of the body and send a multipart request via the Ballerina service
-$ curl -v http://localhost:9090/multiparts/encode
+curl -v http://localhost:9090/multiparts/encode
 < HTTP/1.1 200 OK
 < content-type: multipart/form-data; boundary=3bbfa10811dcdee6
 < date: Thu, 14 Jun 2018 15:22:21 +0530

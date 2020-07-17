@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, and execute the `ballerina run` command.
-$ ballerina run threads-and-strands.bal
+ballerina run threads-and-strands.bal
 --- case 1 ---
 Before the wait action
 Multiplying 1 * 2

@@ -1,4 +1,4 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run cookie_server.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run cookie_server.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9095

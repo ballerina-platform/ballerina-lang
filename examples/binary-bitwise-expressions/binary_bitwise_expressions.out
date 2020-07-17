@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run binary_bitwise_expressions.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run binary_bitwise_expressions.bal
 `int` 385 & `int:Unsigned8` 128: 128
 `int:Signed16` -32700 & `int` 249: 64
 `int:Unsigned8` 254 | `int:Unsigned16` 511: 255

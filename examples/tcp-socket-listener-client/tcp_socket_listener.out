@@ -1,6 +1,6 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run tcp_socket_listener.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run tcp_socket_listener.bal
 
 
 # The socket listener starts listening to the port 61598 for incoming client requests.

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run kafka_message_producer_simple.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run kafka_message_producer_simple.bal
 
 # If the producer successfully sent the message, the following will be printed
 # in the Console.
