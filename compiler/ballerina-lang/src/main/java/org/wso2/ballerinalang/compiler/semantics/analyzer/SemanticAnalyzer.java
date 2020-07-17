@@ -1264,13 +1264,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
                     }
                     value.type = restType;
-                    value.accept(this);
+                    analyzeNode(value, env);
                 }
                 continue;
             }
 
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
-            value.accept(this);
+            analyzeNode(value, env);
         }
 
         if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()

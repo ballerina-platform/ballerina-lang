@@ -3243,17 +3243,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
-        SymbolEnv rhsExprEnv;
-        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
-        if (binaryExpr.opKind == OperatorKind.AND) {
-            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
-        } else if (binaryExpr.opKind == OperatorKind.OR) {
-            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+        SymbolEnv lhsExprEnv, rhsExprEnv;
+        BType lhsType, rhsType;
+        if (binaryExpr.opKind == OperatorKind.EQUALS) {
+            BLangNode joinNode = getLastInputNodeFromEnv(env);
+            // lhsExprEnv should only contain scope entries before join condition.
+            lhsExprEnv = getEnvBeforeInputNode(env, joinNode);
+            lhsType = checkExpr(binaryExpr.lhsExpr, lhsExprEnv);
+            // rhsExprEnv should only contain scope entries after join condition.
+            rhsExprEnv = getEnvAfterJoinNode(env, joinNode);
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         } else {
-            rhsExprEnv = env;
+            lhsType = checkExpr(binaryExpr.lhsExpr, env);
+            if (binaryExpr.opKind == OperatorKind.AND) {
+                rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
+            } else if (binaryExpr.opKind == OperatorKind.OR) {
+                rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+            } else {
+                rhsExprEnv = env;
+            }
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         }
-
-        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -3297,6 +3307,35 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
+        while (env != null && env.node != node) {
+            env = env.enclEnv;
+        }
+        return env != null && env.enclEnv != null
+                ? env.enclEnv.createClone()
+                : new SymbolEnv(node, null);
+    }
+
+    private SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
+        SymbolEnv clone = env.createClone();
+        while (clone != null && clone.node != node) {
+            clone = clone.enclEnv;
+        }
+        if (clone != null) {
+            clone.enclEnv = getEnvBeforeInputNode(clone.enclEnv, getLastInputNodeFromEnv(clone.enclEnv));
+        } else {
+            clone = new SymbolEnv(node, null);
+        }
+        return clone;
+    }
+
+    private BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
+        while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
+            env = env.enclEnv;
+        }
+        return env != null ? env.node : null;
     }
 
     public void visit(BLangTransactionalExpr transactionalExpr) {
@@ -4006,19 +4045,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
         checkExpr(fromClause.collection, narrowedQueryEnv);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
         handleInputClauseVariables(fromClause, narrowedQueryEnv);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
+        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         checkExpr(joinClause.collection, narrowedQueryEnv);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this);
