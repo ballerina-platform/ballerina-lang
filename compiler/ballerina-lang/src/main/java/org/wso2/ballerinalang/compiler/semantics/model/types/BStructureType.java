@@ -19,6 +19,9 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.LinkedHashMap;
 
@@ -28,6 +31,8 @@ import java.util.LinkedHashMap;
  * @since 0.971.0
  */
 public abstract class BStructureType extends BType {
+
+    private static final String DOLLAR = "$";
 
     public LinkedHashMap<String, BField> fields;
 
@@ -48,5 +53,23 @@ public abstract class BStructureType extends BType {
     @Override
     public void accept(TypeVisitor visitor) {
         visitor.visit(this);
+    }
+
+    protected boolean shouldPrintShape(Name name) {
+        if (name == null) {
+            return false;
+        }
+
+        String value = name.value;
+
+        if (value.isEmpty() || value.startsWith(DOLLAR)) {
+            return true;
+        }
+
+        if (!(Symbols.isFlagOn(this.tsymbol.flags, Flags.READONLY))) {
+            return false;
+        }
+
+        return value.startsWith("($");
     }
 }

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.client;
+package org.ballerinalang.langserver.commons.client;
 
-import org.ballerinalang.langserver.extensions.ballerina.semantichighlighter.SemanticHighlightingParams;
-import org.ballerinalang.langserver.extensions.ballerina.traces.TraceRecord;
+import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
+import org.ballerinalang.langserver.commons.trace.TraceRecord;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.jsonrpc.services.JsonNotification;
 import org.eclipse.lsp4j.services.LanguageClient;
