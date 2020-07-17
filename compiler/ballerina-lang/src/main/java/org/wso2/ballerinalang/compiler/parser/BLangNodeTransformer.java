@@ -1135,15 +1135,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 funcDefNode.functionSignature(), funcDefNode.functionBody(), funcDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
-        if (funcDefNode.visibilityQualifier().isPresent()) {
-            bLFunction.pos = getPosition(funcDefNode.visibilityQualifier().get());
-        } else {
-            bLFunction.pos = getPosition(funcDefNode.functionKeyword());
-        }
+        bLFunction.pos = getPositionForFuncDefNode(funcDefNode);
+
 
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(funcDefNode.metadata().documentationString());
         return bLFunction;
+    }
+
+    private DiagnosticPos getPositionForFuncDefNode(FunctionDefinitionNode funcDefNode) {
+        if (funcDefNode == null) {
+            return null;
+        }
+        Node startNode;
+        if (funcDefNode.visibilityQualifier().isPresent()) {
+            startNode = funcDefNode.visibilityQualifier().get();
+        } else {
+            startNode = funcDefNode.functionKeyword();
+        }
+        LineRange startLineRange = startNode.lineRange();
+        LineRange endLineRange = funcDefNode.functionBody().lineRange();
+
+        LinePosition startPos = startLineRange.startLine();
+        LinePosition endPos = endLineRange.endLine();
+        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1, startPos.offset() + 1,
+                endPos.offset() + 1);
     }
 
     private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
