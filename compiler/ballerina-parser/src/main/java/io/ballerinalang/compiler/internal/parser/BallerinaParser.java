@@ -599,6 +599,9 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgMatchPatternRhs();
             case ARG_BINDING_PATTERN:
                 return parseArgBindingPattern();
+            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
+                return parseExternalFuncBodyRhs((STNode) args[0]);
+
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -2765,7 +2768,12 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExternalFunctionBody() {
         startContext(ParserRuleContext.EXTERNAL_FUNC_BODY);
         STNode assign = parseAssignOp();
-        return parseExternalFuncBodyRhs(peek(), assign);
+        return parseExternalFuncBodyRhs(assign);
+    }
+
+    private STNode parseExternalFuncBodyRhs(STNode assign) {
+        STToken nextToken = peek();
+        return parseExternalFuncBodyRhs(nextToken, assign);
     }
 
     private STNode parseExternalFuncBodyRhs(STToken nextToken, STNode assign) {
