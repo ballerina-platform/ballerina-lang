@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run let_expression.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run let_expression.bal
 a: 2
 greeting: Hello Ballerina!
 three: 3
