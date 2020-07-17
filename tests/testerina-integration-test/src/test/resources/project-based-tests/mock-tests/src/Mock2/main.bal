@@ -29,3 +29,8 @@ public function intAdd(int a, int b) returns (int) {
 public function callIntAdd(int a, int b) returns (int) {
     return intAdd(a, b);
 }
+
+// Function to be mocked from another module
+public function intAdd2(int a, int b) returns (int) {
+    return a + b;
+}

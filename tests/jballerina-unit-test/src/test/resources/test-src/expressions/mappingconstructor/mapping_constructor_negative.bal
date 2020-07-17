@@ -54,3 +54,8 @@ function testFieldTypeCheckingOnUnknownType() {
     PersonThree p3 = {name: "Anne", id: 123, "salary": 100.0};
     NoRecord x = {a: <string> p3.id, b: p3.salary, ...c};
 }
+
+function testMappingConstrWithIssuesInCET() {
+    Foo f = {a: <boolean> "hello", b: 1}; // Unknown type.
+    Foo|map<boolean> g = {a: <boolean> 1, c: true}; // Unknown type in union.
+}

@@ -43,14 +43,18 @@ public class FunctionMock {
 
     public static Object mockHandler(ObjectValue mockFuncObj, ArrayValue args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
-        String originalFunction = mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
+        String originalFunction =
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
+        String originalFunctionPackage =
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMockPackage")).toString();
+        originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
         Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if ((returnVal instanceof StringValue)
                         && returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                    return callFunction(originalFunction, returnVal.toString(), args);
+                    return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), args);
                 }
                 break;
             }
@@ -63,7 +67,8 @@ public class FunctionMock {
         return returnVal;
     }
 
-    private static Object callFunction(String originalFunction, String returnVal, ArrayValue args) {
+    private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
+                                       ArrayValue args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -79,7 +84,8 @@ public class FunctionMock {
             orgName = projectInfo[0];
             packageName = projectInfo[1];
             version = projectInfo[2].replace("_", ".");
-            className = "tests." + getClassName(methodName, orgName, packageName, version, originalFunction);
+            className = "tests." +
+                    getClassName(methodName, orgName, packageName, version, originalFunction, originalFunctionPackage);
         } catch (IOException | ClassNotFoundException e) {
             return BallerinaErrors.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
                     e.getMessage());
@@ -98,40 +104,46 @@ public class FunctionMock {
     }
 
     private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
-                                       String originalMethodName) throws IOException, ClassNotFoundException {
+                                       String originalMethodName, String originalPackageName)
+            throws IOException, ClassNotFoundException {
         String jarName = orgName + "-" + packageName + "-" + version + "-testable.jar";
         Path jarPath = Paths.get(System.getProperty("user.dir"), "target", "caches", "jar_cache", orgName,
                 packageName, version, jarName);
 
-        try (JarFile jar = new JarFile(jarPath.toString())) {
-            // Method definition
-            Method mockMethod = null;
-            Method originalMethod = null;
+        Method mockMethod = null;
+        Method originalMethod = null;
 
+        // Get the mock method
+        try (JarFile jar = new JarFile(jarPath.toString())) {
             for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
                 String file = entries.nextElement().getName();
-
                 // Get .class files but dont contain '..Frame.class'
                 if (file.endsWith(".class") && !file.contains("Frame.class") && !file.contains("__init")) {
-
                     // Find mock method if still null
                     if (file.contains("/tests/") && mockMethod == null) {
                         mockMethod = getClassDeclaredMethod(file, mockMethodName);
                     }
-
-                    // Find original method if still null
-                    if (!file.contains("/tests/") && originalMethod == null) {
-                        originalMethod = getClassDeclaredMethod(file, originalMethodName);
-                    }
-                }
-
-                if (mockMethod != null && originalMethod != null) {
-                    break;
                 }
             }
-            validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
-            return  mockMethod.getDeclaringClass().getSimpleName();
+
+            originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
+
         }
+
+        validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
+        return  mockMethod.getDeclaringClass().getSimpleName();
+    }
+
+    private static Method getOriginalMethod(String methodName, String packageName) throws ClassNotFoundException {
+        Method[] methodList = FunctionMock.class.getClassLoader().loadClass(packageName).getDeclaredMethods();
+
+        for (Method method : methodList) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+
+        return null;
     }
 
     private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
@@ -166,7 +178,7 @@ public class FunctionMock {
         } else {
             throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
                     MockConstants.TEST_PACKAGE_ID,
-                    "Specified Mock function \'" + mockMethodName + "\' cannot be found");
+                    "Mock function \'" + mockMethodName + "\' cannot be found");
         }
     }
 
@@ -210,6 +222,14 @@ public class FunctionMock {
         Collections.reverse(caseIdList);
 
         return caseIdList;
+    }
+
+    private static String formatFunctionPackage(String fnPackage) {
+        fnPackage = fnPackage.replace('.', '_');
+        fnPackage = fnPackage.replace('/', '.');
+        fnPackage = fnPackage.replace(':', '.');
+
+        return fnPackage;
     }
 }
 
