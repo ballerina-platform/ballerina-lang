@@ -73,6 +73,9 @@ public class GenerateHtmlReportForTest {
                 .append("<li>\n")
                 .append("<a href=\"#tab1\">Failed tests</a>\n")
                 .append("</li>\n")
+                .append("<li>\n")
+                .append("<a href=\"#tab2\">Ballerina Log File</a>\n")
+                .append("</li>\n")
                 .append("</ul>\n")
                 .append("<div id=\"tab0\" class=\"tab\">\n")
                 .append("<h2>Tests</h2>\n")
@@ -116,6 +119,15 @@ public class GenerateHtmlReportForTest {
             }
         }
         writer
+                .append("</div>\n")
+                .append("</div>\n")
+                .append("<div id=\"tab2\" class=\"tab\">\n")
+                .append("<h2>Ballerina Log File</h2>\n")
+                .append("<div class=\"test\">\n")
+                .append("<h3 class=\"failures\">" + "log file" + "</h3>\n")
+                .append("<div style=\"width:100%;overflow:auto;background-color: #f7f7f7\" >\n")
+                .append("<pre>" + records.get(records.size() - 1).getLogFile() + "</pre>\n")
+                .append("</div>\n")
                 .append("</div>\n")
                 .append("</div>\n")
                 .append("</div>\n")

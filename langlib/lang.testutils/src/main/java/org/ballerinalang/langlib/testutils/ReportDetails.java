@@ -30,6 +30,7 @@ public class ReportDetails {
     private String executionTime;
     private String stackTrace;
     private String testStatus;
+    private String logFile;
 
     public void setFunctionName(String functionName) {
         this.functionName = functionName;
@@ -51,6 +52,10 @@ public class ReportDetails {
         this.testStatus = testStatus;
     }
 
+    public void setLogFile(String logFile) {
+        this.logFile = logFile;
+    }
+
     public String getFunctionName() {
         return this.functionName;
     }
@@ -69,5 +74,9 @@ public class ReportDetails {
 
     public String getTestStatus() {
         return this.testStatus;
+    }
+
+    public String getLogFile() {
+        return this.logFile;
     }
 }

@@ -55,6 +55,8 @@ public class CTestRunner {
     public static final String FILE_READ_ERROR = "An error occurred while reading the file ";
     public static final String BAL_EXTENSION = ".bal";
     public static final String OUT_FILE_EXTENSION = ".out";
+    public static final String LOG_FILE_NAME = "ballerina-internal.log";
+    public static final String LOG_NOT_FOUND_MSG = "no log found";
     public static final String FAILED_STATUS = " failed! \n";
     private static final PrintStream outStream = System.out;
     private static final PrintStream errStream = System.err;
@@ -93,15 +95,16 @@ public class CTestRunner {
             } else {
                 CTestSuite.failedTestCount++;
                 errStream.println(cTests.getPath() + FAILED_STATUS);
+                records.add(getReportDetails(cTests.getPath(), cTests.getDescription(), 0,
+                        CTestConstants.TEST_FAILED_STATUS, CTestConstants.TEST_COMPILATION_PASS_STATUS));
             }
         } else if (!compileResult.toString().equals(CTestConstants.TEST_COMPILATION_PASS_STATUS)) {
             CTestSuite.failedTestCount++;
             errStream.println(cTests.getPath() + FAILED_STATUS + compileResult.toString());
-        }  else {
+            records.add(getReportDetails(cTests.getPath(), cTests.getDescription(), 0,
+                    CTestConstants.TEST_FAILED_STATUS, compileResult.toString()));
+        } else {
             for (TestFunction testFunction : cTests.getTestFunctions()) {
-                ReportDetails reportDetails = new ReportDetails();
-                reportDetails.setClassName(cTests.getPath());
-                reportDetails.setFunctionName(testFunction.getFunctionName());
                 long startTime = System.currentTimeMillis();
                 boolean failFlag = false;
                 String returnValue;
@@ -120,15 +123,15 @@ public class CTestRunner {
                 }
                 long endTime = System.currentTimeMillis();
                 long totalTime = endTime - startTime;
-                reportDetails.setExecutionTime(String.valueOf(totalTime));
-                reportDetails.setStackTrace(returnValue);
+                String testStatus;
                 if (returnValue.equals(CTestConstants.TEST_PASSED_STATUS)) {
-                    reportDetails.setTestStatus(CTestConstants.TEST_PASSED_STATUS);
+                    testStatus = CTestConstants.TEST_PASSED_STATUS;
                 } else {
                     CTestSuite.failedTestCount++;
-                    reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+                    testStatus = CTestConstants.TEST_FAILED_STATUS;
                 }
-                records.add(reportDetails);
+                records.add(getReportDetails(cTests.getPath(), testFunction.getFunctionName(), totalTime, testStatus,
+                        returnValue));
             }
         }
         //generate Html report
@@ -354,34 +357,50 @@ public class CTestRunner {
         return future.get();
     }
 
-    public static void validateError(CompileResult result, String className, String outFilePath,
-                                     ArrayList<ReportDetails> records) {
+    public static ReportDetails getReportDetails(String className, String functionName, long totalTime, String tStatus,
+                                                 String stackTrace) {
         ReportDetails reportDetails = new ReportDetails();
         reportDetails.setClassName(className);
-        reportDetails.setFunctionName(className);
+        reportDetails.setFunctionName(functionName);
+        reportDetails.setExecutionTime(String.valueOf(totalTime));
+        reportDetails.setTestStatus(tStatus);
+        reportDetails.setStackTrace(stackTrace);
+        boolean[] status = {true};
+        String logFile = outFileReader(LOG_FILE_NAME, status);
+        if (status[0]) {
+            reportDetails.setLogFile(logFile);
+        } else {
+            reportDetails.setLogFile(LOG_NOT_FOUND_MSG);
+        }
+        return reportDetails;
+    }
+
+    public static void validateError(CompileResult result, String className, String outFilePath,
+                                     ArrayList<ReportDetails> records) {
+        String testStatus;
+        String stackTrace = "";
         long startTime = System.currentTimeMillis();
         String actual = result.toString().replace("Compilation Failed:\n", "");
         boolean[] status = {true};
-        String expected =  outFileReader(outFilePath, status);
+        String expected = outFileReader(outFilePath, status);
         if (status[0]) {
             if (expected.equals(actual)) {
-                reportDetails.setTestStatus(CTestConstants.TEST_PASSED_STATUS);
+                testStatus = CTestConstants.TEST_PASSED_STATUS;
             } else {
-                reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+                testStatus = CTestConstants.TEST_FAILED_STATUS;
                 CTestSuite.failedTestCount++;
                 errStream.println(className + FAILED_STATUS + CTestConstants.TEST_FAIL_REASON +
                         " expected: [" + expected + "] but found: [" + actual + "]");
-                reportDetails.setStackTrace(GenerateHtmlReportForTest.getDiff(expected, actual));
+                stackTrace = GenerateHtmlReportForTest.getDiff(expected, actual);
             }
         } else {
-            reportDetails.setTestStatus(CTestConstants.TEST_FAILED_STATUS);
+            testStatus = CTestConstants.TEST_FAILED_STATUS;
             CTestSuite.failedTestCount++;
-            reportDetails.setStackTrace(FILE_READ_ERROR + outFilePath);
+            stackTrace = FILE_READ_ERROR + outFilePath;
         }
         long endTime = System.currentTimeMillis();
         long totalTime = endTime - startTime;
-        reportDetails.setExecutionTime(String.valueOf(totalTime));
-        records.add(reportDetails);
+        records.add(getReportDetails(className, className, totalTime, testStatus, stackTrace));
     }
 
     private static String outFileReader(String filePath, boolean[] status) {
