@@ -2096,7 +2096,7 @@ public class BallerinaParser extends AbstractParser {
 
             // Defaultable parameters
             STNode equal = parseAssignOp();
-            STNode expr = parseExpression();
+            STNode expr = parseTypeDescOrExpr();
             return STNodeFactory.createDefaultableParameterNode(leadingComma, annots, qualifier, type, paramName, equal,
                     expr);
         } else {
