@@ -48,15 +48,31 @@ public class ExprBodiedFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/expr_bodied_functions.bal");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
-        Set<Integer> errorLines = new HashSet<>(Arrays.asList(19, 23, 20, 26));
-        for (Diagnostic diagnostic : result.getDiagnostics()) {
-            if (!errorLines.contains(diagnostic.getPosition().getStartLine())) {
-                Assert.fail("Unexpected error at line: " + diagnostic.getPosition().getStartLine());
-            }
-        }
+        int index = 0;
+
+        validateError(result, index++,
+                "a type compatible with mapping constructor expressions not found in type 'int'", 18, 43);
+        validateError(result, index++, "missing open bracket token", 19, 1);
+        validateError(result, index++, "invalid token 'return'", 19, 12);
+        validateError(result, index++, "missing close bracket token", 19, 17);
+        validateError(result, index++, "missing colon token", 19, 17);
+        validateError(result, index++, "invalid token ';'", 23, 1);
+        validateError(result, index++, "invalid token '}'", 23, 1);
+        validateError(result, index++, "invalid token 'add'", 23, 13);
+        validateError(result, index++,
+                "incompatible types: expected 'int', found 'function (int,int) returns (int)'", 26, 1);
+        validateError(result, index++, "invalid token 'external'", 26, 1);
+        validateError(result, index++, "invalid token 'sum'", 26, 13);
+        validateError(result, index++, "incompatible types: expected 'int', found 'typedesc<int>'", 26, 43);
+        validateError(result, index++, "missing close brace token", 26, 47);
+        validateError(result, index++, "missing semicolon token", 26, 47);
+        validateError(result, index++, "unknown type 'x'", 26, 47);
+        validateError(result, index++, "missing identifier", 26, 49);
+
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 
     @Test
