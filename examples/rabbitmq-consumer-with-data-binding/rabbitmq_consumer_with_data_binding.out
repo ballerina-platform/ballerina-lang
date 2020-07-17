@@ -3,7 +3,7 @@
 # Navigate to the directory that contains the
 # 'rabbitmq_consumer_with_data_binding.bal' file, and issue the 'ballerina run' command as follows.
 
-$ ballerina run rabbitmq_consumer_with_data_binding.bal
+ballerina run rabbitmq_consumer_with_data_binding.bal
 
 # The RabbitMQ consumer runs as a Ballerina service and listens to the subscribed queue.
 
