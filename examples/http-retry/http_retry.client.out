@@ -1,5 +1,5 @@
 # If the request that was sent to the `retryDemoService` fails due to an error, the client tries sending the request again.
-$ curl -v http://localhost:9090/retry
+curl -v http://localhost:9090/retry
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
