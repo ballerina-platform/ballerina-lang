@@ -111,10 +111,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.DOC_STRING,
+    private static final ParserRuleContext[] TOP_LEVEL_NODE = { ParserRuleContext.EOF, ParserRuleContext.DOC_STRING,
             ParserRuleContext.ANNOTATIONS, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_METADATA };
 
-    private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = new ParserRuleContext[] {
+    private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_METADATA = { ParserRuleContext.EOF,
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
@@ -512,10 +512,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OPTIONAL_MATCH_GUARD =
             { ParserRuleContext.IF_KEYWORD, ParserRuleContext.RIGHT_DOUBLE_ARROW };
 
-    private static final ParserRuleContext[] MATCH_PATTERN_START =
-            { ParserRuleContext.CONSTANT_EXPRESSION, ParserRuleContext.VAR_KEYWORD,
-                    ParserRuleContext.LIST_MATCH_PATTERN, ParserRuleContext.MAPPING_MATCH_PATTERN,
-                    ParserRuleContext.FUNCTIONAL_MATCH_PATTERN };
+    private static final ParserRuleContext[] MATCH_PATTERN_START = { ParserRuleContext.CONSTANT_EXPRESSION,
+            ParserRuleContext.VAR_KEYWORD, ParserRuleContext.LIST_MATCH_PATTERN,
+            ParserRuleContext.MAPPING_MATCH_PATTERN, ParserRuleContext.FUNCTIONAL_MATCH_PATTERN };
 
     private static final ParserRuleContext[] LIST_MATCH_PATTERNS_START =
             { ParserRuleContext.LIST_MATCH_PATTERN_MEMBER, ParserRuleContext.CLOSE_BRACKET };
@@ -544,9 +543,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ARG_LIST_MATCH_PATTERN_START =
             { ParserRuleContext.ARG_MATCH_PATTERN, ParserRuleContext.CLOSE_PARENTHESIS };
 
-    private static final ParserRuleContext[] ARG_MATCH_PATTERN =
-            { ParserRuleContext.MATCH_PATTERN, ParserRuleContext.NAMED_ARG_MATCH_PATTERN,
-                    ParserRuleContext.REST_MATCH_PATTERN };
+    private static final ParserRuleContext[] ARG_MATCH_PATTERN = { ParserRuleContext.MATCH_PATTERN,
+            ParserRuleContext.NAMED_ARG_MATCH_PATTERN, ParserRuleContext.REST_MATCH_PATTERN };
 
     private static final ParserRuleContext[] ARG_MATCH_PATTERN_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.CLOSE_PARENTHESIS };
@@ -2877,8 +2875,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             endContext();
             return getNextRuleForMatchPattern();
         } else if (parentCtx == ParserRuleContext.NAMED_ARG_MATCH_PATTERN) {
-            endContext(); //end named arg math pattern context
-            endContext(); //end functional match pattern context
+            endContext(); // end named arg math pattern context
+            endContext(); // end functional match pattern context
             return getNextRuleForMatchPattern();
         } else if (parentCtx == ParserRuleContext.FUNCTIONAL_BINDING_PATTERN) {
             endContext(); // end functional-binding-pattern
@@ -2914,9 +2912,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.FUNCTIONAL_MATCH_PATTERN) {
             return ParserRuleContext.ARG_LIST_MATCH_PATTERN_START;
         } else if (isInMatchPatternCtx(parentCtx)) {
-            //This is a special case which occurs because of FUNC_MATCH_PATTERN_OR_CONST_PATTERN context,
-            //If this is the case we are in a functional match pattern but the context is not started, hence
-            //start the context.
+            // This is a special case which occurs because of FUNC_MATCH_PATTERN_OR_CONST_PATTERN context,
+            // If this is the case we are in a functional match pattern but the context is not started, hence
+            // start the context.
             startContext(ParserRuleContext.FUNCTIONAL_MATCH_PATTERN);
             return ParserRuleContext.ARG_LIST_MATCH_PATTERN_START;
         } else if (parentCtx == ParserRuleContext.FUNCTIONAL_BINDING_PATTERN) {
@@ -3538,15 +3536,17 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         } else if (parentCtx == ParserRuleContext.RECORD_FIELD) {
             endContext(); // end record field
             return ParserRuleContext.RECORD_FIELD_OR_RECORD_END;
+        } else if (parentCtx == ParserRuleContext.XML_NAMESPACE_DECLARATION) {
+            endContext();
+            parentCtx = getParentContext();
+            if (parentCtx == ParserRuleContext.COMP_UNIT) {
+                return ParserRuleContext.TOP_LEVEL_NODE;
+            }
+            return ParserRuleContext.STATEMENT;
         } else if (parentCtx == ParserRuleContext.MODULE_TYPE_DEFINITION ||
                 parentCtx == ParserRuleContext.LISTENER_DECL || parentCtx == ParserRuleContext.CONSTANT_DECL ||
-                parentCtx == ParserRuleContext.ANNOTATION_DECL ||
-                parentCtx == ParserRuleContext.XML_NAMESPACE_DECLARATION) {
+                parentCtx == ParserRuleContext.ANNOTATION_DECL) {
             endContext(); // end declaration
-            nextToken = this.tokenReader.peek(nextLookahead);
-            if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-                return ParserRuleContext.EOF;
-            }
             return ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.OBJECT_MEMBER) {
             if (isEndOfObjectTypeNode(nextLookahead)) {
