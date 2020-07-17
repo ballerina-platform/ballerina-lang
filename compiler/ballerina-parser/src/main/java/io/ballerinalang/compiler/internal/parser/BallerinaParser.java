@@ -1894,7 +1894,7 @@ public class BallerinaParser extends AbstractParser {
         STNode annots;
         switch (nextTokenKind) {
             case AT_TOKEN:
-                annots = parseAnnotations(nextTokenKind);
+                annots = parseOptionalAnnotations(nextTokenKind);
                 nextTokenKind = peek().kind;
                 break;
             case PUBLIC_KEYWORD:
@@ -2159,7 +2159,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode returnsKeyword = parseReturnsKeyword();
-        STNode annot = parseAnnotations();
+        STNode annot = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
@@ -2765,7 +2765,32 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExternalFunctionBody() {
         startContext(ParserRuleContext.EXTERNAL_FUNC_BODY);
         STNode assign = parseAssignOp();
-        STNode annotation = parseAnnotations();
+        return parseExternalFuncBodyRhs(peek(), assign);
+    }
+
+    private STNode parseExternalFuncBodyRhs(STToken nextToken, STNode assign) {
+        STNode annotation;
+        switch (nextToken.kind) {
+            case AT_TOKEN:
+                annotation = parseAnnotations();
+                break;
+            case EXTERNAL_KEYWORD:
+                annotation = STNodeFactory.createNodeList();
+                break;
+            default:
+                Solution solution = recover(nextToken, ParserRuleContext.EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS, assign);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseExternalFuncBodyRhs((STToken) solution.recoveredNode, assign);
+        }
+
         STNode externalKeyword = parseExternalKeyword();
         STNode semicolon = parseSemicolon();
         endContext();
@@ -3596,7 +3621,7 @@ public class BallerinaParser extends AbstractParser {
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement();
             case AT_TOKEN:
-                annots = parseAnnotations(tokenKind);
+                annots = parseOptionalAnnotations(tokenKind);
                 tokenKind = peek().kind;
                 break;
             case FINAL_KEYWORD:
@@ -4066,7 +4091,7 @@ public class BallerinaParser extends AbstractParser {
                                            boolean isInConditionalExpr) {
         STNode annots;
         if (kind == SyntaxKind.AT_TOKEN) {
-            annots = parseAnnotations();
+            annots = parseOptionalAnnotations();
             kind = peek().kind;
         } else {
             annots = STNodeFactory.createEmptyNodeList();
@@ -7037,17 +7062,34 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseAnnotations() {
+    private STNode parseOptionalAnnotations() {
         STToken nextToken = peek();
-        return parseAnnotations(nextToken.kind);
+        return parseOptionalAnnotations(nextToken.kind);
     }
 
-    private STNode parseAnnotations(SyntaxKind nextTokenKind) {
+    private STNode parseOptionalAnnotations(SyntaxKind nextTokenKind) {
         startContext(ParserRuleContext.ANNOTATIONS);
         List<STNode> annotList = new ArrayList<>();
         while (nextTokenKind == SyntaxKind.AT_TOKEN) {
             annotList.add(parseAnnotation());
             nextTokenKind = peek().kind;
+        }
+
+        endContext();
+        return STNodeFactory.createNodeList(annotList);
+    }
+
+    /**
+     * Parse annotation list with atleast one annotation.
+     * 
+     * @return Annotation list
+     */
+    private STNode parseAnnotations() {
+        startContext(ParserRuleContext.ANNOTATIONS);
+        List<STNode> annotList = new ArrayList<>();
+        annotList.add(parseAnnotation());
+        while (peek().kind == SyntaxKind.AT_TOKEN) {
+            annotList.add(parseAnnotation());
         }
 
         endContext();
@@ -7108,11 +7150,11 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case HASH_TOKEN:
                 docString = parseDocumentationString();
-                annotations = parseAnnotations();
+                annotations = parseOptionalAnnotations();
                 break;
             case AT_TOKEN:
                 docString = STNodeFactory.createEmptyNode();
-                annotations = parseAnnotations(nextTokenKind);
+                annotations = parseOptionalAnnotations(nextTokenKind);
                 break;
             default:
                 return createEmptyMetadata();
@@ -8238,7 +8280,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode returnsKeyword = consume();
-        STNode annot = parseAnnotations();
+        STNode annot = parseOptionalAnnotations();
         STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
@@ -8696,7 +8738,7 @@ public class BallerinaParser extends AbstractParser {
 
         switch (token.kind) {
             case AT_TOKEN:
-                annot = parseAnnotations();
+                annot = parseOptionalAnnotations();
                 token = peek();
                 if (isTypeStartingToken(token.kind)) {
                     type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
@@ -9174,7 +9216,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseLetVarDecl(boolean isRhsExpr) {
-        STNode annot = parseAnnotations();
+        STNode annot = parseOptionalAnnotations();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.LET_EXPR_LET_VAR_DECL);
         STNode assign = parseAssignOp();
 

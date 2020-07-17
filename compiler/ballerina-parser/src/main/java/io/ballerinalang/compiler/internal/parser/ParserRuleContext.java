@@ -50,6 +50,7 @@ public enum ParserRuleContext {
     ANON_FUNC_BODY("annon-func-body"),
     FUNC_TYPE_DESC_END("func-type-desc-end"),
     EXTERNAL_FUNC_BODY("external-func-body"),
+    EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS("external-func-body-optional-annots"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),

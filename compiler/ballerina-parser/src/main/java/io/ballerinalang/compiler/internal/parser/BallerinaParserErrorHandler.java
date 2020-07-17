@@ -71,6 +71,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_FUNC_BODY =
             { ParserRuleContext.SEMICOLON, ParserRuleContext.EXTERNAL_FUNC_BODY };
 
+    private static final ParserRuleContext[] EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS =
+            { ParserRuleContext.EXTERNAL_KEYWORD, ParserRuleContext.ANNOTATIONS };
+
     /**
      * ANNON_FUNC--> When a anonymous function is possible.
      */
@@ -660,6 +663,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_MATCH_PATTERN:
             case ARG_MATCH_PATTERN_RHS:
             case NAMED_ARG_MATCH_PATTERN_RHS:
+            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
                 return true;
             default:
                 return false;
@@ -1239,6 +1243,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_MATCH_PATTERN:
             case ARG_MATCH_PATTERN_RHS:
             case NAMED_ARG_MATCH_PATTERN_RHS:
+            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
                 return true;
             default:
                 return false;
@@ -1405,6 +1410,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case ENUM_MEMBER_END:
                 alternativeRules = ENUM_MEMBER_END;
+                break;
+            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
+                alternativeRules = EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3224,7 +3232,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext parentCtx = getParentContext();
         switch (parentCtx) {
             case EXTERNAL_FUNC_BODY:
-                return ParserRuleContext.EXTERNAL_KEYWORD;
+                return ParserRuleContext.EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
             case RECORD_FIELD:
@@ -3512,9 +3520,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             endContext(); // end external func-body
             endContext(); // end func-def
             nextToken = this.tokenReader.peek(nextLookahead);
-            if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
-                return ParserRuleContext.EOF;
-            }
             return ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
             endContext(); // end expression
