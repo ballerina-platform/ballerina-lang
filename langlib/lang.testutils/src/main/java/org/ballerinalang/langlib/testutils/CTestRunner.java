@@ -19,6 +19,11 @@ package org.ballerinalang.langlib.testutils;
 
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
+import org.ballerinalang.jvm.types.BArrayType;
+import org.ballerinalang.jvm.types.BType;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
@@ -36,7 +41,6 @@ import java.math.MathContext;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -53,6 +57,8 @@ import java.util.concurrent.TimeUnit;
 
 public class CTestRunner {
     public static final String FILE_READ_ERROR = "An error occurred while reading the file ";
+    public static final String UNKNOWN_PARAM_TYPE = "Unknown parameter type : ";
+    public static final String COMMA_SYMBOL = ",";
     public static final String BAL_EXTENSION = ".bal";
     public static final String OUT_FILE_EXTENSION = ".out";
     public static final String LOG_FILE_NAME = "ballerina-internal.log";
@@ -170,10 +176,10 @@ public class CTestRunner {
     }
 
     private static String invokeFunctionWithParam(CompileResult compileResult, String functionName,
-                                          String functionClassName, List<List<Map<String, String>>> dataProvider) {
+                                                  String functionClassName, List<List<ParamTypes>> dataProvider) {
         Object[] status = new Object[2];
         String[] functionDetails = {functionClassName, functionName};
-        for (List<Map<String, String>> parmas:dataProvider) {
+        for (List<ParamTypes> parmas : dataProvider) {
             boolean[] pStatus = {true};
             Object[] args = getJvmParams(parmas, pStatus, functionDetails);
             if (pStatus[0]) {
@@ -193,10 +199,10 @@ public class CTestRunner {
     }
 
     private static String invokeFunctionWithAssert(CompileResult compileResult, String functionName,
-                   String functionClassName, List<List<Map<String, String>>> assertDataProvider, boolean panicFlag) {
+                               String functionClassName, List<List<ParamTypes>> assertDataProvider, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
         String returnValue = null;
-        for (List<Map<String, String>> params:assertDataProvider) {
+        for (List<ParamTypes> params : assertDataProvider) {
             Object[] results = BRunUtil.cInvoke(compileResult, functionName, new Object[0], panicFlag);
             returnValue = validateResult(results[0], params, functionDetails, results[1].toString());
             if (returnValue == null) {
@@ -214,13 +220,13 @@ public class CTestRunner {
     }
 
     private static String invokeFunctionWithArgs(CompileResult compileResult, String functionName,
-                                             String functionClassName, List<List<Map<String, String>>> dataProvider,
-                                             List<List<Map<String, String>>> assertDataProvider, boolean panicFlag) {
+                                                 String functionClassName, List<List<ParamTypes>> dataProvider,
+                                                 List<List<ParamTypes>> assertDataProvider, boolean panicFlag) {
         String[] functionDetails = {functionClassName, functionName};
         Object[] results;
         String returnValue = null;
         int counter = 0;
-        for (List<Map<String, String>> params:dataProvider) {
+        for (List<ParamTypes> params : dataProvider) {
             boolean[] status = {true};
             Object[] args = getJvmParams(params, status, functionDetails);
             if (status[0]) {
@@ -245,30 +251,35 @@ public class CTestRunner {
         return returnValue;
     }
 
-    private static Object[] getJvmParams(List<Map<String, String>> parmas, boolean[] status, String[] functionDetails) {
-        int numberOfParams = parmas.size();
-        String[] paramType = new String[numberOfParams];
-        String[] paramValue = new String[numberOfParams];
-        int i = 0;
-        for (Map<String, String> mp : parmas) {
-            for (Map.Entry<String, String> entry : mp.entrySet()) {
-                paramType[i] = entry.getKey();
-                paramValue[i] = entry.getValue();
-                i++;
+    private static Object[] getJvmParams(List<ParamTypes> parmas, boolean[] status, String[] functionDetails) {
+        Object[] parameters = new Object[parmas.size()];
+        int counter = 0;
+        for (ParamTypes parameter : parmas) {
+            String[] pStatus = new String[1];
+            String paramType = parameter.getElementType();
+            String paramValue = parameter.getElementValue();
+            if (parameter.isStructured()) {
+                if (parameter.getType().equals(CTestConstants.ARRAY_VALUE_TAG)) {
+                    parameters[counter++] = getArray(paramType, paramValue, pStatus);
+                } else {
+                    pStatus[0] = UNKNOWN_PARAM_TYPE + parameter.getType();
+                    errStream.println(functionDetails[0] + " -> " + functionDetails[1] +
+                            FAILED_STATUS + pStatus[0]);
+                }
+            } else {
+                parameters[counter++] = getJvmParamTypes(paramType, paramValue, pStatus);
             }
-        }
-        String[] pStatus = new String[1];
-        Object[] parameters = getJvmParamTypes(paramType, paramValue, pStatus);
-        if (pStatus[0] != null) {
-            errStream.println(functionDetails[0] + " -> " + functionDetails[1] + FAILED_STATUS + pStatus[0]);
-            parameters[0] = pStatus[0];
-            status[0] = false;
+            if (pStatus[0] != null) {
+                errStream.println(functionDetails[0] + " -> " + functionDetails[1] + FAILED_STATUS + pStatus[0]);
+                parameters[0] = pStatus[0];
+                status[0] = false;
+            }
         }
         return parameters;
     }
 
     // check whether the return value of a function match with the expected value
-    private static String validateResult(Object actualValue, List<Map<String, String>> assertVariable,
+    private static String validateResult(Object actualValue, List<ParamTypes> assertVariable,
                                          String[] functionDetails, String status) {
         String returnValue = null;
         if (!status.equals(CTestConstants.TEST_FAILED_STATUS)) {
@@ -288,37 +299,80 @@ public class CTestRunner {
         return returnValue;
     }
 
-    // get the JVM values and Types for the xml values
-    private static Object[] getJvmParamTypes(String[] paramType, String[] paramValue, String[] status) {
-        Object[] args = new Object[paramType.length];
-        for (int i = 0; i < paramType.length; i++) {
-            String type = paramType[i];
-            switch (type) {
-                case CTestConstants.TEST_INT_TAG:
-                    args[i] = Long.parseLong(paramValue[i]);
+    private static Object getArray(String elementType, String elementValue, String[] status) {
+        BType arrayType = null;
+        boolean flag = true;
+        switch (elementType) {
+            case CTestConstants.TEST_INT_TAG:
+                arrayType = BTypes.typeInt;
+                break;
+            case CTestConstants.TEST_ERROR_TAG:
+                arrayType = BTypes.typeError;
+                break;
+            case CTestConstants.TEST_STRING_TAG:
+                arrayType = BTypes.typeString;
+                break;
+            case CTestConstants.TEST_BOOLEAN_TAG:
+                arrayType = BTypes.typeBoolean;
+                break;
+            case CTestConstants.TEST_DECIMAL_TAG:
+                arrayType = BTypes.typeDecimal;
+                break;
+            case CTestConstants.TEST_FLOAT_TAG:
+                arrayType = BTypes.typeFloat;
+                break;
+            case CTestConstants.TEST_NIL_TAG:
+                arrayType = BTypes.typeNull;
+                break;
+            default:
+                flag = false;
+                status[0] = UNKNOWN_PARAM_TYPE + elementType;
+        }
+        ArrayValue arrayValue = null;
+        String[] elements = elementValue.split(COMMA_SYMBOL);
+        if (flag) {
+            arrayValue = new ArrayValueImpl(new BArrayType(arrayType));
+            int counter = 0;
+            for (String element : elements) {
+                Object parameter = getJvmParamTypes(elementType, element, status);
+                if (status[0] != null) {
                     break;
-                case CTestConstants.TEST_ERROR_TAG:     // currently error value is considered as a string value
-                    args[i] = paramValue[i];
-                    break;
-                case CTestConstants.TEST_STRING_TAG:
-                    args[i] = StringUtils.fromString(paramValue[i]);
-                    break;
-                case CTestConstants.TEST_BOOLEAN_TAG:
-                    args[i] = Boolean.parseBoolean(paramValue[i]);
-                    break;
-                case CTestConstants.TEST_DECIMAL_TAG:
-                    args[i] = new DecimalValue(new BigDecimal(paramValue[i], MathContext.DECIMAL128).setScale(
-                            1, BigDecimal.ROUND_HALF_EVEN));
-                    break;
-                case CTestConstants.TEST_FLOAT_TAG:
-                    args[i] = Double.parseDouble(paramValue[i]);
-                    break;
-                case CTestConstants.TEST_NIL_TAG:
-                    args[i] = null;
-                    break;
-                default:
-                    status[0] = "unknown param type: " + type;
+                }
+                arrayValue.add(counter, parameter);
+                counter++;
             }
+        }
+        return arrayValue;
+    }
+
+    // get the JVM values and Types for the xml values
+    private static Object getJvmParamTypes(String paramType, String paramValue, String[] status) {
+        Object args = null;
+        switch (paramType) {
+            case CTestConstants.TEST_INT_TAG:
+                args = Long.parseLong(paramValue);
+                break;
+            case CTestConstants.TEST_ERROR_TAG:     // currently error value is considered as a string value
+                args = paramValue;
+                break;
+            case CTestConstants.TEST_STRING_TAG:
+                args = StringUtils.fromString(paramValue);
+                break;
+            case CTestConstants.TEST_BOOLEAN_TAG:
+                args = Boolean.parseBoolean(paramValue);
+                break;
+            case CTestConstants.TEST_DECIMAL_TAG:
+                args = new DecimalValue(new BigDecimal(paramValue, MathContext.DECIMAL128).setScale(
+                        1, BigDecimal.ROUND_HALF_EVEN));
+                break;
+            case CTestConstants.TEST_FLOAT_TAG:
+                args = Double.parseDouble(paramValue);
+                break;
+            case CTestConstants.TEST_NIL_TAG:
+                args = null;
+                break;
+            default:
+                status[0] = UNKNOWN_PARAM_TYPE + paramType;
         }
         return args;
     }

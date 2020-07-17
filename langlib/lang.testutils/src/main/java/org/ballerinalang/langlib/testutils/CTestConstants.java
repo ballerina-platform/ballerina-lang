@@ -39,6 +39,8 @@ public class CTestConstants {
     public static final String TEST_ERROR_TAG = "error";
     public static final String TEST_ASSERT_TAG = "assert";
     public static final String TEST_PARAMETERS_TAG = "parameters";
+    public static final String ARRAY_VALUE_TAG = "arrayValue";
+
     //data types
     public static final String TEST_INT_TAG = "int";
     public static final String TEST_FLOAT_TAG = "float";

@@ -23,7 +23,6 @@ import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -71,18 +70,24 @@ public class InitializeTestSuite {
         for (int i = 0; i < testElements.size(); i++) {
             XMLValue testArgs = testElements.getItem(i);
             if (testArgs.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
-                if (testArgs.getElementName().equals(CTestConstants.TEST_DESCRIPTION_TAG)) {
-                    cTests.setDescription(testArgs.children().toString());
-                } else if (testArgs.getElementName().equals(CTestConstants.TEST_FILE_TAG)) {
-                    cTests.setPathName(testArgs.children().toString());
-                } else if (testArgs.getElementName().equals(CTestConstants.TEST_NEGATIVE_TAG)) {
-                    cTests.setNegativeTestFlag();
-                    String path = absPath + testArgs.children().toString();
-                    cTests.setPathName(path);
-                } else if (testArgs.getElementName().equals(CTestConstants.TEST_CALLFUNCTION_TAG)) {
-                    cTests.addTestFunctions(callerfunction(testArgs));
-                } else {
-                    fillTest(testArgs, cTests, absPath);
+                switch (testArgs.getElementName()) {
+                    case CTestConstants.TEST_DESCRIPTION_TAG:
+                        cTests.setDescription(testArgs.children().toString());
+                        break;
+                    case CTestConstants.TEST_FILE_TAG:
+                        cTests.setPathName(testArgs.children().toString());
+                        break;
+                    case CTestConstants.TEST_NEGATIVE_TAG:
+                        cTests.setNegativeTestFlag();
+                        String path = absPath + testArgs.children().toString();
+                        cTests.setPathName(path);
+                        break;
+                    case CTestConstants.TEST_CALLFUNCTION_TAG:
+                        cTests.addTestFunctions(callerfunction(testArgs));
+                        break;
+                    default:
+                        fillTest(testArgs, cTests, absPath);
+                        break;
                 }
             }
         }
@@ -95,7 +100,7 @@ public class InitializeTestSuite {
         XMLValue functionArgs = xmlValue.children();
         for (int i = 0; i < functionArgs.size(); i++) {
             XMLValue xmlElemnets = functionArgs.getItem(i);
-            List<Map<String, String>> paramList;
+            List<ParamTypes> paramList;
             if (xmlElemnets.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
                 if (xmlElemnets.getElementName().equals(CTestConstants.TEST_PARAMETERS_TAG)) {
                     paramList = getFunctionParams(xmlElemnets);
@@ -122,18 +127,23 @@ public class InitializeTestSuite {
     }
 
     // Function for parsing Return Values, Function Parameters
-    public static List<Map<String, String>> getFunctionParams(XMLValue xmlValue) {
+    public static List<ParamTypes> getFunctionParams(XMLValue xmlValue) {
         XMLValue parameters = xmlValue.children();
-        List<Map<String, String>> paramList = new ArrayList<>();
+        List<ParamTypes> paramList = new ArrayList<>();
         for (int i = 0; i < parameters.size(); i++) {
             XMLValue param = parameters.getItem(i);
             if (param.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
-                Map<String, String> params = new HashMap<>();
-                String typeOfElem = param.getElementName();
-                //replace \n with the newline character
-                String elementVal = param.children().toString().replace("\\n", "\n");
-                params.put(typeOfElem, elementVal);
-                paramList.add(params);
+                if (param.getElementName().equals(CTestConstants.ARRAY_VALUE_TAG)) {
+                    XMLValue xmlElement = param.children().getItem(1);
+                    String typeOfElem  = xmlElement.getElementName();
+                    String elementVal = xmlElement.getTextValue();
+                    paramList.add(new ParamTypes(CTestConstants.ARRAY_VALUE_TAG, typeOfElem, elementVal));
+                } else {
+                    String typeOfElem = param.getElementName();
+                    //replace \n with the newline character
+                    String elementVal = param.children().toString().replace("\\n", "\n");
+                    paramList.add(new ParamTypes(typeOfElem, typeOfElem, elementVal));
+                }
             }
         }
         return paramList;
@@ -145,17 +155,23 @@ public class InitializeTestSuite {
         for (int i = 0; i < elements.size(); i++) {
             XMLValue element = elements.getItem(i);
             if (element.getItemType().equals(CTestConstants.TEST_ELEMENT_TAG)) {
-                if (element.getElementName().equals(CTestConstants.TEST_NAME_TAG)) {
-                    cTestSuite.setSuiteName(element.children().toString());
-                } else if (element.getElementName().equals(CTestConstants.TEST_DESCRIPTION_TAG)) {
-                    cTestSuite.setSuiteDescription(element.children().toString());
-                } else if (element.getElementName().equals(CTestConstants.TEST_GROUPS_TAG)) {
-                    cTestSuite.setTestGroupName(getAttributeValue(element.getAttributesMap()));
-                    extractPath(element, cTestSuite, preffix);
-                } else if (element.getElementName().equals(CTestConstants.TEST_GROUP_TAG)) {
-                    cTestSuite.setPaths(preffix + element.children().toString());
-                } else {
-                    extractPath(element, cTestSuite, preffix);
+                switch (element.getElementName()) {
+                    case CTestConstants.TEST_NAME_TAG:
+                        cTestSuite.setSuiteName(element.children().toString());
+                        break;
+                    case CTestConstants.TEST_DESCRIPTION_TAG:
+                        cTestSuite.setSuiteDescription(element.children().toString());
+                        break;
+                    case CTestConstants.TEST_GROUPS_TAG:
+                        cTestSuite.setTestGroupName(getAttributeValue(element.getAttributesMap()));
+                        extractPath(element, cTestSuite, preffix);
+                        break;
+                    case CTestConstants.TEST_GROUP_TAG:
+                        cTestSuite.setPaths(preffix + element.children().toString());
+                        break;
+                    default:
+                        extractPath(element, cTestSuite, preffix);
+                        break;
                 }
             }
         }

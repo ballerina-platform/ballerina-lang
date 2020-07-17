@@ -8,6 +8,19 @@
         </source>
         <steps>
             <run>
+                <callFunction name="concat">
+                    <parameters>
+                        <string>hello</string>
+                        <arrayValue>
+                            <string> ballerina, swan, lake</string>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string>hello ballerina swan lake</string>
+                        </return>
+                    </assert>
+                </callFunction>
                 <callFunction name="testFail">
                     <assert>
                         <error>error {ballerina/lang.test}AssertionError message= failed</error>

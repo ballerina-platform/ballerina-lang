@@ -63,3 +63,11 @@ function sum(int a) returns int {
 function testFail(){
     test:fail();
 }
+
+function concat(string s1, string... sa) returns string {
+    string r  = s1;
+    foreach string s in sa {
+        r += s;
+    }
+    return r;
+}
