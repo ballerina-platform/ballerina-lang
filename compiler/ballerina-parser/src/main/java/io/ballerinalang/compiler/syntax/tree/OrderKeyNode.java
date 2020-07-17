@@ -25,7 +25,7 @@ import java.util.Optional;
 /**
  * This is a generated syntax tree node.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class OrderKeyNode extends NonTerminalNode {
 

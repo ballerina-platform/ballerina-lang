@@ -2731,22 +2731,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         } else if (resultType.tag == TypeTags.UNION) {
             List<BType> exprTypes = new ArrayList<>(((BUnionType) resultType).getMemberTypes());
             for (BType t : exprTypes) {
-                BType returnType;
                 if (t.tag == TypeTags.STREAM) {
-                    returnType = ((BUnionType) resultType).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.STREAM)
-                            .findFirst().orElse(symTable.streamType);
-                    resultType = ((BStreamType) returnType).constraint;
+                    resultType = ((BStreamType) t).constraint;
                 } else if (t.tag == TypeTags.TABLE) {
-                    returnType = ((BUnionType) resultType).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.TABLE)
-                            .findFirst().orElse(symTable.tableType);
-                    resultType = ((BTableType) returnType).constraint;
+                    resultType = ((BTableType) t).constraint;
                 } else if (t.tag == TypeTags.ARRAY) {
-                    returnType = ((BUnionType) resultType).getMemberTypes()
-                            .stream().filter(m -> m.tag == TypeTags.ARRAY)
-                            .findFirst().orElse(symTable.arrayType);
-                    resultType = ((BArrayType) returnType).eType;
+                    resultType = ((BArrayType) t).eType;
                 }
             }
         }
