@@ -15,29 +15,23 @@
               "kind": "METADATA",
               "children": [
                 {
-                  "kind": "DOCUMENTATION_STRING",
+                  "kind": "MARKDOWN_DOCUMENTATION",
                   "children": [
                     {
                       "kind": "LIST",
                       "children": [
                         {
-                          "kind": "DOCUMENTATION_LINE",
+                          "kind": "MARKDOWN_DOCUMENTATION_LINE",
                           "children": [
                             {
-                              "kind": "HASH_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "HASH_TOKEN"
                             },
                             {
                               "kind": "LIST",
                               "children": [
                                 {
                                   "kind": "DOCUMENTATION_DESCRIPTION",
-                                  "value": "This is sample documentation line",
+                                  "value": " This is sample documentation line",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "END_OF_LINE_MINUTIAE",

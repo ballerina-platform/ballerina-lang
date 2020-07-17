@@ -19,6 +19,8 @@ package io.ballerina.plugins.idea.configuration;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
+import io.ballerina.plugins.idea.preloading.LSPUtils;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtils;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
@@ -56,6 +58,10 @@ public class BallerinaProjectSettingsConfigurable extends WithProject implements
     @Override
     public void apply() {
         settingsPanel.storeSettings(BallerinaProjectSettings.getStoredSettings(project));
+        boolean success = LSPUtils.notifyConfigChanges(project);
+        if (!success) {
+            BallerinaSdkUtils.showRestartDialog(project);
+        }
     }
 
     @Override

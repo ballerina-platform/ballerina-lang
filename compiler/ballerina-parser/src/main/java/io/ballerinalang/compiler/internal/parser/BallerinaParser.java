@@ -674,7 +674,7 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 return null;
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(tokenKind);
                 return parseTopLevelNode(metadata);
@@ -3273,7 +3273,7 @@ public class BallerinaParser extends AbstractParser {
                 STNode semicolonToken = parseSemicolon();
                 endContext();
                 return STNodeFactory.createTypeReferenceNode(asterisk, type, semicolonToken);
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 startContext(ParserRuleContext.RECORD_FIELD);
                 STNode metadata = parseMetaData(nextTokenKind);
@@ -3646,6 +3646,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // action-statements
             case CHECK_KEYWORD:
+            case FAIL_KEYWORD:
             case CHECKPANIC_KEYWORD:
             case TRAP_KEYWORD:
             case START_KEYWORD:
@@ -3752,6 +3753,7 @@ public class BallerinaParser extends AbstractParser {
             case START_KEYWORD:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
+            case FAIL_KEYWORD:
             case TRAP_KEYWORD:
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
@@ -4129,6 +4131,8 @@ public class BallerinaParser extends AbstractParser {
                 // In the checking action, nested actions are allowed. And that's the only
                 // place where actions are allowed within an action or an expression.
                 return parseCheckExpression(isRhsExpr, allowActions, isInConditionalExpr);
+            case FAIL_KEYWORD:
+                return parseFailExpression(isRhsExpr, allowActions, isInConditionalExpr);
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
@@ -4843,6 +4847,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case FAIL_ACTION:
                 return true;
             default:
                 return false;
@@ -4882,7 +4887,7 @@ public class BallerinaParser extends AbstractParser {
             case CONST_KEYWORD:
             case LISTENER_KEYWORD:
             case EQUAL_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
             case AS_KEYWORD:
             case IN_KEYWORD:
@@ -5316,7 +5321,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -5809,6 +5814,52 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse fail expression. This method is used to parse both fail expression
+     * as well as fail action.
+     *
+     * <p>
+     * <code>
+     * fail-expr := fail-keyword expression
+     * fail-action := fail-keyword action
+     * </code>
+     *
+     * @param allowActions Allow actions
+     * @param isRhsExpr    Is rhs expression
+     * @return Fail expression node
+     */
+    private STNode parseFailExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
+
+        STNode failKeyword = parseFailKeyword();
+        STNode expr =
+                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
+        if (isAction(expr)) {
+            return STNodeFactory.createFailExpressionNode(SyntaxKind.FAIL_ACTION, failKeyword, expr);
+        } else {
+            return STNodeFactory.createFailExpressionNode(SyntaxKind.FAIL_EXPRESSION, failKeyword, expr);
+        }
+    }
+
+    /**
+     * Parse fail keyword.
+     * <p>
+     * <code>
+     * fail-keyword := fail
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseFailKeyword() {
+
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FAIL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FAIL_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      *
      * Parse continue statement.
      * <code>continue-stmt := continue ; </code>
@@ -6011,7 +6062,7 @@ public class BallerinaParser extends AbstractParser {
             case READONLY_KEYWORD:
                 return false;
             case EOF_TOKEN:
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
             case CLOSE_BRACE_TOKEN:
             case SEMICOLON_TOKEN:
@@ -6570,7 +6621,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextTokenKind);
                 nextTokenKind = peek().kind;
@@ -7148,8 +7199,8 @@ public class BallerinaParser extends AbstractParser {
         STNode docString;
         STNode annotations;
         switch (nextTokenKind) {
-            case HASH_TOKEN:
-                docString = parseDocumentationString();
+            case DOCUMENTATION_STRING:
+                docString = parseMarkdownDocumentation();
                 annotations = parseOptionalAnnotations();
                 break;
             case AT_TOKEN:
@@ -7321,9 +7372,11 @@ public class BallerinaParser extends AbstractParser {
             case METHOD_CALL:
             case FUNCTION_CALL:
             case CHECK_EXPRESSION:
+            case FAIL_EXPRESSION:
                 return parseCallStatement(expression);
             case REMOTE_METHOD_CALL_ACTION:
             case CHECK_ACTION:
+            case FAIL_ACTION:
             case BRACED_ACTION:
             case START_ACTION:
             case TRAP_ACTION:
@@ -8529,9 +8582,14 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
 
-        openBrace = cloneWithDiagnosticIfListEmpty(namedWorkerDeclarations, openBrace,
-                DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT);
-        return STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
+        STNode forkStmt =
+                STNodeFactory.createForkStatementNode(forkKeyword, openBrace, namedWorkerDeclarations, closeBrace);
+        if (isNodeListEmpty(namedWorkerDeclarations)) {
+            return SyntaxErrors.addDiagnostic(forkStmt,
+                    DiagnosticErrorCode.ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT);
+        }
+
+        return forkStmt;
     }
 
     /**
@@ -10175,7 +10233,7 @@ public class BallerinaParser extends AbstractParser {
             case EOF_TOKEN:
             case RESOURCE_KEYWORD:
             case LISTENER_KEYWORD:
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case PRIVATE_KEYWORD:
             case RETURNS_KEYWORD:
             case SERVICE_KEYWORD:
@@ -11467,7 +11525,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         STNode metadata;
         switch (nextToken.kind) {
-            case HASH_TOKEN:
+            case DOCUMENTATION_STRING:
             case AT_TOKEN:
                 metadata = parseMetaData(nextToken.kind);
                 break;
@@ -13046,242 +13104,70 @@ public class BallerinaParser extends AbstractParser {
         return errorCode;
     }
 
-    // --------------------------------- Documentation ---------------------------------
-
-    /*
-     * This section parses documentation.
-     * Ballerina flavored markdown (BFM) is supported by the documentation.
-     *
-     * During the parsing, parser will never go to the error handler.
-     * In case of an error, simply missing token will be returned.
-     */
-
     /**
-     * Parse documentation string.
-     * <p>
-     * <code>
-     * DocumentationString :=
-     *          ( DocumentationLine
-     *          | ReferenceDocumentationLine
-     *          | DeprecationDocumentationLine
-     *          | ParameterDocumentationLine
-     *          | ReturnParameterDocumentationLine
-     *          | InvalidDocumentationLine ) +
-     * </code>
-     * <p>
-     * Refer {@link BallerinaLexer#readDocumentationToken}
+     * Parse markdown documentation.
      *
-     * @return Parsed node
+     * @return markdown documentation node
      */
-    private STNode parseDocumentationString() {
-        List<STNode> docLines = new ArrayList<>();
+    private STNode parseMarkdownDocumentation() {
+        List<STNode> markdownDocLineList = new ArrayList<>();
+
+        // With multi-line documentation, there could be more than one documentation string.
+        // e.g.
+        // # line1 (this is captured as one documentation string)
+        //
+        // # line2 (this is captured as another documentation string)
         STToken nextToken = peek();
-        while (nextToken.kind == SyntaxKind.HASH_TOKEN) {
-            docLines.add(parseSingleDocumentationLine());
+        while (nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
+            STToken documentationString = consume();
+            STNode markdownDocLines = parseDocumentationString(documentationString);
+            markdownDocLineList.add(markdownDocLines);
             nextToken = peek();
         }
 
-        STNode documentationLines = STNodeFactory.createNodeList(docLines);
-        return STNodeFactory.createDocumentationStringNode(documentationLines);
+        STNode arrangedMarkdownDocLines = rearrangeMarkdownDocumentationLines(markdownDocLineList);
+        return STNodeFactory.createMarkdownDocumentationNode(arrangedMarkdownDocLines);
     }
 
     /**
-     * Parse a single documentation line.
+     * Parse documentation string.
      *
-     * @return Parsed node
+     * @return markdown documentation line list node
      */
-    private STNode parseSingleDocumentationLine() {
-        STNode hashToken = consume();
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.PLUS_TOKEN) {
-            return parseParameterDocumentationLine(hashToken);
-        }
-        return parseDocumentationLine(hashToken);
+    private STNode parseDocumentationString(STToken documentationStringToken) {
+        List<STNode> leadingTriviaList = getLeadingTriviaList(documentationStringToken.leadingMinutiae());
+        TextDocument textDocument = TextDocuments.from(documentationStringToken.text());
+
+        DocumentationLexer documentationLexer = new DocumentationLexer(textDocument.getCharacterReader(),
+                leadingTriviaList);
+        AbstractTokenReader tokenReader = new TokenReader(documentationLexer);
+        DocumentationParser documentationParser = new DocumentationParser(tokenReader);
+
+        return documentationParser.parse();
     }
 
-    /**
-     * Parse documentation line, deprecation documentation line and reference documentation line.
-     *
-     * @param hashToken Hash token at the beginning of the line
-     * @return Parsed node
-     */
-    private STNode parseDocumentationLine(STNode hashToken) {
-        List<STNode> docElements = parseDocumentationElements();
-        STNode docElementList = STNodeFactory.createNodeList(docElements);
+    private List<STNode> getLeadingTriviaList(STNode leadingMinutiaeNode) {
+        List<STNode> leadingTriviaList = new ArrayList<>();
 
-        switch (docElements.size()) {
-            case 0:
-                // When documentation line is only a `#` token
-                return createDocumentationLineNode(hashToken, docElementList);
-            case 1:
-                STNode docElement = docElements.get(0);
-                if (docElement.kind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                    if (((STToken) docElement).text().startsWith("# Deprecated")) {
-                        return createDeprecationDocumentationLineNode(hashToken, docElementList);
-                    }
-                    return createDocumentationLineNode(hashToken, docElementList);
-                }
-                // Else fall through
-            default:
-                return createReferenceDocumentationLineNode(hashToken, docElementList);
+        int bucketCount = leadingMinutiaeNode.bucketCount();
+        for (int i = 0; i < bucketCount; i++) {
+            leadingTriviaList.add(leadingMinutiaeNode.childInBucket(i));
         }
+        return leadingTriviaList;
     }
 
-    private List<STNode> parseDocumentationElements() {
-        List<STNode> docElements = new ArrayList<>();
-        STNode docElement;
-        SyntaxKind nextTokenKind = peek().kind;
-        while (!isEndOfIntermediateDocumentation(nextTokenKind)) {
-            if (nextTokenKind == SyntaxKind.DOCUMENTATION_DESCRIPTION) {
-                docElement = consume();
+    private STNode rearrangeMarkdownDocumentationLines(List<STNode> markdownDocLineList) {
+        List<STNode> arrangedDocLines = new ArrayList<>();
 
-            } else {
-                docElement = parseDocumentationReference();
+        for (STNode markdownDocLines : markdownDocLineList) {
+            int bucketCount = markdownDocLines.bucketCount();
+
+            for (int i = 0; i < bucketCount; i++) {
+                STNode markdownDocLine = markdownDocLines.childInBucket(i);
+                arrangedDocLines.add(markdownDocLine);
             }
-            docElements.add(docElement);
-            nextTokenKind = peek().kind;
         }
-        return docElements;
-    }
-
-    private STNode parseDocumentationReference() {
-        STNode referenceType = STNodeFactory.createEmptyNode();
-        if (isDocumentReferenceType(peek().kind)) {
-            referenceType = consume();
-        }
-
-        STNode startBacktick = parseDocumentationBacktickToken();
-        STNode backtickContent = parseBacktickContent();
-        STNode endBacktick = parseDocumentationBacktickToken();
-
-        return STNodeFactory.createDocumentationReferenceNode(referenceType, startBacktick, backtickContent,
-                endBacktick);
-    }
-
-    private boolean isDocumentReferenceType(SyntaxKind kind) {
-        switch (kind) {
-            case TYPE_DOC_REFERENCE_TOKEN:
-            case SERVICE_DOC_REFERENCE_TOKEN:
-            case VARIABLE_DOC_REFERENCE_TOKEN:
-            case VAR_DOC_REFERENCE_TOKEN:
-            case ANNOTATION_DOC_REFERENCE_TOKEN:
-            case MODULE_DOC_REFERENCE_TOKEN:
-            case FUNCTION_DOC_REFERENCE_TOKEN:
-            case PARAMETER_DOC_REFERENCE_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Parse parameter documentation line and return parameter documentation line.
-     *
-     * @param hashToken Hash token at the beginning of the line
-     * @return Parsed node
-     */
-    private STNode parseParameterDocumentationLine(STNode hashToken) {
-        STNode plusToken = consume();
-        STNode parameterName = parseParameterName();
-        STNode minusToken = parseMinusToken();
-
-        List<STNode> docElements = parseDocumentationElements();
-        STNode docElementList = STNodeFactory.createNodeList(docElements);
-
-        SyntaxKind kind;
-        if (parameterName.kind == SyntaxKind.RETURN_KEYWORD) {
-            kind = SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-        } else {
-            kind = SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
-        }
-
-        return STNodeFactory.createParameterDocumentationLineNode(kind, hashToken, plusToken, parameterName, minusToken,
-                docElementList);
-    }
-
-    private boolean isEndOfIntermediateDocumentation(SyntaxKind kind) {
-        switch (kind) {
-            case DOCUMENTATION_DESCRIPTION:
-            case PLUS_TOKEN:
-            case PARAMETER_NAME:
-            case MINUS_TOKEN:
-            case BACKTICK_TOKEN:
-            case BACKTICK_CONTENT:
-                return false;
-            default:
-                return !isDocumentReferenceType(kind);
-        }
-    }
-
-    /**
-     * Parse parameter name token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseParameterName() {
-        SyntaxKind tokenKind = peek().kind;
-        if (tokenKind == SyntaxKind.PARAMETER_NAME || tokenKind == SyntaxKind.RETURN_KEYWORD) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
-        }
-    }
-
-    /**
-     * Parse minus token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseMinusToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.MINUS_TOKEN) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.MINUS_TOKEN);
-        }
-    }
-
-    /**
-     * Parse back-tick token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseDocumentationBacktickToken() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_TOKEN) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_TOKEN);
-        }
-    }
-
-    /**
-     * Parse back-tick content token.
-     *
-     * @return Parsed node
-     */
-    private STNode parseBacktickContent() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.BACKTICK_CONTENT) {
-            return consume();
-        } else {
-            return STNodeFactory.createMissingToken(SyntaxKind.BACKTICK_CONTENT);
-        }
-    }
-
-    private STNode createDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DOCUMENTATION_LINE, hashToken,
-                documentationElements);
-    }
-
-    private STNode createDeprecationDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.DEPRECATION_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
-    }
-
-    private STNode createReferenceDocumentationLineNode(STNode hashToken, STNode documentationElements) {
-        return STNodeFactory.createDocumentationLineNode(SyntaxKind.REFERENCE_DOCUMENTATION_LINE, hashToken,
-                documentationElements);
+        return STNodeFactory.createNodeList(arrangedDocLines);
     }
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------
@@ -15646,7 +15532,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAssignmentStmtRhs(bindingPattern);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
             default:
-                // If this is followed by an assignment, then treat thsi node as mapping-binding pattern.
+                // If this is followed by an assignment, then treat this node as mapping-binding pattern.
                 if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
                     switchContext(ParserRuleContext.ASSIGNMENT_STMT);
                     bindingPattern = getBindingPattern(bpOrConstructor);
@@ -16583,9 +16469,27 @@ public class BallerinaParser extends AbstractParser {
                         innerList.collectionEndToken);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 innerList = (STAmbiguousCollectionNode) ambiguousNode;
-                memberExprs = STNodeFactory.createNodeList(getExpressionList(innerList.members));
-                return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken, memberExprs,
-                        innerList.collectionEndToken);
+                List<STNode> fieldList = new ArrayList<>();
+                for (int i = 0; i < innerList.members.size(); i++) {
+                    STNode field = innerList.members.get(i);
+                    STNode fieldNode;
+                    if (field.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                        STQualifiedNameReferenceNode qualifiedNameRefNode = (STQualifiedNameReferenceNode) field;
+                        STNode readOnlyKeyword = STNodeFactory.createEmptyNode();
+                        STNode fieldName = qualifiedNameRefNode.modulePrefix;
+                        STNode colon = qualifiedNameRefNode.colon;
+                        STNode valueExpr = getExpression(qualifiedNameRefNode.identifier);
+                        fieldNode = STNodeFactory.createSpecificFieldNode(readOnlyKeyword, fieldName, colon,
+                                valueExpr);
+                    } else {
+                        fieldNode = getExpression(field);
+                    }
+
+                    fieldList.add(fieldNode);
+                }
+                STNode fields = STNodeFactory.createNodeList(fieldList);
+                return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken,
+                        fields, innerList.collectionEndToken);
             case REST_BINDING_PATTERN:
                 STRestBindingPatternNode restBindingPattern = (STRestBindingPatternNode) ambiguousNode;
                 return STNodeFactory.createSpreadFieldNode(restBindingPattern.ellipsisToken,

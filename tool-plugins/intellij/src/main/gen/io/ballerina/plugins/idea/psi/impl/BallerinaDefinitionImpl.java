@@ -56,6 +56,12 @@ public class BallerinaDefinitionImpl extends ASTWrapperPsiElement implements Bal
 
   @Override
   @Nullable
+  public BallerinaEnumDefinition getEnumDefinition() {
+    return findChildByClass(BallerinaEnumDefinition.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaFunctionDefinition getFunctionDefinition() {
     return findChildByClass(BallerinaFunctionDefinition.class);
   }

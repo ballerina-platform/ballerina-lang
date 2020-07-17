@@ -3519,7 +3519,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.EXTERNAL_FUNC_BODY) {
             endContext(); // end external func-body
             endContext(); // end func-def
-            nextToken = this.tokenReader.peek(nextLookahead);
             return ParserRuleContext.TOP_LEVEL_NODE;
         } else if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
             endContext(); // end expression

@@ -84,6 +84,16 @@ public class DocumentationTest extends AbstractMiscTest {
         testFile("documentation/doc_source_11.bal", "documentation/doc_assert_11.json");
     }
 
+    @Test
+    public void testDocReferenceWithSpecialKeywords() {
+        testFile("documentation/doc_source_14.bal", "documentation/doc_assert_14.json");
+    }
+
+    @Test
+    public void testMultiLineDocumentation() {
+        testFile("documentation/doc_source_15.bal", "documentation/doc_assert_15.json");
+    }
+
     // Invalid Syntax
 
     @Test
