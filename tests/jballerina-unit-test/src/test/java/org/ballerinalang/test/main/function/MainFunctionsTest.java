@@ -95,12 +95,12 @@ public class MainFunctionsTest {
         CompileResult negativeResult = BCompileUtil.compile("test-src/main.function/test_main_function_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 5);
         validateError(negativeResult, 0, "the 'main' function should be public", 17, 1);
-        validateError(negativeResult, 1, "invalid type 'typedesc' as 'main' function parameter, expected anydata",
-                      17, 15);
-        validateError(negativeResult, 2, "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata",
-                      17, 30);
-        validateError(negativeResult, 3, "invalid type 'FooObject[]' as 'main' function parameter, expected anydata",
-                      17, 55);
+        validateError(negativeResult, 1,
+                "invalid type 'typedesc' as 'main' function parameter, expected anydata", 17, 15);
+        validateError(negativeResult, 2,
+                "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata", 17, 30);
+        validateError(negativeResult, 3,
+                "invalid type 'FooObject[]' as 'main' function parameter, expected anydata", 17, 55);
         validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of " +
                               "'error?' containing '()'", 17, 81);
     }
