@@ -530,6 +530,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAbstractKeyword();
             case REMOTE_KEYWORD:
                 return parseRemoteKeyword();
+            case FAIL_KEYWORD:
+                return parseFailKeyword();
             case CHECKING_KEYWORD:
                 return parseCheckingKeyword();
             case COMPOUND_BINARY_OPERATOR:
@@ -4197,6 +4199,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
+            case FAIL_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case TYPEOF_KEYWORD:
             case PLUS_TOKEN:
@@ -7310,7 +7313,6 @@ public class BallerinaParser extends AbstractParser {
             case METHOD_CALL:
             case FUNCTION_CALL:
             case CHECK_EXPRESSION:
-            case FAIL_EXPRESSION:
                 return parseCallStatement(expression);
             case REMOTE_METHOD_CALL_ACTION:
             case CHECK_ACTION:
@@ -7325,6 +7327,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case FAIL_EXPRESSION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -10631,6 +10634,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case BACKTICK_TOKEN:
             case NEW_KEYWORD:
+            case FAIL_KEYWORD:
             case LEFT_ARROW_TOKEN:
                 return true;
             case PLUS_TOKEN:
