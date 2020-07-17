@@ -69,6 +69,8 @@ public class Type {
     @Expose
     public boolean isTuple;
     @Expose
+    public boolean isRestParam;
+    @Expose
     public boolean isLambda;
     @Expose
     public boolean isDeprecated;

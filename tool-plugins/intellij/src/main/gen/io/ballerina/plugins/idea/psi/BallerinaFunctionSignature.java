@@ -24,15 +24,18 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaFunctionSignature extends PsiElement {
 
   @Nullable
-  BallerinaFormalParameterList getFormalParameterList();
+  BallerinaRecoverableParameterContent getRecoverableParameterContent();
 
   @Nullable
-  BallerinaReturnParameter getReturnParameter();
+  BallerinaRecoverableReturnType getRecoverableReturnType();
 
   @NotNull
   PsiElement getLeftParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getRightParenthesis();
+
+  @Nullable
+  PsiElement getReturns();
 
 }

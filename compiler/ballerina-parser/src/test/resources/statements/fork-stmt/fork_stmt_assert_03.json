@@ -74,6 +74,9 @@
             {
               "kind": "FORK_STATEMENT",
               "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT"
+              ],
               "children": [
                 {
                   "kind": "FORK_KEYWORD",
@@ -92,10 +95,6 @@
                 },
                 {
                   "kind": "OPEN_BRACE_TOKEN",
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_NAMED_WORKER_DECLARATION_IN_FORK_STMT"
-                  ],
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
