@@ -122,7 +122,7 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.sendText(ATTACH_TEXT);
         client.sendText(ATTACH_TEXT);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), "Two services have the same addressable URI");
+        Assert.assertEquals(client.getTextReceived(), "GenericError: Two services have the same addressable URI");
     }
 
 

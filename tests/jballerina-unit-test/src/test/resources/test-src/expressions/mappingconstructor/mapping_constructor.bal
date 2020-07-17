@@ -105,6 +105,32 @@ function testNonAmbiguousMapUnionTarget() {
     assertEquality(true, m2["c"]);
 }
 
+function testTypeWithReadOnlyInUnionCET() {
+    map<string> m = {x: "x", y: "y"};
+    map<map<json>>|readonly mr = {
+        a: m,
+        b: {}
+    };
+
+    assertEquality(true, <any> mr is map<map<json>>);
+    assertEquality(false, mr is map<map<json>> & readonly);
+
+    // Updates should be allowed.
+    map<map<json>> mj = <map<map<json>>> mr;
+    mj["a"]["z"] = "z";
+    assertEquality(true, mj["b"] is map<json>);
+    mj["b"]["a"] = 1;
+    mj["c"] = m;
+
+    assertEquality("x", mj["a"]["x"]);
+    assertEquality("y", mj["a"]["y"]);
+    assertEquality("z", mj["a"]["z"]);
+    assertEquality("z", mj["a"]["z"]);
+    assertEquality(1, mj["b"]["a"]);
+    assertEquality((), mj["b"]["b"]);
+    assertEquality(m, mj["c"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata|error && actual is anydata|error  {
         if (expected == actual) {

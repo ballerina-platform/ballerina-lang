@@ -144,6 +144,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(checkExpressionNode);
     }
 
+    public T transform(FailExpressionNode failExpressionNode) {
+        return transformSyntaxNode(failExpressionNode);
+    }
+
     public T transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
         return transformSyntaxNode(fieldAccessExpressionNode);
     }

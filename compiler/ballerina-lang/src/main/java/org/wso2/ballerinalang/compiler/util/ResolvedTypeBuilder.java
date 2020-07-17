@@ -417,7 +417,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     }
 
     private void setFlags(BType type, int originalFlags) {
-        type.flags = originalFlags & (~Flags.PARAMETERIZED);
+        type.flags |= originalFlags & (~Flags.PARAMETERIZED);
     }
 
     private void reset() {

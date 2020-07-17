@@ -70,9 +70,8 @@ public type InboundLdapAuthProvider object {
         }
         if (authenticated is boolean) {
             if (authenticated) {
-                auth:setAuthenticationContext("ldap", credential);
                 string userId = self.ldapConnectionConfig.domainName + ":" + username;
-                auth:setPrincipal(userId, username, scopes);
+                auth:setInvocationContext("ldap", credential, userId, scopes);
             }
             return authenticated;
         } else {

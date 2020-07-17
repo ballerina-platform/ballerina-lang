@@ -43,7 +43,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configurations for a WebSocket service.\n"
+        "left": "Configurations for a WebSocket service.\n\nin the server service will be triggered. Note that this overrides the `timeoutInMillis` config\nin the `http:Listener`.\nIf this is not set or is negative or zero, the default frame size will be used."
       },
       "sortText": "180",
       "insertText": "WSServiceConfig",
@@ -76,7 +76,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a service.\n"
+        "left": "Configures the authentication scheme for a service.\n\nAn array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays\nis used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.\nbe successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays \nshould be successfully authorized."
       },
       "sortText": "180",
       "insertText": "ServiceAuth",
@@ -87,7 +87,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the authentication scheme for a resource.\n"
+        "left": "Configures the authentication scheme for a resource.\n\nAn array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays\nis used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.\nbe successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays\nshould be successfully authorized."
       },
       "sortText": "180",
       "insertText": "ResourceAuth",
@@ -183,7 +183,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Configures cache control directives for an `http:Response`.\n"
+        "left": "Configures cache control directives for an `http:Response`.\n\nmust be validated with the origin server.\nthe rest of the response."
       },
       "sortText": "190",
       "insertText": "ResponseCacheControl",
@@ -194,7 +194,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n"
+        "left": "Implements a cache for storing HTTP responses. This cache complies with the caching policy set when configuring\nHTTP caching in the HTTP client endpoint.\n\n`CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`\n\nheader and either the `etag` or `last-modified` header are present."
       },
       "sortText": "190",
       "insertText": "HttpCache",
@@ -215,7 +215,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n"
+        "left": "Provides a set of configurations for controlling the caching behaviour of the endpoint.\n\nbetween 0 (exclusive) and 1 (inclusive).\n`CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`\n\nheader and either the `etag` or `last-modified` header are present."
       },
       "sortText": "180",
       "insertText": "CacheConfig",
@@ -237,7 +237,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs.\nHTTP service in resilient manner"
       },
       "sortText": "190",
       "insertText": "Client",
@@ -292,7 +292,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n"
+        "left": "Provides configurations for facilitating secure communication with a remote HTTP endpoint.\n\neg: TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA"
       },
       "sortText": "180",
       "insertText": "ClientSecureSocket",
@@ -336,7 +336,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Client configuration for cookies.\n"
+        "left": "Client configuration for cookies.\n\nwhich references the persistent cookie handler or specifying the CSV persistent cookie handler. If not specified any, only the session cookies are used"
       },
       "sortText": "180",
       "insertText": "CookieConfig",
@@ -471,7 +471,7 @@
       "label": "Chunking",
       "detail": "Union",
       "documentation": {
-        "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\n        otherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
+        "left": "Defines the possible values for the chunking configuration in HTTP services and clients.\n\n`AUTO`: If the payload is less than 8KB, content-length header is set in the outbound request/response,\notherwise chunking header is set in the outbound request/response\n`ALWAYS`: Always set chunking header in the response\n`NEVER`: Never set the chunking header even if the payload is larger than 8KB in the outbound request/response"
       },
       "sortText": "110",
       "insertText": "Chunking",
@@ -481,7 +481,7 @@
       "label": "Compression",
       "detail": "Union",
       "documentation": {
-        "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\n        outbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
+        "left": "Options to compress using gzip or deflate.\n\n`AUTO`: When service behaves as a HTTP gateway inbound request/response accept-encoding option is set as the\noutbound request/response accept-encoding/content-encoding option\n`ALWAYS`: Always set accept-encoding/content-encoding in outbound request/response\n`NEVER`: Never set accept-encoding/content-encoding header in outbound request/response"
       },
       "sortText": "110",
       "insertText": "Compression",
@@ -495,6 +495,16 @@
       },
       "sortText": "110",
       "insertText": "HttpOperation",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "safeHttpOperation",
+      "detail": "Union",
+      "documentation": {
+        "left": "Defines the safe HTTP operations which do not modify resources representation"
+      },
+      "sortText": "110",
+      "insertText": "safeHttpOperation",
       "insertTextFormat": "Snippet"
     },
     {
@@ -707,7 +717,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents an HTTP request.\n"
+        "left": "Represents an HTTP request.\n\non utilizing HTTP caching."
       },
       "sortText": "190",
       "insertText": "Request",
@@ -740,7 +750,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Represents an HTTP response.\n"
+        "left": "Represents an HTTP response.\n\nintending on utilizing HTTP caching. For incoming responses, this will already be populated\nif the response was sent with cache-control directives"
       },
       "sortText": "190",
       "insertText": "Response",
@@ -817,7 +827,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+        "left": "Provides a set of HTTP related configurations and failover related configurations.\nFollowing fields are inherited from the other configuration records in addition to the failover client specific\nconfigs.\n\n|                     |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration      |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
       },
       "sortText": "180",
       "insertText": "FailoverClientConfiguration",
@@ -849,7 +859,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n"
+        "left": "Provides a set of configurations for controlling the behaviour of the Circuit Breaker.\n\nThe threshold should be a value between 0 and 1\nthe upstream service"
       },
       "sortText": "180",
       "insertText": "CircuitBreakerConfig",
@@ -882,7 +892,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n"
+        "left": "Derived set of configurations from the `CircuitBreakerConfig`.\n\nThe threshold should be a value between 0 and 1\nthe upstream service"
       },
       "sortText": "180",
       "insertText": "CircuitBreakerInferredConfig",
@@ -926,7 +936,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n"
+        "left": "Provides the HTTP remote functions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client\nto provide retrying over HTTP requests.\n\nHTTP service in resilient manner."
       },
       "sortText": "190",
       "insertText": "RetryClient",
@@ -970,7 +980,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
+        "left": "The configurations related to the load balance client endpoint. Following fields are inherited from the other\nconfiguration records in addition to the load balance client specific configs.\n\n|                     |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration      |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |\n"
       },
       "sortText": "180",
       "insertText": "LoadBalanceClientConfiguration",
@@ -1014,7 +1024,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of configurations for HTTP service endpoints.\n"
+        "left": "Provides a set of configurations for HTTP service endpoints.\n\ncommunicate through HTTPS.\nresource, filters can applied\ndisable timeout"
       },
       "sortText": "180",
       "insertText": "ListenerConfiguration",
@@ -1025,7 +1035,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides settings related to HTTP/1.x protocol.\n"
+        "left": "Provides settings related to HTTP/1.x protocol.\n\nwhich always keeps the connection alive, or `KEEPALIVE_NEVER`, which always closes the connection\nconnection. By default 10 requests can be pipelined on a single cinnection and user can\nchange this limit appropriately.\n`414 - URI Too Long` response.\n`413 - Payload Too Large` response.\nis no restriction `maxEntityBodySize`, On the Exceeding this limit will result in a\n`413 - Payload Too Large` response."
       },
       "sortText": "180",
       "insertText": "ListenerHttp1Settings",
@@ -1036,7 +1046,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Authentication configurations for the listener.\n"
+        "left": "Authentication configurations for the listener.\n\nAn array is used to indicate that at least one of the authentication handlers should be successfully authenticated. An array consisting of arrays\nis used to indicate that at least one authentication handler from the sub-arrays should be successfully authenticated.\nbe successfully authorized. An array consisting of arrays is used to indicate that at least one scope from the sub-arrays\nshould successfully be authorized"
       },
       "sortText": "180",
       "insertText": "ListenerAuth",
@@ -1047,7 +1057,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configures the SSL/TLS options to be used for HTTP service.\n"
+        "left": "Configures the SSL/TLS options to be used for HTTP service.\n\nTLS_ECDHE_RSA_WITH_AES_128_CBC_SHA)"
       },
       "sortText": "180",
       "insertText": "ListenerSecureSocket",
@@ -1098,7 +1108,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configurations for the WebSocket client endpoint.\n"
+        "left": "Configurations for the WebSocket client endpoint.\n\nreceipt of messages from the server\nof the client service will be triggered\nThis is set to `true` by default. If changed to `false`, the ready() function of the\n`WebSocketClient` needs to be called once to start receiving messages\nIf this is not set, is negative, or is zero, the default frame size of 65536 will be used.\nthe webSocket handshake. If the timeout exceeds, then the connection is terminated with\nan error.If the value < 0, then the value sets to the default value(300)."
       },
       "sortText": "180",
       "insertText": "WebSocketClientConfiguration",
@@ -1109,7 +1119,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Retry configurations for WebSocket.\n"
+        "left": "Retry configurations for WebSocket.\n\npersist"
       },
       "sortText": "180",
       "insertText": "WebSocketRetryConfig",
@@ -1153,7 +1163,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Configurations for the WebSocket client endpoint.\n"
+        "left": "Configurations for the WebSocket client endpoint.\n\nreceipt of messages from the server\nof the client service will be triggered\nThis is set to `true` by default. If changed to `false`, the ready() function of the\n`WebSocketFailoverClient` needs to be called once to start receiving messages\nIf this is not set, is negative, or is zero, the default frame size of 65536 will be used.\nthe webSocket handshake. If the timeout exceeds, then the connection is terminated with\nan error. If the value < 0, then the value sets to the default value(300)"
       },
       "sortText": "180",
       "insertText": "WebSocketFailoverClientConfiguration",
@@ -1186,7 +1196,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic.\n"
+        "left": "Defines the Basic Auth header handler for inbound and outbound HTTP traffic."
       },
       "sortText": "190",
       "insertText": "BasicAuthHandler",
@@ -1197,7 +1207,7 @@
       "kind": "Interface",
       "detail": "Object",
       "documentation": {
-        "left": "Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic.\n"
+        "left": "Representation of the Bearer Auth header handler for both inbound and outbound HTTP traffic."
       },
       "sortText": "190",
       "insertText": "BearerAuthHandler",
@@ -1208,7 +1218,7 @@
       "kind": "Struct",
       "detail": "Record",
       "documentation": {
-        "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                                                         |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration            |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |"
+        "left": "Provides a set of configurations for controlling the behaviours when communicating with a remote HTTP endpoint.\nFollowing fields are inherited from the other configuration records in addition to the Client specific\nconfigs.\n\n|                     |\n|:------------------------------------------------------- |\n| httpVersion - Copied from CommonClientConfiguration     |\n| http1Settings - Copied from CommonClientConfiguration   |\n| http2Settings - Copied from CommonClientConfiguration   |\n| timeoutInMillis - Copied from CommonClientConfiguration |\n| forwarded - Copied from CommonClientConfiguration       |\n| followRedirects - Copied from CommonClientConfiguration |\n| poolConfig - Copied from CommonClientConfiguration      |\n| cache - Copied from CommonClientConfiguration           |\n| compression - Copied from CommonClientConfiguration     |\n| auth - Copied from CommonClientConfiguration      |\n| circuitBreaker - Copied from CommonClientConfiguration  |\n| retryConfig - Copied from CommonClientConfiguration     |\n| cookieConfig - Copied from CommonClientConfiguration    |"
       },
       "sortText": "180",
       "insertText": "ClientConfiguration",

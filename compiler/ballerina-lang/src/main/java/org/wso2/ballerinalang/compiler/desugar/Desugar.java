@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -812,6 +813,8 @@ public class Desugar extends BLangNodeVisitor {
         for (BLangSimpleVariable bLangSimpleVariable : recordTypeNode.fields) {
             bLangSimpleVariable.typeNode = rewrite(bLangSimpleVariable.typeNode, env);
         }
+
+        recordTypeNode.restFieldType = rewrite(recordTypeNode.restFieldType, env);
 
         // Will be null only for locally defined anonymous types
         if (recordTypeNode.initFunction == null) {
@@ -2716,6 +2719,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        if (exprStmtNode.expr.getKind() == NodeKind.FAIL) {
+            BLangFailExpr failExpr = (BLangFailExpr) exprStmtNode.expr;
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failExpr.expr.pos, failExpr.expr);
+            result = rewrite(stmt, env);
+            return;
+        }
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
         result = exprStmtNode;
     }
@@ -4433,11 +4442,11 @@ public class Desugar extends BLangNodeVisitor {
                                                                     DiagnosticPos pos) {
         // TODO: Use the anon model helper to generate the object name?
         BObjectTypeSymbol tSymbol = (BObjectTypeSymbol) objectType.tsymbol;
-        Name objectClassName = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        Name objectClassName = names.fromString(
+                anonModelHelper.getNextRawTemplateTypeKey(env.enclPkg.packageID, tSymbol.name));
         final int updatedFlags = Flags.unset(tSymbol.flags, Flags.ABSTRACT);
-        BObjectTypeSymbol classTSymbol = (BObjectTypeSymbol) Symbols
-                .createObjectSymbol(updatedFlags, objectClassName, env.enclPkg.packageID, null,
-                                    env.enclPkg.symbol);
+        BObjectTypeSymbol classTSymbol = Symbols.createObjectSymbol(updatedFlags, objectClassName,
+                                                                    env.enclPkg.packageID, null, env.enclPkg.symbol);
 
         // Create a new concrete, class type for the provided abstract object type
         BObjectType objectClassType = new BObjectType(classTSymbol, updatedFlags);
@@ -4587,6 +4596,11 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             result = rewriteExpr(xmlAttributeAccessExpr);
         }
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        result = rewriteExpr(failExpr.expr);
     }
 
     // Generated expressions. Following expressions are not part of the original syntax
