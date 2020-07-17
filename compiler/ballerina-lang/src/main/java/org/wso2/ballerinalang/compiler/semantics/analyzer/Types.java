@@ -233,9 +233,7 @@ public class Types {
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
             case TypeTags.UNION:
-                // TODO: solve this
-                if (type == symTable.jsonType ||
-                        (isAssignable(type, symTable.jsonType) && isAssignable(symTable.jsonType, type))) {
+                if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
                     visited.put(type, true);
                     return true;
                 }
