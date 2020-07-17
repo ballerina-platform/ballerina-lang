@@ -19,9 +19,7 @@
 package org.ballerinalang.langlib.transaction;
 
 import org.ballerinalang.jvm.scheduling.Strand;
-import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
 
 import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
