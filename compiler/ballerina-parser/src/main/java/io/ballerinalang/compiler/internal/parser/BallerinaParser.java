@@ -15120,6 +15120,7 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.TUPLE_TYPE_DESC;
             case LIST_CONSTRUCTOR:
             case MAPPING_CONSTRUCTOR:
+            case INDEXED_EXPRESSION:
                 return SyntaxKind.LIST_CONSTRUCTOR;
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 // can be either list-bp or list-constructor. Cannot be a tuple-type-desc
