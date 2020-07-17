@@ -26,7 +26,7 @@ import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 /**
  * Extern function transaction:setContextAsNonTransactional.
  *
- * @since 2.0.0-preview1
+ * @since Swan Lake
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
