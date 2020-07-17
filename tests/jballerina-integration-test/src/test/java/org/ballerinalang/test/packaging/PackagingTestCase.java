@@ -128,7 +128,7 @@ public class PackagingTestCase extends BaseTest {
         clientLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test pulling a package from central", dependsOnMethods = "testPush")
+    @Test(enabled = false, description = "Test pulling a package from central", dependsOnMethods = "testPush")
     public void testPull() {
         String baloFileName = moduleName + "-"
                               + ProgramFileConstants.IMPLEMENTATION_VERSION + "-"
