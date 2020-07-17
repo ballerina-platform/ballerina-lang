@@ -26,23 +26,30 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-        <packages>
+        <classes>
 <!--            <package name="org.ballerinalang.langserver.highlighting.*"/>-->
-            <package name="org.ballerinalang.langserver.definition.*"/>
+<!--            <package name="org.ballerinalang.langserver.definition.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.docsymbol.*"/>-->
-            <package name="org.ballerinalang.langserver.hover.*"/>
+<!--            <package name="org.ballerinalang.langserver.hover.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.implementation.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.references.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.rename.*"/>-->
-            <package name="org.ballerinalang.langserver.completion.*"/>
-            <package name="org.ballerinalang.langserver.signature.*"/>
+<!--            <class name="org.ballerinalang.langserver.completion.ListenerDeclarationTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.ImportDeclarationTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.ServiceDeclarationTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.ServiceBodyTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.FunctionDefinitionTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.TypeDefinitionTest"/>-->
+<!--            <class name="org.ballerinalang.langserver.completion.FunctionBodyTest"/>-->
+            <class name="org.ballerinalang.langserver.completion.ForkStatementNodeTest"/>
+<!--            <package name="org.ballerinalang.langserver.signature.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.sourceprune.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.workspace.*"/>-->
-            <package name="org.ballerinalang.langserver.formatting.FormattingTest"/>
-            <package name="org.ballerinalang.langserver.extensions.document.*"/>
-            <package name="org.ballerinalang.langserver.extensions.connector.*"/>
-            <package name="org.ballerinalang.langserver.codeaction.*"/>
+<!--            <package name="org.ballerinalang.langserver.formatting.FormattingTest"/>-->
+<!--            <package name="org.ballerinalang.langserver.extensions.document.*"/>-->
+<!--            <package name="org.ballerinalang.langserver.extensions.connector.*"/>-->
+<!--            <package name="org.ballerinalang.langserver.codeaction.*"/>-->
 <!--            <package name="org.ballerinalang.langserver.command.*"/>-->
-        </packages>
+        </classes>
     </test>
 </suite>

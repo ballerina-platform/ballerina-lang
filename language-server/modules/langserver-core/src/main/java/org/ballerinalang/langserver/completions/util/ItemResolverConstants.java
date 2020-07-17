@@ -59,6 +59,10 @@ public class ItemResolverConstants {
     public static final String MAIN_FUNCTION = "public main function";
     public static final String SERVICE_HTTP = "service/http";
     public static final String SERVICE = "service";
+    public static final String TABLE = "table";
+    public static final String STRING = "string";
+    public static final String XML = "xml";
+    public static final String LET = "let";
     public static final String SERVICE_WEBSOCKET = "service/webSocket";
     public static final String SERVICE_WEBSOCKET_CLIENT = "service/webSocketClient";
     public static final String SERVICE_WEBSUB = "service/webSub";
@@ -108,6 +112,7 @@ public class ItemResolverConstants {
     public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
+    public static final String FROM_KEYWORD = "from";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
     public static final String RETURNS_KEYWORD = "returns";

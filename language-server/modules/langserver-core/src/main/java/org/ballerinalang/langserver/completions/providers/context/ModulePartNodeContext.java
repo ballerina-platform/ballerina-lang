@@ -27,15 +27,16 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import java.util.ArrayList;
 import java.util.List;
 
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
-public class ModulePartNodeContext extends AbstractCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePartNode> {
 
     public ModulePartNodeContext() {
+        super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(ModulePartNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(LSContext context, ModulePartNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>(addTopLevelItems(context));
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         completionItems.addAll(getBasicTypesItems(context, visibleSymbols));

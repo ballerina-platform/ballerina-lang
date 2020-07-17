@@ -270,7 +270,7 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         // Here we skip the type definitions associated to the services
-        if ((typeDefinition.symbol.flags & Flags.SERVICE) == Flags.SERVICE) {
+        if (typeDefinition.symbol != null && (typeDefinition.symbol.flags & Flags.SERVICE) == Flags.SERVICE) {
             return;
         }
         typeDefinition.annAttachments.forEach(annotation -> this.acceptNode(annotation, symbolEnv));

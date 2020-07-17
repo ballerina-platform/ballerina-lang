@@ -38,20 +38,20 @@ import java.util.stream.Stream;
 /**
  * Completion Item Resolver for the Package name context.
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
-public class ImportOrgNameNodeContext extends AbstractCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportOrgNameNode> {
 
     public ImportOrgNameNodeContext() {
+        super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(ImportOrgNameNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+    public List<LSCompletionItem> getCompletions(LSContext ctx, ImportOrgNameNode node) {
         /*
         Following use cases are addressed.
         Eg: (1) import org/<cursor>
          */
-        ImportOrgNameNode node = (ImportOrgNameNode) ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         String orgName = node.orgName().text();
 
         if (orgName.isEmpty()) {

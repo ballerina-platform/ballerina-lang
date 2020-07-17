@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.langserver.commons.completion.spi;
 
+import io.ballerinalang.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,7 +31,7 @@ import java.util.Optional;
  *
  * @since 1.2.0
  */
-public interface LSCompletionProvider {
+public interface CompletionProvider<T extends Node> {
 
     /**
      * Precedence for a given provider.
@@ -42,24 +44,49 @@ public interface LSCompletionProvider {
     }
 
     /**
+     * Provider kind.
+     *
+     * @since 2.0.0
+     */
+    enum Kind {
+        STATEMENT,
+        MODULE_MEMBER,
+        EXPRESSION,
+        OTHER
+    }
+
+    /**
      * Get Completion items for the scope/ context.
      *
      * @param context Language Server Context
      * @return {@link List}     List of calculated Completion Items
      * @throws LSCompletionException when completion fails
      */
+    @Deprecated
     List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException;
+
+    /**
+     * Get Completion items for the scope/ context.
+     *
+     * @param context Language Server Context
+     * @param node    Node instance for the parser context
+     * @return {@link List}     List of calculated Completion Items
+     * @throws LSCompletionException when completion fails
+     */
+    default List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException {
+        return new ArrayList<>();
+    }
 
     /**
      * Get the attachment points where the current provider attached to.
      *
      * @return {@link List}    List of attachment points
      */
-    List<Class> getAttachmentPoints();
+    List<Class<T>> getAttachmentPoints();
 
     /**
      * Get the precedence of the provider.
-     * 
+     *
      * @return {@link Precedence} precedence of the provider
      */
     Precedence getPrecedence();
@@ -71,5 +98,7 @@ public interface LSCompletionProvider {
      * @param ctx Language Server Context
      * @return {@link Optional} Context Completion provider
      */
-    Optional<LSCompletionProvider> getContextProvider(LSContext ctx);
+    Optional<CompletionProvider<T>> getContextProvider(LSContext ctx);
+
+    Kind getKind();
 }

@@ -206,7 +206,8 @@ public class LSAnnotationCache {
      * @param bPackageSymbol      BLang Package Symbol to load annotations
      */
     private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
-        List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
+        List<Scope.ScopeEntry> scopeEntries = new ArrayList<>();
+//      List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
             if (annotationEntry.symbol instanceof BAnnotationSymbol

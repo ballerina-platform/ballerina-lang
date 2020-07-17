@@ -175,7 +175,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                CompletionUtil.pruneSource(context);
+//                CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -188,12 +188,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);

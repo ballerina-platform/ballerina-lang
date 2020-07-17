@@ -31,6 +31,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 
@@ -86,6 +87,24 @@ public final class BFunctionCompletionItemBuilder {
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
         }
+        return item;
+    }
+    
+    public static CompletionItem build(BObjectTypeSymbol objectTypeSymbol, InitializerBuildMode mode, LSContext ctx) {
+        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc.symbol;
+        CompletionItem item = new CompletionItem();
+        setMeta(item, invokableSymbol, ctx);
+        String functionName;
+        if (mode == InitializerBuildMode.EXPLICIT) {
+            functionName = objectTypeSymbol.name.value;
+        } else {
+            functionName = "new";
+        }
+        Pair<String, String> functionSignature = CommonUtil.getFunctionInvocationSignature(invokableSymbol,
+                functionName, ctx);
+        item.setInsertText(functionSignature.getLeft());
+        item.setLabel(functionSignature.getRight());
+        
         return item;
     }
 
@@ -169,5 +188,10 @@ public final class BFunctionCompletionItemBuilder {
         docMarkupContent.setValue(documentation);
 
         return Either.forRight(docMarkupContent);
+    }
+    
+    public enum InitializerBuildMode {
+        EXPLICIT,
+        IMPLICIT
     }
 }

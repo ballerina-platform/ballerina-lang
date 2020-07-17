@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRender
 import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.net.http.websocket.WebSocketConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
@@ -31,7 +30,6 @@ import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static io.netty.util.internal.StringUtil.LINE_FEED;
-import static org.ballerinalang.langserver.command.testgen.AnnotationConfigsProcessor.searchStringField;
 import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATOR;
 
 /**
@@ -63,8 +61,9 @@ public class WSServiceTemplate extends AbstractTestTemplate {
 
         // If service base path overridden by annotations
         for (BLangAnnotationAttachment annotation : service.annAttachments) {
-            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH.getValue(),
-                                                              annotation);
+//            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH.getValue(),
+//                                                              annotation);
+            Optional<String> optionalPath = Optional.empty();
             serviceBasePath = optionalPath.orElse("");
         }
         String serviceName = upperCaseFirstLetter(service.name.value);

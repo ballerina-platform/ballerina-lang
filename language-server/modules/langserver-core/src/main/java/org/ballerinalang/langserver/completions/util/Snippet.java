@@ -34,11 +34,17 @@ public enum Snippet {
 
     DEF_MAIN_FUNCTION(SnippetGenerator.getMainFunctionSnippet()),
 
+    DEF_OBJECT_TYPE_DESC_SNIPPET(SnippetGenerator.getObjectTypeDescSnippet()),
+
     DEF_OBJECT_SNIPPET(SnippetGenerator.getObjectDefinitionSnippet()),
 
     DEF_RECORD(SnippetGenerator.getRecordDefinitionSnippet()),
 
     DEF_CLOSED_RECORD(SnippetGenerator.getClosedRecordDefinitionSnippet()),
+
+    DEF_RECORD_TYPE_DESC(SnippetGenerator.getRecordTypeDescSnippet()),
+
+    DEF_CLOSED_RECORD_TYPE_DESC(SnippetGenerator.getClosedRecordTypeDescSnippet()),
 
     DEF_RESOURCE_HTTP(SnippetGenerator.getResourceDefinitionSnippet()),
 
@@ -119,6 +125,20 @@ public enum Snippet {
 
     KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
+    KW_TABLE(SnippetGenerator.getTableKeywordSnippet()),
+
+    KW_SERVICE(SnippetGenerator.getServiceKeywordSnippet()),
+
+    KW_STRING(SnippetGenerator.getStringKeywordSnippet()),
+
+    KW_XML(SnippetGenerator.getXMLKeywordSnippet()),
+
+    KW_LET(SnippetGenerator.getLetKeywordSnippet()),
+
+    KW_TRAP(SnippetGenerator.getTrapKeywordSnippet()),
+
+    KW_ERROR(SnippetGenerator.getErrorKeywordSnippet()),
+
     KW_CHECK(SnippetGenerator.getCheckKeywordSnippet()),
 
     KW_CHECK_PANIC(SnippetGenerator.getCheckPanicKeywordSnippet()),
@@ -126,6 +146,8 @@ public enum Snippet {
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
     KW_START(SnippetGenerator.getStartKeywordSnippet()),
+
+    KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
     KW_FLUSH(SnippetGenerator.getFlushKeywordSnippet()),
 
@@ -196,7 +218,7 @@ public enum Snippet {
 
     STMT_MATCH(SnippetGenerator.getMatchStatementSnippet()),
 
-    STMT_NAMESPACE_DECLARATION(SnippetGenerator.getNamespaceDeclarationSnippet()),
+    STMT_NAMESPACE_DECLARATION(SnippetGenerator.getXMLNSDeclarationSnippet()),
 
     STMT_RETURN(SnippetGenerator.getReturnStatementSnippet()),
 

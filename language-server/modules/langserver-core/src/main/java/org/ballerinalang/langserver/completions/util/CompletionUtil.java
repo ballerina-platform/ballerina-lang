@@ -17,23 +17,24 @@ package org.ballerinalang.langserver.completions.util;
 
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
+import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.LinePosition;
-import io.ballerinalang.compiler.text.LineRange;
 import io.ballerinalang.compiler.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
+import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
@@ -51,7 +52,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Common utility methods for the completion operation.
@@ -77,21 +80,46 @@ public class CompletionUtil {
      * @param ctx Completion context
      * @return {@link List}         List of resolved completion Items
      */
-    public static List<CompletionItem> getCompletionItems(LSContext ctx) throws WorkspaceDocumentException {
-        List<LSCompletionItem> items = new ArrayList<>();
+    public static List<CompletionItem> getCompletionItems(LSContext ctx)
+            throws WorkspaceDocumentException, LSCompletionException {
         fillTokenInfoAtCursor(ctx);
-        Optional<LSCompletionProvider> provider = LSCompletionProviderHolder.instance()
-                .getNearestMatch(ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY));
+        NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        Predicate<CompletionProvider.Kind> predicate = providerKind
+                -> providerKind == CompletionProvider.Kind.MODULE_MEMBER
+                || providerKind == CompletionProvider.Kind.STATEMENT;
 
-        provider.ifPresent(lsCompletionProvider -> {
-            try {
-                items.addAll(lsCompletionProvider.getCompletions(ctx));
-            } catch (Exception e) {
-                LOGGER.error("Error while retrieving completions from: " + provider.get().getClass());
-            }
-        });
-
+        List<LSCompletionItem> items = route(ctx, nodeAtCursor, predicate);
         return getPreparedCompletionItems(ctx, items);
+    }
+
+    /**
+     * Get the nearest matching provider for the context node.
+     *
+     * @param node node to evaluate
+     * @return {@link Optional} provider which resolved
+     */
+    public static List<LSCompletionItem> route(LSContext ctx, Node node, Predicate<CompletionProvider.Kind> predicate)
+            throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        if (node == null) {
+            return completionItems;
+        }
+        Map<Class<?>, CompletionProvider<Node>> providers = ProviderFactory.instance().getProviders();
+        Node reference = node;
+        CompletionProvider<Node> provider = null;
+
+        while ((reference != null) || (provider != null && !predicate.test(provider.getKind()))) {
+            provider = providers.get(reference.getClass());
+            if (provider != null) {
+                break;
+            }
+            reference = reference.parent();
+        }
+
+        if (provider == null) {
+            return completionItems;
+        }
+        return provider.getCompletions(ctx, reference);
     }
 
     private static List<CompletionItem> getPreparedCompletionItems(LSContext context, List<LSCompletionItem> items) {
@@ -170,11 +198,12 @@ public class CompletionUtil {
         context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
         context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor));
     }
-    
+
     private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor) {
         NonTerminalNode parent = tokenAtCursor.parent();
 
-        while (!(parent instanceof ModuleMemberDeclarationNode) && !(parent instanceof StatementNode)) {
+        while (parent.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
+                || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             parent = parent.parent();
         }
 

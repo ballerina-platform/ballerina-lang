@@ -20,7 +20,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -28,11 +30,13 @@ import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocument;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -41,16 +45,19 @@ import java.util.stream.Stream;
 
 /**
  * Completion Item Resolver for the Package name context.
+ * 
+ * @since  2.0.0
  */
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
-public class ImportDeclarationNodeContext extends AbstractCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+public class ImportDeclarationNodeContext extends AbstractCompletionProvider<ImportDeclarationNode> {
 
     public ImportDeclarationNodeContext() {
+        super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(ImportDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext ctx) {
+    public List<LSCompletionItem> getCompletions(LSContext ctx, ImportDeclarationNode node) {
         /*
         Following use cases are addressed.
         Eg: (1) import <cursor>
@@ -61,7 +68,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider {
             
             Suggests org names and the module names within the same directory
          */
-        ImportDeclarationNode node = (ImportDeclarationNode) ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         SeparatedNodeList<IdentifierToken> moduleName = node.moduleName();
 
         if (moduleName.isEmpty()) {
@@ -80,8 +86,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider {
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
                 .forEach(packagesList::addAll);
-        
-        if (node.orgName().isPresent()) {
+
+        if (withinVersionAndPrefix(ctx, node)) {
+            completionItems.add(getAsKeyword(ctx));
+            completionItems.add(getVersionKeyword(ctx));
+        } else if (node.orgName().isPresent()) {
             /*
             Covers case (4)
              */
@@ -180,11 +189,40 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider {
 
         return new StaticCompletionItem(context, item);
     }
+    
+    private static boolean withinVersionAndPrefix(LSContext context, ImportDeclarationNode node) {
+        SeparatedNodeList<IdentifierToken> moduleName = node.moduleName();
+        if (moduleName.isEmpty()) {
+            return false;
+        }
+        Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        IdentifierToken endModuleNameComponent;
+        if (moduleName.separatorSize() > 0 && moduleName.getSeparator(moduleName.separatorSize() - 1).isMissing()) {
+            endModuleNameComponent = moduleName.get(moduleName.size() - 2);
+        } else if (moduleName.separatorSize() == 0) {
+            endModuleNameComponent = moduleName.get(moduleName.size() - 1);
+        } else {
+            return false;
+        }
+
+        return !endModuleNameComponent.isMissing()
+                && endModuleNameComponent.lineRange().endLine().offset() < cursor.getCharacter();
+    }
 
     private static LSCompletionItem getAsKeyword(LSContext context) {
         CompletionItem item = new CompletionItem();
         item.setLabel("as");
         item.setInsertText("as ");
+        item.setKind(CompletionItemKind.Keyword);
+        item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+        return new StaticCompletionItem(context, item);
+    }
+
+    private static LSCompletionItem getVersionKeyword(LSContext context) {
+        CompletionItem item = new CompletionItem();
+        item.setLabel("version");
+        item.setInsertText("version ");
         item.setKind(CompletionItemKind.Keyword);
         item.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 

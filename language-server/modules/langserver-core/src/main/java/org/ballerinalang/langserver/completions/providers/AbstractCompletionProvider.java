@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.langserver.completions.providers;
 
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.antlr.v4.runtime.CommonToken;
@@ -33,13 +31,13 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.completions.LSCompletionProviderHolder;
+import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
@@ -52,6 +50,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
+import org.ballerinalang.model.ScopeEntry;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -90,6 +89,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -102,23 +102,34 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getFunctionIn
  *
  * @since 0.995.0
  */
-public abstract class AbstractCompletionProvider implements LSCompletionProvider {
+public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
 
-    protected List<Class> attachmentPoints = new ArrayList<>();
+    protected List<Class<T>> attachmentPoints = new ArrayList<>();
 
     protected Precedence precedence = Precedence.LOW;
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public abstract List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException;
+    private Kind kind;
+
+    public AbstractCompletionProvider(Kind kind) {
+        this.kind = kind;
+    }
+
+    public AbstractCompletionProvider() {
+    }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public List<Class> getAttachmentPoints() {
+    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+        return new ArrayList<>();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Class<T>> getAttachmentPoints() {
         return this.attachmentPoints;
     }
 
@@ -134,8 +145,13 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * {@inheritDoc}
      */
     @Override
-    public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+    public Optional<CompletionProvider<T>> getContextProvider(LSContext ctx) {
         return Optional.empty();
+    }
+
+    @Override
+    public Kind getKind() {
+        return this.kind;
     }
 
     /**
@@ -195,7 +211,36 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @param visibleSymbols List of visible symbols
      * @return {@link List}     List of completion items
      */
+    @Deprecated
     protected List<LSCompletionItem> getBasicTypesItems(LSContext context, List<Scope.ScopeEntry> visibleSymbols) {
+        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        visibleSymbols.forEach(scopeEntry -> {
+            BSymbol bSymbol = scopeEntry.symbol;
+            if (((bSymbol instanceof BConstructorSymbol && Names.ERROR.equals(bSymbol.name)))
+                    || (bSymbol instanceof BTypeSymbol && !(bSymbol instanceof BPackageSymbol))) {
+                BSymbol symbol = bSymbol;
+                if (bSymbol instanceof BConstructorSymbol) {
+                    symbol = ((BConstructorSymbol) bSymbol).type.tsymbol;
+                }
+                CompletionItem cItem = BTypeCompletionItemBuilder.build(symbol, scopeEntry.symbol.name.getValue());
+                completionItems.add(new SymbolCompletionItem(context, symbol, cItem));
+            }
+        });
+
+        completionItems.add(CommonUtil.getErrorTypeCompletionItem(context));
+
+        return completionItems;
+    }
+
+    /**
+     * Get the type completion Items.
+     *
+     * @param context LS Operation Context
+     * @return {@link List}     List of completion items
+     */
+    protected List<LSCompletionItem> getTypeItems(LSContext context) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
         List<LSCompletionItem> completionItems = new ArrayList<>();
         visibleSymbols.forEach(scopeEntry -> {
@@ -224,6 +269,7 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @param ctx            language server context
      * @return {@link List} list of Type completion items
      */
+    @Deprecated
     protected List<LSCompletionItem> getTypeItemsInPackage(List<Scope.ScopeEntry> visibleSymbols, String pkgName,
                                                            LSContext ctx) {
         List<Scope.ScopeEntry> filteredList = new ArrayList<>();
@@ -245,6 +291,20 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         });
 
         return this.getCompletionItemList(filteredList, ctx);
+    }
+
+    /**
+     * Filter all the types in the Module
+     *
+     * @param moduleSymbol package symbol
+     * @return {@link List} list of filtered type entries
+     */
+    protected List<Scope.ScopeEntry> filterTypesInModule(BSymbol moduleSymbol) {
+        return moduleSymbol.scope.entries.values().stream()
+                .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
+                        || (scopeEntry.symbol instanceof BConstructorSymbol 
+                        && Names.ERROR.equals(scopeEntry.symbol.name)))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -387,8 +447,8 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
      * @param providerKey key to get the provider
      * @return {@link AbstractCompletionProvider} Completion Provider
      */
-    protected LSCompletionProvider getProvider(Class providerKey) {
-        return LSCompletionProviderHolder.instance().getProvider(providerKey);
+    protected CompletionProvider<?> getProvider(Class<?> providerKey) {
+        return ProviderFactory.instance().getProvider(providerKey);
     }
 
     protected List<LSCompletionItem> getCompletionItemsAfterOnKeyword(LSContext ctx) {
@@ -636,11 +696,6 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         return items;
     }
 
-//    private void addAllWebsubResources(LSContext ctx, List<CompletionItem> items, BLangService service) {
-//        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_INTENT.get(), service, items, ctx);
-//        addIfNotExists(Snippet.DEF_RESOURCE_WEBSUB_NOTIFY.get(), service, items, ctx);
-//    }
-
     private void addAllWSClientResources(LSContext ctx, List<LSCompletionItem> items, BLangService service) {
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_TEXT.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CS_BINARY.get(), service, items, ctx);
@@ -661,7 +716,6 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
         addIfNotExists(Snippet.DEF_RESOURCE_WS_ERROR.get(), service, items, ctx);
         addIfNotExists(Snippet.DEF_RESOURCE_WS_CLOSE.get(), service, items, ctx);
     }
-
 
     protected Optional<Scope.ScopeEntry> getPackageSymbolFromAlias(LSContext context, String alias) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -731,6 +785,29 @@ public abstract class AbstractCompletionProvider implements LSCompletionProvider
 
         return annotationAccessIndex > -1;
     }
+
+    /**
+     * Get the implicit new expression completion item.
+     *
+     * @param objectTypeSymbol object type symbol
+     * @param context          Language server operation context
+     * @return {@link LSCompletionItem} generated
+     */
+    protected LSCompletionItem getImplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
+        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
+                BFunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
+
+        return new SymbolCompletionItem(context, objectTypeSymbol.initializerFunc.symbol, cItem);
+    }
+
+    protected LSCompletionItem getExplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
+        CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
+                BFunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
+
+        return new SymbolCompletionItem(context, objectTypeSymbol.initializerFunc.symbol, cItem);
+
+    }
+
     // Private Methods
 
     /**

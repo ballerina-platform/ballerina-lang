@@ -19,6 +19,7 @@ import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.LineRange;
@@ -30,25 +31,36 @@ import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider")
-public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
+@JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
+public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
 
     public ListenerDeclarationNodeContext() {
+        super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(ListenerDeclarationNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(LSContext context, ListenerDeclarationNode node)
+            throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         Optional<ListenerDeclarationNode> listenerNode = listenerNode(context);
@@ -59,11 +71,11 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
             completionItems.addAll(typeDescriptorContextItems(context, listenerNode.get()));
         }
         if (withinInitializerContext(context, listenerNode.get())) {
-            completionItems.addAll(this.initializerItems(context, listenerNode.get().initializer()));
+            completionItems.addAll(this.initializerItems(context, listenerNode.get()));
         }
         return completionItems;
     }
-    
+
     private List<LSCompletionItem> typeDescriptorContextItems(LSContext context, ListenerDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Node typeDesc = node.typeDescriptor();
@@ -79,8 +91,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
     }
 
     private List<LSCompletionItem> listenersAndPackagesItems(LSContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.getPackagesCompletionItems(context));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Scope.ScopeEntry> listeners = visibleSymbols.stream()
                 .filter(scopeEntry -> CommonUtil.isListenerObject(scopeEntry.symbol))
@@ -107,33 +118,49 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
         completionItems.addAll(this.getCompletionItemList(listeners, context));
         return completionItems;
     }
-    
-    private List<LSCompletionItem> initializerItems(LSContext context, Node initializer) {
-        // TODO: Customize the logic
-        if (initializer.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+
+    private List<LSCompletionItem> initializerItems(LSContext context, ListenerDeclarationNode listenerNode)
+            throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+
+        if (listenerNode.initializer().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             /*
             Supports the following
             (1) public listener mod:Listener test = <cursor>
             (2) public listener mod:Listener test = a<cursor>
              */
-             
+            Optional<BObjectTypeSymbol> objectTypeSymbol = getObjectTypeSymbol(context, listenerNode);
+            List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
+                    .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
+                            && !(scopeEntry.symbol instanceof BOperatorSymbol))
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(filteredList, context));
+            completionItems.addAll(this.getPackagesCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+            objectTypeSymbol.ifPresent(bSymbol ->
+                    completionItems.add(this.getImplicitNewCompletionItem(bSymbol, context)));
+        } else if (listenerNode.initializer().kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+            Predicate<Kind> predicate = providerKind -> providerKind == Kind.EXPRESSION;
+            completionItems.addAll(CompletionUtil.route(context, listenerNode.initializer(), predicate));
         }
-        return new ArrayList<>();
+
+        return completionItems;
     }
-    
+
     private Optional<ListenerDeclarationNode> listenerNode(LSContext context) {
         NonTerminalNode node = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
         while (node.kind() != SyntaxKind.LISTENER_DECLARATION && node.kind() != SyntaxKind.MODULE_PART) {
             node = node.parent();
         }
-        
+
         if (node.kind() == SyntaxKind.LISTENER_DECLARATION) {
             return Optional.of((ListenerDeclarationNode) node);
         }
-        
+
         return Optional.empty();
     }
-    
+
     private boolean withinTypeDescContext(LSContext context, ListenerDeclarationNode node) {
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         Token varName = node.variableName();
@@ -151,7 +178,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
                 && varName.lineRange().startLine().offset() > position.getCharacter())
                 || (varName.lineRange().startLine().line() > position.getLine()));
     }
-    
+
     private boolean withinInitializerContext(LSContext context, ListenerDeclarationNode node) {
         Node equalsToken = node.equalsToken();
         if (equalsToken.isMissing()) {
@@ -162,5 +189,33 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider {
         return (cursorPos.getLine() == lineRange.startLine().line()
                 && cursorPos.getCharacter() > lineRange.startLine().offset())
                 || (cursorPos.getLine() > lineRange.startLine().line());
+    }
+
+    private Optional<BObjectTypeSymbol> getObjectTypeSymbol(LSContext context, ListenerDeclarationNode node) {
+        Node typeDescriptor = node.typeDescriptor();
+        Scope.ScopeEntry scopeEntry = null;
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
+            Optional<Scope.ScopeEntry> pkgSymbol = this.getPackageSymbolFromAlias(context,
+                    nameReferenceNode.modulePrefix().text());
+            if (!pkgSymbol.isPresent()) {
+                return Optional.empty();
+            }
+            scopeEntry = ((BPackageSymbol) pkgSymbol.get().symbol).scope.entries.entrySet().stream()
+                    .filter(entry -> entry.getKey().value.equals(nameReferenceNode.identifier().text()))
+                    .map(Map.Entry::getValue)
+                    .findAny()
+                    .orElse(null);
+        } else if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
+            scopeEntry = visibleSymbols.stream()
+                    .filter(entry -> entry.symbol.name.value.equals(nameReferenceNode.name().text()))
+                    .findAny()
+                    .orElse(null);
+        }
+
+        return scopeEntry == null || scopeEntry.symbol.kind != SymbolKind.OBJECT
+                ? Optional.empty() : Optional.of((BObjectTypeSymbol) scopeEntry.symbol);
     }
 }
