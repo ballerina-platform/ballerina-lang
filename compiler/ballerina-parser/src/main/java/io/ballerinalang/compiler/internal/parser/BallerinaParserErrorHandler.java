@@ -3214,6 +3214,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
+            case TYPE_REFERENCE:
                 return true;
             default:
                 return false;
