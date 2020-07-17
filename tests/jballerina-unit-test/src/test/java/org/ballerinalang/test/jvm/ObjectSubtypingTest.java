@@ -110,10 +110,10 @@ public class ObjectSubtypingTest {
         CompileResult result = BCompileUtil.compile("test-src/jvm/object-subtype-semantics-negative.bal");
         int i = 0;
         validateError(result, i++,
-                "incompatible types: expected '(object { int intField1; int intField2; }|record"+
+                "incompatible types: expected '(object { int intField1; int intField2; }|record" +
                         " {| int i; anydata...; |}|4)', found 'testObj'", 22, 17);
         validateError(result, i++,
-                "incompatible types: expected '(object { int intField1; int intField2; }|string"+
+                "incompatible types: expected '(object { int intField1; int intField2; }|string" +
                         "|boolean|1)', found 'testObj'", 23, 19);
         assertEquals(result.getErrorCount(), i);
     }
