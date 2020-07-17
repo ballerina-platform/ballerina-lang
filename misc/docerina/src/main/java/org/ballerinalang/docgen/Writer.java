@@ -271,7 +271,7 @@ public class Writer {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
         } else if ("map".equals(type.category) && type.constraint != null) {
-            label = "<span class=\"builtin-type\">" + type.name + "</span> <" +
+            label = "<span class=\"builtin-type\">" + type.name + "</span><" +
                     getTypeLabel(type.constraint, context) + ">";
         } else if ("stream".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + "<";

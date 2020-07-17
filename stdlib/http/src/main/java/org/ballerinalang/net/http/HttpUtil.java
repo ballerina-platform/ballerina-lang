@@ -79,7 +79,6 @@ import org.wso2.transport.http.netty.contract.exceptions.EndpointTimeOutExceptio
 import org.wso2.transport.http.netty.contract.exceptions.PromiseRejectedException;
 import org.wso2.transport.http.netty.contract.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.exceptions.SslException;
-import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.ConnectionManager;
 import org.wso2.transport.http.netty.contractimpl.sender.channel.pool.PoolConfiguration;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
@@ -1092,7 +1091,7 @@ public class HttpUtil {
     }
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
-        return new DefaultHttpWsConnectorFactory();
+        return DefaultHttpWsConnectorFactoryHolder.getHttpConnectorFactory();
     }
 
     public static void checkAndObserveHttpRequest(Strand strand, HttpCarbonMessage message) {
