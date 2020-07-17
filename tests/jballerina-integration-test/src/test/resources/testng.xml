@@ -127,6 +127,7 @@
             <class name="org.ballerinalang.test.auth.basic.AuthnConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthzConfigPatternTest"/>
             <class name="org.ballerinalang.test.auth.basic.AuthWithCustomProvidersHandlersTest"/>
+            <class name="org.ballerinalang.test.auth.basic.AuthzCacheTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ServiceTest"/>
             <class name="org.ballerinalang.test.auth.oauth2.OAuth2ClientTest"/>
             <class name="org.ballerinalang.test.auth.ldap.LdapAuthStoreTest"/>
@@ -191,6 +192,7 @@
             <class name="org.ballerinalang.test.service.websocket.ServerErrorsTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
+<!--            <class name="org.ballerinalang.test.service.websocket.CookieTest"/>-->
 <!--            <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>-->
         </classes>
     </test>

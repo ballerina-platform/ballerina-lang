@@ -2,7 +2,7 @@
 #
 # + no dash test
 # + 123wrongIdentifier - test
-#  `dummy` + test plus token after a backtick reference
+# `dummy` + test plus token after a backtick reference
 # + x - + test plus token after a dash token
 # + y + test plus token after a parameter name
 #
