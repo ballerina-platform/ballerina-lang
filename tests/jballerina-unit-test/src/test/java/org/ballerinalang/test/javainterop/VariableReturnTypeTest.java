@@ -42,7 +42,7 @@ public class VariableReturnTypeTest {
         result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
     }
 
-    @Test(groups = "disableOnOldParser")
+    @Test
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
