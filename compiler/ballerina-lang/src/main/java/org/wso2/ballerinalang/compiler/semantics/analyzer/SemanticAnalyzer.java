@@ -2159,7 +2159,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError) {
+        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError &&
+                exprStmtNode.expr.getKind() != NodeKind.FAIL) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);

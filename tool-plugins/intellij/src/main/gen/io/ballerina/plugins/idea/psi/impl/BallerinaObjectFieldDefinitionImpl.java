@@ -50,8 +50,8 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return findChildByClass(BallerinaExpression.class);
+  public BallerinaObjectFieldDefinitionContent getObjectFieldDefinitionContent() {
+    return findChildByClass(BallerinaObjectFieldDefinitionContent.class);
   }
 
   @Override
@@ -68,12 +68,6 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
 
   @Override
   @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getComma() {
     return findChildByType(COMMA);
   }
@@ -85,9 +79,9 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
   }
 
   @Override
-  @Nullable
+  @NotNull
   public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
+    return findNotNullChildByType(IDENTIFIER);
   }
 
   @Override
@@ -100,6 +94,12 @@ public class BallerinaObjectFieldDefinitionImpl extends ASTWrapperPsiElement imp
   @Nullable
   public PsiElement getPublic() {
     return findChildByType(PUBLIC);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getReadonly() {
+    return findChildByType(READONLY);
   }
 
 }

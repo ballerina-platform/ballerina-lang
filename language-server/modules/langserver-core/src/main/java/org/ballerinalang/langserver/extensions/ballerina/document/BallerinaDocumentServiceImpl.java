@@ -299,7 +299,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             List<org.ballerinalang.util.diagnostic.Diagnostic> diagnostics = new ArrayList<>();
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
-                diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
+                diagnostics = ((CollectDiagnosticListener) compilerContext
+                            .get(DiagnosticListener.class)).getDiagnostics();
             }
             return !diagnostics.stream().anyMatch(diagnostic -> {
                 DiagnosticCode code = diagnostic.getCode();

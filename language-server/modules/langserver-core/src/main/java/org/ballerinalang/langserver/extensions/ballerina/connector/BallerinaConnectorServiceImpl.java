@@ -35,7 +35,6 @@ import org.ballerinalang.langserver.extensions.VisibleEndpointVisitor;
 import org.ballerinalang.langserver.util.definition.LSStdLibCacheUtil;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.FunctionNode;
-import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.types.RecordTypeNode;
 import org.ballerinalang.model.types.ValueType;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
@@ -52,7 +51,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -63,7 +61,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -266,7 +263,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 Map<String, JsonElement> jsonRecords = new HashMap<>();
                 BLangTypeDefinition recordNode = null;
                 JsonElement recordJson = null;
-                for (Map.Entry<String, BLangTypeDefinition> recordEntry : connectorNodeVisitor.getRecords().entrySet()) {
+                for (Map.Entry<String, BLangTypeDefinition> recordEntry
+                        : connectorNodeVisitor.getRecords().entrySet()) {
                     String key = recordEntry.getKey();
                     BLangTypeDefinition record = recordEntry.getValue();
                     JsonElement jsonAST = null;

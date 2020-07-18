@@ -639,6 +639,20 @@
             ]
         },
         {
+            "name": "FailExpressionNode",
+            "base": "ExpressionNode",
+            "attributes": [
+                {
+                    "name": "failKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "FieldAccessExpressionNode",
             "base": "ExpressionNode",
             "kind": "FIELD_ACCESS",
@@ -1748,18 +1762,6 @@
                 {
                     "name": "namedWorkerDeclarations",
                     "type": "NamedWorkerDeclarationNode",
-                    "occurrences": "MULTIPLE"
-                }
-            ]
-        },
-        {
-            "name": "DocumentationStringNode",
-            "base": "DocumentationNode",
-            "kind": "DOCUMENTATION_STRING",
-            "attributes": [
-                {
-                    "name": "documentationLines",
-                    "type": "Node",
                     "occurrences": "MULTIPLE"
                 }
             ]
@@ -4015,7 +4017,34 @@
             "isAbstract": true
         },
         {
-            "name": "ParameterDocumentationLineNode",
+            "name": "MarkdownDocumentationNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_DOCUMENTATION",
+            "attributes": [
+                {
+                    "name": "documentationLines",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownDocumentationLineNode",
+            "base": "DocumentationNode",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "documentElements",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownParameterDocumentationLineNode",
             "base": "DocumentationNode",
             "attributes": [
                 {
@@ -4062,21 +4091,6 @@
                 {
                     "name": "endBacktick",
                     "type": "Token"
-                }
-            ]
-        },
-        {
-            "name": "DocumentationLineNode",
-            "base": "DocumentationNode",
-            "attributes": [
-                {
-                    "name": "hashToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "documentElements",
-                    "type": "Node",
-                    "occurrences": "MULTIPLE"
                 }
             ]
         }

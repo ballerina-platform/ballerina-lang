@@ -27,8 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyModuleJarTask;
-import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -382,10 +380,8 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
-                .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
+                .addTask(new CreateJarTask(), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups

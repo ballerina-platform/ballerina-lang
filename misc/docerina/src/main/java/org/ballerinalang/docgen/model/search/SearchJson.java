@@ -33,6 +33,7 @@ public class SearchJson {
     private List<ConstructSearchJson> types;
     private List<ConstructSearchJson> clients;
     private List<ConstructSearchJson> listeners;
+    private List<ConstructSearchJson> annotations;
 
     public SearchJson(List<ModuleSearchJson> modules,
                       List<ConstructSearchJson> objects,
@@ -42,7 +43,8 @@ public class SearchJson {
                       List<ConstructSearchJson> errors,
                       List<ConstructSearchJson> types,
                       List<ConstructSearchJson> clients,
-                      List<ConstructSearchJson> listeners) {
+                      List<ConstructSearchJson> listeners,
+                      List<ConstructSearchJson> annotations) {
         this.modules = modules;
         this.objects = objects;
         this.functions = functions;
@@ -50,8 +52,9 @@ public class SearchJson {
         this.constants = constants;
         this.errors = errors;
         this.types = types;
-        this.setClients(clients);
-        this.setListeners(listeners);
+        this.clients = clients;
+        this.listeners = listeners;
+        this.annotations = annotations;
     }
 
     public SearchJson() {
@@ -62,8 +65,9 @@ public class SearchJson {
         this.constants = new ArrayList<>();
         this.errors = new ArrayList<>();
         this.types = new ArrayList<>();
-        this.setClients(new ArrayList<>());
-        this.setListeners(new ArrayList<>());
+        this.clients = new ArrayList<>();
+        this.listeners = new ArrayList<>();
+        this.annotations = new ArrayList<>();
     }
 
     public List<ModuleSearchJson> getModules() {
@@ -136,5 +140,13 @@ public class SearchJson {
 
     public void setListeners(List<ConstructSearchJson> listeners) {
         this.listeners = listeners;
+    }
+
+    public List<ConstructSearchJson> getAnnotations() {
+        return annotations;
+    }
+
+    public void setAnnotations(List<ConstructSearchJson> annotations) {
+        this.annotations = annotations;
     }
 }

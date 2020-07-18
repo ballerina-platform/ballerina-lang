@@ -223,7 +223,10 @@ public function when(MockFunction mockFunction) returns FunctionStub {
 }
 
 # Represents a MockFunction object
-public type MockFunction object { string functionToMock = ""; };
+public type MockFunction object {
+    string functionToMock = "";
+    string functionToMockPackage = "";
+};
 
 # Represents an object that allows stubbing function invocations
 #
@@ -288,7 +291,7 @@ public type FunctionStub object {
 # + T - type of object to create the mock
 # + mockObject - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObj = new) returns T = @java:Method {
+public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 

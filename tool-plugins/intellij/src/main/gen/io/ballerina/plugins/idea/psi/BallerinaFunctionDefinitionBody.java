@@ -24,13 +24,13 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaFunctionDefinitionBody extends PsiElement {
 
   @Nullable
-  BallerinaBlockFunctionBody getBlockFunctionBody();
-
-  @Nullable
   BallerinaExprFunctionBodySpec getExprFunctionBodySpec();
 
   @Nullable
   BallerinaExternalFunctionBody getExternalFunctionBody();
+
+  @Nullable
+  BallerinaRecoverableBody getRecoverableBody();
 
   @Nullable
   PsiElement getSemicolon();

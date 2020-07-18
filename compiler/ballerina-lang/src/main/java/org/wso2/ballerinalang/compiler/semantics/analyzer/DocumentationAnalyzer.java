@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocReferenceErrorType;
@@ -66,7 +65,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
@@ -98,8 +96,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     // Used to parse the content inside backticks for Ballerina Flavored Markdown.
     private BLangReferenceParserListener listener;
     private BallerinaParser parser;
-    
-    private boolean isNewParser = true;
 
     public static DocumentationAnalyzer getInstance(CompilerContext context) {
         DocumentationAnalyzer documentationAnalyzer = context.get(DOCUMENTATION_ANALYZER_KEY);
@@ -116,9 +112,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         setupReferenceParser();
-
-        CompilerOptions options = CompilerOptions.getInstance(context);
-        this.isNewParser = Boolean.parseBoolean(options.get(CompilerOptionName.NEW_PARSER_ENABLED));
     }
 
     private void setupReferenceParser() {
@@ -143,9 +136,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeNode(BLangNode node) {
-        if (isNewParser) {
-            return;
-        }
         node.accept(this);
     }
 
