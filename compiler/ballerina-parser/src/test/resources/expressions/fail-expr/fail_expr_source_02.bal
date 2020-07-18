@@ -1,4 +1,4 @@
-function foo() returns error{
+function foo(){
     error err = error("Custom error thrown explicitly.");
-    fail = err;
+    error failError = fail ;
 }

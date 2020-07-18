@@ -489,6 +489,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "FAIL_KEYWORD":
+                return SyntaxKind.FAIL_KEYWORD;
             case "PANIC_KEYWORD":
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
@@ -793,6 +795,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "FAIL_EXPRESSION":
+                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -859,6 +863,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "FAIL_ACTION":
+                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":

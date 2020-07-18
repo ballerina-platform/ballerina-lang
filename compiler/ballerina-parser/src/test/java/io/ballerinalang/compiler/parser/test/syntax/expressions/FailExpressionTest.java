@@ -15,32 +15,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerinalang.compiler.parser.test.syntax.actions;
+package io.ballerinalang.compiler.parser.test.syntax.expressions;
 
 import org.testng.annotations.Test;
 
 /**
- * Test parsing fail action.
- * <p>
- * i.e.:
- * <code>fail err</code>
- * 
+ * Test parsing fail expression.
  * 
  * @since Swan Lake
  */
-public class FailActionTest extends AbstractActionTest {
-
-    // Valid source tests
+public class FailExpressionTest extends AbstractExpressionsTest {
 
     @Test
-    public void testBasicFailAction() {
-        testFile("fail-action/fail_action_source_01.bal", "fail-action/fail_action_assert_01.json");
+    public void testSimpleFailExpr() {
+        testFile("fail-expr/fail_expr_source_01.bal", "fail-expr/fail_expr_assert_01.json");
     }
 
-    // Recovery tests
+    // Recovery test
 
     @Test
-    public void testInvalidTokenInFailAction() {
-        testFile("fail-action/fail_action_source_02.bal", "fail-action/fail_action_assert_02.json");
+    public void testFailWithMissingExpr() {
+        testFile("fail-expr/fail_expr_source_02.bal", "fail-expr/fail_expr_assert_02.json");
     }
 }
