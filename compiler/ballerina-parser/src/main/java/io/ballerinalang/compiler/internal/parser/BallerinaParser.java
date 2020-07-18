@@ -601,6 +601,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgBindingPattern();
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
                 return parseExternalFuncBodyRhs((STNode) args[0]);
+            case ARG_BINDING_PATTERN_END:
+                return parseArgsBindingPatternEnd();
 
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
@@ -4966,7 +4968,6 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseArgsList() {
         startContext(ParserRuleContext.ARG_LIST);
-
         STToken token = peek();
         if (isEndOfParametersList(token.kind)) {
             STNode args = STNodeFactory.createEmptyNodeList();
@@ -4975,11 +4976,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode firstArg = parseArgument();
-        if (firstArg == null) {
-            endContext();
-            return STNodeFactory.createEmptyNodeList();
-        }
-
         STNode argsList = parseArgList(firstArg);
         endContext();
         return argsList;
@@ -4995,6 +4991,7 @@ public class BallerinaParser extends AbstractParser {
         ArrayList<STNode> argsList = new ArrayList<>();
         argsList.add(firstArg);
         SyntaxKind lastValidArgKind = firstArg.kind;
+
         STToken nextToken = peek();
         while (!isEndOfParametersList(nextToken.kind)) {
             STNode argEnd = parseArgEnd(nextToken.kind);
@@ -5003,24 +5000,17 @@ public class BallerinaParser extends AbstractParser {
                 break;
             }
 
-            // If there's an extra comma at the end of arguments list, remove it.
-            // Then stop the argument parsing.
             nextToken = peek();
-            if (isEndOfParametersList(nextToken.kind)) {
-                int prevArgIndex = argsList.size() - 1;
-                STNode prevArg = argsList.remove(prevArgIndex);
-                STNode prevArgWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(prevArg, argEnd,
-                        DiagnosticErrorCode.ERROR_INVALID_TOKEN, ((STToken) argEnd).text());
-                argsList.add(prevArgWithDiagnostics);
-                break;
-            }
-
             STNode curArg = parseArgument(nextToken.kind);
             DiagnosticErrorCode errorCode = validateArgumentOrder(lastValidArgKind, curArg.kind);
             if (errorCode == null) {
                 argsList.add(argEnd);
                 argsList.add(curArg);
                 lastValidArgKind = curArg.kind;
+            } else if (errorCode == DiagnosticErrorCode.ERROR_NAMED_ARG_FOLLOWED_BY_POSITIONAL_ARG &&
+                    isMissingPositionalArg(curArg)) {
+                argsList.add(argEnd);
+                argsList.add(curArg);
             } else {
                 updateLastNodeInListWithInvalidNode(argsList, argEnd, null);
                 updateLastNodeInListWithInvalidNode(argsList, curArg, errorCode);
@@ -5050,6 +5040,11 @@ public class BallerinaParser extends AbstractParser {
                 throw new IllegalStateException("Invalid SyntaxKind in an argument");
         }
         return errorCode;
+    }
+
+    private boolean isMissingPositionalArg(STNode arg) {
+        STNode expr = ((STPositionalArgumentNode) arg).expression;
+        return expr.kind == SyntaxKind.SIMPLE_NAME_REFERENCE && ((STSimpleNameReferenceNode) expr).name.isMissing();
     }
 
     private STNode parseArgEnd() {
@@ -5100,8 +5095,6 @@ public class BallerinaParser extends AbstractParser {
                 // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
                 arg = parseNamedOrPositionalArg(kind);
                 break;
-            case CLOSE_PAREN_TOKEN:
-                return null;
             default:
                 if (isValidExprStart(kind)) {
                     expr = parseExpression();
@@ -5109,7 +5102,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                Solution solution = recover(peek(), ParserRuleContext.ARG_START_OR_ARG_LIST_END);
+                Solution solution = recover(peek(), ParserRuleContext.ARG_START);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -14257,34 +14250,41 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseArgListBindingPatterns() {
         List<STNode> argListBindingPatterns = new ArrayList<>();
         SyntaxKind lastValidArgKind = SyntaxKind.CAPTURE_BINDING_PATTERN;
-
         STToken nextToken = peek();
-        while (!isEndOfParametersList(nextToken.kind)) {
-            STNode currentArg = parseArgBindingPattern(nextToken.kind);
-            DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind);
-            if (errorCode == null) {
-                argListBindingPatterns.add(currentArg);
-                lastValidArgKind = currentArg.kind;
-            } else {
-                updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
-            }
 
-            nextToken = peek();
+        if (isEndOfParametersList(nextToken.kind)) {
+            return STNodeFactory.createNodeList(argListBindingPatterns); 
+        }
+        argListBindingPatterns.add(parseArgBindingPattern());
+
+        nextToken = peek();
+        while (!isEndOfParametersList(nextToken.kind)) {
             STNode argEnd = parseArgsBindingPatternEnd(nextToken.kind);
             if (argEnd == null) {
                 // null marks the end of args
                 break;
             }
 
+            nextToken = peek();
+            STNode currentArg = parseArgBindingPattern(nextToken.kind);
+            DiagnosticErrorCode errorCode = validateArgBindingPatternOrder(lastValidArgKind, currentArg.kind);
             if (errorCode == null) {
                 argListBindingPatterns.add(argEnd);
+                argListBindingPatterns.add(currentArg);
+                lastValidArgKind = currentArg.kind;
             } else {
                 updateLastNodeInListWithInvalidNode(argListBindingPatterns, argEnd, null);
+                updateLastNodeInListWithInvalidNode(argListBindingPatterns, currentArg, errorCode);
             }
 
             nextToken = peek();
         }
         return STNodeFactory.createNodeList(argListBindingPatterns);
+    }
+
+    private STNode parseArgsBindingPatternEnd() {
+        STToken nextToken = peek();
+        return parseArgsBindingPatternEnd(nextToken.kind);
     }
 
     private STNode parseArgsBindingPatternEnd(SyntaxKind nextTokenKind) {
@@ -14334,9 +14334,6 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseArgBindingPattern(SyntaxKind kind) {
         switch (kind) {
-            case CLOSE_PAREN_TOKEN:
-                // marks the end of args list
-                return null;
             case ELLIPSIS_TOKEN:
                 return parseRestBindingPattern();
             case IDENTIFIER_TOKEN:
