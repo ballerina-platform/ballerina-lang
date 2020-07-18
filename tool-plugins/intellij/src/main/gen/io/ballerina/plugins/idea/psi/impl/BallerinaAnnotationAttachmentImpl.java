@@ -50,8 +50,8 @@ public class BallerinaAnnotationAttachmentImpl extends ASTWrapperPsiElement impl
 
   @Override
   @Nullable
-  public BallerinaRecordLiteral getRecordLiteral() {
-    return findChildByClass(BallerinaRecordLiteral.class);
+  public BallerinaRecoverableBody getRecoverableBody() {
+    return findChildByClass(BallerinaRecoverableBody.class);
   }
 
   @Override

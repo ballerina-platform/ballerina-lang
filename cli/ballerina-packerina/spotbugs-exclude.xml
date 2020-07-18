@@ -31,14 +31,9 @@
     </Match>
     <Match>
         <Class name="org.ballerinalang.packerina.task.RunTestsTask"/>
-        <Bug pattern="EI_EXPOSE_REP2"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.packerina.JarResolverImpl"/>
-    </Match>
-    <Match>
-        <Class name="org.ballerinalang.packerina.task.CopyNativeLibTask"/>
-        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
     <Match>
         <Class name="org.ballerinalang.packerina.task.CreateExecutableTask$Copy"/>

@@ -380,6 +380,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createFailExpressionNode(
+            SyntaxKind kind,
+            STNode failKeyword,
+            STNode expression) {
+
+        return new STFailExpressionNode(
+                kind,
+                failKeyword,
+                expression);
+    }
+
     public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,
@@ -975,13 +986,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STNamedWorkerDeclarator(
                 workerInitStatements,
                 namedWorkerDeclarations);
-    }
-
-    public static STNode createDocumentationStringNode(
-            STNode documentationLines) {
-
-        return new STDocumentationStringNode(
-                documentationLines);
     }
 
     public static STNode createBasicLiteralNode(
@@ -2220,7 +2224,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 matchPattern);
     }
 
-    public static STNode createParameterDocumentationLineNode(
+    public static STNode createMarkdownDocumentationNode(
+            STNode documentationLines) {
+
+        return new STMarkdownDocumentationNode(
+                documentationLines);
+    }
+
+    public static STNode createMarkdownDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STMarkdownDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
+    }
+
+    public static STNode createMarkdownParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -2228,7 +2250,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode minusToken,
             STNode documentElements) {
 
-        return new STParameterDocumentationLineNode(
+        return new STMarkdownParameterDocumentationLineNode(
                 kind,
                 hashToken,
                 plusToken,
@@ -2248,17 +2270,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 backtickContent,
                 endBacktick);
-    }
-
-    public static STNode createDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode documentElements) {
-
-        return new STDocumentationLineNode(
-                kind,
-                hashToken,
-                documentElements);
     }
 }
 

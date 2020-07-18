@@ -96,6 +96,8 @@ public class BallerinaTreeModifyUtil {
         put("TYPE_GUARD_ELSE", " else {\n" +
                 "\n}\n");
         put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
+        put("PROPERTY_STATEMENT", "$PROPERTY");
+        put("RETURN_STATEMENT", "return $RETURN_EXPR;");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {

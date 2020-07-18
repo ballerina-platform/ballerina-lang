@@ -44,8 +44,8 @@ public class BallerinaTypeDefinitionImpl extends ASTWrapperPsiElement implements
 
   @Override
   @Nullable
-  public BallerinaFiniteType getFiniteType() {
-    return findChildByClass(BallerinaFiniteType.class);
+  public BallerinaTypeBody getTypeBody() {
+    return findChildByClass(BallerinaTypeBody.class);
   }
 
   @Override
