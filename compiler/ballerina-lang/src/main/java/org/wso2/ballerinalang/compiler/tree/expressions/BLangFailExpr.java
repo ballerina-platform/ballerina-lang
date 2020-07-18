@@ -26,7 +26,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import java.util.List;
 
 /**
- * {@code FailExpressionNode} represents a expression which forces to return error.
+ * {@code FailExpressionNode} represents an expression which forces to return error.
  *
  * @since Swan Lake
  */
@@ -34,7 +34,7 @@ public class BLangFailExpr extends BLangExpression implements FailExpressionNode
 
     public BLangExpression expr;
 
-    // This list caches types that are equivalent to the error type which are returned by the rhs expression.
+    // This list catches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;
 
     @Override

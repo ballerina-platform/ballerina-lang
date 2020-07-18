@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * This is a generated syntax tree node.
  *
- * @since 2.0.0
+ * @since Swan Lake
  */
 public class FailExpressionNode extends ExpressionNode {
 

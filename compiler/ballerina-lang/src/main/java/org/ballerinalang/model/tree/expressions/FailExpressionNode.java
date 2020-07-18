@@ -18,7 +18,7 @@
 package org.ballerinalang.model.tree.expressions;
 
 /**
- * {@code FailExpressionNode} represents a expression which forces to return error.
+ * {@code FailExpressionNode} represents an expression which forces to return error.
  *
  * @since Swan Lake
  */
