@@ -1644,7 +1644,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        keyValue.isReadonly = isReadonly;
+        keyValue.readonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1716,7 +1716,7 @@ public class BLangPackageBuilder {
     void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
         BLangRecordLiteral.BLangRecordVarNameField varNameField =
                 (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-        varNameField.isReadonly = isReadonly;
+        varNameField.readonly = isReadonly;
         createSimpleVariableReference(pos, ws, varNameField);
     }
 
@@ -3235,8 +3235,9 @@ public class BLangPackageBuilder {
         retryNode.pos = pos;
         retryNode.addWS(ws);
         retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
-        BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) this.blockNodeStack.peek();
-        retryNode.setTransaction((BLangTransaction) blockFunctionBody.stmts.remove(blockFunctionBody.stmts.size() - 1));
+        BlockNode blockNode = this.blockNodeStack.peek();
+        retryNode.setTransaction((BLangTransaction) blockNode.getStatements()
+                .remove(blockNode.getStatements().size() - 1));
         addStmtToCurrentBlock(retryNode);
     }
 

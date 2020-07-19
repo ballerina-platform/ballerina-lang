@@ -43,13 +43,18 @@ public class FunctionMock {
 
     public static Object mockHandler(ObjectValue mockFuncObj, ArrayValue args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
+        String originalFunction =
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
+        String originalFunctionPackage =
+                mockFuncObj.getStringValue(StringUtils.fromString("functionToMockPackage")).toString();
+        originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
         Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
                 if ((returnVal instanceof StringValue)
                         && returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                    return callFunction(returnVal.toString(), args);
+                    return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), args);
                 }
                 break;
             }
@@ -62,7 +67,8 @@ public class FunctionMock {
         return returnVal;
     }
 
-    private static Object callFunction(String returnVal, ArrayValue args) {
+    private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
+                                       ArrayValue args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -78,8 +84,9 @@ public class FunctionMock {
             orgName = projectInfo[0];
             packageName = projectInfo[1];
             version = projectInfo[2].replace("_", ".");
-            className = "tests." + getClassName(methodName, orgName, packageName, version);
-        } catch (IOException | ClassNotFoundException | NullPointerException e) {
+            className = "tests." +
+                    getClassName(methodName, orgName, packageName, version, originalFunction, originalFunctionPackage);
+        } catch (IOException | ClassNotFoundException e) {
             return BallerinaErrors.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
                     e.getMessage());
         }
@@ -96,26 +103,95 @@ public class FunctionMock {
                                         packageName, version, className, methodName, argsList.toArray());
     }
 
-    private static String getClassName(String methodName, String orgName, String packageName, String version)
+    private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
+                                       String originalMethodName, String originalPackageName)
             throws IOException, ClassNotFoundException {
         String jarName = orgName + "-" + packageName + "-" + version + "-testable.jar";
         Path jarPath = Paths.get(System.getProperty("user.dir"), "target", "caches", "jar_cache", orgName,
                 packageName, version, jarName);
+
+        Method mockMethod = null;
+        Method originalMethod = null;
+
+        // Get the mock method
         try (JarFile jar = new JarFile(jarPath.toString())) {
-            for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
-                JarEntry entry = entries.nextElement();
-                String file = entry.getName();
-                if (file.endsWith(".class") && file.contains("tests/")) {
-                    String classname = file.replace('/', '.').substring(0, file.length() - 6);
-                    Class<?> clazz = Class.forName(classname);
-                    for (Method method : clazz.getDeclaredMethods()) {
-                        if (methodName.equals(method.getName())) {
-                            return clazz.getSimpleName();
-                        }
+            for (Enumeration<JarEntry> entries = jar.entries(); entries.hasMoreElements();) {
+                String file = entries.nextElement().getName();
+                // Get .class files but dont contain '..Frame.class'
+                if (file.endsWith(".class") && !file.contains("Frame.class") && !file.contains("__init")) {
+                    // Find mock method if still null
+                    if (file.contains("/tests/") && mockMethod == null) {
+                        mockMethod = getClassDeclaredMethod(file, mockMethodName);
                     }
                 }
             }
+
+            originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
+
         }
+
+        validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
+        return  mockMethod.getDeclaringClass().getSimpleName();
+    }
+
+    private static Method getOriginalMethod(String methodName, String packageName) throws ClassNotFoundException {
+        Method[] methodList = FunctionMock.class.getClassLoader().loadClass(packageName).getDeclaredMethods();
+
+        for (Method method : methodList) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
+    private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
+        // Validation
+        if (mockMethod != null && originalMethod != null) {
+            // Methods type and parameters
+            Class<?> mockMethodType = mockMethod.getReturnType();
+            Class<?>[] mockMethodParameters = mockMethod.getParameterTypes();
+            Class<?> originalMethodType = originalMethod.getReturnType();
+            Class<?>[] originalMethodParameters = originalMethod.getParameterTypes();
+
+            // Validate Return types
+            if (mockMethodType != originalMethodType) {
+                throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        MockConstants.TEST_PACKAGE_ID, "Return Types do not match");
+            }
+
+            // Validate if param number is the same
+            if (mockMethodParameters.length != originalMethodParameters.length) {
+                throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                        MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
+            }
+
+            // Validate each param
+            for (int i = 0; i < mockMethodParameters.length; i++) {
+                if (mockMethodParameters [i] != originalMethodParameters[i]) {
+                    throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                            MockConstants.TEST_PACKAGE_ID, "Parameter types do not match");
+                }
+            }
+
+        } else {
+            throw BallerinaErrors.createDistinctError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                    MockConstants.TEST_PACKAGE_ID,
+                    "Mock function \'" + mockMethodName + "\' cannot be found");
+        }
+    }
+
+    private static Method getClassDeclaredMethod(String file, String methodName) throws ClassNotFoundException {
+        String className = file.replace('/', '.').substring(0, file.length() - 6);
+        Class<?> clazz = Class.forName(className);
+
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (methodName.equals(method.getName())) {
+                return method;
+            }
+        }
+
         return null;
     }
 
@@ -146,6 +222,14 @@ public class FunctionMock {
         Collections.reverse(caseIdList);
 
         return caseIdList;
+    }
+
+    private static String formatFunctionPackage(String fnPackage) {
+        fnPackage = fnPackage.replace('.', '_');
+        fnPackage = fnPackage.replace('/', '.');
+        fnPackage = fnPackage.replace(':', '.');
+
+        return fnPackage;
     }
 }
 

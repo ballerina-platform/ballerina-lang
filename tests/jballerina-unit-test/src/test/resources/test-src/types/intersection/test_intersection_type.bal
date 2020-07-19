@@ -18,6 +18,8 @@ function testIntersectionTypes() {
     testIntersectionWithMemberTypeDefinedAfter();
     testIntersectionInUnion();
     testComplexIntersectionsInUnions();
+    testTypeCheckingAgainstEffectiveType1();
+    testTypeCheckingAgainstEffectiveType2();
 }
 
 type ReadOnlyFoo readonly & Foo;
@@ -44,10 +46,10 @@ type Foo record {
 };
 
 function testIntersectionInUnion() {
-    (Foo & readonly)? a = ();
+    ReadOnlyFoo? a = ();
     Foo? & readonly b = {i: 100};
 
-    (Foo & readonly)? c = b;
+    ReadOnlyFoo? c = b;
     Foo? & readonly d = a;
 
     anydata ad1 = c;
@@ -114,6 +116,43 @@ function testComplexIntersectionsInUnions() {
     assertTrue(hdArray[0].canProcess(5));
     assertFalse(hdArray[0].canProcess(12));
     assertFalse(hdArray[1].canProcess(10));
+}
+
+function testTypeCheckingAgainstEffectiveType1() {
+    readonly & json a = null;
+    assertEquality((), a);
+
+    map<json> & readonly b = {
+        a: 1,
+        b: "foo",
+        c: null,
+        d: {
+            a1: null,
+            b1: true
+        }
+    };
+    assertEquality(1, b["a"]);
+    assertEquality("foo", b["b"]);
+    assertEquality((), b["c"]);
+
+    assertTrue(b["d"] is map<json> & readonly);
+
+    map<json> bd = <map<json> & readonly> b["d"];
+    assertEquality((), bd["a1"]);
+    assertTrue(bd["b1"]);
+}
+
+const BAR = "bar";
+
+type Type "foo"|decimal|BAR;
+
+function testTypeCheckingAgainstEffectiveType2() {
+    Type[] & readonly farr = ["foo", 1.0, BAR, "bar"];
+    assertEquality(4, farr.length());
+    assertEquality("foo", farr[0]);
+    assertEquality(1.0d, farr[1]);
+    assertEquality(BAR, farr[2]);
+    assertEquality("bar", farr[3]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

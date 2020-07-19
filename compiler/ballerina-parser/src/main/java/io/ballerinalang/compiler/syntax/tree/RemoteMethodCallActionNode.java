@@ -48,8 +48,8 @@ public class RemoteMethodCallActionNode extends ActionNode {
         return childInBucket(3);
     }
 
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(4));
+    public SeparatedNodeList<FunctionArgumentNode> arguments() {
+        return new SeparatedNodeList<>(childInBucket(4));
     }
 
     public Token closeParenToken() {
@@ -82,7 +82,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
             Token rightArrowToken,
             SimpleNameReferenceNode methodName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 expression,
@@ -118,7 +118,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
         private Token rightArrowToken;
         private SimpleNameReferenceNode methodName;
         private Token openParenToken;
-        private NodeList<FunctionArgumentNode> arguments;
+        private SeparatedNodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
 
         public RemoteMethodCallActionNodeModifier(RemoteMethodCallActionNode oldNode) {
@@ -160,7 +160,7 @@ public class RemoteMethodCallActionNode extends ActionNode {
         }
 
         public RemoteMethodCallActionNodeModifier withArguments(
-                NodeList<FunctionArgumentNode> arguments) {
+                SeparatedNodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;

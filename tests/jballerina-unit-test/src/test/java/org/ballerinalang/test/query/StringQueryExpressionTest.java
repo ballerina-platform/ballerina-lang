@@ -145,4 +145,14 @@ public class StringQueryExpressionTest {
         BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithUnionTypeForStringResult2");
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
+
+    @Test(description = "Test method access with casting in select clause", groups = {"disableOnOldParser"})
+    public void testMethodAccessWithCasting() {
+        CompileResult resultV2 = BCompileUtil.compile("test-src/query/string-query-expression-v2.bal");
+        BValue[] returnValues = BRunUtil.invoke(resultV2, "testMethodAccessWithCasting");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "Everyday Italian|Harry Potter|XQuery Kick Start|Learning XML|");
+    }
 }

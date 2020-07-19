@@ -313,7 +313,7 @@ public type RowValue object {
 # + strings - The separated parts of the sql query
 # + insertions - The values that should be filled in between the parts
 public type ParameterizedQuery abstract object {
-   public string[] strings;
+   public (string[] & readonly) strings;
    public Value[] insertions;
 };
 

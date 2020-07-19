@@ -18,8 +18,10 @@
 package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
 
 import com.google.common.primitives.Ints;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingInformation;
+import org.ballerinalang.langserver.commons.semantichighlighter.SemanticHighlightingParams;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;

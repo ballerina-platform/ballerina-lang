@@ -325,10 +325,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(namedWorkerDeclarator);
     }
 
-    public void visit(STDocumentationStringNode documentationStringNode) {
-        visitSyntaxNode(documentationStringNode);
-    }
-
     public void visit(STBasicLiteralNode basicLiteralNode) {
         visitSyntaxNode(basicLiteralNode);
     }
@@ -593,6 +589,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restBindingPatternNode);
     }
 
+    public void visit(STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        visitSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public void visit(STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        visitSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public void visit(STAsyncSendActionNode asyncSendActionNode) {
         visitSyntaxNode(asyncSendActionNode);
     }
@@ -761,16 +765,28 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(fieldMatchPatternNode);
     }
 
-    public void visit(STParameterDocumentationLineNode parameterDocumentationLineNode) {
-        visitSyntaxNode(parameterDocumentationLineNode);
+    public void visit(STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        visitSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public void visit(STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        visitSyntaxNode(namedArgMatchPatternNode);
+    }
+
+    public void visit(STMarkdownDocumentationNode markdownDocumentationNode) {
+        visitSyntaxNode(markdownDocumentationNode);
+    }
+
+    public void visit(STMarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        visitSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public void visit(STMarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public void visit(STDocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
-    }
-
-    public void visit(STDocumentationLineNode documentationLineNode) {
-        visitSyntaxNode(documentationLineNode);
     }
 
     // STNodeList

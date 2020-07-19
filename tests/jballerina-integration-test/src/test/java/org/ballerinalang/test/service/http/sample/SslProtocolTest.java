@@ -19,24 +19,31 @@
 package org.ballerinalang.test.service.http.sample;
 
 import org.apache.commons.text.StringEscapeUtils;
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.BaseTest;
-import org.ballerinalang.test.context.BMainInstance;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.test.util.BCompileUtil;
+import org.ballerinalang.test.util.BRunUtil;
+import org.ballerinalang.test.util.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Testing SSL protocols.
  */
 @Test(groups = "http-test")
 public class SslProtocolTest extends BaseTest {
+    private static final ConfigRegistry registry = ConfigRegistry.getInstance();
 
     @Test(description = "Test ssl protocols")
     public void testSslProtocols() throws Exception {
-        String clientLog = "SSL connection failed:Server chose TLSv1.1, but that protocol version is not enabled or "
-                + "not supported by the client. localhost/127.0.0.1:9249";
+        String clientLog = "SSL connection failed";
 
         String balFile = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                                           "ssl" + File.separator + "ssl_protocol_client.bal").getAbsolutePath();
@@ -44,11 +51,15 @@ public class SslProtocolTest extends BaseTest {
         String trustStore = StringEscapeUtils.escapeJava(
                 Paths.get("src", "test", "resources", "certsAndKeys", "ballerinaTruststore.p12").toAbsolutePath()
                         .toString());
-        String[] flags = new String[]{"--truststore=" + trustStore};
 
-        BMainInstance ballerinaClient = new BMainInstance(balServer);
-        LogLeecher clientLeecher = new LogLeecher(clientLog);
-        ballerinaClient.runMain(balFile, flags, null, new LogLeecher[]{clientLeecher});
-        clientLeecher.waitForText(20000);
+        Map<String, String> runtimeParams = new HashMap<>();
+        runtimeParams.put("truststore", trustStore);
+        registry.initRegistry(runtimeParams, null, null);
+        CompileResult result = BCompileUtil.compile(balFile);
+
+        BValue[] responses = BRunUtil.invoke(result, "testSslProtocol", new Object[] {});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertTrue(responses[0].stringValue().contains(clientLog));
     }
 }

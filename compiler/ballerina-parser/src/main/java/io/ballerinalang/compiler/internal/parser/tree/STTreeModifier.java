@@ -661,12 +661,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STNamedArgumentNode transform(
             STNamedArgumentNode namedArgumentNode) {
-        STNode leadingComma = modifyNode(namedArgumentNode.leadingComma);
         STNode argumentName = modifyNode(namedArgumentNode.argumentName);
         STNode equalsToken = modifyNode(namedArgumentNode.equalsToken);
         STNode expression = modifyNode(namedArgumentNode.expression);
         return namedArgumentNode.modify(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
@@ -675,21 +673,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STPositionalArgumentNode transform(
             STPositionalArgumentNode positionalArgumentNode) {
-        STNode leadingComma = modifyNode(positionalArgumentNode.leadingComma);
         STNode expression = modifyNode(positionalArgumentNode.expression);
         return positionalArgumentNode.modify(
-                leadingComma,
                 expression);
     }
 
     @Override
     public STRestArgumentNode transform(
             STRestArgumentNode restArgumentNode) {
-        STNode leadingComma = modifyNode(restArgumentNode.leadingComma);
         STNode ellipsis = modifyNode(restArgumentNode.ellipsis);
         STNode expression = modifyNode(restArgumentNode.expression);
         return restArgumentNode.modify(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -1052,14 +1046,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return namedWorkerDeclarator.modify(
                 workerInitStatements,
                 namedWorkerDeclarations);
-    }
-
-    @Override
-    public STDocumentationStringNode transform(
-            STDocumentationStringNode documentationStringNode) {
-        STNode documentationLines = modifyNode(documentationStringNode.documentationLines);
-        return documentationStringNode.modify(
-                documentationLines);
     }
 
     @Override
@@ -1837,6 +1823,32 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFunctionalBindingPatternNode transform(
+            STFunctionalBindingPatternNode functionalBindingPatternNode) {
+        STNode typeReference = modifyNode(functionalBindingPatternNode.typeReference);
+        STNode openParenthesis = modifyNode(functionalBindingPatternNode.openParenthesis);
+        STNode argListBindingPatterns = modifyNode(functionalBindingPatternNode.argListBindingPatterns);
+        STNode closeParenthesis = modifyNode(functionalBindingPatternNode.closeParenthesis);
+        return functionalBindingPatternNode.modify(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    @Override
+    public STNamedArgBindingPatternNode transform(
+            STNamedArgBindingPatternNode namedArgBindingPatternNode) {
+        STNode argName = modifyNode(namedArgBindingPatternNode.argName);
+        STNode equalsToken = modifyNode(namedArgBindingPatternNode.equalsToken);
+        STNode bindingPattern = modifyNode(namedArgBindingPatternNode.bindingPattern);
+        return namedArgBindingPatternNode.modify(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
+    @Override
     public STAsyncSendActionNode transform(
             STAsyncSendActionNode asyncSendActionNode) {
         STNode expression = modifyNode(asyncSendActionNode.expression);
@@ -2355,15 +2367,60 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STParameterDocumentationLineNode transform(
-            STParameterDocumentationLineNode parameterDocumentationLineNode) {
-        STNode hashToken = modifyNode(parameterDocumentationLineNode.hashToken);
-        STNode plusToken = modifyNode(parameterDocumentationLineNode.plusToken);
-        STNode parameterName = modifyNode(parameterDocumentationLineNode.parameterName);
-        STNode minusToken = modifyNode(parameterDocumentationLineNode.minusToken);
-        STNode documentElements = modifyNode(parameterDocumentationLineNode.documentElements);
-        return parameterDocumentationLineNode.modify(
-                parameterDocumentationLineNode.kind,
+    public STFunctionalMatchPatternNode transform(
+            STFunctionalMatchPatternNode functionalMatchPatternNode) {
+        STNode typeRef = modifyNode(functionalMatchPatternNode.typeRef);
+        STNode openParenthesisToken = modifyNode(functionalMatchPatternNode.openParenthesisToken);
+        STNode argListMatchPatternNode = modifyNode(functionalMatchPatternNode.argListMatchPatternNode);
+        STNode closeParenthesisToken = modifyNode(functionalMatchPatternNode.closeParenthesisToken);
+        return functionalMatchPatternNode.modify(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    @Override
+    public STNamedArgMatchPatternNode transform(
+            STNamedArgMatchPatternNode namedArgMatchPatternNode) {
+        STNode identifier = modifyNode(namedArgMatchPatternNode.identifier);
+        STNode equalToken = modifyNode(namedArgMatchPatternNode.equalToken);
+        STNode matchPattern = modifyNode(namedArgMatchPatternNode.matchPattern);
+        return namedArgMatchPatternNode.modify(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
+    @Override
+    public STMarkdownDocumentationNode transform(
+            STMarkdownDocumentationNode markdownDocumentationNode) {
+        STNode documentationLines = modifyNode(markdownDocumentationNode.documentationLines);
+        return markdownDocumentationNode.modify(
+                documentationLines);
+    }
+
+    @Override
+    public STMarkdownDocumentationLineNode transform(
+            STMarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        STNode hashToken = modifyNode(markdownDocumentationLineNode.hashToken);
+        STNode documentElements = modifyNode(markdownDocumentationLineNode.documentElements);
+        return markdownDocumentationLineNode.modify(
+                markdownDocumentationLineNode.kind,
+                hashToken,
+                documentElements);
+    }
+
+    @Override
+    public STMarkdownParameterDocumentationLineNode transform(
+            STMarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        STNode hashToken = modifyNode(markdownParameterDocumentationLineNode.hashToken);
+        STNode plusToken = modifyNode(markdownParameterDocumentationLineNode.plusToken);
+        STNode parameterName = modifyNode(markdownParameterDocumentationLineNode.parameterName);
+        STNode minusToken = modifyNode(markdownParameterDocumentationLineNode.minusToken);
+        STNode documentElements = modifyNode(markdownParameterDocumentationLineNode.documentElements);
+        return markdownParameterDocumentationLineNode.modify(
+                markdownParameterDocumentationLineNode.kind,
                 hashToken,
                 plusToken,
                 parameterName,
@@ -2383,17 +2440,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
-    }
-
-    @Override
-    public STDocumentationLineNode transform(
-            STDocumentationLineNode documentationLineNode) {
-        STNode hashToken = modifyNode(documentationLineNode.hashToken);
-        STNode documentElements = modifyNode(documentationLineNode.documentElements);
-        return documentationLineNode.modify(
-                documentationLineNode.kind,
-                hashToken,
-                documentElements);
     }
 
     // Tokens

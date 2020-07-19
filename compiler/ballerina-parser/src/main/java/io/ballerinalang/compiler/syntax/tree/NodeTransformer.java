@@ -336,10 +336,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(namedWorkerDeclarator);
     }
 
-    public T transform(DocumentationStringNode documentationStringNode) {
-        return transformSyntaxNode(documentationStringNode);
-    }
-
     public T transform(BasicLiteralNode basicLiteralNode) {
         return transformSyntaxNode(basicLiteralNode);
     }
@@ -604,6 +600,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restBindingPatternNode);
     }
 
+    public T transform(FunctionalBindingPatternNode functionalBindingPatternNode) {
+        return transformSyntaxNode(functionalBindingPatternNode);
+    }
+
+    public T transform(NamedArgBindingPatternNode namedArgBindingPatternNode) {
+        return transformSyntaxNode(namedArgBindingPatternNode);
+    }
+
     public T transform(AsyncSendActionNode asyncSendActionNode) {
         return transformSyntaxNode(asyncSendActionNode);
     }
@@ -772,16 +776,28 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(fieldMatchPatternNode);
     }
 
-    public T transform(ParameterDocumentationLineNode parameterDocumentationLineNode) {
-        return transformSyntaxNode(parameterDocumentationLineNode);
+    public T transform(FunctionalMatchPatternNode functionalMatchPatternNode) {
+        return transformSyntaxNode(functionalMatchPatternNode);
+    }
+
+    public T transform(NamedArgMatchPatternNode namedArgMatchPatternNode) {
+        return transformSyntaxNode(namedArgMatchPatternNode);
+    }
+
+    public T transform(MarkdownDocumentationNode markdownDocumentationNode) {
+        return transformSyntaxNode(markdownDocumentationNode);
+    }
+
+    public T transform(MarkdownDocumentationLineNode markdownDocumentationLineNode) {
+        return transformSyntaxNode(markdownDocumentationLineNode);
+    }
+
+    public T transform(MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
+        return transformSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
     public T transform(DocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
-    }
-
-    public T transform(DocumentationLineNode documentationLineNode) {
-        return transformSyntaxNode(documentationLineNode);
     }
 
     // Tokens
