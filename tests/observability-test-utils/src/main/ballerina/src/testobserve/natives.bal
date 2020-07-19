@@ -18,6 +18,7 @@ import ballerina/java;
 
 # Get all the finished spans.
 #
+# + serviceName - The name of the service of which the finished spans should be fetched
 # + return - The finished spans as a json
 public function getFinishedSpans(string serviceName) returns json {
     handle serviceNameHandle = java:fromString(serviceName);
