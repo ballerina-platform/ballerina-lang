@@ -544,7 +544,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         String name = parameter.getName().value;
         if (!documentedDeprecatedParameterMap.containsKey(name)) {
             if (Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
-                dlog.error(parameter.pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
+                dlog.error(parameter.annAttachments.get(0).pos,
+                        DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
             }
         } else {
             if (!Symbols.isFlagOn(parameter.symbol.flags, Flags.DEPRECATED)) {
