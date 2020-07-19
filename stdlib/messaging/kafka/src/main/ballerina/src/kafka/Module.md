@@ -5,11 +5,12 @@ This module supports Kafka 1.x.x and 2.0.0 versions.
 
 For information on the operations, which you can perform with this module, see the below **Functions**.
 For examples on the usage of the operations, see the following. 
-* [Producer Example](https://ballerina.io/swan-lake/learn/by-example/kafka_message_producer.html) 
-* [Consumer Service Example](https://ballerina.io/swan-lake/learn/by-example/kafka_message_consumer_service.html)
-* [Consumer Client Example](https://ballerina.io/swan-lake/learn/by-example/kafka_message_consumer_simple.html)
-* [Consumer Groups Example](https://ballerina.io/swan-lake/learn/by-example/kafka_message_consumer_group_service.html) 
-* [Transactional Producer Example](https://ballerina.io/swan-lake/learn/by-example/kafka_message_producer_transactional.html)
+* [Producer Example](https://ballerina.io/swan-lake/learn/by-example/kafka_producer.html) 
+* [Consumer Service Example](https://ballerina.io/swan-lake/learn/by-example/kafka_consumer_service.html)
+* [Consumer Client Example](https://ballerina.io/swan-lake/learn/by-example/kafka_consumer_client.html)
+* [Transactional Producer Example](https://ballerina.io/swan-lake/learn/by-example/kafka_producer_transactional.html)
+* [Consumer with SASL Authentication Example](https://ballerina.io/swan-lake/learn/by-example/kafka-authentication-sasl-plain-consumer.html)
+* [Producer with SASL Authentication Example](https://ballerina.io/swan-lake/learn/by-example/kafka-authentication-sasl-plain-producer.html)
 
 #### Basic Usages
 
