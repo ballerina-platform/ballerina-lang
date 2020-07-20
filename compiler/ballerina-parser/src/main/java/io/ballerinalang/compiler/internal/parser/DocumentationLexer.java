@@ -18,6 +18,7 @@
 package io.ballerinalang.compiler.internal.parser;
 
 
+import io.ballerinalang.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
@@ -34,8 +35,10 @@ import java.util.List;
 public class DocumentationLexer extends AbstractLexer {
 
     private boolean isSpecialKeywordInPlace = false;
-    private String identifierRegex = "[a-zA-Z][a-zA-Z0-9]*";
-    private String backtickExprRegex = "([a-zA-Z][a-zA-Z0-9]*:)?([a-zA-Z][a-zA-Z0-9]*[:.])?[a-zA-Z][a-zA-Z0-9]*\\(\\)";
+    private static final char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
+    private static final String identifierRegex = "[a-zA-Z][a-zA-Z0-9]*";
+    private static final String backtickExprRegex =
+            "[a-zA-Z][a-zA-Z0-9]*(:[a-zA-Z][a-zA-Z0-9]*)?(\\.[a-zA-Z][a-zA-Z0-9]*)?\\(\\)";
 
     public DocumentationLexer(CharReader charReader, List<STNode> leadingTriviaList) {
         super(charReader, ParserMode.DOCUMENTATION_INIT);
@@ -422,7 +425,6 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         // Look ahead for a "Deprecated" word match.
-        char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
         for (int i = 0; i < 10; i++) {
             if ((char) lookAheadChar != deprecatedChars[i]) {
                 // No match. Hence return a documentation internal token.
@@ -722,11 +724,13 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         if (!isSpecialKeywordInPlace) {
+            // Look for a x(), m:x(), T.y(), m:T.y() match
             boolean hasMatch = backtickStr.matches(backtickExprRegex);
             if (hasMatch) {
                 switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
                 return readDocumentationBacktickExprToken();
             } else {
+                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_EXPRESSION);
                 reader.advance(lookAheadCount);
                 return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
             }
@@ -736,7 +740,12 @@ public class DocumentationLexer extends AbstractLexer {
         resetSpecialKeywordInPlace();
 
         boolean isIdentifier = backtickStr.matches(identifierRegex);
-        return isIdentifier ? getIdentifierToken() : getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+        if (isIdentifier) {
+            return getIdentifierToken();
+        } else {
+            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER);
+            return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+        }
     }
 
     /*

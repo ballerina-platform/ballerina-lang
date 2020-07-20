@@ -43,7 +43,7 @@ public class RecordDocumentationTest {
     @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
+        Assert.assertEquals(compileResult.getWarnCount(), 3);
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation dNode =
                 ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
@@ -53,13 +53,13 @@ public class RecordDocumentationTest {
         Assert.assertEquals(dNode.getParameters().size(), 3);
         Assert.assertEquals(dNode.getParameters().get(0).getParameterName().getValue(), "a");
         Assert.assertEquals(dNode.getParameters().get(0).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation ``field a`` documentation");
+                EMPTY_STRING), "annotation `field a` documentation");
         Assert.assertEquals(dNode.getParameters().get(1).getParameterName().getValue(), "b");
         Assert.assertEquals(dNode.getParameters().get(1).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation ``field b`` documentation");
+                EMPTY_STRING), "annotation `field b` documentation");
         Assert.assertEquals(dNode.getParameters().get(2).getParameterName().getValue(), "c");
         Assert.assertEquals(dNode.getParameters().get(2).getParameterDocumentation().replaceAll(CARRIAGE_RETURN_CHAR,
-                EMPTY_STRING), "annotation ``field c`` documentation");
+                EMPTY_STRING), "annotation `field c` documentation");
 
         dNode = ((BLangAnnotation) packageNode.getAnnotations().get(0)).markdownDocumentationAttachment;
         Assert.assertNotNull(dNode);

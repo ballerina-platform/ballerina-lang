@@ -13025,13 +13025,13 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         while (nextToken.kind == SyntaxKind.DOCUMENTATION_STRING) {
             STToken documentationString = consume();
-            STNode markdownDocLines = parseDocumentationString(documentationString);
-            markdownDocLineList.add(markdownDocLines);
+            STNode parsedDocLines = parseDocumentationString(documentationString);
+            appendParsedDocumentationLines(markdownDocLineList, parsedDocLines);
             nextToken = peek();
         }
 
-        STNode arrangedMarkdownDocLines = rearrangeMarkdownDocumentationLines(markdownDocLineList);
-        return STNodeFactory.createMarkdownDocumentationNode(arrangedMarkdownDocLines);
+        STNode markdownDocLines = STNodeFactory.createNodeList(markdownDocLineList);
+        return STNodeFactory.createMarkdownDocumentationNode(markdownDocLines);
     }
 
     /**
@@ -13061,18 +13061,12 @@ public class BallerinaParser extends AbstractParser {
         return leadingTriviaList;
     }
 
-    private STNode rearrangeMarkdownDocumentationLines(List<STNode> markdownDocLineList) {
-        List<STNode> arrangedDocLines = new ArrayList<>();
-
-        for (STNode markdownDocLines : markdownDocLineList) {
-            int bucketCount = markdownDocLines.bucketCount();
-
-            for (int i = 0; i < bucketCount; i++) {
-                STNode markdownDocLine = markdownDocLines.childInBucket(i);
-                arrangedDocLines.add(markdownDocLine);
-            }
+    private void appendParsedDocumentationLines(List<STNode> markdownDocLineList, STNode parsedDocLines) {
+        int bucketCount = parsedDocLines.bucketCount();
+        for (int i = 0; i < bucketCount; i++) {
+            STNode markdownDocLine = parsedDocLines.childInBucket(i);
+            markdownDocLineList.add(markdownDocLine);
         }
-        return STNodeFactory.createNodeList(arrangedDocLines);
     }
 
     // ------------------------ Ambiguity resolution at statement start ---------------------------

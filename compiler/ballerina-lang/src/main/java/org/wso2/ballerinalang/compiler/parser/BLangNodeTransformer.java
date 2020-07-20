@@ -4258,7 +4258,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         bLangDeprecationDoc = null;
                     } else {
                         parameters.add(bLangParaDoc);
-                    };
+                    }
                     break;
                 case MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE:
                     bLangReturnParaDoc = new BLangMarkdownReturnParameterDocumentation();
@@ -4323,7 +4323,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                 bLangRefDoc.hasParserWarnings = true;
                                 dlog.warning(pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER, contentString);
                             } else {
-                                bLangRefDoc.identifier = ((Token)backtickContent).text();
+                                bLangRefDoc.identifier = ((Token) backtickContent).text();
                             }
                             docText.append(refType.toString());
                         }
