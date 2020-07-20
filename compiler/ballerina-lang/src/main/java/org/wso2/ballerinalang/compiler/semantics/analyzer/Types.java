@@ -216,8 +216,38 @@ public class Types {
     }
 
     public boolean isLax(BType type) {
-        Map<BType, Boolean> visited = new LinkedHashMap<>();
+//        Map<BType, Boolean> visited = new LinkedHashMap<>();
+        Set<BType> visited = new HashSet<>();
         return isLaxType(type, visited);
+    }
+
+    public boolean isLaxType(BType type, Set<BType> visited) {
+        if (!visited.add(type)) {
+            return false;
+        }
+        switch (type.tag) {
+            case TypeTags.JSON:
+            case TypeTags.XML:
+            case TypeTags.XML_ELEMENT:
+                return true;
+            case TypeTags.MAP:
+                return isLaxType(((BMapType) type).constraint, visited);
+            case TypeTags.UNION:
+                if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
+                    visited.add(type);
+                    return true;
+                }
+                for (BType member : ((BUnionType) type).getMemberTypes()) {
+                    if (!isLaxType(member, visited)) {
+                        if (visited.contains(member) && (member.tag == TypeTags.MAP)) {
+                            continue;
+                        }
+                        return false;
+                    }
+                }
+                return true;
+        }
+        return false;
     }
 
     public boolean isLaxType(BType type, Map<BType, Boolean> visited) {
@@ -231,7 +261,9 @@ public class Types {
                 visited.put(type, true);
                 return true;
             case TypeTags.MAP:
-                return isLaxType(((BMapType) type).constraint, visited);
+                boolean result = isLaxType(((BMapType) type).constraint, visited);
+                visited.put(type, result);
+                return result;
             case TypeTags.UNION:
                 if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
                     visited.put(type, true);
