@@ -27,7 +27,8 @@ function testReadonlyRecordFields() {
     testSubTypingWithReadOnlyFields();
     testSubTypingWithReadOnlyFieldsViaReadOnlyType();
     testSubTypingWithReadOnlyFieldsNegative();
-    testIsCheckWithReadOnlyFieldsPositiveComposite();
+    testSubTypingWithReadOnlyFieldsPositiveComposite();
+    testSubTypingWithReadOnlyFieldsNegativeComposite();
 }
 
 type Student record {
@@ -413,7 +414,7 @@ type ReadonlyQuux readonly object {
     }
 };
 
-function testIsCheckWithReadOnlyFieldsPositiveComposite() {
+function testSubTypingWithReadOnlyFieldsPositiveComposite() {
     int[] & readonly arr = [1, 2];
     readonly & record {|json|xml...;|} rec = {
         "i": 123,
@@ -457,6 +458,174 @@ function testIsCheckWithReadOnlyFieldsPositiveComposite() {
     assertEquality(<Quuz> {i: 123, f: 988.42}, f.q);
     assertEquality((), f["y"]);
     assertEquality(1111, f["z"]);
+}
+
+function testSubTypingWithReadOnlyFieldsNegativeComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b1 = {
+        i: 101, // doesn't match, expected `HUNDRED`
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    any a = b1;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b2 = {
+        i: 100,
+         // doesn't match because no `b`
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b2;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b3 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: 123, // doesn't match, expected `object {}`
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b3;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b4 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: xml `<foo>FOO</foo>`, // doesn't match, expected `json`
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b4;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b5 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: 1.2, // doesn't match, expected `()`
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b5;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b6 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {  // doesn't match, expected `map<int>`
+            a: 1,
+            b: "str"
+        },
+        r: arr,
+        q: rec,
+        z: 1111
+    };
+
+    a = b6;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b7 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: {i: 112},  // doesn't match, expected `Quuz`
+        z: 1111
+    };
+
+    a = b7;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b8 = {
+        i: 100,
+        b: true,
+        f: 12.0,
+        a1: new ReadonlyQuux({a: "hello", b: "world"}),
+        a2: "anydata value",
+        ad: (),
+        u: {
+            a: 1,
+            b: 2
+        },
+        r: arr,
+        q: rec,
+        z: 1.0 // doesn't match, expected `int|string`
+    };
+
+    a = b8;
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

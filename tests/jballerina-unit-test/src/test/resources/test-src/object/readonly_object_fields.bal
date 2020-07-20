@@ -27,6 +27,8 @@ function testReadonlyObjectFields() {
     testSubTypingWithReadOnlyFields();
     testSubTypingWithReadOnlyFieldsViaReadOnlyType();
     testSubTypingWithReadOnlyFieldsNegative();
+    testSubTypingWithReadOnlyFieldsPositiveComposite();
+    testSubTypingWithReadOnlyFieldsNegativeComposite();
 }
 
 public type Student object {
@@ -362,6 +364,139 @@ function testSubTypingWithReadOnlyFieldsNegative() {
     assertTrue(grad is Graduate);
     assertFalse(undergrad is Person);
     assertFalse(grad is Person);
+}
+
+const HUNDRED = 100;
+
+type Baz abstract object {
+    HUNDRED i;
+    float|string f;
+    object {} a1;
+    json a2;
+    decimal? d;
+    () ad;
+    map<int>|boolean[] u;
+    readonly readonly r;
+    Quuz q;
+    int z;
+};
+
+type Qux object {
+    readonly string|int i;
+    float f;
+    readonly int|Quux a1;
+    readonly any a2;
+    readonly int[]? d;
+    readonly anydata ad;
+    readonly map<any> u;
+    readonly int[] r;
+    readonly anydata|object {} q;
+    readonly json z = 1111;
+
+    function init(string|int i, float f, readonly & int|Quux a1, readonly & anydata ad, map<any> & readonly u,
+                  readonly & int[] r, readonly & anydata|object {} q, readonly & (int[]?) d = ()) {
+        self.i = i;
+        self.f = f;
+        self.a1 = a1;
+        self.a2 = "anydata value";
+        self.d = d;
+        self.ad = ad;
+        self.u = u;
+        self.r = r;
+        self.q = q;
+    }
+};
+
+type Quux abstract object {
+    map<string> m;
+
+    function getMap() returns map<string>;
+};
+
+type Quuz record {|
+    int i;
+    float f;
+|};
+
+type ReadonlyQuux readonly object {
+    map<string> & readonly m;
+
+    function init(map<string> & readonly m) {
+        self.m = m;
+    }
+
+    function getMap() returns map<string> & readonly {
+        return self.m;
+    }
+};
+
+function testSubTypingWithReadOnlyFieldsPositiveComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b = new (100, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), (),  {a: 1, b: 2}, arr, rec);
+
+    any a = b;
+    assertTrue(a is Qux);
+    assertTrue(a is Baz);
+
+    Baz f = <Baz> a;
+    assertEquality(100, f.i);
+    assertEquality(12.0, f.f);
+    assertTrue(f.a1 is ReadonlyQuux);
+    ReadonlyQuux rq = <ReadonlyQuux> f.a1;
+    assertEquality(<map<string>> {a: "hello", b: "world"}, rq.getMap());
+    assertEquality("anydata value", f.a2);
+    assertEquality((), f.d);
+    assertEquality((), f.ad);
+    assertTrue(f.u is map<int> & readonly);
+    assertEquality(<map<int>> {a: 1, b: 2}, f.u);
+    assertTrue(f.r is int[] & readonly);
+    assertEquality(arr, f.r);
+    assertEquality(rec, f.q);
+    assertEquality(<Quuz> {i: 123, f: 988.42}, f.q);
+    assertEquality(1111, f.z);
+}
+
+function testSubTypingWithReadOnlyFieldsNegativeComposite() {
+    int[] & readonly arr = [1, 2];
+    readonly & record {|json|xml...;|} rec = {
+        "i": 123,
+        "f": 988.42
+    };
+
+    Qux b1 = new (101, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), (),  {a: 1, b: 2}, arr, rec);
+    any a = b1; // doesn't match, invalid `i`, expected `HUNDRED`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b2 = new (100, 12.0, 1, (),  {a: 1, b: 2}, arr, rec);
+    a = b2; // doesn't match, invalid `a1`, expected `object {}`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b3 = new (100, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), [1, 2, 3],  {a: 1, b: 2}, arr, rec);
+    a = b3; // doesn't match, invalid `ad`, expected `()`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b4 = new (100, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), (),  {a: 1.0, b: 2}, arr, rec);
+    a = b4; // doesn't match, invalid `u`, expected `map<int>|boolean[]?`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b5 = new (100, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), (),  {a: 1, b: 2}, arr, [1, "str"]);
+    a = b5; // doesn't match, invalid `q`, expected `Quuz`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
+
+    Qux b6 = new (100, 12.0, new ReadonlyQuux({a: "hello", b: "world"}), (),  {a: 1, b: 2}, arr, rec, [1, 2, 3]);
+    a = b6; // doesn't match, invalid `d`, expected `decimal?`
+    assertTrue(a is Qux);
+    assertFalse(a is Baz);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
