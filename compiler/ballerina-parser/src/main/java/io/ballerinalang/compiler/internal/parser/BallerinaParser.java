@@ -1313,6 +1313,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode metadata, STNode qualifier) {
         switch (tokenKind) {
+            case EOF_TOKEN:
+                reportInvalidQualifier(qualifier);
+                return null;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
                 // ANything starts with a function keyword could be a function definition
