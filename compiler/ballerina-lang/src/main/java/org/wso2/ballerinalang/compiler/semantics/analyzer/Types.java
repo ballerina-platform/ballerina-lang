@@ -218,36 +218,43 @@ public class Types {
     public boolean isLax(BType type) {
 //        Map<BType, Boolean> visited = new LinkedHashMap<>();
         Set<BType> visited = new HashSet<>();
-        return isLaxType(type, visited);
+        int result = isLaxType(type, visited);
+        if (result == 1) {
+            return true;
+        }
+        return false;
     }
 
-    public boolean isLaxType(BType type, Set<BType> visited) {
+    public int isLaxType(BType type, Set<BType> visited) {
         if (!visited.add(type)) {
-            return false;
+            return -1;
         }
         switch (type.tag) {
             case TypeTags.JSON:
             case TypeTags.XML:
             case TypeTags.XML_ELEMENT:
-                return true;
+                return 1;
             case TypeTags.MAP:
                 return isLaxType(((BMapType) type).constraint, visited);
             case TypeTags.UNION:
-                if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
+                if (isSameType(type, symTable.jsonType)) {
                     visited.add(type);
-                    return true;
+                    return 1;
                 }
+                boolean atleastOneLaxType = false;
                 for (BType member : ((BUnionType) type).getMemberTypes()) {
-                    if (!isLaxType(member, visited)) {
-                        if (visited.contains(member) && (member.tag == TypeTags.MAP)) {
-                            continue;
-                        }
-                        return false;
+                    int result = isLaxType(member, visited);
+                    if (result == -1) {
+                        continue;
                     }
+                    if (result == 0) {
+                        return 0;
+                    }
+                    atleastOneLaxType = true;
                 }
-                return true;
+                return atleastOneLaxType? 1 : 0;
         }
-        return false;
+        return 0;
     }
 
     public boolean isLaxType(BType type, Map<BType, Boolean> visited) {
