@@ -7326,8 +7326,13 @@ public class BallerinaParser extends AbstractParser {
                     return parseCompoundAssignmentStmtRhs(expression);
                 }
 
-                STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.STMT_START_WITH_EXPR_RHS, expression);
+                ParserRuleContext context;
+                if (isPossibleExpressionStatement(expression)) {
+                    context = ParserRuleContext.EXPR_STMT_RHS;
+                } else {
+                    context = ParserRuleContext.STMT_START_WITH_EXPR_RHS;
+                }
+                Solution solution = recover(peek(), context, expression);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7340,32 +7345,29 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseArrayTypeDescriptorNode(STIndexedExpressionNode indexedExpr) {
-        STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
-        STNodeList lengthExprs = (STNodeList) indexedExpr.keyExpression;
-        if (lengthExprs.isEmpty()) {
-            return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
-                    STNodeFactory.createEmptyNode(), indexedExpr.closeBracket);
-        }
-
-        // Validate the array length expression
-        STNode lengthExpr = lengthExprs.get(0);
-        switch (lengthExpr.kind) {
-            case DECIMAL_INTEGER_LITERAL:
-            case HEX_INTEGER_LITERAL:
-            case ASTERISK_TOKEN:
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-                break;
+    private boolean isPossibleExpressionStatement(STNode expression) {
+        switch (expression.kind) {
+            case METHOD_CALL:
+            case FUNCTION_CALL:
+            case CHECK_EXPRESSION:
+            case FAIL_EXPRESSION:
+            case REMOTE_METHOD_CALL_ACTION:
+            case CHECK_ACTION:
+            case FAIL_ACTION:
+            case BRACED_ACTION:
+            case START_ACTION:
+            case TRAP_ACTION:
+            case FLUSH_ACTION:
+            case ASYNC_SEND_ACTION:
+            case SYNC_SEND_ACTION:
+            case RECEIVE_ACTION:
+            case WAIT_ACTION:
+            case QUERY_ACTION:
+            case COMMIT_ACTION:
+                return true;
             default:
-                STNode newOpenBracketWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
-                        indexedExpr.openBracket, lengthExpr, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
-                indexedExpr = indexedExpr.replace(indexedExpr.openBracket, newOpenBracketWithDiagnostics);
-                lengthExpr = STNodeFactory.createEmptyNode();
+                return false;
         }
-
-        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket, lengthExpr,
-                indexedExpr.closeBracket);
     }
 
     private STNode getExpressionAsStatement(STNode expression) {
@@ -7398,6 +7400,34 @@ public class BallerinaParser extends AbstractParser {
                 exprStmt = SyntaxErrors.addDiagnostic(exprStmt, DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_STATEMENT);
                 return exprStmt;
         }
+    }
+
+    private STNode parseArrayTypeDescriptorNode(STIndexedExpressionNode indexedExpr) {
+        STNode memberTypeDesc = getTypeDescFromExpr(indexedExpr.containerExpression);
+        STNodeList lengthExprs = (STNodeList) indexedExpr.keyExpression;
+        if (lengthExprs.isEmpty()) {
+            return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket,
+                    STNodeFactory.createEmptyNode(), indexedExpr.closeBracket);
+        }
+
+        // Validate the array length expression
+        STNode lengthExpr = lengthExprs.get(0);
+        switch (lengthExpr.kind) {
+            case DECIMAL_INTEGER_LITERAL:
+            case HEX_INTEGER_LITERAL:
+            case ASTERISK_TOKEN:
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                break;
+            default:
+                STNode newOpenBracketWithDiagnostics = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(
+                        indexedExpr.openBracket, lengthExpr, DiagnosticErrorCode.ERROR_INVALID_ARRAY_LENGTH);
+                indexedExpr = indexedExpr.replace(indexedExpr.openBracket, newOpenBracketWithDiagnostics);
+                lengthExpr = STNodeFactory.createEmptyNode();
+        }
+
+        return STNodeFactory.createArrayTypeDescriptorNode(memberTypeDesc, indexedExpr.openBracket, lengthExpr,
+                indexedExpr.closeBracket);
     }
 
     /**

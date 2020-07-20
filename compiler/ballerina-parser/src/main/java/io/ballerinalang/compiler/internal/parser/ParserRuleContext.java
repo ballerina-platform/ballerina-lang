@@ -270,6 +270,7 @@ public enum ParserRuleContext {
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
+    EXPR_STMT_RHS("expr-stmt-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
