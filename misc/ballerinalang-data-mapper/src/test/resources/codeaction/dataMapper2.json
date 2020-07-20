@@ -1,0 +1,45 @@
+{
+  "line": 43,
+  "character": 30,
+  "range": {
+    "start": {
+      "line": 43,
+      "character": 30
+    },
+    "end": {
+      "line": 43,
+      "character": 37
+    }
+  },
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":43,
+          "character":30
+        },
+        "end":{
+          "line":43,
+          "character":37
+        }
+      },
+        "newText": "mapApplicantToAddress(appl_1);"
+      },
+      {"range":{
+        "start":{
+          "line":49,
+          "character":0
+        },
+        "end":{
+          "line":49,
+          "character":1
+        }
+      },
+        "newText":"\n\n\nfunction mapStudentToGrades (Student student) returns Grades {\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades \u003d {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};\n\treturn grades;\n}"
+      }
+    ]
+  }
+}
+
+

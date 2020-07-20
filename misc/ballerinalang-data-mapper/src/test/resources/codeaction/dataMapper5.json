@@ -1,0 +1,31 @@
+{
+  "line": 39,
+  "character": 25,
+  "range": {
+    "start": {
+      "line": 39,
+      "character": 25
+    },
+    "end": {
+      "line": 39,
+      "character": 30
+    }
+  },
+  "expected": {
+    "title": "Generate mapping function",
+    "edits": [
+      {"range":{
+        "start":{
+          "line":39,
+          "character":25
+        },
+        "end":{
+          "line":39,
+          "character":30
+        }
+      },
+        "newText":"mapStudentToGrades(Amal);"
+      }
+    ]
+  }
+}
