@@ -45,11 +45,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a request for a Ballerina AST Modify.
@@ -200,18 +202,28 @@ public class BallerinaTreeModifyUtil {
 
         String fileContent = documentManager.getFileContent(compilationPath);
         TextDocument oldTextDocument = TextDocuments.from(fileContent);
-        List<TextEdit> edits =
-                BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
-                        oldTextDocument);
-        for (ASTModification astModification : astModifications) {
-            if (IMPORT.equalsIgnoreCase(astModification.getType())) {
-                if (importExist(unusedNodeVisitor, astModification)) {
-                    continue;
-                }
+
+        List<TextEdit> edits = new ArrayList<>();
+        List<ASTModification> importModifications = Arrays.stream(astModifications)
+                .filter(astModification -> IMPORT.equalsIgnoreCase(astModification.getType()))
+                .collect(Collectors.toList());
+        for (ASTModification importModification : importModifications) {
+            if (importExist(unusedNodeVisitor, importModification)) {
+                continue;
             }
-            TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
+            TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, importModification);
             if (edit != null) {
                 edits.add(edit);
+            }
+        }
+        edits.addAll(BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
+                        oldTextDocument));
+        for (ASTModification astModification : astModifications) {
+            if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
+                TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
+                if (edit != null) {
+                    edits.add(edit);
+                }
             }
         }
 
