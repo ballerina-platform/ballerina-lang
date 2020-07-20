@@ -159,7 +159,9 @@ public class TableJSONDataSource implements JSONDataSource {
                         getStructData(record.getMapValue(key), structFields, index, key));
                 break;
             case TypeTags.XML_TAG:
-                jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));
+                BString strVal = org.ballerinalang.jvm.StringUtils.fromString(
+                        org.ballerinalang.jvm.values.utils.StringUtils.getStringValue(record.get(key)));
+                jsonObject.put(StringUtils.fromString(name), strVal);
                 break;
             default:
                 jsonObject.put(StringUtils.fromString(name), record.getStringValue(key));

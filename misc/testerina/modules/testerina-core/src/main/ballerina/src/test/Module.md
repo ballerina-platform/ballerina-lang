@@ -10,18 +10,18 @@ The following example shows a simple testsuite.
 import ballerina/io;
 import ballerina/test;
 
-# Before Suite Function
+// Before Suite Function
 @test:BeforeSuite
 function beforeSuiteFunc() {
     io:println("I'm the before suite function!");
 }
 
-# Before test function
+// Before test function
 function beforeFunc() {
     io:println("I'm the before function!");
 }
 
-# Test function
+// Test function
 @test:Config {
     before: "beforeFunc",
     after: "afterFunc"
@@ -31,12 +31,12 @@ function testFunction() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-# After test function
+// After test function
 function afterFunc() {
     io:println("I'm the after function!");
 }
 
-# After Suite Function
+// After Suite Function
 @test:AfterSuite
 function afterSuiteFunc() {
     io:println("I'm the after suite function!");
@@ -87,38 +87,28 @@ function intAdd(int a, int b) returns (int) {
 The test module provides capabilities to mock a function or an object for unit testing. The mocking features can be used to control the behavior of functions and objects by defining return values or replacing the entire object or function with a user-defined equivalent. This feature will help you to test the Ballerina code independently from other modules and external endpoints.
 
 ### Function Mocking
-Function mocking allows to control the behavior of a function in the module under test or a function of an imported module. 
+Function mocking allows to control the behavior of a function in the module being tested or a function of an imported module. 
 
-An annotation is used to declare a mock function within which the original function to be mocked should be defined using the annotation parameters. The function specified with this annotation allows to mock an imported function whereas the same annotation specified with the test:MockFunction object allows to mock a function in the module under test.
-
-#### Mocking an imported function
-
-Mocking an imported function will invoke the mock function every time that the original function is called. Mocking a function will apply the mocked function to every instance of the original function call. It is not limited to the test file where it is being mocked. A compile time error will be thrown in case of a signature mismatch between the mock function and the original.
+The annotation `@test:Mock {}` is used to declare a `MockFunction` object, with details of the name of the function to be mocked, as well as the module name if an import function is being mocked. The module name value of the annotation is optional if the function being mocked is not an import function.
 
 ```ballerina
-The following example shows how an imported function can be mocked.
+import ballerina/math;
+import ballerina/test;
 
 @test:Mock {
     moduleName : "ballerina/math",
-    functionName : "sqrt"
+    functionName : "absInt"
 }
-function mocksqrt(float a) returns (float) {
-    return a*a*a;
-}
+test:MockFunction mock_absInt = new();
 
 @test:Config {}
-function testMockImportedFunction() {
-    float answer = 0;
-    answer = math:sqrt(5);
-    test:assertEquals(answer, 125.0);
+public function testFunction() {
+    test:when(mock_absInt).thenReturn(100);
+    test:assertEquals(math:absInt(-5), 100);
 }
 ```
 
-#### Mocking a function in the same module
-
-The same annotation used for mocking an imported function can be used for mocking a function in the same module (the module which is under test) but with the MockFunction object provided by the test module. Declaring the annotation with this object will create a default mock object in place of the original function. 
-
-Subsequent to the declaration, the function call should be stubbed using the available function mocking features. Different behaviors can be defined for different test cases if required.
+Declaring the annotation with this object will create a default mock object in place of the original function. Subsequent to the declaration, the function call should be stubbed using the available mocking features. Different behaviors can be defined for different test cases if required.
 
 ##### Samples
 
@@ -134,7 +124,7 @@ _test.bal_
 The following example shows different ways of stubbing a function call.
 
 ```ballerina
-@test:MockFn { functionName: "intAdd" }
+@test:Mock { functionName: "intAdd" }
 test:MockFunction intAddMockFn = new();
 
 public function mockIntAdd(int x, int y) returns int {

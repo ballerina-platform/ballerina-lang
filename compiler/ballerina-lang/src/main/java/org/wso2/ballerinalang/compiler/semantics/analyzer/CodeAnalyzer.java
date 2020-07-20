@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -2663,6 +2664,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnTypes.peek().add(exprType);
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        analyzeExpr(failExpr.expr);
+
+        if (failExpr.expectedType.tag == symTable.noType.tag) {
+            this.statementReturns = true;
+            if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+                // Check at module level.
+                return;
+            }
+
+            BType exprType = env.enclInvokable.getReturnTypeNode().type;
+
+            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
+                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            }
+
+            returnTypes.peek().add(exprType);
+            validateActionParentNode(failExpr.pos, failExpr);
+        }
     }
 
     @Override

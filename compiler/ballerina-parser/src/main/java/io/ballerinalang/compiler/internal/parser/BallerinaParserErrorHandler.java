@@ -228,7 +228,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.ANON_FUNC_EXPRESSION, ParserRuleContext.ERROR_KEYWORD, ParserRuleContext.NEW_KEYWORD,
             ParserRuleContext.START_KEYWORD, ParserRuleContext.FLUSH_KEYWORD, ParserRuleContext.LEFT_ARROW_TOKEN,
             ParserRuleContext.WAIT_KEYWORD, ParserRuleContext.COMMIT_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD,
-            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION };
+            ParserRuleContext.SERVICE_CONSTRUCTOR_EXPRESSION, ParserRuleContext.FAIL_KEYWORD };
 
     private static final ParserRuleContext[] FIRST_MAPPING_FIELD_START =
             { ParserRuleContext.MAPPING_FIELD, ParserRuleContext.CLOSE_BRACE };
@@ -1025,6 +1025,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
             case WAIT_KEYWORD:
             case CHECKING_KEYWORD:
+            case FAIL_KEYWORD:
             case DO_KEYWORD:
             case TRANSACTION_KEYWORD:
             case COMMIT_KEYWORD:
@@ -2564,6 +2565,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case WHILE_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case CHECKING_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
+            case FAIL_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
             case PANIC_KEYWORD:
                 return ParserRuleContext.EXPRESSION;
@@ -4386,6 +4389,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.WHILE_KEYWORD;
             case CHECKING_KEYWORD:
                 return SyntaxKind.CHECK_KEYWORD;
+            case FAIL_KEYWORD:
+                return SyntaxKind.FAIL_KEYWORD;
             case AS_KEYWORD:
                 return SyntaxKind.AS_KEYWORD;
             case BOOLEAN_LITERAL:

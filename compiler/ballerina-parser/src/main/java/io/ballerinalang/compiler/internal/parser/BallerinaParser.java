@@ -536,6 +536,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseAbstractKeyword();
             case REMOTE_KEYWORD:
                 return parseRemoteKeyword();
+            case FAIL_KEYWORD:
+                return parseFailKeyword();
             case CHECKING_KEYWORD:
                 return parseCheckingKeyword();
             case COMPOUND_BINARY_OPERATOR:
@@ -3630,6 +3632,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // action-statements
             case CHECK_KEYWORD:
+            case FAIL_KEYWORD:
             case CHECKPANIC_KEYWORD:
             case TRAP_KEYWORD:
             case START_KEYWORD:
@@ -3736,6 +3739,7 @@ public class BallerinaParser extends AbstractParser {
             case START_KEYWORD:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
+            case FAIL_KEYWORD:
             case TRAP_KEYWORD:
             case FLUSH_KEYWORD:
             case LEFT_ARROW_TOKEN:
@@ -4113,6 +4117,8 @@ public class BallerinaParser extends AbstractParser {
                 // In the checking action, nested actions are allowed. And that's the only
                 // place where actions are allowed within an action or an expression.
                 return parseCheckExpression(isRhsExpr, allowActions, isInConditionalExpr);
+            case FAIL_KEYWORD:
+                return parseFailExpression(isRhsExpr, allowActions, isInConditionalExpr);
             case OPEN_BRACE_TOKEN:
                 return parseMappingConstructorExpr();
             case TYPEOF_KEYWORD:
@@ -4229,6 +4235,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_PAREN_TOKEN:
             case CHECK_KEYWORD:
             case CHECKPANIC_KEYWORD:
+            case FAIL_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case TYPEOF_KEYWORD:
             case PLUS_TOKEN:
@@ -4827,6 +4834,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case FAIL_ACTION:
                 return true;
             default:
                 return false;
@@ -5788,6 +5796,52 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.CHECKING_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse fail expression. This method is used to parse both fail expression
+     * as well as fail action.
+     *
+     * <p>
+     * <code>
+     * fail-expr := fail-keyword expression
+     * fail-action := fail-keyword action
+     * </code>
+     *
+     * @param allowActions Allow actions
+     * @param isRhsExpr    Is rhs expression
+     * @return Fail expression node
+     */
+    private STNode parseFailExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
+
+        STNode failKeyword = parseFailKeyword();
+        STNode expr =
+                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
+        if (isAction(expr)) {
+            return STNodeFactory.createFailExpressionNode(SyntaxKind.FAIL_ACTION, failKeyword, expr);
+        } else {
+            return STNodeFactory.createFailExpressionNode(SyntaxKind.FAIL_EXPRESSION, failKeyword, expr);
+        }
+    }
+
+    /**
+     * Parse fail keyword.
+     * <p>
+     * <code>
+     * fail-keyword := fail
+     * </code>
+     *
+     * @return Parsed node
+     */
+    private STNode parseFailKeyword() {
+
+        STToken token = peek();
+        if (token.kind == SyntaxKind.FAIL_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.FAIL_KEYWORD);
             return sol.recoveredNode;
         }
     }
@@ -7291,6 +7345,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseCallStatement(expression);
             case REMOTE_METHOD_CALL_ACTION:
             case CHECK_ACTION:
+            case FAIL_ACTION:
             case BRACED_ACTION:
             case START_ACTION:
             case TRAP_ACTION:
@@ -7301,6 +7356,7 @@ public class BallerinaParser extends AbstractParser {
             case WAIT_ACTION:
             case QUERY_ACTION:
             case COMMIT_ACTION:
+            case FAIL_EXPRESSION:
                 return parseActionStatement(expression);
             default:
                 // Everything else can not be written as a statement.
@@ -10612,6 +10668,7 @@ public class BallerinaParser extends AbstractParser {
             case LET_KEYWORD:
             case BACKTICK_TOKEN:
             case NEW_KEYWORD:
+            case FAIL_KEYWORD:
             case LEFT_ARROW_TOKEN:
                 return true;
             case PLUS_TOKEN:
@@ -13292,7 +13349,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+                kind.compareTo(SyntaxKind.FAIL_EXPRESSION) <= 0;
     }
 
     /**
@@ -13391,7 +13448,7 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 return kind.compareTo(SyntaxKind.BINARY_EXPRESSION) >= 0 &&
-                        kind.compareTo(SyntaxKind.XML_ATOMIC_NAME_PATTERN) <= 0;
+                        kind.compareTo(SyntaxKind.FAIL_EXPRESSION) <= 0;
         }
     }
 
@@ -15446,7 +15503,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAssignmentStmtRhs(bindingPattern);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
             default:
-                // If this is followed by an assignment, then treat thsi node as mapping-binding pattern.
+                // If this is followed by an assignment, then treat this node as mapping-binding pattern.
                 if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
                     switchContext(ParserRuleContext.ASSIGNMENT_STMT);
                     bindingPattern = getBindingPattern(bpOrConstructor);
@@ -16383,9 +16440,27 @@ public class BallerinaParser extends AbstractParser {
                         innerList.collectionEndToken);
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR:
                 innerList = (STAmbiguousCollectionNode) ambiguousNode;
-                memberExprs = STNodeFactory.createNodeList(getExpressionList(innerList.members));
-                return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken, memberExprs,
-                        innerList.collectionEndToken);
+                List<STNode> fieldList = new ArrayList<>();
+                for (int i = 0; i < innerList.members.size(); i++) {
+                    STNode field = innerList.members.get(i);
+                    STNode fieldNode;
+                    if (field.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                        STQualifiedNameReferenceNode qualifiedNameRefNode = (STQualifiedNameReferenceNode) field;
+                        STNode readOnlyKeyword = STNodeFactory.createEmptyNode();
+                        STNode fieldName = qualifiedNameRefNode.modulePrefix;
+                        STNode colon = qualifiedNameRefNode.colon;
+                        STNode valueExpr = getExpression(qualifiedNameRefNode.identifier);
+                        fieldNode = STNodeFactory.createSpecificFieldNode(readOnlyKeyword, fieldName, colon,
+                                valueExpr);
+                    } else {
+                        fieldNode = getExpression(field);
+                    }
+
+                    fieldList.add(fieldNode);
+                }
+                STNode fields = STNodeFactory.createNodeList(fieldList);
+                return STNodeFactory.createMappingConstructorExpressionNode(innerList.collectionStartToken,
+                        fields, innerList.collectionEndToken);
             case REST_BINDING_PATTERN:
                 STRestBindingPatternNode restBindingPattern = (STRestBindingPatternNode) ambiguousNode;
                 return STNodeFactory.createSpreadFieldNode(restBindingPattern.ellipsisToken,
