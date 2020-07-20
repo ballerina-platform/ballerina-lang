@@ -65,6 +65,12 @@ public class ASTModifyTest {
             .resolve("modify")
             .resolve("mainNats.bal");
 
+    private Path mainNatsFileWithEmptyLine = FileUtils.RES_DIR.resolve("extensions")
+            .resolve("document")
+            .resolve("ast")
+            .resolve("modify")
+            .resolve("mainNatsWithEmptyLine.bal");
+
     private Path emptyFile = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
             .resolve("ast")
@@ -283,7 +289,7 @@ public class ASTModifyTest {
         Assert.assertTrue(astModifyResponse.isParseSuccess());
 
         BallerinaASTResponse astResponse = LSExtensionTestUtil.getBallerinaDocumentAST(
-                mainNatsFile.toString(), this.serviceEndpoint);
+                mainNatsFileWithEmptyLine.toString(), this.serviceEndpoint);
         assertTree(astModifyResponse.getAst(), astResponse.getAst());
         String expectedFileContent = new String(Files.readAllBytes(mainNatsFile));
         assertSource(astModifyResponse.getSource(), expectedFileContent);
