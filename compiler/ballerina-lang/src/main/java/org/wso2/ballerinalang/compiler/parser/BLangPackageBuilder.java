@@ -3258,8 +3258,9 @@ public class BLangPackageBuilder {
         retryNode.pos = pos;
         retryNode.addWS(ws);
         retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
-        BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) this.blockNodeStack.peek();
-        retryNode.setTransaction((BLangTransaction) blockFunctionBody.stmts.remove(blockFunctionBody.stmts.size() - 1));
+        BlockNode blockNode = this.blockNodeStack.peek();
+        retryNode.setTransaction((BLangTransaction) blockNode.getStatements()
+                .remove(blockNode.getStatements().size() - 1));
         addStmtToCurrentBlock(retryNode);
     }
 
