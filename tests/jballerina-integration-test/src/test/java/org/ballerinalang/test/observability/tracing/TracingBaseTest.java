@@ -112,10 +112,18 @@ public class TracingBaseTest extends BaseTest {
         Files.copy(source.toPath(), dest.toPath(), REPLACE_EXISTING);
     }
 
-    protected List<BMockSpan> getFinishedSpans(int port, String service) throws IOException {
+    private List<BMockSpan> getFinishedSpans(int port, String service) throws IOException {
         String data = HttpClientRequest.doGet("http://localhost:" + port + "/mock-tracer/spans/" + service)
                 .getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);
+    }
+
+    protected List<BMockSpan> getFinishedSpans(String serviceName) throws IOException {
+        return getFinishedSpans(9090, serviceName);
+    }
+
+    protected List<BMockSpan> getEchoBackendFinishedSpans() throws IOException {
+        return getFinishedSpans(10010, "echoServiceOne");
     }
 }

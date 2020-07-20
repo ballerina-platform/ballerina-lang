@@ -23,7 +23,6 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -490,11 +489,98 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         });
     }
 
-    private List<BMockSpan> getFinishedSpans(String serviceName) throws IOException {
-        return getFinishedSpans(9090, serviceName);
-    }
+    @Test
+    public void testObservableAnnotation() throws Exception {
+        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9094/test-service/resource-1");
+        Assert.assertEquals(httpResponse.getResponseCode(), 200);
+        Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
+        Thread.sleep(1000);
 
-    private List<BMockSpan> getEchoBackendFinishedSpans() throws IOException {
-        return getFinishedSpans(10010, "echoServiceOne");
+        final String span1Position = "04_ootb_observe_annotation.bal:24:5";
+        final String span2Position = "04_ootb_observe_annotation.bal:32:23";
+        final String span3Position = "04_ootb_observe_annotation.bal:44:23";
+        final String span4Position = "04_ootb_observe_annotation.bal:55:20";
+
+        List<BMockSpan> spans = this.getFinishedSpans("testServiceFour");
+        Assert.assertEquals(spans.size(), 4);
+        Assert.assertEquals(spans.stream()
+                        .map(span -> span.getTags().get("src.position"))
+                        .collect(Collectors.toSet()),
+                new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position, span4Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+
+        Optional<BMockSpan> span1 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+        span1.ifPresent(span -> {
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertEquals(span.getOperationName(), "resourceOne");
+            Assert.assertEquals(span.getTags().size(), 10);
+            Assert.assertEquals(span.getTags().get("span.kind"), "server");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
+            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
+            Assert.assertEquals(span.getTags().get("http.method"), "GET");
+            Assert.assertEquals(span.getTags().get("protocol"), "http");
+            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+        });
+
+        Optional<BMockSpan> span2 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span2Position))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "calculateSumWithObservableFunction");
+            Assert.assertEquals(span.getTags().size(), 6);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("function"), "calculateSumWithObservableFunction");
+        });
+
+        Optional<BMockSpan> span3 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span3Position))
+                .findFirst();
+        Assert.assertTrue(span3.isPresent());
+        span3.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina-test/tracingservices/ObservableAdder:getSum");
+            Assert.assertEquals(span.getTags().size(), 7);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("function"), "getSum");
+            Assert.assertEquals(span.getTags().get("object_name"), "ballerina-test/tracingservices/ObservableAdder");
+        });
+
+        Optional<BMockSpan> span4 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span4Position))
+                .findFirst();
+        Assert.assertTrue(span4.isPresent());
+        span4.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
+            Assert.assertEquals(span.getTags().size(), 10);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("src.remote"), "true");
+            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
+            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
+            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
+            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
+            Assert.assertEquals(span.getTags().get("action"), "respond");
+        });
     }
 }
