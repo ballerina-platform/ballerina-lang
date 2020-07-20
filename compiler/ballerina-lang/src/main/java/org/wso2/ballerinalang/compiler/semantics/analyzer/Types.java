@@ -3432,4 +3432,65 @@ public class Types {
         }
         return hasFillerValue(type.eType);
     }
+
+    /**
+     * Get result type of the query output.
+     *
+     * @param type type of query expression.
+     * @return result type.
+     */
+    public BType resolveExprType(BType type) {
+        if (type.tag == TypeTags.STREAM) {
+            return ((BStreamType) type).constraint;
+        } else if (type.tag == TypeTags.TABLE) {
+            return ((BTableType) type).constraint;
+        } else if (type.tag == TypeTags.ARRAY) {
+            return ((BArrayType) type).eType;
+        } else if (type.tag == TypeTags.UNION) {
+            List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
+            for (BType returnType : exprTypes) {
+                if (returnType.tag == TypeTags.STREAM) {
+                    return ((BStreamType) returnType).constraint;
+                } else if (returnType.tag == TypeTags.TABLE) {
+                    return ((BTableType) returnType).constraint;
+                }  else if (returnType.tag == TypeTags.ARRAY) {
+                    return ((BArrayType) returnType).eType;
+                } else if (returnType.tag == TypeTags.STRING) {
+                    return returnType;
+                } else if (returnType.tag == TypeTags.XML) {
+                    return returnType;
+                }
+            }
+        }
+        return type;
+    }
+
+    /**
+     * Check whether a type is a basic type.
+     *
+     * @param type type of the field.
+     * @return boolean whether the type is basic type or not.
+     */
+    public boolean checkBasicType(BType type) {
+        if (type.tag == TypeTags.INT) {
+            return true;
+        } else if (type.tag == TypeTags.FLOAT) {
+            return true;
+        } else if (type.tag == TypeTags.DECIMAL) {
+            return true;
+        } else if (type.tag == TypeTags.STRING) {
+            return true;
+        } else if (type.tag == TypeTags.BOOLEAN) {
+            return true;
+        } else if (type.tag == TypeTags.NIL) {
+            return true;
+        } else if (type.tag == TypeTags.UNION) {
+            if (((BUnionType) type).getMemberTypes().contains(symTable.nilType)) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        return false;
+    }
 }

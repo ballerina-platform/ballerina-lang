@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -251,7 +250,7 @@ public class QueryDesugar extends BLangNodeVisitor {
             // Type[] arr passed to order by helper
             BLangArrayLiteral orderArr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
             orderArr.exprs = new ArrayList<>();
-            orderArr.type = new BArrayType(resolveExprType(queryExpr.type));
+            orderArr.type = new BArrayType(types.resolveExprType(queryExpr.type));
             streamRef = sortStream(queryBlock, orderByClause, streamRef, orderArr);
         }
         if (queryExpr.isStream) {
@@ -309,38 +308,6 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, result);
         stmtExpr.type = symTable.errorOrNilType;
         return stmtExpr;
-    }
-
-    /**
-     * Get result type of the query output.
-     *
-     * @param type type of query expression.
-     * @return result type.
-     */
-    private BType resolveExprType(BType type) {
-        if (type.tag == TypeTags.STREAM) {
-            return ((BStreamType) type).constraint;
-        } else if (type.tag == TypeTags.TABLE) {
-            return ((BTableType) type).constraint;
-        } else if (type.tag == TypeTags.ARRAY) {
-            return ((BArrayType) type).eType;
-        } else if (type.tag == TypeTags.UNION) {
-            List<BType> exprTypes = new ArrayList<>(((BUnionType) type).getMemberTypes());
-            for (BType returnType : exprTypes) {
-                if (returnType.tag == TypeTags.STREAM) {
-                    return ((BStreamType) returnType).constraint;
-                } else if (returnType.tag == TypeTags.TABLE) {
-                    return ((BTableType) returnType).constraint;
-                }  else if (returnType.tag == TypeTags.ARRAY) {
-                    return ((BArrayType) returnType).eType;
-                } else if (returnType.tag == TypeTags.STRING) {
-                    return returnType;
-                } else if (returnType.tag == TypeTags.XML) {
-                    return returnType;
-                }
-            }
-        }
-        return type;
     }
 
     /**
