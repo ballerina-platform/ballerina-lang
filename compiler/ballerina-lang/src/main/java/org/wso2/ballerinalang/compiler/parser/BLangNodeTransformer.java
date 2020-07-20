@@ -216,6 +216,7 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -1138,8 +1139,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
         bLFunction.pos = getPositionForFuncDefNode(funcDefNode);
-
-
+        
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(funcDefNode.metadata().documentationString());
         return bLFunction;
@@ -2107,6 +2107,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
         VariableDefinitionNode varDefNode = createBLangVarDef(getPosition(letVarDecl), letVarDecl.typedBindingPattern(),
                 Optional.of(letVarDecl.expression()), Optional.empty());
+        varDefNode.getVariable().addFlag(Flag.FINAL);
+        List<BLangNode> annots = applyAll(letVarDecl.annotations());
+        for (BLangNode node : annots) {
+            varDefNode.getVariable().addAnnotationAttachment((AnnotationAttachmentNode) node);
+        }
+
         letVar.definitionNode = varDefNode;
         return letVar;
     }

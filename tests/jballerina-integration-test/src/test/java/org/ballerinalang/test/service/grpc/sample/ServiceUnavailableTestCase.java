@@ -56,7 +56,6 @@ public class ServiceUnavailableTestCase extends GrpcBaseTest {
                 new Object[] { StringUtils.fromString("WSO2") });
         Assert.assertEquals(responses.length, 1);
         Assert.assertTrue(responses[0] instanceof BString);
-        System.out.println(responses[0].stringValue());
         Assert.assertTrue(responses[0].stringValue().contains(expectedMsg));
     }
 
