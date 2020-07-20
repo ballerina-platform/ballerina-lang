@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Optional;
@@ -36,7 +36,7 @@ public class BStream extends BSimpleVariable {
 
     private static final String FIELD_CONSTRAINT_TYPE = "constraintType";
 
-    public BStream(VariableContext context, Value value, Variable dapVariable) {
+    public BStream(SuspendedContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.STREAM, value, dapVariable);
     }
 

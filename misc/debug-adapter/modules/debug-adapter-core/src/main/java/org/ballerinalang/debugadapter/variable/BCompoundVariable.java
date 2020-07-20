@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.Map;
@@ -26,16 +27,16 @@ import java.util.Map;
  */
 public abstract class BCompoundVariable implements BVariable {
 
-    protected final VariableContext context;
+    protected final SuspendedContext context;
     protected Value jvmValue;
     private final Variable dapVariable;
     private final Map<String, Value> childVariables;
 
-    public BCompoundVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+    public BCompoundVariable(SuspendedContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
         this(context, bVariableType.getString(), jvmValue, dapVar);
     }
 
-    public BCompoundVariable(VariableContext context, String bVariableType, Value jvmValue, Variable dapVar) {
+    public BCompoundVariable(SuspendedContext context, String bVariableType, Value jvmValue, Variable dapVar) {
         this.context = context;
         this.jvmValue = jvmValue;
         dapVar.setType(bVariableType);
@@ -45,7 +46,7 @@ public abstract class BCompoundVariable implements BVariable {
     }
 
     @Override
-    public VariableContext getContext() {
+    public SuspendedContext getContext() {
         return context;
     }
 

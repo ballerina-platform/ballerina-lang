@@ -14,25 +14,32 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.variable.types;
+package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Value;
-import org.ballerinalang.debugadapter.variable.BSimpleVariable;
-import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.eclipse.lsp4j.debug.Variable;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
-/**
- * Ballerina nil variable type.
- */
-public class BNil extends BSimpleVariable {
+public abstract class Evaluator {
 
-    public BNil(SuspendedContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.NIL, value, dapVariable);
+    SuspendedContext context;
+
+    public Evaluator(SuspendedContext context) {
+        this.context = context;
     }
 
-    @Override
-    public String computeValue() {
-        return "()";
+    /**
+     * @throws EvaluationException
+     */
+    public abstract Value evaluate() throws EvaluationException;
+
+    /**
+     * In order to obtain a modifier the expression must be evaluated first
+     *
+     * @return a modifier object allowing to set a value in case the expression is lvalue,
+     * otherwise null is returned
+     */
+    Modifier getModifier() {
+        return null;
     }
 }

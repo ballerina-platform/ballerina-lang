@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.variable;
 
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
@@ -28,7 +29,7 @@ public interface BVariable {
      *
      * @return context information (i.e. owning stack frame and thread).
      */
-    VariableContext getContext();
+    SuspendedContext getContext();
 
     /**
      * Returns the value of the variable instance in string form. Each variable type implementation can have their

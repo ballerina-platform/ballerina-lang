@@ -20,7 +20,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -42,7 +42,7 @@ public class BXmlSequence extends BCompoundVariable {
     private static final String FIELD_CHILDREN = "children";
     private static final String FIELD_ELEMENT_DATA = "elementData";
 
-    public BXmlSequence(VariableContext context, Value value, Variable dapVariable) {
+    public BXmlSequence(SuspendedContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.XML, value, dapVariable);
     }
 

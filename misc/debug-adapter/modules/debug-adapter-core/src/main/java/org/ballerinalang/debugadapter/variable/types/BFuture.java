@@ -21,7 +21,7 @@ import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -40,7 +40,7 @@ public class BFuture extends BCompoundVariable {
     private static final String FIELD_PANIC = "panic";
     private static final String METHOD_LOCALIZEDMESSAGE = "getLocalizedMessage";
 
-    public BFuture(VariableContext context, Value value, Variable dapVariable) {
+    public BFuture(SuspendedContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.FUTURE, value, dapVariable);
     }
 

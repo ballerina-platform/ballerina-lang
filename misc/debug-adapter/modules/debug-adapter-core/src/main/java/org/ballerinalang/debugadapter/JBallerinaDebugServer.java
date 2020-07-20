@@ -20,7 +20,6 @@ import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.InvalidStackFrameException;
-import com.sun.jdi.Location;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
 import com.sun.jdi.VirtualMachine;
@@ -36,7 +35,6 @@ import org.ballerinalang.debugadapter.terminator.TerminatorFactory;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
-import org.ballerinalang.debugadapter.variable.VariableContext;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
@@ -98,7 +96,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
 import static org.ballerinalang.debugadapter.variable.VariableFactory.getVariable;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
@@ -130,7 +128,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String DEBUGGER_TERMINATED = "Debugger is terminated";
     private static final String DEBUGGER_FAILED_TO_ATTACH = "Debugger is failed to attach";
-    static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
 
     public JBallerinaDebugServer() {
         context = new DebugContext();
@@ -180,19 +177,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<Void> configurationDone(ConfigurationDoneArguments args) {
         return CompletableFuture.completedFuture(null);
-    }
-
-    private void updateProjectRoot(String balFile) {
-        projectRoot = findProjectRoot(Paths.get(balFile));
-        if (projectRoot == null) {
-            // calculate projectRoot for single file
-            File file = new File(balFile);
-            File parentDir = file.getParentFile();
-            projectRoot = parentDir.toPath();
-        } else {
-            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
-            orgName = manifest.getProject().getOrgName();
-        }
     }
 
     @Override
@@ -323,7 +307,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackFramesMap.put(variableReference, stackFrame);
 
         try {
-            String sourcePath = getRectifiedPath(stackFrame.location());
+            String sourcePath = getRectifiedSourcePath(stackFrame.location(), projectRoot);
             Source source = new Source();
             source.setPath(projectRoot + File.separator + sourcePath);
             source.setName(stackFrame.location().sourceName());
@@ -354,7 +338,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             // A single VariableContext instance should be created in order to avoid InvalidStackFrameExceptions,
             // as we may use(resume) the suspended thread to invoke methods during variable computations.
             com.sun.jdi.StackFrame frame = stackFramesMap.get(stackFrameId);
-            VariableContext context = new VariableContext(frame, activeThread);
+            SuspendedContext context = new SuspendedContext(projectRoot, debuggeeVM, activeThread, frame);
             dapVariables = values.entrySet().stream().map(entry -> {
                 Value value = entry.getValue();
                 String varTypeStr = Optional.ofNullable(value).map(val -> val.type().name()).orElse("null");
@@ -376,7 +360,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             try {
                 // A single VariableContext instance should be created in order to avoid InvalidStackFrameExceptions,
                 // as we may use(resume) the suspended thread to invoke methods during variable computations.
-                VariableContext context = new VariableContext(stackFrame, activeThread);
+                SuspendedContext context = new SuspendedContext(projectRoot, debuggeeVM, activeThread, stackFrame);
                 dapVariables = stackFrame.getValues(stackFrame.visibleVariables()).entrySet().stream()
                         .map(varValueEntry -> {
                             String varType;
@@ -507,11 +491,11 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             } catch (InvalidStackFrameException e) {
                 frame = activeThread.frames().get(0);
             }
-            Optional<Value> result = executionManager.evaluate(frame, args.getExpression());
+            SuspendedContext context = new SuspendedContext(projectRoot, debuggeeVM, activeThread, frame);
+            Optional<Value> result = executionManager.evaluate(context, args.getExpression());
             if (result.isPresent()) {
                 Value value = result.get();
                 String valueTypeName = value.type().name();
-                VariableContext context = new VariableContext(frame, activeThread);
                 BVariable variable = getVariable(context, value, valueTypeName, "Evaluation Result");
                 if (variable == null) {
                     return CompletableFuture.completedFuture(response);
@@ -601,28 +585,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         this.client = client;
     }
 
-    /**
-     * Some additional processing is required to rectify the source path, as the source name will be the
-     * relative path instead of just the file name, for the ballerina module sources.
-     */
-    private String getRectifiedPath(Location location) throws AbsentInformationException {
-        String sourcePath = location.sourcePath();
-        String sourceName = location.sourceName();
-
-        // Note: directly using file separator as a regex will fail on windows.
-        String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
-        String[] srcNames = getSourceNames(sourceName);
-        String fileName = srcNames[srcNames.length - 1];
-        String relativePath = sourcePath.replace(sourceName, fileName);
-
-        if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
-            relativePath = relativePath.replaceFirst(orgName, "src");
-        }
-        // Removes module version part from the JDI reference source path.
-        relativePath = relativePath.replaceFirst(fileSeparatorRegex + MODULE_VERSION_REGEX, "");
-        return relativePath;
-    }
-
     private synchronized void updateVariableToStackFrameMap(Long parent, long child) {
         if (variableToStackFrameMap.get(parent) == null) {
             variableToStackFrameMap.put(child, parent);
@@ -633,6 +595,20 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             rootNode = variableToStackFrameMap.get(parent);
         } while (variableToStackFrameMap.get(rootNode) != null);
         variableToStackFrameMap.put(child, rootNode);
+    }
+
+    private void updateProjectRoot(String balFilePath) {
+        projectRoot = findProjectRoot(Paths.get(balFilePath));
+        // If a ballerina project root is not detected, source type will be assumed as a single bal file.
+        if (projectRoot == null) {
+            // calculate projectRoot for single file
+            File file = new File(balFilePath);
+            File parentDir = file.getParentFile();
+            projectRoot = parentDir.toPath();
+        } else {
+            Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+            orgName = manifest.getProject().getOrgName();
+        }
     }
 
     /**

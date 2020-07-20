@@ -20,7 +20,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -39,7 +39,7 @@ public class BXmlItemAttributeMap extends BCompoundVariable {
     private static final String FIELD_MAP_KEY = "key";
     private static final String FIELD_MAP_VALUE = "value";
 
-    public BXmlItemAttributeMap(VariableContext context, Value value, Variable dapVariable) {
+    public BXmlItemAttributeMap(SuspendedContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.MAP, value, dapVariable);
     }
 

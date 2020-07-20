@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter.variable;
 
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.eclipse.lsp4j.debug.Variable;
 
 /**
@@ -24,11 +25,11 @@ import org.eclipse.lsp4j.debug.Variable;
  */
 public abstract class BSimpleVariable implements BVariable {
 
-    protected final VariableContext context;
+    protected final SuspendedContext context;
     protected final Value jvmValue;
     private final Variable dapVariable;
 
-    public BSimpleVariable(VariableContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+    public BSimpleVariable(SuspendedContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
         this.context = context;
         this.jvmValue = jvmValue;
         dapVar.setType(bVariableType.getString());
@@ -37,7 +38,7 @@ public abstract class BSimpleVariable implements BVariable {
     }
 
     @Override
-    public VariableContext getContext() {
+    public SuspendedContext getContext() {
         return context;
     }
 

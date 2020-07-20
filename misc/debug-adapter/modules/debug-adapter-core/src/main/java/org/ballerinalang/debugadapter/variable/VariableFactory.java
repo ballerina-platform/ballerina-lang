@@ -19,6 +19,7 @@ package org.ballerinalang.debugadapter.variable;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Type;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.types.BArray;
 import org.ballerinalang.debugadapter.variable.types.BBoolean;
 import org.ballerinalang.debugadapter.variable.types.BDecimal;
@@ -107,7 +108,7 @@ public class VariableFactory {
      * @param varName        variable name
      * @return Ballerina type variable instance which corresponds to the given java variable
      */
-    public static BVariable getVariable(VariableContext context, Value value, String parentTypeName, String varName) {
+    public static BVariable getVariable(SuspendedContext context, Value value, String parentTypeName, String varName) {
 
         if (varName == null || varName.isEmpty() || varName.startsWith("$")) {
             return null;

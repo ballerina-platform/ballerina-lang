@@ -20,7 +20,7 @@ import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.variable.VariableContext;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Variable;
 
@@ -37,7 +37,7 @@ public class BJson extends BCompoundVariable {
     private static final String FIELD_JSON_KEY = "key";
     private static final String FIELD_JSON_VALUE = "value";
 
-    public BJson(VariableContext context, Value value, Variable dapVariable) {
+    public BJson(SuspendedContext context, Value value, Variable dapVariable) {
         super(context, BVariableType.JSON, value, dapVariable);
     }
 

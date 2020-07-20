@@ -27,7 +27,11 @@ public enum EvaluationExceptionKind {
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: \"%s\""),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
-    UNSUPPORTED("Unsupported expressions/sub-expressions found: " + System.lineSeparator() + "%s");
+    UNSUPPORTED("Unsupported expressions/sub-expressions found: " + System.lineSeparator() + "%s"),
+    FUNCTION_NOT_FOUND("No functions are found with name: \"%s\""),
+    FUNCTION_EXECUTION_ERROR("Error occurred when executing method: %s"),
+    VARIABLE_NOT_FOUND("No variables are found with name: \"%s\""),
+    VARIABLE_EXECUTION_ERROR("Error occurred when processing variable: %s");
 
     public static final String PREFIX = "Failed to evaluate." + System.lineSeparator() + "Reason: ";
     private final String value;

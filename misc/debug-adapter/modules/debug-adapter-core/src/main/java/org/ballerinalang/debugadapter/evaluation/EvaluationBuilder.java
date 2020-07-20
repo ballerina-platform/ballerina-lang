@@ -16,12 +16,20 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
-import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
+import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
+import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.FunctionCallExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.NameReferenceEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -30,8 +38,8 @@ import java.util.Set;
 import java.util.StringJoiner;
 
 /**
- * A {@code NodeTransformer} implementation used to traverse + transform ballerina expressions into corresponding java
- * expressions.
+ * A {@code NodeVisitor} based implementation used to traverse and capture evaluatable segments of a parsed ballerina
+ * expression.
  * <br><br>
  * Supported expression types. (Language specification v2020R1)
  * <ul>
@@ -90,16 +98,24 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class ExpressionTransformer extends NodeTransformer<Node> {
+public class EvaluationBuilder extends NodeVisitor {
 
     private final Set<SyntaxKind> supportedSyntax = new HashSet<>();
     private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
+    private final SuspendedContext context;
+    private boolean isExpressionFound = false;
+    private Evaluator result = null;
+    private EvaluationException builderException = null;
 
-    public ExpressionTransformer() {
+    public EvaluationBuilder(SuspendedContext context) {
+
+        this.context = context;
+
         // expressions
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
+        supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
         // arithmetic operators
         supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
         supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
@@ -130,17 +146,20 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
      * @param expression Ballerina expression(user input).
      * @throws EvaluationException If validation/parsing is failed.
      */
-    public String transform(String expression) throws EvaluationException {
+    public Evaluator build(String expression) throws EvaluationException {
         // Validates and converts the expression into a parsed syntax-tree node.
         ExpressionNode parsedExpr = DebugExpressionParser.validateAndParse(expression);
         // transforms the parsed ballerina expression into a java expression using a node transformer implementation.
-        Node jExpression = parsedExpr.apply(this);
+        parsedExpr.accept(this);
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
             unsupportedNodes.forEach(node -> errors.add(String.format("%s - %s", node.toString(), node.kind())));
             throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED.getString(), errors));
         }
-        return jExpression.toString();
+        if (result == null) {
+            throw builderException;
+        }
+        return result;
     }
 
     private boolean unsupportedSyntaxDetected() {
@@ -148,20 +167,50 @@ public class ExpressionTransformer extends NodeTransformer<Node> {
     }
 
     @Override
-    public Node transform(Token token) {
-        return transformSyntaxNode(token);
+    public void visit(Token token) {
+
     }
 
     @Override
-    protected Node transformSyntaxNode(Node node) {
+    public void visit(BinaryExpressionNode binaryExpressionNode) {
+        visitSyntaxNode(binaryExpressionNode);
+    }
+
+    @Override
+    public void visit(FunctionCallExpressionNode functionCallExpressionNode) {
+        // Evaluates arguments.
+        List<Evaluator> argEvaluators = new ArrayList<>();
+        SeparatedNodeList<FunctionArgumentNode> args = functionCallExpressionNode.arguments();
+        // Removes separator nodes from the args list.
+        for (int index = args.size() - 2; index > 0; index -= 2) {
+            args.remove(index);
+        }
+        for (int idx = 0; idx < args.size(); idx++) {
+            final FunctionArgumentNode argExprNode = args.get(idx);
+            argExprNode.accept(this);
+            if (result == null) {
+                builderException = new EvaluationException(String.format("Unsupported/Invalid argument found: %s",
+                        argExprNode.toString()));
+                return;
+            }
+            // Todo - should we disable GC like intellij does?
+            argEvaluators.add(result);
+        }
+        result = new FunctionCallExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
+        visitSyntaxNode(functionCallExpressionNode);
+    }
+
+    @Override
+    public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
+        result = new NameReferenceEvaluator(context, simpleNameReferenceNode);
+        visitSyntaxNode(simpleNameReferenceNode);
+    }
+
+    @Override
+    protected void visitSyntaxNode(Node node) {
         capturedSyntax.add(node.kind());
         if (!supportedSyntax.contains(node.kind())) {
             unsupportedNodes.add(node);
         }
-        if (node instanceof NonTerminalNode) {
-            NonTerminalNode nonTerminalNode = (NonTerminalNode) node;
-            nonTerminalNode.children().forEach(child -> child.apply(this));
-        }
-        return node;
     }
 }
