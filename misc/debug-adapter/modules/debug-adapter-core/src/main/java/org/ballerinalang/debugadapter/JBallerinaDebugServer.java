@@ -121,7 +121,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, ThreadReference> threadsMap = new HashMap<>();
     private final AtomicInteger nextVarReference = new AtomicInteger();
     private final Map<Long, com.sun.jdi.StackFrame> stackFramesMap = new HashMap<>();
-    private final Map<Long, Map<String, Value>> childVariables = new HashMap<>();
+    private final Map<Long, BCompoundVariable> loadedVariables = new HashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new HashMap<>();
     private static int systemExit = 1;
 
@@ -330,7 +330,8 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         com.sun.jdi.StackFrame stackFrame = stackFramesMap.get(args.getVariablesReference());
         Variable[] dapVariables;
         if (stackFrame == null) {
-            Map<String, Value> values = childVariables.get(args.getVariablesReference());
+            BCompoundVariable parentVar = loadedVariables.get(args.getVariablesReference());
+            Map<String, Value> childVariables = parentVar.getChildVariables();
             Long stackFrameId = variableToStackFrameMap.get(args.getVariablesReference());
             if (stackFrameId == null) {
                 return null;
@@ -339,7 +340,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             // as we may use(resume) the suspended thread to invoke methods during variable computations.
             com.sun.jdi.StackFrame frame = stackFramesMap.get(stackFrameId);
             SuspendedContext context = new SuspendedContext(projectRoot, debuggeeVM, activeThread, frame);
-            dapVariables = values.entrySet().stream().map(entry -> {
+            dapVariables = childVariables.entrySet().stream().map(entry -> {
                 Value value = entry.getValue();
                 String varTypeStr = Optional.ofNullable(value).map(val -> val.type().name()).orElse("null");
                 String name = entry.getKey();
@@ -351,7 +352,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 } else if (variable instanceof BCompoundVariable) {
                     long variableReference = nextVarReference.getAndIncrement();
                     variable.getDapVariable().setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
+                    this.loadedVariables.put(variableReference, (BCompoundVariable) variable);
                     updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
                 }
                 return variable.getDapVariable();
@@ -382,8 +383,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                             } else if (variable instanceof BCompoundVariable) {
                                 long variableReference = nextVarReference.getAndIncrement();
                                 variable.getDapVariable().setVariablesReference(variableReference);
-                                this.childVariables.put(variableReference, ((BCompoundVariable) variable)
-                                        .getChildVariables());
+                                this.loadedVariables.put(variableReference, (BCompoundVariable) variable);
                                 updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
                             }
                             return variable.getDapVariable();
@@ -504,7 +504,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 } else if (variable instanceof BCompoundVariable) {
                     long variableReference = nextVarReference.getAndIncrement();
                     variable.getDapVariable().setVariablesReference(variableReference);
-                    this.childVariables.put(variableReference, ((BCompoundVariable) variable).getChildVariables());
+                    this.loadedVariables.put(variableReference, (BCompoundVariable) variable);
                     updateVariableToStackFrameMap(args.getFrameId(), variableReference);
                 }
                 Variable dapVariable = variable.getDapVariable();
@@ -619,7 +619,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         threadsMap.clear();
         nextVarReference.set(1);
         stackFramesMap.clear();
-        childVariables.clear();
+        loadedVariables.clear();
         variableToStackFrameMap.clear();
     }
 }

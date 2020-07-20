@@ -19,10 +19,9 @@ package org.ballerinalang.debugadapter.variable.types;
 import com.sun.jdi.Field;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
+import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
-import org.ballerinalang.debugadapter.SuspendedContext;
-import org.eclipse.lsp4j.debug.Variable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -34,8 +33,8 @@ import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
  */
 public class BObject extends BCompoundVariable {
 
-    public BObject(SuspendedContext context, Value value, Variable dapVariable) {
-        super(context, BVariableType.OBJECT, value, dapVariable);
+    public BObject(SuspendedContext context, String name, Value value) {
+        super(context, name, BVariableType.OBJECT, value);
     }
 
     @Override

@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.InvalidStackFrameException;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VirtualMachine;
@@ -77,7 +78,8 @@ public class SuspendedContext {
     private String getSourcePath(StackFrame frame, Path projectRoot) {
         try {
             return PackageUtils.getRectifiedSourcePath(frame.location(), projectRoot);
-        } catch (AbsentInformationException e) {
+        } catch (AbsentInformationException | InvalidStackFrameException e) {
+            // Todo - How to handle InvalidStackFrameException?
             return "";
         }
     }

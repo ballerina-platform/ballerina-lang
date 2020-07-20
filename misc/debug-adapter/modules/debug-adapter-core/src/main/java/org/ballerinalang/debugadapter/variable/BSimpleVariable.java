@@ -26,15 +26,17 @@ import org.eclipse.lsp4j.debug.Variable;
 public abstract class BSimpleVariable implements BVariable {
 
     protected final SuspendedContext context;
+    private final String name;
+    private final BVariableType type;
     protected final Value jvmValue;
-    private final Variable dapVariable;
+    private Variable dapVariable;
 
-    public BSimpleVariable(SuspendedContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
+    public BSimpleVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
+        this.name = varName;
+        this.type = bVariableType;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType.getString());
-        dapVar.setValue(computeValue());
-        this.dapVariable = dapVar;
+        this.dapVariable = null;
     }
 
     @Override
@@ -44,6 +46,13 @@ public abstract class BSimpleVariable implements BVariable {
 
     @Override
     public Variable getDapVariable() {
+        if (dapVariable != null) {
+            return dapVariable;
+        }
+        dapVariable = new Variable();
+        dapVariable.setName(this.name);
+        dapVariable.setType(this.type.getString());
+        dapVariable.setValue(computeValue());
         return dapVariable;
     }
 }

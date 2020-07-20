@@ -28,26 +28,19 @@ import java.util.Map;
 public abstract class BCompoundVariable implements BVariable {
 
     protected final SuspendedContext context;
+    private final String name;
+    private final BVariableType type;
     protected Value jvmValue;
-    private final Variable dapVariable;
-    private final Map<String, Value> childVariables;
+    private Variable dapVariable;
+    private Map<String, Value> childVariables;
 
-    public BCompoundVariable(SuspendedContext context, BVariableType bVariableType, Value jvmValue, Variable dapVar) {
-        this(context, bVariableType.getString(), jvmValue, dapVar);
-    }
-
-    public BCompoundVariable(SuspendedContext context, String bVariableType, Value jvmValue, Variable dapVar) {
+    public BCompoundVariable(SuspendedContext context, String varName, BVariableType bVariableType, Value jvmValue) {
         this.context = context;
+        this.name = varName;
+        this.type = bVariableType;
         this.jvmValue = jvmValue;
-        dapVar.setType(bVariableType);
-        dapVar.setValue(computeValue());
-        this.dapVariable = dapVar;
-        this.childVariables = computeChildVariables();
-    }
-
-    @Override
-    public SuspendedContext getContext() {
-        return context;
+        this.dapVariable = null;
+        this.childVariables = null;
     }
 
     /**
@@ -56,12 +49,28 @@ public abstract class BCompoundVariable implements BVariable {
      */
     protected abstract Map<String, Value> computeChildVariables();
 
-    public Map<String, Value> getChildVariables() {
-        return childVariables;
+    @Override
+    public SuspendedContext getContext() {
+        return context;
     }
 
     @Override
     public Variable getDapVariable() {
+        if (dapVariable != null) {
+            return dapVariable;
+        }
+        dapVariable = new Variable();
+        dapVariable.setName(this.name);
+        dapVariable.setType(this.type.getString());
+        dapVariable.setValue(computeValue());
         return dapVariable;
+    }
+
+    public Map<String, Value> getChildVariables() {
+        if (childVariables != null) {
+            return childVariables;
+        }
+        childVariables = computeChildVariables();
+        return childVariables;
     }
 }
