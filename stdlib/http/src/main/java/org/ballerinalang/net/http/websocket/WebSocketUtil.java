@@ -578,7 +578,7 @@ public class WebSocketUtil {
     public static WebSocketException getWebSocketException(String msg, Throwable throwable, String errorCode,
                                                            ErrorValue cause) {
         WebSocketException exception;
-        String message = errorCode.substring(2) + ": " + msg;
+        String message = "[" + errorCode.substring(2) + "] " + msg;
         if (throwable != null) {
             exception = new WebSocketException(throwable);
         } else if (cause != null) {
