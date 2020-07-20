@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/observe;
 import ballerina/testobserve;
 
 @http:ServiceConfig {
@@ -33,4 +34,8 @@ service mockTracer on new http:Listener(9090) {
     }
 }
 
-
+@observe:Observable
+function calculateSumWithObservableFunction(int a, int b) returns int {
+    var sum = a + b;
+    return a + b;
+}

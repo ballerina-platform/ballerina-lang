@@ -35,6 +35,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -117,6 +119,12 @@ public class TracingBaseTest extends BaseTest {
                 .getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);
+    }
+
+    protected List<BMockSpan> getFinishedSpans(String serviceName, String resource) throws IOException {
+        return getFinishedSpans(9090, serviceName).stream()
+                .filter(span -> Objects.equals(span.getTags().get("resource"), resource))
+                .collect(Collectors.toList());
     }
 
     protected List<BMockSpan> getFinishedSpans(String serviceName) throws IOException {

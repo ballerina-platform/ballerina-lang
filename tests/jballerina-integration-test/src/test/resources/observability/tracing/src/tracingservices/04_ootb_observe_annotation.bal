@@ -56,12 +56,6 @@ service testServiceFour on new http:Listener(9094) {
     }
 }
 
-@observe:Observable
-function calculateSumWithObservableFunction(int a, int b) returns int {
-    var sum = a + b;
-    return a + b;
-}
-
 type AbstractObservableAdder abstract object {
     @observe:Observable
     function getSum() returns int;
