@@ -31,6 +31,7 @@ import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -572,6 +573,20 @@ public class ObjectInBaloTest {
     @Test
     public void testObjectReferingNonAbstractObjLoadedFromBalo() {
         BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBalo");
+    }
+
+    @Test(dataProvider = "objectSubTypingTests")
+    public void testObjectSubTyping(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "objectSubTypingTests")
+    public static Object[][] objectSubTypingTests() {
+        return new Object[][]{
+                {"testSubTypingWithModuleLevelVisibleFields"},
+                {"testSubTypingWithModuleLevelVisibleMethods"},
+                {"testSubTypingWithAllPublicFields"}
+        };
     }
 
     @Test

@@ -245,3 +245,52 @@ public type Desk object {
     public function init () {
     }
 };
+
+public type ObjectWithModuleLevelVisibilityField object {
+    public int i;
+    boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+};
+
+public type ObjectWithModuleLevelVisibilityMethod object {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b) {
+        self.i = i;
+        self.b = b;
+    }
+
+    function getInt() returns int {
+        return self.i;
+    }
+};
+
+public type ObjectWithPublicFieldsAndMethods object {
+    public int i;
+    public boolean b;
+
+    public function init(int i, boolean b = true) {
+        self.i = i;
+        self.b = b;
+    }
+
+    public function getInt() returns int {
+        return self.i;
+    }
+};
+
+public function getObjectWithModuleLevelVisibilityField() returns ObjectWithModuleLevelVisibilityField => new (1, true);
+
+public function getObjectWithModuleLevelVisibilityMethod() returns ObjectWithModuleLevelVisibilityMethod =>
+    new (2, false);
+
+public function getObjectWithPublicFieldsAndMethods() returns ObjectWithPublicFieldsAndMethods => new (3);

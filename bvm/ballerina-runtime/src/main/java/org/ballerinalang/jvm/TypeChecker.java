@@ -1358,12 +1358,13 @@ public class TypeChecker {
             return false;
         }
 
+        String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(BPackage::getName).orElse("");
+        String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(BPackage::getName).orElse("");
+
         for (BField lhsField : targetFields.values()) {
             BField rhsField = sourceFields.get(lhsField.name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
-                        .orElse(""), Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
-                        .orElse(""), lhsField.flags, rhsField.flags) ||
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.flags, rhsField.flags) ||
                     hasIncompatibleReadOnlyFlags(lhsField, rhsField) ||
                     !checkIsType(rhsField.type, lhsField.type, new ArrayList<>())) {
                 return false;
@@ -1373,11 +1374,7 @@ public class TypeChecker {
         for (AttachedFunction lhsFunc : targetFuncs) {
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
-                                    .map(BPackage::getName)
-                                    .orElse(""),
-                            Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName).orElse(""),
-                            lhsFunc.flags, rhsFunc.flags)) {
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
             if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
@@ -1418,14 +1415,14 @@ public class TypeChecker {
 
         ObjectValue sourceObjVal = (ObjectValue) sourceVal;
 
+        String targetTypeModule = Optional.ofNullable(targetType.getPackage()).map(BPackage::getName).orElse("");
+        String sourceTypeModule = Optional.ofNullable(sourceObjectType.getPackage()).map(BPackage::getName).orElse("");
+
         for (BField lhsField : targetFields.values()) {
             String name = lhsField.name;
             BField rhsField = sourceFields.get(name);
             if (rhsField == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsField.type.getPackage()).map(BPackage::getName)
-                                                      .orElse(""),
-                                              Optional.ofNullable(rhsField.type.getPackage()).map(BPackage::getName)
-                                                      .orElse(""), lhsField.flags, rhsField.flags) ||
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsField.flags, rhsField.flags) ||
                     hasIncompatibleReadOnlyFlags(lhsField, rhsField)) {
                 return false;
             }
@@ -1442,12 +1439,7 @@ public class TypeChecker {
         for (AttachedFunction lhsFunc : targetFuncs) {
             AttachedFunction rhsFunc = getMatchingInvokableType(sourceFuncs, lhsFunc, unresolvedTypes);
             if (rhsFunc == null ||
-                    !isInSameVisibilityRegion(Optional.ofNullable(lhsFunc.type.getPackage())
-                                                      .map(BPackage::getName)
-                                                      .orElse(""),
-                                              Optional.ofNullable(rhsFunc.type.getPackage()).map(BPackage::getName)
-                                                      .orElse(""),
-                                              lhsFunc.flags, rhsFunc.flags)) {
+                    !isInSameVisibilityRegion(targetTypeModule, sourceTypeModule, lhsFunc.flags, rhsFunc.flags)) {
                 return false;
             }
             if (Flags.isFlagOn(lhsFunc.flags, Flags.REMOTE) != Flags.isFlagOn(rhsFunc.flags, Flags.REMOTE)) {
