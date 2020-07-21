@@ -56,8 +56,12 @@ public class RetryClientTest extends WebSocketTestCommons {
     public void testMultipleRetryAttempts() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
+        CountDownLatch latch1 = new CountDownLatch(1);
+        latch1.await(15, TimeUnit.SECONDS);
         sendTextDataAndAssert("Hi");
         restartServerAndGiveTimeClientConnectToServer();
+        CountDownLatch latch11 = new CountDownLatch(1);
+        latch11.await(15, TimeUnit.SECONDS);
         sendTextDataAndAssert("Hi madam");
         restartServerAndGiveTimeClientConnectToServer();
         CountDownLatch latch = new CountDownLatch(1);
