@@ -18,7 +18,7 @@ import ballerina/java;
 
 # The type to which error detail records must belong.
 public type Detail record {|
-   (anydata|readonly)...;
+   value:Cloneable...;
 |};
 
 # A type parameter that is a subtype of error `Detail` record type.

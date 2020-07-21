@@ -32,6 +32,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
 import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -167,14 +169,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
- import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createLabelsForEqualCheck;
@@ -189,6 +183,9 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeVal
 class JvmTypeGen {
 
     private static ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
+    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
+    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+
 
     /**
      * Create static fields to hold the user defined types.
@@ -742,8 +739,10 @@ class JvmTypeGen {
     }
 
     private static int typeFlag(BType type) {
-
-        return TypeFlags.asMask(type.isNullable(), type.isAnydata(), type.isPureType());
+        isAnydataUniqueVisitor.reset();
+        isPureTypeUniqueVisitor.reset();
+        return TypeFlags.asMask(type.isNullable(), isAnydataUniqueVisitor.visit(type),
+                isPureTypeUniqueVisitor.visit(type));
     }
 
     /**
@@ -865,13 +864,12 @@ class JvmTypeGen {
         mv.visitTypeInsn(ANEWARRAY, BTYPE);
         int i = 0;
         for (BType memberType : members) {
-            BType mType = getType(memberType);
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
 
             // Load the member type
-            loadType(mv, mType);
+            loadType(mv, memberType);
 
             // Add the member to the array
             mv.visitInsn(AASTORE);

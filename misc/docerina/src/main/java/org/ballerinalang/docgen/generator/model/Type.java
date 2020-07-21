@@ -18,6 +18,7 @@ package org.ballerinalang.docgen.generator.model;
 import com.google.gson.annotations.Expose;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.model.elements.Flag;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -217,8 +218,9 @@ public class Type {
         // If anonymous type substitute the name
         if (typeModel.name != null && typeModel.name.contains("$anonType$")) {
             // if anonymous empty record
+            IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
             if (type.type instanceof BRecordType && ((BRecordType) type.type).fields.isEmpty() &&
-                    type.type.isAnydata()) {
+                    isAnydataUniqueVisitor.visit(type.type)) {
                 typeModel.name = "record {}";
             } else {
                 typeModel.name = type.type.toString();

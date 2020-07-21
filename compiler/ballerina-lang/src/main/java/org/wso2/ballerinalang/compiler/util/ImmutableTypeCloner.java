@@ -114,6 +114,10 @@ public class ImmutableTypeCloner {
                                           BSymbol owner, SymbolTable symTable,
                                           BLangAnonymousModelHelper anonymousModelHelper, Names names,
                                           Set<BType> unresolvedTypes) {
+        if (!unresolvedTypes.add(type)) {
+            return type;
+        }
+
         if (types.isInherentlyImmutableType(type)) {
             return type;
         }
@@ -329,13 +333,13 @@ public class ImmutableTypeCloner {
                 BAnydataType immutableAnydataType;
                 if (immutableAnydataTSymbol != null) {
                     immutableAnydataType =
-                            new BAnydataType(origAnydataType.tag, immutableAnydataTSymbol,
+                            new BAnydataType(immutableAnydataTSymbol,
                                              immutableAnydataTSymbol.name, origAnydataType.flags | Flags.READONLY,
                                              origAnydataType.isNullable());
                     immutableAnydataTSymbol.type = immutableAnydataType;
                 } else {
                     immutableAnydataType =
-                            new BAnydataType(origAnydataType.tag, immutableAnydataTSymbol,
+                            new BAnydataType(immutableAnydataTSymbol,
                                              getImmutableTypeName(names, TypeKind.ANYDATA.typeName()),
                                              origAnydataType.flags | Flags.READONLY, origAnydataType.isNullable());
                 }
@@ -348,7 +352,7 @@ public class ImmutableTypeCloner {
                 BJSONType origJsonType = (BJSONType) type;
 
                 BTypeSymbol immutableJsonTSymbol = getReadonlyTSymbol(names, origJsonType.tsymbol, env, pkgId, owner);
-                BJSONType immutableJsonType = new BJSONType(origJsonType.tag, immutableJsonTSymbol,
+                BJSONType immutableJsonType = new BJSONType(immutableJsonTSymbol,
                                                             origJsonType.isNullable(),
                                                             origJsonType.flags | Flags.READONLY);
                 if (immutableJsonTSymbol != null) {

@@ -122,7 +122,7 @@ public class MemberFunctionStub {
     #
     # + args - arguments list
     # + return - object that allows stubbing calls to provided member function
-    public isolated function withArguments(anydata|error... args) returns MemberFunctionStub {
+    public function withArguments(anydata|error... args) returns MemberFunctionStub {
         self.args = args;
         Error? result = validateArgumentsExt(self);
         if (result is Error) {

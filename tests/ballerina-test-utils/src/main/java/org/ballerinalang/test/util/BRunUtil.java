@@ -88,6 +88,8 @@ import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -117,6 +119,9 @@ import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
  * @since 0.94
  */
 public class BRunUtil {
+
+    private static IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+    private static IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
 
     /**
      * Invoke a ballerina function.
@@ -742,7 +747,10 @@ public class BRunUtil {
                 BPackage pkg = new BPackage(pkgID.orgName.value, pkgID.name.value, pkgID.version.value);
                 org.ballerinalang.jvm.types.BType restFieldType =
                         recordType.sealed ? null : getJVMType(recordType.restFieldType);
-                int typeFlags = getMask(recordType.isNullable(), recordType.isAnydata(), recordType.isPureType());
+                isAnydataUniqueVisitor.reset();
+                isPureTypeUniqueVisitor.reset();
+                int typeFlags = getMask(recordType.isNullable(), isAnydataUniqueVisitor.visit(recordType),
+                        isPureTypeUniqueVisitor.visit(recordType));
                 org.ballerinalang.jvm.types.BRecordType jvmRecordType = new org.ballerinalang.jvm.types.BRecordType(
                         recordType.tsymbol.name.value, pkg, 0, fields, restFieldType, false, typeFlags);
                 return jvmRecordType;
@@ -757,8 +765,10 @@ public class BRunUtil {
                     Object value = ((BLangLiteral) expr).value;
                     valueSpace.add(value);
                 }
+                isAnydataUniqueVisitor.reset();
+                isPureTypeUniqueVisitor.reset();
                 return new org.ballerinalang.jvm.types.BFiniteType(null, valueSpace,
-                        getMask(finiteType.isNullable(), finiteType.isAnydata(), finiteType.isPureType()));
+                        getMask(finiteType.isNullable(), isAnydataUniqueVisitor.visit(finiteType), isPureTypeUniqueVisitor.visit(finiteType)));
             default:
                 throw new RuntimeException("Function argument for type '" + type + "' is not supported");
         }

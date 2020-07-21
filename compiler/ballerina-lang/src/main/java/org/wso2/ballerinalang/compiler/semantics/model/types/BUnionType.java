@@ -26,10 +26,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
-import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
@@ -44,16 +42,14 @@ public class BUnionType extends BType implements UnionType {
 
     public BIntersectionType immutableType;
     public boolean resolvingToString = false;
-    public boolean resolvingPureData = false;
-    public boolean resolvingAnyData = false;
 
     private boolean nullable;
-    private LinkedHashSet<BType> memberTypes;
-    private Optional<Boolean> isAnyData = Optional.empty();
-    private Optional<Boolean> isPureType = Optional.empty();
-    private boolean iteratingMembers = false; // TODO: not thread safe
 
-    protected BUnionType(BTypeSymbol tsymbol, LinkedHashSet<BType> memberTypes, boolean nullable, boolean readonly) {
+    protected LinkedHashSet<BType> memberTypes;
+    public Boolean isAnyData = null;
+    public Boolean isPureType = null;
+
+    protected BUnionType(BTypeSymbol tsymbol, Set<BType> memberTypes, boolean nullable, boolean readonly) {
         super(TypeTags.UNION, tsymbol);
 
         if (readonly) {
@@ -64,13 +60,13 @@ public class BUnionType extends BType implements UnionType {
             }
         }
 
-        this.memberTypes = memberTypes;
+        this.memberTypes = (LinkedHashSet<BType>) memberTypes;
         this.nullable = nullable;
     }
 
     @Override
     public Set<BType> getMemberTypes() {
-        return Collections.unmodifiableSet(this.memberTypes);
+        return this.memberTypes;
     }
 
     @Override
@@ -95,29 +91,33 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
-        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
-            return this.tsymbol.name.value;
-        }
-        // This logic is added to prevent duplicate recursive calls to toString
+
         if (this.resolvingToString) {
-            return "T";
+            return "...";
         }
         this.resolvingToString = true;
 
-        boolean hasNilType = false;
         StringJoiner joiner = new StringJoiner(getKind().typeName());
-        long count = 0L;
+
+        // This logic is added to prevent duplicate recursive calls to toString
+        long numberOfNotNilTypes = 0L;
         for (BType bType : this.memberTypes) {
             if (bType.tag != TypeTags.NIL) {
                 joiner.add(bType.toString());
-                count++;
-            } else if (!hasNilType) {
-                hasNilType = true;
+                numberOfNotNilTypes++;
             }
         }
-        String typeStr = count > 1
-                ? "(" + joiner.toString() + ")" : joiner.toString();
+
+        String typeStr;
+        // improve readability of cyclic union types
+        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+            typeStr = this.tsymbol.getName().getValue();
+        } else {
+            typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        }
+
         this.resolvingToString = false;
+        boolean hasNilType = this.memberTypes.size() > numberOfNotNilTypes;
         return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 
@@ -135,6 +135,10 @@ public class BUnionType extends BType implements UnionType {
      */
     public static BUnionType create(BTypeSymbol tsymbol, LinkedHashSet<BType> types) {
         LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();
+
+        if (types.isEmpty()) {
+            return new BUnionType(tsymbol, memberTypes, false, false);
+        }
 
         boolean isImmutable = true;
 
@@ -258,50 +262,6 @@ public class BUnionType extends BType implements UnionType {
      */
     public Iterator<BType> iterator() {
         return this.memberTypes.iterator();
-    }
-
-    @Override
-    public boolean isAnydata() {
-        if (this.isAnyData.isPresent()) {
-            return this.isAnyData.get();
-        }
-        if (this.resolvingAnyData) {
-            return true;
-        }
-        this.resolvingAnyData = true;
-        for (BType memberType : this.memberTypes) {
-            if (!memberType.isAnydata()) {
-                this.isAnyData = Optional.of(false);
-                this.resolvingAnyData = false;
-                return false;
-            }
-        }
-        this.resolvingAnyData = false;
-        this.isAnyData = Optional.of(true);
-        return true;
-    }
-
-    @Override
-    public boolean isPureType() {
-        if (this.isPureType.isPresent()) {
-            return this.isPureType.get();
-        }
-
-        if (this.resolvingPureData) {
-            return false;
-        }
-
-        this.resolvingPureData = true;
-        for (BType memberType : this.memberTypes) {
-            if (!memberType.isPureType()) {
-                this.isPureType = Optional.of(false);
-                this.resolvingPureData = false;
-                return false;
-            }
-        }
-        this.resolvingPureData = false;
-        this.isPureType = Optional.of(true);
-        return true;
     }
 
     private static LinkedHashSet<BType> toFlatTypeSet(LinkedHashSet<BType> types) {

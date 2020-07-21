@@ -18,58 +18,48 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.Name;
-import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
+import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.LinkedHashSet;
 
 /**
  * {@code BAnydataType} represents the data types in Ballerina.
  * 
  * @since 0.985.0
  */
-public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BAnydataType extends BUnionType {
 
-    private boolean nullable = true;
-    public BIntersectionType immutableType;
-
-    public BAnydataType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags) {
+        this(tsymbol, name, flags, true);
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flag) {
-
-        super(tag, tsymbol);
-        this.name = name;
-        this.flags = flag;
+    public BAnydataType(BTypeSymbol tsymbol, boolean nullable) {
+        super(tsymbol, new LinkedHashSet<>(), nullable, false);
+        this.tag = TypeTags.ANYDATA;
     }
 
-    public BAnydataType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        super(tag, tsymbol);
-        this.nullable = nullable;
-    }
-
-    public BAnydataType(int tag, BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
-
-        super(tag, tsymbol);
-        this.name = name;
+    public BAnydataType(BTypeSymbol tsymbol, Name name, int flags, boolean nullable) {
+        super(tsymbol, new LinkedHashSet<>(), nullable, false);
+        this.tag = TypeTags.ANYDATA;
         this.flags = flags;
-        this.nullable = nullable;
+        this.name = name;
     }
 
-    @Override
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        return visitor.visit(this, t);
+    public BAnydataType(BUnionType type) {
+        super(type.tsymbol, new LinkedHashSet<>(type.getMemberTypes()), type.isNullable(), Symbols.isFlagOn(type.flags,
+                Flags.READONLY));
+        this.immutableType = type.immutableType;
+        this.tag = TypeTags.ANYDATA;
     }
 
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    @Override
-    public TypeKind getKind() {
-        return TypeKind.ANYDATA;
+    public BAnydataType(BAnydataType type, boolean nullable) {
+        super(type.tsymbol, type.getMemberTypes(), nullable, Symbols.isFlagOn(type.flags, Flags.READONLY));
+        this.tag = TypeTags.ANYDATA;
     }
 
     @Override
@@ -79,7 +69,18 @@ public class BAnydataType extends BBuiltInRefType implements SelectivelyImmutabl
     }
 
     @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
+    public TypeKind getKind() {
+        return TypeKind.ANYDATA;
     }
+
+    @Override
+    public void accept(TypeVisitor visitor) {
+        visitor.visit(this);
+    }
+
+    @Override
+    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
+    }
+
 }

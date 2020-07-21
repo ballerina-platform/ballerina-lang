@@ -1947,23 +1947,20 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean hasOnlyAnydataTypedFields(BRecordType recordType) {
-        for (BField field : recordType.fields.values()) {
-            BType fieldType = field.type;
-            if (!fieldType.isAnydata()) {
-                return false;
-            }
-        }
-        return recordType.sealed || recordType.restFieldType.isAnydata();
+        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+        return isAnydataUniqueVisitor.visit(recordType);
     }
 
     private boolean hasOnlyPureTypedFields(BRecordType recordType) {
+        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         for (BField field : recordType.fields.values()) {
             BType fieldType = field.type;
-            if (!fieldType.isPureType()) {
+            if (!isPureTypeUniqueVisitor.visit(fieldType)) {
                 return false;
             }
+            isPureTypeUniqueVisitor.reset();
         }
-        return recordType.sealed || recordType.restFieldType.isPureType();
+        return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
     }
 
     private boolean hasErrorTypedField(BRecordType recordType) {

@@ -14,10 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
-
 # The type of value to which `clone` and `cloneReadOnly` can be applied.
-public type Cloneable anydata|json|readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
+public type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
 
 # A type parameter that is a subtype of `Cloneable`.
 # Has the special semantic that when used in a declaration
@@ -50,7 +48,7 @@ public isolated function clone(CloneableType v) returns CloneableType = @java:Me
 #
 # + v - source value
 # + return - immutable clone of `v`
-public isolated function cloneReadOnly(CloneableType v) returns CloneableType = @java:Method {
+public isolated function cloneReadOnly(CloneableType v) returns CloneableType & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneReadOnly",
     name: "cloneReadOnly"
 } external;
