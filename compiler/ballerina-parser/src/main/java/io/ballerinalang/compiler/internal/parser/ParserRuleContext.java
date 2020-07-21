@@ -544,6 +544,7 @@ public enum ParserRuleContext {
     ENUM_MEMBER_END("enum-member-rhs"),
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
+    TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     ;
 
     private String value;
