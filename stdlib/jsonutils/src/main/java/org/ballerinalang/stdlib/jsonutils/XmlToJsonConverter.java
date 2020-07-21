@@ -26,6 +26,7 @@ import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.types.TypeConstants;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.XMLItem;
 import org.ballerinalang.jvm.values.XMLSequence;
@@ -51,11 +52,11 @@ import static org.ballerinalang.jvm.StringUtils.fromString;
  */
 public class XmlToJsonConverter {
 
-    private static final String XML_NAMESPACE_PREFIX_FRAGMENT = "xmlns:";
-
-    private static final BType jsonMapType =
+    private static final BType JSON_MAP_TYPE =
             new BMapType(TypeConstants.MAP_TNAME, BTypes.typeJSON, new BPackage(null, null, null));
     private static final String XMLNS = "xmlns";
+    private static final BArrayType JSON_ARRAY_TYPE = new BArrayType(BTypes.typeJSON);
+    public static final int NS_PREFIX_BEGIN_INDEX = XMLItem.XMLNS_URL_PREFIX.length();
 
     /**
      * Converts given xml object to the corresponding JSON value.
@@ -80,9 +81,11 @@ public class XmlToJsonConverter {
                 return newJsonList();
             }
             return seq;
+        } else {
+            return newJsonMap();
         }
-        return newJsonMap();
     }
+
     /**
      * Converts given xml object to the corresponding json.
      *
@@ -265,7 +268,7 @@ public class XmlToJsonConverter {
     }
 
     private static ArrayValueImpl newJsonList() {
-        return new ArrayValueImpl(new BArrayType(BTypes.typeJSON));
+        return new ArrayValueImpl(JSON_ARRAY_TYPE);
     }
 
     public static ArrayValueImpl newJsonListFrom(List<Object> items) {
@@ -273,7 +276,7 @@ public class XmlToJsonConverter {
     }
 
     private static MapValueImpl<BString, Object> newJsonMap() {
-        return new MapValueImpl<>(jsonMapType);
+        return new MapValueImpl<>(JSON_MAP_TYPE);
     }
 
     /**
@@ -284,55 +287,89 @@ public class XmlToJsonConverter {
      */
     private static LinkedHashMap<String, String> collectAttributesAndNamespaces(XMLItem element,
                                                                                 boolean preserveNamespaces) {
-        int nsPrefixBeginIndex = XMLItem.XMLNS_URL_PREFIX.length();
         LinkedHashMap<String, String> attributeMap = new LinkedHashMap<>();
-        Map<String, String> nsPrefixMap = new HashMap<>();
-        for (Map.Entry<BString, BString> entry : element.getAttributesMap().entrySet()) {
-            if (entry.getKey().getValue().startsWith(XMLItem.XMLNS_URL_PREFIX)) {
-                String prefix = entry.getKey().getValue().substring(nsPrefixBeginIndex);
-                String ns = entry.getValue().getValue();
-                nsPrefixMap.put(ns, prefix);
-                if (preserveNamespaces) {
-                    if (prefix.equals(XMLNS)) {
-                        attributeMap.put(prefix, ns);
-                    } else {
-                        attributeMap.put(XML_NAMESPACE_PREFIX_FRAGMENT + prefix, ns);
-                    }
-                }
-            }
-        }
-        for (Map.Entry<BString, BString> entry : element.getAttributesMap().entrySet()) {
-            String key = entry.getKey().getValue();
-            if (preserveNamespaces && !key.startsWith(XMLItem.XMLNS_URL_PREFIX)) {
-                int nsEndIndex = key.lastIndexOf('}');
-                if (nsEndIndex > 0) {
-                    String ns = key.substring(1, nsEndIndex);
-                    String local = key.substring(nsEndIndex + 1);
-                    String nsPrefix = nsPrefixMap.get(ns);
-                    // `!nsPrefix.equals("xmlns")` because attributes does not belong to default namespace.
-                    if (nsPrefix != null && !nsPrefix.equals(XMLNS)) {
-                        attributeMap.put(nsPrefix + ":" + local, entry.getValue().getValue());
-                    } else {
-                        attributeMap.put(local, entry.getValue().getValue());
-                    }
+        MapValue<BString, BString> attributesMap = element.getAttributesMap();
+        Map<String, String> nsPrefixMap = getNamespacePrefixes(attributesMap);
+
+        for (Map.Entry<BString, BString> entry : attributesMap.entrySet()) {
+            if (preserveNamespaces) {
+                if (isNamespacePrefixEntry(entry)) {
+                    addNamespacePrefixAttribute(attributeMap, entry);
                 } else {
-                    attributeMap.put(key, entry.getValue().getValue());
+                    addAttributePreservingNamespace(attributeMap, nsPrefixMap, entry);
                 }
             } else {
-                String attrName = entry.getKey().getValue();
-                int endOfBrace = attrName.indexOf('}');
-                if (endOfBrace > 0) {
-                    String localName = attrName.substring(endOfBrace + 1);
-                    if (localName.equals(XMLNS)) {
-                        continue;
-                    }
-                    attributeMap.put(localName, entry.getValue().getValue());
-                } else {
-                    attributeMap.put(attrName, entry.getValue().getValue());
-                }
+                addAttributeDiscardingNamespace(attributeMap, entry);
             }
         }
         return attributeMap;
+    }
+
+    private static void addNamespacePrefixAttribute(LinkedHashMap<String, String> attributeMap,
+                                                 Map.Entry<BString, BString> entry) {
+        String key = entry.getKey().getValue();
+        String value = entry.getValue().getValue();
+        String prefix = key.substring(NS_PREFIX_BEGIN_INDEX);
+        if (prefix.equals(XMLNS)) {
+            attributeMap.put(prefix, value);
+        } else {
+            attributeMap.put(XMLNS + ":" + prefix, value);
+        }
+    }
+
+    private static void addAttributeDiscardingNamespace(LinkedHashMap<String, String> attributeMap,
+                                                        Map.Entry<BString, BString> entry) {
+        String key = entry.getKey().getValue();
+        String value = entry.getValue().getValue();
+        int nsEndIndex = key.lastIndexOf('}');
+        if (nsEndIndex > 0) {
+            String localName = key.substring(nsEndIndex + 1);
+            if (localName.equals(XMLNS)) {
+                return;
+            }
+            attributeMap.put(localName, value);
+        } else {
+            attributeMap.put(key, value);
+        }
+    }
+
+    private static void addAttributePreservingNamespace(LinkedHashMap<String, String> attributeMap,
+                                                        Map<String, String> nsPrefixMap,
+                                                        Map.Entry<BString, BString> entry) {
+        String key = entry.getKey().getValue();
+        String value = entry.getValue().getValue();
+        int nsEndIndex = key.lastIndexOf('}');
+        if (nsEndIndex > 0) {
+            String ns = key.substring(1, nsEndIndex);
+            String local = key.substring(nsEndIndex + 1);
+            String nsPrefix = nsPrefixMap.get(ns);
+            // `!nsPrefix.equals("xmlns")` because attributes does not belong to default namespace.
+            if (nsPrefix == null) {
+                attributeMap.put(local, value);
+            } else if (nsPrefix.equals(XMLNS)) {
+                attributeMap.put(XMLNS, value);
+            } else {
+                attributeMap.put(nsPrefix + ":" + local, value);
+            }
+        } else {
+            attributeMap.put(key, value);
+        }
+    }
+
+    private static Map<String, String> getNamespacePrefixes(MapValue<BString, BString> xmlAttributeMap) {
+        HashMap<String, String> nsPrefixMap = new HashMap<>();
+        for (Map.Entry<BString, BString> entry : xmlAttributeMap.entrySet()) {
+            if (isNamespacePrefixEntry(entry)) {
+                String prefix = entry.getKey().getValue().substring(NS_PREFIX_BEGIN_INDEX);
+                String ns = entry.getValue().getValue();
+                nsPrefixMap.put(ns, prefix);
+            }
+        }
+        return nsPrefixMap;
+    }
+
+    private static boolean isNamespacePrefixEntry(Map.Entry<BString, BString> entry) {
+        return entry.getKey().getValue().startsWith(XMLItem.XMLNS_URL_PREFIX);
     }
 
     /**

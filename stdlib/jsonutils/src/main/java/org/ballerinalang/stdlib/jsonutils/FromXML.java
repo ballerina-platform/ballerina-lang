@@ -40,7 +40,7 @@ public class FromXML {
             String attributePrefix = ((BString) options.get(StringUtils.fromString(OPTIONS_ATTRIBUTE_PREFIX)))
                     .getValue();
             boolean preserveNamespaces = ((Boolean) options.get(StringUtils.fromString(OPTIONS_PRESERVE_NS)));
-            return  XmlToJsonConverter.convertToJSON(xml, attributePrefix, preserveNamespaces);
+            return XmlToJsonConverter.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Exception e) {
             try {
                 // todo: fix after fixing `handleXMLException`

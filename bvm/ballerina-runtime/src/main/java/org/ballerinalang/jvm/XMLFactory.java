@@ -432,10 +432,11 @@ public class XMLFactory {
     private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
         return xmlFragment != null
                 ? OMXMLBuilderFactory
-                .createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION, new StringReader(xmlFragment))
-                .getDocumentElement()
+                    .createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION, new StringReader(xmlFragment))
+                    .getDocumentElement()
                 : null;
     }
+
     /**
      * Replace xml text escape sequences with appropriate character.
      *
