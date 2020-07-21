@@ -33,6 +33,7 @@ service on new http:Listener(21030) {
         if (text == "close") {
             checkpanic clientEp->close(statusCode = 1000, reason = "Close the connection");
         }
+        checkpanic clientEp->pushText(text);
     }
 
     resource function onBinary(http:WebSocketCaller wsEp, byte[] data) {
