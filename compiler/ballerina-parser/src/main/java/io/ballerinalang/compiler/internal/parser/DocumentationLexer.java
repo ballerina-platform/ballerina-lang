@@ -36,9 +36,10 @@ public class DocumentationLexer extends AbstractLexer {
 
     private boolean isSpecialKeywordInPlace = false;
     private static final char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
-    private static final String identifierRegex = "[a-zA-Z][a-zA-Z0-9]*";
-    private static final String backtickExprRegex =
-            "[a-zA-Z][a-zA-Z0-9]*(:[a-zA-Z][a-zA-Z0-9]*)?(\\.[a-zA-Z][a-zA-Z0-9]*)?\\(\\)";
+
+    // Used only for backtick content validation
+    private int lookAheadNumber = 0;
+    private boolean hasMatch = true;
 
     public DocumentationLexer(CharReader charReader, List<STNode> leadingTriviaList) {
         super(charReader, ParserMode.DOCUMENTATION_INIT);
@@ -85,6 +86,9 @@ public class DocumentationLexer extends AbstractLexer {
             default:
                 token = null;
         }
+
+        // Can we improve this logic by creating the token with diagnostics then and there?
+//        return cloneWithDiagnostics(token);
         return token;
     }
 
@@ -273,7 +277,7 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * Set reset special keyword in place.
+     * Set special keyword in place.
      */
     private void setSpecialKeywordInPlace() {
         isSpecialKeywordInPlace = true;
@@ -284,6 +288,31 @@ public class DocumentationLexer extends AbstractLexer {
      */
     private void resetSpecialKeywordInPlace() {
         isSpecialKeywordInPlace = false;
+    }
+
+    /**
+     * Reset search properties.
+     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
+     */
+    private void resetSearchProperties() {
+        lookAheadNumber = 0;
+        hasMatch = true;
+    }
+
+    /**
+     * Get current char in the search.
+     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
+     */
+    private int getLookAheadChar() {
+        return reader.peek(lookAheadNumber);
+    }
+
+    /**
+     * Mark current char as a validated one.
+     * This method is only used in DOCUMENTATION_BACKTICK_CONTENT Mode
+     */
+    private void consumeChar() {
+        lookAheadNumber++;
     }
 
     private STToken getDocumentationSyntaxToken(SyntaxKind kind) {
@@ -698,53 +727,118 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken readDocumentationBacktickContentToken() {
         reader.mark();
-        int nextToken = peek();
-        if (nextToken == LexerTerminals.BACKTICK) {
+        int nextChar = peek();
+        if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
             resetSpecialKeywordInPlace();
             return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
-        int lookAheadCount = 0;
-        String backtickStr = "";
+        if (!isSpecialKeywordInPlace) {
+            // Look for a x(), m:x(), T.y(), m:T.y() match
+            resetSearchProperties();
+            processBacktickExpr();
+            if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
+                switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
+                return readDocumentationBacktickExprToken();
+            } else {
+                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_EXPRESSION);
+                reader.advance(lookAheadNumber);
+                processInvalidChars();
+                return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+            }
+        }
+
+        resetSpecialKeywordInPlace();
+
+        // Look for an identifier or qualified identifier match
+        resetSearchProperties();
+        processQualifiedIdentifier();
+        if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
+            switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
+            return readDocumentationBacktickExprToken();
+        } else {
+            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER);
+            reader.advance(lookAheadNumber);
+            processInvalidChars();
+            return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+        }
+    }
+
+    private void processInvalidChars() {
+        int nextChar = peek();
         while (!reader.isEOF()) {
-            switch (nextToken) {
+            switch (nextChar) {
                 case LexerTerminals.BACKTICK:
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
                     break;
                 default:
-                    backtickStr = backtickStr.concat(String.valueOf((char) nextToken));
-                    lookAheadCount++;
-                    nextToken = reader.peek(lookAheadCount);
+                    reader.advance();
+                    nextChar = peek();
                     continue;
             }
             break;
         }
+    }
 
-        if (!isSpecialKeywordInPlace) {
-            // Look for a x(), m:x(), T.y(), m:T.y() match
-            boolean hasMatch = backtickStr.matches(backtickExprRegex);
-            if (hasMatch) {
-                switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
-                return readDocumentationBacktickExprToken();
-            } else {
-                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_EXPRESSION);
-                reader.advance(lookAheadCount);
-                return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
-            }
-        }
-
-        reader.advance(lookAheadCount);
-        resetSpecialKeywordInPlace();
-
-        boolean isIdentifier = backtickStr.matches(identifierRegex);
-        if (isIdentifier) {
-            return getIdentifierToken();
+    private void processBacktickExpr() {
+        processQualifiedIdentifier();
+        int nextChar = getLookAheadChar();
+        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
+            processFuncSignature();
+        } else if (nextChar == LexerTerminals.DOT) {
+            consumeChar();
+            processIdentifier();
+            processFuncSignature();
         } else {
-            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER);
-            return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
+            hasMatch = false;
+        }
+    }
+
+    private void processFuncSignature() {
+        processOpenParenthesis();
+        processCloseParenthesis();
+    }
+
+    private void processOpenParenthesis() {
+        int nextChar = getLookAheadChar();
+        if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
+            consumeChar();
+        } else {
+            hasMatch = false;
+        }
+    }
+    private void processCloseParenthesis() {
+        int nextChar = getLookAheadChar();
+        if (nextChar == LexerTerminals.CLOSE_PARANTHESIS) {
+            consumeChar();
+        } else {
+            hasMatch = false;
+        }
+    }
+
+    private void processQualifiedIdentifier() {
+        processIdentifier();
+        int nextChar = getLookAheadChar();
+        if (nextChar == LexerTerminals.COLON) {
+            consumeChar();
+            processIdentifier();
+        }
+    }
+
+    private void processIdentifier() {
+        int nextChar = getLookAheadChar();
+        if (isIdentifierInitialChar(nextChar)) {
+            consumeChar();
+            nextChar = getLookAheadChar();
+            while (isIdentifierFollowingChar(nextChar)) {
+                consumeChar();
+                nextChar = getLookAheadChar();
+            }
+        } else {
+            hasMatch = false;
         }
     }
 

@@ -276,15 +276,8 @@ public class DocumentationParser extends AbstractParser {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             STNode identifier = consume();
-
-            STToken nextToken = peek();
-            if (nextToken.kind != SyntaxKind.BACKTICK_TOKEN) {
-                return parseBacktickExpr(identifier);
-            } else {
-                return identifier;
-            }
+            return parseBacktickExpr(identifier);
         }
-
         return parseBacktickContentToken();
     }
 
@@ -306,17 +299,20 @@ public class DocumentationParser extends AbstractParser {
      * Parse back-tick expr.
      *
      * @param identifier Initial identifier
-     * @return Function call or method call node
+     * @return Function call, method call or name reference node
      */
     private STNode parseBacktickExpr(STNode identifier) {
         STNode referenceName = parseQualifiedIdentifier(identifier);
 
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.DOT_TOKEN) {
-            STNode dotToken = consume();
-            return parseMethodCall(referenceName, dotToken);
-        } else {
-            return parseFuncCall(referenceName);
+        switch (nextToken.kind) {
+            case BACKTICK_TOKEN:
+                return referenceName;
+            case DOT_TOKEN:
+                STNode dotToken = consume();
+                return parseMethodCall(referenceName, dotToken);
+            default:
+                return parseFuncCall(referenceName);
         }
     }
 
