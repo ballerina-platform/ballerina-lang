@@ -20,16 +20,26 @@ import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
+import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Handles the completions within the variable declaration node context/
@@ -41,7 +51,8 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
         super(kind);
     }
     
-    protected Optional<Scope.ScopeEntry> expressionSymbol(LSContext context, ExpressionNode node) {
+    protected List<LSCompletionItem> getFilteredItems(LSContext context, ExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         Predicate<Scope.ScopeEntry> predicate;
         switch (node.kind()) {
@@ -62,11 +73,34 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
                 };
                 break;
             default:
-                return Optional.empty();
+                return completionItems;
         }
 
         Optional<Scope.ScopeEntry> filteredEntry = visibleSymbols.stream().filter(predicate).findAny();
         
-        return filteredEntry;
+        if (!filteredEntry.isPresent()) {
+            return completionItems;
+        }
+        if (CommonUtil.isClientObject(filteredEntry.get().symbol)) {
+            /*
+            Covers the following case where a is a client object and we suggest the remote actions
+            (1) a -> g<cursor>
+             */
+            List<Scope.ScopeEntry> clientActions =
+                    FilterUtils.getClientActions((BObjectTypeSymbol) filteredEntry.get().symbol.type.tsymbol);
+            completionItems.addAll(this.getCompletionItemList(clientActions, context));
+        } else {
+            /*
+            Covers the following case where a is any other variable and we suggest the workers
+            (1) a -> w<cursor>
+             */
+            List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
+                    .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+        }
+        
+        return completionItems;
     }
 }

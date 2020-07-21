@@ -17,8 +17,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class VarDefAssignmentContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
-    public VarDefAssignmentContextProvider(Kind kind) {
+public class ExpressionBasedContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
+    public ExpressionBasedContextProvider(Kind kind) {
         super(kind);
     }
 

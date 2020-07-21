@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -203,7 +204,9 @@ public class CompletionUtil {
         NonTerminalNode parent = tokenAtCursor.parent();
 
         while (parent.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
+                || parent.kind() == SyntaxKind.NIL_LITERAL
+                || parent instanceof BasicLiteralNode) {
             parent = parent.parent();
         }
 

@@ -81,6 +81,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get default keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDefaultKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.DEFAULT, "default", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get abstract keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -198,6 +208,16 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getStartKeywordSnippet() {
         return new SnippetBlock(ItemResolverConstants.START_KEYWORD, "start ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
+     * Get as Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getAsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.AS_KEYWORD, "as ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
 
@@ -998,6 +1018,16 @@ public class SnippetGenerator {
         return new SnippetBlock(ItemResolverConstants.VAR_KEYWORD, "var ", ItemResolverConstants.KEYWORD_TYPE,
                                 SnippetType.KEYWORD);
     }
+
+    /**
+     * Get in Keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getInKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.IN_KEYWORD, "in ", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
     
     /**
      * Get Enum Keyword Snippet Block.
@@ -1495,7 +1525,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getErrorKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.TRAP, "error", ItemResolverConstants.KEYWORD_TYPE,
+        return new SnippetBlock(ItemResolverConstants.ERROR, "error", ItemResolverConstants.KEYWORD_TYPE,
                 SnippetType.KEYWORD);
     }
 }

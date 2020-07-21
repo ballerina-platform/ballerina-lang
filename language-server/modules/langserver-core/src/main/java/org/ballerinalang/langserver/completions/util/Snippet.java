@@ -125,6 +125,8 @@ public enum Snippet {
 
     KW_NEW(SnippetGenerator.getNewKeywordSnippet()),
 
+    KW_DEFAULT(SnippetGenerator.getDefaultKeywordSnippet()),
+
     KW_TABLE(SnippetGenerator.getTableKeywordSnippet()),
 
     KW_SERVICE(SnippetGenerator.getServiceKeywordSnippet()),
@@ -146,6 +148,8 @@ public enum Snippet {
     KW_WAIT(SnippetGenerator.getWaitKeywordSnippet()),
 
     KW_START(SnippetGenerator.getStartKeywordSnippet()),
+
+    KW_AS(SnippetGenerator.getAsKeywordSnippet()),
 
     KW_FROM(SnippetGenerator.getFromKeywordSnippet()),
 
@@ -174,6 +178,8 @@ public enum Snippet {
     KW_ANNOTATION(SnippetGenerator.getAnnotationKeywordSnippet()),
 
     KW_VAR(SnippetGenerator.getVarKeywordSnippet()),
+
+    KW_IN(SnippetGenerator.getInKeywordSnippet()),
 
     KW_ENUM(SnippetGenerator.getEnumKeywordSnippet()),
 

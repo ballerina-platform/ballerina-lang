@@ -3,7 +3,7 @@
     "line": 4,
     "character": 9
   },
-  "source": "fork_stmt/source/source2.bal",
+  "source": "statement_context/source/fork_stmt_ctx_source2.bal",
   "items": [
     {
       "label": "worker",

@@ -30,7 +30,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class AssignmentStatementNodeContext extends VarDefAssignmentContextProvider<AssignmentStatementNode> {
+public class AssignmentStatementNodeContext extends ExpressionBasedContextProvider<AssignmentStatementNode> {
     public AssignmentStatementNodeContext() {
         super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(AssignmentStatementNode.class);

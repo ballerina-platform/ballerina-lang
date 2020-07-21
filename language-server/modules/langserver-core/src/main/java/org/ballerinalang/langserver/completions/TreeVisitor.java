@@ -90,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangWaitForAllExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -467,7 +468,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangExpressionStmt exprStmtNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(exprStmtNode.getPosition(), this, this.lsContext, exprStmtNode, null)
-                || !(exprStmtNode.expr instanceof BLangInvocation)) {
+                /*|| !(exprStmtNode.expr instanceof BLangInvocation)*/) {
             return;
         }
 
@@ -910,6 +911,12 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
         queryExpr.queryClauseList.forEach(node -> this.acceptNode(node, this.symbolEnv));
+    }
+
+    @Override
+    public void visit(BLangWaitForAllExpr waitForAllExpr) {
+        CompletionVisitorUtil.isCursorWithinBlock(waitForAllExpr.parent.getPosition(),
+                this.symbolEnv, this.lsContext, this);
     }
 
     ///////////////////////////////////

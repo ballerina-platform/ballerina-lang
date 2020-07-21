@@ -53,6 +53,7 @@ public class ItemResolverConstants {
     public static final String LENGTHOF = "lengthof";
     public static final String TYPEOF = "typeof";
     public static final String COMMIT = "commit";
+    public static final String DEFAULT = "default";
 
     public static final String FUNCTION = "function";
     public static final String FUNCTION_SIGNATURE = "function signature";
@@ -106,12 +107,14 @@ public class ItemResolverConstants {
     
     // Keyword constants
     public static final String VAR_KEYWORD = "var";
+    public static final String IN_KEYWORD = "in";
     public static final String ENUM_KEYWORD = "enum";
     public static final String ROLLBACK_KEYWORD = "rollback";
     public static final String CHECK_KEYWORD = "check";
     public static final String CHECKPANIC_KEYWORD = "checkpanic";
     public static final String WAIT_KEYWORD = "wait";
     public static final String START_KEYWORD = "start";
+    public static final String AS_KEYWORD = "as";
     public static final String FROM_KEYWORD = "from";
     public static final String FLUSH_KEYWORD = "flush";
     public static final String LISTENER_KEYWORD = "listener";
