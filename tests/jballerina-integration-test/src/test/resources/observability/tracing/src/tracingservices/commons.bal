@@ -39,3 +39,22 @@ function calculateSumWithObservableFunction(int a, int b) returns int {
     var sum = a + b;
     return a + b;
 }
+
+type AbstractObservableAdder abstract object {
+    @observe:Observable
+    function getSum() returns int;
+};
+
+type ObservableAdder object {
+    private int firstNumber;
+    private int secondNumber;
+
+    function init(int a, int b) {
+        self.firstNumber = a;
+        self.secondNumber = b;
+    }
+
+    function getSum() returns int {
+        return self.firstNumber + self.secondNumber;
+    }
+};

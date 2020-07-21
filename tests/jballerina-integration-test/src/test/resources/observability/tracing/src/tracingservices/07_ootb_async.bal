@@ -19,16 +19,17 @@ import ballerina/http;
 @http:ServiceConfig {
     basePath:"/test-service"
 }
-service testServiceFour on new http:Listener(9094) {
+service testServiceSeven on new http:Listener(9097) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/resource-1"
     }
     resource function resourceOne(http:Caller caller, http:Request clientRequest) {
         {
-            var a = 12;
-            var b = 27;
-            var sum = calculateSumWithObservableFunction(a, b);
+            var a = 63;
+            var b = 81;
+            var sumFuture = start calculateSumWithObservableFunction(a, b);
+            var sum = wait sumFuture;
             var expectedSum = a + b;
             if (sum != expectedSum) {
                 error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()
@@ -37,11 +38,12 @@ service testServiceFour on new http:Listener(9094) {
             }
         }
         {
-            var a = 43;
-            var b = 71;
+            var a = 25;
+            var b = 72;
             AbstractObservableAdder adder = new ObservableAdder(a, b);
-            var sum = adder.getSum();
+            var sumFuture = start adder.getSum();
             var expectedSum = a + b;
+            var sum = wait sumFuture;
             if (sum != expectedSum) {
                 error err = error("failed to find the sum of " + a.toString() + " and " + b.toString()
                     + ". expected: " + expectedSum.toString() + " received: " + sum.toString());
