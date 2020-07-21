@@ -115,11 +115,29 @@ public function toString((any|error) v) returns string = external;
 
 // JSON conversion
 
-# Returns the string that represents `v` in JSON format.
+# Converts a value of type `anydata` to `json`.
+# This does a deep copy of `v` converting values that do
+# not belong to json into values that do.
+# A value of type `xml` is converted into a string as if
+# by the `toString` function.
+# A value of type `table` is converted into a list of
+# mappings one for each row.
+# The inherent type of arrays in the return value will be
+# `json[]` and of mappings will be `map<json>`.
+# A new copy is made of all structural values, including
+# immutable values.
 #
-# + v - json value
+# + v - anydata value
+# + return - representation of `v` as value of type json
+# This panics if `v` has cycles.
+public function toJson(anydata v) returns json = external;
+
+# Returns the string that represents `v` in JSON format.
+# `v` is first converted to `json` as if by the `toJson` function.
+#
+# + v - anydata value
 # + return - string representation of json
-public function toJsonString(json v) returns string = external;
+public function toJsonString(anydata v) returns string = external;
 
 # Parses a string in JSON format and returns the the value that it represents.
 # All numbers in the JSON will be represented as float values.
@@ -128,6 +146,24 @@ public function toJsonString(json v) returns string = external;
 # + str - string representation of json
 # + return - `str` parsed to json or error
 public function fromJsonString(string str) returns json|error = external;
+
+# Converts a value of type json to a user-specified type.
+# This works the same as `cloneWithType`,
+# except that it also does the inverse of the conversions done by `toJson`.
+#
+# + v - json value
+# + t - type to convert to
+# + return - value belonging to `t`, or error if this cannot be done
+public function fromJsonWithType(json v, typedesc<anydata> t)
+    returns t|error = external;
+
+# Converts a string in JSON format to a user-specified type.
+# This is a combination of `fromJsonString` followed by
+# `fromJsonWithType`.
+# + str - string in JSON format
+# + t - type to convert to
+# + return - value belonging to `t`, or error if this cannot be done
+public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
 
 # Merges two json values.
 #

@@ -158,7 +158,7 @@ public class VarDeclaredAssignmentStmtTest {
         CompileResult res = BCompileUtil.compile("test-src/types/var/service-level-variable-def-with-var-negative.bal");
         BAssertUtil.validateError(res, 0,
                                   "mismatched input 'var'. expecting {'public', 'private', 'resource', 'function', " +
-                                          "'remote', '}', '@', DocumentationLineStart}", 4, 5);
+                                          "'remote', 'transactional', '}', '@', DocumentationLineStart}", 4, 5);
         BAssertUtil.validateError(res, 1, "extraneous input 'resource'", 6, 5);
         BAssertUtil.validateError(res, 2, "extraneous input '}'", 12, 1);
     }

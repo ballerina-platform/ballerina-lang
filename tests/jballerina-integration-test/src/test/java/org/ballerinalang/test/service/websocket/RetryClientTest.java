@@ -116,7 +116,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         latchForRestart.await(7, TimeUnit.SECONDS);
         remoteServer.run();
         CountDownLatch latch = new CountDownLatch(1);
-        latch.await(5, TimeUnit.SECONDS);
+        latch.await(2, TimeUnit.SECONDS);
     }
 
     private void sendTextDataAndAssert(String text) throws InterruptedException {

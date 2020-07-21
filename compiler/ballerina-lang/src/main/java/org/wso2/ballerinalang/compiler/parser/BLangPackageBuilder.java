@@ -107,6 +107,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -1643,7 +1644,7 @@ public class BLangPackageBuilder {
             keyValue.addWS(this.recordKeyWS.pop());
         }
         keyValue.key.computedKey = computedKey;
-        keyValue.isReadonly = isReadonly;
+        keyValue.readonly = isReadonly;
         recordLiteralNodes.peek().fields.add(keyValue);
     }
 
@@ -1715,7 +1716,7 @@ public class BLangPackageBuilder {
     void createBLangRecordVarRefNameField(DiagnosticPos pos, Set<Whitespace> ws, boolean isReadonly) {
         BLangRecordLiteral.BLangRecordVarNameField varNameField =
                 (BLangRecordLiteral.BLangRecordVarNameField) TreeBuilder.createRecordVarRefNameFieldNode();
-        varNameField.isReadonly = isReadonly;
+        varNameField.readonly = isReadonly;
         createSimpleVariableReference(pos, ws, varNameField);
     }
 
@@ -1959,6 +1960,14 @@ public class BLangPackageBuilder {
         checkPanicExpr.addWS(ws);
         checkPanicExpr.expr = (BLangExpression) exprNodeStack.pop();
         addExpressionNode(checkPanicExpr);
+    }
+
+    void createFailExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+        failExpr.pos = pos;
+        failExpr.addWS(ws);
+        failExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(failExpr);
     }
 
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2712,7 +2721,8 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                       boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
-                                      boolean isDeclaration, boolean markdownDocPresent, int annCount) {
+                                      boolean transactionalFunc, boolean isDeclaration, boolean markdownDocPresent,
+                                      int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2731,6 +2741,9 @@ public class BLangPackageBuilder {
         }
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
+        }
+        if (transactionalFunc) {
+            function.flagSet.add(Flag.TRANSACTIONAL);
         }
 
         if (isDeclaration) {
@@ -3226,8 +3239,9 @@ public class BLangPackageBuilder {
         retryNode.pos = pos;
         retryNode.addWS(ws);
         retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
-        BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) this.blockNodeStack.peek();
-        retryNode.setTransaction((BLangTransaction) blockFunctionBody.stmts.remove(blockFunctionBody.stmts.size() - 1));
+        BlockNode blockNode = this.blockNodeStack.peek();
+        retryNode.setTransaction((BLangTransaction) blockNode.getStatements()
+                .remove(blockNode.getStatements().size() - 1));
         addStmtToCurrentBlock(retryNode);
     }
 

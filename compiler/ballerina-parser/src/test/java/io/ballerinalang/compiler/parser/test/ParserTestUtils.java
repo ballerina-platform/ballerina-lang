@@ -367,11 +367,13 @@ public class ParserTestUtils {
             case HEX_FLOATING_POINT_LITERAL:
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
+            case DEPRECATION_LITERAL:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
             case DOCUMENTATION_DESCRIPTION:
+            case DOCUMENTATION_STRING:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -489,6 +491,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "FAIL_KEYWORD":
+                return SyntaxKind.FAIL_KEYWORD;
             case "PANIC_KEYWORD":
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
@@ -626,7 +630,7 @@ public class ParserTestUtils {
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
 
-            // Documentation reference types of BFM
+            // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
                 return SyntaxKind.TYPE_DOC_REFERENCE_TOKEN;
             case "SERVICE_DOC_REFERENCE_TOKEN":
@@ -643,6 +647,8 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN;
             case "PARAMETER_DOC_REFERENCE_TOKEN":
                 return SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN;
+            case "CONST_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.CONST_DOC_REFERENCE_TOKEN;
 
             // Operators
             case "PLUS_TOKEN":
@@ -793,6 +799,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "FAIL_EXPRESSION":
+                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -859,6 +867,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "FAIL_ACTION":
+                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -1053,8 +1063,6 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_WORKER_DECLARATION;
             case "NAMED_WORKER_DECLARATOR":
                 return SyntaxKind.NAMED_WORKER_DECLARATOR;
-            case "DOCUMENTATION_STRING":
-                return SyntaxKind.DOCUMENTATION_STRING;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
@@ -1181,16 +1189,18 @@ public class ParserTestUtils {
                 return SyntaxKind.TEMPLATE_STRING;
 
             // Documentation
-            case "DOCUMENTATION_LINE":
-                return SyntaxKind.DOCUMENTATION_LINE;
-            case "REFERENCE_DOCUMENTATION_LINE":
-                return SyntaxKind.REFERENCE_DOCUMENTATION_LINE;
-            case "PARAMETER_DOCUMENTATION_LINE":
-                return SyntaxKind.PARAMETER_DOCUMENTATION_LINE;
-            case "RETURN_PARAMETER_DOCUMENTATION_LINE":
-                return SyntaxKind.RETURN_PARAMETER_DOCUMENTATION_LINE;
-            case "DEPRECATION_DOCUMENTATION_LINE":
-                return SyntaxKind.DEPRECATION_DOCUMENTATION_LINE;
+            case "MARKDOWN_DOCUMENTATION":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION;
+            case "MARKDOWN_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
+            case "MARKDOWN_REFERENCE_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_REFERENCE_DOCUMENTATION_LINE;
+            case "MARKDOWN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
             case "DOCUMENTATION_DESCRIPTION":
                 return SyntaxKind.DOCUMENTATION_DESCRIPTION;
             case "DOCUMENTATION_REFERENCE":
@@ -1199,6 +1209,10 @@ public class ParserTestUtils {
                 return SyntaxKind.PARAMETER_NAME;
             case "BACKTICK_CONTENT":
                 return SyntaxKind.BACKTICK_CONTENT;
+            case "DEPRECATION_LITERAL":
+                return SyntaxKind.DEPRECATION_LITERAL;
+            case "DOCUMENTATION_STRING":
+                return SyntaxKind.DOCUMENTATION_STRING;
 
             // Trivia
             case "EOF_TOKEN":

@@ -41,11 +41,13 @@ public class FunctionPointersWithOptionalArgsTest {
         result = BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-optional-args.bal");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testFunctionPointersWithNamedArgs() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/function-pointers-with-named-args-negative.bal");
-        BAssertUtil.validateError(result, 0, "invalid token 'c'", 6, 29);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected 'int[]', found 'int'", 2, 19);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'funcWithRestArgs'", 6, 69);
     }
 
     @Test

@@ -45,11 +45,13 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Represents a request for a Ballerina AST Modify.
@@ -73,7 +75,7 @@ public class BallerinaTreeModifyUtil {
         put("SERVICE_CALL_CHECK", "$TYPE $VARIABLE = check $CALLER.$FUNCTION($PARAMS);\n");
         put("SERVICE_CALL", "$TYPE $VARIABLE = $CALLER.$FUNCTION($PARAMS);\n");
         put("MAIN_START", "$COMMENTpublic function main() {\n");
-        put("MAIN_END", "}\n");
+        put("MAIN_END", "\n}\n");
         put("SERVICE_START", "@http:ServiceConfig {\n\tbasePath: \"/\"\n}\n" +
                 "service $SERVICE on new http:Listener($PORT) {\n" +
                 "@http:ResourceConfig {\n\tmethods: [$METHODS],\npath: \"/$RES_PATH\"\n}\n" +
@@ -84,9 +86,20 @@ public class BallerinaTreeModifyUtil {
         put("IF_STATEMENT", "if ($CONDITION) {\n" +
                 "\n} else {\n\n}\n");
         put("FOREACH_STATEMENT", "foreach $TYPE $VARIABLE in $COLLECTION {\n" +
-                "\n}");
-        put("LOG_STATEMENT", "log:print$TYPE(\"$LOG_EXPR\");");
+                "\n}\n");
+        put("LOG_STATEMENT", "log:print$TYPE($LOG_EXPR);\n");
+        put("PROPERTY_STATEMENT", "$PROPERTY\n");
+        put("RESPOND", "$TYPE $VARIABLE = $CALLER->respond($EXPRESSION);\n");
+        put("TYPE_GUARD_IF", "if($VARIABLE is $TYPE) {\n" +
+                "$STATEMENT" +
+                "\n}\n");
+        put("TYPE_GUARD_ELSE_IF", "else if($VARIABLE is $TYPE) {\n" +
+                "\n}\n");
+        put("TYPE_GUARD_ELSE", " else {\n" +
+                "\n}\n");
+        put("RESPOND_WITH_CHECK", "check $CALLER->respond($EXPRESSION);\n");
         put("PROPERTY_STATEMENT", "$PROPERTY");
+        put("RETURN_STATEMENT", "return $RETURN_EXPR;");
     }};
 
     public static String resolveMapping(String type, JsonObject config) {
@@ -189,18 +202,28 @@ public class BallerinaTreeModifyUtil {
 
         String fileContent = documentManager.getFileContent(compilationPath);
         TextDocument oldTextDocument = TextDocuments.from(fileContent);
-        List<TextEdit> edits =
-                BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
-                        oldTextDocument);
-        for (ASTModification astModification : astModifications) {
-            if (IMPORT.equalsIgnoreCase(astModification.getType())) {
-                if (importExist(unusedNodeVisitor, astModification)) {
-                    continue;
-                }
+
+        List<TextEdit> edits = new ArrayList<>();
+        List<ASTModification> importModifications = Arrays.stream(astModifications)
+                .filter(astModification -> IMPORT.equalsIgnoreCase(astModification.getType()))
+                .collect(Collectors.toList());
+        for (ASTModification importModification : importModifications) {
+            if (importExist(unusedNodeVisitor, importModification)) {
+                continue;
             }
-            TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
+            TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, importModification);
             if (edit != null) {
                 edits.add(edit);
+            }
+        }
+        edits.addAll(BallerinaTreeModifyUtil.getUnusedImportRanges(unusedNodeVisitor.unusedImports(),
+                        oldTextDocument));
+        for (ASTModification astModification : astModifications) {
+            if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
+                TextEdit edit = constructEdit(unusedNodeVisitor, oldTextDocument, astModification);
+                if (edit != null) {
+                    edits.add(edit);
+                }
             }
         }
 
