@@ -7458,19 +7458,6 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
     }
 
-    /**
-     * Check whether a node is a missing node.
-     *
-     * @param node Node to check
-     * @return <code>true</code> if the node is a missing node. <code>false</code> otherwise
-     */
-    private boolean isMissingNode(STNode node) {
-        if (node.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return isMissingNode(((STSimpleNameReferenceNode) node).name);
-        }
-        return node instanceof STMissingToken;
-    }
-
     private STNode parseActionStatement(STNode action) {
         STNode semicolon = parseSemicolon();
         endContext();
@@ -7504,7 +7491,8 @@ public class BallerinaParser extends AbstractParser {
         STNode name;
         switch (nextTokenKind) {
             case DEFAULT_KEYWORD:
-                name = parseDefaultKeyword();
+                STNode defaultKeyword = parseDefaultKeyword();
+                name = STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
                 return parseAsyncSendAction(expression, rightArrow, name);
             case IDENTIFIER_TOKEN:
                 name = STNodeFactory.createSimpleNameReferenceNode(parseFunctionName());
@@ -7563,7 +7551,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseDefaultKeyword() {
         STToken token = peek();
         if (token.kind == SyntaxKind.DEFAULT_KEYWORD) {
-            return STNodeFactory.createSimpleNameReferenceNode(consume());
+            return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.DEFAULT_KEYWORD);
             return sol.recoveredNode;
@@ -10995,7 +10983,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseReceiveField(SyntaxKind nextTokenKind) {
         switch (nextTokenKind) {
             case DEFAULT_KEYWORD:
-                return parseDefaultKeyword();
+                STNode defaultKeyword = parseDefaultKeyword();
+                return STNodeFactory.createSimpleNameReferenceNode(defaultKeyword);
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.RECEIVE_FIELD_NAME);
                 return createQualifiedReceiveField(identifier);
