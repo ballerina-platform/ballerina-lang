@@ -109,7 +109,6 @@ public abstract class AbstractParserErrorHandler {
 
                 // else fall through
             }
-
         }
 
         // Fail safe. This means we can't find a path to recover.
