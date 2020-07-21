@@ -2721,7 +2721,8 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                       boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
-                                      boolean isDeclaration, boolean markdownDocPresent, int annCount) {
+                                      boolean transactionalFunc, boolean isDeclaration, boolean markdownDocPresent,
+                                      int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2740,6 +2741,9 @@ public class BLangPackageBuilder {
         }
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
+        }
+        if (transactionalFunc) {
+            function.flagSet.add(Flag.TRANSACTIONAL);
         }
 
         if (isDeclaration) {

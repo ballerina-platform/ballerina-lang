@@ -20,23 +20,23 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) returns @tainted io:Error? {
+function initReadableChannel(string filePath, string encoding) returns io:Error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = new io:ReadableCharacterChannel(byteChannel, encoding);
     } else {
         return byteChannel;
     }
 }
 
-function initWritableChannel(string filePath, string encoding) returns @tainted io:Error? {
+function initWritableChannel(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
-    wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function initWritableChannelToAppend(string filePath, string encoding) returns @tainted io:Error? {
+function initWritableChannelToAppend(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, true);
-    wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
+    wca = new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns @tainted string|error {
