@@ -4141,6 +4141,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
             case FUNC_NAME:
+            case FUNCTION_KEYWORD_RHS:
             case VARIABLE_NAME:
             case TYPE_NAME_OR_VAR_NAME:
             case IMPORT_MODULE_NAME:
@@ -4229,6 +4230,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.RIGHT_DOUBLE_ARROW_TOKEN;
             case FUNCTIONAL_MATCH_PATTERN:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+            case TOP_LEVEL_NODE_WITHOUT_METADATA:
+                return SyntaxKind.EOF_TOKEN;
             default:
                 return getExpectedSeperatorTokenKind(ctx);
         }

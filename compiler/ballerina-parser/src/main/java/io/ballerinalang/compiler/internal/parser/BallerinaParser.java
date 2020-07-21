@@ -601,6 +601,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgMatchPatternRhs();
             case ARG_BINDING_PATTERN:
                 return parseArgBindingPattern();
+            case TABLE_ROW_END:
+                return parseTableRowEnd();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -1313,6 +1315,9 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTopLevelNode(SyntaxKind tokenKind, STNode metadata, STNode qualifier) {
         switch (tokenKind) {
+            case EOF_TOKEN:
+                reportInvalidQualifier(qualifier);
+                return null;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
                 // ANything starts with a function keyword could be a function definition
@@ -8830,10 +8835,14 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining mapping constructors
         nextToken = peek();
-        STNode leadingComma;
+        STNode rowEnd;
         while (!isEndOfTableRowList(nextToken.kind)) {
-            leadingComma = parseComma();
-            mappings.add(leadingComma);
+            rowEnd = parseTableRowEnd(nextToken.kind);
+            if (rowEnd == null) {
+                break;
+            }
+
+            mappings.add(rowEnd);
             mapExpr = parseMappingConstructorExpr();
             mappings.add(mapExpr);
             nextToken = peek();
@@ -8852,6 +8861,31 @@ public class BallerinaParser extends AbstractParser {
                 return false;
             default:
                 return isEndOfMappingConstructor(tokenKind);
+        }
+    }
+
+    private STNode parseTableRowEnd() {
+        STNode nextToken = peek();
+        return parseTableRowEnd(nextToken.kind);
+    }
+
+    private STNode parseTableRowEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case CLOSE_BRACKET_TOKEN:
+            case EOF_TOKEN:
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.TABLE_ROW_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseListConstructorMemberEnd(solution.tokenKind);
         }
     }
 
