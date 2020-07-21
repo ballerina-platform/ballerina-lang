@@ -133,7 +133,6 @@ public class Compiler {
             return new ArrayList<>();
         }
         
-        this.outStream.println("Compiling source");
         List<BLangPackage> compiledPackages = compilePackages(pkgList);
         // If it is a build and dlog is not empty, compilation should fail
         if (isBuild && this.dlog.getErrorCount() > 0) {

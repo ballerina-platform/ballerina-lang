@@ -1424,6 +1424,9 @@ class JvmTypeGen {
      */
     private static void loadErrorType(MethodVisitor mv, BErrorType errorType) {
 
+        if (errorType.tsymbol == null) {
+            return;
+        }
         PackageID packageID = errorType.tsymbol.pkgID;
         // TODO: Builtin error type will be loaded from BTypes java class. Need to handle this properly.
         if (packageID.orgName.value.equals(BALLERINA) && packageID.name.value.equals(BUILT_IN_PACKAGE_NAME)) {

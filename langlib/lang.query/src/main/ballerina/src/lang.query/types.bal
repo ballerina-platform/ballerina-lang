@@ -636,7 +636,7 @@ class StreamOrderBy {
     }
 
     function topDownMergeSort() returns @tainted Type[] {
-        anydata[][] sortFieldsClone = self.sortFields.clone();
+        anydata[][] sortFieldsClone = <anydata[][]>self.sortFields.clone();
         self.topDownSplitMerge(sortFieldsClone, 0, self.sortFields.length(), self.sortFields);
         return self.sortFields;
     }

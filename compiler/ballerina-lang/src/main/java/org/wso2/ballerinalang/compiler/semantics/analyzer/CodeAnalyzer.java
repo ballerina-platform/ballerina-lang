@@ -2035,7 +2035,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             was.hasErrors = true;
         } else if (workerSendNode.expr instanceof ActionNode) {
             this.dlog.error(workerSendNode.expr.pos, DiagnosticCode.INVALID_SEND_EXPR);
-        } else if (!type.isAnydata()) {
+        } else if (!types.isAssignable(type, symTable.cloneableType)) {
             this.dlog.error(workerSendNode.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND, type);
         }
 

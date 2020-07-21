@@ -2019,7 +2019,7 @@ public class TypeChecker extends BLangNodeVisitor {
         checkExpr(syncSendExpr.expr, this.env);
 
         // Validate if the send expression type is anydata
-        if (!syncSendExpr.expr.type.isAnydata()) {
+        if (!types.isAssignable(syncSendExpr.expr.type, symTable.cloneableType)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticCode.INVALID_TYPE_FOR_SEND,
                             syncSendExpr.expr.type);
         }
@@ -6195,7 +6195,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 return ((BMapType) exprType).constraint;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) exprType;
-                if (types.isAssignable(symTable.jsonType, unionType)) {
+                if (types.isSameType(symTable.jsonType, unionType)) {
                     return symTable.jsonType;
                 }
                 LinkedHashSet<BType> memberTypes = new LinkedHashSet<>();

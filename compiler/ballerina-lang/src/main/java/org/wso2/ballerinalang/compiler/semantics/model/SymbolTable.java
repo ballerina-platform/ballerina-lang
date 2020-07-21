@@ -115,18 +115,15 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-    private final BType jsonTypeInternal = new BJSONType(TypeTags.JSON, null);
+
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
-    private final BType anydataTypeInternal = new BAnydataType(TypeTags.ANYDATA, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
-    public final BMapType mapAnydataType = new BMapType(TypeTags.MAP, anydataTypeInternal, null);
-    public final BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonTypeInternal, null);
+
     public final BFutureType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BArrayType arrayType = new BArrayType(anyType);
     public final BArrayType arrayStringType = new BArrayType(stringType);
-    public final BArrayType arrayAnydataType = new BArrayType(anydataTypeInternal);
-    public final BArrayType arrayJsonType = new BArrayType(jsonTypeInternal);
+
     public final BType tupleType = new BTupleType(Lists.of(noType));
     public final BType recordType = new BRecordType(null);
     public final BType stringArrayType = new BArrayType(stringType);
@@ -134,20 +131,10 @@ public class SymbolTable {
     public final BType handleType = new BHandleType(TypeTags.HANDLE, null);
     public final BTypedescType typeDesc = new BTypedescType(this.anyType, null);
     public final BType readonlyType = new BReadonlyType(TypeTags.READONLY, null);
-    public final BUnionType anydataType =
-            BUnionType.create(null, anydataTypeInternal, mapAnydataType, arrayAnydataType);
-    public final BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
 
     public final BType semanticError = new BType(TypeTags.SEMANTIC_ERROR, null);
     public final BType nullSet = new BType(TypeTags.NULL_SET, null);
-    public final BUnionType anydataOrReadOnlyType = BUnionType.create(null, anydataType, readonlyType);
-    public final BUnionType jsonType = BUnionType.create(null, jsonTypeInternal, mapJsonType, arrayJsonType);
 
-
-    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
-    public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
-    public BMapType detailType = new BMapType(TypeTags.MAP, anydataOrReadonly, null);
-    public BErrorType errorType = new BErrorType(null, detailType);
     public BConstructorSymbol errorConstructor;
     public BUnionType anyOrErrorType;
     public BUnionType pureType;
@@ -173,6 +160,36 @@ public class SymbolTable {
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
+
+    // anydata type definition will be loaded from annotation module
+    private final BUnionType anyDataInternal = BUnionType.create(null, nilType, booleanType,
+            intType, floatType, decimalType, stringType, xmlType);
+    public BArrayType arrayAnydataType = new BArrayType(anyDataInternal);
+    public BMapType mapAnydataType = new BMapType(TypeTags.MAP, anyDataInternal, null);
+    public BAnydataType anydataType = new BAnydataType(BUnionType.create(null, anyDataInternal, arrayAnydataType,
+            mapAnydataType));
+    public BType anydataOrReadonly = BUnionType.create(null, anydataType, readonlyType);
+    public BType streamType = new BStreamType(TypeTags.STREAM, anydataType, null, null);
+    public BType tableType = new BTableType(TypeTags.TABLE, anydataType, null);
+
+    // json type definition will be loaded from the annotation module
+    private final BUnionType jsonInternal = BUnionType.create(null, nilType, booleanType,
+            intType, floatType, decimalType, stringType);
+    public BArrayType arrayJsonType = new BArrayType(jsonInternal);
+    public BMapType mapJsonType = new BMapType(TypeTags.MAP, jsonInternal, null);
+    public BJSONType jsonType = new BJSONType(BUnionType.create(null, jsonInternal, arrayJsonType,
+            mapJsonType));
+
+    // cloneable type definition will be loaded from value module
+//    private final BUnionType cloneableTypeInternal = BUnionType.create(null, readonlyType, xmlType);
+//    private final BMapType mapCloneableType = new BMapType(TypeTags.MAP, cloneableTypeInternal, null);
+//    private final BArrayType arrayCloneableType = new BArrayType(cloneableTypeInternal);
+//    private final BType tableMapCloneableType = new BTableType(TypeTags.TABLE, anydataType, null);
+//    public BUnionType cloneableType = BUnionType.create(null, cloneableTypeInternal, mapCloneableType,
+//            arrayCloneableType, tableMapCloneableType);
+    public BUnionType cloneableType;
+    public BMapType detailType;
+    public BErrorType errorType;
 
     public BPackageSymbol langInternalModuleSymbol;
     public BPackageSymbol langAnnotationModuleSymbol;
@@ -231,16 +248,13 @@ public class SymbolTable {
         initializeType(decimalType, TypeKind.DECIMAL.typeName(), BUILTIN);
         initializeType(stringType, TypeKind.STRING.typeName(), BUILTIN);
         initializeType(booleanType, TypeKind.BOOLEAN.typeName(), BUILTIN);
-        initializeType(jsonType, TypeKind.JSON.typeName(), BUILTIN);
         initializeType(xmlType, TypeKind.XML.typeName(), BUILTIN);
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);
         initializeType(tableType, TypeKind.TABLE.typeName(), BUILTIN);
         initializeType(mapType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(mapStringType, TypeKind.MAP.typeName(), VIRTUAL);
-        initializeType(mapAnydataType, TypeKind.MAP.typeName(), VIRTUAL);
         initializeType(futureType, TypeKind.FUTURE.typeName(), BUILTIN);
         initializeType(anyType, TypeKind.ANY.typeName(), BUILTIN);
-        initializeType(anydataType, TypeKind.ANYDATA.typeName(), BUILTIN);
         initializeType(nilType, TypeKind.NIL.typeName(), BUILTIN);
         initializeType(neverType, TypeKind.NEVER.typeName(), BUILTIN);
         initializeType(anyServiceType, TypeKind.SERVICE.typeName(), BUILTIN);
@@ -360,8 +374,6 @@ public class SymbolTable {
 
     public void loadPredeclaredModules() {
         Map<Name, BPackageSymbol> modules = new HashMap<>();
-        modules.put(Names.BOOLEAN, this.langBooleanModuleSymbol);
-        modules.put(Names.DECIMAL, this.langDecimalModuleSymbol);
         modules.put(Names.ERROR, this.langErrorModuleSymbol);
         modules.put(Names.FLOAT, this.langFloatModuleSymbol);
         modules.put(Names.FUTURE, this.langFutureModuleSymbol);
@@ -397,6 +409,7 @@ public class SymbolTable {
     }
 
     public void defineOperators() {
+
         // Binary arithmetic operators
         defineIntegerArithmeticOperations();
 

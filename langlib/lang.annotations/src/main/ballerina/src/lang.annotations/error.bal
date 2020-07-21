@@ -14,7 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type CloneableUnion readonly|xml|CloneableUnion[]|map<CloneableUnion>|table<map<CloneableUnion>>;
 
 # Default error type.
 # The type parameter is for the error detail type. It's constrained to anydata or readonly type.
-public type 'error error<map<anydata|readonly>>;
+public type 'error error<map<CloneableUnion>>;

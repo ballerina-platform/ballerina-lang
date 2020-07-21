@@ -18,60 +18,43 @@
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
-import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
+
+import java.util.LinkedHashSet;
 
 /**
  * @since 0.94
  */
-public class BJSONType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
+public class BJSONType extends BUnionType implements SelectivelyImmutableReferenceType {
 
-    private boolean nullable = true;
-    public BIntersectionType immutableType;
-
-    public BJSONType(int tag, BTypeSymbol tsymbol) {
-        super(tag, tsymbol);
+    private BJSONType(int tag, BTypeSymbol tsymbol) {
+        super(tsymbol, new LinkedHashSet<>(), true, false);
+        this.tag = tag;
     }
 
     public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable) {
-        this(tag, tsymbol);
-        this.nullable = nullable;
+        super(tsymbol, new LinkedHashSet<>(), nullable, false);
+        this.tag = tag;
     }
 
-    public BJSONType(int tag, BTypeSymbol tsymbol, boolean nullable, int flags) {
-        this(tag, tsymbol);
-        this.nullable = nullable;
-        this.flags = flags;
+    public BJSONType(BJSONType bjsonType, boolean nullable) {
+        super(bjsonType.tsymbol, bjsonType.getMemberTypes(), nullable, false);
+        this.tag = TypeTags.JSON;
     }
 
-    @Override
-    public <T, R> R accept(BTypeVisitor<T, R> visitor, T t) {
-        return visitor.visit(this, t);
-    }
-
-    public boolean isNullable() {
-        return nullable;
-    }
-
-    public void setNullable(boolean nullable) {
-        this.nullable = nullable;
+    public BJSONType(BUnionType type) {
+        super(type.tsymbol, new LinkedHashSet<>(type.getMemberTypes()), type.isNullable(), Symbols.isFlagOn(type.flags,
+                Flags.READONLY));
+        this.immutableType = type.immutableType;
+        this.tag = TypeTags.JSON;
     }
 
     @Override
-    public void accept(TypeVisitor visitor) {
-        visitor.visit(this);
-    }
-
-    @Override
-    public BIntersectionType getImmutableType() {
-        return this.immutableType;
-    }
-
-    @Override
-    public String toString() {
-        return !Symbols.isFlagOn(flags, Flags.READONLY) ? getKind().typeName() :
-                getKind().typeName().concat(" & readonly");
+    public TypeKind getKind() {
+        return TypeKind.JSON;
     }
 }

@@ -130,7 +130,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BJSONType originalType, BType newType) {
-        return originalType;
+        return visit((BUnionType) originalType, newType);
     }
 
     @Override

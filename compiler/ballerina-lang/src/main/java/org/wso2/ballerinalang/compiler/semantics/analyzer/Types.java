@@ -210,23 +210,33 @@ public class Types {
     private boolean isJSONType(BType type) {
         if (type.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) type;
-            if (isSameType(symTable.jsonType, type)) {
-                return true;
-            }
-            return false;
+            return isJSONUnionType(bUnionType);
         }
         return type.tag == TypeTags.JSON;
     }
 
     private boolean isAnydataType(BType type) {
+        // TODO: use TypeKind.JSON.typeName()
         if (type.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) type;
-            if (isSameType(symTable.anydataType, type)) {
-                return true;
-            }
-            return false;
+            return isAnydataUnionType(bUnionType);
         }
         return type.tag == TypeTags.ANYDATA;
+    }
+
+    public boolean isAnydataUnionType(BUnionType type) {
+        // TODO: use TypeKind.ANYDATA.typeName()
+        if (type.name != null && (type.name.getValue().equals(Names.ANYDATA.getValue()))) {
+            return true;
+        }
+        return isSameType(type, symTable.anydataType);
+    }
+
+    public boolean isJSONUnionType(BUnionType type) {
+        if (type.name != null && (type.name.getValue().equals(Names.JSON.getValue()))) {
+            return true;
+        }
+        return isSameType(type, symTable.jsonType);
     }
 
     public boolean isLax(BType type) {
@@ -238,6 +248,7 @@ public class Types {
         return false;
     }
 
+    // TODO : clean
     public int isLaxType(BType type, Set<BType> visited) {
         if (!visited.add(type)) {
             return -1;
@@ -265,7 +276,7 @@ public class Types {
                     }
                     atleastOneLaxType = true;
                 }
-                return atleastOneLaxType? 1 : 0;
+                return atleastOneLaxType ? 1 : 0;
         }
         return 0;
     }
@@ -285,6 +296,7 @@ public class Types {
                 visited.put(type, result);
                 return result;
             case TypeTags.UNION:
+                // TODO: remove
                 if (type == symTable.jsonType || isSameType(type, symTable.jsonType)) {
                     visited.put(type, true);
                     return true;
@@ -691,7 +703,7 @@ public class Types {
             return true;
         }
 
-        if (isAnydataType(target) && !containsErrorType(source) && source.isAnydata()) {
+        if (isAnydataType(target) && !containsErrorType(source)) {
             if (source.isAnydata()) {
                 return true;
             }
@@ -726,7 +738,7 @@ public class Types {
         }
 
         if (targetTag == TypeTags.TABLE && sourceTag == TypeTags.TABLE) {
-            return isAssignableTableType((BTableType) source, (BTableType) target);
+            return isAssignableTableType((BTableType) source, (BTableType) target, unresolvedTypes);
         }
 
         if (targetTag == TypeTags.STREAM && sourceTag == TypeTags.STREAM) {
@@ -746,8 +758,8 @@ public class Types {
             return true;
         }
 
-        if (targetTag == TypeTags.JSON) {
-            if (sourceTag == TypeTags.JSON) {
+        if (isJSONType(target)) {
+            if (isJSONType(source)) {
                 return true;
             }
 
@@ -847,8 +859,9 @@ public class Types {
         return true;
     }
 
-    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType) {
-        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint)) {
+    private boolean isAssignableTableType(BTableType sourceTableType, BTableType targetTableType,
+                                          Set<TypePair> unresolvedTypes) {
+        if (!isAssignable(sourceTableType.constraint, targetTableType.constraint, unresolvedTypes)) {
             return false;
         }
 
@@ -858,7 +871,8 @@ public class Types {
 
         if (targetTableType.keyTypeConstraint != null) {
             if (sourceTableType.keyTypeConstraint != null &&
-                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint))) {
+                    (isAssignable(sourceTableType.keyTypeConstraint, targetTableType.keyTypeConstraint,
+                            unresolvedTypes))) {
                 return true;
             }
 
@@ -871,11 +885,11 @@ public class Types {
                     .add(getTableConstraintField(sourceTableType.constraint, field).type));
 
             if (fieldTypes.size() == 1) {
-                return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint);
+                return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint, unresolvedTypes);
             }
 
             BTupleType tupleType = new BTupleType(fieldTypes);
-            return isAssignable(tupleType, targetTableType.keyTypeConstraint);
+            return isAssignable(tupleType, targetTableType.keyTypeConstraint, unresolvedTypes);
         }
 
         return targetTableType.fieldNameList.equals(sourceTableType.fieldNameList);
@@ -1063,6 +1077,8 @@ public class Types {
             return isAssignable(sourceElementType, targetElementType, unresolvedTypes);
         } else if (target.tag == TypeTags.JSON) {
             return isAssignable(sourceElementType, target, unresolvedTypes);
+        } else if (target.tag == TypeTags.ANYDATA) {
+            return isAssignable(sourceElementType, target, unresolvedTypes);
         }
         return false;
     }
@@ -1151,16 +1167,16 @@ public class Types {
 
     private boolean isSelectivelyImmutableType(BType type, boolean disallowReadOnlyObjects, Set<BType> unresolvedTypes,
                                                boolean forceCheck) {
+        if (!unresolvedTypes.add(type)) {
+            return true;
+        }
+
         if (isInherentlyImmutableType(type) || !(type instanceof SelectivelyImmutableReferenceType)) {
             // Always immutable.
             return false;
         }
 
         if (!forceCheck && ((SelectivelyImmutableReferenceType) type).getImmutableType() != null) {
-            return true;
-        }
-
-        if (!unresolvedTypes.add(type)) {
             return true;
         }
 
@@ -1235,8 +1251,13 @@ public class Types {
                 return isInherentlyImmutableType(tableConstraintType) ||
                         isSelectivelyImmutableType(tableConstraintType, unresolvedTypes, forceCheck);
             case TypeTags.UNION:
+                BUnionType bUnionType = (BUnionType) type;
+//                if (isAnydataUnionType(bUnionType) || isJSONUnionType(bUnionType)) {
+//                if (isAnydataUnionType(bUnionType)) {
+//                    return true;
+//                }
                 boolean readonlyIntersectionExists = false;
-                for (BType memberType : ((BUnionType) type).getMemberTypes()) {
+                for (BType memberType : bUnionType.getMemberTypes()) {
                     if (isInherentlyImmutableType(memberType) ||
                             isSelectivelyImmutableType(memberType, disallowReadOnlyObjects, unresolvedTypes,
                                                        forceCheck)) {
@@ -2122,8 +2143,7 @@ public class Types {
         switch (detailType.tag) {
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                return isAssignable(detailType, symTable.detailType);
-
+                return isAssignable(detailType, symTable.cloneableType);
         }
         return false;
     }
@@ -2799,6 +2819,7 @@ public class Types {
     }
 
     boolean validEqualityIntersectionExists(BType lhsType, BType rhsType) {
+
         if (!lhsType.isPureType() || !rhsType.isPureType()) {
             return false;
         }
@@ -3238,8 +3259,7 @@ public class Types {
         // is not-nullable.
         switch (type.tag) {
             case TypeTags.JSON:
-                BJSONType jsonType = (BJSONType) type;
-                return new BJSONType(jsonType.tag, jsonType.tsymbol, false);
+                return new BJSONType((BJSONType) type, false);
             case TypeTags.ANY:
                 return new BAnyType(type.tag, type.tsymbol, false);
             case TypeTags.ANYDATA:

@@ -2490,6 +2490,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTypeName() {
         STToken token = peek();
+//        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN || token.kind == SyntaxKind.JSON_KEYWORD || token.kind == SyntaxKind.ANYDATA_KEYWORD) {
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {

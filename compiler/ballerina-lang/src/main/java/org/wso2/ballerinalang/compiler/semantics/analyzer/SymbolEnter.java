@@ -1097,7 +1097,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             // TODO : Clean this. Not a nice way to handle this.
             //  TypeParam is built-in annotation, and limited only within lang.* modules.
             if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
-                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(typeDefSymbol.type, typeDefSymbol.name);
+//                BType paramType = if (typeDefSymbol.type != null)? typeDefSymbol.type : typeDefSymbol.getTypeNode()
+                typeDefSymbol.type = typeParamAnalyzer.createTypeParam(definedType, typeDefSymbol.name);
                 typeDefSymbol.flags |= Flags.TYPE_PARAM;
                 if (typeDefinition.typeNode.getKind() == NodeKind.ERROR_TYPE) {
                     typeDefSymbol.isLabel = false;
@@ -1162,7 +1163,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 unionType.add(memberType);
             }
             unionType.addAll(definedUnionType.getMemberTypes());
-//            definedUnionType.setExplicitUnion();
         }
 
         return definedType;
@@ -1677,7 +1677,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
-    private boolean isValidAnnotationType(BType type) {
+    public boolean isValidAnnotationType(BType type) {
         if (type == symTable.semanticError) {
             return false;
         }
@@ -1685,11 +1685,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         switch (type.tag) {
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
+                return isCloneableTypeTypeSkippingObjectType(constraintType);
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
-                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                    if (!isCloneableTypeTypeSkippingObjectType(field.type)) {
                         return false;
                     }
                 }
@@ -1699,7 +1699,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                     return true;
                 }
 
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
+                return isCloneableTypeTypeSkippingObjectType(recordRestType);
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
                 if ((elementType.tag == TypeTags.MAP) || (elementType.tag == TypeTags.RECORD)) {
@@ -1711,17 +1711,27 @@ public class SymbolEnter extends BLangNodeVisitor {
         return types.isAssignable(type, symTable.trueType);
     }
 
-    private boolean isAnyDataOrReadOnlyTypeSkippingObjectType(BType type) {
+    private boolean isCloneableTypeTypeSkippingObjectType(BType type) {
+        return isCloneableTypeSkippingObjectTypeHelper(type, new HashSet<>());
+    }
+
+    private boolean isCloneableTypeSkippingObjectTypeHelper(BType type, Set<BType> unresolvedTypes) {
         if (type == symTable.semanticError) {
             return false;
         }
+
+        if (!unresolvedTypes.add(type)) {
+            return true;
+        }
+
         switch (type.tag) {
             case TypeTags.OBJECT:
+            case TypeTags.ANYDATA:
                 return true;
             case TypeTags.RECORD:
                 BRecordType recordType = (BRecordType) type;
                 for (BField field : recordType.fields.values()) {
-                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(field.type)) {
+                    if (!isCloneableTypeSkippingObjectTypeHelper(field.type, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -1729,13 +1739,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (recordRestType == null || recordRestType == symTable.noType) {
                     return true;
                 }
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(recordRestType);
+                return isCloneableTypeSkippingObjectTypeHelper(recordRestType, unresolvedTypes);
             case TypeTags.MAP:
                 BType constraintType = ((BMapType) type).constraint;
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(constraintType);
+                return isCloneableTypeSkippingObjectTypeHelper(constraintType, unresolvedTypes);
             case TypeTags.UNION:
                 for (BType memberType : ((BUnionType) type).getMemberTypes()) {
-                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(memberType)) {
+                    if (!isCloneableTypeSkippingObjectTypeHelper(memberType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -1743,7 +1753,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TypeTags.TUPLE:
                 BTupleType tupleType = (BTupleType) type;
                 for (BType tupMemType : tupleType.getTupleTypes()) {
-                    if (!isAnyDataOrReadOnlyTypeSkippingObjectType(tupMemType)) {
+                    if (!isCloneableTypeSkippingObjectTypeHelper(tupMemType, unresolvedTypes)) {
                         return false;
                     }
                 }
@@ -1751,14 +1761,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                 if (tupRestType == null) {
                     return true;
                 }
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(tupRestType);
+                return isCloneableTypeSkippingObjectTypeHelper(tupRestType, unresolvedTypes);
             case TypeTags.TABLE:
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BTableType) type).constraint);
+                return isCloneableTypeSkippingObjectTypeHelper(((BTableType) type).constraint, unresolvedTypes);
             case TypeTags.ARRAY:
-                return isAnyDataOrReadOnlyTypeSkippingObjectType(((BArrayType) type).getElementType());
+                return isCloneableTypeSkippingObjectTypeHelper(((BArrayType) type).getElementType(),
+                        unresolvedTypes);
         }
 
-        return types.isAssignable(type, symTable.anydataOrReadOnlyType);
+        // TODO: needed for ballerina-lang:annotations:createBalo
+        if (symTable.cloneableType == null) {
+            symResolver.loadCloneableType(env);
+        }
+        return types.isAssignable(type, symTable.cloneableType);
     }
 
 

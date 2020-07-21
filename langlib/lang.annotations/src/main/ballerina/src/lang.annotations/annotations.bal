@@ -14,6 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Denotes anydata type
+public type anydataType ()|boolean|int|float|decimal|string|xml|anydataType[]|map<anydataType>|table<map<anydataType>>;
+
+# Denotes json type
+public type jsonType ()|boolean|int|float|decimal|string|jsonType[]|map<jsonType>;
+
 # Denote that the return value is tainted.
 public const annotation tainted on parameter, return, source listener, source var, source type;
 
