@@ -216,6 +216,7 @@ import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentationReferenceType;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -828,9 +829,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangFunction.attachedFunction = true;
                 bLangFunction.flagSet.add(Flag.ATTACHED);
                 if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
-                    bLangFunction.objInitFunction = true;
-                    // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
-                    objectTypeNode.initFunction = bLangFunction;
+                    if (objectTypeNode.initFunction == null) {
+                        bLangFunction.objInitFunction = true;
+                        // TODO: verify removing NULL check for objectTypeNode.initFunction has no side-effects
+                        objectTypeNode.initFunction = bLangFunction;
+                    } else {
+                        objectTypeNode.addFunction(bLangFunction);
+                    }
                 } else {
                     objectTypeNode.addFunction(bLangFunction);
                 }
@@ -1133,10 +1138,30 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 funcDefNode.functionSignature(), funcDefNode.functionBody(), funcDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(funcDefNode.metadata().annotations());
-        bLFunction.pos = getPosition(funcDefNode);
+        bLFunction.pos = getPositionForFuncDefNode(funcDefNode);
+        
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(funcDefNode.metadata().documentationString());
         return bLFunction;
+    }
+
+    private DiagnosticPos getPositionForFuncDefNode(FunctionDefinitionNode funcDefNode) {
+        if (funcDefNode == null) {
+            return null;
+        }
+        Node startNode;
+        if (funcDefNode.visibilityQualifier().isPresent()) {
+            startNode = funcDefNode.visibilityQualifier().get();
+        } else {
+            startNode = funcDefNode.functionKeyword();
+        }
+        LineRange startLineRange = startNode.lineRange();
+        LineRange endLineRange = funcDefNode.functionBody().lineRange();
+
+        LinePosition startPos = startLineRange.startLine();
+        LinePosition endPos = endLineRange.endLine();
+        return new DiagnosticPos(diagnosticSource, startPos.line() + 1, endPos.line() + 1, startPos.offset() + 1,
+                endPos.offset() + 1);
     }
 
     private BLangFunction createFunctionNode(IdentifierToken funcName, Optional<Token> visibilityQualifier,
@@ -2082,6 +2107,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangLetVariable letVar = TreeBuilder.createLetVariableNode();
         VariableDefinitionNode varDefNode = createBLangVarDef(getPosition(letVarDecl), letVarDecl.typedBindingPattern(),
                 Optional.of(letVarDecl.expression()), Optional.empty());
+        varDefNode.getVariable().addFlag(Flag.FINAL);
+        List<BLangNode> annots = applyAll(letVarDecl.annotations());
+        for (BLangNode node : annots) {
+            varDefNode.getVariable().addAnnotationAttachment((AnnotationAttachmentNode) node);
+        }
+
         letVar.definitionNode = varDefNode;
         return letVar;
     }
@@ -3201,7 +3232,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLLetClause.pos = getPosition(letClauseNode);
         List<BLangLetVariable> letVars = new ArrayList<>();
         for (LetVariableDeclarationNode letVarDeclr : letClauseNode.letVarDeclarations()) {
-            letVars.add(createLetVariable(letVarDeclr));
+            BLangLetVariable letVar = createLetVariable(letVarDeclr);
+            letVar.definitionNode.getVariable().addFlag(Flag.FINAL);
+            letVars.add(letVar);
         }
         if (!letVars.isEmpty()) {
             bLLetClause.letVarDeclarations = letVars;

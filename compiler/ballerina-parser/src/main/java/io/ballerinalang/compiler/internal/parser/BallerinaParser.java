@@ -3389,7 +3389,16 @@ public class BallerinaParser extends AbstractParser {
      * @return Type reference node
      */
     private STNode parseTypeReference() {
-        return parseQualifiedIdentifier(ParserRuleContext.TYPE_REFERENCE, false);
+        STNode typeReference = parseTypeDescriptor(ParserRuleContext.TYPE_REFERENCE);
+        if (typeReference.kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+            typeReference.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return typeReference;
+        }
+        STNode emptyNameReference = STNodeFactory.createSimpleNameReferenceNode(
+                SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+        emptyNameReference = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(emptyNameReference, typeReference,
+                DiagnosticErrorCode.ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS);
+        return emptyNameReference;
     }
 
     private STNode parseTypeReference(boolean isInConditionalExpr) {
