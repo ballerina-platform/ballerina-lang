@@ -32,12 +32,18 @@ public interface BVariable {
     SuspendedContext getContext();
 
     /**
-     * Returns the value of the variable instance in string form. Each variable type implementation can have their
-     * own implementation to compute/fetch its value.
+     * Returns variable name.
      *
-     * @return value of the variable instance, in string form.
+     * @return variable name
      */
-    String computeValue();
+    String getName();
+
+    /**
+     * Returns the ballerina variable type of the instance.
+     *
+     * @return ballerina variable type
+     */
+    BVariableType getBType();
 
     /**
      * Returns variable information in a Debug Adapter Protocol compatible format.
@@ -45,4 +51,12 @@ public interface BVariable {
      * @return a DAP compatible variable instance of the ballerina variable instance.
      */
     Variable getDapVariable();
+
+    /**
+     * Returns the value of the variable instance in string form. Each variable type implementation can have their
+     * own implementation to compute/fetch its value.
+     *
+     * @return value of the variable instance, in string form.
+     */
+    String computeValue();
 }

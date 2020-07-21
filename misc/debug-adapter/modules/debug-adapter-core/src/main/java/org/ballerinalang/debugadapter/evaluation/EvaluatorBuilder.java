@@ -28,7 +28,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.FunctionCallExpressionEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.NameReferenceEvaluator;
 
 import java.util.ArrayList;
@@ -98,24 +98,27 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class EvaluationBuilder extends NodeVisitor {
+public class EvaluatorBuilder extends NodeVisitor {
 
     private final Set<SyntaxKind> supportedSyntax = new HashSet<>();
     private final Set<SyntaxKind> capturedSyntax = new HashSet<>();
     private final List<Node> unsupportedNodes = new ArrayList<>();
     private final SuspendedContext context;
-    private boolean isExpressionFound = false;
     private Evaluator result = null;
     private EvaluationException builderException = null;
 
-    public EvaluationBuilder(SuspendedContext context) {
+    public EvaluatorBuilder(SuspendedContext context) {
 
         this.context = context;
 
         // expressions
         supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
+
+        // Function invocation.
         supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
+        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+
         // arithmetic operators
         supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
         supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
@@ -162,15 +165,6 @@ public class EvaluationBuilder extends NodeVisitor {
         return result;
     }
 
-    private boolean unsupportedSyntaxDetected() {
-        return !unsupportedNodes.isEmpty();
-    }
-
-    @Override
-    public void visit(Token token) {
-
-    }
-
     @Override
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
@@ -196,7 +190,7 @@ public class EvaluationBuilder extends NodeVisitor {
             // Todo - should we disable GC like intellij does?
             argEvaluators.add(result);
         }
-        result = new FunctionCallExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
+        result = new FunctionInvocationExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
         visitSyntaxNode(functionCallExpressionNode);
     }
 
@@ -212,5 +206,13 @@ public class EvaluationBuilder extends NodeVisitor {
         if (!supportedSyntax.contains(node.kind())) {
             unsupportedNodes.add(node);
         }
+    }
+
+    @Override
+    public void visit(Token token) {
+    }
+
+    private boolean unsupportedSyntaxDetected() {
+        return !unsupportedNodes.isEmpty();
     }
 }

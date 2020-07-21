@@ -45,14 +45,23 @@ public abstract class BSimpleVariable implements BVariable {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public BVariableType getBType() {
+        return type;
+    }
+
+    @Override
     public Variable getDapVariable() {
-        if (dapVariable != null) {
-            return dapVariable;
+        if (dapVariable == null) {
+            dapVariable = new Variable();
+            dapVariable.setName(this.name);
+            dapVariable.setType(this.type.getString());
+            dapVariable.setValue(computeValue());
         }
-        dapVariable = new Variable();
-        dapVariable.setName(this.name);
-        dapVariable.setType(this.type.getString());
-        dapVariable.setValue(computeValue());
         return dapVariable;
     }
 }

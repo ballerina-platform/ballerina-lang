@@ -18,9 +18,9 @@ package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.LocalVariable;
-import com.sun.jdi.Value;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
@@ -34,10 +34,10 @@ public class NameReferenceEvaluator extends Evaluator {
     }
 
     @Override
-    public Value evaluate() throws EvaluationException {
+    public BExpressionValue evaluate() throws EvaluationException {
         try {
             LocalVariable jvmVar = context.getFrame().visibleVariableByName(syntaxNode.toString());
-            return context.getFrame().getValue(jvmVar);
+            return new BExpressionValue(context, context.getFrame().getValue(jvmVar));
         } catch (AbsentInformationException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
                     syntaxNode.toString()));

@@ -55,22 +55,30 @@ public abstract class BCompoundVariable implements BVariable {
     }
 
     @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public BVariableType getBType() {
+        return type;
+    }
+
+    @Override
     public Variable getDapVariable() {
-        if (dapVariable != null) {
-            return dapVariable;
+        if (dapVariable == null) {
+            dapVariable = new Variable();
+            dapVariable.setName(this.name);
+            dapVariable.setType(this.type.getString());
+            dapVariable.setValue(computeValue());
         }
-        dapVariable = new Variable();
-        dapVariable.setName(this.name);
-        dapVariable.setType(this.type.getString());
-        dapVariable.setValue(computeValue());
         return dapVariable;
     }
 
     public Map<String, Value> getChildVariables() {
-        if (childVariables != null) {
-            return childVariables;
+        if (childVariables == null) {
+            childVariables = computeChildVariables();
         }
-        childVariables = computeChildVariables();
         return childVariables;
     }
 }

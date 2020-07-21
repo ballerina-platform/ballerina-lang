@@ -22,12 +22,12 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.variable.VariableUtils.UNKNOWN_VALUE;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina record variable type.
@@ -41,7 +41,7 @@ public class BRecord extends BCompoundVariable {
     @Override
     public String computeValue() {
         try {
-            return isAnonymous() ? "anonymous" : getBType(jvmValue);
+            return isAnonymous() ? "anonymous" : VariableUtils.getBType(jvmValue);
         } catch (Exception e) {
             return UNKNOWN_VALUE;
         }
@@ -77,7 +77,7 @@ public class BRecord extends BCompoundVariable {
      * @return whether the given record instance is anonymous.
      */
     private boolean isAnonymous() {
-        String bType = getBType(jvmValue);
+        String bType = VariableUtils.getBType(jvmValue);
         return bType.startsWith("$");
     }
 }

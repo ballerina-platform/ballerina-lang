@@ -23,7 +23,7 @@ import com.sun.jdi.connect.AttachingConnector;
 import com.sun.jdi.connect.Connector;
 import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.tools.jdi.SocketAttachingConnector;
-import org.ballerinalang.debugadapter.evaluation.EvaluationBuilder;
+import org.ballerinalang.debugadapter.evaluation.EvaluatorBuilder;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
@@ -82,9 +82,9 @@ public class DebugExecutionManager {
      */
     public Optional<Value> evaluate(SuspendedContext context, String expression) {
         try {
-            EvaluationBuilder exprTransformer = new EvaluationBuilder(context);
+            EvaluatorBuilder exprTransformer = new EvaluatorBuilder(context);
             Evaluator evaluator = exprTransformer.build(expression);
-            return Optional.ofNullable(evaluator.evaluate());
+            return Optional.ofNullable(evaluator.evaluate().getJdiValue());
         } catch (EvaluationException e) {
             return Optional.ofNullable(attachedVm.mirrorOf(e.getMessage()));
         } catch (Exception e) {

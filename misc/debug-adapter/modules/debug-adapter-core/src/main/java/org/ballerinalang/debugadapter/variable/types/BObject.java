@@ -22,11 +22,10 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 
 /**
  * Ballerina object variable type.
@@ -39,7 +38,7 @@ public class BObject extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        return VariableUtils.getBType(jvmValue);
     }
 
     @Override

@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
-
 /**
  * Ballerina map variable type.
  */
@@ -44,7 +42,7 @@ public class BMap extends BCompoundVariable {
 
     @Override
     public String computeValue() {
-        return getBType(jvmValue);
+        return VariableUtils.getBType(jvmValue);
     }
 
     @Override

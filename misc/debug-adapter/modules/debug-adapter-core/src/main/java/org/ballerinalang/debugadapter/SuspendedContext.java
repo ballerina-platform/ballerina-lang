@@ -38,6 +38,8 @@ public class SuspendedContext {
     private final StackFrame frame;
     private final DebugSourceType sourceType;
     private final Optional<String> orgName;
+    private final Optional<String> moduleName;
+    private final Optional<String> version;
     private final String breakPointSourcePath;
     private final String fileName;
 
@@ -46,8 +48,11 @@ public class SuspendedContext {
         this.frame = frame;
         this.owningThread = threadRef;
         this.sourceType = projectRoot != null ? DebugSourceType.MODULE : DebugSourceType.SINGLE_FILE;
-        this.orgName = projectRoot != null ? Optional.of(PackageUtils.getOrgName(projectRoot)) : Optional.empty();
+        this.orgName = projectRoot == null ? Optional.empty() : Optional.of(PackageUtils.getOrgName(projectRoot));
+        this.version = projectRoot == null ? Optional.empty() : Optional.of(PackageUtils.getModuleVersion(projectRoot));
         this.breakPointSourcePath = getSourcePath(frame, projectRoot);
+        this.moduleName = breakPointSourcePath.isEmpty() ? Optional.empty() :
+                Optional.of(PackageUtils.getModuleName(breakPointSourcePath));
         this.fileName = getFileNameFrom(this.breakPointSourcePath);
     }
 
@@ -69,6 +74,14 @@ public class SuspendedContext {
 
     public Optional<String> getOrgName() {
         return orgName;
+    }
+
+    public Optional<String> getModuleName() {
+        return moduleName;
+    }
+
+    public Optional<String> getVersion() {
+        return version;
     }
 
     public String getBreakPointSourcePath() {

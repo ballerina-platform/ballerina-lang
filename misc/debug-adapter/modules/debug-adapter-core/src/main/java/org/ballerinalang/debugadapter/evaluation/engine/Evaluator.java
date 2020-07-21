@@ -16,8 +16,8 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
 public abstract class Evaluator {
@@ -31,7 +31,7 @@ public abstract class Evaluator {
     /**
      * @throws EvaluationException
      */
-    public abstract Value evaluate() throws EvaluationException;
+    public abstract BExpressionValue evaluate() throws EvaluationException;
 
     /**
      * In order to obtain a modifier the expression must be evaluated first

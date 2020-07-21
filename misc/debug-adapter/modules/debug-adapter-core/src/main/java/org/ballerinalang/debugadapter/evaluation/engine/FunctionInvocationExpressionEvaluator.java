@@ -16,15 +16,18 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
+import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassNotPreparedException;
-import com.sun.jdi.ClassObjectReference;
+import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
@@ -32,35 +35,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class FunctionCallExpressionEvaluator extends Evaluator {
+public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private final FunctionCallExpressionNode syntaxNode;
     private final List<Evaluator> argEvaluators;
+    private static final String STRAND_VAR_NAME = "__strand";
 
-    public FunctionCallExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
-                                           List<Evaluator> argEvaluators) {
+    public FunctionInvocationExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
+                                                 List<Evaluator> argEvaluators) {
         super(context);
         this.syntaxNode = node;
         this.argEvaluators = argEvaluators;
     }
 
     @Override
-    public Value evaluate() throws EvaluationException {
+    public BExpressionValue evaluate() throws EvaluationException {
         try {
             Optional<JvmMethod> jvmMethod = findFunction(syntaxNode);
             if (!jvmMethod.isPresent()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
                         syntaxNode.functionName().toString()));
             }
-            // Evaluates function arguments.
             List<Value> argValueList = new ArrayList<>();
+            // Todo - verify
+            // Here we use the parent strand instance to execute the function invocation expression.
+            Value parentStrand = getParentStrand();
+            argValueList.add(parentStrand);
+            // Evaluates function argument expressions before before the parent function execution.
             for (Evaluator argEvaluator : argEvaluators) {
-                argValueList.add(argEvaluator.evaluate());
+                argValueList.add(argEvaluator.evaluate().getJdiValue());
             }
-            ClassObjectReference classRef = jvmMethod.get().classRef.classObject();
+            ReferenceType classRef = jvmMethod.get().classRef;
             Method methodRef = jvmMethod.get().methodRef;
-            return classRef.invokeMethod(context.getOwningThread(), methodRef, argValueList,
+
+            if (!(classRef instanceof ClassType)) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR.getString()
+                        , syntaxNode.toString()));
+            }
+            Value result = ((ClassType) classRef).invokeMethod(context.getOwningThread(), methodRef, argValueList,
                     ObjectReference.INVOKE_SINGLE_THREADED);
+            return new BExpressionValue(context, result);
         } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
                     syntaxNode.functionName().toString()));
@@ -70,25 +84,48 @@ public class FunctionCallExpressionEvaluator extends Evaluator {
         }
     }
 
-    private Optional<JvmMethod> findFunction(FunctionCallExpressionNode functionNode) throws ClassNotLoadedException {
+    private Value getParentStrand() throws EvaluationException {
+        try {
+            Value strand = context.getFrame().getValue(context.getFrame().visibleVariableByName(STRAND_VAR_NAME));
+            if (strand == null) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
+                        syntaxNode.functionName().toString()));
+            }
+            return strand;
+        } catch (AbsentInformationException e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
+                    syntaxNode.functionName().toString()));
+        }
+    }
+
+    private Optional<JvmMethod> findFunction(FunctionCallExpressionNode functionNode) {
         List<ReferenceType> allClasses = context.getAttachedVm().allClasses();
-        String orgName = context.getOrgName().isPresent() ? context.getOrgName().get() : null;
+        DebugSourceType sourceType = context.getSourceType();
         for (ReferenceType cls : allClasses) {
             try {
-                // Generated class name should start with the org name of ballerina module sources.
-                if (orgName != null && !cls.name().startsWith(orgName)) {
+                // Expected class name should end with the file name of the ballerina source, only for single
+                // ballerina sources. (We cannot be sure about the module context, as we can invoke any method
+                // defined within the module.)
+                if (sourceType == DebugSourceType.SINGLE_FILE && !cls.name().endsWith(context.getFileName())) {
                     continue;
                 }
-
+                // If the sources reside inside a ballerina module/project, generated class name should start with the
+                // organization name of the ballerina module/project source.
+                if (sourceType == DebugSourceType.MODULE && !cls.name().startsWith(context.getOrgName().get())) {
+                    continue;
+                }
                 List<Method> methods = cls.methodsByName(functionNode.functionName().toString());
                 for (Method method : methods) {
-                    // All the ballerina functions are represented as java static methods.
+                    // Note - All the ballerina functions are represented as java static methods and all the generated
+                    // jvm methods contain strand as its first argument.
                     if (method.isStatic() && method.argumentTypes().size() == functionNode.arguments().size() + 1) {
                         return Optional.of(new JvmMethod(cls, method));
                     }
                 }
             } catch (ClassNotPreparedException ignored) {
                 // Unprepared classes should be skipped.
+            } catch (ClassNotLoadedException ignored) {
+                // Todo - skipped or throw?
             }
         }
         return Optional.empty();
