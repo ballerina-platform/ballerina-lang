@@ -182,7 +182,10 @@ public function iterator(stream<Type,ErrorType> stm) returns abstract object {
         Type value;
     |}|ErrorType?;
 }{
-    return internal:getIteratorObj(stm);
+    return <abstract object {
+                public function next() returns record {|
+                    Type value;
+                |}|ErrorType?;}>internal:getIteratorObj(stm);
 }
 
 # Closes a stream.
