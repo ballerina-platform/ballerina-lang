@@ -2472,20 +2472,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         switch (kind) {
             case ASYNC_SEND_ACTION:
                 return expressionStatement.expression().apply(this);
-            case WAIT_ACTION:
-                WaitActionNode waitActionNode =
-                        (WaitActionNode) expressionStatement.expression();
-                if (waitActionNode.waitFutureExpr().kind() == SyntaxKind.START_ACTION) {
-                    BLangWorkerSend bLangWorkerSend =
-                            (BLangWorkerSend) TreeBuilder.createWorkerSendNode();
-                    bLangWorkerSend.expr = createExpression(expressionStatement.expression());
-                    bLangWorkerSend.pos = getPosition(expressionStatement);
-                    AsyncSendActionNode asyncSendActionNode =
-                            (AsyncSendActionNode) ((StartActionNode) waitActionNode.waitFutureExpr()).expression();
-                    bLangWorkerSend.setWorkerName(createIdentifier(asyncSendActionNode.peerWorker().name()));
-                    return bLangWorkerSend;
-                }
-                // Else fall through
             default:
                 BLangExpressionStmt bLExpressionStmt =
                         (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();

@@ -10553,11 +10553,26 @@ public class BallerinaParser extends AbstractParser {
             case METHOD_CALL:
             case REMOTE_METHOD_CALL_ACTION:
                 break;
+            case SIMPLE_NAME_REFERENCE:
+            case QUALIFIED_NAME_REFERENCE:
+                STNode openParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.OPEN_PAREN_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN);
+                STNode arguments = STNodeFactory.createEmptyNodeList();
+                STNode closeParenToken = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.CLOSE_PAREN_TOKEN,
+                        DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN);
+                expr = STNodeFactory.createFunctionCallExpressionNode(expr, openParenToken, arguments, closeParenToken);
+                break;
             default:
-                if (!isMissingNode(expr)) {
-                    expr = SyntaxErrors.addDiagnostic(expr,
-                            DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
-                }
+                startKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(startKeyword, expr,
+                        DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_IN_START_ACTION);
+                STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
+                openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+                arguments = STNodeFactory.createEmptyNodeList();
+                closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+                expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                        closeParenToken);
+                break;
         }
 
         return STNodeFactory.createStartActionNode(getAnnotations(annots), startKeyword, expr);

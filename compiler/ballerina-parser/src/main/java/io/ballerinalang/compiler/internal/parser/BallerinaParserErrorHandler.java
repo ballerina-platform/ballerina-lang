@@ -2602,6 +2602,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXTERNAL_KEYWORD:
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
+                    return ParserRuleContext.OPEN_PARENTHESIS;
+                }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
             case RETURNS_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC;
