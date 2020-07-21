@@ -73,8 +73,6 @@ public class SelectivelyImmutableTypeTest {
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);
-        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 136, 17);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 140, 5);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
                       145, 14);
@@ -97,9 +95,12 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
         validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 51);
         validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 244, 25);
-        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 244, 36);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 244, 40);
+
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+                      262, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

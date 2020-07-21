@@ -72,12 +72,8 @@ public class SelectivelyImmutableTypeBaloTest {
         // Updates.
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
                 "(testorg/selectively_immutable:1.0.0:Student & readonly)'", 62, 5);
-        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 62, 21);
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +
                 "(testorg/selectively_immutable:1.0.0:Student & readonly)'", 66, 5);
-        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 66, 27);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +
                 ".0:Details & readonly)'", 76, 5);
         validateError(result, index++, "cannot update 'readonly' value of type '(testorg/selectively_immutable:1.0" +

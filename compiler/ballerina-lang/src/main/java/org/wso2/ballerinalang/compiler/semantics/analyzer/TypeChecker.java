@@ -1281,7 +1281,16 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
+
                 BType listCompatibleMemType = getListConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1307,8 +1316,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     exprToLog = nodeCloner.clone(listConstructor);
                 }
 
-                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
-                           getInferredTupleType(exprToLog, symTable.noType));
+                BType inferredTupleType = getInferredTupleType(exprToLog, symTable.noType);
+
+                if (!erroredExpType && inferredTupleType != symTable.semanticError) {
+                    dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, inferredTupleType);
+                }
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(listConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES,
@@ -1363,8 +1375,15 @@ public class TypeChecker extends BLangNodeVisitor {
             listConstructor.cloneAttempt++;
             exprToLog = nodeCloner.clone(listConstructor);
         }
-        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
-                   getInferredTupleType(exprToLog, symTable.noType));
+
+        if (bType == symTable.semanticError) {
+            // Ignore the return value, we only need to visit the expressions.
+            getInferredTupleType(exprToLog, symTable.semanticError);
+        } else {
+            dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
+                       getInferredTupleType(exprToLog, symTable.noType));
+        }
+
         return symTable.semanticError;
     }
 
@@ -1697,7 +1716,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1718,7 +1745,9 @@ public class TypeChecker extends BLangNodeVisitor {
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
-                reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                if (!erroredExpType) {
+                    reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                }
                 validateSpecifiedFields(mappingConstructor, symTable.semanticError);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
@@ -1814,6 +1843,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType == symTable.semanticError) {
+            return;
+        }
+
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                        DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
@@ -3434,17 +3467,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
-        SymbolEnv rhsExprEnv;
-        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
-        if (binaryExpr.opKind == OperatorKind.AND) {
-            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
-        } else if (binaryExpr.opKind == OperatorKind.OR) {
-            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+        SymbolEnv lhsExprEnv, rhsExprEnv;
+        BType lhsType, rhsType;
+        if (binaryExpr.opKind == OperatorKind.EQUALS) {
+            BLangNode joinNode = getLastInputNodeFromEnv(env);
+            // lhsExprEnv should only contain scope entries before join condition.
+            lhsExprEnv = getEnvBeforeInputNode(env, joinNode);
+            lhsType = checkExpr(binaryExpr.lhsExpr, lhsExprEnv);
+            // rhsExprEnv should only contain scope entries after join condition.
+            rhsExprEnv = getEnvAfterJoinNode(env, joinNode);
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         } else {
-            rhsExprEnv = env;
+            lhsType = checkExpr(binaryExpr.lhsExpr, env);
+            if (binaryExpr.opKind == OperatorKind.AND) {
+                rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
+            } else if (binaryExpr.opKind == OperatorKind.OR) {
+                rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+            } else {
+                rhsExprEnv = env;
+            }
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         }
-
-        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -3488,6 +3531,35 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
+        while (env != null && env.node != node) {
+            env = env.enclEnv;
+        }
+        return env != null && env.enclEnv != null
+                ? env.enclEnv.createClone()
+                : new SymbolEnv(node, null);
+    }
+
+    private SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
+        SymbolEnv clone = env.createClone();
+        while (clone != null && clone.node != node) {
+            clone = clone.enclEnv;
+        }
+        if (clone != null) {
+            clone.enclEnv = getEnvBeforeInputNode(clone.enclEnv, getLastInputNodeFromEnv(clone.enclEnv));
+        } else {
+            clone = new SymbolEnv(node, null);
+        }
+        return clone;
+    }
+
+    private BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
+        while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
+            env = env.enclEnv;
+        }
+        return env != null ? env.node : null;
     }
 
     public void visit(BLangTransactionalExpr transactionalExpr) {
@@ -4278,19 +4350,19 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFromClause fromClause) {
+        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
         checkExpr(fromClause.collection, narrowedQueryEnv);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(fromClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
         handleInputClauseVariables(fromClause, narrowedQueryEnv);
     }
 
     @Override
     public void visit(BLangJoinClause joinClause) {
+        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         checkExpr(joinClause.collection, narrowedQueryEnv);
         // Set the type of the foreach node's type node.
         types.setInputClauseTypedBindingPatternType(joinClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
         handleInputClauseVariables(joinClause, narrowedQueryEnv);
         if (joinClause.onClause != null) {
             ((BLangOnClause) joinClause.onClause).accept(this);

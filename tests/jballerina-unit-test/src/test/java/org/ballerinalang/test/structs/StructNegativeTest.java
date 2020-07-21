@@ -48,21 +48,17 @@ public class StructNegativeTest {
         // test undeclared struct init
         BAssertUtil.validateError(result, 2, "unknown type 'Department123'", 18, 5);
 
-        BAssertUtil.validateError(result, 3,
-                                  "a type compatible with mapping constructor expressions not found in type 'other'",
-                                  18, 26);
-
         // test undeclared struct access
-        BAssertUtil.validateError(result, 4, "undefined symbol 'dpt1'", 23, 5);
+        BAssertUtil.validateError(result, 3, "undefined symbol 'dpt1'", 23, 5);
 
         // test undeclared struct-field access
-        BAssertUtil.validateError(result, 5, "undefined field 'id' in record 'Department'", 29, 5);
+        BAssertUtil.validateError(result, 4, "undefined field 'id' in record 'Department'", 29, 5);
 
         // test undeclared field init
-        BAssertUtil.validateError(result, 6, "undefined field 'age' in record 'Department'", 34, 37);
+        BAssertUtil.validateError(result, 5, "undefined field 'age' in record 'Department'", 34, 37);
 
         // test field init with mismatching type
-        BAssertUtil.validateError(result, 7, "incompatible types: expected 'string', found 'int'", 39, 31);
+        BAssertUtil.validateError(result, 6, "incompatible types: expected 'string', found 'int'", 39, 31);
     }
 
     @Test(groups = { "disableOnOldParser" })
