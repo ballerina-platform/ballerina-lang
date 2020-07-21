@@ -15320,7 +15320,8 @@ public class BallerinaParser extends AbstractParser {
                 STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
                 STNode tupleTypeDesc =
                         STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
-                return parseComplexTypeDescriptor(tupleTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+                tupleTypeOrListConst =
+                        parseComplexTypeDescriptor(tupleTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
         }
 
         endContext();
@@ -15329,15 +15330,21 @@ public class BallerinaParser extends AbstractParser {
             return tupleTypeOrListConst;
         }
 
-        return parseStmtStartsWithTupleTypeOrExprRhs(null, tupleTypeOrListConst);
+        return parseStmtStartsWithTupleTypeOrExprRhs(null, tupleTypeOrListConst, isRoot);
 
     }
 
-    private STNode parseStmtStartsWithTupleTypeOrExprRhs(STNode annots, STNode tupleTypeOrListConst) {
-        if (tupleTypeOrListConst.kind == SyntaxKind.TUPLE_TYPE_DESC) {
+    private STNode parseStmtStartsWithTupleTypeOrExprRhs(STNode annots, STNode tupleTypeOrListConst, boolean isRoot) {
+        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
+                tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
             STNode finalKeyword = STNodeFactory.createEmptyNode();
+            STNode typedBindingPattern =
+                    parseTypedBindingPatternTypeRhs(tupleTypeOrListConst, ParserRuleContext.VAR_DECL_STMT, isRoot);
+            if (!isRoot) {
+                return typedBindingPattern;
+            }
             switchContext(ParserRuleContext.VAR_DECL_STMT);
-            return parseVarDeclRhs(annots, finalKeyword, tupleTypeOrListConst, false);
+            return parseVarDeclRhs(annots, finalKeyword, typedBindingPattern, false);
         }
 
         STNode expr = getExpression(tupleTypeOrListConst);
