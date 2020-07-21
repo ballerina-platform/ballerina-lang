@@ -490,6 +490,49 @@ function testAnonymousObjectEquivalency() returns [string, string, string] {
     return [s1, s2, s3];
 }
 
+type Qux object {
+    Qux? fn;
+
+    public function init(Qux? fn = ()) {
+        self.fn = fn;
+    }
+};
+
+type Quux object {
+    Quux? fn = ();
+};
+
+type Quuz object {
+    Quuz? fn = ();
+    int i = 1;
+};
+
+function testObjectIsCheckWithCycles() {
+    Qux f1 = new;
+    Qux f2 = new (f1);
+
+    any a1 = <any> f1;
+    assertTrue(a1 is Quux);
+    assertFalse(a1 is Quuz);
+
+    any a2 = <any> f2;
+    assertTrue(a2 is Quux);
+    assertFalse(a2 is Quuz);
+
+    object {
+        Qux f;
+        string s;
+
+        function init(Qux f, string s) {
+            self.f = f;
+            self.s = s;
+        }
+    } ob = new (f2, "ballerina");
+
+    any a3 = ob;
+    assertTrue(a3 is  abstract object { Qux f; });
+    assertFalse(a3 is abstract object { Quuz f; });
+}
 
 // ========================== Arrays ==========================
 
@@ -831,4 +874,20 @@ function testFutureFalse() returns boolean {
 
 function name() returns string {
     return "em";
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

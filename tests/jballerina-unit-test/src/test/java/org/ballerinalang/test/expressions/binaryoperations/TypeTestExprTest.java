@@ -343,6 +343,11 @@ public class TypeTestExprTest {
     }
 
     @Test
+    public void testObjectIsCheckWithCycles() {
+        BRunUtil.invoke(result, "testObjectIsCheckWithCycles");
+    }
+
+    @Test
     public void testSimpleArrays() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleArrays");
         Assert.assertEquals(returns.length, 5);
