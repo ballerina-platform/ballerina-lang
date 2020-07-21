@@ -1,3 +1,3 @@
 function foo() {
-    start
+    start a + b;
 }

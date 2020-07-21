@@ -11142,8 +11142,9 @@ public class BallerinaParser extends AbstractParser {
         // Return an empty list
         if (isEndOfWaitFutureExprList(nextToken.kind)) {
             endContext();
-            STNode waitFutureExprs = STNodeFactory.createEmptyNodeList();
-            waitKeyword = cloneWithDiagnosticIfListEmpty(waitFutureExprs, waitKeyword,
+            STNode waitFutureExprs = STNodeFactory
+                    .createSimpleNameReferenceNode(STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+            waitFutureExprs = SyntaxErrors.addDiagnostic(waitFutureExprs,
                     DiagnosticErrorCode.ERROR_MISSING_WAIT_FUTURE_EXPRESSION);
             return STNodeFactory.createWaitActionNode(waitKeyword, waitFutureExprs);
         }

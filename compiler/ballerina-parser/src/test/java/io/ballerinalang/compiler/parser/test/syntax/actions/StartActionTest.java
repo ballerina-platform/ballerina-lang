@@ -51,12 +51,7 @@ public class StartActionTest extends AbstractActionTest {
     }
 
     @Test
-    public void testStartActionWithMissingExpr() {
-        testFile("start-action/start_action_source_05.bal", "start-action/start_action_assert_05.json");
-    }
-    
-    @Test
     public void testStartActionWithInvalidExpr() {
-        testFile("start-action/start_action_source_06.bal", "start-action/start_action_assert_06.json");
+        testFile("start-action/start_action_source_05.bal", "start-action/start_action_assert_05.json");
     }
 }
