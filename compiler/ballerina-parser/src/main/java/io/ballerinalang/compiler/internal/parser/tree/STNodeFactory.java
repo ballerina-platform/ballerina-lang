@@ -380,6 +380,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createFailExpressionNode(
+            SyntaxKind kind,
+            STNode failKeyword,
+            STNode expression) {
+
+        return new STFailExpressionNode(
+                kind,
+                failKeyword,
+                expression);
+    }
+
     public static STNode createFieldAccessExpressionNode(
             STNode expression,
             STNode dotToken,
@@ -616,34 +627,28 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createNamedArgumentNode(
-            STNode leadingComma,
             STNode argumentName,
             STNode equalsToken,
             STNode expression) {
 
         return new STNamedArgumentNode(
-                leadingComma,
                 argumentName,
                 equalsToken,
                 expression);
     }
 
     public static STNode createPositionalArgumentNode(
-            STNode leadingComma,
             STNode expression) {
 
         return new STPositionalArgumentNode(
-                leadingComma,
                 expression);
     }
 
     public static STNode createRestArgumentNode(
-            STNode leadingComma,
             STNode ellipsis,
             STNode expression) {
 
         return new STRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -981,13 +986,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STNamedWorkerDeclarator(
                 workerInitStatements,
                 namedWorkerDeclarations);
-    }
-
-    public static STNode createDocumentationStringNode(
-            STNode documentationLines) {
-
-        return new STDocumentationStringNode(
-                documentationLines);
     }
 
     public static STNode createBasicLiteralNode(
@@ -1702,6 +1700,30 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 variableName);
     }
 
+    public static STNode createFunctionalBindingPatternNode(
+            STNode typeReference,
+            STNode openParenthesis,
+            STNode argListBindingPatterns,
+            STNode closeParenthesis) {
+
+        return new STFunctionalBindingPatternNode(
+                typeReference,
+                openParenthesis,
+                argListBindingPatterns,
+                closeParenthesis);
+    }
+
+    public static STNode createNamedArgBindingPatternNode(
+            STNode argName,
+            STNode equalsToken,
+            STNode bindingPattern) {
+
+        return new STNamedArgBindingPatternNode(
+                argName,
+                equalsToken,
+                bindingPattern);
+    }
+
     public static STNode createAsyncSendActionNode(
             STNode expression,
             STNode rightArrowToken,
@@ -2178,7 +2200,49 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 matchPattern);
     }
 
-    public static STNode createParameterDocumentationLineNode(
+    public static STNode createFunctionalMatchPatternNode(
+            STNode typeRef,
+            STNode openParenthesisToken,
+            STNode argListMatchPatternNode,
+            STNode closeParenthesisToken) {
+
+        return new STFunctionalMatchPatternNode(
+                typeRef,
+                openParenthesisToken,
+                argListMatchPatternNode,
+                closeParenthesisToken);
+    }
+
+    public static STNode createNamedArgMatchPatternNode(
+            STNode identifier,
+            STNode equalToken,
+            STNode matchPattern) {
+
+        return new STNamedArgMatchPatternNode(
+                identifier,
+                equalToken,
+                matchPattern);
+    }
+
+    public static STNode createMarkdownDocumentationNode(
+            STNode documentationLines) {
+
+        return new STMarkdownDocumentationNode(
+                documentationLines);
+    }
+
+    public static STNode createMarkdownDocumentationLineNode(
+            SyntaxKind kind,
+            STNode hashToken,
+            STNode documentElements) {
+
+        return new STMarkdownDocumentationLineNode(
+                kind,
+                hashToken,
+                documentElements);
+    }
+
+    public static STNode createMarkdownParameterDocumentationLineNode(
             SyntaxKind kind,
             STNode hashToken,
             STNode plusToken,
@@ -2186,7 +2250,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode minusToken,
             STNode documentElements) {
 
-        return new STParameterDocumentationLineNode(
+        return new STMarkdownParameterDocumentationLineNode(
                 kind,
                 hashToken,
                 plusToken,
@@ -2206,17 +2270,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 backtickContent,
                 endBacktick);
-    }
-
-    public static STNode createDocumentationLineNode(
-            SyntaxKind kind,
-            STNode hashToken,
-            STNode documentElements) {
-
-        return new STDocumentationLineNode(
-                kind,
-                hashToken,
-                documentElements);
     }
 }
 

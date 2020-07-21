@@ -61,10 +61,10 @@ public class SelectivelyImmutableTypeTest {
         validateError(result, index++, "incompatible types: expected '(Student & readonly)', found 'Student'", 57, 30);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 60, 18);
-        validateError(result, index++, "incompatible types: expected '((A|B|any) & readonly)', found 'Obj'", 78, 26);
-        validateError(result, index++, "incompatible types: expected '(anydata & readonly)', found 'string[]'", 81, 28);
-        validateError(result, index++, "incompatible types: expected '(any & readonly)', found 'future'", 83, 30);
-        validateError(result, index++, "incompatible types: expected '((Obj|int[]) & readonly)', found 'string[]'",
+        validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 78, 26);
+        validateError(result, index++, "incompatible types: expected 'anydata & readonly', found 'string[]'", 81, 28);
+        validateError(result, index++, "incompatible types: expected 'any & readonly', found 'future'", 83, 30);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'string[]'",
                       85, 32);
         validateError(result, index++, "incompatible types: expected '(PersonalDetails & readonly)', found " +
                 "'PersonalDetails'", 112, 18);
@@ -73,8 +73,6 @@ public class SelectivelyImmutableTypeTest {
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 136, 5);
-        validateError(result, index++, "a type compatible with mapping constructor expressions not found in type " +
-                "'other'", 136, 17);
         validateError(result, index++, "cannot update 'readonly' record field 'details' in 'Employee'", 140, 5);
         validateError(result, index++, "incompatible types: expected '(Department & readonly)', found 'Department'",
                       145, 14);
@@ -90,6 +88,19 @@ public class SelectivelyImmutableTypeTest {
 
         validateError(result, index++, "invalid intersection type '(DEF & readonly)': no intersection", 201, 5);
         validateError(result, index++, "invalid intersection type '(JKL & readonly)': no intersection", 209, 5);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 230, 12);
+        validateError(result, index++, "incompatible types: expected 'int[] & readonly', found 'int[]'", 231, 9);
+        validateError(result, index++, "incompatible types: expected '(int[] & readonly)', found 'int[]'", 232, 12);
+        validateError(result, index++, "incompatible types: expected 'int', found 'future<int>'", 238, 48);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 46);
+        validateError(result, index++, "incompatible types: expected 'string', found 'stream<float>'", 242, 51);
+        validateError(result, index++, "incompatible types: expected 'NeverImmutable', found 'readonly'", 244, 25);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'future<int>'", 244, 40);
+
+        validateError(result, index++, "cannot update 'readonly' value of type " +
+                "'record {| readonly int i; (anydata & readonly)...; |} & readonly'", 259, 5);
+        validateError(result, index++, "cannot update 'readonly' value of type 'object { readonly int j; } & readonly'",
+                      262, 5);
 
         assertEquals(result.getErrorCount(), index);
     }

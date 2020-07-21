@@ -23,10 +23,7 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaAnyIdentifierName extends PsiElement {
 
-  @Nullable
-  BallerinaReservedWord getReservedWord();
-
-  @Nullable
+  @NotNull
   PsiElement getIdentifier();
 
 }

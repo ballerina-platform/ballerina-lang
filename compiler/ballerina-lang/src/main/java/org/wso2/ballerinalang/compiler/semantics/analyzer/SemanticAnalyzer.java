@@ -1264,13 +1264,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         restType = BUnionType.create(null, recordVarType.restFieldType, symTable.nilType);
                     }
                     value.type = restType;
-                    value.accept(this);
+                    analyzeNode(value, env);
                 }
                 continue;
             }
 
             value.type = recordVarTypeFields.get((variable.getKey().getValue())).type;
-            value.accept(this);
+            analyzeNode(value, env);
         }
 
         if (!recordVar.variableList.isEmpty() && ignoredCount == recordVar.variableList.size()
@@ -2159,7 +2159,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError) {
+        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError &&
+                exprStmtNode.expr.getKind() != NodeKind.FAIL) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);

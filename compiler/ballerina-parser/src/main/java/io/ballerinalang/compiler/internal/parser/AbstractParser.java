@@ -45,6 +45,11 @@ public abstract class AbstractParser {
         this.errorHandler = errorHandler;
     }
 
+    public AbstractParser(AbstractTokenReader tokenReader) {
+        this.tokenReader = tokenReader;
+        this.errorHandler = null;
+    }
+
     public abstract STNode parse();
 
     public abstract STNode resumeParsing(ParserRuleContext context, Object... args);

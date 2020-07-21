@@ -1,79 +1,56 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Types
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.unionTypes}}
+        <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
+            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Types</h3>
-                <ul>
-                    {{#each module.unionTypes}}
-                        <li {{#equals unionTypes.name name}}class="active"{{/equals}}>
-                            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
+{{#partial "titleType" }}Types{{/partial}}
+
+{{#partial "content" }}
+    <div class="types">
+        <div class="data-wrapper">
+            {{#each types}}
+                <div class="params-listing">
+                    <ul>
+                        <li id="{{ name }}">
+                            <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
+                            {{#if isTuple}}
+                                <span class="type">  {{{ typeName this }}}</span></li>
+                            {{else}}
+                                <span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
+                            {{/if}}
+                        <li>
+                            {{#if isDeprecated}}
+                                <span class="stab">Deprecated</span>
+                            {{/if}}
+                            {{{ description }}}
                         </li>
-                    {{/each}}
-                </ul>
-            </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
-        </div>
-    </div>
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-        <div class="main-wrapper">
-            <div id="search-impl" class="search-bar"></div>
-            <div id="main">
-             <h1>
-                 {{> breadcrumb }}
-                 <span class="title-type">Types - </span>
-                 {{#if project.isSingleFile}}
-                     {{project.sourceFileName}}
-                 {{else}}
-                     <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
-                 {{/if}}
-            </h1>
-            <div class="types">
-                <div class="data-wrapper">
-                    {{#each types}}
-                        <div class="params-listing">
-                            <ul>
-                                <li id="{{ name }}">
-                                    <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
-                                    <span class="type">  {{{ unionTypeSummary memberTypes }}}</span></li>
-                                <li>
-                                    {{#if isDeprecated}}
-                                        <span class="stab">Deprecated</span>
-                                    {{/if}}
-                                    {{{ description }}}
-                                </li>
-                            </ul>
-                        </div>
-                    {{/each}}
-                    {{#each module.finiteTypes }}
-                        <div class="params-listing">
-                            <ul>
-                                <li id="{{ name }}">
-                                    <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
-                                    <span class="type">{{{ pipeJoin valueSpace }}}</span></li>
-                                <li>
-                                    {{#if isDeprecated}}
-                                        <span class="stab">Deprecated</span>
-                                    {{/if}}
-                                    {{{ description }}}
-                                </li>
-                            </ul>
-                        </div>
-                    {{/each}}
+                    </ul>
                 </div>
-            </div>
-            </div>
+            {{/each}}
+            {{#each module.finiteTypes }}
+                <div class="params-listing">
+                    <ul>
+                        <li id="{{ name }}">
+                            <b {{#if isDeprecated}}class="strike"{{/if}}>{{ name }}</b>
+                            <span class="type">{{{ pipeJoin valueSpace }}}</span></li>
+                        <li>
+                            {{#if isDeprecated}}
+                                <span class="stab">Deprecated</span>
+                            {{/if}}
+                            {{{ description }}}
+                        </li>
+                    </ul>
+                </div>
+            {{/each}}
         </div>
     </div>
+{{/partial}}
 
-</body>
-
-{{> footer }}
+{{> layout}}

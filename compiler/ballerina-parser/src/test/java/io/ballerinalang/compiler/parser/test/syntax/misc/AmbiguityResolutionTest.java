@@ -134,7 +134,7 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testStatementConsistOFOnlyBasicLiterals() {
+    public void testStatementConsistOfOnlyBasicLiterals() {
         testFile("ambiguity/ambiguity_source_23.bal", "ambiguity/ambiguity_assert_23.json");
     }
 }

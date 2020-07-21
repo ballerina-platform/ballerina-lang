@@ -1,96 +1,73 @@
-<!DOCTYPE html>
-<html>
+{{#partial "sidebarName" }}
+    Listeners
+{{/partial}}
 
-{{> head }}
+{{#partial "sidebarLists" }}
+    {{#each module.listeners}}
+        <li {{#equals listener.name name}}class="active"{{/equals}}>
+            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
+        </li>
+    {{/each}}
+{{/partial}}
 
-<body class="cBallerina-io">
-    {{> bioBody }}
-    <div class="navi-wrapper">
-        <div class="navi-wrapper-content">
-            {{> logo }}
-            <div class="primary-list">
-                <h3>Listeners</h3>
-                <ul>
-                    {{#each module.listeners}}
-                        <li {{#equals listener.name name}}class="active"{{/equals}}>
-                            <a href="{{name}}.html" onclick="menuLinkClick()">{{name}}</a>
-                        </li>
-                    {{/each}}
-                </ul>
+{{#partial "titleType" }}
+    Listener
+{{/partial}}
+{{#partial "title" }}
+    <span class="listeners">{{ listener.name }}</span>
+{{/partial}}
+
+{{#partial "content" }}
+    <p>{{{ listener.description }}}</p>
+
+    <div class="constants">
+        <div class="method-sum">
+        {{#if listener.initMethod}}
+            {{#listener.initMethod}}
+                {{> initMethod }}
+            {{/listener.initMethod}}
+        {{/if}}
+
+        {{#if listener.otherMethods}}
+            <h2>Methods</h2>
+            <div class="method-list">
+                {{#each listener.otherMethods}}
+                    {{> methodSignature }}
+                {{/each}}
             </div>
-            <div class="ui divider"></div>
-            {{> currentModule }}
+        {{/if}}
+
+        {{#if listener.lifeCycleMethods}}
+            <h2>LifeCycle Methods</h2>
+            <div class="method-list">
+                {{#each listener.lifeCycleMethods}}
+                    {{> methodSignature }}
+                {{/each}}
+            </div>
+        {{/if}}
         </div>
+
+        {{#if listener.fields}}
+            {{#listener}}
+                <h2>Fields</h2>
+                    {{> fields }}
+            {{/listener}}
+        {{/if}}
+
+        {{#if listener.otherMethods }}
+            <h2>Methods</h2>
+            {{#each listener.otherMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
+
+        {{#if listener.lifeCycleMethods }}
+            <h2>LifeCycle Methods</h2>
+            {{#each listener.lifeCycleMethods }}
+                {{> method }}
+            {{/each}}
+        {{/if}}
     </div>
+{{/partial}}
 
-    <div class="content-wrapper pusher">
-        {{> mobMenu }}
-        <div class="main-wrapper">
-            <div id="search-impl" class="search-bar"></div>
-            <div id="main">
-            <h1>
-                {{> breadcrumb }}
-                <span class="title-type">Listener - </span>
-                {{#if project.isSingleFile}}
-                    {{project.sourceFileName}}
-                {{else}}
-                    <a href="{{ rootPath }}{{module.id}}/index.html">{{module.id}}</a>
-                {{/if}}
-                 : <span class="listeners">{{ listener.name }}</span> 
-            </h1>
-            <p>{{{ listener.description }}}</p>
-
-            <div class="constants">
-                <div class="method-sum">
-                {{#if listener.initMethod}}
-                    {{#listener.initMethod}}
-                        {{> initMethod }}
-                    {{/listener.initMethod}}
-                {{/if}}
-
-                {{#if listener.otherMethods}}
-                    <h2>Methods</h2>
-                    <div class="method-list">
-                        {{#each listener.otherMethods}}
-                            {{> methodSignature }}
-                        {{/each}}
-                    </div>
-                {{/if}}
-
-                {{#if listener.lifeCycleMethods}}
-                    <h2>LifeCycle Methods</h2>
-                    <div class="method-list">
-                        {{#each listener.lifeCycleMethods}}
-                            {{> methodSignature }}
-                        {{/each}}
-                    </div>
-                {{/if}}
-                </div>
-
-                {{#if listener.fields}}
-                    {{#listener}}
-                        <h2>Fields</h2>
-                            {{> fields }}
-                    {{/listener}}
-                {{/if}}
-
-                {{#if listener.otherMethods }}
-                    <h2>Methods</h2>
-                    {{#each listener.otherMethods }}
-                        {{> method }}
-                    {{/each}}
-                {{/if}}
-
-                {{#if listener.lifeCycleMethods }}
-                    <h2>LifeCycle Methods</h2>
-                    {{#each listener.lifeCycleMethods }}
-                        {{> method }}
-                    {{/each}}
-                {{/if}}
-            </div>
-            </div>
-        </div>
-    </div>
-</body>
-
-{{> footer }}
+{{> layout}}

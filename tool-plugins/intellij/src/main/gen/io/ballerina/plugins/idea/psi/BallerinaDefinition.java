@@ -30,6 +30,9 @@ public interface BallerinaDefinition extends PsiElement {
   BallerinaConstantDefinition getConstantDefinition();
 
   @Nullable
+  BallerinaEnumDefinition getEnumDefinition();
+
+  @Nullable
   BallerinaFunctionDefinition getFunctionDefinition();
 
   @Nullable
