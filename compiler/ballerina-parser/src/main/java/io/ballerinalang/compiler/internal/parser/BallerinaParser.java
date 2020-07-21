@@ -6626,6 +6626,7 @@ public class BallerinaParser extends AbstractParser {
         STNode metadata;
         switch (nextTokenKind) {
             case RESOURCE_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
             case FUNCTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
@@ -6660,6 +6661,10 @@ public class BallerinaParser extends AbstractParser {
             case RESOURCE_KEYWORD:
                 STNode resourceKeyword = parseResourceKeyword();
                 return parseFuncDefinition(metadata, false, resourceKeyword, null);
+            case TRANSACTIONAL_KEYWORD:
+                STNode transactionalKeyword = parseTransactionalKeyword();
+                STNode resourceKey = parseResourceKeyword();
+                return parseFuncDefinition(metadata, false, resourceKey, transactionalKeyword, null);
             case FUNCTION_KEYWORD:
                 return parseFuncDefinition(metadata, false, STNodeFactory.createEmptyNode(), null);
             default:
