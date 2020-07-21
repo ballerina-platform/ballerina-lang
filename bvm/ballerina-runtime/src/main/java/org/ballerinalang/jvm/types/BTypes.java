@@ -110,7 +110,6 @@ public class BTypes {
             new BPackage(null, null, null));
     public static BErrorType typeError = new BErrorType(TypeConstants.ERROR, new BPackage(null, null, null),
             typeErrorDetail);
-    public static BType anydataOrError = new BUnionType(Arrays.asList(typeAnydata, typeError));
 
     public static BRecordType stringItrNextReturnType = IteratorUtils.createIteratorNextReturnType(BTypes.typeString);
     public static BRecordType xmlItrNextReturnType = IteratorUtils
