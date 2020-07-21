@@ -3897,9 +3897,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         if (value.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            if (!escapeQuotedIdentifier(value).matches("^[0-9a-zA-Z.]*$")) {
-                dlog.error(pos, DiagnosticCode.IDENTIFIER_LITERAL_ONLY_SUPPORTS_ALPHANUMERICS);
-            }
             String unescapedValue = StringEscapeUtils.unescapeJava(value);
             bLIdentifer.setValue(unescapedValue.substring(1));
             bLIdentifer.originalValue = value;
