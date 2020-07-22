@@ -22,7 +22,7 @@
     },
     {
       "kind": "IDENTIFIER_TOKEN",
-      "value": "foo"
+      "value": "name"
     },
     {
       "kind": "FUNCTION_SIGNATURE",
@@ -86,55 +86,11 @@
                   "children": [
                     {
                       "kind": "STRING_LITERAL",
-                      "value": "http://ballerinalang.com/ns1",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_SEMICOLON_TOKEN"
-                  ]
-                }
-              ]
-            },
-            {
-              "kind": "XML_NAMESPACE_DECLARATION",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "XMLNS_KEYWORD",
-                  "leadingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "STRING_LITERAL",
-                  "children": [
-                    {
-                      "kind": "STRING_LITERAL",
-                      "value": "http://ballerinalang.com/ns1",
+                      "value": "http://ballerina.com/",
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
+                          "value": "  "
                         }
                       ]
                     }
@@ -150,15 +106,20 @@
                 },
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "ns1"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
+                  "value": "a",
                   "trailingMinutiae": [
                     {
                       "kind": "END_OF_LINE_MINUTIAE",
                       "value": "\n"
                     }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
                 }
               ]
