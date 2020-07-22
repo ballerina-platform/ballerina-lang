@@ -31,6 +31,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,8 +117,9 @@ public class TracingBaseTest extends BaseTest {
     }
 
     private List<BMockSpan> getFinishedSpans(int port, String service) throws IOException {
-        String data = HttpClientRequest.doGet("http://localhost:" + port + "/mock-tracer/spans/" + service)
-                .getData();
+        String requestUrl = "http://localhost:" + port + "/mock-tracer/spans/"
+                + URLEncoder.encode(service, StandardCharsets.UTF_8.toString());
+        String data = HttpClientRequest.doGet(requestUrl).getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);
     }

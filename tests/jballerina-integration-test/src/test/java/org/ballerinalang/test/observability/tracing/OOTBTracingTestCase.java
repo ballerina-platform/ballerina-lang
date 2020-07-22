@@ -678,4 +678,48 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTags().get("action"), "respond");
         });
     }
+
+    @Test
+    public void testMainMethod() throws Exception {
+        final String span1Position = "08_main_method.bal:17:1";
+        final String span2Position = "08_main_method.bal:20:15";
+
+        List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
+        Assert.assertEquals(spans.size(), 2);
+        Assert.assertEquals(spans.stream()
+                        .map(span -> span.getTags().get("src.position"))
+                        .collect(Collectors.toSet()),
+                new HashSet<>(Arrays.asList(span1Position, span2Position)));
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+
+        Optional<BMockSpan> span1 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
+                .findFirst();
+        Assert.assertTrue(span1.isPresent());
+        long traceId = span1.get().getTraceId();
+        span1.ifPresent(span -> {
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
+                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertEquals(span.getOperationName(), "main");
+            Assert.assertEquals(span.getTags().size(), 5);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("src.entry_point.main"), "true");
+            Assert.assertEquals(span.getTags().get("function"), "main");
+        });
+
+        Optional<BMockSpan> span2 = spans.stream()
+                .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span2Position))
+                .findFirst();
+        Assert.assertTrue(span2.isPresent());
+        span2.ifPresent(span -> {
+            Assert.assertEquals(span.getTraceId(), traceId);
+            Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
+            Assert.assertEquals(span.getOperationName(), "calculateSumWithObservableFunction");
+            Assert.assertEquals(span.getTags().size(), 4);
+            Assert.assertEquals(span.getTags().get("span.kind"), "client");
+            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
+            Assert.assertEquals(span.getTags().get("function"), "calculateSumWithObservableFunction");
+        });
+    }
 }
