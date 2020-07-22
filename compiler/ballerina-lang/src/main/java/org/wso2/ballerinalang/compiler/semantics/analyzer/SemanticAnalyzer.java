@@ -81,6 +81,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
@@ -2177,12 +2178,42 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Creates a new environment here.
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
-        BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        if (bType != symTable.nilType && bType != symTable.neverType && bType != symTable.semanticError &&
-                exprStmtNode.expr.getKind() != NodeKind.FAIL) {
+        typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
+
+        NodeKind exprKind = exprStmtNode.expr.getKind();
+        boolean isChecked = exprKind == NodeKind.CHECK_EXPR || exprKind == NodeKind.CHECK_PANIC_EXPR;
+        BType expExprType = getExpectedTypeOfExpr(exprStmtNode.expr, isChecked);
+
+        boolean returnsNilOrNever = expExprType == symTable.nilType || expExprType == symTable.neverType
+                || (isChecked && types.isOptionalErrorType(expExprType));
+
+        if (!returnsNilOrNever && exprStmtNode.expr.getKind() != NodeKind.FAIL) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);
+    }
+
+    // This method checks and returns the actual return type of a function/method as specified in its signature.
+    // Cannot just simply use the type of the expr for this since it's the evaluated type for the particular
+    // invocation of the function. If there was an error in evaluating the type, the type of the invocation would be
+    // semantic error.
+    private BType getExpectedTypeOfExpr(final BLangExpression expr, boolean isCheckedExpr) {
+        NodeKind exprKind = expr.getKind();
+        BLangExpression tempExpr = expr;
+
+        if (isCheckedExpr) {
+            tempExpr = ((BLangCheckedExpr) expr).expr;
+            exprKind = expr.getKind();
+        }
+
+        if (exprKind == NodeKind.INVOCATION) {
+            BInvokableSymbol symbol = (BInvokableSymbol) ((BLangInvocation) tempExpr).symbol;
+            // `symbol` is null for invocations of undefined functions. Consider the return type of undefined
+            // functions as `()`.
+            return symbol != null ? symbol.retType : symTable.nilType;
+        }
+
+        return expr.type;
     }
 
     @Override

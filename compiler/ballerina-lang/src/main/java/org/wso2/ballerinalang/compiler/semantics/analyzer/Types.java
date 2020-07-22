@@ -3266,6 +3266,20 @@ public class Types {
         }
     }
 
+    public boolean isOptionalErrorType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            BUnionType unionType = (BUnionType) type;
+            for (BType t : unionType.getMemberTypes()) {
+                if (t.tag != TypeTags.ERROR && t.tag != TypeTags.NIL) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return type.tag == TypeTags.ERROR;
+    }
+
     private boolean checkFillerValue(BObjectType type) {
         if ((type.tsymbol.flags & Flags.ABSTRACT) == Flags.ABSTRACT) {
             return false;

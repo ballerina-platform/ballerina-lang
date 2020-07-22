@@ -4858,11 +4858,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         if (iExpr.argExprs.isEmpty()) {
             dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_ARG_ERROR_MESSAGE);
+            resultType = symTable.semanticError;
             return;
         }
         BLangExpression errorMessageArg = iExpr.argExprs.get(0);
         if (errorMessageArg.getKind() == NodeKind.NAMED_ARGS_EXPR) {
             dlog.error(iExpr.pos, DiagnosticCode.MISSING_REQUIRED_ARG_ERROR_MESSAGE);
+            resultType = symTable.semanticError;
             return;
         }
         checkExpr(errorMessageArg, this.env, symTable.stringType);
