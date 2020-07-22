@@ -928,6 +928,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             throw new IllegalStateException("Not supported annotation attachment at:" + attachment.pos);
         }
         defineSymbol(typeDefinition.name.pos, typeDefinition.symbol);
+        if (typeDefinition.typeNode.type.tag == TypeTags.ERROR) {
+            // constructors are only defined for named types.
+            defineErrorConstructorSymbol(typeDefinition.name.pos, typeDefinition.symbol);
+        }
     }
 
     // If this type is defined to a public type or this is a anonymous type, return int with all bits set to 1,
