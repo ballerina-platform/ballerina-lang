@@ -48,6 +48,13 @@ public class ExpressionStmtTest {
         BAssertUtil.validateError(result, indx++, "variable assignment is required", 14, 5);
         BAssertUtil.validateError(result, indx++, "undefined function 'bar'", 15, 5);
         BAssertUtil.validateError(result, indx++, "variable assignment is required", 16, 5);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 22, 5);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 23, 5);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 26, 5);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 27, 5);
+        BAssertUtil.validateError(result, indx++, "missing mandatory error message argument in call " +
+                "to error constructor", 31, 5);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 31, 5);
 
         Assert.assertEquals(result.getErrorCount(), indx);
     }

@@ -15,3 +15,18 @@ function test2(){
     bar();
     x;
 }
+
+function baz() returns error|int|() => ();
+
+function testChecking() returns error? {
+    check baz();
+    checkpanic baz();
+
+    int|error x;
+    check x;
+    checkpanic x;
+}
+
+function testErrorConstructor() {
+    error();
+}
