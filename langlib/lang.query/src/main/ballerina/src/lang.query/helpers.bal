@@ -324,6 +324,6 @@ public type StreamOrderBy object {
 
 // TODO: This for debugging purposes, remove once completed.
 public function print(any|error? data) = @java:Method {
-    class: "org.ballerinalang.langlib.query.Print"
+    class: "org.ballerinalang.langlib.query.Print",
     name: "print"
 } external;
