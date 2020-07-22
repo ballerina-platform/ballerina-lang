@@ -63,7 +63,7 @@ public class FunctionPointersNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected 'string', found 'Person'", 32, 39);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testFPWithNoImport() {
         CompileResult result =
                 BCompileUtil.compile("test-src/expressions/lambda/negative/fp-with-import-negative.bal");
@@ -71,9 +71,9 @@ public class FunctionPointersNegativeTest {
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 5);
         BAssertUtil.validateError(result, ++i, "unknown type 'Select'", 19, 5);
-        BAssertUtil.validateError(result, ++i, "undefined function 'createSelect'", 19, 29);
-        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 29);
-        BAssertUtil.validateError(result, ++i, "undefined symbol 'outputProcess'", 19, 50);
+        BAssertUtil.validateError(result, ++i, "undefined function 'createSelect'", 19, 32);
+        BAssertUtil.validateError(result, ++i, "undefined module 'streams'", 19, 32);
+        BAssertUtil.validateError(result, ++i, "undefined symbol 'outputProcess'", 19, 53);
 //        BAssertUtil.validateError(result, ++i, "array index out of range: index: '3', size: '2'", 23, 29); #12122
     }
 
