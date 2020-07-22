@@ -43,7 +43,7 @@ public class ExprBodiedFunctionTest {
         compileResult = BCompileUtil.compile("test-src/functions/expr_bodied_functions.bal");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(groups = { "disableOnOldParser", "brokenOnNewParser" })
     public void testSyntaxErrors() {
         CompileResult result = BCompileUtil.compile("test-src/functions/expr_bodied_functions_negative.bal");
         int index = 0;
