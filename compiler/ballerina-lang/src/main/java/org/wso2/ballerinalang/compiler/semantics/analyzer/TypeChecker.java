@@ -4700,7 +4700,9 @@ public class TypeChecker extends BLangNodeVisitor {
             checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            if (!missingNodesHelper.isMissingNode(funcName)) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            }
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;

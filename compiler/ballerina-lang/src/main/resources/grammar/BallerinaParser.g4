@@ -145,12 +145,12 @@ objectMethod
     ;
 
 methodDeclaration
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TRANSACTIONAL? (REMOTE | RESOURCE)? FUNCTION
             anyIdentifierName functionSignature SEMICOLON
     ;
 
 methodDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TRANSACTIONAL? (REMOTE | RESOURCE)? FUNCTION
             anyIdentifierName functionSignature functionDefinitionBody
     ;
 

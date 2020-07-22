@@ -1052,7 +1052,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeReferenceNode typeReferenceNode) {
         Token asteriskToken =
                 modifyToken(typeReferenceNode.asteriskToken());
-        Node typeName =
+        NameReferenceNode typeName =
                 modifyNode(typeReferenceNode.typeName());
         Token semicolonToken =
                 modifyToken(typeReferenceNode.semicolonToken());
