@@ -79,7 +79,7 @@ public class ReferencesUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = ReferencesUtil.compileModules(context);
         SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
@@ -91,13 +91,14 @@ public class ReferencesUtil {
      *
      * @param context Language server context
      * @param newName New name to replace
+     * @param position  cursor position
      * @return {@link WorkspaceEdit}    Rename workspace edit
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName)
+    public static WorkspaceEdit getRenameWorkspaceEdits(LSContext context, String newName, Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = compileModules(context);
         String nodeName = tokenAtCursor.text();
         if (CommonKeys.NEW_KEYWORD_KEY.equals(nodeName)) {
@@ -109,10 +110,9 @@ public class ReferencesUtil {
         return getWorkspaceEdit(allReferences, context, newName);
     }
 
-    public static List<Location> getReferences(LSContext context, boolean includeDeclaration)
-            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException,
-                   TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+    public static List<Location> getReferences(LSContext context, boolean includeDeclaration, Position pos)
+            throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, pos);
         List<BLangPackage> modules = compileModules(context);
         SymbolReferencesModel referencesModel = findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         SymbolReferencesModel allReferencesModel = fillAllReferences(referencesModel, tokenAtCursor, modules, context);
@@ -132,13 +132,14 @@ public class ReferencesUtil {
      * Get the hover content.
      *
      * @param context Hover operation context
+     * @param position Cursor position
      * @return {@link Hover} Hover content
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static Hover getHover(LSContext context)
+    public static Hover getHover(LSContext context, Position position)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
         List<BLangPackage> modules = compileModules(context);
         Reference symbolAtCursor = findReferencesForCurrentCUnit(tokenAtCursor, modules, context)
                 .getReferenceAtCursor();
@@ -233,7 +234,7 @@ public class ReferencesUtil {
         if (symbolReferencesModel.getReferenceAtCursor() == null) {
             String nodeName = tokenAtCursor.text();
             throw new TokenOrSymbolNotFoundException(
-                    "Symbol at cursor '" + nodeName + "' not supported or could not find!");
+                    "Symbol at position '" + nodeName + "' not supported or could not find!");
         }
 
         Reference symbolAtCursor = symbolReferencesModel.getReferenceAtCursor();
