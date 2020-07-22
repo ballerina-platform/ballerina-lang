@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
@@ -879,7 +880,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         if (source instanceof BLangRecordVarNameField) {
             BLangRecordVarNameField clonedVarNameField = new BLangRecordVarNameField();
-            clonedVarNameField.isReadonly = ((BLangRecordVarNameField) source).isReadonly;
+            clonedVarNameField.readonly = ((BLangRecordVarNameField) source).readonly;
             clone = clonedVarNameField;
         } else {
             clone = new BLangSimpleVarRef();
@@ -1265,6 +1266,13 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangCheckedExpr source) {
 
         BLangCheckedExpr clone = new BLangCheckedExpr();
+        source.cloneRef = clone;
+        clone.expr = clone(source.expr);
+    }
+
+    public void visit(BLangFailExpr source) {
+
+        BLangFailExpr clone = new BLangFailExpr();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
     }
@@ -1923,7 +1931,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangRecordKeyValueField clone = new BLangRecordKeyValueField();
         source.cloneRef = clone;
         clone.pos = source.pos;
-        clone.isReadonly = source.isReadonly;
+        clone.readonly = source.readonly;
         clone.addWS(source.getWS());
 
         BLangRecordKey newKey = new BLangRecordKey(clone(source.key.expr));

@@ -495,6 +495,20 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stCheckExpressionNode.createUnlinkedFacade();
     }
 
+    public static FailExpressionNode createFailExpressionNode(
+            SyntaxKind kind,
+            Token failKeyword,
+            ExpressionNode expression) {
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stFailExpressionNode = STNodeFactory.createFailExpressionNode(
+                kind,
+                failKeyword.internalNode(),
+                expression.internalNode());
+        return stFailExpressionNode.createUnlinkedFacade();
+    }
+
     public static FieldAccessExpressionNode createFieldAccessExpressionNode(
             ExpressionNode expression,
             Token dotToken,
@@ -1015,7 +1029,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TypeReferenceNode createTypeReferenceNode(
             Token asteriskToken,
-            Node typeName,
+            NameReferenceNode typeName,
             Token semicolonToken) {
         Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");

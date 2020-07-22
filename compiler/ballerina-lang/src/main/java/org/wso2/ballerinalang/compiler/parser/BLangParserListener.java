@@ -619,11 +619,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean transactionalFunc = ctx.TRANSACTIONAL() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, publicFunc,
-                                                     isPrivate, remoteFunc, resourceFunc, false, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+                isPrivate, remoteFunc, resourceFunc, transactionalFunc, false,
+                markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -642,11 +643,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean transactionalFunc = ctx.TRANSACTIONAL() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, isPublic,
-                                                     isPrivate, remoteFunc, resourceFunc, true, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+                isPrivate, remoteFunc, resourceFunc, transactionalFunc,
+                true, markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -2802,6 +2804,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createCheckedExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
+    public void exitFailExpression(BallerinaParser.FailExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createFailExpr(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

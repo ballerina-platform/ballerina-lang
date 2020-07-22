@@ -57,4 +57,9 @@ public class CallStatementTest extends AbstractStatementTest {
     public void testCallStmtWithCheckingKeywordsAndInvalidExpr() {
         testFile("call-stmt/call_stmt_source_06.bal", "call-stmt/call_stmt_assert_06.json");
     }
+
+    @Test
+    public void testCallStmtWithMissingSemiColon() {
+        testFile("call-stmt/call_stmt_source_07.bal", "call-stmt/call_stmt_assert_07.json");
+    }
 }

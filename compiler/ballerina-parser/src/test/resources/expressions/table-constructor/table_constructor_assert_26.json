@@ -1,0 +1,154 @@
+{
+  "kind": "TABLE_CONSTRUCTOR",
+  "hasDiagnostics": true,
+  "children": [
+    {
+      "kind": "TABLE_KEYWORD"
+    },
+    {
+      "kind": "OPEN_BRACKET_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_OPEN_BRACKET_TOKEN"
+      ]
+    },
+    {
+      "kind": "LIST",
+      "hasDiagnostics": true,
+      "children": [
+        {
+          "kind": "MAPPING_CONSTRUCTOR",
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "OPEN_BRACE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_OPEN_BRACE_TOKEN"
+              ]
+            },
+            {
+              "kind": "LIST",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "COMPUTED_NAME_FIELD",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "OPEN_BRACKET_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_OPEN_BRACKET_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "BINARY_EXPRESSION",
+                      "children": [
+                        {
+                          "kind": "UNARY_EXPRESSION",
+                          "children": [
+                            {
+                              "kind": "MINUS_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "constructor"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "SLASH_TOKEN"
+                        },
+                        {
+                          "kind": "FIELD_ACCESS",
+                          "children": [
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "table_constructor_source_26"
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "DOT_TOKEN"
+                            },
+                            {
+                              "kind": "SIMPLE_NAME_REFERENCE",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bal"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "CLOSE_BRACKET_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "COLON_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_COLON_TOKEN"
+                      ]
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "hasDiagnostics": true,
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_IDENTIFIER"
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "CLOSE_BRACE_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_CLOSE_BRACE_TOKEN"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACKET_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
+      ]
+    }
+  ]
+}

@@ -394,6 +394,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailExpressionNode transform(
+            STFailExpressionNode failExpressionNode) {
+        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
+        STNode expression = modifyNode(failExpressionNode.expression);
+        return failExpressionNode.modify(
+                failExpressionNode.kind,
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public STFieldAccessExpressionNode transform(
             STFieldAccessExpressionNode fieldAccessExpressionNode) {
         STNode expression = modifyNode(fieldAccessExpressionNode.expression);

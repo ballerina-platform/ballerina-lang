@@ -501,6 +501,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FailExpressionNode transform(
+            FailExpressionNode failExpressionNode) {
+        Token failKeyword =
+                modifyToken(failExpressionNode.failKeyword());
+        ExpressionNode expression =
+                modifyNode(failExpressionNode.expression());
+        return failExpressionNode.modify(
+                failExpressionNode.kind(),
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public FieldAccessExpressionNode transform(
             FieldAccessExpressionNode fieldAccessExpressionNode) {
         ExpressionNode expression =
@@ -1039,7 +1052,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeReferenceNode typeReferenceNode) {
         Token asteriskToken =
                 modifyToken(typeReferenceNode.asteriskToken());
-        Node typeName =
+        NameReferenceNode typeName =
                 modifyNode(typeReferenceNode.typeName());
         Token semicolonToken =
                 modifyToken(typeReferenceNode.semicolonToken());

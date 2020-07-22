@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -2020,7 +2021,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         Set<Object> names = new HashSet<>();
         BType type = recordLiteral.type;
-        boolean isOpenRecord = type != null && type.tag == TypeTags.RECORD && !((BRecordType) type).sealed;
+        boolean isRecord = type.tag == TypeTags.RECORD;
+        boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
+
+        // A record type is inferred for a record literal even if the contextually expected type is a map, if the
+        // mapping constructor expression has `readonly` fields.
+        boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
+                recordLiteral.expectedType.tag == TypeTags.MAP;
+
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
@@ -2068,7 +2076,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                         recordLiteral.expectedType.getKind().typeName(), name);
                     }
 
-                    if (isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
+                    if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
                         dlog.error(keyExpr.pos, DiagnosticCode.INVALID_RECORD_LITERAL_IDENTIFIER_KEY, name);
                     }
 
@@ -2083,6 +2091,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     names.add(name);
                 }
             }
+        }
+
+        if (isInferredRecordForMapCET) {
+            recordLiteral.expectedType = type;
         }
     }
 
@@ -2157,7 +2169,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangActionInvocation actionInvocation) {
-        if (actionInvocation.async && this.withinTransactionScope) {
+        if (actionInvocation.async && this.withinTransactionScope &&
+                !Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.TRANSACTIONAL)) {
             dlog.error(actionInvocation.pos, DiagnosticCode.USAGE_OF_START_WITHIN_TRANSACTION_IS_PROHIBITED);
             return;
         }
@@ -2652,6 +2665,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         returnTypes.peek().add(exprType);
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        analyzeExpr(failExpr.expr);
+
+        if (failExpr.expectedType.tag == symTable.noType.tag) {
+            this.statementReturns = true;
+            if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
+                // Check at module level.
+                return;
+            }
+
+            BType exprType = env.enclInvokable.getReturnTypeNode().type;
+
+            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
+                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+            }
+
+            returnTypes.peek().add(exprType);
+            validateActionParentNode(failExpr.pos, failExpr);
+        }
     }
 
     @Override
