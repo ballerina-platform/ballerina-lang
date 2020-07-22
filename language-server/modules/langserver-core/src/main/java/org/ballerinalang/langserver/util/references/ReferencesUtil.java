@@ -234,7 +234,7 @@ public class ReferencesUtil {
         if (symbolReferencesModel.getReferenceAtCursor() == null) {
             String nodeName = tokenAtCursor.text();
             throw new TokenOrSymbolNotFoundException(
-                    "Symbol at cursor '" + nodeName + "' not supported or could not find!");
+                    "Symbol at position '" + nodeName + "' not supported or could not find!");
         }
 
         Reference symbolAtCursor = symbolReferencesModel.getReferenceAtCursor();
