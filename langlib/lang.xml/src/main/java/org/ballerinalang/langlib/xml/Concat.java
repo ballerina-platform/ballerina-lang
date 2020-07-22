@@ -42,11 +42,11 @@ import java.util.List;
 //)
 public class Concat {
 
-    public static XMLValue concat(ArrayValue arrayValue) {
+    public static XMLValue concat(Object... arrayValue) {
         List<BXML> backingArray = new ArrayList<>();
         XMLValue lastItem = null;
-        for (int i = 0; i < arrayValue.size(); i++) {
-            Object refValue = arrayValue.getRefValue(i);
+        for (int i = 0; i < arrayValue.length; i++) {
+            Object refValue = arrayValue[i];
             if (refValue instanceof BString) {
                 if (lastItem != null && lastItem.getNodeType() == XMLNodeType.TEXT) {
                     // If last added item is a string, then concat prev values with this values and replace prev value.

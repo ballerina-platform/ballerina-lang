@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/java;
+
 # The namespace URI bound to the `xml` prefix.
 public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
 # The namespace URI bound to the `xmlns` prefix.
@@ -95,7 +97,7 @@ public function get(xml<ItemType> x, int i) returns xml = @java:Method {
 
 # Concatenates xml and string values.
 #
-# + xs - xml or string items to concatenate
+# + xs|string - xml or string items to concatenate
 # + return - an xml sequence that is the concatenation of all the `xs`;
 #    an empty xml sequence if the `xs` are empty
 public function concat((xml|string)... xs) returns xml = @java:Method {
