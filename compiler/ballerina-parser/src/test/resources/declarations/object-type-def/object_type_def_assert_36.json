@@ -90,13 +90,8 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a"
-                    }
-                  ]
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a"
                 },
                 {
                   "kind": "SEMICOLON_TOKEN",
@@ -142,17 +137,12 @@
                   ]
                 },
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "a",
+                  "trailingMinutiae": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "a",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
