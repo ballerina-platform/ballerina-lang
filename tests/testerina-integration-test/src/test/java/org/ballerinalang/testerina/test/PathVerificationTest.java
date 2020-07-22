@@ -41,7 +41,7 @@ public class PathVerificationTest extends BaseTestCase {
     public void verifyTestsOutsidePath() throws BallerinaTestException {
         LogLeecher passingLeecher = new LogLeecher("1 passing");
         LogLeecher failingLeecher = new LogLeecher("0 failing");
-        balClient.runMain("test", new String[]{"pathVerification.tests"}, null, new String[0],
+        balClient.runMain("test", new String[]{"pathVerification"}, null, new String[0],
                 new LogLeecher[]{passingLeecher, failingLeecher}, projectPath);
         passingLeecher.waitForText(20000);
         failingLeecher.waitForText(20000);
@@ -51,7 +51,7 @@ public class PathVerificationTest extends BaseTestCase {
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
         String msg = "No tests found";
         LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"missingTestsDirectory.tests"},
+        balClient.runMain("test", new String[]{"missingTestsDirectory"},
                 null, new String[]{}, new LogLeecher[]{clientLeecher}, projectPath);
         clientLeecher.waitForText(20000);
     }
