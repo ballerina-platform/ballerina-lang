@@ -1052,7 +1052,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeReferenceNode typeReferenceNode) {
         Token asteriskToken =
                 modifyToken(typeReferenceNode.asteriskToken());
-        NameReferenceNode typeName =
+        Node typeName =
                 modifyNode(typeReferenceNode.typeName());
         Token semicolonToken =
                 modifyToken(typeReferenceNode.semicolonToken());
@@ -3098,14 +3098,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             OrderKeyNode orderKeyNode) {
         ExpressionNode expression =
                 modifyNode(orderKeyNode.expression());
-        Token ascendingKeyword =
-                modifyToken(orderKeyNode.ascendingKeyword());
-        Token descendingKeyword =
-                modifyToken(orderKeyNode.descendingKeyword().orElse(null));
+        Token orderDirection =
+                modifyToken(orderKeyNode.orderDirection().orElse(null));
         return orderKeyNode.modify(
                 expression,
-                ascendingKeyword,
-                descendingKeyword);
+                orderDirection);
     }
 
     // Tokens

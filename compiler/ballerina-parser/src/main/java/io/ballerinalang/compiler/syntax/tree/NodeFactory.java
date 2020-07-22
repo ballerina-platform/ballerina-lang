@@ -1029,7 +1029,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TypeReferenceNode createTypeReferenceNode(
             Token asteriskToken,
-            NameReferenceNode typeName,
+            Node typeName,
             Token semicolonToken) {
         Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
@@ -3045,15 +3045,12 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static OrderKeyNode createOrderKeyNode(
             ExpressionNode expression,
-            Token ascendingKeyword,
-            Token descendingKeyword) {
+            Token orderDirection) {
         Objects.requireNonNull(expression, "expression must not be null");
-        Objects.requireNonNull(ascendingKeyword, "ascendingKeyword must not be null");
 
         STNode stOrderKeyNode = STNodeFactory.createOrderKeyNode(
                 expression.internalNode(),
-                ascendingKeyword.internalNode(),
-                getOptionalSTNode(descendingKeyword));
+                getOptionalSTNode(orderDirection));
         return stOrderKeyNode.createUnlinkedFacade();
     }
 }

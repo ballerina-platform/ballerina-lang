@@ -2458,12 +2458,10 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STOrderKeyNode transform(
             STOrderKeyNode orderKeyNode) {
         STNode expression = modifyNode(orderKeyNode.expression);
-        STNode ascendingKeyword = modifyNode(orderKeyNode.ascendingKeyword);
-        STNode descendingKeyword = modifyNode(orderKeyNode.descendingKeyword);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
         return orderKeyNode.modify(
                 expression,
-                ascendingKeyword,
-                descendingKeyword);
+                orderDirection);
     }
 
     // Tokens

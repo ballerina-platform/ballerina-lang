@@ -32,59 +32,49 @@ import java.util.Collections;
  */
 public class STOrderKeyNode extends STNode {
     public final STNode expression;
-    public final STNode ascendingKeyword;
-    public final STNode descendingKeyword;
+    public final STNode orderDirection;
 
     STOrderKeyNode(
             STNode expression,
-            STNode ascendingKeyword,
-            STNode descendingKeyword) {
+            STNode orderDirection) {
         this(
                 expression,
-                ascendingKeyword,
-                descendingKeyword,
+                orderDirection,
                 Collections.emptyList());
     }
 
     STOrderKeyNode(
             STNode expression,
-            STNode ascendingKeyword,
-            STNode descendingKeyword,
+            STNode orderDirection,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.ORDER_KEY, diagnostics);
         this.expression = expression;
-        this.ascendingKeyword = ascendingKeyword;
-        this.descendingKeyword = descendingKeyword;
+        this.orderDirection = orderDirection;
 
         addChildren(
                 expression,
-                ascendingKeyword,
-                descendingKeyword);
+                orderDirection);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STOrderKeyNode(
                 this.expression,
-                this.ascendingKeyword,
-                this.descendingKeyword,
+                this.orderDirection,
                 diagnostics);
     }
 
     public STOrderKeyNode modify(
             STNode expression,
-            STNode ascendingKeyword,
-            STNode descendingKeyword) {
+            STNode orderDirection) {
         if (checkForReferenceEquality(
                 expression,
-                ascendingKeyword,
-                descendingKeyword)) {
+                orderDirection)) {
             return this;
         }
 
         return new STOrderKeyNode(
                 expression,
-                ascendingKeyword,
-                descendingKeyword,
+                orderDirection,
                 diagnostics);
     }
 

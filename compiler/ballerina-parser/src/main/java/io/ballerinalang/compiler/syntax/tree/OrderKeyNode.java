@@ -37,12 +37,8 @@ public class OrderKeyNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Token ascendingKeyword() {
-        return childInBucket(1);
-    }
-
-    public Optional<Token> descendingKeyword() {
-        return optionalChildInBucket(2);
+    public Optional<Token> orderDirection() {
+        return optionalChildInBucket(1);
     }
 
     @Override
@@ -59,25 +55,21 @@ public class OrderKeyNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "expression",
-                "ascendingKeyword",
-                "descendingKeyword"};
+                "orderDirection"};
     }
 
     public OrderKeyNode modify(
             ExpressionNode expression,
-            Token ascendingKeyword,
-            Token descendingKeyword) {
+            Token orderDirection) {
         if (checkForReferenceEquality(
                 expression,
-                ascendingKeyword,
-                descendingKeyword)) {
+                orderDirection)) {
             return this;
         }
 
         return NodeFactory.createOrderKeyNode(
                 expression,
-                ascendingKeyword,
-                descendingKeyword);
+                orderDirection);
     }
 
     public OrderKeyNodeModifier modify() {
@@ -92,14 +84,12 @@ public class OrderKeyNode extends NonTerminalNode {
     public static class OrderKeyNodeModifier {
         private final OrderKeyNode oldNode;
         private ExpressionNode expression;
-        private Token ascendingKeyword;
-        private Token descendingKeyword;
+        private Token orderDirection;
 
         public OrderKeyNodeModifier(OrderKeyNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
-            this.ascendingKeyword = oldNode.ascendingKeyword();
-            this.descendingKeyword = oldNode.descendingKeyword().orElse(null);
+            this.orderDirection = oldNode.orderDirection().orElse(null);
         }
 
         public OrderKeyNodeModifier withExpression(
@@ -109,25 +99,17 @@ public class OrderKeyNode extends NonTerminalNode {
             return this;
         }
 
-        public OrderKeyNodeModifier withAscendingKeyword(
-                Token ascendingKeyword) {
-            Objects.requireNonNull(ascendingKeyword, "ascendingKeyword must not be null");
-            this.ascendingKeyword = ascendingKeyword;
-            return this;
-        }
-
-        public OrderKeyNodeModifier withDescendingKeyword(
-                Token descendingKeyword) {
-            Objects.requireNonNull(descendingKeyword, "descendingKeyword must not be null");
-            this.descendingKeyword = descendingKeyword;
+        public OrderKeyNodeModifier withOrderDirection(
+                Token orderDirection) {
+            Objects.requireNonNull(orderDirection, "orderDirection must not be null");
+            this.orderDirection = orderDirection;
             return this;
         }
 
         public OrderKeyNode apply() {
             return oldNode.modify(
                     expression,
-                    ascendingKeyword,
-                    descendingKeyword);
+                    orderDirection);
         }
     }
 }

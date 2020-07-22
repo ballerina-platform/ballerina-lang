@@ -2285,13 +2285,11 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createOrderKeyNode(
             STNode expression,
-            STNode ascendingKeyword,
-            STNode descendingKeyword) {
+            STNode orderDirection) {
 
         return new STOrderKeyNode(
                 expression,
-                ascendingKeyword,
-                descendingKeyword);
+                orderDirection);
     }
 }
 

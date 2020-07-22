@@ -4124,11 +4124,7 @@
                     "type": "ExpressionNode"
                 },
                 {
-                    "name": "ascendingKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "descendingKeyword",
+                    "name": "orderDirection",
                     "type": "Token",
                     "isOptional": true
                 }

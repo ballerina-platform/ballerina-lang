@@ -3323,7 +3323,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangOrderKey orderKey = (BLangOrderKey) TreeBuilder.createOrderKeyNode();
         orderKey.pos = getPosition(orderKeyNode);
         orderKey.expression = createExpression(orderKeyNode.expression());
-        if (orderKeyNode.descendingKeyword().isPresent()) {
+        if (orderKeyNode.orderDirection().isPresent() &&
+                orderKeyNode.orderDirection().get().text().equals("descending")) {
             orderKey.isAscending = false;
         } else {
             orderKey.isAscending = true;

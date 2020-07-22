@@ -10489,7 +10489,6 @@ public class BallerinaParser extends AbstractParser {
         STNode orderKeyword = parseOrderKeyword();
         STNode byKeyword = parseByKeyword();
         STNode orderKeys = parseOrderKeyList(isRhsExpr);
-
         byKeyword = cloneWithDiagnosticIfListEmpty(orderKeys, byKeyword,
                 DiagnosticErrorCode.ERROR_MISSING_ORDER_KEY);
 
@@ -10508,7 +10507,6 @@ public class BallerinaParser extends AbstractParser {
         List<STNode> orderKeys = new ArrayList<>();
         STToken nextToken = peek();
 
-        // Make sure at least one order key is present
         if (isEndOfOrderKeys(nextToken.kind)) {
             endContext();
             return STNodeFactory.createEmptyNodeList();
@@ -10600,15 +10598,12 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case ASCENDING_KEYWORD:
                 STNode ascendingKeyword = parseAscendingKeyword();
-                return STNodeFactory.createOrderKeyNode(expression, ascendingKeyword,
-                        STNodeFactory.createEmptyNode());
+                return STNodeFactory.createOrderKeyNode(expression, ascendingKeyword);
             case DESCENDING_KEYWORD:
                 STNode descendingKeyword = parseDescendingKeyword();
-                return STNodeFactory.createOrderKeyNode(expression, STNodeFactory.createEmptyNode(),
-                        descendingKeyword);
+                return STNodeFactory.createOrderKeyNode(expression, descendingKeyword);
             default:
-                return STNodeFactory.createOrderKeyNode(expression, STNodeFactory.createEmptyNode(),
-                        STNodeFactory.createEmptyNode());
+                return STNodeFactory.createOrderKeyNode(expression, STNodeFactory.createEmptyNode());
         }
     }
 

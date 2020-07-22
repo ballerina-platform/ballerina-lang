@@ -2724,20 +2724,21 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private void checkOrderFieldValidity(BType resultType, BLangOrderByClause clause) {
         resultType = types.resolveExprType(resultType);
-        if (resultType.tag == TypeTags.RECORD) {
-            BRecordType recordType = (BRecordType) resultType;
-            Map<String, BField> recordFields = recordType.fields;
-            for (OrderKeyNode orderKeyNode : clause.getOrderKeyList()) {
-                if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
+        if (resultType.tag != TypeTags.RECORD) {
+            return;
+        }
+        BRecordType recordType = (BRecordType) resultType;
+        Map<String, BField> recordFields = recordType.fields;
+        for (OrderKeyNode orderKeyNode : clause.getOrderKeyList()) {
+            if (!recordFields.containsKey(orderKeyNode.getOrderKey().toString())) {
+                dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
+                        DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
+                        ((BLangOrderKey) orderKeyNode).expression, resultType);
+            } else if (orderKeyNode.getOrderKey().toString() != null) {
+                BType exprType = recordFields.get(orderKeyNode.getOrderKey().toString()).type;
+                if (!types.checkBasicType(exprType)) {
                     dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
-                            DiagnosticCode.UNDEFINED_FIELD_IN_RECORD,
-                            ((BLangOrderKey) orderKeyNode).expression, resultType);
-                } else if (orderKeyNode.getOrderKey().toString() != null) {
-                    BType exprType = recordFields.get(orderKeyNode.getOrderKey().toString()).type;
-                    if (!types.checkBasicType(exprType)) {
-                        dlog.error(((BLangOrderKey) orderKeyNode).expression.pos,
-                                DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
-                    }
+                            DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
                 }
             }
         }
