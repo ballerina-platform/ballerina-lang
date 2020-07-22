@@ -601,6 +601,16 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgMatchPatternRhs();
             case ARG_BINDING_PATTERN:
                 return parseArgBindingPattern();
+            case ORDER_KEYWORD:
+                return parseOrderKeyword();
+            case BY_KEYWORD:
+                return parseByKeyword();
+            case ASCENDING_KEYWORD:
+                return parseAscendingKeyword();
+            case DESCENDING_KEYWORD:
+                return parseDescendingKeyword();
+            case ORDER_KEY_LIST_END:
+                return parseOrderKeyListMemberEnd();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -10113,7 +10123,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse an intermediate clause.
      * <p>
      * <code>
-     * intermediate-clause := from-clause | where-clause | let-clause
+     * intermediate-clause := from-clause | where-clause | let-clause | order-by-clause
      * </code>
      *
      * @return Parsed node
@@ -10362,22 +10372,18 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse order by clause.
      * <p>
-     * <code>order-by-clause := order by expression (ascending | descending)? (expression (ascending | descending)?)*
+     * <code>order-by-clause := order by order-key-list
      * </code>
      *
      * @return Parsed node
      */
     private STNode parseOrderByClause(boolean isRhsExpr) {
-        STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.ORDER_KEYWORD) {
-            return STNodeFactory.createEmptyNode();
-        }
         STNode orderKeyword = parseOrderKeyword();
         STNode byKeyword = parseByKeyword();
-        STNode orderKeys = parseOrderKeyList(ParserRuleContext.ORDER_KEY, isRhsExpr);
+        STNode orderKeys = parseOrderKeyList(isRhsExpr);
 
         byKeyword = cloneWithDiagnosticIfListEmpty(orderKeys, byKeyword,
-                DiagnosticErrorCode.ERROR_MISSING_EXPRESSION);
+                DiagnosticErrorCode.ERROR_MISSING_ORDER_KEY);
 
         return STNodeFactory.createOrderByClauseNode(orderKeyword, byKeyword, orderKeys);
     }
@@ -10389,8 +10395,8 @@ public class BallerinaParser extends AbstractParser {
      *
      * @return Parsed node
      */
-    private STNode parseOrderKeyList(ParserRuleContext context, boolean isRhsExpr) {
-        startContext(context);
+    private STNode parseOrderKeyList(boolean isRhsExpr) {
+        startContext(ParserRuleContext.ORDER_KEY);
         List<STNode> orderKeys = new ArrayList<>();
         STToken nextToken = peek();
 
@@ -10406,10 +10412,13 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining order keys
         nextToken = peek();
-        STNode leadingComma;
+        STNode orderKeyListMemberEnd;
         while (!isEndOfOrderKeys(nextToken.kind)) {
-            leadingComma = parseComma();
-            orderKeys.add(leadingComma);
+            orderKeyListMemberEnd = parseOrderKeyListMemberEnd();
+            if (orderKeyListMemberEnd == null) {
+                break;
+            }
+            orderKeys.add(orderKeyListMemberEnd);
             orderKey = parseOrderKey(isRhsExpr);
             orderKeys.add(orderKey);
             nextToken = peek();
@@ -10423,10 +10432,50 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case COMMA_TOKEN:
                 return false;
-            case IN_KEYWORD:
+            case SEMICOLON_TOKEN:
+            case EOF_TOKEN:
                 return true;
             default:
-                return !isTypeStartingToken(tokenKind);
+                return isNextQueryClauseStart(tokenKind);
+        }
+    }
+
+    private boolean isNextQueryClauseStart(SyntaxKind tokenKind) {
+        switch(tokenKind) {
+            case SELECT_KEYWORD:
+            case LET_KEYWORD:
+            case WHERE_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseOrderKeyListMemberEnd() {
+        return parseOrderKeyListMemberEnd(peek().kind);
+    }
+
+    private STNode parseOrderKeyListMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case SELECT_KEYWORD:
+            case WHERE_KEYWORD:
+            case LET_KEYWORD:
+            case EOF_TOKEN:
+                // null marks the end of order keys
+                return null;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.ORDER_KEY_LIST_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseOrderKeyListMemberEnd(solution.tokenKind);
         }
     }
 
@@ -10440,14 +10489,18 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseOrderKey(boolean isRhsExpr) {
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASCENDING_KEYWORD) {
-            STNode ascendingKeyword = parseAscendingKeyword();
-            return STNodeFactory.createOrderKeyNode(expression, ascendingKeyword, null);
-        } else if (nextToken.kind == SyntaxKind.DESCENDING_KEYWORD) {
-            STNode descendingKeyword = parseDescendingKeyword();
-            return STNodeFactory.createOrderKeyNode(expression, null, descendingKeyword);
-        } else {
-            return STNodeFactory.createOrderKeyNode(expression, null, null);
+        switch (nextToken.kind) {
+            case ASCENDING_KEYWORD:
+                STNode ascendingKeyword = parseAscendingKeyword();
+                return STNodeFactory.createOrderKeyNode(expression, ascendingKeyword,
+                        STNodeFactory.createEmptyNode());
+            case DESCENDING_KEYWORD:
+                STNode descendingKeyword = parseDescendingKeyword();
+                return STNodeFactory.createOrderKeyNode(expression, STNodeFactory.createEmptyNode(),
+                        descendingKeyword);
+            default:
+                return STNodeFactory.createOrderKeyNode(expression, STNodeFactory.createEmptyNode(),
+                        STNodeFactory.createEmptyNode());
         }
     }
 

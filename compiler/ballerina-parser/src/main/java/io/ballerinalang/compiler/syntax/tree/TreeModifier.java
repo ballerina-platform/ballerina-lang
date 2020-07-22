@@ -3099,7 +3099,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         ExpressionNode expression =
                 modifyNode(orderKeyNode.expression());
         Token ascendingKeyword =
-                modifyToken(orderKeyNode.ascendingKeyword().orElse(null));
+                modifyToken(orderKeyNode.ascendingKeyword());
         Token descendingKeyword =
                 modifyToken(orderKeyNode.descendingKeyword().orElse(null));
         return orderKeyNode.modify(

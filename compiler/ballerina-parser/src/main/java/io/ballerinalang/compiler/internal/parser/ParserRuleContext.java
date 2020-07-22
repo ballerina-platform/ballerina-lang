@@ -244,7 +244,8 @@ public enum ParserRuleContext {
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY("order-key"),
-
+    ORDER_KEY_LIST_START("order-key-list-start"),
+    ORDER_KEY_LIST_END("order-key-list-end"),
 
     // Statements
     STATEMENT("statement"),
@@ -491,6 +492,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
+    ORDER_CLAUSE_END("order-clause-end"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

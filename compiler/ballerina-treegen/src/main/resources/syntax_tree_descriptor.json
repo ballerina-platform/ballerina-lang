@@ -4125,8 +4125,7 @@
                 },
                 {
                     "name": "ascendingKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "type": "Token"
                 },
                 {
                     "name": "descendingKeyword",

@@ -37,8 +37,8 @@ public class OrderKeyNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Optional<Token> ascendingKeyword() {
-        return optionalChildInBucket(1);
+    public Token ascendingKeyword() {
+        return childInBucket(1);
     }
 
     public Optional<Token> descendingKeyword() {
@@ -98,7 +98,7 @@ public class OrderKeyNode extends NonTerminalNode {
         public OrderKeyNodeModifier(OrderKeyNode oldNode) {
             this.oldNode = oldNode;
             this.expression = oldNode.expression();
-            this.ascendingKeyword = oldNode.ascendingKeyword().orElse(null);
+            this.ascendingKeyword = oldNode.ascendingKeyword();
             this.descendingKeyword = oldNode.descendingKeyword().orElse(null);
         }
 

@@ -3048,10 +3048,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             Token ascendingKeyword,
             Token descendingKeyword) {
         Objects.requireNonNull(expression, "expression must not be null");
+        Objects.requireNonNull(ascendingKeyword, "ascendingKeyword must not be null");
 
         STNode stOrderKeyNode = STNodeFactory.createOrderKeyNode(
                 expression.internalNode(),
-                getOptionalSTNode(ascendingKeyword),
+                ascendingKeyword.internalNode(),
                 getOptionalSTNode(descendingKeyword));
         return stOrderKeyNode.createUnlinkedFacade();
     }
