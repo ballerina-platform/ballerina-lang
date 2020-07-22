@@ -39,7 +39,7 @@ type KeyType anydata;
 # + t - the table
 # + return - number of members in `t`
 public function length(table<any|error> t) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.table.Length"
+    class: "org.ballerinalang.langlib.table.Length",
     name: "length"
 } external;
 
@@ -67,7 +67,7 @@ public function iterator(table<Type> t) returns abstract object {
 # + k - the key
 # + return - member with key `k`
 public function get(table<Type> key<KeyType> t, KeyType k) returns Type = @java:Method {
-    class: "org.ballerinalang.langlib.table.Get"
+    class: "org.ballerinalang.langlib.table.Get",
     name: "get"
 } external;
 
@@ -80,7 +80,7 @@ public function get(table<Type> key<KeyType> t, KeyType k) returns Type = @java:
 # + t - the table
 # + val - the member
 public function put(table<Type> t, Type val) = @java:Method {
-    class: "org.ballerinalang.langlib.table.Put"
+    class: "org.ballerinalang.langlib.table.Put",
     name: "put"
 } external;
 
@@ -92,7 +92,7 @@ public function put(table<Type> t, Type val) = @java:Method {
 # + t - the table
 # + val - the member
 public function add(table<Type> t, Type val) = @java:Method {
-    class: "org.ballerinalang.langlib.table.Add"
+    class: "org.ballerinalang.langlib.table.Add",
     name: "add"
 } external;
 
@@ -106,7 +106,7 @@ public function add(table<Type> t, Type val) = @java:Method {
 # + return - new table containing result of applying `func` to each member
 public function 'map(table<Type> t, function(Type val) returns Type1 func)
    returns table<Type1> key<never> = @java:Method {
-    class: "org.ballerinalang.langlib.table.Map"
+    class: "org.ballerinalang.langlib.table.Map",
     name: "map"
 } external;
 
@@ -116,7 +116,7 @@ public function 'map(table<Type> t, function(Type val) returns Type1 func)
 # + t - the table
 # + func - a function to apply to each member
 public function forEach(table<Type> t, function(Type val) returns () func) returns () = @java:Method {
-    class: "org.ballerinalang.langlib.table.Foreach"
+    class: "org.ballerinalang.langlib.table.Foreach",
     name: "forEach"
 } external;
 
@@ -127,7 +127,7 @@ public function forEach(table<Type> t, function(Type val) returns () func) retur
 # + return - new table containing members for which `func` evaluates to true
 public function filter(table<Type> key<KeyType> t, function(Type val) returns boolean func)
    returns table<Type> key<KeyType> = @java:Method {
-    class: "org.ballerinalang.langlib.table.Filter"
+    class: "org.ballerinalang.langlib.table.Filter",
     name: "filter"
 } external;
 
@@ -140,7 +140,7 @@ public function filter(table<Type> key<KeyType> t, function(Type val) returns bo
 # + initial - initial value for the first argument of combining `func`
 # + return - result of combining the members of `t` using `func`
 public function reduce(table<Type> t, function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 = @java:Method {
-    class: "org.ballerinalang.langlib.table.Reduce"
+    class: "org.ballerinalang.langlib.table.Reduce",
     name: "reduce"
 } external;
 
@@ -152,7 +152,7 @@ public function reduce(table<Type> t, function(Type1 accum, Type val) returns Ty
 # This removed the member of `t` with key `k` and returns it.
 # It panics if there is no such member.
 public function remove(table<Type> key<KeyType> t, KeyType k) returns Type = @java:Method {
-    class: "org.ballerinalang.langlib.table.Remove"
+    class: "org.ballerinalang.langlib.table.Remove",
     name: "remove"
 } external;
 
@@ -164,7 +164,7 @@ public function remove(table<Type> key<KeyType> t, KeyType k) returns Type = @ja
 # If `t` has a member with key `k`, it removes and returns it;
 # otherwise it returns `()`.
 public function removeIfHasKey(table<Type> key<KeyType> t, KeyType k) returns Type? = @java:Method {
-    class: "org.ballerinalang.langlib.table.RemoveIfHasKey"
+    class: "org.ballerinalang.langlib.table.RemoveIfHasKey",
     name: "removeIfHasKey"
 } external;
 
@@ -173,7 +173,7 @@ public function removeIfHasKey(table<Type> key<KeyType> t, KeyType k) returns Ty
 #
 # + t - the table
 public function removeAll(table<any|error> t) returns () = @java:Method {
-    class: "org.ballerinalang.langlib.table.RemoveAll"
+    class: "org.ballerinalang.langlib.table.RemoveAll",
     name: "removeAll"
 } external;
 
@@ -183,7 +183,7 @@ public function removeAll(table<any|error> t) returns () = @java:Method {
 # + k - the key
 # + return - true if `t` has a member with key `k`
 public function hasKey(table<Type> key<KeyType> t, KeyType k) returns boolean = @java:Method {
-    class: "org.ballerinalang.langlib.table.HasKey"
+    class: "org.ballerinalang.langlib.table.HasKey",
     name: "hasKey"
 } external;
 
@@ -192,7 +192,7 @@ public function hasKey(table<Type> key<KeyType> t, KeyType k) returns boolean = 
 # + t - the table
 # + return - a new list of all keys
 public function keys(table<any|error> key<KeyType> t) returns KeyType[] = @java:Method {
-    class: "org.ballerinalang.langlib.table.GetKeys"
+    class: "org.ballerinalang.langlib.table.GetKeys",
     name: "keys"
 } external;
 
@@ -201,7 +201,7 @@ public function keys(table<any|error> key<KeyType> t) returns KeyType[] = @java:
 # + t - the table
 # + return - an array whose members are the members of `t`
 public function toArray(table<Type> t) returns Type[] = @java:Method {
-    class: "org.ballerinalang.langlib.table.ToArray"
+    class: "org.ballerinalang.langlib.table.ToArray",
     name: "toArray"
 } external;
 
@@ -212,6 +212,6 @@ public function toArray(table<Type> t) returns Type[] = @java:Method {
 # XXX should it be 0, if the maximum used key value is < 0?
 # Provides similar functionality to auto-increment
 public function nextKey(table<any|error> key<int> t) returns int = @java:Method {
-    class: "org.ballerinalang.langlib.table.NextKey"
+    class: "org.ballerinalang.langlib.table.NextKey",
     name: "nextKey"
 } external;
