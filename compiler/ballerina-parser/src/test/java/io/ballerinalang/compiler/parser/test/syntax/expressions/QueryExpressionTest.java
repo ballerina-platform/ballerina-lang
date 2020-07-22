@@ -169,4 +169,16 @@ public class QueryExpressionTest extends AbstractExpressionsTest {
         test("from int a in b select c let int a = b + from int f in g select h",
                 "query-expr/query_expr_assert_38.json");
     }
+
+    @Test
+    public void testQueryWithOrderByClause() {
+        test("from int a in b where c let int d = e order by f select g", "query-expr/query_expr_assert_39.json");
+        test("from int a in b where c let int d = e order by f ascending, g select h", "query-expr" +
+                "/query_expr_assert_40.json");
+        test("from int a in b order by c ascending, d descending select e", "query-expr" +
+                "/query_expr_assert_41.json");
+        test("from int a in b order by select c", "query-expr/query_expr_assert_42.json");
+        test("from int a in b order c select d", "query-expr/query_expr_assert_43.json");
+        test("from int a in b order by c ascending d select e", "query-expr/query_expr_assert_44.json");
+    }
 }
