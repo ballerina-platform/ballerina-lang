@@ -3763,7 +3763,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return group;
         } else if (actionOrExpression.kind() == SyntaxKind.EXPRESSION_LIST_ITEM) {
             return createExpression(((ExpressionListItemNode) actionOrExpression).expression());
-        } else if (isSimpleType(actionOrExpression.kind())) {
+        } else if (isType(actionOrExpression.kind())) {
             BLangTypedescExpr typeAccessExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
             typeAccessExpr.pos = getPosition(actionOrExpression);
             typeAccessExpr.typeNode = createTypeNode(actionOrExpression);
@@ -4464,26 +4464,41 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    static boolean isSimpleType(SyntaxKind nodeKind) {
+    static boolean isType(SyntaxKind nodeKind) {
         switch (nodeKind) {
+            case TYPE_DESC:
+            case RECORD_TYPE_DESC:
+            case OBJECT_TYPE_DESC:
+            case NIL_TYPE_DESC:
+            case OPTIONAL_TYPE_DESC:
+            case ARRAY_TYPE_DESC:
             case INT_TYPE_DESC:
+            case BYTE_TYPE_DESC:
             case FLOAT_TYPE_DESC:
             case DECIMAL_TYPE_DESC:
-            case BOOLEAN_TYPE_DESC:
             case STRING_TYPE_DESC:
-            case BYTE_TYPE_DESC:
+            case BOOLEAN_TYPE_DESC:
             case XML_TYPE_DESC:
             case JSON_TYPE_DESC:
             case HANDLE_TYPE_DESC:
             case ANY_TYPE_DESC:
             case ANYDATA_TYPE_DESC:
             case NEVER_TYPE_DESC:
-            case SERVICE_TYPE_DESC:
             case VAR_TYPE_DESC:
+            case SERVICE_TYPE_DESC:
+            case PARAMETERIZED_TYPE_DESC:
+            case UNION_TYPE_DESC:
             case ERROR_TYPE_DESC:
             case STREAM_TYPE_DESC:
+            case TABLE_TYPE_DESC:
+            case FUNCTION_TYPE_DESC:
+            case TUPLE_TYPE_DESC:
+            case PARENTHESISED_TYPE_DESC:
             case READONLY_TYPE_DESC:
             case DISTINCT_TYPE_DESC:
+            case INTERSECTION_TYPE_DESC:
+            case SINGLETON_TYPE_DESC:
+            case TYPE_REFERENCE_TYPE_DESC:
                 return true;
             default:
                 return false;
