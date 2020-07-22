@@ -257,7 +257,8 @@ public class CodeActionUtil {
         }
 
         // With the syntax-tree, find the cursor token
-        Token tokenAtCursor = TokensUtil.findtokenAtCursor(context);
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
 
         CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(tokenAtCursor, context,
                                                                                currentPkgName, true);
