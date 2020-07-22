@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
@@ -426,5 +427,21 @@ public class StaticMethods {
 
     public static boolean echoImmutableRecordField(MapValue value, BString key) {
         return value.getBooleanValue(key);
+    }
+
+    public static Object acceptAndReturnReadOnly(Object value) {
+        BType type = TypeChecker.getType(value);
+
+        switch (type.getTag()) {
+            case TypeTags.INT_TAG:
+                return 100L;
+            case TypeTags.ARRAY_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+                return value;
+            case TypeTags.RECORD_TYPE_TAG:
+            case TypeTags.MAP_TAG:
+                return ((MapValue) value).get(StringUtils.fromString("first"));
+        }
+        return StringUtils.fromString("other");
     }
 }

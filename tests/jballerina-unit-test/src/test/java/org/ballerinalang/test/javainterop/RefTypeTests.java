@@ -332,6 +332,11 @@ public class RefTypeTests {
         BRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
     }
 
+    @Test
+    public void testReadOnlyAsParamAndReturnTypes() {
+        BRunUtil.invoke(result, "testReadOnlyAsParamAndReturnTypes");
+    }
+
     // static methods
 
     public static XMLValue getXML() {

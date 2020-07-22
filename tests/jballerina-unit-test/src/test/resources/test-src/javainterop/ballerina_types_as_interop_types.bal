@@ -468,7 +468,57 @@ function echoObject(abstract object {string name; int id;} & readonly obj)
 } external;
 
 function echoImmutableRecordField(Details & readonly value, string key) returns boolean = @java:Method {
-        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function testReadOnlyAsParamAndReturnTypes() {
+    readonly r1 = acceptAndReturnReadOnly(1);
+    assertTrue(r1 is int);
+    assertEquality(100, r1);
+
+    map<int|string|float> & readonly m0 = {first: 1.0, second: 2};
+    readonly r2 = acceptAndReturnReadOnly(m0);
+    assertTrue(r2 is float);
+    assertEquality(1.0, r2);
+
+    map<string> & readonly m1 = {
+        third: "baz",
+        first: "foo",
+        second: "bar"
+    };
+    readonly r3 = acceptAndReturnReadOnly(m1);
+    assertTrue(r3 is string);
+    assertEquality("foo", r3);
+
+    record { } & readonly m2 = {
+        "third": "baz",
+        "num": 21231
+    };
+    readonly r4 = acceptAndReturnReadOnly(m2);
+    assertTrue(r4 is ());
+
+    readonly object {
+        int i = 21;
+
+        function getInt() returns int {
+            return self.i;
+        }
+    } ob = new;
+    readonly r5 = acceptAndReturnReadOnly(ob);
+    assertTrue(r5 is readonly & abstract object { int i; function getInt() returns int; });
+    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> r5;
+    assertEquality(21, cObj.getInt());
+    assertEquality(ob, r5);
+
+    readonly & boolean[] arr = [true, false];
+    readonly r6 = acceptAndReturnReadOnly(arr);
+    assertTrue(r6 is readonly & boolean[2]);
+    assertEquality(<boolean[]> [true, false], r6);
+    assertEquality(arr, r6);
+}
+
+function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method {
+     class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
 function assertTrue(anydata actual) {

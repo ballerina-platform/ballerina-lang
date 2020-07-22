@@ -326,10 +326,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    if (jMethodRequest.restParamExist) {
-                        return jType.isArray();
-                    }
-                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
+                    return isValidListType(jType, jMethodRequest);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -343,6 +340,8 @@ class JMethodResolver {
                         }
                     }
                     return true;
+                case TypeTags.READONLY:
+                    return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.INTERSECTION:
                     return isValidParamBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
@@ -470,10 +469,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    if (jMethodRequest.restParamExist) {
-                        return jType.isArray();
-                    }
-                    return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
+                    return isValidListType(jType, jMethodRequest);
                 case TypeTags.UNION:
                     if (jTypeName.equals(J_OBJECT_TNAME)) {
                         return true;
@@ -487,6 +483,8 @@ class JMethodResolver {
                         }
                     }
                     return false;
+                case TypeTags.READONLY:
+                    return jTypeName.equals(J_OBJECT_TNAME);
                 case TypeTags.INTERSECTION:
                     return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
@@ -519,6 +517,13 @@ class JMethodResolver {
         } catch (ClassNotFoundException | NoClassDefFoundError e) {
             throw new JInteropException(CLASS_NOT_FOUND, e.getMessage(), e);
         }
+    }
+
+    private boolean isValidListType(Class<?> jType, JMethodRequest jMethodRequest) throws ClassNotFoundException {
+        if (jMethodRequest.restParamExist) {
+            return jType.isArray();
+        }
+        return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
     }
 
     private BType[] getJSONMemberTypes() {
