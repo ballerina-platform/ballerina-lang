@@ -23,6 +23,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -43,10 +44,10 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "01_ootb_chained_resource_functions.bal:23:5";
+        final String span1Position = "01_ootb_chained_resource_functions.bal:27:5";
         final String span2Position = "01_ootb_chained_resource_functions.bal:33:45";
         final String span3Position = "client_endpoint.bal:164:41";
-        final String span4Position = "01_ootb_chained_resource_functions.bal:45:5";
+        final String span4Position = "01_ootb_chained_resource_functions.bal:49:5";
         final String span5Position = "01_ootb_chained_resource_functions.bal:52:20";
         final String span6Position = "01_ootb_chained_resource_functions.bal:42:20";
 
@@ -68,16 +69,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -88,18 +91,20 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Client:get");
-            Assert.assertEquals(span.getTags().size(), 12);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.base_url"), "http://localhost:9091/test-service");
-            Assert.assertEquals(span.getTags().get("http.url"), "/resource-2");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Client");
-            Assert.assertEquals(span.getTags().get("action"), "get");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:9091/test-service"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/resource-2"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Client"),
+                    new AbstractMap.SimpleEntry<>("action", "get")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -110,19 +115,21 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/HttpClient:get");
-            Assert.assertEquals(span.getTags().size(), 13);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:1.0.0");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-2");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("peer.address"), "localhost:9091");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/HttpClient");
-            Assert.assertEquals(span.getTags().get("action"), "get");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina/http:1.0.0"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:9091"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/HttpClient"),
+                    new AbstractMap.SimpleEntry<>("action", "get")
+            ));
         });
 
         Optional<BMockSpan> span4 = spans.stream()
@@ -133,16 +140,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span3.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "resourceTwo");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-2");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span5 = spans.stream()
@@ -153,16 +162,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span4.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span5Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
 
         Optional<BMockSpan> span6 = spans.stream()
@@ -173,16 +184,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span6Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -193,10 +206,10 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "02_ootb_http_context_propagation.bal:23:5";
+        final String span1Position = "02_ootb_http_context_propagation.bal:27:5";
         final String span2Position = "02_ootb_http_context_propagation.bal:34:45";
         final String span3Position = "client_endpoint.bal:164:41";
-        final String span4Position = "01_echo_backend.bal:23:5";
+        final String span4Position = "01_echo_backend.bal:27:5";
         final String span5Position = "01_echo_backend.bal:30:20";
         final String span6Position = "02_ootb_http_context_propagation.bal:43:20";
 
@@ -225,16 +238,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(testServiceSpans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceTwo");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = testServiceSpans.stream()
@@ -245,18 +260,20 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Client:get");
-            Assert.assertEquals(span.getTags().size(), 12);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.base_url"), "http://localhost:10011/echo-service");
-            Assert.assertEquals(span.getTags().get("http.url"), "/echo/Hello Echo !");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceTwo");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Client");
-            Assert.assertEquals(span.getTags().get("action"), "get");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:10011/echo-service"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/echo/Hello Echo !"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Client"),
+                    new AbstractMap.SimpleEntry<>("action", "get")
+            ));
         });
 
         Optional<BMockSpan> span3 = testServiceSpans.stream()
@@ -267,19 +284,21 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/HttpClient:get");
-            Assert.assertEquals(span.getTags().size(), 13);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina/http:1.0.0");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("http.url"), "/echo-service/echo/Hello%20Echo%20!");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("peer.address"), "localhost:10011");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceTwo");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/HttpClient");
-            Assert.assertEquals(span.getTags().get("action"), "get");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina/http:1.0.0"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/echo-service/echo/Hello%20Echo%20!"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:10011"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/HttpClient"),
+                    new AbstractMap.SimpleEntry<>("action", "get")
+            ));
         });
 
         Optional<BMockSpan> span4 = echoBackendSpans.stream()
@@ -290,16 +309,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span3.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/backend:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/echo-service/echo/Hello%20Echo%20!");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "echoServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/echo-service/echo/Hello%20Echo%20!"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "echoServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span5 = echoBackendSpans.stream()
@@ -310,16 +331,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span4.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/backend:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "echoServiceOne");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/backend:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span5Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "echoServiceOne"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
 
         Optional<BMockSpan> span6 = testServiceSpans.stream()
@@ -330,16 +353,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceTwo");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span6Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceTwo"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -350,7 +375,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "03_ootb_workers.bal:24:5";
+        final String span1Position = "03_ootb_workers.bal:28:5";
         final String w1SpansPosition = "03_ootb_workers.bal:42:5";
         final String w2SpansPosition = "03_ootb_workers.bal:49:5";
         final String w3SpansPosition = "03_ootb_workers.bal:65:5";
@@ -376,16 +401,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         List<BMockSpan> w1Spans = spans.stream()
@@ -396,12 +423,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w1");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.worker"), "true");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", w1SpansPosition),
+                    new AbstractMap.SimpleEntry<>("src.worker", "true"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne")
+            ));
         });
 
         List<BMockSpan> w2Spans = spans.stream()
@@ -412,12 +441,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w2");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.worker"), "true");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", w2SpansPosition),
+                    new AbstractMap.SimpleEntry<>("src.worker", "true"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne")
+            ));
         });
 
         Optional<BMockSpan> w3Spans = spans.stream()
@@ -428,12 +459,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w3");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.worker"), "true");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", w3SpansPosition),
+                    new AbstractMap.SimpleEntry<>("src.worker", "true"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne")
+            ));
         });
 
         Optional<BMockSpan> w4Spans = spans.stream()
@@ -444,12 +477,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w4");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.worker"), "true");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", w4SpansPosition),
+                    new AbstractMap.SimpleEntry<>("src.worker", "true"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne")
+            ));
         });
 
         Optional<BMockSpan> w5Spans = spans.stream()
@@ -460,12 +495,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "w5");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.worker"), "true");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", w5SpansPosition),
+                    new AbstractMap.SimpleEntry<>("src.worker", "true"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -476,16 +513,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceThree");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceThree"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -496,7 +535,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "04_ootb_observe_annotation.bal:23:5";
+        final String span1Position = "04_ootb_observe_annotation.bal:27:5";
         final String span2Position = "04_ootb_observe_annotation.bal:31:23";
         final String span3Position = "04_ootb_observe_annotation.bal:43:23";
         final String span4Position = "04_ootb_observe_annotation.bal:54:20";
@@ -518,16 +557,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFour"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -538,12 +579,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "calculateSumWithObservableFunction");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("function"), "calculateSumWithObservableFunction");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFour"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservableFunction")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -554,13 +597,15 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina-test/tracingservices/ObservableAdder:getSum");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("function"), "getSum");
-            Assert.assertEquals(span.getTags().get("object_name"), "ballerina-test/tracingservices/ObservableAdder");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFour"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("function", "getSum"),
+                    new AbstractMap.SimpleEntry<>("object_name", "ballerina-test/tracingservices/ObservableAdder")
+            ));
         });
 
         Optional<BMockSpan> span4 = spans.stream()
@@ -571,16 +616,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFour");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFour"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -591,7 +638,7 @@ public class OOTBTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "07_ootb_async.bal:23:5";
+        final String span1Position = "07_ootb_async.bal:27:5";
         final String span2Position = "07_ootb_async.bal:31:35";
         final String span3Position = "07_ootb_async.bal:44:35";
         final String span4Position = "07_ootb_async.bal:56:20";
@@ -613,16 +660,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceSeven");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceSeven"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -633,12 +682,14 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "calculateSumWithObservableFunction");
-            Assert.assertEquals(span.getTags().size(), 6);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceSeven");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("function"), "calculateSumWithObservableFunction");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceSeven"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservableFunction")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -649,13 +700,15 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina-test/tracingservices/ObservableAdder:getSum");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceSeven");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("function"), "getSum");
-            Assert.assertEquals(span.getTags().get("object_name"), "ballerina-test/tracingservices/ObservableAdder");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceSeven"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("function", "getSum"),
+                    new AbstractMap.SimpleEntry<>("object_name", "ballerina-test/tracingservices/ObservableAdder")
+            ));
         });
 
         Optional<BMockSpan> span4 = spans.stream()
@@ -666,16 +719,18 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceSeven");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceSeven"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -701,11 +756,13 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "main");
-            Assert.assertEquals(span.getTags().size(), 5);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.main"), "true");
-            Assert.assertEquals(span.getTags().get("function"), "main");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.main", "true"),
+                    new AbstractMap.SimpleEntry<>("function", "main")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -716,10 +773,12 @@ public class OOTBTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "calculateSumWithObservableFunction");
-            Assert.assertEquals(span.getTags().size(), 4);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("function"), "calculateSumWithObservableFunction");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("function", "calculateSumWithObservableFunction")
+            ));
         });
     }
 }

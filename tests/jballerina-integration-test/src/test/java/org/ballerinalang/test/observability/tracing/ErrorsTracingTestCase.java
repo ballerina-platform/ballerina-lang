@@ -23,6 +23,7 @@ import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -44,7 +45,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:24:5";
+        final String span1Position = "05_error_conditions.bal:28:5";
         final String span2Position = "05_error_conditions.bal:29:19";
         final String span3Position = "05_error_conditions.bal:33:20";
 
@@ -65,16 +66,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceOne");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-1");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-1"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -85,13 +88,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnError");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("function"), "returnError");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("function", "returnError"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -102,16 +107,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceOne");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -122,7 +129,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource two");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:36:5";
+        final String span1Position = "05_error_conditions.bal:40:5";
         final String span2Position = "05_error_conditions.bal:41:19";
         final String span3Position = "05_error_conditions.bal:45:24";
 
@@ -143,16 +150,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceTwo");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-2");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -163,13 +172,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnErrorWithOptionalErrorReturn");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
-            Assert.assertEquals(span.getTags().get("function"), "returnErrorWithOptionalErrorReturn");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
+                    new AbstractMap.SimpleEntry<>("function", "returnErrorWithOptionalErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -180,16 +191,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceTwo");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceTwo"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -200,7 +213,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource three");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:52:5";
+        final String span1Position = "05_error_conditions.bal:56:5";
         final String span2Position = "05_error_conditions.bal:57:19";
         final String span3Position = "05_error_conditions.bal:161:15";
         final String span4Position = "05_error_conditions.bal:63:24";
@@ -222,16 +235,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceThree");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-3");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceThree");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-3"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceThree"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -242,13 +257,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceThree");
-            Assert.assertEquals(span.getTags().get("function"), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceThree"),
+                    new AbstractMap.SimpleEntry<>("function", "returnErrorWithAlternateErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -259,13 +276,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceThree");
-            Assert.assertEquals(span.getTags().get("function"), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceThree"),
+                    new AbstractMap.SimpleEntry<>("function", "returnErrorWithAlternateErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span4 = spans.stream()
@@ -276,16 +295,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceThree");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceThree"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -296,7 +317,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "test panic error: error 4");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:70:5";
+        final String span1Position = "05_error_conditions.bal:74:5";
         final String span2Position = "05_error_conditions.bal:75:9";
 
         List<BMockSpan> spans = this.getFinishedSpans("testServiceFive", "resourceFour");
@@ -316,17 +337,19 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceFour");
-            Assert.assertEquals(span.getTags().size(), 11);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-4");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceFour");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-4"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceFour"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -337,13 +360,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "panicError");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceFour");
-            Assert.assertEquals(span.getTags().get("function"), "panicError");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceFour"),
+                    new AbstractMap.SimpleEntry<>("function", "panicError"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
     }
 
@@ -354,7 +379,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "test panic error: error 5");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:82:5";
+        final String span1Position = "05_error_conditions.bal:86:5";
 
         List<BMockSpan> spans = this.getFinishedSpans("testServiceFive", "resourceFive");
         Assert.assertEquals(spans.size(), 1);
@@ -373,17 +398,19 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceFive");
-            Assert.assertEquals(span.getTags().size(), 11);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-5");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceFive");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-5"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceFive"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
     }
 
@@ -394,7 +421,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource six");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:91:5";
+        final String span1Position = "05_error_conditions.bal:95:5";
         final String span2Position = "05_error_conditions.bal:96:24";
         final String span3Position = "05_error_conditions.bal:100:24";
 
@@ -415,16 +442,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceSix");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-6");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceSix");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-6"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceSix"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -435,13 +464,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "panicError");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceSix");
-            Assert.assertEquals(span.getTags().get("function"), "panicError");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceSix"),
+                    new AbstractMap.SimpleEntry<>("function", "panicError"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -452,16 +483,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceSix");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceSix"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 
@@ -472,7 +505,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "test return error: error 7");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:107:5";
+        final String span1Position = "05_error_conditions.bal:111:5";
         final String span2Position = "05_error_conditions.bal:112:30";
 
         List<BMockSpan> spans = this.getFinishedSpans("testServiceFive", "resourceSeven");
@@ -492,17 +525,19 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceSeven");
-            Assert.assertEquals(span.getTags().size(), 11);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-7");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceSeven");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-7"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceSeven"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -513,13 +548,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceSeven");
-            Assert.assertEquals(span.getTags().get("function"), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceSeven"),
+                    new AbstractMap.SimpleEntry<>("function", "returnErrorWithAlternateErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
     }
 
@@ -530,7 +567,7 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource eight");
         Thread.sleep(1000);
 
-        final String span1Position = "05_error_conditions.bal:119:5";
+        final String span1Position = "05_error_conditions.bal:123:5";
         final String span2Position = "05_error_conditions.bal:124:19";
         final String span3Position = "05_error_conditions.bal:176:18";
         final String span4Position = "05_error_conditions.bal:128:24";
@@ -552,16 +589,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
                     && mockSpan.getSpanId() == span.getParentId()));
             Assert.assertEquals(span.getOperationName(), "resourceEight");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "server");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.entry_point.resource"), "true");
-            Assert.assertEquals(span.getTags().get("http.url"), "/test-service/resource-8");
-            Assert.assertEquals(span.getTags().get("http.method"), "GET");
-            Assert.assertEquals(span.getTags().get("protocol"), "http");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceEight");
-            Assert.assertEquals(span.getTags().get("connector_name"), "http");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "server"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span1Position),
+                    new AbstractMap.SimpleEntry<>("src.entry_point.resource", "true"),
+                    new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-8"),
+                    new AbstractMap.SimpleEntry<>("http.method", "GET"),
+                    new AbstractMap.SimpleEntry<>("protocol", "http"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceEight"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "http")
+            ));
         });
 
         Optional<BMockSpan> span2 = spans.stream()
@@ -572,13 +611,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "testCheckError");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceEight");
-            Assert.assertEquals(span.getTags().get("function"), "testCheckError");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span2Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceEight"),
+                    new AbstractMap.SimpleEntry<>("function", "testCheckError"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span3 = spans.stream()
@@ -589,13 +630,15 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span2.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().size(), 7);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceEight");
-            Assert.assertEquals(span.getTags().get("function"), "returnErrorWithAlternateErrorReturn");
-            Assert.assertEquals(span.getTags().get("error"), "true");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span3Position),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceEight"),
+                    new AbstractMap.SimpleEntry<>("function", "returnErrorWithAlternateErrorReturn"),
+                    new AbstractMap.SimpleEntry<>("error", "true")
+            ));
         });
 
         Optional<BMockSpan> span4 = spans.stream()
@@ -606,16 +649,18 @@ public class ErrorsTracingTestCase extends TracingBaseTest {
             Assert.assertEquals(span.getTraceId(), traceId);
             Assert.assertEquals(span.getParentId(), span1.get().getSpanId());
             Assert.assertEquals(span.getOperationName(), "ballerina/http/Caller:respond");
-            Assert.assertEquals(span.getTags().size(), 10);
-            Assert.assertEquals(span.getTags().get("span.kind"), "client");
-            Assert.assertEquals(span.getTags().get("src.module"), "ballerina-test/tracingservices:0.0.1");
-            Assert.assertEquals(span.getTags().get("src.remote"), "true");
-            Assert.assertEquals(span.getTags().get("http.status_code"), "200");
-            Assert.assertEquals(span.getTags().get("http.status_code_group"), "2xx");
-            Assert.assertEquals(span.getTags().get("service"), "testServiceFive");
-            Assert.assertEquals(span.getTags().get("resource"), "resourceEight");
-            Assert.assertEquals(span.getTags().get("connector_name"), "ballerina/http/Caller");
-            Assert.assertEquals(span.getTags().get("action"), "respond");
+            Assert.assertEquals(span.getTags(), toMap(
+                    new AbstractMap.SimpleEntry<>("span.kind", "client"),
+                    new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/tracingservices:0.0.1"),
+                    new AbstractMap.SimpleEntry<>("src.position", span4Position),
+                    new AbstractMap.SimpleEntry<>("src.remote", "true"),
+                    new AbstractMap.SimpleEntry<>("http.status_code", "200"),
+                    new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
+                    new AbstractMap.SimpleEntry<>("service", "testServiceFive"),
+                    new AbstractMap.SimpleEntry<>("resource", "resourceEight"),
+                    new AbstractMap.SimpleEntry<>("connector_name", "ballerina/http/Caller"),
+                    new AbstractMap.SimpleEntry<>("action", "respond")
+            ));
         });
     }
 }

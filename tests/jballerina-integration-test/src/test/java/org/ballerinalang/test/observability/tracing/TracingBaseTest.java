@@ -37,8 +37,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -136,5 +138,11 @@ public class TracingBaseTest extends BaseTest {
 
     protected List<BMockSpan> getEchoBackendFinishedSpans() throws IOException {
         return getFinishedSpans(10010, "echoServiceOne");
+    }
+
+    @SafeVarargs
+    protected final Map<String, String> toMap(Map.Entry<String, String>... mapEntries) {
+        return Stream.of(mapEntries)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }
