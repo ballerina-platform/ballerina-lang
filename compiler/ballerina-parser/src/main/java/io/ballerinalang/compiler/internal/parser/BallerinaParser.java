@@ -15082,8 +15082,6 @@ public class BallerinaParser extends AbstractParser {
                     return parseAsListConstructor(openBracket, memberList, member, isRoot);
                 case LIST_BP_OR_LIST_CONSTRUCTOR:
                     return parseAsListBindingPatternOrListConstructor(openBracket, memberList, member, isRoot);
-                case TUPLE_TYPE_DESC_OR_LIST_CONST:
-                    return parseAsTupleTypeDescOrListConstructor(annots, openBracket, memberList, member, isRoot);
                 case NONE:
                 default:
                     memberList.add(member);
@@ -15186,200 +15184,6 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseAsTupleTypeDescOrListConstructor(STNode annots, STNode openBracket, List<STNode> memberList,
-                                                              STNode member, boolean isRoot) {
-        memberList.add(member);
-        STNode memberEnd = parseBracketedListMemberEnd();
-
-        STNode tupleTypeDescOrListCons;
-        if (memberEnd == null) {
-            // We reach here if it is still ambiguous, even after parsing the full list.
-            STNode closeBracket = parseCloseBracket();
-            tupleTypeDescOrListCons =
-                    parseTupleTypeDescOrListConstructorRhs(openBracket, memberList, closeBracket, isRoot);
-        } else {
-            memberList.add(memberEnd);
-            tupleTypeDescOrListCons = parseTupleTypeDescOrListConstructor(annots, openBracket, memberList, isRoot);
-        }
-
-        return tupleTypeDescOrListCons;
-    }
-
-
-    /**
-     * Parse tuple type desc or list constructor.
-     *
-     * @return Parsed node
-     */
-    private STNode parseTupleTypeDescOrListConstructor(STNode annots) {
-        startContext(ParserRuleContext.BRACKETED_LIST);
-        STNode openBracket = parseOpenBracket();
-        List<STNode> memberList = new ArrayList<>();
-        return parseTupleTypeDescOrListConstructor(annots, openBracket, memberList, false);
-    }
-
-    private STNode parseTupleTypeDescOrListConstructor(STNode annots, STNode openBracket, List<STNode> memberList,
-                                                            boolean isRoot) {
-        // Parse the members
-        STToken nextToken = peek();
-        while (!isBracketedListEnd(nextToken.kind)) {
-            // Parse member
-            STNode member = parseTupleTypeDescOrListConstructorMember(nextToken.kind, annots);
-            SyntaxKind currentNodeType = getParsingNodeTypeOfTupleTypeOrListCons(member);
-
-            switch (currentNodeType) {
-                case LIST_CONSTRUCTOR:
-                    // If the member type was figured out as a list constructor, then parse the
-                    // remaining members as list constructor members and be done with it.
-                    return parseAsListConstructor(openBracket, memberList, member, isRoot);
-                case TUPLE_TYPE_DESC:
-                    // If the member type was figured out as a tuple-type-desc member, then parse the
-                    // remaining members as tuple type members and be done with it.
-                    return parseAsTupleTypeDesc(annots, openBracket, memberList, member, isRoot);
-                case TUPLE_TYPE_DESC_OR_LIST_CONST:
-                default:
-                    memberList.add(member);
-                    break;
-            }
-
-            // Parse separator
-            STNode memberEnd = parseBracketedListMemberEnd();
-            if (memberEnd == null) {
-                break;
-            }
-            memberList.add(memberEnd);
-            nextToken = peek();
-        }
-
-        // We reach here if it is still ambiguous, even after parsing the full list.
-        STNode closeBracket = parseCloseBracket();
-        return parseTupleTypeDescOrListConstructorRhs(openBracket, memberList, closeBracket, isRoot);
-    }
-
-    private STNode parseTupleTypeDescOrListConstructorMember(SyntaxKind nextTokenKind, STNode annots) {
-        switch (nextTokenKind) {
-            case OPEN_BRACKET_TOKEN:
-                // we don't know which one
-                return parseTupleTypeDescOrListConstructor(annots);
-            case IDENTIFIER_TOKEN:
-                STNode identifier = parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
-                // we don't know which one can be array type desc or expr
-                nextTokenKind = peek().kind;
-                if (nextTokenKind == SyntaxKind.ELLIPSIS_TOKEN) {
-                    STNode ellipsis = parseEllipsis();
-                    return STNodeFactory.createRestDescriptorNode(identifier, ellipsis);
-                }
-                return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, identifier, false, false);
-            case OPEN_BRACE_TOKEN:
-                // mapping-const
-                return parseMappingConstructorExpr();
-            case ERROR_KEYWORD:
-                if (getNextNextToken(nextTokenKind).kind == SyntaxKind.OPEN_PAREN_TOKEN) {
-                    return parseErrorConstructorExpr();
-                }
-
-                // error-type-desc
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            case XML_KEYWORD:
-            case STRING_KEYWORD:
-                if (getNextNextToken(nextTokenKind).kind == SyntaxKind.BACKTICK_TOKEN) {
-                    return parseExpression(false);
-                }
-                return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-            case TABLE_KEYWORD:
-            case STREAM_KEYWORD:
-                if (getNextNextToken(nextTokenKind).kind == SyntaxKind.LT_TOKEN) {
-                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-                }
-                return parseExpression(false);
-            case OPEN_PAREN_TOKEN:
-                return parseTypeDescOrExpr();
-            default:
-                if (isValidExpressionStart(nextTokenKind, 1)) {
-                    return parseExpression(false);
-                }
-
-                if (isTypeStartingToken(nextTokenKind)) {
-                    return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
-                }
-
-                Solution solution = recover(peek(), ParserRuleContext.TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER);
-
-                // If the parser recovered by inserting a token, then try to re-parse the same
-                // rule with the inserted token. This is done to pick the correct branch
-                // to continue the parsing.
-                if (solution.action == Action.REMOVE) {
-                    return solution.recoveredNode;
-                }
-
-                return parseStatementStartBracketedListMember(solution.tokenKind);
-        }
-    }
-
-    private SyntaxKind getParsingNodeTypeOfTupleTypeOrListCons(STNode memberNode) {
-        // We can use the same method
-        return getStmtStartBracketedListType(memberNode);
-    }
-
-    private STNode parseTupleTypeDescOrListConstructorRhs(STNode openBracket, List<STNode> members,
-                                                            STNode closeBracket, boolean isRoot) {
-        STNode tupleTypeOrListConst;
-        switch (peek().kind) {
-            case COMMA_TOKEN: // [a, b, c],
-            case CLOSE_BRACE_TOKEN: // [a, b, c]}
-            case CLOSE_BRACKET_TOKEN:// [a, b, c]]
-                if (!isRoot) {
-                    endContext();
-                    return new STAmbiguousCollectionNode(SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST, openBracket, members,
-                            closeBracket);
-                }
-                // fall through
-            default:
-                if (isValidExprRhsStart(peek().kind, closeBracket.kind) ||
-                        (isRoot && peek().kind == SyntaxKind.EQUAL_TOKEN)) {
-                    members = getExpressionList(members);
-                    STNode memberExpressions = STNodeFactory.createNodeList(members);
-                    tupleTypeOrListConst = STNodeFactory.createListConstructorExpressionNode(openBracket,
-                            memberExpressions, closeBracket);
-                    break;
-                }
-
-                // Treat everything else as tuple type desc
-                STNode memberTypeDescs = STNodeFactory.createNodeList(getTypeDescList(members));
-                STNode tupleTypeDesc =
-                        STNodeFactory.createTupleTypeDescriptorNode(openBracket, memberTypeDescs, closeBracket);
-                tupleTypeOrListConst =
-                        parseComplexTypeDescriptor(tupleTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
-        }
-
-        endContext();
-
-        if (!isRoot) {
-            return tupleTypeOrListConst;
-        }
-
-        return parseStmtStartsWithTupleTypeOrExprRhs(null, tupleTypeOrListConst, isRoot);
-
-    }
-
-    private STNode parseStmtStartsWithTupleTypeOrExprRhs(STNode annots, STNode tupleTypeOrListConst, boolean isRoot) {
-        if (tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPE_DESC) >= 0 &&
-                tupleTypeOrListConst.kind.compareTo(SyntaxKind.TYPEDESC_TYPE_DESC) <= 0) {
-            STNode finalKeyword = STNodeFactory.createEmptyNode();
-            STNode typedBindingPattern =
-                    parseTypedBindingPatternTypeRhs(tupleTypeOrListConst, ParserRuleContext.VAR_DECL_STMT, isRoot);
-            if (!isRoot) {
-                return typedBindingPattern;
-            }
-            switchContext(ParserRuleContext.VAR_DECL_STMT);
-            return parseVarDeclRhs(annots, finalKeyword, typedBindingPattern, false);
-        }
-
-        STNode expr = getExpression(tupleTypeOrListConst);
-        expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, expr, false, true);
-        return parseStatementStartWithExprRhs(expr);
-    }
-
     private STNode parseAsTupleTypeDesc(STNode annots, STNode openBracket, List<STNode> memberList, STNode member,
                                         boolean isRoot) {
         memberList = getTypeDescList(memberList);
@@ -15475,8 +15279,6 @@ public class BallerinaParser extends AbstractParser {
                     return SyntaxKind.NONE;
                 }
                 return SyntaxKind.LIST_CONSTRUCTOR;
-            case INDEXED_EXPRESSION:
-                return SyntaxKind.TUPLE_TYPE_DESC_OR_LIST_CONST;
             default:
                 if (isExpression(memberNode.kind) && !isAllBasicLiterals(memberNode) && !isAmbiguous(memberNode)) {
                     return SyntaxKind.LIST_CONSTRUCTOR;
@@ -16766,7 +16568,6 @@ public class BallerinaParser extends AbstractParser {
         switch (ambiguousNode.kind) {
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
-            case TUPLE_TYPE_DESC_OR_LIST_CONST:
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) ambiguousNode;
                 STNode memberExprs = STNodeFactory.createNodeList(getExpressionList(innerList.members));
                 return STNodeFactory.createListConstructorExpressionNode(innerList.collectionStartToken, memberExprs,

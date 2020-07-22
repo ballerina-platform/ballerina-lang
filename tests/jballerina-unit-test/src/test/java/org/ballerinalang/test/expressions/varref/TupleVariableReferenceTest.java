@@ -275,11 +275,11 @@ public class TupleVariableReferenceTest {
         Assert.assertEquals(refValueArray2.getRefValue(1).stringValue(), "FooUpdated");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test(groups = { "brokenOnNewParser" })
     public void testTupleVariablesReferencesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/tuple-variable-reference" +
                 "-semantics-negative.bal");
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 43);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 44);
         int i = -1;
         String errorMsg1 = "incompatible types: expected ";
 
@@ -323,7 +323,9 @@ public class TupleVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 errorMsg1 + "'[[string,[int,[boolean,int]]],[float,int]]', found 'any'", 139, 84);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid expr in assignment lhs", 160, 33);
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 160, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 160, 18);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's1'", 167, 6);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f1'", 167, 10);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 171, 6);
