@@ -4320,23 +4320,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 referenceType.ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
-                            switch (backtickContent.kind()) {
-                                case BACKTICK_CONTENT:
-                                    // backtick content preceded by a special keyword, should be a name reference
-                                    bLangRefDoc.hasParserWarnings = true;
-                                    dlog.warning(pos, DiagnosticCode.INVALID_DOCUMENTATION_IDENTIFIER, contentString);
-                                    break;
-                                case QUALIFIED_NAME_REFERENCE:
-                                    QualifiedNameReferenceNode qualifiedRef =
-                                            (QualifiedNameReferenceNode) backtickContent;
-                                    bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
-                                    bLangRefDoc.identifier = qualifiedRef.identifier().text();
-                                    break;
-                                case SIMPLE_NAME_REFERENCE:
-                                default:
-                                    SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) backtickContent;
-                                    bLangRefDoc.identifier = simpleRef.name().text();
-                            }
+                            transformDocumentationIdentifier(backtickContent, bLangRefDoc);
                             docText.append(refType.toString());
                         }
                 );
@@ -4370,6 +4354,26 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             countToStrip = 1;
         }
         return text.substring(countToStrip);
+    }
+
+    private void transformDocumentationIdentifier(Node backtickContent,
+                                                  BLangMarkdownReferenceDocumentation bLangRefDoc) {
+        switch (backtickContent.kind()) {
+            case BACKTICK_CONTENT:
+                // backtick content preceded by a special keyword, should be a name reference
+                bLangRefDoc.hasParserWarnings = true;
+                break;
+            case QUALIFIED_NAME_REFERENCE:
+                QualifiedNameReferenceNode qualifiedRef =
+                        (QualifiedNameReferenceNode) backtickContent;
+                bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
+                bLangRefDoc.identifier = qualifiedRef.identifier().text();
+                break;
+            case SIMPLE_NAME_REFERENCE:
+            default:
+                SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) backtickContent;
+                bLangRefDoc.identifier = simpleRef.name().text();
+        }
     }
 
     private void transformDocumentationExpr(Node backtickContent, BLangMarkdownReferenceDocumentation bLangRefDoc) {

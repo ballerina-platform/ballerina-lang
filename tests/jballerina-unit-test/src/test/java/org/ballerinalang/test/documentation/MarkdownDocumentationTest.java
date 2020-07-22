@@ -330,7 +330,7 @@ public class MarkdownDocumentationTest {
         int index = 0;
 
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidFunc'", 4, 3);
+                "invalid identifier in documentation reference '9invalidFunc'", 4, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidFunc' for type 'function'", 5, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -340,7 +340,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 11, 1);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'cd'", 15, 5);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidServ'", 21, 3);
+                "invalid identifier in documentation reference '9invalidServ'", 21, 12);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidServ' for type 'service'", 22, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -351,7 +351,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "field 'path' already documented", 39, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'path2'", 40, 5);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidConst'", 41, 3);
+                "invalid identifier in documentation reference '9invalidConst'", 41, 10);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidConst' for type 'const'", 42, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -364,7 +364,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable field 'urls'", 77, 5);
         BAssertUtil.validateWarning(compileResult, index++, "undocumented field 'url2'", 80, 3);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9invalidConst'", 85, 3);
+                "invalid identifier in documentation reference '9invalidConst'", 85, 10);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'invalidConst' for type 'const'", 86, 3);
         BAssertUtil.validateWarning(compileResult, index++,
@@ -376,7 +376,7 @@ public class MarkdownDocumentationTest {
         BAssertUtil.validateWarning(compileResult, index++, "no such documentable parameter 'testConstd'", 109, 5);
         BAssertUtil.validateWarning(compileResult, index++, "no documentable return parameter", 110, 1);
         BAssertUtil.validateWarning(compileResult, index++,
-                "invalid identifier in documentation reference '9function'", 115, 3);
+                "invalid identifier in documentation reference '9function'", 115, 13);
         BAssertUtil.validateWarning(compileResult, index++,
                 "invalid reference in documentation 'filePath1' for type 'parameter'", 116, 3);
         BAssertUtil.validateWarning(compileResult, index, "undocumented parameter 'filePath'", 117, 22);

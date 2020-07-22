@@ -88,8 +88,7 @@ public class DocumentationLexer extends AbstractLexer {
         }
 
         // Can we improve this logic by creating the token with diagnostics then and there?
-//        return cloneWithDiagnostics(token);
-        return token;
+        return cloneWithDiagnostics(token);
     }
 
     /*
@@ -743,7 +742,7 @@ public class DocumentationLexer extends AbstractLexer {
                 switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
                 return readDocumentationBacktickExprToken();
             } else {
-                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_EXPRESSION);
+                // No warning is logged for invalid documentation expr
                 reader.advance(lookAheadNumber);
                 processInvalidChars();
                 return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
@@ -759,9 +758,10 @@ public class DocumentationLexer extends AbstractLexer {
             switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
             return readDocumentationBacktickExprToken();
         } else {
-            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER);
             reader.advance(lookAheadNumber);
             processInvalidChars();
+            String invalidIdentifier = getLexeme();
+            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, invalidIdentifier);
             return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
         }
     }
