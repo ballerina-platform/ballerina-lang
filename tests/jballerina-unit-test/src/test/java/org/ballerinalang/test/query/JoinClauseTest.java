@@ -160,15 +160,39 @@ public class JoinClauseTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test equals clause with a variable defined from a let clause")
+    public void testSimpleJoinClauseWithLetAndEquals() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithLetAndEquals");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(description = "Test equals clause with a function invocation")
+    public void testSimpleJoinClauseWithFunctionInAnEquals() {
+        BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative scenarios for query expr with join clause")
     public void testNegativeScenarios() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 3);
-        int index = 0;
-
-        validateError(negativeResult, index++, "incompatible types: expected 'Department', found 'Person'",
-                30, 13);
-        validateError(negativeResult, index++, "invalid operation: type 'Person' does not support " +
-                        "field access for non-required field 'name'", 35, 19);
-        validateError(negativeResult, index, "unknown type 'XYZ'", 53, 13);
+        Assert.assertEquals(negativeResult.getErrorCount(), 17);
+        int i = 0;
+        validateError(negativeResult, i++, "incompatible types: expected 'Department', found 'Person'", 30, 13);
+        validateError(negativeResult, i++, "invalid operation: type 'Person' does not support field access for " +
+                "non-required field 'name'", 35, 19);
+        validateError(negativeResult, i++, "unknown type 'XYZ'", 53, 13);
+        validateError(negativeResult, i++, "undefined symbol 'deptId'", 77, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 77, 25);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 100, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 100, 21);
+        validateError(negativeResult, i++, "undefined symbol 'name'", 124, 11);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 124, 23);
+        validateError(negativeResult, i++, "undefined symbol 'deptId'", 147, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 147, 25);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 170, 11);
+        validateError(negativeResult, i++, "undefined symbol 'person'", 170, 21);
+        validateError(negativeResult, i++, "undefined symbol 'name'", 194, 11);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 194, 23);
+        validateError(negativeResult, i++, "undefined symbol 'id'", 218, 23);
+        validateError(negativeResult, i++, "undefined symbol 'deptName'", 218, 34);
     }
 }

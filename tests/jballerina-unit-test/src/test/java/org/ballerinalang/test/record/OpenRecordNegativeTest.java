@@ -68,13 +68,10 @@ public class OpenRecordNegativeTest {
     }
 
     @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
-            groups = { "brokenOnNewParser" })
+            groups = { "disableOnOldParser" })
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/open_record_invalid_rest_desc.bal");
-
-        validateError(result, 0, "invalid record rest descriptor", 5, 12);
-        validateError(result, 1, "invalid record rest descriptor", 12, 14);
-        validateError(result, 2, "invalid record rest descriptor", 20, 5);
+        assertEquals(result.getErrorCount(), 0);
     }
 
     @Test(description = "Test function invocation on a nil-able function pointer")

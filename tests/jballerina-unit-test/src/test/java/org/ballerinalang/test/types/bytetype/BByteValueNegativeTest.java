@@ -39,7 +39,7 @@ public class BByteValueNegativeTest {
         result = BCompileUtil.compile("test-src/types/byte/byte-value-runtime-negative.bal");
     }
 
-    @Test(description = "Test byte value negative", groups = { "brokenOnNewParser" })
+    @Test(description = "Test byte value negative")
     public void testByteValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 23);
@@ -77,19 +77,24 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 22, msg4, 40, 87);
     }
 
-    @Test(description = "Test byte shift operators negative", groups = { "brokenOnNewParser" })
+    @Test(description = "Test byte shift operators negative", groups = { "disableOnOldParser" })
     public void invalidByteShiftOperators() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 8);
-        String msg = "invalid shift operator";
-        BAssertUtil.validateError(result, 0, msg , 2, 18);
-        BAssertUtil.validateError(result, 1, msg , 3, 18);
-        BAssertUtil.validateError(result, 2, msg , 4, 18);
-        BAssertUtil.validateError(result, 3, msg , 5, 19);
-        BAssertUtil.validateError(result, 4, msg , 6, 18);
-        BAssertUtil.validateError(result, 5, msg , 6, 20);
-        BAssertUtil.validateError(result, 6, msg , 7, 21);
-        BAssertUtil.validateError(result, 7, msg , 7, 27);
+        Assert.assertEquals(result.getErrorCount(), 13);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 2, 14);
+        BAssertUtil.validateError(result, i++, "no whitespaces allowed in right shift op", 2, 16);
+        BAssertUtil.validateError(result, i++, "operator '<' not defined for 'int' and '9'", 3, 13);
+        BAssertUtil.validateError(result, i++, "missing gt token", 3, 20);
+        BAssertUtil.validateError(result, i++, "missing identifier", 3, 20);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 4, 13);
+        BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 4, 15);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 5, 12);
+        BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 5, 14);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 6, 11);
+        BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 6, 13);
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'byte', found 'int'", 7, 9);
+        BAssertUtil.validateError(result, i++, "no whitespaces allowed in unsigned right shift op", 7, 11);
     }
 
     @Test(description = "Test int to byte conversion negative")
