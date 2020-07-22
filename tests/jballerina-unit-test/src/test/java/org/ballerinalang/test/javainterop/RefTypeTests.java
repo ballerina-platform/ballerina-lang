@@ -337,6 +337,11 @@ public class RefTypeTests {
         BRunUtil.invoke(result, "testReadOnlyAsParamAndReturnTypes");
     }
 
+    @Test
+    public void testNarrowerTypesAsReadOnlyReturnTypes() {
+        BRunUtil.invoke(result, "testNarrowerTypesAsReadOnlyReturnTypes");
+    }
+
     // static methods
 
     public static XMLValue getXML() {

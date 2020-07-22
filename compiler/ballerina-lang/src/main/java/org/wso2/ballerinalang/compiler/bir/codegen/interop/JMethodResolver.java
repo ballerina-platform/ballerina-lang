@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.values.api.BDecimal;
 import org.ballerinalang.jvm.values.api.BError;
 import org.ballerinalang.jvm.values.api.BFunctionPointer;
 import org.ballerinalang.jvm.values.api.BFuture;
+import org.ballerinalang.jvm.values.api.BHandle;
 import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BObject;
 import org.ballerinalang.jvm.values.api.BStream;
@@ -484,7 +485,7 @@ class JMethodResolver {
                     }
                     return false;
                 case TypeTags.READONLY:
-                    return jTypeName.equals(J_OBJECT_TNAME);
+                    return isReadOnlyCompatibleReturnType(jType, jMethodRequest);
                 case TypeTags.INTERSECTION:
                     return isValidReturnBType(jType, ((BIntersectionType) bType).effectiveType, jMethodRequest);
                 case TypeTags.FINITE:
@@ -532,6 +533,72 @@ class JMethodResolver {
                 this.symbolTable.nilType, this.symbolTable.stringType, this.symbolTable.intType,
                 this.symbolTable.floatType, this.symbolTable.booleanType, this.symbolTable.mapJsonType,
                 this.symbolTable.arrayJsonType};
+    }
+
+    private boolean isReadOnlyCompatibleReturnType(Class<?> jType, JMethodRequest jMethodRequest)
+            throws ClassNotFoundException {
+        if (jType.getTypeName().equals(J_OBJECT_TNAME)) {
+            return true;
+        }
+
+        for (BType member : getDefinedReadOnlyMemberTypes()) {
+            if (isValidReturnBType(jType, member, jMethodRequest)) {
+                return true;
+            }
+        }
+
+        if (this.classLoader.loadClass(BError.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BFunctionPointer.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BObject.class.getCanonicalName()).isAssignableFrom(jType)) {
+            // Service and Object.
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BTypedesc.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BHandle.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        if (this.isValidListType(jType, jMethodRequest)) {
+            return true;
+        }
+
+        if (this.classLoader.loadClass(BMap.class.getCanonicalName()).isAssignableFrom(jType)) {
+            return true;
+        }
+
+        return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
+    }
+
+    private BType[] getDefinedReadOnlyMemberTypes() {
+        return new BType[]{
+                symbolTable.nilType,
+                symbolTable.booleanType,
+                symbolTable.intType,
+                symbolTable.signed8IntType,
+                symbolTable.signed16IntType,
+                symbolTable.signed32IntType,
+                symbolTable.unsigned32IntType,
+                symbolTable.unsigned16IntType,
+                symbolTable.unsigned8IntType,
+                symbolTable.floatType,
+                symbolTable.decimalType,
+                symbolTable.stringType,
+                symbolTable.charStringType
+        };
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
