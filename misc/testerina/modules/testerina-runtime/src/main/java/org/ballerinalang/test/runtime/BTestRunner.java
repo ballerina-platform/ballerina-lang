@@ -446,8 +446,8 @@ public class BTestRunner {
 
     private void executeAfterSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
                                             AtomicBoolean shouldSkipAfterSuite) {
-        if (!shouldSkipAfterSuite.get()) {
-            suite.getAfterSuiteFunctionNames().forEach(func -> {
+        suite.getAfterSuiteFunctionNames().forEach((func, alwaysRun) -> {
+            if (!shouldSkipAfterSuite.get() || alwaysRun.get()) {
                 String errorMsg;
                 try {
                     invokeTestFunction(suite, func, classLoader, scheduler);
@@ -456,8 +456,8 @@ public class BTestRunner {
                             "%s", formatErrorMessage(e));
                     errStream.println(errorMsg);
                 }
-            });
-        }
+            }
+        });
     }
 
     private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,

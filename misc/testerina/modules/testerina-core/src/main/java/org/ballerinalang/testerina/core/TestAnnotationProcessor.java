@@ -78,6 +78,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String GROUP_ANNOTATION_NAME = "groups";
     private static final String VALUE_SET_ANNOTATION_NAME = "dataProvider";
     private static final String TEST_ENABLE_ANNOTATION_NAME = "enable";
+    private static final String AFTER_SUITE_ALWAYS_RUN_FIELD_NAME = "alwaysRun";
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private static final String MOCK_OBJECT_DELIMITER = ":";
 
@@ -140,7 +141,22 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
             if (BEFORE_SUITE_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeSuiteFunction(functionName);
             } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
-                suite.addAfterSuiteFunction(functionName);
+                AtomicBoolean alwaysRun = new AtomicBoolean(false);
+                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
+                            .getExpression()).getFields();
+                    attributes.forEach(field -> {
+                        BLangRecordLiteral.BLangRecordKeyValueField attributeNode =
+                                (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                        String name = attributeNode.getKey().toString();
+                        BLangExpression valueExpr = attributeNode.getValue();
+                        if (AFTER_SUITE_ALWAYS_RUN_FIELD_NAME.equals(name) &&
+                                Boolean.TRUE.toString().equals(valueExpr.toString())) {
+                            alwaysRun.set(true);
+                        }
+                    });
+                }
+                suite.addAfterSuiteFunction(functionName, alwaysRun);
             } else if (BEFORE_EACH_ANNOTATION_NAME.equals(annotationName)) {
                 suite.addBeforeEachFunction(functionName);
             } else if (AFTER_EACH_ANNOTATION_NAME.equals(annotationName)) {

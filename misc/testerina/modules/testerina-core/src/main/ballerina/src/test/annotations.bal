@@ -40,6 +40,10 @@ public type MockConfig record {
     string functionName = "";
 };
 
+public type AfterSuiteConfig record {
+    boolean alwaysRun = false;
+};
+
 public annotation TestConfig Config on function;
 
 public annotation MockConfig Mock on function;
@@ -48,7 +52,7 @@ public annotation MockConfig Mock on function;
 public annotation BeforeSuite on function;
 
 # Identifies afterSuite function.
-public annotation AfterSuite on function;
+public annotation AfterSuiteConfig AfterSuite on function;
 
 # Identifies beforeTest function.
 public annotation BeforeEach on function;
