@@ -109,6 +109,9 @@ public class AnnotationProc {
         if (!(paramTypeConstraints == null)) {
             valRequest.paramTypeConstraints = paramTypeConstraints;
         }
+        if (birFunc.receiver != null) {
+            valRequest.receiverType = birFunc.receiver.type;
+        }
         return valRequest;
     }
 

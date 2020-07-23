@@ -26,6 +26,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldFunctionWrapper;
+import org.wso2.ballerinalang.compiler.bir.codegen.interop.JMethodFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
@@ -135,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNam
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.desugarOldExternFuncs;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen.lookupBIRFunctionWrapper;
+import static org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropMethodGen.desugarInteropFuncs;
 
 /**
  * BIR values to JVM byte code generation class.
@@ -191,20 +194,25 @@ class JvmValueGen {
         if (attachedFuncs == null) {
             return;
         }
-        for (BIRNode.BIRFunction func : attachedFuncs) {
-            if (func == null) {
+        for (BIRNode.BIRFunction birFunc : attachedFuncs) {
+            if (birFunc == null) {
                 continue;
             }
-            if (isExternFunc(func)) {
-                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, func, bType, jvmPackageGen);
+            if (isExternFunc(birFunc)) {
+                BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
-                    // TODO: Note when this support new interop, update here as well
-                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, func, jvmMethodGen);
+                    desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
+                    desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
+                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
+                } else if (!(extFuncWrapper instanceof JFieldFunctionWrapper)) {
+                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
                 }
             } else {
-                addDefaultableBooleanVarsToSignature(func, jvmPackageGen.symbolTable.booleanType);
+                addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
             }
-            enrichWithDefaultableParamInits(JvmMethodGen.getFunction(func), jvmMethodGen);
+            enrichWithDefaultableParamInits(JvmMethodGen.getFunction(birFunc), jvmMethodGen);
         }
     }
 

@@ -42,6 +42,7 @@ class JMethod {
 
     JMethodKind kind;
     private Executable method;
+    private boolean receiver;
 
     private JMethod(JMethodKind kind, Executable executable) {
 
@@ -114,6 +115,14 @@ class JMethod {
         } else {
             return ((Method) method).getReturnType();
         }
+    }
+
+    public boolean hasReceiver() {
+        return receiver;
+    }
+
+    public void setReceiver(boolean receiver) {
+        this.receiver = receiver;
     }
 
     ArrayValue getExceptionTypes(ClassLoader classLoader) {

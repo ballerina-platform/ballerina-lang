@@ -148,8 +148,7 @@ public class InteropMethodGen {
         }
 
         String desc = getMethodDesc(birFunc.type.paramTypes, retType, null, false);
-        int access = ACC_PUBLIC + ACC_STATIC;
-
+        int access = birFunc.receiver != null ? ACC_PUBLIC : ACC_PUBLIC + ACC_STATIC;
         MethodVisitor mv = classWriter.visitMethod(access, birFunc.name.value, desc, null, null);
         JvmInstructionGen instGen = new JvmInstructionGen(mv, indexMap, birModule, jvmPackageGen);
         JvmErrorGen errorGen = new JvmErrorGen(mv, indexMap, currentPackageName, instGen);
@@ -295,8 +294,8 @@ public class InteropMethodGen {
         mv.visitEnd();
     }
 
-    static void desugarInteropFuncs(JMethodFunctionWrapper extFuncWrapper, BIRFunction birFunc,
-                                    JvmMethodGen jvmMethodGen) {
+    public static void desugarInteropFuncs(JMethodFunctionWrapper extFuncWrapper, BIRFunction birFunc,
+                                           JvmMethodGen jvmMethodGen) {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
@@ -314,8 +313,6 @@ public class InteropMethodGen {
 
         List<BIROperand> args = new ArrayList<>();
 
-        BIRVariableDcl receiver = birFunc.receiver;
-
         List<BIRNode.BIRFunctionParameter> birFuncParams = new ArrayList<>(birFunc.parameters.keySet());
         int birFuncParamIndex = 0;
         // Load receiver which is the 0th parameter in the birFunc
@@ -329,6 +326,10 @@ public class InteropMethodGen {
 
         JType varArgType = null;
         int jMethodParamIndex = 0;
+        if (jMethod.hasReceiver()) {
+            jMethodParamIndex++;
+            args.add(new BIROperand(birFunc.receiver));
+        }
         int paramCount = birFuncParams.size();
         while (birFuncParamIndex < paramCount) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);

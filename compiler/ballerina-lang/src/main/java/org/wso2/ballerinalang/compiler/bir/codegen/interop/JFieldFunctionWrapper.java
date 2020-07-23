@@ -22,7 +22,7 @@ package org.wso2.ballerinalang.compiler.bir.codegen.interop;
  *
  * @since 1.2.0
  */
-class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
+public class JFieldFunctionWrapper extends BIRFunctionWrapper implements ExternalFunctionWrapper {
 
     JavaField jField;
 
