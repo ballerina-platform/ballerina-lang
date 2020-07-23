@@ -2602,6 +2602,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXTERNAL_KEYWORD:
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
+                    return ParserRuleContext.OPEN_PARENTHESIS;
+                }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
             case RETURNS_KEYWORD:
                 return ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC;
@@ -3204,6 +3208,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS;
+            case TYPE_REFERENCE:
+                endContext();
+                return ParserRuleContext.SEMICOLON;
             default:
                 // If none of the above that means we reach here via, anonymous-func-or-func-type context.
                 // Then the rhs of this is definitely an expression-rhs
@@ -3228,6 +3235,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_TUPLE:
             case STMT_START_BRACKETED_LIST:
             case BRACKETED_LIST:
+            case TYPE_REFERENCE:
                 return true;
             default:
                 return false;

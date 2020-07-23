@@ -198,6 +198,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_HEX_FLOATING_POINT_LITERAL("BCE02505", "error.missing.hex.floating.point.literal"),
     ERROR_MISSING_XML_TEXT_CONTENT("BCE02506", "error.missing.xml.text.content"),
     ERROR_MISSING_TEMPLATE_STRING("BCE02507", "error.missing.template.string"),
+    ERROR_MISSING_BYTE_ARRAY_CONTENT("BCE02508", "error.missing.byte.array.content"),
 
     //miscellaneous
     ERROR_MISSING_FUNCTION_NAME("BCE0060", "error.missing.function.name"),
@@ -213,6 +214,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_TUPLE_MEMBER("BCE108", "error.missing.tuple.member"),
     ERROR_EXPRESSION_EXPECTED_ACTION_FOUND("BCE109", "error.expression.expected.action.found"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE109", "error.missing.key.expr.in.member.access.expr"),
+    ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS("BCE110",
+            "error.only.type.reference.allowed.here.as.type.inclusions"),
 
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE200", "error.missing.annotation.attach.point"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE201", "error.missing.let.variable.declaration"),
