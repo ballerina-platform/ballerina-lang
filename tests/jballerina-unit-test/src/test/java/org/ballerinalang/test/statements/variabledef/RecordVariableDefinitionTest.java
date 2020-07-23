@@ -38,7 +38,7 @@ import org.testng.annotations.Test;
  *
  * @since 0.985.0
  */
-@Test(groups = { "brokenOnNewParser" })
+@Test
 public class RecordVariableDefinitionTest {
 
     private CompileResult result, resultNegative;

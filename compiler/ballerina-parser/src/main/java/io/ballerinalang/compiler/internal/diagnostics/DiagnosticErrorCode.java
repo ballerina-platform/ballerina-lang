@@ -198,6 +198,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_HEX_FLOATING_POINT_LITERAL("BCE02505", "error.missing.hex.floating.point.literal"),
     ERROR_MISSING_XML_TEXT_CONTENT("BCE02506", "error.missing.xml.text.content"),
     ERROR_MISSING_TEMPLATE_STRING("BCE02507", "error.missing.template.string"),
+    ERROR_MISSING_BYTE_ARRAY_CONTENT("BCE02508", "error.missing.byte.array.content"),
 
     //miscellaneous
     ERROR_MISSING_FUNCTION_NAME("BCE0060", "error.missing.function.name"),
