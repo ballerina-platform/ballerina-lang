@@ -6243,10 +6243,13 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStringLiteral() {
         STToken token = peek();
         if (token.kind == SyntaxKind.STRING_LITERAL) {
-            return consume();
+            return parseBasicLiteral();
         } else {
             Solution sol = recover(token, ParserRuleContext.STRING_LITERAL);
-            return sol.recoveredNode;
+            if (sol.action == Action.REMOVE) {
+                return sol.recoveredNode;
+            }
+            return STNodeFactory.createBasicLiteralNode(sol.recoveredNode.kind, sol.recoveredNode);
         }
     }
 
