@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,30 +15,20 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.model.tree.statements;
+package org.ballerinalang.model.clauses;
 
-import org.ballerinalang.model.clauses.OnFailClauseNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.statements.BlockStatementNode;
+import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 
 /**
- * Represents foreach node.
- * foreach i,k in collection {.
- * body.
- * }.
+ * The interface with the APIs to implement the "on-fail" clause.
  *
- * @since 0.96.0
+ * @since Swan Lake
  */
-public interface ForeachNode extends StatementNode {
+public interface OnFailClauseNode extends Node {
 
-    ExpressionNode getCollection();
-
-    void setCollection(ExpressionNode collection);
-
-    BlockStatementNode getBody();
-
-    void setBody(BlockStatementNode body);
-
-    boolean setDeclaredWithVar();
+    void setDeclaredWithVar();
 
     boolean isDeclaredWithVar();
 
@@ -46,7 +36,7 @@ public interface ForeachNode extends StatementNode {
 
     void setVariableDefinitionNode(VariableDefinitionNode variableDefinitionNode);
 
-    OnFailClauseNode getOnFailClause();
+    BlockStatementNode getBody();
 
-    void setOnFailClause(OnFailClauseNode onFailClause);
+    void setBody(BlockStatementNode body);
 }

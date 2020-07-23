@@ -61,6 +61,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -126,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -822,6 +824,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                     getCurrentAnalysisState().taintedStatus);
         }
         analyzeNode(foreach.body, blockEnv);
+
+        if (foreach.onFailClause != null) {
+            analyzeNode(foreach.onFailClause, env);
+        }
+    }
+
+    public void visit(BLangOnFailClause onFailClause) {
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailClause.body, env);
+        analyzeNode(onFailClause.body, blockEnv);
     }
 
     @Override
@@ -833,6 +844,16 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(whileNode.body, env);
         analyzeNode(whileNode.body, blockEnv);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doNode.body, env);
+        analyzeNode(doNode.body, blockEnv);
+
+        if (doNode.onFailClause != null) {
+            analyzeNode(doNode.onFailClause, env);
+        }
     }
 
     @Override

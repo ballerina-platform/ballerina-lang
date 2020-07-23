@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -94,6 +95,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -169,6 +171,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -293,6 +296,8 @@ public class BLangPackageBuilder {
     private Stack<BLangNode> queryClauseStack = new Stack<>();
 
     private Stack<BLangNode> inputClauseStack = new Stack<>();
+
+    private Stack<OnFailClauseNode> onFailClauseNodeStack = new Stack<>();
 
     private Stack<ForkJoinNode> forkJoinNodesStack = new Stack<>();
 
@@ -2138,6 +2143,20 @@ public class BLangPackageBuilder {
         queryClauseStack.push(doClause);
     }
 
+    void createOnFailClause(DiagnosticPos pos, Set<Whitespace> ws, String identifier,
+                            DiagnosticPos identifierPos, boolean isDeclaredWithVar) {
+        BLangSimpleVariableDef variableDefinitionNode = createSimpleVariableDef(pos, null, identifier, identifierPos,
+                false, false, isDeclaredWithVar);
+
+        BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        BLangBlockStmt blockNode = (BLangBlockStmt) blockNodeStack.pop();
+        blockNode.pos = pos;
+        onFailClause.body = blockNode;
+        onFailClauseNodeStack.push(onFailClause);
+    }
+
     void createQueryActionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangQueryAction queryAction = (BLangQueryAction) TreeBuilder.createQueryActionNode();
         queryAction.pos = pos;
@@ -3123,6 +3142,11 @@ public class BLangPackageBuilder {
         BLangBlockStmt foreachBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         foreachBlock.pos = pos;
         foreach.setBody(foreachBlock);
+
+        if (onFailClauseNodeStack.size() > 0) {
+            foreach.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
         addStmtToCurrentBlock(foreach);
     }
 
@@ -3139,6 +3163,21 @@ public class BLangPackageBuilder {
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
         addStmtToCurrentBlock(whileNode);
+    }
+
+    void addDoStmt(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangDo doNode = (BLangDo) TreeBuilder.createDoNode();
+        doNode.pos = pos;
+        doNode.addWS(ws);
+        BLangBlockStmt doBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        doBlock.pos = pos;
+        doNode.setBody(doBlock);
+
+        if (onFailClauseNodeStack.size() > 0) {
+            doNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
+        addStmtToCurrentBlock(doNode);
     }
 
     void startBlockStmt() {

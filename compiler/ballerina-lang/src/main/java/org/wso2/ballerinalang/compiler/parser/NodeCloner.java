@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -147,6 +148,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -705,6 +707,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.collection = clone(source.collection);
         clone.body = clone(source.body);
         clone.variableDefinitionNode = (VariableDefinitionNode) clone((BLangNode) source.variableDefinitionNode);
+        clone.onFailClause = clone(source.onFailClause);
         clone.isDeclaredWithVar = source.isDeclaredWithVar;
     }
 
@@ -714,6 +717,14 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangWhile clone = new BLangWhile();
         source.cloneRef = clone;
         clone.expr = clone(source.expr);
+        clone.body = clone(source.body);
+    }
+
+    @Override
+    public void visit(BLangDo source) {
+        BLangDo clone = new BLangDo();
+        source.cloneRef = clone;
+        clone.onFailClause = clone(source.onFailClause);
         clone.body = clone(source.body);
     }
 
@@ -1434,6 +1445,17 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.body = clone(source.body);
     }
+
+    @Override
+    public void visit(BLangOnFailClause source) {
+
+        BLangOnFailClause clone = new BLangOnFailClause();
+        source.cloneRef = clone;
+        clone.body = clone(source.body);
+        clone.variableDefinitionNode = clone(source.variableDefinitionNode);
+        clone.isDeclaredWithVar = source.isDeclaredWithVar;
+    }
+
 
     @Override
     public void visit(BLangValueType source) {

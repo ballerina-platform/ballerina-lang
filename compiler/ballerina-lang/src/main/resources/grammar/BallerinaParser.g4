@@ -379,6 +379,7 @@ statement
     |   lockStatement
     |   namespaceDeclarationStatement
     |   blockStatement
+    |   doStatement
     ;
 
 variableDefinitionStatement
@@ -605,7 +606,12 @@ restRefBindingPattern
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? (typeName | VAR) bindingPattern IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? (typeName | VAR) bindingPattern IN expression RIGHT_PARENTHESIS? LEFT_BRACE
+    statement* RIGHT_BRACE onFailClause?
+    ;
+
+doStatement
+    :   DO LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 intRangeExpression
@@ -932,6 +938,10 @@ fromClause
 
 doClause
     :   DO LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+onFailClause
+    :   ON FAIL (typeName | VAR) Identifier LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 queryPipeline

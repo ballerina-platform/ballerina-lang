@@ -23,6 +23,7 @@ import org.ballerinalang.model.clauses.LetClauseNode;
 import org.ballerinalang.model.clauses.LimitClauseNode;
 import org.ballerinalang.model.clauses.OnClauseNode;
 import org.ballerinalang.model.clauses.OnConflictClauseNode;
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.clauses.SelectClauseNode;
 import org.ballerinalang.model.clauses.WhereClauseNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
@@ -107,6 +108,7 @@ import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
 import org.ballerinalang.model.tree.statements.ConstantNode;
 import org.ballerinalang.model.tree.statements.ContinueNode;
+import org.ballerinalang.model.tree.statements.DoNode;
 import org.ballerinalang.model.tree.statements.ErrorDestructureNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
@@ -178,6 +180,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -250,6 +253,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -762,6 +766,10 @@ public class TreeBuilder {
         return new BLangForeach();
     }
 
+    public static DoNode createDoNode() {
+        return new BLangDo();
+    }
+
     public static InputClauseNode createFromClauseNode() {
         return new BLangFromClause();
     }
@@ -788,6 +796,10 @@ public class TreeBuilder {
 
     public static DoClauseNode createDoClauseNode() {
         return new BLangDoClause();
+    }
+
+    public static OnFailClauseNode createOnFailClauseNode() {
+        return new BLangOnFailClause();
     }
 
     public static LimitClauseNode createLimitClauseNode() {

@@ -1360,6 +1360,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitForeachStatement(BallerinaParser.ForeachStatementContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#doStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterDoStatement(BallerinaParser.DoStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#doStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitDoStatement(BallerinaParser.DoStatementContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#intRangeExpression}.
 	 * @param ctx the parse tree
 	 */
@@ -2715,6 +2725,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitDoClause(BallerinaParser.DoClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#onFailClause}.
+	 * @param ctx the parse tree
+	 */
+	void enterOnFailClause(BallerinaParser.OnFailClauseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#onFailClause}.
+	 * @param ctx the parse tree
+	 */
+	void exitOnFailClause(BallerinaParser.OnFailClauseContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#queryPipeline}.
 	 * @param ctx the parse tree

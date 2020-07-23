@@ -97,6 +97,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
@@ -190,6 +191,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -2861,7 +2863,25 @@ public class Desugar extends BLangNodeVisitor {
 
         // Rewrite the block.
         rewrite(blockNode, this.env);
+        if (foreach.onFailClause != null) {
+            rewrite(foreach.onFailClause, env);
+        }
         result = blockNode;
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        rewrite(doNode.body, this.env);
+        if (doNode.onFailClause != null) {
+            rewrite(doNode.onFailClause, env);
+        }
+        result = doNode.body;
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        //TODO on-fail
+        result = onFailClause;
     }
 
     private BLangBlockStmt desugarForeachWithIteratorDef(BLangForeach foreach,

@@ -336,6 +336,7 @@ StringTemplateText=246
 'wait'=91
 'default'=92
 'from'=93
+'do'=95
 'let'=97
 'conflict'=98
 'equals'=99
