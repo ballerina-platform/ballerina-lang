@@ -3014,7 +3014,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static DocumentationReferenceNode createDocumentationReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Token backtickContent,
+            Node backtickContent,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
         Objects.requireNonNull(backtickContent, "backtickContent must not be null");

@@ -61,14 +61,14 @@ public class ResourceConfigPathTest {
                 .compile("test-src/services/configuration/resource-arg--pathparam-match.bal");
         Diagnostic[] diag = compileResult.getDiagnostics();
         Assert.assertEquals(diag.length, 8);
-        assertResponse(diag[0], INVALID_RESOURCE_PARAMETERS, 14);
-        assertResponse(diag[1], INVALID_RESOURCE_PARAMETERS, 22);
-        assertResponse(diag[2], "Empty data binding param value", 46);
-        assertResponse(diag[3], INVALID_RESOURCE_PARAMETERS, 48);
+        assertResponse(diag[0], INVALID_RESOURCE_PARAMETERS, 10);
+        assertResponse(diag[1], INVALID_RESOURCE_PARAMETERS, 18);
+        assertResponse(diag[2], INVALID_RESOURCE_PARAMETERS, 43);
+        assertResponse(diag[3], "Empty data binding param value", 46);
         assertResponse(diag[4], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 55);
-        assertResponse(diag[5], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 63);
-        assertResponse(diag[6], INVALID_RESOURCE_PARAMETERS, 65);
-        assertResponse(diag[7], INVALID_RESOURCE_PARAMETERS, 73);
+        assertResponse(diag[5], INVALID_RESOURCE_PARAMETERS, 61);
+        assertResponse(diag[6], "Invalid data binding param in the signature : expected 'naMe', but found 'name'", 63);
+        assertResponse(diag[7], INVALID_RESOURCE_PARAMETERS, 69);
     }
 
     private void assertResponse(Diagnostic diag, String msg, int line) {
