@@ -10842,7 +10842,11 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSimpleNameReferenceNode(consume());
             default:
                 Solution sol = recover(token, ParserRuleContext.PEER_WORKER_NAME);
-                return sol.recoveredNode;
+                if (sol.action == Action.REMOVE) {
+                    return sol.recoveredNode;
+                }
+
+                return STNodeFactory.createSimpleNameReferenceNode(sol.recoveredNode);
         }
     }
 
