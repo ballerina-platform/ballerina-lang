@@ -340,7 +340,7 @@ public class TransactionDesugar extends BLangNodeVisitor {
     private void createRollbackIfFailed(DiagnosticPos pos, BLangBlockStmt transactionBlockStmt,
                                         BSymbol trxFuncResultSymbol) {
         BLangIf rollbackCheck = ASTBuilderUtil.createIfStmt(pos, transactionBlockStmt);
-        BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol)symTable.langTransactionModuleSymbol
+        BConstructorSymbol transactionErrorSymbol = (BConstructorSymbol) symTable.langTransactionModuleSymbol
                 .scope.lookup(names.fromString("TransactionError")).symbol;
         BType errorType = transactionErrorSymbol.type;
         BLangErrorType trxErrorTypeNode = (BLangErrorType) TreeBuilder.createErrorTypeNode();
