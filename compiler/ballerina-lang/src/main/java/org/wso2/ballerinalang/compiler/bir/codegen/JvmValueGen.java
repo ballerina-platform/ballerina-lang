@@ -202,7 +202,6 @@ class JvmValueGen {
                 BIRFunctionWrapper extFuncWrapper = lookupBIRFunctionWrapper(module, birFunc, bType, jvmPackageGen);
                 if (extFuncWrapper instanceof OldStyleExternalFunctionWrapper) {
                     desugarOldExternFuncs((OldStyleExternalFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
-                    enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
                 } else if (extFuncWrapper instanceof JMethodFunctionWrapper) {
                     desugarInteropFuncs((JMethodFunctionWrapper) extFuncWrapper, birFunc, jvmMethodGen);
                     enrichWithDefaultableParamInits(birFunc, jvmMethodGen);
