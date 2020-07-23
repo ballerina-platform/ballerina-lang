@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
+import org.wso2.ballerinalang.compiler.parser.BLangMissingNodesHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope.ScopeEntry;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -102,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -192,6 +194,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private int typePrecedence;
     private final TypeParamAnalyzer typeParamAnalyzer;
     private BLangAnonymousModelHelper anonymousModelHelper;
+    private BLangMissingNodesHelper missingNodesHelper;
 
     private SymbolEnv env;
 
@@ -220,6 +223,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         this.sourceDirectory = context.get(SourceDirectory.class);
         this.importedPackages = new ArrayList<>();
         this.unknownTypeRefs = new HashSet<>();
+        this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
     }
 
     public BLangPackage definePackage(BLangPackage pkgNode) {
@@ -567,10 +571,20 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNS xmlnsNode) {
-        String nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
-
-        if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
-            dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
+        String nsURI;
+        if (xmlnsNode.namespaceURI.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef varRef = (BLangSimpleVarRef) xmlnsNode.namespaceURI;
+            if (missingNodesHelper.isMissingNode(varRef.variableName.value)) {
+                nsURI = "";
+            } else {
+                // TODO: handle const-ref (#24911)
+                nsURI = "";
+            }
+        } else {
+            nsURI = (String) ((BLangLiteral) xmlnsNode.namespaceURI).value;
+            if (!nullOrEmpty(xmlnsNode.prefix.value) && nsURI.isEmpty()) {
+                dlog.error(xmlnsNode.pos, DiagnosticCode.INVALID_NAMESPACE_DECLARATION, xmlnsNode.prefix);
+            }
         }
 
         // set the prefix of the default namespace
