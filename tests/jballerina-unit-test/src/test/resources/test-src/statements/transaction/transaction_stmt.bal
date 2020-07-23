@@ -271,3 +271,41 @@ function testUnreachableCode() returns string {
     }
     return ss;
 }
+
+function testTransactionalInvoWithinMultiLevelFunc() returns string {
+    string ss = "";
+    transaction {
+        ss = "trxStarted";
+        ss = func1(ss);
+        var commitRes = commit;
+        ss += " -> trxEnded.";
+    }
+    return ss;
+}
+
+transactional function func1(string str) returns string {
+    string ss = func2(str);
+    return ss + " -> within transactional func1";
+}
+
+transactional function func2(string str) returns string {
+ transactions:Info transInfo = transactions:info();
+ return str + " -> within transactional func2";
+}
+
+function testNewStrandWithTransactionalFunc() returns error? {
+    string str = "";
+    transaction {
+        str += "trx started";
+        var o = start testTransactionalInvo(ss);
+        str += wait o;
+        check commit;
+        str += " -> trx end";
+    }
+
+    assertEquality("trx started -> transactional call -> trx end", str);
+}
+
+transactional function testTransactionalInvo(string str) returns string {
+    return str + " -> transactional call";
+}

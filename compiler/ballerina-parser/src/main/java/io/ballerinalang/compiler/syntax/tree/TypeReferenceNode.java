@@ -36,7 +36,7 @@ public class TypeReferenceNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Node typeName() {
+    public NameReferenceNode typeName() {
         return childInBucket(1);
     }
 
@@ -64,7 +64,7 @@ public class TypeReferenceNode extends TypeDescriptorNode {
 
     public TypeReferenceNode modify(
             Token asteriskToken,
-            Node typeName,
+            NameReferenceNode typeName,
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 asteriskToken,
@@ -91,7 +91,7 @@ public class TypeReferenceNode extends TypeDescriptorNode {
     public static class TypeReferenceNodeModifier {
         private final TypeReferenceNode oldNode;
         private Token asteriskToken;
-        private Node typeName;
+        private NameReferenceNode typeName;
         private Token semicolonToken;
 
         public TypeReferenceNodeModifier(TypeReferenceNode oldNode) {
@@ -109,7 +109,7 @@ public class TypeReferenceNode extends TypeDescriptorNode {
         }
 
         public TypeReferenceNodeModifier withTypeName(
-                Node typeName) {
+                NameReferenceNode typeName) {
             Objects.requireNonNull(typeName, "typeName must not be null");
             this.typeName = typeName;
             return this;

@@ -524,14 +524,18 @@ public class TransactionDesugar extends BLangNodeVisitor {
 
     public void visit(BLangRetryTransaction retryTrxBlock) {
         BLangBlockStmt blockStmt = desugarTransactionBody(retryTrxBlock.transaction, env, true, retryTrxBlock.pos);
-        BLangSimpleVariableDef retryMgrDef =
-                desugar.createRetryManagerDef(retryTrxBlock.retrySpec, retryTrxBlock.pos);
-        blockStmt.stmts.add(retryMgrDef);
         BLangSimpleVarRef resultRef = ASTBuilderUtil.createVariableRef(retryTrxBlock.pos, transactionError);
+        BLangSimpleVariableDef retryMgrDef = desugar.createRetryManagerDef(retryTrxBlock.retrySpec, retryTrxBlock.pos);
+        BLangTypeTestExpr isErrorCheck = desugar.createTypeCheckExpr(retryTrxBlock.pos, resultRef,
+                desugar.getErrorTypeNode());
+        BLangIf ifStmt = ASTBuilderUtil.createIfStmt(retryTrxBlock.pos, blockStmt);
+        ifStmt.expr = isErrorCheck;
+        ifStmt.body = ASTBuilderUtil.createBlockStmt(retryTrxBlock.pos);
+        ifStmt.body.stmts.add(retryMgrDef);
         BLangWhile retryWhileLoop = desugar.createRetryWhileLoop(retryTrxBlock.pos, retryMgrDef, retryStmt,
                 resultRef);
         createRollbackIfFailed(retryTrxBlock.pos, retryWhileLoop.body, resultRef.symbol);
-        blockStmt.stmts.add(retryWhileLoop);
+        ifStmt.body.stmts.add(retryWhileLoop);
         desugar.createErrorReturn(retryTrxBlock.pos, blockStmt, resultRef);
 
         if (retryTrxBlock.transaction.statementBlockReturns) {
