@@ -4936,13 +4936,15 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    private STNode parseBasicLiteral() {
+        return parseBasicLiteral(consume());
+    }
     /**
      * Parse basic literals. It is assumed that we come here after validation.
      *
      * @return Parsed node
      */
-    private STNode parseBasicLiteral() {
-        STToken literalToken = consume();
+    private STNode parseBasicLiteral(STToken literalToken) {
         return STNodeFactory.createBasicLiteralNode(literalToken.kind, literalToken);
     }
 
@@ -6243,13 +6245,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStringLiteral() {
         STToken token = peek();
         if (token.kind == SyntaxKind.STRING_LITERAL) {
-            return parseBasicLiteral();
+            return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.STRING_LITERAL);
-            if (sol.action == Action.REMOVE) {
-                return sol.recoveredNode;
-            }
-            return STNodeFactory.createBasicLiteralNode(sol.recoveredNode.kind, sol.recoveredNode);
+            return sol.recoveredNode;
         }
     }
 
@@ -15873,6 +15872,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
             case STRING_LITERAL:
                 STNode key = parseStringLiteral();
+                key = parseBasicLiteral((STToken)key);
                 if (peek().kind == SyntaxKind.COLON_TOKEN) {
                     readonlyKeyword = STNodeFactory.createEmptyNode();
                     STNode colon = parseColon();
