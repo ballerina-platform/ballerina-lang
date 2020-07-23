@@ -101,8 +101,13 @@ public class PackageUtils {
      */
     public static String getDirectoryRelativePath(String sourcePath, String patternMatcher, String sourceName,
                                                   String fileName) {
+        // When a bal file is inside a directory, the source path is constructed appropriately for services.
+        // But for non service bal files, [directory/file] path occurring twice in source path.
+        // We are handling this by using service regex. If patternMatcher does not contain service regex,
+        // appropriate adjustment is made for source path else not.
         Pattern pattern = Pattern.compile(SERVICE_REGEX);
         Matcher matcher = pattern.matcher(patternMatcher);
+
         if (matcher.find()) {
             return sourcePath;
         } else {
