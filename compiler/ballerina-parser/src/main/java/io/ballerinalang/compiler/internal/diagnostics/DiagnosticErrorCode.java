@@ -257,6 +257,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE221",
             "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE222", "error.action.as.a.wait.expr"),
+    ERROR_INVALID_USAGE_OF_VAR("BCE223", "error.invalid.usage.of.var"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",
