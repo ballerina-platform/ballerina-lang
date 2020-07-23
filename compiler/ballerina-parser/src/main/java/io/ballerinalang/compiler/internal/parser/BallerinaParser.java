@@ -15872,7 +15872,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseIdentifierRhsInStmtStartingBrace(readonlyKeyword);
             case STRING_LITERAL:
                 STNode key = parseStringLiteral();
-                key = parseBasicLiteral((STToken)key);
+                key = parseBasicLiteral((STToken) key);
                 if (peek().kind == SyntaxKind.COLON_TOKEN) {
                     readonlyKeyword = STNodeFactory.createEmptyNode();
                     STNode colon = parseColon();
