@@ -34,7 +34,9 @@ import java.util.List;
  */
 public class DocumentationLexer extends AbstractLexer {
 
-    private boolean isSpecialKeywordInPlace = false;
+    private enum BacktickReferenceMode { NO_KEYWORD, SPECIAL_KEYWORD, FUNCTION_KEYWORD }
+
+    private BacktickReferenceMode referenceMode = BacktickReferenceMode.NO_KEYWORD;
     private static final char[] deprecatedChars = {'D', 'e', 'p', 'r', 'e', 'c', 'a', 't', 'e', 'd' };
 
     // Used only for backtick content validation
@@ -276,17 +278,19 @@ public class DocumentationLexer extends AbstractLexer {
     }
 
     /**
-     * Set special keyword in place.
+     * Set reference mode for backtick content.
+     *
+     * @param mode Reference mode
      */
-    private void setSpecialKeywordInPlace() {
-        isSpecialKeywordInPlace = true;
+    private void setReferenceMode(BacktickReferenceMode mode) {
+        referenceMode = mode;
     }
 
     /**
-     * Reset special keyword in place.
+     * Reset reference mode for backtick content.
      */
-    private void resetSpecialKeywordInPlace() {
-        isSpecialKeywordInPlace = false;
+    private void resetReferenceMode() {
+        referenceMode = BacktickReferenceMode.NO_KEYWORD;
     }
 
     /**
@@ -688,7 +692,7 @@ public class DocumentationLexer extends AbstractLexer {
             reader.advance();
         }
 
-        setSpecialKeywordInPlace();
+        setReferenceMode(BacktickReferenceMode.SPECIAL_KEYWORD);
         return processReferenceType();
     }
 
@@ -708,6 +712,7 @@ public class DocumentationLexer extends AbstractLexer {
             case LexerTerminals.MODULE:
                 return getDocumentationSyntaxToken(SyntaxKind.MODULE_DOC_REFERENCE_TOKEN);
             case LexerTerminals.FUNCTION:
+                setReferenceMode(BacktickReferenceMode.FUNCTION_KEYWORD);
                 return getDocumentationSyntaxToken(SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN);
             case LexerTerminals.PARAMETER:
                 return getDocumentationSyntaxToken(SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN);
@@ -730,38 +735,24 @@ public class DocumentationLexer extends AbstractLexer {
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
             switchMode(ParserMode.DOCUMENTATION_INTERNAL);
-            resetSpecialKeywordInPlace();
+            resetReferenceMode();
             return getDocumentationSyntaxTokenWithNoTrivia(SyntaxKind.BACKTICK_TOKEN);
         }
 
-        if (!isSpecialKeywordInPlace) {
-            // Look for a x(), m:x(), T.y(), m:T.y() match
-            resetSearchProperties();
-            processBacktickExpr();
-            if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
-                switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
-                return readDocumentationBacktickExprToken();
-            } else {
-                // No warning is logged for invalid documentation expr
-                reader.advance(lookAheadNumber);
-                processInvalidChars();
-                return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
-            }
-        }
-
-        resetSpecialKeywordInPlace();
-
-        // Look for an identifier or qualified identifier match
-        resetSearchProperties();
-        processQualifiedIdentifier();
+        processBacktickContent();
         if (hasMatch && getLookAheadChar() == LexerTerminals.BACKTICK) {
             switchMode(ParserMode.DOCUMENTATION_BACKTICK_EXPR);
+            resetReferenceMode();
             return readDocumentationBacktickExprToken();
         } else {
             reader.advance(lookAheadNumber);
             processInvalidChars();
-            String invalidIdentifier = getLexeme();
-            reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, invalidIdentifier);
+            if (referenceMode != BacktickReferenceMode.NO_KEYWORD) {
+                // No warning is logged for invalid backtick content which is not preceded by a special keyword
+                String invalidIdentifier = getLexeme();
+                reportLexerError(DiagnosticWarningCode.WARNING_INVALID_DOCUMENTATION_IDENTIFIER, invalidIdentifier);
+            }
+            resetReferenceMode();
             return getDocumentationLiteral(SyntaxKind.BACKTICK_CONTENT);
         }
     }
@@ -783,7 +774,25 @@ public class DocumentationLexer extends AbstractLexer {
         }
     }
 
-    private void processBacktickExpr() {
+    private void processBacktickContent() {
+        resetSearchProperties();
+        switch (referenceMode) {
+            case SPECIAL_KEYWORD:
+                // Look for a x, m:x match
+                processQualifiedIdentifier();
+                break;
+            case FUNCTION_KEYWORD:
+                // Look for a x, m:x, x(), m:x(), T.y(), m:T.y() match
+                processBacktickExpr(false);
+                break;
+            case NO_KEYWORD:
+                // Look for a x(), m:x(), T.y(), m:T.y() match
+                processBacktickExpr(true);
+                break;
+        }
+    }
+
+    private void processBacktickExpr(boolean isNotFunctionKeyword) {
         processQualifiedIdentifier();
         int nextChar = getLookAheadChar();
         if (nextChar == LexerTerminals.OPEN_PARANTHESIS) {
@@ -792,7 +801,7 @@ public class DocumentationLexer extends AbstractLexer {
             consumeChar();
             processIdentifier();
             processFuncSignature();
-        } else {
+        } else if (isNotFunctionKeyword) {
             hasMatch = false;
         }
     }
