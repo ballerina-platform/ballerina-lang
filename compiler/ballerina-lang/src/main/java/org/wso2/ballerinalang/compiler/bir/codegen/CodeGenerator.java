@@ -42,6 +42,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -71,6 +72,7 @@ public class CodeGenerator {
     private CompilerContext compilerContext;
     private boolean skipTests;
     private boolean dumbBIR;
+    private final String dumpBIRFile;
     private boolean skipModuleDependencies;
     private Path ballerinaHome = Paths.get(System.getProperty(BALLERINA_HOME));
 
@@ -86,6 +88,7 @@ public class CodeGenerator {
         this.skipTests = getBooleanValueIfSet(compilerOptions, CompilerOptionName.SKIP_TESTS);
         this.baloGen = getBooleanValueIfSet(compilerOptions, CompilerOptionName.BALO_GENERATION);
         this.dumbBIR = getBooleanValueIfSet(compilerOptions, CompilerOptionName.DUMP_BIR);
+        this.dumpBIRFile = compilerOptions.get(CompilerOptionName.DUMP_BIR_FILE);
         this.skipModuleDependencies = getBooleanValueIfSet(compilerOptions,
                 CompilerOptionName.SKIP_MODULE_DEPENDENCIES);
     }
@@ -109,6 +112,15 @@ public class CodeGenerator {
 
         if (dumbBIR) {
             birEmitter.emit(bLangPackage.symbol.bir);
+        }
+
+        if (dumpBIRFile != null) {
+            try {
+                Files.write(Paths.get(dumpBIRFile),
+                            bLangPackage.symbol.birPackageFile.pkgBirBinaryContent);
+            } catch (IOException e) {
+                throw new BLangCompilerException("BIR file dumping failed", e);
+            }
         }
 
         // find module dependencies path
