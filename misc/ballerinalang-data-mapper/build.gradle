@@ -12,6 +12,10 @@ configurations {
     libs
 }
 
+repositories {
+    jcenter()
+}
+
 dependencies {
     implementation project(':ballerina-lang')
     implementation project(':ballerina-parser')
@@ -56,6 +60,9 @@ dependencies {
     implementation project(':ballerina-tool')
 
     implementation(group: 'org.eclipse.lsp4j', name: 'org.eclipse.lsp4j', version: '0.8.1')
+    implementation 'org.mockito:mockito-all:1.10.19'
+    implementation 'org.powermock:powermock-mockito-release-full:1.6.4'
+    implementation 'org.powermock:powermock-module-testng-common:1.6.4'
 
     compile 'com.fasterxml.jackson.core:jackson-databind:2.1.2'
 
@@ -66,6 +73,9 @@ test {
     systemProperty "ballerina.home", "$buildDir/ballerina-home/test/"
     systemProperty "experimental", "true"
     systemProperty "ballerina.version", project.version
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
 }
 
 CopySpec copyJarSpec = copySpec {
@@ -85,12 +95,5 @@ task buildAndCopy(type: Copy) {
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib';
 }
-
-//task runPython(type:Exec) {
-//    println("PYTHON")
-//    workingDir '/Users/ayodhya/PycharmProjects/test-data-mapper'
-//    commandLine 'python', 'apps.py'
-//    println("Done!!!!!!!!")
-//}
 
 sourceCompatibility = 1.8
