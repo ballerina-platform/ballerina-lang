@@ -20,7 +20,7 @@ package org.ballerinalang.test.javainterop;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -42,7 +42,7 @@ public class VariableReturnTypeTest {
         result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testNegatives() {
         CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
         int indx = 0;
@@ -69,8 +69,8 @@ public class VariableReturnTypeTest {
                 "in external functions", 93, 45);
         validateError(errors, indx++, "use of 'typedesc' parameters as types only allowed for return types " +
                 "in external functions", 93, 67);
-        validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type should be a " +
-                "reference to a type", 97, 29);
+        validateError(errors, indx++, "default value for a 'typedesc' parameter used in the return type" +
+                " should be a reference to a type", 97, 29);
         validateError(errors, indx++, "unknown type 'NonExistentParam'", 107, 77);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 113, 54);
         validateError(errors, indx++, "invalid parameter reference: expected 'typedesc', found 'string'", 119, 45);

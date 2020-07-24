@@ -45,7 +45,7 @@ import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLQName;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -257,20 +257,6 @@ public class XMLUtils {
 
         return new BXMLSequence(concatSeq);
     }
-
-    //TODO Table remove - Fix
-//    /**
-//     * Converts a {@link BTable} to {@link BXML}.
-//     *
-//     * @param table {@link BTable} to convert
-//     * @return converted {@link BXML}
-//     */
-//    @SuppressWarnings("rawtypes")
-//    public static BXML tableToXML(BTable table) {
-//        OMSourcedElementImpl omSourcedElement = new OMSourcedElementImpl();
-//        omSourcedElement.init(new TableOMDataSource(table, null, null));
-//        return new BXMLItem(omSourcedElement);
-//    }
 
     /**
      * Create an element type BXML.

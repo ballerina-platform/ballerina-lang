@@ -32,7 +32,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -59,14 +59,13 @@ public class BJSONValueTest {
     public void testJsonWithIncompatibleTypesNegative() {
         int i = 0;
 
-        //TODO Table remove - Fix
-//        // testJsonArrayWithUnsupportedtypes
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "incompatible types: expected 'json', found 'table<DummyType>'", 7, 30);
-//
-//        // testJsonInitWithUnsupportedtypes
-//        BAssertUtil.validateError(negativeResult, i++,
-//                "incompatible types: expected 'json', found 'table<DummyType>'", 13, 42);
+        // testJsonArrayWithUnsupportedtypes
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'json', found 'table<DummyType>'", 7, 30);
+
+        // testJsonInitWithUnsupportedtypes
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: expected 'json', found 'table<DummyType>'", 13, 42);
 
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'map<json>', found 'Person'", 21, 20);

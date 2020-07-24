@@ -42,7 +42,7 @@ import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -320,6 +320,16 @@ public class RefTypeTests {
                 "\tat ballerina_types_as_interop_types:javaStackPop(ballerina_types_as_interop_types.bal:400)\n" +
                 "\t   ballerina_types_as_interop_types:testThrowJavaException2(ballerina_types_as_interop_types.bal:" +
                 "392)");
+    }
+
+    @Test
+    public void testDifferentRefTypesForIntersectionEffectiveType() {
+        BRunUtil.invoke(result, "testDifferentRefTypesForIntersectionEffectiveType");
+    }
+
+    @Test
+    public void testUsingIntersectionEffectiveType() {
+        BRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
     }
 
     // static methods

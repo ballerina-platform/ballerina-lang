@@ -23,7 +23,7 @@ import org.ballerinalang.core.model.util.serializer.BValueSerializer;
 import org.ballerinalang.core.model.util.serializer.SerializationBValueProvider;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 /**
  * Provide mapping between {@link Class} and {@link BValue} representation of it.

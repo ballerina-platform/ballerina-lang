@@ -235,7 +235,7 @@ public class ResourceSignatureValidator {
                 .anyMatch(parameter -> signatureParam.getName().getValue().equals(parameter)))) {
             String errorMsg = "invalid resource parameter(s): cannot specify > 2 parameters without specifying " +
                     "path config and/or body config in the resource annotation";
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getPosition(),
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resourceNode.getAnnotationAttachments().get(0).getPosition(),
                                errorMsg);
         }
     }

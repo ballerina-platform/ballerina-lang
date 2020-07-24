@@ -39,14 +39,13 @@ public class TypedescTests {
         result = BCompileUtil.compile("test-src/types/typedesc/typedesc_positive.bal");
     }
 
-    @Test(description = "Test basics types", groups = { "brokenOnNewParser" })
+    @Test(description = "Test basics types", groups = { "disableOnOldParser" })
     public void testNegative() {
         final CompileResult compile = BCompileUtil.compile("test-src/types/typedesc/typedesc_negative.bal");
         Assert.assertEquals(compile.getErrorCount(), 2);
-        BAssertUtil.validateError(compile, 0, "variable assignment is required", 2, 5);
+        BAssertUtil.validateError(compile, 0, "missing identifier", 2, 8);
         BAssertUtil.validateError(compile, 1, "undefined symbol 'i'", 7, 9);
     }
-
 
     @Test(description = "Test basics types")
     public void testBasicTypes() {
@@ -63,7 +62,6 @@ public class TypedescTests {
     public void testRefTypes() {
         BRunUtil.invoke(result, "testRefTypes");
     }
-
 
     @Test(description = "Test object types")
     public void testObjectTypes() {

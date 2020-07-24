@@ -585,17 +585,18 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
      */
     public static class FPLoad extends BIRNonTerminator {
         public SchedulerPolicy schedulerPolicy;
+        public String strandName;
         public Name funcName;
         public PackageID pkgId;
         public List<BIRVariableDcl> params;
         public List<BIROperand> closureMaps;
         public BType retType;
 
-        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp,
-                      List<BIRVariableDcl> params, List<BIROperand> closureMaps, BType retType,
-                      SchedulerPolicy schedulerPolicy) {
+        public FPLoad(DiagnosticPos pos, PackageID pkgId, Name funcName, BIROperand lhsOp, List<BIRVariableDcl> params,
+                      List<BIROperand> closureMaps, BType retType, String strandName, SchedulerPolicy schedulerPolicy) {
             super(pos, InstructionKind.FP_LOAD);
             this.schedulerPolicy = schedulerPolicy;
+            this.strandName = strandName;
             this.lhsOp = lhsOp;
             this.funcName = funcName;
             this.pkgId = pkgId;

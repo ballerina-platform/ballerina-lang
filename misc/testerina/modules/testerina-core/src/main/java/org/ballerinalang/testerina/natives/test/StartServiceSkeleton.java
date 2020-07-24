@@ -27,7 +27,7 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.ballerinalang.tool.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.PrintStream;

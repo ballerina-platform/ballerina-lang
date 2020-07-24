@@ -21,7 +21,7 @@ package org.ballerinalang.core.model.values;
 import org.ballerinalang.core.model.types.BIndexedType;
 import org.ballerinalang.core.model.types.BStreamType;
 import org.ballerinalang.core.model.types.BType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.util.Map;
 import java.util.UUID;

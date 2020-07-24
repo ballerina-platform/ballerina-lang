@@ -21,7 +21,7 @@ import org.apache.axiom.om.OMNode;
 import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.util.XMLNodeType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.util.Iterator;
 import java.util.List;

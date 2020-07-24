@@ -18,7 +18,7 @@
 package org.ballerinalang.core.model.util.serializer;
 
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;

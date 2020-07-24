@@ -20,9 +20,9 @@ package org.ballerinalang.core.model.values;
 import org.ballerinalang.core.model.types.BArrayType;
 import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.types.TypeTags;
-import org.ballerinalang.util.exceptions.BLangExceptionHelper;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.RuntimeErrors;
+import org.ballerinalang.core.util.exceptions.BLangExceptionHelper;
+import org.ballerinalang.core.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.core.util.exceptions.RuntimeErrors;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.lang.reflect.Array;

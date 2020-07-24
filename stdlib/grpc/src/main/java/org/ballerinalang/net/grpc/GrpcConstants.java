@@ -17,6 +17,7 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.values.api.BString;
 
@@ -222,4 +223,15 @@ public class GrpcConstants {
 
     //Observability tag keys
     public static final String TAG_KEY_GRPC_ERROR_MESSAGE = "grpc.error_message";
+
+    // Strand meta data
+    public static final StrandMetadata ON_MESSAGE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+                               ON_MESSAGE_RESOURCE);
+    public static final StrandMetadata ON_ERROR_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+                               ON_ERROR_RESOURCE);
+    public static final StrandMetadata ON_COMPLETE_METADATA =
+            new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, PROTOCOL_PACKAGE_GRPC, PROTOCOL_PACKAGE_VERSION_GRPC,
+                               ON_COMPLETE_RESOURCE);
 }

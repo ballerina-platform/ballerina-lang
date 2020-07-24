@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.core.model.util.serializer;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.util.HashMap;
 

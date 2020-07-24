@@ -16,7 +16,7 @@
  */
 package org.ballerinalang.core.model.util;
 
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;

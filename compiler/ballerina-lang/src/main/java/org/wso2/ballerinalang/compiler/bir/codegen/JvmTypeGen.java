@@ -24,7 +24,9 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRVariableDcl;
@@ -109,6 +111,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPES;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
@@ -141,6 +145,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
@@ -158,6 +163,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.load
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupTypeName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getObjectField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getRecordField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getStrandMetadataVarName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getType;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen.getPackageName;
@@ -386,7 +392,7 @@ class JvmTypeGen {
 
     static void generateValueCreatorMethods(ClassWriter cw, List<BIRTypeDefinition> typeDefs,
                                             BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                            SymbolTable symbolTable) {
+                                            SymbolTable symbolTable, AsyncDataCollector asyncDataCollector) {
 
         List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
@@ -412,14 +418,15 @@ class JvmTypeGen {
             }
         }
 
-        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass);
-        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable);
+        generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
+        generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable,
+                                        asyncDataCollector);
     }
 
     private static void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
-                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createRecordValue",
+                                                        BIRNode.BIRPackage moduleId, String typeOwnerClass,
+                                                        AsyncDataCollector asyncDataCollector) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_RECORD_VALUE,
                 String.format("(L%s;)L%s;", STRING_VALUE, MAP_VALUE),
                 String.format("(L%s;)L%s<L%s;L%s;>;", STRING_VALUE, MAP_VALUE, STRING_VALUE, OBJECT), null);
 
@@ -453,7 +460,15 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
             mv.visitInsn(ACONST_NULL);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;)V", SCHEDULER), false);
+            String metaDataVarName = getStrandMetadataVarName(CREATE_RECORD_VALUE);
+            asyncDataCollector
+                    .getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(CREATE_RECORD_VALUE));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitInsn(ACONST_NULL);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
+                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitInsn(SWAP);
             mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND, MAP_VALUE),
                                false);
@@ -469,9 +484,10 @@ class JvmTypeGen {
 
     private static void generateObjectValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> objectTypeDefs,
                                                         BIRNode.BIRPackage moduleId, String typeOwnerClass,
-                                                        SymbolTable symbolTable) {
+                                                        SymbolTable symbolTable,
+                                                        AsyncDataCollector asyncDataCollector) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "createObjectValue",
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_OBJECT_VALUE,
                 String.format("(L%s;L%s;L%s;L%s;[L%s;)L%s;", STRING_VALUE, SCHEDULER, STRAND, MAP, OBJECT,
                         OBJECT_VALUE), null, null);
 
@@ -544,11 +560,16 @@ class JvmTypeGen {
             mv.visitLabel(parentNullLabel);
             mv.visitTypeInsn(NEW, STRAND);
             mv.visitInsn(DUP);
+            mv.visitInsn(ACONST_NULL);
+            String metaDataVarName = getStrandMetadataVarName(CREATE_OBJECT_VALUE);
+            asyncDataCollector
+                    .getStrandMetadata().putIfAbsent(metaDataVarName, new ScheduleFunctionInfo(CREATE_OBJECT_VALUE));
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, metaDataVarName, String.format("L%s;", STRAND_METADATA));
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>",
-                    String.format("(L%s;L%s;L%s;)V", SCHEDULER, STRAND, MAP), false);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
+                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
             Label endConditionLabel = new Label();
             mv.visitJumpInsn(GOTO, endConditionLabel);

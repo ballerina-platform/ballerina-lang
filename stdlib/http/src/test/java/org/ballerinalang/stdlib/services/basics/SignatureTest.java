@@ -22,7 +22,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.CompileResult;
 import org.ballerinalang.util.diagnostic.Diagnostic;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -98,7 +98,7 @@ public class SignatureTest {
         Assert.assertEquals(diag[0].getMessage(), "invalid resource parameter(s): cannot specify > 2 parameters " +
                 "without specifying path config and/or body config in the resource annotation");
         Assert.assertEquals(diag[1].getMessage(),
-                            "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
+                "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
     }
 
     @Test

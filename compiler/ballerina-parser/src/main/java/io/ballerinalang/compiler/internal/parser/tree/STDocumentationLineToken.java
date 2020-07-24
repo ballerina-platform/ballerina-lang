@@ -44,7 +44,7 @@ public class STDocumentationLineToken extends STToken {
                              STNode leadingTrivia,
                              STNode trailingTrivia,
                              Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia, diagnostics);
+        super(SyntaxKind.MARKDOWN_DOCUMENTATION_LINE, text.length(), leadingTrivia, trailingTrivia, diagnostics);
         this.text = text;
     }
 

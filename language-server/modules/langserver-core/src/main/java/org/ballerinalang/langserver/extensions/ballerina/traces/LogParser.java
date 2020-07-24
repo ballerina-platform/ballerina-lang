@@ -16,6 +16,8 @@
 
 package org.ballerinalang.langserver.extensions.ballerina.traces;
 
+import org.ballerinalang.langserver.commons.trace.Message;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

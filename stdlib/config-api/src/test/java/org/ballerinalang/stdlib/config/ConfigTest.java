@@ -26,10 +26,10 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -462,6 +462,33 @@ public class ConfigTest {
         Assert.assertEquals((returnValues[1]).stringValue(), "{}");
         Assert.assertEquals((returnValues[2]).stringValue(),
                             "{\"color\":\"gray\", \"name\":\"Nail\", \"sku\":284758393}");
+    }
+
+    @Test(description = "Test retrieving a config value as a string array")
+    public void testGetAsStringArray() throws IOException {
+        BString key = new BString("listenerConfig.keyStore.paths");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "testGetAsStringArray", inputArg);
+        Assert.assertTrue(returnValues[0] instanceof BString);
+        Assert.assertEquals(returnValues[0].stringValue(), "/etc");
+        Assert.assertEquals(returnValues[1].stringValue(), "/tmp");
+        Assert.assertEquals(returnValues[2].stringValue(), "/usr/lib/");
+    }
+
+    @Test(description = "Test retrieving a config value as a string map")
+    public void testGetAsStringMap() throws IOException {
+        BString key = new BString("employee");
+        BValue[] inputArg = {key};
+        registry.initRegistry(new HashMap<>(), null, ballerinaConfPath);
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetAsStringMap", inputArg);
+
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0] instanceof BMap);
+        BMap table = (BMap) returnVals[0];
+        Assert.assertEquals(table.get("name").stringValue(), "John");
+        Assert.assertEquals(table.get("city").stringValue(), "Sydney");
     }
 
     @Test(expectedExceptions = IllegalStateException.class,

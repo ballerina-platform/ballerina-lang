@@ -22,8 +22,8 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.util.XMLNodeType;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.BLangConstants;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
+import static org.ballerinalang.core.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXMLSequence} represents a sequence of {@link BXMLItem}s in Ballerina.

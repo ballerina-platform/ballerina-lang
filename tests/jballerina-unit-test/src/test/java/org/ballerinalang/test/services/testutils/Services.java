@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;
@@ -93,7 +93,7 @@ public class Services {
 
         ObjectValue service = resource.getParentService().getBalService();
         Scheduler scheduler = registryHolder.getRegistry().getScheduler();
-        Executor.submit(scheduler, service, resource.getName(), callback, properties, signatureParams);
+        Executor.submit(scheduler, service, resource.getName(), null, null, callback, properties, signatureParams);
         if (startScheduler) {
             Executors.newSingleThreadExecutor().submit(scheduler::start);
         }

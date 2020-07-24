@@ -22,14 +22,13 @@ import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
-import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -185,7 +184,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "test");
     }
 
-    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testGetCallStack() {
         BValue[] returns = BRunUtil.invoke(errorTestResult, "getCallStackTest");
         Assert.assertEquals(returns[0].stringValue(), "{callableName:\"getCallStack\", " +
@@ -352,7 +351,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test(groups = { "brokenOnNewParser", "disableOnOldParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {

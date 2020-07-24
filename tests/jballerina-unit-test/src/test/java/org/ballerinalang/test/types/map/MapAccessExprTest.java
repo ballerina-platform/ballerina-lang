@@ -26,7 +26,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -153,21 +153,21 @@ public class MapAccessExprTest {
         Assert.assertEquals(returns[1].stringValue(), "Colombo");
     }
 
-    @Test(description = "Map access negative scenarios", groups = { "brokenOnNewParser" })
+    @Test(description = "Map access negative scenarios", groups = { "disableOnOldParser" })
     public void testNegativeSemantics() {
-        Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 2);
+        Assert.assertEquals(resultSemanticsNegative.getDiagnostics().length, 4);
         int index = 0;
-        // testMapAccessWithIndex
-        BAssertUtil.validateError(resultSemanticsNegative, index++, "incompatible types: expected 'string', found " +
-                        "'int'", 4, 20);
-        // accessAllFields
-        BAssertUtil.validateError(resultSemanticsNegative, index, "cannot get all fields from a map", 9, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "incompatible types: expected 'string', found " + "'int'", 4, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "invalid operation: type 'map' does not support field access", 9, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "missing identifier", 9, 20);
+        BAssertUtil.validateError(resultSemanticsNegative, index++, "missing identifier", 9, 21);
     }
 
     @Test(description = "Map access negative scenarios")
     public void negativeTest() {
         Assert.assertEquals(resultNegative.getDiagnostics().length, 3);
-
         int index = 0;
 
         // uninitialized map access

@@ -107,8 +107,7 @@ public class BStreamValueTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
-    @Test(description = "Test negative test scenarios of stream type",
-            groups = { "brokenOnNewParser", "disableOnOldParser" })
+    @Test(description = "Test negative test scenarios of stream type")
     public void testStreamTypeNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
@@ -129,6 +128,14 @@ public class BStreamValueTest {
                 "found '(record {| int value; |}|error)?'", 113, 35);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| int value; |}?', " +
                 "found '(record {| int value; |}|error)?'", 114, 31);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
+                137, 42);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
+                138, 38);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
+                139, 48);
+        BAssertUtil.validateError(negativeResult, i++, "invalid expected stream type. 'itr' does not return an error",
+                140, 44);
         BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +
                 "returns record {| int value; |}?'.", 159, 35);
         BAssertUtil.validateError(negativeResult, i++, "'IteratorWithOutNext' must implement 'public function next() " +

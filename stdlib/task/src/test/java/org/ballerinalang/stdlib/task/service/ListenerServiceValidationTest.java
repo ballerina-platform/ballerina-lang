@@ -19,7 +19,7 @@
 package org.ballerinalang.stdlib.task.service;
 
 import org.ballerinalang.test.util.BCompileUtil;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.Test;
 
 import java.nio.file.Paths;

@@ -98,6 +98,7 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getDirectoryRelativePath;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
 import static org.ballerinalang.debugadapter.variable.VariableFactory.getVariable;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
@@ -204,7 +205,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         updateProjectRoot(balFile);
         try {
             launchedProcess = launcher.start();
-        } catch (IOException e) {
+        } catch (Exception e) {
             sendOutput("Unable to launch debug adapter: " + e.toString(), STDERR);
             return CompletableFuture.completedFuture(null);
         }
@@ -613,7 +614,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
         String[] srcNames = getSourceNames(sourceName);
         String fileName = srcNames[srcNames.length - 1];
-        String relativePath = sourcePath.replace(sourceName, fileName);
+        String relativePath = getDirectoryRelativePath(sourcePath, location.toString(), sourceName, fileName);
 
         if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
             relativePath = relativePath.replaceFirst(orgName, "src");

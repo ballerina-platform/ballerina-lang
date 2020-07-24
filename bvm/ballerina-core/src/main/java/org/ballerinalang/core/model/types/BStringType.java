@@ -19,7 +19,7 @@ package org.ballerinalang.core.model.types;
 
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.core.util.BLangConstants;
 
 /**
  * {@code BStringType} represents a String.

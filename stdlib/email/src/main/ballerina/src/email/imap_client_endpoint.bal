@@ -27,8 +27,8 @@ public type ImapClient client object {
     # + clientConfig - Configurations for the IMAP Client
     # + return - An `email:Error` if failed while creating the client or else `()`
     public function init(@untainted string host, @untainted string username, @untainted string password,
-            ImapConfig clientConfig = {}) returns Error? {
-        return initImapClientEndpoint(self, host, username, password, clientConfig);
+            ImapConfig clientConfig = {}) {
+        return checkpanic initImapClientEndpoint(self, host, username, password, clientConfig);
     }
 
     # Reads a message.

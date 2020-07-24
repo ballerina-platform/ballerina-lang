@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaDeprecatedAnnotationDocumentationLine extends PsiElement {
 
   @NotNull
+  List<BallerinaDeprecateAnnotationDescriptionLine> getDeprecateAnnotationDescriptionLineList();
+
+  @NotNull
   BallerinaDeprecatedAnnotationDocumentation getDeprecatedAnnotationDocumentation();
 
 }

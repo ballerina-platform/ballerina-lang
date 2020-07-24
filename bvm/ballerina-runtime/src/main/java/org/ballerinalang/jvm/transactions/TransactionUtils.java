@@ -19,6 +19,7 @@ package org.ballerinalang.jvm.transactions;
 
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ErrorValue;
@@ -35,7 +36,10 @@ import java.util.function.Function;
 
 import static org.ballerinalang.jvm.transactions.TransactionConstants.COORDINATOR_ABORT_TRANSACTION;
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_BLOCK_CLASS_NAME;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_FQN;
 import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
+import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 
 /**
  * Utility methods used in transaction handling.
@@ -44,10 +48,14 @@ import static org.ballerinalang.jvm.transactions.TransactionConstants.TRANSACTIO
  */
 public class TransactionUtils {
 
+    private static final StrandMetadata TRX_METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX,
+                                                                          TRANSACTION_PACKAGE_NAME,
+                                                                          TRANSACTION_PACKAGE_VERSION, "onAbort");
+
     public static void notifyTransactionAbort(Strand strand, String globalTransactionId, String transactionBlockId) {
-        executeFunction(strand.scheduler, TransactionUtils.class.getClassLoader(), TRANSACTION_PACKAGE_NAME,
+        executeFunction(strand.scheduler, TransactionUtils.class.getClassLoader(), TRANSACTION_PACKAGE_FQN,
                         TRANSACTION_BLOCK_CLASS_NAME, COORDINATOR_ABORT_TRANSACTION, globalTransactionId,
-                        transactionBlockId);
+                        TRX_METADATA, globalTransactionId, transactionBlockId);
     }
     
     /**
@@ -58,11 +66,14 @@ public class TransactionUtils {
      * @param packageName packageName
      * @param className   which the function resides/ or file name
      * @param methodName  to be invokable unit
+     * @param strandName  name for newly creating strand which is used to execute the function pointer.
+     * @param metaData meta data of new strand.
      * @param paramValues to be passed to invokable unit
      * @return return values
      */
-    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, String packageName, 
-                                         String className, String methodName, Object... paramValues) {
+    public static Object executeFunction(Scheduler scheduler, ClassLoader classLoader, String packageName,
+                                         String className, String methodName, String strandName,
+                                         StrandMetadata metaData, Object... paramValues) {
         try {
             Class<?> clazz = classLoader.loadClass(packageName + "." + className);
             int paramCount = paramValues.length * 2 + 1;
@@ -95,7 +106,7 @@ public class TransactionUtils {
                 public void notifyFailure(ErrorValue error) {
                     completeFunction.countDown();
                 }
-            }, new HashMap<>(), BTypes.typeAny);
+            }, new HashMap<>(), BTypes.typeAny, strandName, metaData);
             completeFunction.await();
             return futureValue.result;
         } catch (NoSuchMethodException | ClassNotFoundException | InterruptedException e) {

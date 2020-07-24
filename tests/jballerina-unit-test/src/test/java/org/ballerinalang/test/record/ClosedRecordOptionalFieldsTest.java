@@ -24,7 +24,7 @@ import org.ballerinalang.test.util.BAssertUtil;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -43,13 +43,14 @@ public class ClosedRecordOptionalFieldsTest {
         compileResult = BCompileUtil.compile("test-src/record/closed_record_optional_fields.bal");
     }
 
-    @Test(description = "Test for the compile errors", groups = { "brokenOnNewParser" })
+    @Test(description = "Test for the compile errors", groups = { "disableOnOldParser" })
     public void testNegatives() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/closed_record_optional_fields_negatives.bal");
         int i = 0;
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
-        BAssertUtil.validateError(negativeResult, i++, "a default value specified for optional field 'age'", 22, 5);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '999'", 22, 19);
+        BAssertUtil.validateError(negativeResult, i++, "invalid token '='", 22, 19);
         BAssertUtil.validateError(negativeResult, i, "missing non-defaultable required record field 'adrs'", 33, 17);
     }
 

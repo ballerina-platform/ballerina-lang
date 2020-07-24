@@ -20,10 +20,15 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml:forEach(map&lt;Type&gt;, function).
@@ -39,17 +44,20 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class ForEach {
 
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                      XML_VERSION, "forEach");
+
     public static void forEach(XMLValue x, FPValue<Object, Object> func) {
         if (x.isSingleton()) {
-            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true});
+            func.asyncCall(new Object[]{Scheduler.getStrand(), x, true}, METADATA);
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, x.size(),
-                        () -> new Object[]{Scheduler.getStrand(), x.getItem(index.incrementAndGet()),
-                                true},
-                        result -> {
-                        }, () -> null);
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
+                                                       () -> new Object[]{Scheduler.getStrand(), x.getItem(index.incrementAndGet()),
+                                                               true},
+                                                       result -> {
+                                                       }, () -> null);
     }
 }
