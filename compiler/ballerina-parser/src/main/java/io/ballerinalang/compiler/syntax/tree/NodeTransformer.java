@@ -800,6 +800,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
+    public T transform(ClassDefinitionNode classDefinitionNode) {
+        return transformSyntaxNode(classDefinitionNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

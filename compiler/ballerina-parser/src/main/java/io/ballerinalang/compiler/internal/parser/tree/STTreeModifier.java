@@ -2442,6 +2442,30 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 endBacktick);
     }
 
+    @Override
+    public STClassDefinitionNode transform(
+            STClassDefinitionNode classDefinitionNode) {
+        STNode metadata = modifyNode(classDefinitionNode.metadata);
+        STNode visibilityQualifier = modifyNode(classDefinitionNode.visibilityQualifier);
+        STNode classKeyword = modifyNode(classDefinitionNode.classKeyword);
+        STNode classTypeQualifiers = modifyNode(classDefinitionNode.classTypeQualifiers);
+        STNode typeName = modifyNode(classDefinitionNode.typeName);
+        STNode openBrace = modifyNode(classDefinitionNode.openBrace);
+        STNode members = modifyNode(classDefinitionNode.members);
+        STNode closeBrace = modifyNode(classDefinitionNode.closeBrace);
+        STNode semicolonToken = modifyNode(classDefinitionNode.semicolonToken);
+        return classDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                classKeyword,
+                classTypeQualifiers,
+                typeName,
+                openBrace,
+                members,
+                closeBrace,
+                semicolonToken);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

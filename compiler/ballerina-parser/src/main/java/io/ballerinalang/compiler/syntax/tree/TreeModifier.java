@@ -3078,6 +3078,39 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 endBacktick);
     }
 
+    @Override
+    public ClassDefinitionNode transform(
+            ClassDefinitionNode classDefinitionNode) {
+        MetadataNode metadata =
+                modifyNode(classDefinitionNode.metadata());
+        Token visibilityQualifier =
+                modifyToken(classDefinitionNode.visibilityQualifier().orElse(null));
+        Token classKeyword =
+                modifyToken(classDefinitionNode.classKeyword());
+        NodeList<Token> classTypeQualifiers =
+                modifyNodeList(classDefinitionNode.classTypeQualifiers());
+        Token typeName =
+                modifyToken(classDefinitionNode.typeName());
+        Token openBrace =
+                modifyToken(classDefinitionNode.openBrace());
+        NodeList<Node> members =
+                modifyNodeList(classDefinitionNode.members());
+        Token closeBrace =
+                modifyToken(classDefinitionNode.closeBrace());
+        Token semicolonToken =
+                modifyToken(classDefinitionNode.semicolonToken());
+        return classDefinitionNode.modify(
+                metadata,
+                visibilityQualifier,
+                classKeyword,
+                classTypeQualifiers,
+                typeName,
+                openBrace,
+                members,
+                closeBrace,
+                semicolonToken);
+    }
+
     // Tokens
 
     @Override

@@ -799,6 +799,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(ClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

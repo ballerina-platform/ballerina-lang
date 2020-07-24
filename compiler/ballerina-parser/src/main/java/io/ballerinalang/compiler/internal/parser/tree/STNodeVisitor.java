@@ -789,6 +789,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(STClassDefinitionNode classDefinitionNode) {
+        visitSyntaxNode(classDefinitionNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

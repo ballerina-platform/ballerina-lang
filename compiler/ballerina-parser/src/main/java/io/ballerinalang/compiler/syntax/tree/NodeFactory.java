@@ -3027,5 +3027,37 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 endBacktick.internalNode());
         return stDocumentationReferenceNode.createUnlinkedFacade();
     }
+
+    public static ClassDefinitionNode createClassDefinitionNode(
+            MetadataNode metadata,
+            Token visibilityQualifier,
+            Token classKeyword,
+            NodeList<Token> classTypeQualifiers,
+            Token typeName,
+            Token openBrace,
+            NodeList<Node> members,
+            Token closeBrace,
+            Token semicolonToken) {
+        Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(classKeyword, "classKeyword must not be null");
+        Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
+        Objects.requireNonNull(typeName, "typeName must not be null");
+        Objects.requireNonNull(openBrace, "openBrace must not be null");
+        Objects.requireNonNull(members, "members must not be null");
+        Objects.requireNonNull(closeBrace, "closeBrace must not be null");
+        Objects.requireNonNull(semicolonToken, "semicolonToken must not be null");
+
+        STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
+                metadata.internalNode(),
+                getOptionalSTNode(visibilityQualifier),
+                classKeyword.internalNode(),
+                classTypeQualifiers.underlyingListNode().internalNode(),
+                typeName.internalNode(),
+                openBrace.internalNode(),
+                members.underlyingListNode().internalNode(),
+                closeBrace.internalNode(),
+                semicolonToken.internalNode());
+        return stClassDefinitionNode.createUnlinkedFacade();
+    }
 }
 

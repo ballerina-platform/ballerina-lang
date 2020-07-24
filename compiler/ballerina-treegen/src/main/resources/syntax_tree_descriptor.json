@@ -1387,7 +1387,7 @@
                 },
                 {
                     "name": "typeName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "semicolonToken",
@@ -4090,6 +4090,52 @@
                 },
                 {
                     "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "ClassDefinitionNode",
+            "base": "ModuleMemberDeclarationNode",
+            "kind": "CLASS_DEFINITION",
+            "attributes": [
+                {
+                    "name": "metadata",
+                    "type": "MetadataNode"
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "classKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "classTypeQualifiers",
+                    "type": "Token",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "typeName",
+                    "type": "Token"
+                },
+                {
+                    "name": "openBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "members",
+                    "type": "Node",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "closeBrace",
+                    "type": "Token"
+                },
+                {
+                    "name": "semicolonToken",
                     "type": "Token"
                 }
             ]
