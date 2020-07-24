@@ -322,6 +322,16 @@ public class RefTypeTests {
                 "392)");
     }
 
+    @Test
+    public void testDifferentRefTypesForIntersectionEffectiveType() {
+        BRunUtil.invoke(result, "testDifferentRefTypesForIntersectionEffectiveType");
+    }
+
+    @Test
+    public void testUsingIntersectionEffectiveType() {
+        BRunUtil.invoke(result, "testUsingIntersectionEffectiveType");
+    }
+
     // static methods
 
     public static XMLValue getXML() {

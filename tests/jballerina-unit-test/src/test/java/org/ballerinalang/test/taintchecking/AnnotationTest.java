@@ -52,7 +52,7 @@ public class AnnotationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testSensitiveDefaultArgsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-default-args-negative.bal");
@@ -67,7 +67,7 @@ public class AnnotationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testSensitiveRestArgsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/sensitive-rest-args-negative.bal");
@@ -101,7 +101,7 @@ public class AnnotationTest {
         Assert.assertEquals(result.getDiagnostics().length, 0);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testSensitiveDefaultParamsWithUnorderedArgsNegative() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/annotations/" +

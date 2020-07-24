@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLSequence;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -28,6 +29,10 @@ import org.ballerinalang.jvm.values.api.BXML;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.XML_LANG_LIB;
+import static org.ballerinalang.util.BLangCompilerConstants.XML_VERSION;
 
 /**
  * Native implementation of lang.xml:filter(map&lt;Type&gt;, function).
@@ -44,6 +49,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Filter {
 
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, XML_LANG_LIB,
+                                                                      XML_VERSION, "filter");
+
     public static XMLValue filter(XMLValue x, FPValue<Object, Boolean> func) {
         if (x.isSingleton()) {
             Object[] args = new Object[]{Scheduler.getStrand(), x, true};
@@ -53,7 +61,7 @@ public class Filter {
                               return new XMLSequence(x);
                           }
                           return new XMLSequence();
-                      });
+                      }, METADATA);
             return new XMLSequence();
         }
 
@@ -61,7 +69,7 @@ public class Filter {
         int size = x.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{Scheduler.getStrand(),
                                                                x.getItem(index.incrementAndGet()), true},
                                                        result -> {

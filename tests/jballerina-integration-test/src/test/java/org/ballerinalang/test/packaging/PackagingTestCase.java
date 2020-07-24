@@ -55,7 +55,9 @@ import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
+import static org.ballerinalang.test.packaging.PackerinaTestUtils.copyFolder;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Testing pushing, pulling, searching a package from central and installing package to home repository.
@@ -296,6 +298,27 @@ public class PackagingTestCase extends BaseTest {
         buildLeecher.waitForText(5000);
     }
 
+    @Test(description = "Test modules with org-name `ballerina` resolving from central, if new version is available")
+    public void testResolveBallerinaModulesFromCentral() throws BallerinaTestException, IOException {
+        // copy `ballerina-central-module` project from resources to a temp
+        Path originalTestProject = Paths
+                .get("src", "test", "resources", "packaging", "scope", "ballerina-central-module").toAbsolutePath();
+        Path projectPath = tempProjectDirectory.resolve("ballerinaCentralModuleProject");
+        copyFolder(originalTestProject, projectPath);
+
+        // Build module
+        LogLeecher buildLeecher = new LogLeecher("ballerina/socket:9.0.0 pulled from central successfully");
+        balClient.runMain("build", new String[] { "-c", "-a" }, envVariables, new String[] {},
+                new LogLeecher[] { buildLeecher }, projectPath.toString());
+        buildLeecher.waitForText(60000);
+
+        // Run module
+        LogLeecher runLeecher = new LogLeecher("Hello World from new socket module!");
+        balClient.runMain("run", new String[] { moduleName }, envVariables, new String[] {},
+                new LogLeecher[] { runLeecher }, projectPath.toString());
+        buildLeecher.waitForText(5000);
+    }
+
     /**
      * Get environment variables and add ballerina_home as a env variable the tmp directory.
      *
@@ -303,7 +326,7 @@ public class PackagingTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
 

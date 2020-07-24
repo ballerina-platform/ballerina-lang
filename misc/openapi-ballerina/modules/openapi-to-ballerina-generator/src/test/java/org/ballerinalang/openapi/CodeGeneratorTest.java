@@ -117,7 +117,8 @@ public class CodeGeneratorTest {
             );
             Path outFile = ballerinaProject.getImplPath().resolve("client")
                     .resolve(Paths.get("openapi_petstore.bal"));
-            generator.generateClient(projectPath.toString(), definitionPath, projectPath.toString());
+            generator.generateClient(projectPath.toString(), definitionPath, "openapi_petstore",
+                    projectPath.toString());
             if (Files.exists(outFile)) {
                 String result = new String(Files.readAllBytes(outFile));
                 Assert.assertTrue(result.contains("public remote function listPets()"));

@@ -25,7 +25,10 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 public interface BallerinaGlobalVariableDefinition extends BallerinaTopLevelDefinition {
 
   @Nullable
-  BallerinaExpression getExpression();
+  BallerinaRecoverableVarDefContent getRecoverableVarDefContent();
+
+  @Nullable
+  BallerinaRecoverableVariableDefinitionContent getRecoverableVariableDefinitionContent();
 
   @Nullable
   BallerinaTypeName getTypeName();

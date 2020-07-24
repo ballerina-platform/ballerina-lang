@@ -15,7 +15,6 @@
  */
 package io.ballerina.plugins.idea.extensions.client;
 
-import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
 import com.intellij.codeInsight.completion.InsertionContext;
 import com.intellij.codeInsight.lookup.AutoCompletionPolicy;
@@ -87,6 +86,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.Icon;
 
+import static io.ballerina.plugins.idea.sdk.BallerinaSdkUtils.stringIsNullOrEmpty;
 import static org.wso2.lsp4intellij.requests.Timeout.getTimeout;
 import static org.wso2.lsp4intellij.requests.Timeouts.COMPLETION;
 import static org.wso2.lsp4intellij.utils.ApplicationUtils.computableReadAction;
@@ -256,7 +256,7 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         CompletionItemKind kind = item.getKind() != null ? item.getKind() : CompletionItemKind.Property;
         String label = item.getLabel();
         TextEdit textEdit = item.getTextEdit();
-        String presentableText = !Strings.isNullOrEmpty(label) ? label : (insertText != null) ? insertText : "";
+        String presentableText = !stringIsNullOrEmpty(label) ? label : (insertText != null) ? insertText : "";
         String tailText = (detail != null) ? detail : "";
         LSPIconProvider iconProvider = GUIUtils.getIconProviderFor(wrapper.getServerDefinition());
         Icon icon = iconProvider.getCompletionIcon(kind);
@@ -270,13 +270,13 @@ public class BallerinaEditorEventManager extends EditorEventManager {
         String lookupString = null;
         if (textEdit != null) {
             lookupString = textEdit.getNewText();
-        } else if (!Strings.isNullOrEmpty(insertText)) {
+        } else if (!stringIsNullOrEmpty(insertText)) {
             lookupString = insertText;
 
-        } else if (!Strings.isNullOrEmpty(label)) {
+        } else if (!stringIsNullOrEmpty(label)) {
             lookupString = label;
         }
-        if (Strings.isNullOrEmpty(lookupString)) {
+        if (stringIsNullOrEmpty(lookupString)) {
             return null;
         }
 

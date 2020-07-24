@@ -47,28 +47,28 @@ public class Mock {
      * @param objectValue mock object to impersonate the type
      * @return mock object of provided type
      */
-    public static Object mock(TypedescValue typedescValue, ObjectValue objectValue) {
+    public static ObjectValue mock(TypedescValue typedescValue, ObjectValue objectValue) {
         if (!objectValue.getType().getName().contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             // handle user-defined mock object
             if (objectValue.getType().getAttachedFunctions().length == 0 &&
                     objectValue.getType().getFields().size() == 0) {
-                String detail = "Mock object type '" + objectValue.getType().getName()
+                String detail = "mock object type '" + objectValue.getType().getName()
                         + "' should have at least one member function or field declared.";
-                return BallerinaErrors.createDistinctError(
+                throw BallerinaErrors.createDistinctError(
                         MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID, detail);
             } else {
                 for (AttachedFunction attachedFunction : objectValue.getType().getAttachedFunctions()) {
                     ErrorValue errorValue = validateFunctionSignatures(attachedFunction,
                             ((BObjectType) typedescValue.getDescribingType()).getAttachedFunctions());
                     if (errorValue != null) {
-                        return errorValue;
+                        throw  errorValue;
                     }
                 }
                 for (Map.Entry<String, BField> field : objectValue.getType().getFields().entrySet()) {
                     ErrorValue errorValue = validateField(field,
                             ((BObjectType) typedescValue.getDescribingType()).getFields());
                     if (errorValue != null) {
-                        return errorValue;
+                        throw  errorValue;
                     }
                 }
             }
@@ -89,8 +89,8 @@ public class Mock {
         ObjectValue mockObj = genericMock.getMockObj();
         String objectType = mockObj.getType().getName();
         if (!objectType.contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
-            String detail =
-                    "cases cannot be registered to user-defined object type '" + genericMock.getType().getName() + "'";
+            String detail = "cases cannot be registered to user-defined object type '"
+                            + genericMock.getType().getName() + "'";
             return BallerinaErrors.createDistinctError(
                     MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID, detail);
         }

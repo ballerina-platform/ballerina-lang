@@ -20,10 +20,15 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.MapValue;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.MAP_LANG_LIB;
+import static org.ballerinalang.util.BLangCompilerConstants.MAP_VERSION;
 
 /**
  * Native implementation of lang.map:forEach(map&lt;Type&gt;, function).
@@ -37,11 +42,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class ForEach {
 
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, MAP_LANG_LIB,
+                                                                      MAP_VERSION, "forEach");
+
     public static void forEach(MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                                                        () -> new Object[]{Scheduler.getStrand(),
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> {

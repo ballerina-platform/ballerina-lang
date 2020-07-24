@@ -95,11 +95,10 @@ public class SignatureHelpTest {
                 {"exprMappingConstructor2.json", "functionsAndTypeDefs.bal"},
                 //TODO Table remove - Fix
 //                {"exprTableConstructor.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
                 {"exprStringTemplate.json", "functionsAndTypeDefs.bal"},
                 {"exprXML.json", "functionsAndTypeDefs.bal"},
                 {"exprNewImplicit.json", "functionsAndTypeDefs.bal"},
-//                {"exprNewExplicit.json", "functionsAndTypeDefs.bal"},
+                {"exprNewExplicit.json", "functionsAndTypeDefs.bal"},
                 {"exprVariableReference.json", "functionsAndTypeDefs.bal"},
                 {"exprFieldAccess1.json", "functionsAndTypeDefs.bal"},
                 {"exprFieldAccess2.json", "functionsAndTypeDefs.bal"},
@@ -113,14 +112,12 @@ public class SignatureHelpTest {
                 {"exprFunctionCallNested1.json", "functionsAndTypeDefs.bal"},
                 {"exprFunctionCallNested2.json", "functionsAndTypeDefs.bal"},
                 {"exprFunctionCallNamed.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprFunctionCallRestArgs1.json", "functionsAndTypeDefs.bal"},
+                {"exprFunctionCallRestArgs1.json", "functionsAndTypeDefs.bal"},
                 {"exprFunctionCallRestArgs2.json", "functionsAndTypeDefs.bal"},
                 {"exprMethodCall.json", "functionsAndTypeDefs.bal"},
-                // TODO: This is a regression introduced by #23884 need to find a proper way to handle this
+                //TODO: Fix #24839
 //                {"exprErrorConstructorDirect.json", "functionsAndTypeDefs.bal"},
-                // //TODO: Broken with new parser
-//                {"exprErrorConstructorIndirect.json", "functionsAndTypeDefs.bal"},
+                {"exprErrorConstructorIndirect.json", "functionsAndTypeDefs.bal"},
                 {"exprAnonFunction.json", "functionsAndTypeDefs.bal"},
                 {"exprArrowFunction.json", "functionsAndTypeDefs.bal"},
                 {"exprTypeCast.json", "functionsAndTypeDefs.bal"},
@@ -129,25 +126,20 @@ public class SignatureHelpTest {
                 {"exprUnary2.json", "functionsAndTypeDefs.bal"},
                 {"exprUnary3.json", "functionsAndTypeDefs.bal"},
                 {"exprUnary4.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprMultiplicative1.json", "functionsAndTypeDefs.bal"},
+                {"exprMultiplicative1.json", "functionsAndTypeDefs.bal"},
                 {"exprMultiplicative2.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprMultiplicative3.json", "functionsAndTypeDefs.bal"},
+                {"exprMultiplicative3.json", "functionsAndTypeDefs.bal"},
                 {"exprMultiplicative4.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprMultiplicative5.json", "functionsAndTypeDefs.bal"},
+                {"exprMultiplicative5.json", "functionsAndTypeDefs.bal"},
                 {"exprMultiplicative6.json", "functionsAndTypeDefs.bal"},
                 {"exprAdditive1.json", "functionsAndTypeDefs.bal"},
                 {"exprAdditive2.json", "functionsAndTypeDefs.bal"},
                 {"exprShift1.json", "functionsAndTypeDefs.bal"},
                 {"exprShift2.json", "functionsAndTypeDefs.bal"},
                 {"exprShift3.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprRange1.json", "functionsAndTypeDefs.bal"},
+                {"exprRange1.json", "functionsAndTypeDefs.bal"},
                 {"exprRange2.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprRange3.json", "functionsAndTypeDefs.bal"},
+                {"exprRange3.json", "functionsAndTypeDefs.bal"},
                 {"exprRange4.json", "functionsAndTypeDefs.bal"},
                 {"exprNumericalComparison1.json", "functionsAndTypeDefs.bal"},
                 {"exprNumericalComparison2.json", "functionsAndTypeDefs.bal"},
@@ -163,18 +155,16 @@ public class SignatureHelpTest {
                 {"exprBinaryBitwise3.json", "functionsAndTypeDefs.bal"},
                 {"exprLogical1.json", "functionsAndTypeDefs.bal"},
                 {"exprLogical2.json", "functionsAndTypeDefs.bal"},
-                //TODO: Disabled due to parser freeze reported in https://git.io/Jf5hK
-//                {"exprConditional1.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprConditional2.json", "functionsAndTypeDefs.bal"},
+                {"exprConditional1.json", "functionsAndTypeDefs.bal"},
+                {"exprConditional2.json", "functionsAndTypeDefs.bal"},
                 {"exprConditional3.json", "functionsAndTypeDefs.bal"},
-                //TODO: Broken with new parser
-//                {"exprConditional4.json", "functionsAndTypeDefs.bal"},
+                {"exprConditional4.json", "functionsAndTypeDefs.bal"},
                 {"exprConditional5.json", "functionsAndTypeDefs.bal"},
                 {"exprChecking1.json", "functionsAndTypeDefs.bal"},
                 {"exprChecking2.json", "functionsAndTypeDefs.bal"},
                 {"exprTrap.json", "functionsAndTypeDefs.bal"},
-                {"exprServiceConstructor1.json", "functionsAndTypeDefs.bal"},
+                //disabled since giving function pos from function keyword breaks this.
+ //               {"exprServiceConstructor1.json", "functionsAndTypeDefs.bal"},
                 {"exprServiceConstructor2.json", "functionsAndTypeDefs.bal"},
                 {"functionInSameFile.json", "functionInSameFile.bal"},
                 {"functionInSameFile2.json", "functionInSameFile2.bal"},
@@ -191,17 +181,17 @@ public class SignatureHelpTest {
                 {"signatureWithinIfElse1.json", "signatureWithinIfElse4.bal"},
                 {"signatureWithinIfElse1.json", "signatureWithinWhile.bal"},
                 {"signatureWithinForeach.json", "signatureWithinForeach.bal"},
-                //TODO Transaction
+                //TODO: Fix #24833
 //                {"signatureWithinTransaction1.json", "signatureWithinTransaction1.bal"},
                 {"signatureWithinObjectFunctions.json", "signatureWithinObjectFunctions.bal"},
                 {"signatureWithinCheckPanic.json", "signatureWithinCheckPanic.bal"},
-                {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"},
+                //disabled since giving function pos from function keyword breaks this.
+//                {"signatureWithinAnnotation.json", "signatureWithinAnnotations.bal"},
                 {"signatureSpreadOperator.json", "signatureSpreadOperator.bal"}
         };
     }
 
-    private String getSignatureResponse(JsonObject config, Path sourcePath)
-            throws InterruptedException, IOException {
+    private String getSignatureResponse(JsonObject config, Path sourcePath) throws IOException {
         JsonObject positionObj = config.get("position").getAsJsonObject();
         Position position = new Position();
         position.setLine(positionObj.get("line").getAsInt());

@@ -23,8 +23,7 @@ import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.api.BString;
 
-import java.io.Reader;
-import java.io.StringReader;
+import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Parse a string in JSON format and return the the value that it represents.
@@ -39,9 +38,8 @@ public class FromJsonString {
         if (str.equals("null")) {
             return null;
         }
-        Reader reader = new StringReader(str);
         try {
-            return JSONParser.parse(reader);
+            return JSONParser.parse(str);
         } catch (BallerinaException e) {
             return BallerinaErrors.createError("{ballerina}FromJsonStringError", e.getMessage());
         }

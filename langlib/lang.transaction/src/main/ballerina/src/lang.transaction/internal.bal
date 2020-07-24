@@ -513,7 +513,6 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
 public transactional function endTransaction(string transactionId, string transactionBlockId)
         returns @tainted string|error? {
-
     if (getRollbackOnly()) {
         return getRollbackOnlyError();
     }
@@ -523,6 +522,8 @@ public transactional function endTransaction(string transactionId, string transa
         error err = error("Transaction: " + participatedTxnId + " not found");
         panic err;
     }
+
+    setContextAsNonTransactional();
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
@@ -665,3 +666,5 @@ function getRollbackOnlyError() returns error? = @java:Method {
     class: "org.ballerinalang.langlib.transaction.GetRollbackOnlyError",
     name: "getRollbackOnlyError"
 } external;
+
+function setContextAsNonTransactional() = external;
