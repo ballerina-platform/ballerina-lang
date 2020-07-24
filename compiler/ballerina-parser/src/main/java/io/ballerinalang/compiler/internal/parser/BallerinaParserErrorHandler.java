@@ -22,6 +22,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 
+import javax.swing.text.html.parser.Parser;
+
 /**
  * <p>
  * Responsible for recovering from a parser error.
@@ -562,6 +564,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ORDER_KEY_LIST_END =
             { ParserRuleContext.COMMA, ParserRuleContext.ORDER_CLAUSE_END };
 
+    private static final ParserRuleContext[] ORDER_DIRECTION_RHS =
+            { ParserRuleContext.COMMA, ParserRuleContext.EXPRESSION, ParserRuleContext.ORDER_CLAUSE_END };
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -673,6 +678,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case NAMED_ARG_MATCH_PATTERN_RHS:
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case ORDER_KEY_LIST_END:
+            case ORDER_DIRECTION_RHS:
                 return true;
             default:
                 return false;
@@ -1184,6 +1190,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_TYPE_PARAMS:
             case LET_VAR_DECL_START:
             case ORDER_KEY_LIST_END:
+            case ORDER_DIRECTION_RHS:
             case STREAM_TYPE_FIRST_PARAM_RHS:
             case TEMPLATE_MEMBER:
             case TEMPLATE_STRING_RHS:
@@ -1689,6 +1696,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ORDER_KEY_LIST_END:
                 alternativeRules = ORDER_KEY_LIST_END;
                 break;
+            case ORDER_DIRECTION_RHS:
+                alternativeRules = ORDER_DIRECTION_RHS;
+                break;
             case TEMPLATE_MEMBER:
                 alternativeRules = TEMPLATE_MEMBER;
                 break;
@@ -1920,11 +1930,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         ParserRuleContext.LET_CLAUSE_END };
                 break;
             case ORDER_KEY:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
-                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                        ParserRuleContext.ORDER_CLAUSE_END };
+                alternatives = new ParserRuleContext[] {ParserRuleContext.ASCENDING_KEYWORD,
+                        ParserRuleContext.DESCENDING_KEYWORD, ParserRuleContext.ORDER_KEY_LIST_END,
+                        ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
+                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
+                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
+                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR };
                 break;
             case QUERY_EXPRESSION:
                 alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
@@ -2719,8 +2730,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ORDER_KEY;
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
-                endContext();
-                return ParserRuleContext.ORDER_KEY;
+                return ParserRuleContext.ORDER_DIRECTION_RHS;
             case FROM_KEYWORD:
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
@@ -3081,6 +3091,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.MAPPING_FIELD;
             case LISTENERS_LIST:
             case LIST_CONSTRUCTOR:
+            case ORDER_KEY:
                 return ParserRuleContext.EXPRESSION;
             case ANNOT_ATTACH_POINTS_LIST:
                 return ParserRuleContext.ATTACH_POINT;
@@ -3091,8 +3102,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LET_EXPR_LET_VAR_DECL:
             case LET_CLAUSE_LET_VAR_DECL:
                 return ParserRuleContext.LET_VAR_DECL_START;
-            case ORDER_KEY:
-                return ParserRuleContext.EXPRESSION;
             case TYPE_DESC_IN_STREAM_TYPE_DESC:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case BRACED_EXPR_OR_ANON_FUNC_PARAMS:

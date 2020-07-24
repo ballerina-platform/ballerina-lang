@@ -245,8 +245,8 @@ public enum ParserRuleContext {
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY("order-key"),
-    ORDER_KEY_LIST_START("order-key-list-start"),
     ORDER_KEY_LIST_END("order-key-list-end"),
+    ORDER_DIRECTION_RHS("order-direction-rhs"),
 
     // Statements
     STATEMENT("statement"),
