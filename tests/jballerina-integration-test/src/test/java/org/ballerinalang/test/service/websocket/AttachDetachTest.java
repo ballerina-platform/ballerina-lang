@@ -133,7 +133,7 @@ public class AttachDetachTest extends WebSocketTestCommons {
         client.sendText(DETACH_TEXT);
         client.sendText(DETACH_TEXT);
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), "GenericError: Cannot detach service. Service has not" +
+        Assert.assertEquals(client.getTextReceived(), "[GenericError] Cannot detach service. Service has not" +
                 " been registered");
     }
 

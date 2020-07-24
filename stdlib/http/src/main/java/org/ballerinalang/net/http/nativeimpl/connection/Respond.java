@@ -20,7 +20,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.observability.ObserveUtils;
 import org.ballerinalang.jvm.observability.ObserverContext;
 import org.ballerinalang.jvm.scheduling.Scheduler;
@@ -36,9 +35,6 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlObj;
 import org.ballerinalang.net.http.nativeimpl.pipelining.PipelinedResponse;
 import org.ballerinalang.net.http.util.CacheUtils;
-import org.ballerinalang.net.http.websocket.WebSocketConstants;
-import org.ballerinalang.net.http.websocket.WebSocketException;
-import org.ballerinalang.net.http.websocket.WebSocketUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
@@ -60,7 +56,6 @@ import static org.ballerinalang.net.http.nativeimpl.pipelining.PipeliningHandler
 public class Respond extends ConnectionAction {
 
     private static final Logger log = LoggerFactory.getLogger(Respond.class);
-    private static final String message = "Unable to complete WebSocket handshake";
 
     public static Object nativeRespond(ObjectValue connectionObj, ObjectValue outboundResponseObj) {
 
@@ -113,30 +108,14 @@ public class Respond extends ConnectionAction {
             }
         } catch (ErrorValue e) {
             unBlockStrand(strand);
-            if (log.isDebugEnabled()) {
-                log.debug(e.getPrintableStackTrace(), e);
-            }
-            if (connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER) != null) {
-                throw getWebSocketException(outboundResponseObj);
-            } else {
-                return e;
-            }
+            log.debug(e.getPrintableStackTrace(), e);
+            return e;
         } catch (Throwable e) {
             unBlockStrand(strand);
-            String errorMessage = "";
-            if (connectionObj.getNativeData(WebSocketConstants.WEBSOCKET_HANDSHAKER) != null) {
-                if (log.isDebugEnabled()) {
-                    log.debug(message, e);
-                }
-                throw getWebSocketException(outboundResponseObj);
-            } else {
-                //Exception is already notified by http transport.
-                errorMessage = "Couldn't complete outbound response";
-                if (log.isDebugEnabled()) {
-                    log.debug(errorMessage, e);
-                }
-                return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
-            }
+            //Exception is already notified by http transport.
+            String errorMessage = "Couldn't complete outbound response";
+            log.debug(errorMessage, e);
+            return HttpUtil.createHttpError(errorMessage, HttpErrorType.GENERIC_LISTENER_ERROR);
         }
         return null;
     }
@@ -160,12 +139,5 @@ public class Respond extends ConnectionAction {
     private static boolean isDirtyResponse(ObjectValue outboundResponseObj) {
         return outboundResponseObj.get(RESPONSE_CACHE_CONTROL_FIELD) == null && outboundResponseObj.
                 getNativeData(HttpConstants.DIRTY_RESPONSE) != null;
-    }
-
-    private static WebSocketException getWebSocketException(ObjectValue outboundResponseObj) {
-        ObjectValue entity = outboundResponseObj.getObjectValue(StringUtils.fromString("entity"));
-        String errorMessage = message + ": " + entity.getNativeData(WebSocketConstants.MESSAGE_DATA_SOURCE);
-        return WebSocketUtil.getWebSocketException(errorMessage, null, WebSocketConstants.ErrorCode.
-                WsGenericError.errorCode(), null);
     }
 }

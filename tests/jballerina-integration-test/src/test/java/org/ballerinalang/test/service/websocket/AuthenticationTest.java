@@ -21,47 +21,41 @@ package org.ballerinalang.test.service.websocket;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
- * Tests the cookie support of the WebSocket client.
+ * Tests the authentication support of the WebSocket client.
  */
 @Test(groups = {"websocket-test"})
-public class CookieTest extends WebSocketTestCommons {
+public class AuthenticationTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:21037";
     private LogLeecher logLeecher;
     String expectingErrorLog;
 
-    @Test(description = "Test the cookie support")
-    public void testCookieSupport() throws InterruptedException, URISyntaxException, BallerinaTestException {
+    @Test(description = "Tests with correct credential")
+    public void testBasicAuthentication() throws URISyntaxException, InterruptedException, BallerinaTestException {
         expectingErrorLog = "Hello World!";
         logLeecher = new LogLeecher(expectingErrorLog);
-        serverInstance.addLogLeecher(logLeecher);
-        client = new WebSocketTestClient(URL);
+        WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
+        client = new WebSocketTestClient("ws://localhost:21039");
         client.handshake();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(4, TimeUnit.SECONDS);
-        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
+        logLeecher.waitForText(WebSocketTestCommons.TIMEOUT_IN_SECS * 1000);
         client.shutDown();
     }
 
-    @Test(description = "Test with incorrect cookie")
-    public void negativeTestCase() throws InterruptedException, URISyntaxException, BallerinaTestException {
-        expectingErrorLog = "Error sending message error InvalidHandshakeError: Invalid handshake response " +
-                "getStatus: 401 Unauthorized";
+    @Test(description = "Tests with wrong credential")
+    public void negativeTestcase() throws URISyntaxException, InterruptedException, BallerinaTestException {
+        expectingErrorLog = "error InvalidHandshakeError: Invalid handshake response getStatus: 401 Unauthorized";
         logLeecher = new LogLeecher(expectingErrorLog);
-        serverInstance.addLogLeecher(logLeecher);
-        client = new WebSocketTestClient("ws://localhost:21038");
+        WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
+        client = new WebSocketTestClient("ws://localhost:21042");
         client.handshake();
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        countDownLatch.await(4, TimeUnit.SECONDS);
-        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
+        Assert.assertTrue(client.isOpen());
+        logLeecher.waitForText(WebSocketTestCommons.TIMEOUT_IN_SECS * 1000);
         client.shutDown();
     }
 }
