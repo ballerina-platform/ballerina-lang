@@ -69,7 +69,6 @@ import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -4556,7 +4555,7 @@ public class BallerinaParser extends AbstractParser {
                 // Handle 'a/<b|c>...' scenarios. These have ambiguity between being a xml-step expr
                 // or a binary expr (division), with a type-cast as the denominator.
                 if (tokenKind == SyntaxKind.SLASH_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
-                    SyntaxKind expectedNodeType = getNodeType(3, isRhsExpr, isInMatchGuard, lhsExpr.kind);
+                    SyntaxKind expectedNodeType = getExpectedNodeKind(3, isRhsExpr, isInMatchGuard, lhsExpr.kind);
                     if (expectedNodeType == SyntaxKind.XML_STEP_EXPRESSION) {
                         newLhsExpr = createXMLStepExpression(lhsExpr);
                         break;
@@ -4643,24 +4642,23 @@ public class BallerinaParser extends AbstractParser {
         return newLhsExpr;
     }
 
-    private SyntaxKind getNodeType(int lookahead, boolean isRhsExpr, boolean isInMatchGuard,
-                                   SyntaxKind precedingNodeKind) {
+    private SyntaxKind getExpectedNodeKind(int lookahead, boolean isRhsExpr, boolean isInMatchGuard,
+                                           SyntaxKind precedingNodeKind) {
         STToken nextToken = peek(lookahead);
-
         switch (nextToken.kind) {
             case ASTERISK_TOKEN:
                 return SyntaxKind.XML_STEP_EXPRESSION;
             case GT_TOKEN:
                 break;
             case PIPE_TOKEN:
-                return getNodeType(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
+                return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
             case IDENTIFIER_TOKEN:
                 nextToken = peek(++lookahead);
                 switch (nextToken.kind) {
                     case GT_TOKEN: // a>
                         break;
                     case PIPE_TOKEN: // a|
-                        return getNodeType(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
+                        return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
                     case COLON_TOKEN:
                         nextToken = peek(++lookahead);
                         switch (nextToken.kind) {
@@ -4672,7 +4670,8 @@ public class BallerinaParser extends AbstractParser {
 
                                 // a:b |
                                 if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
-                                    return getNodeType(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
+                                    return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard,
+                                            precedingNodeKind);
                                 }
 
                                 // a:b> or everything else

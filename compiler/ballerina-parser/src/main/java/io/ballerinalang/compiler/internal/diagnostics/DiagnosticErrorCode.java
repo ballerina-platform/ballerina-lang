@@ -280,7 +280,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP("BCE601", "error.no.whitespaces.allowed.in.right.shift.op"),
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",
             "error.no.whitespaces.allowed.in.unsigned.right.shift.op"),
-    ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN("BCE02204", "error.invalid.whitespace.in.slash.lt.token"),
+    ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN("BCE603", "error.invalid.whitespace.in.slash.lt.token"),
 
     // Lexer errors
     ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS("BCE1000", "error.leading.zeros.in.numeric.literals"),
