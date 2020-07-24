@@ -41,6 +41,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNilLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;
@@ -68,6 +69,7 @@ import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -4016,12 +4018,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     protected STNode parseExpression() {
-        STNode actionOrExpression = parseExpression(DEFAULT_OP_PRECEDENCE, true, false);
-        if (isAction(actionOrExpression)) {
-            actionOrExpression = SyntaxErrors.addDiagnostic(actionOrExpression,
-                    DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
-        }
-        return actionOrExpression;
+        return parseExpression(DEFAULT_OP_PRECEDENCE, true, false);
     }
 
     /**
@@ -4101,9 +4098,34 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, boolean isRhsExpr,
                                    boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
         STNode expr = parseTerminalExpression(kind, isRhsExpr, allowActions, isInConditionalExpr);
-        return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
+        STNode actionOrExpression =
+                parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
+        //braced actions are just paranthesis enclosing actions, no need to add a diagnostic there when we have added
+        //diagnostics to its children
+        if (!allowActions && isAction(actionOrExpression) && actionOrExpression.kind != SyntaxKind.BRACED_ACTION) {
+            actionOrExpression = attachErrorExpectedActionFoundDiagnostic(actionOrExpression);
+        }
+        return actionOrExpression;
     }
 
+    private boolean containsDiagnostics(STNode node, DiagnosticErrorCode diagnosticErrorCode) {
+        // the time complexity can be converted to O(1) if we use a hashtable to store the diag error codes
+        Iterator diagnostics = node.diagnostics().iterator();
+        while (diagnostics.hasNext()) {
+            STNodeDiagnostic diag = (STNodeDiagnostic) diagnostics.next();
+            if (diag.diagnosticCode() == diagnosticErrorCode) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private STNode attachErrorExpectedActionFoundDiagnostic(STNode node) {
+        if (!containsDiagnostics(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND)) {
+            return SyntaxErrors.addDiagnostic(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+        }
+        return node;
+    }
     private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, STNode annots,
                                    boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions, isInConditionalExpr);
@@ -4544,15 +4566,13 @@ public class BallerinaParser extends AbstractParser {
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
                 if (!allowActions) {
-                    newLhsExpr = SyntaxErrors.addDiagnostic(newLhsExpr,
-                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+                    newLhsExpr = attachErrorExpectedActionFoundDiagnostic(newLhsExpr);
                 }
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
                 if (!allowActions) {
-                    newLhsExpr = SyntaxErrors.addDiagnostic(newLhsExpr,
-                            DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+                    newLhsExpr = attachErrorExpectedActionFoundDiagnostic(newLhsExpr);
                 }
                 break;
             case RIGHT_DOUBLE_ARROW_TOKEN:
@@ -4591,6 +4611,9 @@ public class BallerinaParser extends AbstractParser {
                 // then complete that binary-expr, come back here and finish the current expr.
 
                 // Actions within binary-expressions are not allowed.
+                if (isAction(lhsExpr)) {
+                    lhsExpr = attachErrorExpectedActionFoundDiagnostic(lhsExpr);
+                }
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false, isInConditionalExpr);
                 newLhsExpr = STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, operator,
                         rhsExpr);
