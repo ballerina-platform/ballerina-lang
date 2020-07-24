@@ -164,4 +164,16 @@ public class InstanceMethods {
     public int getObjectValueField(ObjectValue objectValue) {
         return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
     }
+
+    public int getInt(ObjectValue objectValue, int x) {
+        return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
+    }
+
+    public int getInt(int x) {
+        return x;
+    }
+
+    public int getRandomInt() {
+        return 123;
+    }
 }

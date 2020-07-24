@@ -46,6 +46,14 @@ public type Person object {
         class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
     } external;
 
+    public function getInt(handle h, int x) returns int = @java:Method{
+        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+    } external;
+
+    public function getRandomInt(handle h) returns int = @java:Method{
+        class:"org/ballerinalang/nativeimpl/jvm/tests/InstanceMethods"
+    } external;
+
     public function acceptTwoParamsAndReturnSomething(handle s, handle s2) returns handle = @java:Method {
        class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
     } external;
@@ -83,7 +91,8 @@ function getBIntFromJInt(handle receiver) returns int = @java:Method {
 
 public function testInteropsInsideObject() {
     Person p = new("Waruna", 5, 123.45);
-    //// test instance methods
+
+    // Test instance java interop methods inside object
     handle h = p.newInstance();
     int counter = p.getBIntFromJInt(p.getCounter(h));
     assertEquality(counter, 0);
@@ -92,11 +101,14 @@ public function testInteropsInsideObject() {
     assertEquality(counter, 24);
     int age = p.getObjectValueField(h);
     assertEquality(age, 5);
+    int x = p.getInt(h, 444);
+    assertEquality(x, 444);
+    int y = p.getRandomInt(h);
+    assertEquality(y, 123);
 
-    // test static methods
+    // Test static java interop methods inside object
     string message = <string>java:toString(p.acceptTwoParamsAndReturnSomething(java:fromString("Hello "),
                                                                                java:fromString("World")));
-
     assertEquality(message, "Hello World");
     age = p.acceptObjectAndReturnField();
     assertEquality(age, 5);
