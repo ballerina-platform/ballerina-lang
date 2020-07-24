@@ -1286,25 +1286,22 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process any token that starts with '/'.
      *
-     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     * @return One of the tokens: <code>'/', '/*', '/**\/<' </code>
      */
     private STToken processSlashToken() {
-        switch (peek()) { // check for the second char
-            case LexerTerminals.LT:
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
-            case LexerTerminals.ASTERISK:
-                reader.advance();
-                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
-                    reader.advance(3);
-                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
-                } else {
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                }
-            default:
-                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        // check for the second char
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+
+        reader.advance();
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+        } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+        } else {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
         }
     }
 
