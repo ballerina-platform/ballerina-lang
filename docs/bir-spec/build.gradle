@@ -1,0 +1,40 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+
+    dependencies {
+        classpath("name.valery1707.kaitai:kaitai-gradle-plugin:0.1.1")
+    }
+}
+
+apply from: "$rootDir/gradle/javaProject.gradle"
+apply plugin: 'name.valery1707.kaitai'
+
+dependencies {
+    implementation 'io.kaitai:kaitai-struct-runtime:0.8'
+    implementation 'org.wso2.orbit.org.yaml:snakeyaml:1.16.0.wso2v1'
+    implementation 'com.github.jknack:handlebars'
+}
+
+kaitai {
+    packageName = 'org.ballerinalang.build.kaitai'
+}
+
+sourceSets.main.java.srcDirs += 'build/generated/kaitai/src'
+checkstyleMain.exclude '**/kaitai/**'
+
+task genBirSpec(type: JavaExec) {
+    dependsOn classes
+    classpath += sourceSets.main.runtimeClasspath
+    main = 'org.ballerinalang.birspec.BIRSpecGenerator'
+
+    inputs.dir('src/main/resources')
+    outputs.files('../compiler/bir-spec.md')
+    outputs.cacheIf { true }
+}
+
+
+build {
+    dependsOn genBirSpec
+}
