@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
@@ -2718,6 +2719,12 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExpressionStmt exprStmtNode) {
+        if (exprStmtNode.expr.getKind() == NodeKind.FAIL) {
+            BLangFailExpr failExpr = (BLangFailExpr) exprStmtNode.expr;
+            BLangReturn stmt = ASTBuilderUtil.createReturnStmt(failExpr.expr.pos, failExpr.expr);
+            result = rewrite(stmt, env);
+            return;
+        }
         exprStmtNode.expr = rewriteExpr(exprStmtNode.expr);
         result = exprStmtNode;
     }
@@ -4589,6 +4596,11 @@ public class Desugar extends BLangNodeVisitor {
         } else {
             result = rewriteExpr(xmlAttributeAccessExpr);
         }
+    }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        result = rewriteExpr(failExpr.expr);
     }
 
     // Generated expressions. Following expressions are not part of the original syntax

@@ -69,3 +69,8 @@ function testInferringForReadOnlyNegativeInUnion() {
 
     boolean[][]|readonly br = [arr];
 }
+
+function testListConstrWithIssuesInCET() {
+    Foo f = ["hello", <string> 1]; // Unknown type.
+    string[]|Foo g = [<string> 1, "hello"]; // Unknown type in union.
+}

@@ -394,6 +394,17 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STFailExpressionNode transform(
+            STFailExpressionNode failExpressionNode) {
+        STNode failKeyword = modifyNode(failExpressionNode.failKeyword);
+        STNode expression = modifyNode(failExpressionNode.expression);
+        return failExpressionNode.modify(
+                failExpressionNode.kind,
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public STFieldAccessExpressionNode transform(
             STFieldAccessExpressionNode fieldAccessExpressionNode) {
         STNode expression = modifyNode(fieldAccessExpressionNode.expression);
@@ -2429,6 +2440,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public STOrderByClauseNode transform(
+            STOrderByClauseNode orderByClauseNode) {
+        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
+        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
+        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public STOrderKeyNode transform(
+            STOrderKeyNode orderKeyNode) {
+        STNode expression = modifyNode(orderKeyNode.expression);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
     }
 
     // Tokens

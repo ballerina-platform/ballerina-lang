@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,26 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.semantichighlighter;
+package org.ballerinalang.model.tree.expressions;
+
 /**
- * Represents the data model for Semantic Highlighting Information.
+ * {@code FailExpressionNode} represents an expression which forces to return error.
  *
- * @since 1.2.0
+ * @since Swan Lake
  */
-class SemanticHighlightingInformation {
-    private final int line;
-    private final String token;
+public interface FailExpressionNode extends ExpressionNode {
 
-    public SemanticHighlightingInformation(int line, String token) {
-        this.line = line;
-        this.token = token;
-    }
+    ExpressionNode getExpression();
 
-    public String getToken() {
-        return token;
-    }
-
-    public int getLine() {
-        return line;
-    }
+    void setExpression(ExpressionNode expressionNode);
 }

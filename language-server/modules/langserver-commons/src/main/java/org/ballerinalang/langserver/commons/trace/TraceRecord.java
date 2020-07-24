@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.extensions.ballerina.traces;
+package org.ballerinalang.langserver.commons.trace;
 
 import com.google.gson.JsonObject;
 
@@ -34,7 +34,7 @@ public class TraceRecord {
     private String sourceMethod;
     private String thread;
 
-    TraceRecord(Message message, JsonObject record, String rawMessage) {
+    public TraceRecord(Message message, JsonObject record, String rawMessage) {
         this.message = message;
         this.rawMessage = rawMessage;
         this.id = UUID.randomUUID().toString();

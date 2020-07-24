@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.langserver.extensions.ballerina.traces;
+package org.ballerinalang.langserver.commons.trace;
 
 /**
  * {@link Message} Parsed log message sent to client.
@@ -30,7 +30,7 @@ public class Message {
     private String payload;
     private String headerType;
 
-    Message(String id, String direction, String headers, String httpMethod, String path, String contentType,
+    public Message(String id, String direction, String headers, String httpMethod, String path, String contentType,
             String payload, String headerType) {
         this.id = id;
         this.direction = direction;

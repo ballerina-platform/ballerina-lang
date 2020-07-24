@@ -6,7 +6,7 @@ import ballerina/io;
 // MOCK FUNCTION OBJECTS
 //
 
-@test:MockFn {
+@test:Mock {
     functionName : "intAdd"
 }
 test:MockFunction mock1 = new();

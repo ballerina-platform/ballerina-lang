@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,16 +15,20 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.wso2.ballerinalang.compiler.parser.antlr4;
 
-import org.antlr.v4.runtime.BaseErrorListener;
-import org.antlr.v4.runtime.RecognitionException;
-import org.antlr.v4.runtime.Recognizer;
+package org.ballerinalang.model.clauses;
 
-public class ReferenceParserErrorListener extends BaseErrorListener {
+import org.ballerinalang.model.tree.Node;
 
-    @Override
-    public void syntaxError(Recognizer<?, ?> recognizer, Object o, int i, int i1, String s, RecognitionException e) {
-        return; // This do nothing method is used to stop antlr from emmitting errors while parsing backtick content
-    }
+import java.util.List;
+
+/**
+ * The interface with the APIs to implement the "order by" clause.
+ *
+ * @since Swan Lake
+ */
+public interface OrderByClauseNode extends Node {
+    void addOrderKey(OrderKeyNode orderKeyNode);
+
+    List<OrderKeyNode> getOrderKeyList();
 }
