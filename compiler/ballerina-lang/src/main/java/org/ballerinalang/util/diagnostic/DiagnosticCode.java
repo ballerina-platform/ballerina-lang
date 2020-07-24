@@ -425,6 +425,7 @@ public enum DiagnosticCode {
     MISMATCHED_INPUT("mismatched.input"),
     FAILED_PREDICATE("failed.predicate"),
     SYNTAX_ERROR("syntax.error"),
+    SYNTAX_WARNING("syntax.warning"),
     INVALID_SHIFT_OPERATOR("invalid.shift.operator"),
 
     // Streaming related codes

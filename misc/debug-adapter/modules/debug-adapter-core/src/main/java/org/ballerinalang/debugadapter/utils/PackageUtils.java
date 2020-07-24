@@ -23,6 +23,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Package Utils.
@@ -30,6 +32,7 @@ import java.nio.file.Paths;
 public class PackageUtils {
 
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
+    private static final String SERVICE_REGEX = "(\\w+\\.){3}(\\$value\\$)(.*)(__service_)";
 
     /**
      * Find the project root by recursively up to the root.
@@ -85,5 +88,30 @@ public class PackageUtils {
             srcNames = new String[]{sourceName};
         }
         return srcNames;
+    }
+
+    /**
+     * Get relative path when a bal file is inside a directory.
+     *
+     * @param sourcePath    source path
+     * @param reference     reference string
+     * @param sourceName    source name
+     * @param fileName      file name
+     * @return relative path
+     */
+    public static String getDirectoryRelativePath(String sourcePath, String reference, String sourceName,
+                                                  String fileName) {
+        // When a bal file is inside a directory, the source path is constructed appropriately for services.
+        // But for non service bal files, [directory/file] path occurring twice in source path.
+        // We are handling this by using a service regex. If reference does not contain service regex,
+        // appropriate adjustment is made for source path else not.
+        Pattern pattern = Pattern.compile(SERVICE_REGEX);
+        Matcher matcher = pattern.matcher(reference);
+
+        if (matcher.find()) {
+            return sourcePath;
+        } else {
+            return sourcePath.replace(sourceName, fileName);
+        }
     }
 }
