@@ -95,7 +95,7 @@ class JMethodResolver {
         // 3) Filter out the constructors or methods that have the same number of
         //      parameters as the number of constraints
         int paramCount = getBFuncParamCount(jMethodRequest, jMethods);
-        jMethods = resolveByParamCount(jMethods, paramCount, jMethodRequest.receiverType != null);
+        jMethods = resolveByParamCount(jMethods, paramCount, jMethodRequest.receiverType);
 
         // 4) If the above list is zero then throw an error
         if (jMethods.isEmpty()) {
@@ -121,14 +121,14 @@ class JMethodResolver {
                 .collect(Collectors.toList());
     }
 
-    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount, boolean receiver) {
+    private List<JMethod> resolveByParamCount(List<JMethod> jMethods, int paramCount, BType receiverType) {
 
         return jMethods.stream()
                 .filter(jMethod -> {
                     if (jMethod.getParamTypes().length == paramCount) {
                         return true;
-                    } else if (receiver && jMethod.getParamTypes().length == paramCount + 1) {
-                        jMethod.setReceiver(true);
+                    } else if (receiverType != null && jMethod.getParamTypes().length == paramCount + 1) {
+                        jMethod.setReceiverType(receiverType);
                         return true;
                     }
                     return false;
@@ -226,7 +226,13 @@ class JMethodResolver {
         int bParamCount = bParamTypes.length;
         int i = 0;
         int j = 0;
-        if (jMethod.hasReceiver()) {
+        if (jMethod.getReceiverType() != null) {
+            Class<?> jParamType = jParamTypes[0];
+            BType bParamType = jMethod.getReceiverType();
+            if (!isValidParamBType(jParamTypes[0], bParamType, jMethodRequest)) {
+                throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
+                                           jMethodRequest.declaringClass);
+            }
             bParamCount = bParamCount + 1;
             j++;
         }

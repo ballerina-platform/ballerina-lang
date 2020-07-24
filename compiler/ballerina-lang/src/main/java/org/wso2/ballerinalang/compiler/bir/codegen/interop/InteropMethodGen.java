@@ -326,7 +326,7 @@ public class InteropMethodGen {
 
         JType varArgType = null;
         int jMethodParamIndex = 0;
-        if (jMethod.hasReceiver()) {
+        if (jMethod.getReceiverType() != null) {
             jMethodParamIndex++;
             args.add(new BIROperand(birFunc.receiver));
         }

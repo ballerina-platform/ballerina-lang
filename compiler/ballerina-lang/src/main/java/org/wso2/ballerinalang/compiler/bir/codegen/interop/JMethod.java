@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -42,7 +43,7 @@ class JMethod {
 
     JMethodKind kind;
     private Executable method;
-    private boolean receiver;
+    private BType receiverType;
 
     private JMethod(JMethodKind kind, Executable executable) {
 
@@ -117,12 +118,12 @@ class JMethod {
         }
     }
 
-    public boolean hasReceiver() {
-        return receiver;
+    public BType getReceiverType() {
+        return receiverType;
     }
 
-    public void setReceiver(boolean receiver) {
-        this.receiver = receiver;
+    public void setReceiverType(BType receiverType) {
+        this.receiverType = receiverType;
     }
 
     ArrayValue getExceptionTypes(ClassLoader classLoader) {
