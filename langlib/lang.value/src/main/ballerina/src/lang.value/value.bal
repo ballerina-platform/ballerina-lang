@@ -147,7 +147,10 @@ public function toString((any|error) v) returns string = @java:Method {
 # + v - anydata value
 # + return - representation of `v` as value of type json
 # This panics if `v` has cycles.
-public function toJson(anydata v) returns json = external;
+public function toJson(anydata v) returns json = @java:Method {
+    class: "org.ballerinalang.langlib.value.ToJson",
+    name: "toJson"
+} external;
 
 # Returns the string that represents `v` in JSON format.
 # `v` is first converted to `json` as if by the `toJson` function.
@@ -178,7 +181,10 @@ public function fromJsonString(string str) returns json|error = @java:Method {
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
 public function fromJsonWithType(json v, typedesc<anydata> t)
-    returns t|error = external;
+    returns t|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.FromJsonWithType",
+    name: "fromJsonWithType"
+} external;
 
 # Converts a string in JSON format to a user-specified type.
 # This is a combination of `fromJsonString` followed by
@@ -186,7 +192,10 @@ public function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to `t`, or error if this cannot be done
-public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = external;
+public function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = @java:Method {
+    class: "org.ballerinalang.langlib.value.FromJsonStringWithType",
+    name: "fromJsonStringWithType"
+} external;
 
 # Merges two json values.
 #

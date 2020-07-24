@@ -667,4 +667,7 @@ function getRollbackOnlyError() returns error? = @java:Method {
     name: "getRollbackOnlyError"
 } external;
 
-function setContextAsNonTransactional() = external;
+function setContextAsNonTransactional() = @java:Method {
+    class: "org.ballerinalang.langlib.transaction.SetContextAsNonTransactional",
+    name: "setContextAsNonTransactional"
+} external;

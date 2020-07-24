@@ -21,7 +21,6 @@ import org.ballerinalang.jvm.JSONUtils;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.commons.TypeValuePair;
-import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BType;
@@ -38,7 +37,6 @@ import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.RefValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 import org.ballerinalang.jvm.values.api.BString;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +46,6 @@ import static org.ballerinalang.jvm.BallerinaErrors.createError;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static org.ballerinalang.jvm.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
-import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 
 /**
  * Extern function lang.values:toJson.
@@ -56,23 +53,23 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
  *
  * @since 2.0
  */
-@BallerinaFunction(
-        orgName = "ballerina",
-        packageName = "lang.value", version = VALUE_VERSION,
-        functionName = "toJson",
-        isPublic = true
-)
+//@BallerinaFunction(
+//        orgName = "ballerina",
+//        packageName = "lang.value", version = VALUE_VERSION,
+//        functionName = "toJson",
+//        isPublic = true
+//)
 public class ToJson {
 
-    public static Object toJson(Strand strand, Object value) {
+    public static Object toJson(Object value) {
         try {
-            return convert(value, new ArrayList<>(), strand);
+            return convert(value, new ArrayList<>());
         } catch (Exception e) {
             return e;
         }
     }
 
-    private static Object convert(Object value, List<TypeValuePair> unresolvedValues, Strand strand) {
+    private static Object convert(Object value, List<TypeValuePair> unresolvedValues) {
         BType jsonType = BTypes.typeJSON;
 
         if (value == null) {
@@ -102,11 +99,11 @@ public class ToJson {
             case TypeTags.XML_COMMENT_TAG:
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TEXT_TAG:
-                newValue = ToString.toString(strand, value);
+                newValue = ToString.toString(value);
                 break;
             case TypeTags.TUPLE_TAG:
             case TypeTags.ARRAY_TAG:
-                newValue = convertArrayToJson((ArrayValue) value, unresolvedValues, strand);
+                newValue = convertArrayToJson((ArrayValue) value, unresolvedValues);
                 break;
             case TypeTags.TABLE_TAG:
                 try {
@@ -117,7 +114,7 @@ public class ToJson {
                 break;
             case TypeTags.RECORD_TYPE_TAG:
             case TypeTags.MAP_TAG:
-                newValue = convertMapToJson((MapValue<?, ?>) value, unresolvedValues, strand);
+                newValue = convertMapToJson((MapValue<?, ?>) value, unresolvedValues);
                 break;
             case TypeTags.ERROR_TAG:
             default:
@@ -128,21 +125,19 @@ public class ToJson {
         return newValue;
     }
 
-    private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues,
-                                           Strand strand) {
+    private static Object convertMapToJson(MapValue<?, ?> map, List<TypeValuePair> unresolvedValues) {
         MapValueImpl<BString, Object> newMap = new MapValueImpl<>(new BMapType(BTypes.typeJSON));
         for (Map.Entry entry : map.entrySet()) {
-            Object newValue = convert(entry.getValue(), unresolvedValues, strand);
+            Object newValue = convert(entry.getValue(), unresolvedValues);
             newMap.put(StringUtils.fromString(entry.getKey().toString()), newValue);
         }
         return newMap;
     }
 
-    private static Object convertArrayToJson(ArrayValue array, List<TypeValuePair> unresolvedValues,
-                                             Strand strand) {
+    private static Object convertArrayToJson(ArrayValue array, List<TypeValuePair> unresolvedValues) {
         ArrayValueImpl newArray = new ArrayValueImpl((BArrayType) BTypes.typeJsonArray);
         for (int i = 0; i < array.size(); i++) {
-            Object newValue = convert(array.get(i), unresolvedValues, strand);
+            Object newValue = convert(array.get(i), unresolvedValues);
             newArray.add(i, newValue);
         }
         return newArray;

@@ -51,4 +51,5 @@ module io.ballerina.lang {
     exports org.ballerinalang.model.symbols;
     exports org.ballerinalang.repository.fs;
     exports org.wso2.ballerinalang.compiler.spi;
+    exports org.ballerinalang.util;
 }
