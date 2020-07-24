@@ -53,8 +53,8 @@ public class CookieTest extends WebSocketTestCommons {
 
     @Test(description = "Test with incorrect cookie")
     public void negativeTestCase() throws InterruptedException, URISyntaxException, BallerinaTestException {
-        expectingErrorLog = "Error sending message error InvalidHandshakeError: Invalid handshake response " +
-                "getStatus: 401 Unauthorized";
+        expectingErrorLog = "Error sending message error InvalidHandshakeError: Invalid handshake response getStatus:" +
+                " 401 Unauthorized";
         logLeecher = new LogLeecher(expectingErrorLog);
         serverInstance.addLogLeecher(logLeecher);
         client = new WebSocketTestClient("ws://localhost:21038");
