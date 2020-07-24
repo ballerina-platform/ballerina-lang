@@ -9826,10 +9826,12 @@ public class BallerinaParser extends AbstractParser {
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
             default:
-                // TODO Can insert an empty param list here and attach the invalid param list as minutiae
-                params = SyntaxErrors.addDiagnostic(params,
+                STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                syntheticParam = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(syntheticParam, params,
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
+                params = STNodeFactory.createSimpleNameReferenceNode(syntheticParam);
         }
+
         STNode rightDoubleArrow = parseDoubleRightArrow();
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
