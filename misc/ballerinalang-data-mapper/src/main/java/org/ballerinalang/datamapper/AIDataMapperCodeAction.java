@@ -9,7 +9,6 @@
  * this license, please see the license as well as any agreement you’ve
  * entered into with WSO2 governing the purchase of this software and any
  */
-
 package org.ballerinalang.datamapper;
 
 import org.ballerinalang.annotation.JavaSPIService;
@@ -18,6 +17,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.LSCodeActionProviderException;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -53,51 +53,8 @@ import static org.ballerinalang.langserver.util.references.ReferencesUtil.getRef
 /**
  * Code Action provider for automatic data mapping.
  */
-
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
-
-    private static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
-                                                     LSContext context) {
-        /* TODO: Complete the command and code action */
-        Position startingPosition = diagnostic.getRange().getStart();
-        Position endingPosition = diagnostic.getRange().getEnd();
-
-        try {
-            Position afterAliasPos = new Position(startingPosition.getLine(),
-                    (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
-            SymbolReferencesModel.Reference refAtCursor;
-            if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1) {
-                refAtCursor = getReferenceAtCursor(context, document, afterAliasPos);
-            } else {
-                refAtCursor = getReferenceAtCursor(context, document, endingPosition);
-            }
-            BType symbolAtCursorType = refAtCursor.getSymbol().type;
-
-            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
-                return null;
-            } else {
-                if (symbolAtCursorType instanceof BRecordType) {
-                    String commandTitle = "Generate mapping function";
-                    CodeAction action = new CodeAction(commandTitle);
-                    action.setKind(CodeActionKind.QuickFix);
-
-                    String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
-                    List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, refAtCursor, diagnostic);
-                    action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
-                            new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
-                    List<Diagnostic> diagnostics = new ArrayList<>();
-                    action.setDiagnostics(diagnostics);
-                    return action;
-                } else {
-                    return null;
-                }
-            }
-        } catch (CompilationFailedException | WorkspaceDocumentException | IOException | TokenOrSymbolNotFoundException e) { // | IOException e) {
-            // ignore
-        }
-        return null;
-    }
 
     /**
      * {@inheritDoc}
@@ -110,26 +67,18 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
         List<CodeAction> actions = new ArrayList<>();
         WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
-        LSDocumentIdentifier document = null;
         try {
-            if (filePath.isPresent()) {
-                document = documentManager.getLSDocument(filePath.get());
-            } else {
+            if (!filePath.isPresent()) {
                 return actions;
             }
-        } catch (WorkspaceDocumentException e) {
-            // ignore
-        }
-        if (document == null) {
-            return actions;
-        }
-        for (Diagnostic diagnostic : diagnosticsOfRange) {
-            if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
-                CodeAction codeAction = getAIDataMapperCommand(document, diagnostic, lsContext);
-                if (codeAction != null) {
-                    actions.add(codeAction);
+            LSDocumentIdentifier document = documentManager.getLSDocument(filePath.get());
+            for (Diagnostic diagnostic : diagnosticsOfRange) {
+                if (diagnostic.getMessage().toLowerCase(Locale.ROOT).contains(CommandConstants.INCOMPATIBLE_TYPES)) {
+                    actions.add(getAIDataMapperCommand(document, diagnostic, lsContext));
                 }
             }
+        } catch (WorkspaceDocumentException | LSCodeActionProviderException e) {
+            // ignore
         }
         return actions;
     }
@@ -151,6 +100,53 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     public boolean isEnabled() {
 
         return LSClientConfigHolder.getInstance().getConfig().getDataMapper().isEnabled();
+    }
+
+    /**
+     * Return data mapping code action.
+     *
+     * @param document   {@link LSDocumentIdentifier}
+     * @param diagnostic {@link Diagnostic}
+     * @param context    {@link LSContext}
+     * @return data mapper code action
+     * @throws LSCodeActionProviderException throws if the context does not require a record mapping
+     */
+    private static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
+                                                     LSContext context) throws LSCodeActionProviderException {
+
+        Position startingPosition = diagnostic.getRange().getStart();
+        Position endingPosition = diagnostic.getRange().getEnd();
+
+        try {
+            Position diagnosticPosition;
+            if (endingPosition.getCharacter() - startingPosition.getCharacter() > 1) {
+                diagnosticPosition = new Position(startingPosition.getLine(),
+                        (startingPosition.getCharacter() + endingPosition.getCharacter()) / 2);
+            } else {
+                diagnosticPosition = endingPosition;
+            }
+            SymbolReferencesModel.Reference refAtCursor = getReferenceAtCursor(context, document, diagnosticPosition);
+            BType symbolAtCursorType = refAtCursor.getSymbol().type;
+
+            if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
+                /*TODO : instead of checking instanceof use 'getkind()'*/
+                throw new LSCodeActionProviderException("Invalid code action provider");/*TODO: Change message*/
+            }
+            if (symbolAtCursorType instanceof BRecordType) {
+                CodeAction action = new CodeAction("Generate mapping function");
+                action.setKind(CodeActionKind.QuickFix);
+
+                String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
+                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(context, refAtCursor, diagnostic);
+                action.setEdit(new WorkspaceEdit(Collections.singletonList(Either.forLeft(
+                        new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), fEdits)))));
+                action.setDiagnostics(new ArrayList<>());
+                return action;
+            }
+        } catch (CompilationFailedException | WorkspaceDocumentException | IOException | TokenOrSymbolNotFoundException e) {
+            // ignore
+        }
+        throw new LSCodeActionProviderException("Invalid code action provider"); /*TODO: Change message*/
     }
 }
 
