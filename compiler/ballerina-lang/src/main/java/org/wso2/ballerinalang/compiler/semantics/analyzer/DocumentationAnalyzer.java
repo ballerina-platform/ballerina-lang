@@ -247,7 +247,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
         }
 
         if (isDeprecationDocumentationAvailable && !isDeprecationAnnotationAvailable) {
-            dlog.error(pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
+            dlog.error(deprecationDocumentation.pos, DiagnosticCode.INVALID_DEPRECATION_DOCUMENTATION);
         } else if (!isDeprecationDocumentationAvailable && isDeprecationAnnotationAvailable) {
             dlog.error(pos, DiagnosticCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE);
         }
@@ -471,7 +471,7 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
 
         BLangMarkdownReturnParameterDocumentation returnParameter = documentationAttachment.getReturnParameter();
         if (returnParameter == null && isExpected) {
-            dlog.warning(node.pos, DiagnosticCode.UNDOCUMENTED_RETURN_PARAMETER);
+            dlog.warning(documentationAttachment.pos, DiagnosticCode.UNDOCUMENTED_RETURN_PARAMETER);
         } else if (returnParameter != null && !isExpected) {
             dlog.warning(returnParameter.pos, DiagnosticCode.NO_DOCUMENTABLE_RETURN_PARAMETER);
         } else if (returnParameter != null) {
