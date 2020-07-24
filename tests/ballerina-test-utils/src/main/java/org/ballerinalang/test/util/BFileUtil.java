@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.test.util;
 
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;

@@ -26,8 +26,8 @@ import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.util.Flags;
 import org.ballerinalang.core.model.util.JsonGenerator;
-import org.ballerinalang.util.exceptions.BallerinaErrorReasons;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaErrorReasons;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

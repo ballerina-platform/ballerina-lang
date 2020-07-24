@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.util.exceptions;
+package org.ballerinalang.core.util.exceptions;
 
 import java.text.MessageFormat;
 import java.util.Locale;

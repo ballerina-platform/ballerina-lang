@@ -35,6 +35,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.ballerinalang.jvm.util.BLangConstants.ARRAY_LANG_LIB;
 import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static org.ballerinalang.jvm.values.utils.ArrayUtils.createOpNotSupportedError;
+import static org.ballerinalang.util.BLangCompilerConstants.ARRAY_VERSION;
 
 /**
  * Native implementation of lang.array:map(Type[]).

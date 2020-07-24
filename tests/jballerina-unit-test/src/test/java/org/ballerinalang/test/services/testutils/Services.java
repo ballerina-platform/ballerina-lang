@@ -30,7 +30,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener;
 import org.ballerinalang.net.http.mock.nonlistening.MockHTTPConnectorListener.RegistryHolder;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.util.Collections;

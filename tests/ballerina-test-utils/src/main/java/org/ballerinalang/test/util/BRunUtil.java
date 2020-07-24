@@ -261,14 +261,13 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.util.exceptions
-                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
                                 "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
@@ -282,7 +281,7 @@ public class BRunUtil {
                                                                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
                         futureValue.panic);
             }
             jvmResult = futureValue.result;
@@ -395,14 +394,13 @@ public class BRunUtil {
                 } catch (InvocationTargetException e) {
                     Throwable t = e.getTargetException();
                     if (t instanceof BLangRuntimeException) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException(t.getMessage());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(t.getMessage());
                     }
                     if (t instanceof ErrorValue) {
-                        throw new org.ballerinalang.util.exceptions
-                                .BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " + ((ErrorValue) t).getPrintableStackTrace());
                     }
                     if (t instanceof StackOverflowError) {
-                        throw new org.ballerinalang.util.exceptions.BLangRuntimeException("error: " +
+                        throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException("error: " +
                                 "{ballerina}StackOverflow {\"message\":\"stack overflow\"}");
                     }
                     throw new RuntimeException("Error while invoking function '" + functionName + "'", e);
@@ -416,7 +414,7 @@ public class BRunUtil {
                                                                             functionName));
             scheduler.start();
             if (futureValue.panic instanceof RuntimeException) {
-                throw new org.ballerinalang.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
+                throw new org.ballerinalang.core.util.exceptions.BLangRuntimeException(futureValue.panic.getMessage(),
                         futureValue.panic);
             }
             jvmResult = futureValue.result;

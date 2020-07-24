@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.util;
+package org.ballerinalang.core.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;

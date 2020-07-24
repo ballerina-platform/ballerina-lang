@@ -35,7 +35,7 @@ import org.ballerinalang.core.model.util.serializer.providers.bvalue.InetSocketA
 import org.ballerinalang.core.model.util.serializer.providers.bvalue.LinkedHashSetBValueProvider;
 import org.ballerinalang.core.model.util.serializer.providers.bvalue.NumericBValueProviders;
 import org.ballerinalang.core.model.values.BRefType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.StringReader;

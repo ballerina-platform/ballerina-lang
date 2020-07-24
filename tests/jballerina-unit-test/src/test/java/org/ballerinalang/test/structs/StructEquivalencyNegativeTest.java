@@ -21,7 +21,7 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
-import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 

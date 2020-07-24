@@ -26,7 +26,7 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BString;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 

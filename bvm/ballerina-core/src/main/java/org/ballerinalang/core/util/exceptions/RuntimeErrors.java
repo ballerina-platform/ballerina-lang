@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.util.exceptions;
+package org.ballerinalang.core.util.exceptions;
 
 /**
  * Error codes and Error keys to represent the runtime errors.

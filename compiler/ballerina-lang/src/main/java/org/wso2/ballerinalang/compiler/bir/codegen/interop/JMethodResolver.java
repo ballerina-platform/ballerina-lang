@@ -224,7 +224,7 @@ class JMethodResolver {
             }
 
             BType receiverType = bParamTypes[0];
-            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, jMethodRequest, false)) {
+            if (!isValidParamBType(jMethodRequest.declaringClass, receiverType, jMethodRequest)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamTypes[0], receiverType,
                         jMethodRequest.declaringClass);
             }
@@ -236,7 +236,7 @@ class JMethodResolver {
         for (int j = 0; j < jParamTypes.length; i++, j++) {
             BType bParamType = bParamTypes[i];
             Class<?> jParamType = jParamTypes[j];
-            if (!isValidParamBType(jParamType, bParamType, jMethodRequest, j == jParamTypes.length - 1)) {
+            if (!isValidParamBType(jParamType, bParamType, jMethodRequest)) {
                 throw getNoSuchMethodError(jMethodRequest.methodName, jParamType, bParamType,
                         jMethodRequest.declaringClass);
             }
@@ -256,7 +256,7 @@ class JMethodResolver {
         }
     }
 
-    private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest, boolean isLastParam) {
+    private boolean isValidParamBType(Class<?> jType, BType bType, JMethodRequest jMethodRequest) {
 
         try {
             String jTypeName = jType.getTypeName();
@@ -327,7 +327,7 @@ class JMethodResolver {
                     return this.classLoader.loadClass(BXML.class.getCanonicalName()).isAssignableFrom(jType);
                 case TypeTags.TUPLE:
                 case TypeTags.ARRAY:
-                    if (jMethodRequest.restParamExist && isLastParam) { // & isLast
+                    if (jMethodRequest.restParamExist) { // & isLast
                         return jType.isArray();
                     }
                     return this.classLoader.loadClass(BArray.class.getCanonicalName()).isAssignableFrom(jType);
@@ -339,7 +339,7 @@ class JMethodResolver {
                     Set<BType> members = ((BUnionType) bType).getMemberTypes();
                     // for method arguments, all ballerina member types should be assignable to java-type.
                     for (BType member : members) {
-                        if (!isValidParamBType(jType, member, jMethodRequest, isLastParam)) {
+                        if (!isValidParamBType(jType, member, jMethodRequest)) {
                             return false;
                         }
                     }
@@ -354,7 +354,7 @@ class JMethodResolver {
                     Set<BLangExpression> valueSpace = ((BFiniteType) bType).getValueSpace();
                     for (Iterator<BLangExpression> iterator = valueSpace.iterator(); iterator.hasNext(); ) {
                         BLangExpression value = iterator.next();
-                        if (!isValidParamBType(jType, value.type, jMethodRequest, isLastParam)) {
+                        if (!isValidParamBType(jType, value.type, jMethodRequest)) {
                             return false;
                         }
                     }

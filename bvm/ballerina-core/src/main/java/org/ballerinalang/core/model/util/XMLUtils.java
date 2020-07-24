@@ -45,7 +45,7 @@ import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.core.model.values.BXMLItem;
 import org.ballerinalang.core.model.values.BXMLQName;
 import org.ballerinalang.core.model.values.BXMLSequence;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.io.Reader;

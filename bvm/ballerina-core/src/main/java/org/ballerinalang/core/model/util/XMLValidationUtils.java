@@ -17,7 +17,7 @@
 package org.ballerinalang.core.model.util;
 
 import org.ballerinalang.core.model.values.BXMLQName;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 /**
  * This class defines the basic set of utility methods to validate XML.

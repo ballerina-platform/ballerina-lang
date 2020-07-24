@@ -38,7 +38,7 @@ import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.util.XMLNodeType;
 import org.ballerinalang.core.model.util.XMLUtils;
 import org.ballerinalang.core.model.util.XMLValidationUtils;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -50,7 +50,7 @@ import java.util.Map;
 import javax.xml.XMLConstants;
 import javax.xml.namespace.QName;
 
-import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
+import static org.ballerinalang.core.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
  * {@code BXML} represents a single XML item in Ballerina.

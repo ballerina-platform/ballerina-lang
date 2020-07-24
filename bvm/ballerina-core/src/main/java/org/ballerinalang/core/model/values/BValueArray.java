@@ -23,8 +23,8 @@ import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.util.JsonGenerator;
-import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.BLangConstants;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 
 import java.io.ByteArrayOutputStream;
