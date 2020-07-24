@@ -54,6 +54,8 @@ public enum CompilerOptionName {
 
     DUMP_BIR("dumpBIR"),
 
+    DUMP_BIR_FILE("dumpBIRFile"),
+
     LOCK_ENABLED("lockEnabled"),
 
     EXPERIMENTAL_FEATURES_ENABLED("experimentalFeaturesEnabled"),
