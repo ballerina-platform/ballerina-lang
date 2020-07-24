@@ -286,6 +286,225 @@ function testInferenceWithMappingConstrExprAsSpreadExpr() {
     assertEquality("foo", rec.fb);
 }
 
+function testInferringForReadOnly() {
+    string str = "hello";
+
+    readonly rd1 = {
+        i: 1,
+        str
+    };
+
+    assertEquality(true, rd1 is record {|int i; string str;|} & readonly);
+    record {|
+        int i;
+        string str;
+    |} rec1 = <readonly & record {|
+                   int i;
+                   string str;
+               |}> rd1;
+
+    var fn = function() {
+        rec1.i = 12;
+    };
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error err = <error> res;
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                   err.detail()["message"]);
+
+    Person & readonly pn = {
+        firstName: "May",
+        lastName: "John",
+        age: 20
+    };
+    readonly rd2 = {
+        i: 1,
+        [str]: {
+            b: true
+        },
+        pn,
+        pnDup: pn,
+        [str + "2"]: pn
+    };
+
+    assertEquality(true, rd2 is record {|
+                                    int i;
+                                    Person & readonly pn;
+                                    Person & readonly pnDup;
+                                    (Person & readonly)|record {|boolean b;|}...;
+                                |} & readonly);
+    assertEquality(false, rd2 is record {|int i; string pn;|} & readonly);
+    record {|
+        int i;
+        Person pn;
+        Person pnDup;
+        record {}...;
+    |} rec2 = <record {|
+                          int i;
+                          Person & readonly pn;
+                          Person & readonly pnDup;
+                          (Person & readonly)|record {|boolean b;|}...;
+                      |} & readonly> rd2;
+
+    fn = function() {
+        rec2.pn = pn;
+    };
+    res = trap fn();
+    assertEquality(true, res is error);
+
+    err = <error> res;
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                   err.detail()["message"]);
+}
+
+function testInferringForReadOnlyInUnion() {
+    string str = "str";
+    Person & readonly pn = {
+        firstName: "May",
+        lastName: "John",
+        age: 20
+    };
+    readonly|map<int> rd = {
+        i: 1,
+        [str]: {
+            b: true
+        },
+        pn,
+        pnDup: pn,
+        [str + "2"]: pn
+    };
+
+    assertEquality(true, rd is record {|
+                                    int i;
+                                    Person & readonly pn;
+                                    Person & readonly pnDup;
+                                    (Person & readonly)|record {|boolean b;|}...;
+                                |} & readonly);
+    assertEquality(false, rd is record {|int i; string pn;|} & readonly);
+    record {|
+        int i;
+        Person pn;
+        Person pnDup;
+        record {}...;
+    |} rec = <record {|
+                          int i;
+                          Person & readonly pn;
+                          Person & readonly pnDup;
+                          (Person & readonly)|record {|boolean b;|}...;
+                      |} & readonly> rd;
+
+    var fn = function() {
+        rec.pn = pn;
+    };
+    error? res = trap fn();
+    assertEquality(true, res is error);
+
+    error err = <error> res;
+    assertEquality("Invalid update of record field: modification not allowed on readonly value",
+                   err.detail()["message"]);
+}
+
+function testValidReadOnlyWithDifferentFieldKinds() {
+    map<int[]> & readonly a = {
+        "x": [1, 2],
+        "y": [3]
+    };
+
+    boolean[] & readonly b = [true, false];
+
+    readonly x = {
+        ...a,
+        b,
+        c: {
+            d: a
+        }
+    };
+
+    // This should represent the inferred type.
+    assertEquality(true, <any> x is record {|
+                                        boolean[] b;
+                                        record {| map<int[]> & readonly d; |} c;
+                                        int[] & readonly...;
+                                    |});
+
+    var y = <readonly & record {|
+                boolean[] b;
+                record {| map<int[]> d; |} c;
+                int[] & readonly...;
+            |}> x;
+
+    assertEquality(true, y.b.isReadOnly());
+    assertEquality(<boolean[2]> [true, false], y.b);
+
+    assertEquality(true, y.c.isReadOnly());
+    assertEquality(2, y.c.d.length());
+    assertEquality(<int[]> [1, 2], y.c.d["x"]);
+    assertEquality(<int[]> [3], y.c.d["y"]);
+    assertEquality((), y.c.d["z"]);
+
+    assertEquality(<int[]> [1, 2], y["x"]);
+    assertEquality(<int[]> [3], y["y"]);
+    assertEquality((), y["z"]);
+}
+
+function testValidReadOnlyInUnionWithDifferentFieldKinds() {
+    map<int[]> & readonly a = {
+        "x": [1, 2],
+        "y": [3]
+    };
+
+    boolean[] & readonly b = [true, false];
+
+    readonly|record {|boolean[] b; int[]...;|} x = {
+        b,
+        ...a,
+        c: "foo"
+    };
+
+    // This should represent the inferred type.
+    assertEquality(true, x is record {|
+                                  boolean[] b;
+                                  string c;
+                                  int[]...;
+                              |} & readonly);
+
+    var y = <readonly & record {|
+                boolean[] b;
+                string c;
+                int[] & readonly...;
+            |}> x;
+
+    assertEquality(true, y.b.isReadOnly());
+    assertEquality(<boolean[2]> [true, false], y.b);
+
+    assertEquality("foo", y.c);
+
+    assertEquality(true, y["x"].isReadOnly());
+    assertEquality(<int[]> [1, 2], y["x"]);
+    assertEquality(<int[]> [3], y["y"]);
+    assertEquality((), y["z"]);
+
+    int[] arr = [12, 12];
+
+    readonly|record {|boolean[] b; int[]...;|} x2 = {
+        b,
+        ...a,
+        "c": arr
+    };
+
+    assertEquality(true, x2 is record {|boolean[] b; int[]...;|});
+
+    var y2 = <record {|boolean[] b; int[]...;|}> x2;
+
+    assertEquality(false, y2["c"].isReadOnly());
+
+    assertEquality(<int[]> [12, 12], y2["c"]);
+    assertEquality(<int[]> [1, 2], y2["x"]);
+    assertEquality(<int[]> [3], y2["y"]);
+    assertEquality((), y2["z"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

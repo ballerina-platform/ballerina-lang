@@ -33,8 +33,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.Stack;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -51,12 +53,18 @@ import static org.ballerinalang.jvm.scheduling.State.YIELD;
 
 public class Strand {
 
+    private static AtomicInteger nextStrandId = new AtomicInteger(0);
+
+    private int id;
+    private String name;
+    private StrandMetadata metadata;
+
     public Object[] frames;
     public int resumeIndex;
     public Object returnValue;
     public BError panic;
     public Scheduler scheduler;
-    public Strand parent = null;
+    public Strand parent;
     public WDChannels wdChannels;
     public FlushDetail flushDetail;
     public boolean blockedOnExtern;
@@ -64,7 +72,6 @@ public class Strand {
     public Set<SchedulerItem> dependants;
     public ObserverContext observerContext;
     public boolean cancel;
-    public int threadId;
 
     SchedulerItem schedulerItem;
     List<WaitContext> waitingContexts;
@@ -77,7 +84,9 @@ public class Strand {
     private State state;
     private final ReentrantLock strandLock;
 
-    public Strand(Scheduler scheduler) {
+    public Strand(String name, StrandMetadata metadata, Scheduler scheduler, Strand parent,
+                  Map<String, Object> properties) {
+        this.id = nextStrandId.incrementAndGet();
         this.scheduler = scheduler;
         this.wdChannels = new WDChannels();
         this.channelDetails = new HashSet<>();
@@ -86,11 +95,9 @@ public class Strand {
         this.dependants = new HashSet<>();
         this.strandLock = new ReentrantLock();
         this.waitingContexts = new ArrayList<>();
+        this.name = name;
+        this.metadata = metadata;
         this.trxContexts = new Stack<>();
-    }
-
-    public Strand(Scheduler scheduler, Strand parent, Map<String, Object> properties) {
-        this(scheduler);
         this.parent = parent;
         this.globalProps = properties != null ? properties : new HashMap<>();
     }
@@ -117,7 +124,7 @@ public class Strand {
     }
 
     public boolean isInTransaction() {
-        return this.currentTrxContext != null;
+        return this.currentTrxContext != null && this.currentTrxContext.isTransactional();
     }
 
     @Deprecated
@@ -320,6 +327,29 @@ public class Strand {
 
     public void unlock() {
         this.strandLock.unlock();
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Gets the strand name. This will be optional. Strand name can be either name given in strand annotation or async
+     * call or function pointer variable name.
+     *
+     * @return Optional strand name.
+     */
+    public Optional<String> getName() {
+        return Optional.ofNullable(name);
+    }
+
+    /**
+     * Gets @{@link StrandMetadata}.
+     *
+     * @return metadata of the strand.
+     */
+    public StrandMetadata getMetadata() {
+        return metadata;
     }
 
     /**

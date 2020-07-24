@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.table;
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
+import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BTableType;
 import org.ballerinalang.jvm.types.BType;
@@ -29,6 +30,10 @@ import org.ballerinalang.jvm.values.TableValue;
 import org.ballerinalang.jvm.values.TableValueImpl;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.ballerinalang.jvm.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.jvm.util.BLangConstants.TABLE_LANG_LIB;
+import static org.ballerinalang.util.BLangCompilerConstants.TABLE_VERSION;
 
 /**
  * Native implementation of lang.table:map(table&lt;Type&gt;, function).
@@ -43,6 +48,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 //)
 public class Map {
 
+    private static final StrandMetadata METADATA = new StrandMetadata(BALLERINA_BUILTIN_PKG_PREFIX, TABLE_LANG_LIB,
+                                                                      TABLE_VERSION, "map");
+
     public static TableValueImpl map(TableValueImpl tbl, FPValue<Object, Object> func) {
         BType newConstraintType = ((BFunctionType) func.getType()).retType;
         BTableType tblType = (BTableType) tbl.getType();
@@ -52,7 +60,7 @@ public class Map {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
         BRuntime.getCurrentRuntime()
-                .invokeFunctionPointerAsyncIteratively(func, size,
+                .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
                         () -> new Object[]{Scheduler.getStrand(),
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> newTable

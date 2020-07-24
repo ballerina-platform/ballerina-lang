@@ -42,6 +42,7 @@ import static org.ballerinalang.test.packaging.PackerinaTestUtils.deleteFiles;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MANIFEST_FILE_NAME;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_STAGE_CENTRAL;
 
 /**
  * Test cases related to populating dependencies using it's scopes.
@@ -170,8 +171,8 @@ public class DependencyScopeTestCase extends BaseTest {
         moduleUtilsBuildLeecher.waitForText(5000);
 
         // Build TestProject3 without adding the provided scope jars to the toml
-        String warningMsg = "warning: wso2/utils:0.1.0 is missing a native library dependency - utils";
-        LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg);
+        String warningMsg = "warning: wso2/utils:0.1.0::utils:1:1: native dependency 'utils.jar' is missing";
+        LogLeecher moduleFooWarningLeecher = new LogLeecher(warningMsg, LogLeecher.LeecherType.ERROR);
         balClient.runMain("build", new String[]{"-a"}, envVariables, new String[]{},
                 new LogLeecher[]{moduleFooWarningLeecher}, projectResources.resolve("TestProject3").toString());
         moduleFooWarningLeecher.waitForText(5000);
@@ -200,7 +201,7 @@ public class DependencyScopeTestCase extends BaseTest {
      */
     private Map<String, String> addEnvVariables(Map<String, String> envVariables) {
         envVariables.put(ProjectDirConstants.HOME_REPO_ENV_KEY, tempHomeDirectory.toString());
-        envVariables.put("BALLERINA_DEV_PREPROD_CENTRAL", "true");
+        envVariables.put(BALLERINA_STAGE_CENTRAL, "true");
         return envVariables;
     }
 

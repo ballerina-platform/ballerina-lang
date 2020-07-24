@@ -44,8 +44,14 @@ public class BallerinaGlobalVariableDefinitionImpl extends ASTWrapperPsiElement 
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return findChildByClass(BallerinaExpression.class);
+  public BallerinaRecoverableVarDefContent getRecoverableVarDefContent() {
+    return findChildByClass(BallerinaRecoverableVarDefContent.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaRecoverableVariableDefinitionContent getRecoverableVariableDefinitionContent() {
+    return findChildByClass(BallerinaRecoverableVariableDefinitionContent.class);
   }
 
   @Override

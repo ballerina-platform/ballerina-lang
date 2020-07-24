@@ -18,7 +18,7 @@
 package org.ballerinalang.core.model.values;
 
 import org.ballerinalang.core.model.types.BType;
-import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.core.util.BLangConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;

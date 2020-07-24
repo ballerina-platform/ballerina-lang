@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.utils.StringUtils;
 public class ToJsonString {
 
     public static BString toJsonString(Object value) {
-        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getJsonString(value));
+        Object jsonValue = ToJson.toJson(value);
+        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getJsonString(jsonValue));
     }
 }

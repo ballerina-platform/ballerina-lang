@@ -52,13 +52,4 @@ public class InvocationContextTest {
         Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].size(), 0);
     }
-
-    @Test(description = "Test case for accessing principal record from invocation context")
-    public void testInvocationContextPrincipal() {
-        String userId = "ballerinaUser";
-        BValue[] args = {new BString(userId)};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testInvocationContextPrincipal", args);
-        Assert.assertTrue(returns[0] instanceof BString);
-        Assert.assertEquals(returns[0].toString(), userId);
-    }
 }

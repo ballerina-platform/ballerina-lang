@@ -365,11 +365,15 @@ public class ParserTestUtils {
             case HEX_INTEGER_LITERAL:
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-            case DOCUMENTATION_LINE:
+            case PARAMETER_NAME:
+            case BACKTICK_CONTENT:
+            case DEPRECATION_LITERAL:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
             case TEMPLATE_STRING:
+            case DOCUMENTATION_DESCRIPTION:
+            case DOCUMENTATION_STRING:
                 return cleanupText(token.text());
             default:
                 return token.kind.toString();
@@ -487,6 +491,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "FAIL_KEYWORD":
+                return SyntaxKind.FAIL_KEYWORD;
             case "PANIC_KEYWORD":
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
@@ -593,6 +599,14 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_KEYWORD;
             case "SELECT_KEYWORD":
                 return SyntaxKind.SELECT_KEYWORD;
+            case "ORDER_KEYWORD":
+                return SyntaxKind.ORDER_KEYWORD;
+            case "BY_KEYWORD":
+                return SyntaxKind.BY_KEYWORD;
+            case "ASCENDING_KEYWORD":
+                return SyntaxKind.ASCENDING_KEYWORD;
+            case "DESCENDING_KEYWORD":
+                return SyntaxKind.DESCENDING_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
             case "START_KEYWORD":
@@ -623,6 +637,26 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE64_KEYWORD;
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
+
+            // Documentation reference
+            case "TYPE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.TYPE_DOC_REFERENCE_TOKEN;
+            case "SERVICE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.SERVICE_DOC_REFERENCE_TOKEN;
+            case "VARIABLE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.VARIABLE_DOC_REFERENCE_TOKEN;
+            case "VAR_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.VAR_DOC_REFERENCE_TOKEN;
+            case "ANNOTATION_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.ANNOTATION_DOC_REFERENCE_TOKEN;
+            case "MODULE_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.MODULE_DOC_REFERENCE_TOKEN;
+            case "FUNCTION_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.FUNCTION_DOC_REFERENCE_TOKEN;
+            case "PARAMETER_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.PARAMETER_DOC_REFERENCE_TOKEN;
+            case "CONST_DOC_REFERENCE_TOKEN":
+                return SyntaxKind.CONST_DOC_REFERENCE_TOKEN;
 
             // Operators
             case "PLUS_TOKEN":
@@ -735,6 +769,8 @@ public class ParserTestUtils {
                 return SyntaxKind.SYNC_SEND_TOKEN;
             case "LEFT_ARROW_TOKEN":
                 return SyntaxKind.LEFT_ARROW_TOKEN;
+            case "HASH_TOKEN":
+                return SyntaxKind.HASH_TOKEN;
 
             // Expressions
             case "IDENTIFIER_TOKEN":
@@ -771,6 +807,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "FAIL_EXPRESSION":
+                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -837,6 +875,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "FAIL_ACTION":
+                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -1031,10 +1071,6 @@ public class ParserTestUtils {
                 return SyntaxKind.NAMED_WORKER_DECLARATION;
             case "NAMED_WORKER_DECLARATOR":
                 return SyntaxKind.NAMED_WORKER_DECLARATOR;
-            case "DOCUMENTATION_STRING":
-                return SyntaxKind.DOCUMENTATION_STRING;
-            case "DOCUMENTATION_LINE":
-                return SyntaxKind.DOCUMENTATION_LINE;
             case "TYPE_CAST_PARAM":
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
@@ -1043,6 +1079,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "ORDER_KEY":
+                return SyntaxKind.ORDER_KEY;
             case "STREAM_TYPE_PARAMS":
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
@@ -1059,6 +1097,8 @@ public class ParserTestUtils {
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
                 return SyntaxKind.SELECT_CLAUSE;
+            case "ORDER_BY_CLAUSE":
+                return SyntaxKind.ORDER_BY_CLAUSE;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":
@@ -1081,6 +1121,10 @@ public class ParserTestUtils {
                 return SyntaxKind.FIELD_BINDING_PATTERN;
             case "MAPPING_BINDING_PATTERN":
                 return SyntaxKind.MAPPING_BINDING_PATTERN;
+            case "FUNCTIONAL_BINDING_PATTERN":
+                return SyntaxKind.FUNCTIONAL_BINDING_PATTERN;
+            case "NAMED_ARG_BINDING_PATTERN":
+                return SyntaxKind.NAMED_ARG_BINDING_PATTERN;
             case "TYPE_PARAMETER":
                 return SyntaxKind.TYPE_PARAMETER;
             case "KEY_TYPE_CONSTRAINT":
@@ -1111,6 +1155,10 @@ public class ParserTestUtils {
                 return SyntaxKind.MAPPING_MATCH_PATTERN;
             case "FIELD_MATCH_PATTERN":
                 return SyntaxKind.FIELD_MATCH_PATTERN;
+            case "FUNCTIONAL_MATCH_PATTERN":
+                return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
+            case "NAMED_ARG_MATCH_PATTERN":
+                return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
 
             // XML template
             case "XML_ELEMENT":
@@ -1151,6 +1199,32 @@ public class ParserTestUtils {
                 return SyntaxKind.XML_ATTRIBUTE_VALUE;
             case "TEMPLATE_STRING":
                 return SyntaxKind.TEMPLATE_STRING;
+
+            // Documentation
+            case "MARKDOWN_DOCUMENTATION":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION;
+            case "MARKDOWN_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DOCUMENTATION_LINE;
+            case "MARKDOWN_REFERENCE_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_REFERENCE_DOCUMENTATION_LINE;
+            case "MARKDOWN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_RETURN_PARAMETER_DOCUMENTATION_LINE;
+            case "MARKDOWN_DEPRECATION_DOCUMENTATION_LINE":
+                return SyntaxKind.MARKDOWN_DEPRECATION_DOCUMENTATION_LINE;
+            case "DOCUMENTATION_DESCRIPTION":
+                return SyntaxKind.DOCUMENTATION_DESCRIPTION;
+            case "DOCUMENTATION_REFERENCE":
+                return SyntaxKind.DOCUMENTATION_REFERENCE;
+            case "PARAMETER_NAME":
+                return SyntaxKind.PARAMETER_NAME;
+            case "BACKTICK_CONTENT":
+                return SyntaxKind.BACKTICK_CONTENT;
+            case "DEPRECATION_LITERAL":
+                return SyntaxKind.DEPRECATION_LITERAL;
+            case "DOCUMENTATION_STRING":
+                return SyntaxKind.DOCUMENTATION_STRING;
 
             // Trivia
             case "EOF_TOKEN":

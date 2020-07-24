@@ -32,18 +32,18 @@ import java.util.Collections;
  */
 public class STMappingMatchPatternNode extends STNode {
     public final STNode openBraceToken;
-    public final STNode mappingMatchPatternListNode;
+    public final STNode fieldMatchPatterns;
     public final STNode restMatchPattern;
     public final STNode closeBraceToken;
 
     STMappingMatchPatternNode(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken) {
         this(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken,
                 Collections.emptyList());
@@ -51,19 +51,19 @@ public class STMappingMatchPatternNode extends STNode {
 
     STMappingMatchPatternNode(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MAPPING_MATCH_PATTERN, diagnostics);
         this.openBraceToken = openBraceToken;
-        this.mappingMatchPatternListNode = mappingMatchPatternListNode;
+        this.fieldMatchPatterns = fieldMatchPatterns;
         this.restMatchPattern = restMatchPattern;
         this.closeBraceToken = closeBraceToken;
 
         addChildren(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken);
     }
@@ -71,7 +71,7 @@ public class STMappingMatchPatternNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMappingMatchPatternNode(
                 this.openBraceToken,
-                this.mappingMatchPatternListNode,
+                this.fieldMatchPatterns,
                 this.restMatchPattern,
                 this.closeBraceToken,
                 diagnostics);
@@ -79,12 +79,12 @@ public class STMappingMatchPatternNode extends STNode {
 
     public STMappingMatchPatternNode modify(
             STNode openBraceToken,
-            STNode mappingMatchPatternListNode,
+            STNode fieldMatchPatterns,
             STNode restMatchPattern,
             STNode closeBraceToken) {
         if (checkForReferenceEquality(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken)) {
             return this;
@@ -92,7 +92,7 @@ public class STMappingMatchPatternNode extends STNode {
 
         return new STMappingMatchPatternNode(
                 openBraceToken,
-                mappingMatchPatternListNode,
+                fieldMatchPatterns,
                 restMatchPattern,
                 closeBraceToken,
                 diagnostics);

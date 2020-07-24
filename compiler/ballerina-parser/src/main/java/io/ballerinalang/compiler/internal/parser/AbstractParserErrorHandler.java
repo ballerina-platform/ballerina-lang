@@ -109,7 +109,6 @@ public abstract class AbstractParserErrorHandler {
 
                 // else fall through
             }
-
         }
 
         // Fail safe. This means we can't find a path to recover.
@@ -478,7 +477,7 @@ public abstract class AbstractParserErrorHandler {
      *
      * @since 1.2.0
      */
-    enum Action {
+    protected enum Action {
         INSERT, REMOVE, KEEP;
     }
 }

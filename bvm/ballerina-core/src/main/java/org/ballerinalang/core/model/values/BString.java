@@ -19,7 +19,7 @@ package org.ballerinalang.core.model.values;
 
 import org.ballerinalang.core.model.types.BType;
 import org.ballerinalang.core.model.types.BTypes;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.ballerinalang.core.util.exceptions.BallerinaException;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
