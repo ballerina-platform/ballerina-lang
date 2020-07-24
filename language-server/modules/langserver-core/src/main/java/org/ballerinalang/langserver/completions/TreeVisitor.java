@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.completions;
 
 import org.ballerinalang.langserver.common.CommonKeys;
@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Block
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ForkJoinStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.ListConstructorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
@@ -303,7 +304,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 recordTypeNode, recordSymbol);
         boolean cursorWithinBlock = recordTypeNode.fields.isEmpty() &&
                 CompletionVisitorUtil.isCursorWithinBlock(recordTypeNode.parent.getPosition(),
-                recordEnv, this.lsContext, this);
+                        recordEnv, this.lsContext, this);
 
         if (recordSymbol.getName().getValue().contains(CommonKeys.DOLLAR_SYMBOL_KEY) || cursorBeforeNode
                 || cursorWithinBlock) {
@@ -361,6 +362,12 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangListConstructorExpr listConstructorExpr) {
+        if (listConstructorExpr.getExpressions().isEmpty()
+                && CompletionVisitorUtil.isCursorWithinBlock(listConstructorExpr.pos, this.symbolEnv, lsContext,
+                this)) {
+            return;
+        }
+        this.cursorPositionResolver = ListConstructorScopeResolver.class;
         listConstructorExpr.getExpressions().forEach(bLangExpression -> this.acceptNode(bLangExpression, symbolEnv));
     }
 
@@ -468,7 +475,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangExpressionStmt exprStmtNode) {
         CursorPositionResolver cpr = CursorPositionResolvers.getResolverByClass(cursorPositionResolver);
         if (cpr.isCursorBeforeNode(exprStmtNode.getPosition(), this, this.lsContext, exprStmtNode, null)
-                /*|| !(exprStmtNode.expr instanceof BLangInvocation)*/) {
+            /*|| !(exprStmtNode.expr instanceof BLangInvocation)*/) {
             return;
         }
 
@@ -722,7 +729,7 @@ public class TreeVisitor extends LSNodeVisitor {
             return;
         }
         if (CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
-                    .isCursorBeforeNode(annAttachmentNode.getPosition(), this, this.lsContext, annAttachmentNode,
+                .isCursorBeforeNode(annAttachmentNode.getPosition(), this, this.lsContext, annAttachmentNode,
                         annAttachmentNode.annotationSymbol)) {
             return;
         }
@@ -936,8 +943,8 @@ public class TreeVisitor extends LSNodeVisitor {
     /**
      * Populate the symbols.
      *
-     * @param symbolEntries     symbol entries
-     * @param symbolEnv         Symbol environment
+     * @param symbolEntries symbol entries
+     * @param symbolEnv     Symbol environment
      */
     public void populateSymbols(Map<Name, List<Scope.ScopeEntry>> symbolEntries, @Nonnull SymbolEnv symbolEnv) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>();

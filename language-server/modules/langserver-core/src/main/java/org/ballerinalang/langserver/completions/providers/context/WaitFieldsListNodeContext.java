@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class WaitFieldsListNodeContext extends ExpressionBasedContextProvider<WaitFieldsListNode> {
+public class WaitFieldsListNodeContext extends AbstractCompletionProvider<WaitFieldsListNode> {
     public WaitFieldsListNodeContext() {
         super(Kind.OTHER);
         this.attachmentPoints.add(WaitFieldsListNode.class);

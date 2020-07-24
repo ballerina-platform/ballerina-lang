@@ -26,6 +26,7 @@ import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -79,35 +80,29 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ImplicitNewExpressionNode node) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        
         /*
         Supports the following
-        (1) public listener mod:Listener test = <cursor>
-        (2) public listener mod:Listener test = a<cursor>
+        (1) lhs = new <cursor>
         */
         Optional<BObjectTypeSymbol> objectTypeSymbol = getObjectTypeSymbol(context, node);
-        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
-                .collect(Collectors.toList());
-        completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getPackagesCompletionItems(context));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-        objectTypeSymbol.ifPresent(bSymbol ->
-                completionItems.add(this.getImplicitNewCompletionItem(bSymbol, context)));
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getExplicitNewCompletionItem(bSymbol, context)));
 
         return completionItems;
     }
 
     private Optional<BObjectTypeSymbol> getObjectTypeSymbol(LSContext context, Node node) {
-        Node typeDescriptor = null;
+        Node typeDescriptor;
 
-        if (node.parent().kind() == SyntaxKind.LISTENER_DECLARATION) {
-            typeDescriptor = ((ListenerDeclarationNode) node.parent()).typeDescriptor();
-        } else {
-            return Optional.empty();
+        switch (node.parent().kind()) {
+            case LISTENER_DECLARATION:
+                typeDescriptor = ((ListenerDeclarationNode) node.parent()).typeDescriptor();
+                break;
+            case LOCAL_VAR_DECL:
+                typeDescriptor = ((VariableDeclarationNode) node.parent()).typedBindingPattern().typeDescriptor();
+                break;
+            default:
+                return Optional.empty();
         }
 
         Scope.ScopeEntry scopeEntry = null;

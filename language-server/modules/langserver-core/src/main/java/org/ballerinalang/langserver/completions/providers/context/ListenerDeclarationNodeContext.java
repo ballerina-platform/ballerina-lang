@@ -79,7 +79,13 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     private List<LSCompletionItem> typeDescriptorContextItems(LSContext context, ListenerDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         Node typeDesc = node.typeDescriptor();
-        if (this.qualifiedNameReferenceContext(context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY), typeDesc)) {
+        /*
+        Type descriptor is null in the following use-case
+        (1) public listener ht<cursor>
+        because the type descriptor is optional as per the grammar
+         */
+        if (typeDesc != null
+                && this.qualifiedNameReferenceContext(context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY), typeDesc)) {
             String modulePrefix = typeDesc.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                     ? ((QualifiedNameReferenceNode) typeDesc).modulePrefix().text()
                     : ((Token) typeDesc).text();
@@ -123,27 +129,21 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-
-        if (listenerNode.initializer().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            /*
-            Supports the following
-            (1) public listener mod:Listener test = <cursor>
-            (2) public listener mod:Listener test = a<cursor>
-             */
-            Optional<BObjectTypeSymbol> objectTypeSymbol = getObjectTypeSymbol(context, listenerNode);
-            List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
-                    .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
-                            && !(scopeEntry.symbol instanceof BOperatorSymbol))
-                    .collect(Collectors.toList());
-            completionItems.addAll(this.getCompletionItemList(filteredList, context));
-            completionItems.addAll(this.getPackagesCompletionItems(context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
-            objectTypeSymbol.ifPresent(bSymbol ->
-                    completionItems.add(this.getImplicitNewCompletionItem(bSymbol, context)));
-        } else if (listenerNode.initializer().kind() == SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
-            Predicate<Kind> predicate = providerKind -> providerKind == Kind.EXPRESSION;
-            completionItems.addAll(CompletionUtil.route(context, listenerNode.initializer(), predicate));
-        }
+        
+        /*
+        Supports the following
+        (1) public listener mod:Listener test = <cursor>
+        (2) public listener mod:Listener test = a<cursor>
+         */
+        Optional<BObjectTypeSymbol> objectTypeSymbol = getObjectTypeSymbol(context, listenerNode);
+        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
+                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
+                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        objectTypeSymbol.ifPresent(bSymbol -> completionItems.add(this.getImplicitNewCompletionItem(bSymbol, context)));
 
         return completionItems;
     }
@@ -172,11 +172,13 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
 
         LineRange listenerKWRange = listenerKW.lineRange();
 
-        return listenerKWRange.startLine().offset() < position.getCharacter()
+        return listenerKWRange.endLine().offset() < position.getCharacter()
                 && (varName.isMissing()
                 || (varName.lineRange().startLine().line() == position.getLine()
                 && varName.lineRange().startLine().offset() > position.getCharacter())
-                || (varName.lineRange().startLine().line() > position.getLine()));
+                || (varName.lineRange().startLine().line() > position.getLine())
+                || (varName.lineRange().endLine().offset() == position.getCharacter()
+                && node.typeDescriptor() == null));
     }
 
     private boolean withinInitializerContext(LSContext context, ListenerDeclarationNode node) {

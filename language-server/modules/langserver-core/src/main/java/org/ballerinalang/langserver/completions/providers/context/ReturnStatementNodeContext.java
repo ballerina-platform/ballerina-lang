@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.ReturnStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -31,14 +31,14 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class CheckExpressionNodeContext extends AbstractCompletionProvider<CheckExpressionNode> {
-    public CheckExpressionNodeContext() {
+public class ReturnStatementNodeContext extends AbstractCompletionProvider<ReturnStatementNode> {
+    public ReturnStatementNodeContext() {
         super(Kind.OTHER);
-        this.attachmentPoints.add(CheckExpressionNode.class);
+        this.attachmentPoints.add(ReturnStatementNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, CheckExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext context, ReturnStatementNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(this.actionKWCompletions(context));

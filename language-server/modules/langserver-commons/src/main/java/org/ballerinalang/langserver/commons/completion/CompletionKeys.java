@@ -42,8 +42,10 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<AnnotationNodeKind> NEXT_NODE_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<Integer> LOOP_COUNT_KEY
             = new LSContext.Key<>();
+    @Deprecated
     public static final LSContext.Key<Boolean> CURRENT_NODE_TRANSACTION_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY

@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -40,7 +41,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class ForEachStatementNodeContext extends ExpressionBasedContextProvider<ForEachStatementNode> {
+public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForEachStatementNode> {
     public ForEachStatementNodeContext() {
         super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(ForEachStatementNode.class);

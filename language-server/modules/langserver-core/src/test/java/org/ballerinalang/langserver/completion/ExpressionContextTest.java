@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-public class ListenerDeclarationTest extends CompletionTestNew {
+public class ExpressionContextTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -28,19 +28,21 @@ public class ListenerDeclarationTest extends CompletionTestNew {
 
     @Override
     public Object[][] testSubset() {
-        // Enable the following in order to test a subset of test cases
-         return new Object[][] {
-//                  {"config1.json", this.getTestResourceDir()},
-//                  {"config2.json", this.getTestResourceDir()},
-//                  {"config3.json", this.getTestResourceDir()},
-                  {"config4.json", this.getTestResourceDir()},
-                  {"config5.json", this.getTestResourceDir()},
-         };
+         // Enable the following in order to test a subset of test cases
+          return new Object[][] {
+                  {"list_constructor_ctx_config1.json", this.getTestResourceDir()},
+                  {"list_constructor_ctx_config2.json", this.getTestResourceDir()},
+                  {"list_constructor_ctx_config3.json", this.getTestResourceDir()},
+                  {"var_ref_ctx_config1.json", this.getTestResourceDir()},
+                  {"var_ref_ctx_config2.json", this.getTestResourceDir()},
+                  {"var_ref_ctx_config3.json", this.getTestResourceDir()},
+                  {"var_ref_ctx_config4.json", this.getTestResourceDir()},
+          };
 //        return new Object[0][];
     }
 
     @Override
     public String getTestResourceDir() {
-        return "listener_decl";
+        return "expression_context";
     }
 }

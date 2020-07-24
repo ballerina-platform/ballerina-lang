@@ -62,6 +62,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstructorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -88,6 +89,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -1110,6 +1112,53 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected boolean qualifiedNameReferenceContext(Token tokenAtCursor, Node nodeAtCursor) {
         return nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 || tokenAtCursor.text().equals(SyntaxKind.COLON_TOKEN.stringValue());
+    }
+
+    protected List<LSCompletionItem> actionKWCompletions(LSContext context) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        /*
+        Add the start keywords of the following actions.
+        start, wait, flush, check, check panic, trap, query action (query pipeline starts with from keyword)
+         */
+        return Arrays.asList(
+                new SnippetCompletionItem(context, Snippet.KW_START.get()),
+                new SnippetCompletionItem(context, Snippet.KW_WAIT.get()),
+                new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()),
+                new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CHECK.get()),
+                new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get())
+        );
+    }
+
+    protected List<LSCompletionItem> expressionCompletions(LSContext context) {
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        /*
+        check and check panic expression starts with check and check panic keywords, Which has been added with actions.
+        query pipeline starts with from keyword and also being added with the actions
+         */
+        List<LSCompletionItem> completionItems = new ArrayList<>(this.getPackagesCompletionItems(context));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TABLE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SERVICE.get()));
+        // to support start of string template expression
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_STRING.get()));
+        // to support start of xml template expression
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XML.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_LET.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TYPEOF.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRAP.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ERROR.get()));
+
+        completionItems.add(new SnippetCompletionItem(context, Snippet.EXPR_ERROR.get()));
+
+        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
+                .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
+                        && !(scopeEntry.symbol instanceof BOperatorSymbol))
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        // TODO: anon function expressions, 
+        return completionItems;
     }
 
     /**

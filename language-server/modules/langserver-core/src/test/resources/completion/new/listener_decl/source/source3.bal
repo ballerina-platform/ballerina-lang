@@ -1,7 +1,7 @@
 import ls_org1/module1 as mod;
 import ballerina/lang.'object as lang;
 
-public listener m
+public listener module1:
 
 public type Listener object {
 

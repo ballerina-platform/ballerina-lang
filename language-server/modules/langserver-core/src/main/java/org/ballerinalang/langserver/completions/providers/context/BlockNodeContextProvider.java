@@ -1,6 +1,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -28,7 +29,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     public List<LSCompletionItem> getCompletions(LSContext context, T node) throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(getStaticCompletionItems(context));
-        completionItems.addAll(getStatementCompletionItems(context));
+        completionItems.addAll(getStatementCompletionItems(context, node));
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getSymbolCompletions(context));
@@ -68,53 +69,37 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return completionItems;
     }
 
-    protected List<LSCompletionItem> getStatementCompletionItems(LSContext context) {
+    protected List<LSCompletionItem> getStatementCompletionItems(LSContext context, T node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        // Populate If Statement template
+        
+        boolean withinLoop = this.withinLoopConstructs(node);
+        
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_IF.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        // TODO: Revamp the following logic
         if (context.get(CompletionKeys.PREVIOUS_NODE_KEY) instanceof BLangIf) {
-            // Populate Else If Statement template
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE_IF.get()));
-            // Populate Else Statement template
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ELSE.get()));
         }
-
-        // Populate While Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
-        // Populate Lock Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
-        // Populate Foreach Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        // Populate Fork Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
-        // Populate Transaction Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
-        // Populate Retry Transaction Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
-        // Populate Match statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
-
-        if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0
-                && !context.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
+        if (withinLoop) {
             /*
-            Populate Continue Statement template only if enclosed within a looping construct
-            and not in immediate transaction construct
-             */
+            Populate Break and continue Statement template only if there is an enclosing looping construct such as
+            while/ foreach
+            */
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
-        }
-
-        if (context.get(CompletionKeys.LOOP_COUNT_KEY) > 0) {
-            // Populate Break Statement template only if there is an enclosing looping construct such as while/ foreach
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Populate Return Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
-
         if (context.get(CompletionKeys.TRANSACTION_COUNT_KEY) > 0) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
         }
-        // Populate Throw Statement template
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
 
         return completionItems;
     }
@@ -128,5 +113,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 .collect(Collectors.toList());
 
         return this.getCompletionItemList(filteredList, context);
+    }
+    
+    private boolean withinLoopConstructs(T node) {
+        Node evalNode = node;
+        boolean withinLoops = false;
+        
+        while (!withinLoops && evalNode.kind() != SyntaxKind.MODULE_PART) {
+            withinLoops = (evalNode.kind() == SyntaxKind.WHILE_STATEMENT)
+                    || (evalNode.kind() == SyntaxKind.FOREACH_STATEMENT);
+            evalNode = evalNode.parent();
+        }
+        
+        return withinLoops;
     }
 }

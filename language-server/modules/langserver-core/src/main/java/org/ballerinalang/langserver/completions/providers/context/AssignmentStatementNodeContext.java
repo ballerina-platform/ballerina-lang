@@ -20,6 +20,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +31,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class AssignmentStatementNodeContext extends ExpressionBasedContextProvider<AssignmentStatementNode> {
+public class AssignmentStatementNodeContext extends AbstractCompletionProvider<AssignmentStatementNode> {
     public AssignmentStatementNodeContext() {
         super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(AssignmentStatementNode.class);

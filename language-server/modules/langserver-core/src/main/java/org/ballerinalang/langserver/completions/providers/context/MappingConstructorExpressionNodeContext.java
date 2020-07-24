@@ -15,14 +15,13 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MappingConstructorExpressionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,18 +30,17 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
-public class CheckExpressionNodeContext extends AbstractCompletionProvider<CheckExpressionNode> {
-    public CheckExpressionNodeContext() {
+public class MappingConstructorExpressionNodeContext extends
+        AbstractCompletionProvider<MappingConstructorExpressionNode> {
+    public MappingConstructorExpressionNodeContext() {
         super(Kind.OTHER);
-        this.attachmentPoints.add(CheckExpressionNode.class);
+        this.attachmentPoints.add(MappingConstructorExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(LSContext context, CheckExpressionNode node)
+    public List<LSCompletionItem> getCompletions(LSContext context, MappingConstructorExpressionNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.actionKWCompletions(context));
-        completionItems.addAll(this.expressionCompletions(context));
-        return completionItems;
+        // TODO: Complete the various cases for fields
+        return this.expressionCompletions(context);
     }
 }
