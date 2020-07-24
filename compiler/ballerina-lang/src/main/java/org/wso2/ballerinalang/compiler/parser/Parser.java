@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.parser;
 
 import io.ballerinalang.compiler.diagnostics.Diagnostic;
+import io.ballerinalang.compiler.diagnostics.DiagnosticSeverity;
 import io.ballerinalang.compiler.syntax.tree.NodeLocation;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
@@ -268,8 +269,16 @@ public class Parser {
 
             // TODO This is the temporary mechanism
             // We need to merge the diagnostic reporting mechanisms of the new parser and the semantic analyzer
-            DiagnosticCode code = DiagnosticCode.SYNTAX_ERROR;
-            dlog.error(pos, code, syntaxDiagnostic.message());
+            DiagnosticCode code;
+
+            DiagnosticSeverity severity = syntaxDiagnostic.diagnosticInfo().severity();
+            if (DiagnosticSeverity.WARNING.equals(severity)) {
+                code = DiagnosticCode.SYNTAX_WARNING;
+                dlog.warning(pos, code, syntaxDiagnostic.message());
+            } else {
+                code = DiagnosticCode.SYNTAX_ERROR;
+                dlog.error(pos, code, syntaxDiagnostic.message());
+            }
         }
     }
 

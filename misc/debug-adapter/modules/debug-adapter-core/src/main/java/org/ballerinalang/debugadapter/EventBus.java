@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.MODULE_VERSION_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getDirectoryRelativePath;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
 
 /**
@@ -297,7 +298,7 @@ public class EventBus {
         String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
         String[] srcNames = getSourceNames(sourceName);
         String fileName = srcNames[srcNames.length - 1];
-        String relativePath = sourcePath.replace(sourceName, fileName);
+        String relativePath = getDirectoryRelativePath(sourcePath, refType.toString(), sourceName, fileName);
 
         // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
         // for the bal files inside ballerina modules.
