@@ -22,8 +22,6 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayDeque;
 
-import javax.swing.text.html.parser.Parser;
-
 /**
  * <p>
  * Responsible for recovering from a parser error.
