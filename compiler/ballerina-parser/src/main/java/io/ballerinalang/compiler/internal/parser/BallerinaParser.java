@@ -16080,6 +16080,7 @@ public class BallerinaParser extends AbstractParser {
                     STNode valueExpr = parseExpression();
                     return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
                 }
+                key = STNodeFactory.createBasicLiteralNode(key.kind, key);
                 switchContext(ParserRuleContext.BLOCK_STMT);
                 startContext(ParserRuleContext.AMBIGUOUS_STMT);
                 STNode expr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, key, false, true);
