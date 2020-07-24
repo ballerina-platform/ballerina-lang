@@ -84,6 +84,6 @@ public function getClass(string name) returns handle | error = external;
 # ```
 #
 # + value - The `JObject` instance which is to be casted
-# + castType - The `JObject` implementation type `typedesc<JObject>` to which the given object is casted to if assignable
+# + castType - The `JObject` implementation type ``typedesc<JObject>`` to which the given object is casted to if assignable
 # + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
 public function cast(JObject value, typedesc<JObject> castType) returns JObject|error = external;

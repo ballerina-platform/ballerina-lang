@@ -599,6 +599,14 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_KEYWORD;
             case "SELECT_KEYWORD":
                 return SyntaxKind.SELECT_KEYWORD;
+            case "ORDER_KEYWORD":
+                return SyntaxKind.ORDER_KEYWORD;
+            case "BY_KEYWORD":
+                return SyntaxKind.BY_KEYWORD;
+            case "ASCENDING_KEYWORD":
+                return SyntaxKind.ASCENDING_KEYWORD;
+            case "DESCENDING_KEYWORD":
+                return SyntaxKind.DESCENDING_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
             case "START_KEYWORD":
@@ -1071,6 +1079,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "ORDER_KEY":
+                return SyntaxKind.ORDER_KEY;
             case "STREAM_TYPE_PARAMS":
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
@@ -1087,6 +1097,8 @@ public class ParserTestUtils {
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
                 return SyntaxKind.SELECT_CLAUSE;
+            case "ORDER_BY_CLAUSE":
+                return SyntaxKind.ORDER_BY_CLAUSE;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":

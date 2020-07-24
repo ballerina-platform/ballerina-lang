@@ -151,7 +151,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processStringLiteral();
                 break;
             case LexerTerminals.HASH:
-                token = processDocumentationContentString();
+                token = processDocumentationString();
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);
@@ -318,7 +318,7 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getIdentifierToken(String tokenText) {
+    private STToken getIdentifierToken() {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -987,8 +987,16 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
             case LexerTerminals.EQUALS:
                 return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
+            case LexerTerminals.ORDER:
+                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
+            case LexerTerminals.BY:
+                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
+            case LexerTerminals.ASCENDING:
+                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
+            case LexerTerminals.DESCENDING:
+                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             default:
-                return getIdentifierToken(tokenText);
+                return getIdentifierToken();
         }
     }
 
@@ -1325,7 +1333,7 @@ public class BallerinaLexer extends AbstractLexer {
      *
      * @return Documentation string token
      */
-    private STToken processDocumentationContentString() {
+    private STToken processDocumentationString() {
         int nextChar = peek();
         while (!reader.isEOF()) {
             switch (nextChar) {
@@ -1423,14 +1431,7 @@ public class BallerinaLexer extends AbstractLexer {
                 }
         }
 
-        return getTemplateString(SyntaxKind.TEMPLATE_STRING);
-    }
-
-    private STToken getTemplateString(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+        return getLiteral(SyntaxKind.TEMPLATE_STRING);
     }
 
     /**
@@ -1486,7 +1487,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getIdentifierToken(getLexeme());
+        return getIdentifierToken();
     }
 
     private STToken processTokenStartWithGt() {
