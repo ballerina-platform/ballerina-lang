@@ -4691,8 +4691,11 @@ public class BallerinaParser extends AbstractParser {
         nextToken = peek(++lookahead);
         switch (nextToken.kind) {
             case OPEN_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
             case PLUS_TOKEN:
             case MINUS_TOKEN:
+            case FROM_KEYWORD:
+            case LET_KEYWORD:
                 return SyntaxKind.XML_STEP_EXPRESSION;
             default:
                 if (isValidExpressionStart(nextToken.kind, lookahead)) {
