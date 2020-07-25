@@ -53,6 +53,7 @@ public class ItemResolverConstants {
     public static final String LENGTHOF = "lengthof";
     public static final String TYPEOF = "typeof";
     public static final String COMMIT = "commit";
+    public static final String IS = "is";
     public static final String DEFAULT = "default";
 
     public static final String FUNCTION = "function";

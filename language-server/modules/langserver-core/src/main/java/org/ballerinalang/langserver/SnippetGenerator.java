@@ -151,6 +151,16 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get is keyword Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getIsKeywordSnippet() {
+        return new SnippetBlock(ItemResolverConstants.IS, "is", ItemResolverConstants.KEYWORD_TYPE,
+                                SnippetType.KEYWORD);
+    }
+
+    /**
      * Get Break statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

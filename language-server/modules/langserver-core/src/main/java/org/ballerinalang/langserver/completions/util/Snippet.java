@@ -203,6 +203,8 @@ public enum Snippet {
 
     KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
 
+    KW_IS(SnippetGenerator.getIsKeywordSnippet()),
+
     // Statement Snippets
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 

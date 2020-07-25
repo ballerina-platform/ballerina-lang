@@ -31,8 +31,10 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -114,6 +116,7 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.addAll(getNewExprCompletionItems(context, node.typedBindingPattern().typeDescriptor()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
         }
 
         return completionItems;
