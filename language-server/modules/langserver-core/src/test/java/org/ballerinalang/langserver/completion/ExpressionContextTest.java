@@ -37,6 +37,12 @@ public class ExpressionContextTest extends CompletionTestNew {
                   {"var_ref_ctx_config2.json", this.getTestResourceDir()},
                   {"var_ref_ctx_config3.json", this.getTestResourceDir()},
                   {"var_ref_ctx_config4.json", this.getTestResourceDir()},
+                  {"field_access_ctx_config1.json", this.getTestResourceDir()},
+                  {"field_access_ctx_config2.json", this.getTestResourceDir()},
+                  {"field_access_ctx_config3.json", this.getTestResourceDir()},
+                  {"optional_field_access_ctx_config1.json", this.getTestResourceDir()},
+                  {"optional_field_access_ctx_config2.json", this.getTestResourceDir()},
+                  {"optional_field_access_ctx_config3.json", this.getTestResourceDir()},
           };
 //        return new Object[0][];
     }
