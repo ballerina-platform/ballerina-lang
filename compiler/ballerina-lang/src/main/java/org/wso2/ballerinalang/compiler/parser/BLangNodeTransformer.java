@@ -124,6 +124,8 @@ import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.OrderByClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OrderKeyNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterNode;
 import io.ballerinalang.compiler.syntax.tree.ParameterizedTypeDescriptorNode;
@@ -265,6 +267,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -565,7 +569,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 Optional.empty());
 
         bLFunction.annAttachments = applyAll(methodDeclarationNode.metadata().annotations());
-        bLFunction.pos = getPosition(methodDeclarationNode);
+        bLFunction.pos = getPositionWithoutMetadata(methodDeclarationNode);
         return bLFunction;
     }
 
@@ -899,7 +903,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         simpleVar.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
 
         addRedonlyQualifier(objFieldNode.readonlyKeyword(), objFieldNode.typeName(), simpleVar);
-        simpleVar.pos = getPosition(objFieldNode);
+        simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
     }
 
@@ -922,7 +926,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // TODO: Look for generify this into sepearte method for type as well
         bLService.isAnonymousServiceValue = isAnonServiceValue;
 
-        DiagnosticPos pos = getPosition(serviceNode);
+        DiagnosticPos pos = getPositionWithoutMetadata(serviceNode);
         if (serviceNode instanceof ServiceDeclarationNode) {
             trimLeft(pos, getPosition(((ServiceDeclarationNode) serviceNode).serviceKeyword()));
         }
@@ -1110,7 +1114,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
 
-        simpleVar.pos = getPosition(recordFieldNode);
+        simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
         return simpleVar;
     }
 
@@ -1125,7 +1129,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         addRedonlyQualifier(recordFieldNode.readonlyKeyword(), recordFieldNode.typeName(), simpleVar);
 
-        simpleVar.pos = getPosition(recordFieldNode);
+        simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
         return simpleVar;
     }
 
@@ -1215,7 +1219,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         methodDefNode.transactionalKeyword());
 
         bLFunction.annAttachments = applyAll(methodDefNode.metadata().annotations());
-        bLFunction.pos = getPosition(methodDefNode);
+        bLFunction.pos = getPositionWithoutMetadata(methodDefNode);
         bLFunction.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(methodDefNode.metadata().documentationString());
         return bLFunction;
@@ -1514,7 +1518,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(AnnotationDeclarationNode annotationDeclarationNode) {
         BLangAnnotation annotationDecl = (BLangAnnotation) TreeBuilder.createAnnotationNode();
-        DiagnosticPos pos = getPosition(annotationDeclarationNode);
+        DiagnosticPos pos = getPositionWithoutMetadata(annotationDeclarationNode);
         annotationDecl.pos = pos;
         annotationDecl.name = createIdentifier(annotationDeclarationNode.annotationTag());
 
@@ -2242,13 +2246,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         BLangSimpleVariable var = new SimpleVarBuilder()
-                .with(listenerDeclarationNode.variableName().text())
+                .with(listenerDeclarationNode.variableName())
                 .setTypeByNode(listenerDeclarationNode.typeDescriptor())
                 .setExpressionByNode(listenerDeclarationNode.initializer())
                 .setVisibility(visibilityQualifier)
                 .isListenerVar()
                 .build();
-        var.pos = getPosition(listenerDeclarationNode);
+        var.pos = getPositionWithoutMetadata(listenerDeclarationNode);
         var.name.pos = getPosition(listenerDeclarationNode.variableName());
         var.annAttachments = applyAll(listenerDeclarationNode.metadata().annotations());
         return var;
@@ -3309,6 +3313,29 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     @Override
+    public BLangNode transform(OrderByClauseNode orderByClauseNode) {
+        BLangOrderByClause orderByClause = (BLangOrderByClause) TreeBuilder.createOrderByClauseNode();
+        orderByClause.pos = getPosition(orderByClauseNode);
+        for (OrderKeyNode orderKeyNode : orderByClauseNode.orderKey()) {
+            orderByClause.addOrderKey(createOrderKey(orderKeyNode));
+        }
+        return orderByClause;
+    }
+
+    public BLangOrderKey createOrderKey(OrderKeyNode orderKeyNode) {
+        BLangOrderKey orderKey = (BLangOrderKey) TreeBuilder.createOrderKeyNode();
+        orderKey.pos = getPosition(orderKeyNode);
+        orderKey.expression = createExpression(orderKeyNode.expression());
+        if (orderKeyNode.orderDirection().isPresent() &&
+                orderKeyNode.orderDirection().get().text().equals("descending")) {
+            orderKey.isAscending = false;
+        } else {
+            orderKey.isAscending = true;
+        }
+        return orderKey;
+    }
+
+    @Override
     public BLangNode transform(IntersectionTypeDescriptorNode intersectionTypeDescriptorNode) {
         BLangType lhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.leftTypeDesc());
         BLangType rhsType = (BLangType) createTypeNode(intersectionTypeDescriptorNode.rightTypeDesc());
@@ -4224,7 +4251,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         LinkedList<BLangMarkdownParameterDocumentation> parameters = new LinkedList<>();
         LinkedList<BLangMarkdownReferenceDocumentation> references = new LinkedList<>();
 
-        NodeList<Node> docLineList = ((MarkdownDocumentationNode) markdownDocumentationNode.get()).documentationLines();
+        MarkdownDocumentationNode markdownDocNode = (MarkdownDocumentationNode) markdownDocumentationNode.get();
+        NodeList<Node> docLineList = markdownDocNode.documentationLines();
+
         BLangMarkdownParameterDocumentation bLangParaDoc = null;
         BLangMarkdownReturnParameterDocumentation bLangReturnParaDoc = null;
         BLangMarkDownDeprecationDocumentation bLangDeprecationDoc = null;
@@ -4323,6 +4352,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         doc.references = references;
         doc.deprecationDocumentation = bLangDeprecationDoc;
         doc.deprecatedParametersDocumentation = bLangDeprecatedParaDoc;
+        doc.pos = getPosition(markdownDocNode);
         return doc;
     }
 
@@ -4691,6 +4721,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         public SimpleVarBuilder with(String name, DiagnosticPos identifierPos) {
             this.name = createIdentifier(identifierPos, name);
+            return this;
+        }
+
+        public SimpleVarBuilder with(Token token) {
+            this.name = createIdentifier(token);
             return this;
         }
 
