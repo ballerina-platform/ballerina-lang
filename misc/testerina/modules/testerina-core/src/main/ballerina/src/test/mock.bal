@@ -20,27 +20,49 @@ import ballerina/java;
 public const ANY = "__ANY__";
 
 # Represents the reason for the mock object related errors.
-public const INVALID_OBJECT_ERROR = "InvalidObjectError";
-public type InvalidObjectError distinct error;
+public const INVALID_OBJECT_ERROR = "{ballerina/test}InvalidObjectError";
+public type InvalidObjectError error<INVALID_OBJECT_ERROR, Detail>;
 
 # Represents the reason for the non-existing member function related errors.
-public const FUNCTION_NOT_FOUND_ERROR = "FunctionNotFoundError";
-public type FunctionNotFoundError distinct error;
+public const FUNCTION_NOT_FOUND_ERROR = "{ballerina/test}FunctionNotFoundError";
+public type FunctionNotFoundError error<FUNCTION_NOT_FOUND_ERROR, Detail>;
 
 # Represents the reason for the function signature related errors.
-public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "FunctionSignatureMismatchError";
-public type FunctionSignatureMismatchError distinct error;
+public const FUNCTION_SIGNATURE_MISMATCH_ERROR = "{ballerina/test}FunctionSignatureMismatchError";
+public type FunctionSignatureMismatchError error<FUNCTION_SIGNATURE_MISMATCH_ERROR, Detail>;
 
 # Represents the reason for the object member field related errors.
-public const INVALID_MEMBER_FIELD_ERROR = "InvalidMemberFieldError";
-public type InvalidMemberFieldError distinct error;
+public const INVALID_MEMBER_FIELD_ERROR = "{ballerina/test}InvalidMemberFieldError";
+public type InvalidMemberFieldError error<INVALID_MEMBER_FIELD_ERROR, Detail>;
 
 # Represents the reason for function mocking related errors.
-public const FUNCTION_CALL_ERROR = "FunctionCallError";
-public type FunctionCallError distinct error;
+public const FUNCTION_CALL_ERROR = "{ballerina/test}FunctionCallError";
+public type FunctionCallError error<FUNCTION_CALL_ERROR, Detail>;
 
 # Represents mocking related errors
 public type Error InvalidObjectError|FunctionNotFoundError|FunctionSignatureMismatchError|InvalidMemberFieldError|FunctionCallError;
+
+# The details of an error.
+#
+# + message - Specific error message of the error
+# + cause - Any other error, which causes this error
+public type Detail record {
+    string message;
+    error cause?;
+};
+
+# Creates and returns a mock object of provided type description.
+#
+# + T - type of object to create the mock
+# + mockObject - mock object to replace the original (optional)
+# + return - created mock object
+public function mock(typedesc<object {}> T, object{} mockObject = new) returns object{} {
+    object {}|Error mockExtResult = mockExt(T, mockObject);
+    if (mockExtResult is Error) {
+        panic mockExtResult;
+    }
+    return <object{}>mockExtResult;
+}
 
 # Prepares a provided default mock object for stubbing.
 #
@@ -63,7 +85,7 @@ public type MockObject object {
     # Gets invoked during the mock object preparation.
     #
     # + mockObject - object to register stubbing
-    public function init(object{} mockObject) {
+    public function __init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -114,7 +136,7 @@ public type MemberFunctionStub object {
     # Gets invoked during the stub registration.
     #
     # + mockObject - object to register
-    public function init(object{} mockObject) {
+    public function __init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -191,7 +213,7 @@ public  type MemberVariableStub object {
     # Gets invoked during the stub registration
     #
     # + mockObject - object to register
-    public function init(object{} mockObject) {
+    public function __init(object{} mockObject) {
         self.mockObject = mockObject;
     }
 
@@ -242,7 +264,7 @@ public type FunctionStub object {
     # Gets invoked during the stub registration
     #
     # + mockObject - object to register
-    public function init(MockFunction mockFunction) {
+    public function __init(MockFunction mockFunction) {
         self.mockFuncObj = mockFunction;
     }
 
@@ -289,9 +311,10 @@ public type FunctionStub object {
 # Creates and returns a mock object of provided type description.
 #
 # + T - type of object to create the mock
-# + mockObject - mock object to replace the original (optional)
+# + obj - mock object to replace the original (optional)
 # + return - created mock object or throw an error if validation failed
-public function mock(public typedesc<object{}> T, object{} mockObject = new) returns T = @java:Method {
+function mockExt(typedesc<object {}> T, object {} obj) returns object{}|Error = @java:Method {
+    name: "mock",
     class: "org.ballerinalang.testerina.natives.test.Mock"
 } external;
 

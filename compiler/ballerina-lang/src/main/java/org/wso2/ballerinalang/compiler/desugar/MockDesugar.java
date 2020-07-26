@@ -128,7 +128,10 @@ public class MockDesugar {
             this.originalFunction = getOriginalFunction(functionName);
         } else {
             // Extract the name and the package details
-            String packageName = functionName.substring(functionName.indexOf('/') + 1, functionName.indexOf(':'));
+            String packageName = functionName.contains(":") ?
+                    functionName.substring(functionName.indexOf('/') + 1, functionName.indexOf(':')) :
+                    functionName.substring(functionName.indexOf('/') + 1,
+                                           functionName.indexOf(MOCK_ANNOTATION_DELIMITER));
             functionName = functionName.substring(functionName.indexOf(MOCK_ANNOTATION_DELIMITER) + 1);
             this.importFunction = getImportFunction(functionName, packageName);
         }
@@ -293,16 +296,16 @@ public class MockDesugar {
                 generateFieldBasedAccess("functionToMock"),
                 generateRHSExpr(functionToMockVal));
 
-        // <MockFunctionObj>.functionToMockPackage = (functionToMockPackage);
-        String functionToMockPackageVal = (this.originalFunction == null) ?
-                this.importFunction.pkgID.toString()
-                        + "/" + getFunctionSource(this.importFunction.source) :
-                this.originalFunction.symbol.pkgID.toString()
-                        + "/" + getFunctionSource(this.originalFunction.symbol.source);
-        BLangAssignment bLangAssignment2 = ASTBuilderUtil.createAssignmentStmt(
-                bLangPackage.pos,
-                generateFieldBasedAccess("functionToMockPackage"),
-                generateRHSExpr(functionToMockPackageVal));
+        // <MockFunctionObj>.functionToMockPackage = (functionToMockPackage);  // ballerina/math/natives
+//        String functionToMockPackageVal = (this.originalFunction == null) ?
+//                this.importFunction.pkgID.toString()
+//                        + "/" + getFunctionSource(this.importFunction.source) :
+//                this.originalFunction.symbol.pkgID.toString()
+//                        + "/" + getFunctionSource(this.originalFunction.symbol.source);
+//        BLangAssignment bLangAssignment2 = ASTBuilderUtil.createAssignmentStmt(
+//                bLangPackage.pos,
+//                generateFieldBasedAccess("functionToMockPackage"),
+//                generateRHSExpr(functionToMockPackageVal));
 
         // BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])
         BLangReturn blangReturn =
@@ -310,8 +313,8 @@ public class MockDesugar {
 
         List<BLangStatement> statements = new ArrayList<>();
 
-        statements.add(bLangAssignment1);
-        statements.add(bLangAssignment2);
+//        statements.add(bLangAssignment1);
+//        statements.add(bLangAssignment2);
         statements.add(blangReturn);
 
         return statements;
@@ -448,7 +451,7 @@ public class MockDesugar {
         if (originalFunction == null) {
             type = this.importFunction.retType;
         } else {
-            type = ((BInvokableType) this.originalFunction.type).retType;
+            type = this.originalFunction.returnTypeNode.type;
         }
 
         return type;

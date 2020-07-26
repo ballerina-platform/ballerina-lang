@@ -17,7 +17,7 @@ public type MockHttpClient client object {
 @test:Config {}
 function testUserDefinedMockObject() {
 
-  clientEndpoint = test:mock(http:Client, new MockHttpClient());
+  clientEndpoint = <http:Client>test:mock(http:Client, new MockHttpClient());
   http:Response res = doGet();
   test:assertEquals(res.statusCode, 500);
   test:assertEquals(getClientUrl(), "http://mockUrl");
@@ -26,7 +26,7 @@ function testUserDefinedMockObject() {
 @test:Config {}
 function testProvideAReturnValue() {
 
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   http:Response mockResponse = new;
   mockResponse.statusCode = 500;
 
@@ -39,7 +39,7 @@ function testProvideAReturnValue() {
 @test:Config {}
 function testProvideAReturnValueBasedOnInput() {
 
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).when("get").withArguments("/get?test=123", test:ANY).thenReturn(new http:Response());
   clientEndpoint = mockHttpClient;
   http:Response res = doGet();
@@ -49,11 +49,11 @@ function testProvideAReturnValueBasedOnInput() {
 @test:Config {}
 function testProvideErrorAsReturnValue() {
 
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient);
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient);
   smtpClient = mockSmtpClient;
 
   string[] emailIds = ["user1@test.com", "user2@test.com"];
-  error? errMock = email:SendError("email sending failed");
+  error? errMock = error(email:SEND_ERROR, message = "email sending failed");
   test:prepare(mockSmtpClient).when("send").thenReturn(errMock);
   error? err = sendNotification(emailIds);
   test:assertTrue(err is error);
@@ -62,7 +62,7 @@ function testProvideErrorAsReturnValue() {
 @test:Config {}
 function testDoNothing() {
 
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient);
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient);
   http:Response mockResponse = new;
   mockResponse.statusCode = 500;
 
@@ -77,7 +77,7 @@ function testDoNothing() {
 @test:Config {}
 function testMockMemberVarible() {
   string mockClientUrl = "http://foo";
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).getMember("url").thenReturn(mockClientUrl);
 
   clientEndpoint = mockHttpClient;
@@ -86,7 +86,7 @@ function testMockMemberVarible() {
 
 @test:Config {}
 function testProvideAReturnSequence() {
-    http:Client mockHttpClient = test:mock(http:Client);
+    http:Client mockHttpClient = <http:Client>test:mock(http:Client);
     http:Response mockResponse = new;
     mockResponse.statusCode = 500;
 
@@ -136,7 +136,7 @@ public type MockHttpClientSigErr client object {
 // 1.1) when the user-defined mock object is empty
 @test:Config {}
 function testEmptyUserDefinedObj() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient, new MockSmtpClientEmpty());
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientEmpty());
   smtpClient = mockSmtpClient;
 }
 
@@ -144,14 +144,14 @@ function testEmptyUserDefinedObj() {
 // 1.2) when user-defined object is passed to test:prepare function
 @test:Config {}
 function testUserDefinedMockRegisterCases() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient, new MockSmtpClient());
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClient());
   test:prepare(mockSmtpClient).when("send").doNothing();
 }
 
 // 1.3) when the functions in mock is not available in the original
 @test:Config {}
 function testUserDefinedMockInvalidFunction() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient, new MockSmtpClientFuncErr());
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientFuncErr());
   smtpClient = mockSmtpClient;
   error? sendNotificationResult = sendNotification(["user1@test.com"]);
 }
@@ -159,7 +159,7 @@ function testUserDefinedMockInvalidFunction() {
 // 1.4.1) when the function return types do not match
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient, new MockSmtpClientSigErr());
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr());
   smtpClient = mockSmtpClient;
   error? sendNotificationResult = sendNotification(["user1@test.com"]);
 }
@@ -167,7 +167,7 @@ function testUserDefinedMockFunctionSignatureMismatch() {
 // 1.4.2) when the function parameters do not match
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch2() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient, new MockSmtpClientSigErr2());
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient, new MockSmtpClientSigErr2());
   smtpClient = mockSmtpClient;
   error? sendNotificationResult = sendNotification(["user1@test.com"]);
 }
@@ -175,7 +175,7 @@ function testUserDefinedMockFunctionSignatureMismatch2() {
 // 1.4.3
 @test:Config {}
 function testUserDefinedMockFunctionSignatureMismatch3() {
-  http:Client mockHttpClient = test:mock(http:Client, new MockHttpClientSigErr());
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client, new MockHttpClientSigErr());
 }
 
 # 2 - Validations for framework provided default mock object
@@ -183,35 +183,35 @@ function testUserDefinedMockFunctionSignatureMismatch3() {
 // 2.1  when the function called in mock is not available in the original
 @test:Config {}
 function testDefaultMockInvalidFunctionName() {
-  email:SmtpClient mockSmtpClient = test:mock(email:SmtpClient);
+  email:SmtpClient mockSmtpClient = <email:SmtpClient>test:mock(email:SmtpClient);
   test:prepare(mockSmtpClient).when("get").doNothing();
 }
 
 // 2.2) call doNothing() - the function has a return type specified
 @test:Config {}
 function testDefaultMockWrongAction() {
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).when("get").doNothing();
 }
 
 // 2.3) when the return value does not match the function return type
 @test:Config {}
 function testDefaultInvalidFunctionReturnValue() {
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).when("get").thenReturn("success");
 }
 
 // 2.4.1) when the number of arguments provided does not match the function signature
 @test:Config {}
 function testDefaultTooManyArgs() {
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).when("get").withArguments("test", "", "").thenReturn(new http:Response());
 }
 
 // 2.4.2) when the type of arguments provided does not match the function signature
 @test:Config {}
 function testDefaultIncompatibleArgs() {
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).when("get").withArguments(0).thenReturn(new http:Response());
 }
 
@@ -219,7 +219,7 @@ function testDefaultIncompatibleArgs() {
 @test:Config {}
 function testDefaultMockInvalidFieldName() {
   string mockClientUrl = "http://foo";
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).getMember("clientUrl").thenReturn(mockClientUrl);
 
   clientEndpoint = mockHttpClient;
@@ -229,6 +229,6 @@ function testDefaultMockInvalidFieldName() {
 // 2.6) when the member variable type does not match the return value
 @test:Config{}
 function testDefaultInvalidMemberReturnValue() {
-  http:Client mockHttpClient = test:mock(http:Client);
+  http:Client mockHttpClient = <http:Client>test:mock(http:Client);
   test:prepare(mockHttpClient).getMember("url").thenReturn(());
 }

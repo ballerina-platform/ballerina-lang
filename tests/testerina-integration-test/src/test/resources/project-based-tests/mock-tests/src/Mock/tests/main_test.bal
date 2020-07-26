@@ -171,5 +171,4 @@ public function withArguments_Test1() {
 
     test:when(mock_stringAdd).withArguments("string1").thenReturn("test");
     test:assertEquals(stringAdd("string1"), "test");
-
 }
