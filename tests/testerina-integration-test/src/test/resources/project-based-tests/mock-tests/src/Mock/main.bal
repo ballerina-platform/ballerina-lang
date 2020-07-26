@@ -1,35 +1,29 @@
+import ballerina/io;
+
 public function main() {
-    int ans = intAdd(5, 3);
+    io:println("FunctionMocking Tests");
 }
-
-//
-// Object Definition
-//
-type Person object {
-    public string firstName;
-    public string lastName;
-
-    function __init(string firstName, string lastName) {
-        self.firstName = firstName;
-        self.lastName = lastName;
-    }
-
-    function getFullName() returns string {
-        return self.firstName + " " + self.lastName;
-    }
-};
-
 
 //
 // FUNCTIONS
 //
 
-// This should be mocked
+// Returns (int)
 public function intAdd(int a, int b) returns (int) {
-    return a+b;
+    return a + b;
 }
 
-// This should NOT be mocked
-public function intSubtract(int a, int b) returns (int) {
-    return a-b;
+// Returns (string)
+public function stringAdd(string str) returns (string) {
+    return "test_" + str;
+}
+
+// Returns (float)
+public function floatAdd(float c, float d) returns (float) {
+    return c + d;
+}
+
+// Call mocked function
+public function callIntAdd(int x, int y) returns (int) {
+    return intAdd(x, y);
 }
