@@ -14361,6 +14361,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListBindingPattern(STNode openBracket, List<STNode> bindingPatternsList) {
+        if (isEndOfListBindingPattern(peek().kind) && bindingPatternsList.size() == 0) {
+            // Handle empty list binding pattern
+            STNode closeBracket = parseCloseBracket();
+            STNode restBindingPattern = STNodeFactory.createEmptyNode();
+            STNode bindingPatternsNode = STNodeFactory.createNodeList(bindingPatternsList);
+            return STNodeFactory.createListBindingPatternNode(openBracket, bindingPatternsNode, restBindingPattern,
+                    closeBracket);
+        }
         STNode listBindingPatternMember = parseListBindingPatternMember();
         bindingPatternsList.add(listBindingPatternMember);
         STNode listBindingPattern = parseListBindingPattern(openBracket, listBindingPatternMember, bindingPatternsList);
