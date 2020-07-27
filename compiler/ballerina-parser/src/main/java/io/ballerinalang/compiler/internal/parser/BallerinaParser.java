@@ -5129,6 +5129,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseErrorConstructorExpr() {
         STNode errorKeyword = parseErrorKeyword();
+        errorKeyword = createBuiltinSimpleNameReference(errorKeyword);
         return parseFuncCall(errorKeyword);
     }
 
@@ -8735,6 +8736,8 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.SERVICE_TYPE_DESC;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_TYPE_DESC;
+            case ERROR_KEYWORD:
+                return SyntaxKind.ERROR_TYPE_DESC;
             default:
                 return SyntaxKind.TYPE_DESC;
         }
