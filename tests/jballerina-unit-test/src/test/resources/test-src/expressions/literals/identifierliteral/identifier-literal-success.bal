@@ -128,12 +128,3 @@ function testAcessJSONFielAsIL() returns (json|error) {
     json j = {"foo" : {"int" : "I am an integer"}};
     return j.foo.'int;
 }
-
-//type DOM record {
-//    string '\{http\:\/\/test\.com\}fname;
-//};
-//
-//function testILConsistency() returns DOM {
-//    DOM d = {'\{http\:\/\/test\.com\}fname: "First Name Element"};
-//    return d;
-//}

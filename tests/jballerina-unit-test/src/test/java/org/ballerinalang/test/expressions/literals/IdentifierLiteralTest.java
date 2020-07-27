@@ -210,17 +210,18 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 0, "undefined symbol 'global v \" ar'", 5, 12);
     }
 
-//    @Test(description = "Test wrong character in identifier literal")
-//    public void testIdentifierLiteralWithWrongCharacter() {
-//        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
-//                "/identifier-literal-wrong-character-negative.bal");
-//        Assert.assertEquals(resultNeg.getErrorCount(), 5);
-//        BAssertUtil.validateError(resultNeg, 0, "invalid token 'var'", 3, 20);
-//        BAssertUtil.validateError(resultNeg, 1, "extraneous input '\" = \"'", 3, 23);
-//        BAssertUtil.validateError(resultNeg, 2, "token recognition error at: '\";\\n    return 'global\\ '", 3, 31);
-//        BAssertUtil.validateError(resultNeg, 3, "missing token '=' before 'v'", 4, 21);
-//        BAssertUtil.validateError(resultNeg, 4, "token recognition error at: '\\'", 4, 22);
-//    }
+    @Test(description = "Test wrong character in identifier literal")
+    public void testIdentifierLiteralWithWrongCharacter() {
+        CompileResult resultNeg = BCompileUtil.compile("test-src/expressions/literals/identifierliteral" +
+                "/identifier-literal-wrong-character-negative.bal");
+        Assert.assertEquals(resultNeg.getErrorCount(), 6);
+        BAssertUtil.validateError(resultNeg, 0, "missing semicolon token", 3, 24);
+        BAssertUtil.validateError(resultNeg, 1, "incompatible types: expected ' = ', found 'string'", 3, 32);
+        BAssertUtil.validateError(resultNeg, 2, "missing double quote", 3, 32);
+        BAssertUtil.validateError(resultNeg, 3, "missing equal token", 3, 32);
+        BAssertUtil.validateError(resultNeg, 4, "missing semicolon token", 4, 1);
+        BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'global v ar'", 4, 12);
+    }
 
     @Test
     public void testAcessILWithoutPipe() {
@@ -241,13 +242,4 @@ public class IdentifierLiteralTest {
         Assert.assertSame(returns[0].getClass(), BString.class);
         Assert.assertEquals(returns[0].stringValue(), "I am an integer");
     }
-//
-//    @Test
-//    public void testILConsistency() {
-//        BValue[] returns = BRunUtil.invoke(result, "testILConsistency");
-//        Assert.assertEquals(returns.length, 1);
-//        Assert.assertSame(returns[0].getClass(), BMap.class);
-//        Assert.assertEquals(((BMap) returns[0]).getIfExist("{http://test.com}fname").stringValue(),
-//                "First Name Element");
-//    }
 }
