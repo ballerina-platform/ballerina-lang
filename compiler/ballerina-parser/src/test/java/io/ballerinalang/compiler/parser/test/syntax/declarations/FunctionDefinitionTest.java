@@ -141,4 +141,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testIncompleteExternalFunctionBodyRecovery() {
         testFile("func-definition/func_def_source_23.bal", "func-definition/func_def_assert_23.json");
     }
+
+    @Test
+    public void testFunctionWithInvalidExpressionStatement() {
+        testFile("func-definition/func_def_source_24.bal", "func-definition/func_def_assert_24.json");
+    }
 }

@@ -40,10 +40,10 @@ public class RecordDocumentationTest {
     public void setup() {
     }
 
-    @Test(description = "Test doc annotation.")
+    @Test(description = "Test doc annotation.", groups = { "disableOnOldParser" })
     public void testDocAnnotation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
+        Assert.assertEquals(compileResult.getWarnCount(), 3);
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation dNode =
                 ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
@@ -65,10 +65,10 @@ public class RecordDocumentationTest {
         Assert.assertNotNull(dNode);
     }
 
-    @Test(description = "Test doc struct.", groups = { "brokenOnNewParser" })
+    @Test(description = "Test doc struct.", groups = { "disableOnOldParser" })
     public void testDocStruct() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_doc_annotation.bal");
-        Assert.assertEquals(0, compileResult.getWarnCount());
+        Assert.assertEquals(compileResult.getWarnCount(), 0);
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation dNode =
                 ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).markdownDocumentationAttachment;
@@ -88,7 +88,7 @@ public class RecordDocumentationTest {
                 EMPTY_STRING), "struct `field c` documentation");
     }
 
-    @Test(description = "Test doc negative cases.", groups = { "brokenOnNewParser" })
+    @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_documentation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
