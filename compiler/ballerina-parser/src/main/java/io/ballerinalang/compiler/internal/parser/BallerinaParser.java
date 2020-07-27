@@ -765,7 +765,8 @@ public class BallerinaParser extends AbstractParser {
         switch (tokenKind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+                    // Attach metadata to a top level node
+                    return parseModuleVarDecl(metadata, null);
                 }
                 return null;
             case PUBLIC_KEYWORD:
