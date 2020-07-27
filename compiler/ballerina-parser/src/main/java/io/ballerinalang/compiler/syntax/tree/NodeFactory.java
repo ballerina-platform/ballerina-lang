@@ -525,7 +525,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionCallExpressionNode createFunctionCallExpressionNode(
-            Node functionName,
+            NameReferenceNode functionName,
             Token openParenToken,
             SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
