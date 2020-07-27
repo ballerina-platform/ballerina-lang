@@ -1872,10 +1872,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         ParserRuleContext[] alternatives = null;
         switch (parentCtx) {
             case ARG_LIST:
-                alternatives = new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.DOT,
-                        ParserRuleContext.ANNOT_CHAINING_TOKEN, ParserRuleContext.OPTIONAL_CHAINING_TOKEN,
-                        ParserRuleContext.CONDITIONAL_EXPRESSION, ParserRuleContext.XML_NAVIGATE_EXPR,
-                        ParserRuleContext.MEMBER_ACCESS_KEY_EXPR, ParserRuleContext.COMMA,
+                alternatives = new ParserRuleContext[] { ParserRuleContext.COMMA, ParserRuleContext.BINARY_OPERATOR,
+                        ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
                         ParserRuleContext.ARG_LIST_END };
                 break;
             case MAPPING_CONSTRUCTOR:
