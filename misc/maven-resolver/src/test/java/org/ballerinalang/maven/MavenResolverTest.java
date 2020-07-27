@@ -52,4 +52,33 @@ public class MavenResolverTest {
             Assert.fail(e.getMessage());
         }
     }
+
+    @Test
+    public void testAddRemoteRepository() {
+        try {
+            resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
+            Dependency dependency = resolver.resolve("org.ballerinalang", "wso2-cassandra",
+                    "0.8.3", true);
+            String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
+            Assert.assertTrue(new File(jarPath).exists());
+        } catch (MavenResolverException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test(enabled = false)
+    public void testAddRemoteRepositoryWithCredentials() {
+        String username = System.getenv("GIT_USER");
+        String password = System.getenv("GIT_TOKEN");
+        try {
+            resolver.addRepository("ballerina-github",
+                    "https://maven.pkg.github.com/ballerina-platform/ballerina-update-tool", username, password);
+            Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-command-distribution",
+                    "0.8.5", false);
+            String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
+            Assert.assertTrue(new File(jarPath).exists());
+        } catch (MavenResolverException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
 }
