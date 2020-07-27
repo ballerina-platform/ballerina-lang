@@ -29,15 +29,21 @@ import org.testng.annotations.Test;
  */
 public class GlobalVarNegativeTest {
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = { "disableOnOldParser" })
     public void testGlobalVarNegatives() {
         CompileResult resultNegative = BCompileUtil.compile(
                 "test-src/statements/variabledef/global_variable_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
-        BAssertUtil.validateError(resultNegative, 0, "invalid token 'int'", 27, 8);
-        BAssertUtil.validateError(resultNegative, 1, "invalid token 'int'", 29, 8);
-        BAssertUtil.validateError(resultNegative, 2, "mismatched input ';'. expecting '='", 31, 46);
-        BAssertUtil.validateError(resultNegative, 3, "mismatched input ';'. expecting '='", 33, 59);
+        Assert.assertEquals(resultNegative.getErrorCount(), 9);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "missing non-defaultable required record field 'x'", 22, 12);
+        BAssertUtil.validateError(resultNegative, i++, "invalid character ':' in field access expression", 23, 15);
+        BAssertUtil.validateError(resultNegative, i++, "invalid qualifier 'public'", 27, 8);
+        BAssertUtil.validateError(resultNegative, i++, "invalid qualifier 'public'", 29, 8);
+        BAssertUtil.validateError(resultNegative, i++, "missing equal token", 31, 46);
+        BAssertUtil.validateError(resultNegative, i++, "missing identifier", 31, 46);
+        BAssertUtil.validateError(resultNegative, i++, "missing equal token", 33, 59);
+        BAssertUtil.validateError(resultNegative, i++, "missing identifier", 33, 59);
+        BAssertUtil.validateError(resultNegative, i++, "cyclic type reference in '[Listener, Listener]'", 35, 1);
     }
 
     @Test

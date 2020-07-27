@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -4413,6 +4414,10 @@ public class TypeChecker extends BLangNodeVisitor {
         handleFilterClauses(onClause.expression);
     }
 
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
+    }
+
     private void handleFilterClauses (BLangExpression filterExpression) {
         checkExpr(filterExpression, narrowedQueryEnv, symTable.booleanType);
         BType actualType = filterExpression.type;
@@ -4695,7 +4700,9 @@ public class TypeChecker extends BLangNodeVisitor {
             checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            if (!missingNodesHelper.isMissingNode(funcName)) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            }
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;
