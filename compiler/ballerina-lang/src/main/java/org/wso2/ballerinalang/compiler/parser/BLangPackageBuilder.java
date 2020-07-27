@@ -2150,6 +2150,7 @@ public class BLangPackageBuilder {
 
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
         onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+        markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
         onFailClause.variableDefinitionNode = variableDefinitionNode;
         BLangBlockStmt blockNode = (BLangBlockStmt) blockNodeStack.pop();
         blockNode.pos = pos;

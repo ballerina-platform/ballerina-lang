@@ -2384,7 +2384,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Create a new block environment for the foreach node's body.
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(onFailClause.body, env);
         // Check foreach node's variables and set types.
-        handleDefinitionVariables(onFailClause.variableDefinitionNode, onFailClause.varType,
+        handleDefinitionVariables(onFailClause.variableDefinitionNode, symTable.errorType,
                 onFailClause.isDeclaredWithVar, blockEnv);
         analyzeStmt(onFailClause.body, blockEnv);
     }
