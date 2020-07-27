@@ -26,6 +26,7 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.toml.model.Library;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Repository;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -51,6 +52,22 @@ public class ResolveMavenDependenciesTask implements Task {
                 + "platform-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
 
+        if (manifest.getPlatform().getRepositories() != null && manifest.getPlatform().getRepositories().size() > 0) {
+            for (Repository repository : manifest.getPlatform().getRepositories()) {
+                String id = repository.getId();
+                String url = repository.getUrl();
+                String username = repository.getUser();
+                String password = repository.getToken();
+                if (id != null && url != null) {
+                    if (username != null && password != null) {
+                        resolver.addRepository(id, url, username, password);
+                        continue;
+                    }
+                    resolver.addRepository(id, url);
+                }
+            }
+        }
+
         for (Library library : manifest.getPlatform().getLibraries()) {
             if (library.getPath() == null) {
                 mavenDependencies.add(library);
@@ -60,16 +77,15 @@ public class ResolveMavenDependenciesTask implements Task {
         if (mavenDependencies.size() > 0) {
             buildContext.out().println("Resolving Maven dependencies\n\tDownloading dependencies into " + targetRepo);
             for (Library library : mavenDependencies) {
-                if (library.getPath() == null) {
-                    try {
-                        Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
-                                library.getVersion(), false);
-                        library.setPath(Utils.getJarPath(targetRepo, dependency));
-                    } catch (MavenResolverException e) {
-                        buildContext.err().print("cannot resolve " + library.getArtifactId());
-                    }
+                try {
+                    Dependency dependency = resolver.resolve(library.getGroupId(), library.getArtifactId(),
+                            library.getVersion(), false);
+                    library.setPath(Utils.getJarPath(targetRepo, dependency));
+                } catch (MavenResolverException e) {
+                    buildContext.err().print("cannot resolve " + library.getArtifactId());
                 }
             }
+            buildContext.out().println();
         }
     }
 }
