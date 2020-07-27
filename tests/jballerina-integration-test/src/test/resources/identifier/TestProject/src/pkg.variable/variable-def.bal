@@ -37,9 +37,3 @@ public type Person record {
     string '\\\|\ \!\#\$\.\[\;\/\{\"\:\<\>\u2324_last_name;
     int 'Ȧɢέ;
 };
-
-//public type Person record {
-//    string 'first\ name;
-//    string 'last\ name;
-//    int 'current\ age;
-//};
