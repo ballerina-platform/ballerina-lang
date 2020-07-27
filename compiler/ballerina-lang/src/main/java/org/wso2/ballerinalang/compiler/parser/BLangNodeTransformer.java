@@ -2967,9 +2967,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
 
-        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
-        // This is done to be consistent with BLangPackageBuilder
-        namespaceUri.originalValue = (String) namespaceUri.value;
+        BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
@@ -2984,21 +2982,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ModuleXMLNamespaceDeclarationNode xmlnsDeclNode) {
         BLangXMLNS xmlns = (BLangXMLNS) TreeBuilder.createXMLNSNode();
         BLangIdentifier prefixIdentifier = createIdentifier(xmlnsDeclNode.namespacePrefix());
-
-        BLangLiteral namespaceUri = createSimpleLiteral(xmlnsDeclNode.namespaceuri());
-        // This is done to be consistent with BLangPackageBuilder
-        namespaceUri.originalValue = (String) namespaceUri.value;
+        BLangExpression namespaceUri = createExpression(xmlnsDeclNode.namespaceuri());
         xmlns.namespaceURI = namespaceUri;
         xmlns.prefix = prefixIdentifier;
         xmlns.pos = getPosition(xmlnsDeclNode);
-
         return xmlns;
     }
 
     @Override
     public BLangNode transform(XMLQualifiedNameNode xmlQualifiedNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-
         xmlName.localname = createIdentifier(getPosition(xmlQualifiedNameNode.name()),
                 xmlQualifiedNameNode.name().name());
         xmlName.prefix = createIdentifier(getPosition(xmlQualifiedNameNode.prefix()),
@@ -3010,7 +3003,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(XMLSimpleNameNode xmlSimpleNameNode) {
         BLangXMLQName xmlName = (BLangXMLQName) TreeBuilder.createXMLQNameNode();
-
         xmlName.localname = createIdentifier(xmlSimpleNameNode.name());
         xmlName.prefix = createIdentifier(null, "");
         xmlName.pos = getPosition(xmlSimpleNameNode);
@@ -3021,7 +3013,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
         BLangXMLElementLiteral xmlEmptyElement = (BLangXMLElementLiteral) TreeBuilder.createXMLElementLiteralNode();
         xmlEmptyElement.startTagName = createExpression(xMLEmptyElementNode.name());
-
         for (XMLAttributeNode attribute : xMLEmptyElementNode.attributes()) {
             xmlEmptyElement.attributes.add((BLangXMLAttribute) attribute.apply(this));
         }
@@ -3033,7 +3024,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(RemoteMethodCallActionNode remoteMethodCallActionNode) {
         BLangInvocation.BLangActionInvocation bLangActionInvocation = (BLangInvocation.BLangActionInvocation)
                 TreeBuilder.createActionInvocation();
-
         bLangActionInvocation.expr = createExpression(remoteMethodCallActionNode.expression());
         bLangActionInvocation.argExprs = applyAll(remoteMethodCallActionNode.arguments());
 
@@ -3110,7 +3100,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     public BLangNode transform(EnumDeclarationNode enumDeclarationNode) {
-
         Boolean publicQualifier = false;
         if (enumDeclarationNode.qualifier() != null && enumDeclarationNode.qualifier().kind()
                 == SyntaxKind.PUBLIC_KEYWORD) {
@@ -3138,9 +3127,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     public BLangConstant transformEnumMember(EnumMemberNode member, Boolean publicQualifier) {
         BLangConstant bLangConstant = (BLangConstant) TreeBuilder.createConstantNode();
-
         bLangConstant.flagSet.add(Flag.CONSTANT);
-
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
         }
