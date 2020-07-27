@@ -5309,7 +5309,7 @@ public class BallerinaParser extends AbstractParser {
             // Treat everything else as a single expression. If something is missing,
             // expression-parsing will recover it.
             default:
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, false, false);
+                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
     }
