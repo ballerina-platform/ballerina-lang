@@ -30,8 +30,6 @@ public class NodeContextKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Stack<BLangNode>> NODE_STACK_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<String> NODE_NAME_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
             = new LSContext.Key<>();
 }

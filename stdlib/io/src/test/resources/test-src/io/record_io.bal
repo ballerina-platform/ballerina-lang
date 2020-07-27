@@ -20,21 +20,21 @@ io:ReadableTextRecordChannel? rch = ();
 io:WritableTextRecordChannel? wch = ();
 
 function initReadableChannel(string filePath, string encoding, string recordSeparator,
-                                    string fieldSeparator) returns @tainted error? {
+                                    string fieldSeparator) returns error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is error) {
         return byteChannel;
     } else {
         io:ReadableCharacterChannel charChannel = new io:ReadableCharacterChannel(byteChannel, encoding);
-        rch = <@untainted io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
+        rch = <io:ReadableTextRecordChannel> new io:ReadableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
     }
 }
 
 function initWritableChannel(string filePath, string encoding, string recordSeparator,
-                             string fieldSeparator) returns @tainted io:Error? {
+                             string fieldSeparator) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
     io:WritableCharacterChannel charChannel = new io:WritableCharacterChannel(byteChannel, encoding);
-    wch = <@untainted io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
+    wch = <io:WritableTextRecordChannel> new io:WritableTextRecordChannel(charChannel, fieldSeparator, recordSeparator);
 }
 
 

@@ -111,7 +111,8 @@ public class TesterinaFunction {
                     throw new BallerinaException("Error while invoking function '" + funcName + "'", e);
                 }
             };
-            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny);
+            final FutureValue out = scheduler.schedule(params, func, null, null, null, BTypes.typeAny,
+                                                       null, null);
             scheduler.start();
             final Throwable t = out.panic;
             final Object result = out.result;

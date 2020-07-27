@@ -105,6 +105,11 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testStmtStartsStringAndXMLKeywords() {
         testFile("ambiguity/ambiguity_source_22.bal", "ambiguity/ambiguity_assert_22.json");
     }
+    
+    @Test
+    public void testAmbiguousXMLStepExpr() {
+        testFile("ambiguity/ambiguity_source_24.bal", "ambiguity/ambiguity_assert_24.json");
+    }
 
     // Recovery tests
 
@@ -134,7 +139,7 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     }
 
     @Test
-    public void testStatementConsistOFOnlyBasicLiterals() {
+    public void testStatementConsistOfOnlyBasicLiterals() {
         testFile("ambiguity/ambiguity_source_23.bal", "ambiguity/ambiguity_assert_23.json");
     }
 }

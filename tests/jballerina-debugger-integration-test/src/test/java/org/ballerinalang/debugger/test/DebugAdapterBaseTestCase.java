@@ -20,8 +20,8 @@ package org.ballerinalang.debugger.test;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugHitListener;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
-import org.ballerinalang.debugger.test.utils.DeubgHitListener;
 import org.ballerinalang.debugger.test.utils.client.TestDAPClientConnector;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -29,12 +29,20 @@ import org.ballerinalang.test.context.LogLeecher;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
 import org.eclipse.lsp4j.debug.NextArguments;
+import org.eclipse.lsp4j.debug.ScopesArguments;
+import org.eclipse.lsp4j.debug.ScopesResponse;
 import org.eclipse.lsp4j.debug.SetBreakpointsArguments;
 import org.eclipse.lsp4j.debug.Source;
 import org.eclipse.lsp4j.debug.SourceBreakpoint;
+import org.eclipse.lsp4j.debug.StackFrame;
+import org.eclipse.lsp4j.debug.StackTraceArguments;
+import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.Variable;
+import org.eclipse.lsp4j.debug.VariablesArguments;
+import org.eclipse.lsp4j.debug.VariablesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterSuite;
@@ -242,7 +250,7 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
     protected Pair<BallerinaTestDebugPoint, StoppedEventArguments> waitForDebugHit(long timeoutMillis) throws
             BallerinaTestException {
 
-        DeubgHitListener listener = new DeubgHitListener(debugClientConnector);
+        DebugHitListener listener = new DebugHitListener(debugClientConnector);
         Timer timer = new Timer(true);
         timer.scheduleAtFixedRate(listener, 0, 1000);
         try {
@@ -321,6 +329,61 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
                 LOGGER.error("SetBreakpoints request failed.", e);
                 throw new BallerinaTestException("Breakpoints request failed.", e);
             }
+        }
+    }
+    /**
+     * Can be used to fetch variable values when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return Variable array with debug hit variables information.
+     * @throws BallerinaTestException if an error occurs when fetching debug hit variables.
+     */
+    protected Variable[] fetchDebugHitVariables(StoppedEventArguments args) throws BallerinaTestException {
+        if (!DebugHitListener.connector.isConnected()) {
+            return new Variable[0];
+        }
+        StackTraceArguments stackTraceArgs = new StackTraceArguments();
+        VariablesArguments variableArgs = new VariablesArguments();
+        ScopesArguments scopeArgs = new ScopesArguments();
+        stackTraceArgs.setThreadId(args.getThreadId());
+
+        try {
+            StackTraceResponse stackTraceResp = DebugHitListener.connector.getRequestManager()
+                    .stackTrace(stackTraceArgs);
+            StackFrame[] stackFrames = stackTraceResp.getStackFrames();
+            if (stackFrames.length == 0) {
+                return new Variable[0];
+            }
+
+            scopeArgs.setFrameId(stackFrames[0].getId());
+            ScopesResponse scopesResp = DebugHitListener.connector.getRequestManager().scopes(scopeArgs);
+            variableArgs.setVariablesReference(scopesResp.getScopes()[0].getVariablesReference());
+            VariablesResponse variableResp = DebugHitListener.connector.getRequestManager().variables(variableArgs);
+            return variableResp.getVariables();
+
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching debug hit variables", e);
+            throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
+        }
+    }
+
+    /**
+     * Can be used to get child variables from parent variable.
+     *
+     * @param childVariable child variable.
+     * @return Variable array with child variables information.
+     * @throws BallerinaTestException if an error occurs when fetching debug hit child variables.
+     */
+    protected Variable[] getChildVariable(Variable childVariable) throws BallerinaTestException {
+        VariablesArguments childVariableArgs = new VariablesArguments();
+        childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
+        try {
+            VariablesResponse childVariableResp = DebugHitListener.connector.getRequestManager()
+                    .variables(childVariableArgs);
+            return childVariableResp.getVariables();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching debug hit child variables", e);
+            throw new BallerinaTestException("Error occurred when fetching debug hit child variables", e);
         }
     }
 

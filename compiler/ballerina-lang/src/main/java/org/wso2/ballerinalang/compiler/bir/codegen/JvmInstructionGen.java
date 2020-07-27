@@ -24,8 +24,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JCast;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInsKind;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInstruction;
@@ -1678,13 +1678,13 @@ public class JvmInstructionGen {
         this.storeToVar(objectNewIns.lhsOp.variableDcl);
     }
 
-    void generateFPLoadIns(BIRNonTerminator.FPLoad inst, LambdaMetadata lambdaMetadata) {
+    void generateFPLoadIns(BIRNonTerminator.FPLoad inst, AsyncDataCollector asyncDataCollector) {
 
         this.mv.visitTypeInsn(NEW, FUNCTION_POINTER);
         this.mv.visitInsn(DUP);
 
-        String lambdaName = inst.funcName.value + "$lambda" + lambdaMetadata.getLambdaIndex() + "$";
-        lambdaMetadata.incrementLambdaIndex();
+        String lambdaName = inst.funcName.value + "$lambda" + asyncDataCollector.getLambdaIndex() + "$";
+        asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmPackageGen.getPackageName(inst.pkgId.orgName, inst.pkgId.name, inst.pkgId.version);
 
         BType returnType = inst.lhsOp.variableDcl.type;
@@ -1698,15 +1698,21 @@ public class JvmInstructionGen {
             }
         }
 
-        visitInvokeDyn(mv, lambdaMetadata.getEnclosingClass(), lambdaName, inst.closureMaps.size());
+        visitInvokeDyn(mv, asyncDataCollector.getEnclosingClass(), lambdaName, inst.closureMaps.size());
         loadType(this.mv, returnType);
+        if (inst.strandName != null) {
+            mv.visitLdcInsn(inst.strandName);
+        } else {
+            mv.visitInsn(ACONST_NULL);
+        }
+
         if (inst.schedulerPolicy == SchedulerPolicy.ANY) {
             mv.visitInsn(ICONST_1);
         } else {
             mv.visitInsn(ICONST_0);
         }
         this.mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
-                String.format("(L%s;L%s;Z)V", FUNCTION, BTYPE), false);
+                                String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
 
         // Set annotations if available.
         this.mv.visitInsn(DUP);
@@ -1718,7 +1724,7 @@ public class JvmInstructionGen {
                 String.format("(L%s;L%s;L%s;)V", FUNCTION_POINTER, MAP_VALUE, STRING_VALUE), false);
 
         this.storeToVar(inst.lhsOp.variableDcl);
-        lambdaMetadata.add(lambdaName, inst);
+        asyncDataCollector.add(lambdaName, inst);
     }
 
     void generateNewXMLElementIns(BIRNonTerminator.NewXMLElement newXMLElement) {

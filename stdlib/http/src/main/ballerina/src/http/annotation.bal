@@ -42,7 +42,7 @@ public type HttpServiceConfig record {|
 # + allowHeaders - The array of allowed headers by the service
 # + allowMethods - The array of allowed methods by the service
 # + allowOrigins - The array of origins with which the response is shared by the service
-# + exposeHeaders - The whitelisted headers which clients are allowed to access
+# + exposeHeaders - The allowlisted headers, which clients are allowed to access
 # + allowCredentials - Specifies whether credentials are required to access the service
 # + maxAge - The maximum duration to cache the preflight from client side
 public type CorsConfig record {|

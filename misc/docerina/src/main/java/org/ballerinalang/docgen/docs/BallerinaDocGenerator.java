@@ -430,6 +430,9 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchConstants = new ArrayList<>();
         List<ConstructSearchJson> searchErrors = new ArrayList<>();
         List<ConstructSearchJson> searchTypes = new ArrayList<>();
+        List<ConstructSearchJson> searchClients = new ArrayList<>();
+        List<ConstructSearchJson> searchListeners = new ArrayList<>();
+        List<ConstructSearchJson> searchAnnotations = new ArrayList<>();
 
         if (module.summary != null) {
             searchModules.add(new ModuleSearchJson(module.id, getFirstLine(module.summary)));
@@ -440,6 +443,13 @@ public class BallerinaDocGenerator {
 
         module.objects.forEach((object) ->
                 searchObjects.add(new ConstructSearchJson(object.name, module.id, getFirstLine(object.description))));
+
+        module.clients.forEach((client) ->
+                searchClients.add(new ConstructSearchJson(client.name, module.id, getFirstLine(client.description))));
+
+        module.listeners.forEach((listener) ->
+                searchListeners.add(new ConstructSearchJson(listener.name, module.id,
+                        getFirstLine(listener.description))));
 
         module.records.forEach((record) ->
                 searchRecords.add(new ConstructSearchJson(record.name, module.id, getFirstLine(record.description))));
@@ -455,9 +465,16 @@ public class BallerinaDocGenerator {
                 searchTypes.add(new ConstructSearchJson(unionType.name, module.id,
                         getFirstLine(unionType.description))));
 
+        module.finiteTypes.forEach((finiteType) ->
+                searchTypes.add(new ConstructSearchJson(finiteType.name, module.id,
+                        getFirstLine(finiteType.description))));
+
+        module.annotations.forEach((annotation) ->
+                searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id,
+                        getFirstLine(annotation.description))));
 
         SearchJson searchJson = new SearchJson(searchModules, searchObjects, searchFunctions, searchRecords,
-                searchConstants, searchErrors, searchTypes);
+                searchConstants, searchErrors, searchTypes, searchClients, searchListeners, searchAnnotations);
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File jsonFile = new File(jsonPath);
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
@@ -500,10 +517,13 @@ public class BallerinaDocGenerator {
                             searchJson.getModules().addAll(modSearchJson.getModules());
                             searchJson.getFunctions().addAll(modSearchJson.getFunctions());
                             searchJson.getObjects().addAll(modSearchJson.getObjects());
+                            searchJson.getClients().addAll(modSearchJson.getClients());
+                            searchJson.getListeners().addAll(modSearchJson.getListeners());
                             searchJson.getRecords().addAll(modSearchJson.getRecords());
                             searchJson.getConstants().addAll(modSearchJson.getConstants());
                             searchJson.getErrors().addAll(modSearchJson.getErrors());
                             searchJson.getTypes().addAll(modSearchJson.getTypes());
+                            searchJson.getAnnotations().addAll(modSearchJson.getAnnotations());
                         } catch (IOException e) {
                             String errorMsg = String.format("API documentation generation failed. Cause: %s",
                                     e.getMessage());

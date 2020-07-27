@@ -146,10 +146,12 @@ public function testArrowFunctionInsideTransaction() returns int {
     int a = 10;
     int b = 11;
     transaction {
+        function (int, int) returns int arrow1 = (x, y) => x + y + a + b;
+        a = arrow1(1, 1);
         transaction {
             int c = a + b;
-            function (int, int) returns int arrow = (x, y) => x + y + a + b + c;
-            a = arrow(1, 1);
+            function (int, int) returns int arrow2 = (x, y) => x + y + a + b + c;
+            a = arrow2(2, 2);
             var commitRes = commit;
         }
         var ii = commit;
@@ -299,4 +301,35 @@ function testUnreachableCode() returns string {
         var ii = commit;
     }
     return ss;
+}
+
+function testMultipleTrxReturnVal() returns string {
+    string str = "start";
+    int i = 0;
+    transaction {
+        i += 1;
+        str += " -> within transaction 1";
+        var commitRes1 = commit;
+        if(i >= 3) {
+            return str;
+        }
+        transaction {
+            i += 1;
+            str += " -> within transaction 2";
+            var commitRes2 = commit;
+            if(i >= 3) {
+                return str;
+            }
+            transaction {
+                i += 1;
+                str += " -> within transaction 3";
+                var commitRes3 = commit;
+                str += " -> returned.";
+                if(i >= 3) {
+                    return str;
+                }
+            }
+        }
+    }
+    return str;
 }

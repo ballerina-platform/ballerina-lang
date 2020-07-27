@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -67,16 +67,19 @@ public class ExternalMethodGen {
                                                   BType attachedType,
                                                   JvmMethodGen jvmMethodGen,
                                                   JvmPackageGen jvmPackageGen,
-                                                  LambdaMetadata lambdaGenMetadata) {
+                                                  String moduleClassName,
+                                                  String serviceName,
+                                                  AsyncDataCollector lambdaGenMetadata) {
 
         ExternalFunctionWrapper extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType,
                 jvmPackageGen);
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
-                    jvmMethodGen, lambdaGenMetadata);
+                    jvmMethodGen, moduleClassName, serviceName, lambdaGenMetadata);
         } else {
-            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, attachedType, lambdaGenMetadata);
+            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
+                                            attachedType, lambdaGenMetadata);
         }
     }
 

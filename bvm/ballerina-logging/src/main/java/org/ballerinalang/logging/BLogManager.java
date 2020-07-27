@@ -119,15 +119,6 @@ public class BLogManager extends LogManager {
     }
 
     /**
-     * Get the global log level.
-     *
-     * @return ballerinaUserLogLevel
-     */
-    public BLogLevel getGlobalLogLevel() {
-        return ballerinaUserLogLevel;
-    }
-
-    /**
      * Checks if module log level has been enabled.
      *
      * @return true if module log level has been enabled, false if not.
@@ -275,5 +266,15 @@ public class BLogManager extends LogManager {
                 outputStream.close();
             }
         }
+    }
+
+    /**
+     * Sets the module log level.
+     *
+     * @param logLevel log level
+     * @param moduleName module name
+     */
+    public void setModuleLogLevel(BLogLevel logLevel, String moduleName) {
+        loggerLevels.put(moduleName, logLevel);
     }
 }

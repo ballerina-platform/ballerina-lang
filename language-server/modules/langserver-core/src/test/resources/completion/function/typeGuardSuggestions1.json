@@ -24,6 +24,88 @@
       }
     },
     {
+      "label": "sum(int... ns)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n  \n  \n**Returns** `int`   \n- sum of all the `ns`; 0 is `ns` is empty  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "sum(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "isReadOnly()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "isReadOnly()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "min(int... ns)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "min(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "fromJsonWithType(typedesc<anydata> t)((t|error))",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type json to a user-specified type.\nThis works the same as `cloneWithType`,\nexcept that it also does the inverse of the conversions done by `toJson`.\n  \n**Params**  \n- `typedesc<anydata>` t: type to convert to  \n  \n**Returns** `(t|error)`   \n- value belonging to `t`, or error if this cannot be done  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "fromJsonWithType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toJsonString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "toJsonString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "toHexString()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -84,22 +166,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sum(int... ns)(int)",
+      "label": "toJson()(json)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nReturns sum of zero or more int values.\n  \n  \n  \n**Returns** `int`   \n- sum of all the `ns`; 0 is `ns` is empty  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value of type `anydata` to `json`.\nThis does a deep copy of `v` converting values that do\nnot belong to json into values that do.\nA value of type `xml` is converted into a string as if\nby the `toString` function.\nA value of type `table` is converted into a list of\nmappings one for each row.\nThe inherent type of arrays in the return value will be\n`json[]` and of mappings will be `map<json>`.\nA new copy is made of all structural values, including\nimmutable values.\n  \n  \n  \n**Returns** `json`   \n- representation of `v` as value of type json  \nThis panics if `v` has cycles.  \n  \n"
         }
       },
       "sortText": "120",
-      "insertText": "sum(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "insertText": "toJson()",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "print()",
@@ -128,38 +206,6 @@
       "sortText": "120",
       "insertText": "abs()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isReadOnly()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nTests whether `v` is read-only, i.e. immutable\nReturns true if read-only, false otherwise.\n  \n  \n  \n**Returns** `boolean`   \n- true if read-only, false otherwise  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "isReadOnly()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "min(int... ns)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.int:1.1.0_  \n  \nMinimum of one or more int values\n  \n**Params**  \n- `int[]` ns: other int values  \n  \n**Returns** `int`   \n- minimum value of `n` and all the `ns`  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "min(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "mergeJson(json j2)((json|error))",
@@ -191,20 +237,6 @@
       },
       "sortText": "120",
       "insertText": "clone()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "toJsonString()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nReturns the string that represents `v` in JSON format.\n  \n  \n  \n**Returns** `string`   \n- string representation of json  \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }
   ]

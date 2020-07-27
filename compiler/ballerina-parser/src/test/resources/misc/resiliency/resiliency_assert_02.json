@@ -242,17 +242,16 @@
                                       ]
                                     },
                                     {
-                                      "kind": "POSITIONAL_ARG",
+                                      "kind": "COMMA_TOKEN",
+                                      "isMissing": true,
                                       "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_COMMA_TOKEN"
+                                      ]
+                                    },
+                                    {
+                                      "kind": "POSITIONAL_ARG",
                                       "children": [
-                                        {
-                                          "kind": "COMMA_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_COMMA_TOKEN"
-                                          ]
-                                        },
                                         {
                                           "kind": "INDEXED_EXPRESSION",
                                           "children": [

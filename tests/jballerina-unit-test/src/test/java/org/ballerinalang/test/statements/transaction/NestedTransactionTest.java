@@ -77,7 +77,7 @@ public class NestedTransactionTest {
     public void testArrowFunctionInsideTransaction() {
         BValue[] returns = BRunUtil.invoke(programFile, "testArrowFunctionInsideTransaction");
         Assert.assertTrue(returns[0] instanceof BInteger);
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 44L);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 72L);
     }
 
     @Test
@@ -94,6 +94,13 @@ public class NestedTransactionTest {
     }
 
     @Test
+    public void testMultipleTrxReturnVal() {
+        BValue[] result = BRunUtil.invoke(programFile, "testMultipleTrxReturnVal");
+        Assert.assertEquals(result[0].stringValue(), "start -> within transaction 1 " +
+                "-> within transaction 2 -> within transaction 3 -> returned.");
+    }
+
+    @Test
     public void testInvokingMultipleTrx() {
         BValue[] result = BRunUtil.invoke(programFile, "testInvokingTrxFunc");
         Assert.assertEquals(result[0].stringValue(), "start within transaction end.");
@@ -104,7 +111,7 @@ public class NestedTransactionTest {
         BRunUtil.invoke(programFile, "testTransactionLangLib");
     }
 
-    @Test(enabled = false) //TODO: issue #24545
+    @Test
     public void testWithinTrxMode() {
         BValue[] result = BRunUtil.invoke(programFile, "testWithinTrxMode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> within invoked function "
@@ -112,7 +119,7 @@ public class NestedTransactionTest {
                 + "-> trxCommited -> strand in non-transactional mode -> trxEnded.");
     }
 
-    @Test(enabled = false) //TODO: issue #24545
+    @Test
     public void testUnreachableCode() {
         BValue[] result = BRunUtil.invoke(programFile, "testUnreachableCode");
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");

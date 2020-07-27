@@ -51,7 +51,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function get(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function get(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_GET);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -67,7 +67,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function post(string path, RequestMessage message) returns Response|ClientError {
+    public remote function post(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result =  performRedirectIfEligible(self, path, <Request>message, HTTP_POST);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -83,7 +83,7 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel`, or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function head(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function head(string path, public RequestMessage message = ()) returns @tainted Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_HEAD);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -99,7 +99,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function put(string path, RequestMessage message) returns Response|ClientError {
+    public remote function put(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PUT);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -125,7 +125,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function execute(string httpVerb, string path, RequestMessage message) returns Response|ClientError {
+    public remote function execute(string httpVerb, string path, RequestMessage message) returns @tainted
+            Response|ClientError {
         Request request = <Request>message;
         //Redirection is performed only for HTTP methods
         if (HTTP_NONE == extractHttpOperation(httpVerb)) {
@@ -147,7 +148,7 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function patch(string path, RequestMessage message) returns Response|ClientError {
+    public remote function patch(string path, RequestMessage message) returns @tainted Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_PATCH);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -163,7 +164,8 @@ public type RedirectClient client object {
     # + message - An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `byte[]`,
     #             `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function delete(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function delete(string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_DELETE);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -179,7 +181,8 @@ public type RedirectClient client object {
     # + message - An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
     #             `byte[]`, `io:ReadableByteChannel` or `mime:Entity[]`
     # + return - An `http:Response` message or else an `http:ClientError` if the invocation fails
-    public remote function options(string path, public RequestMessage message = ()) returns Response|ClientError {
+    public remote function options(string path, public RequestMessage message = ()) returns @tainted
+            Response|ClientError {
         var result = performRedirectIfEligible(self, path, <Request>message, HTTP_OPTIONS);
         if (result is HttpFuture) {
             return getInvalidTypeError();
@@ -244,13 +247,22 @@ public type RedirectClient client object {
 
 //Invoke relevant HTTP client action and check the response for redirect eligibility.
 function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
-                                   HttpOperation httpOperation) returns HttpResponse|ClientError {
+                                   HttpOperation httpOperation) returns @tainted HttpResponse|ClientError {
     string originalUrl = redirectClient.url + path;
     log:printDebug(function() returns string {
         return "Checking redirect eligibility for original request " + originalUrl;
     });
-    HttpResponse|ClientError result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
-    return checkRedirectEligibility(result, originalUrl, httpOperation, request, redirectClient);
+
+    Request inRequest = request;
+    if !(httpOperation is safeHttpOperation) {
+        // When performing redirect operation for non-safe method, message needs to be built before sending out the
+        // to keep the request message to subsequent redirect.
+        var binaryPayload = check inRequest.getBinaryPayload();
+        // Build message for for multipart requests
+        inRequest = check populateMultipartRequest(inRequest);
+    }
+    HttpResponse|ClientError result = invokeEndpoint(path, inRequest, httpOperation, redirectClient.httpClient);
+    return checkRedirectEligibility(result, originalUrl, httpOperation, inRequest, redirectClient);
 }
 
 //Inspect the response for redirect eligibility.
@@ -337,7 +349,8 @@ function performRedirection(string location, RedirectClient redirectClient, Http
         log:printDebug(function() returns string {
                 return "Redirect using new clientEP : " + location;
             });
-        HttpResponse|ClientError result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+        HttpResponse|ClientError result = invokeEndpoint("",
+            createRedirectRequest(request, redirectClient.redirectConfig.allowAuthHeaders),
             redirectMethod, retryClient);
         return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
     } else {
@@ -365,36 +378,38 @@ function createNewEndpointConfig(ClientConfiguration config) returns ClientConfi
     return newEpConfig;
 }
 
-//Get the HTTP method that should be used for redirection based on the status code.
+// Get the HTTP method that should be used for redirection based on the status code.
+// As per rfc7231 and rfc7538,
+// +-------------------------------------------+-----------+-----------+
+// |                                           | Permanent | Temporary |
+// +-------------------------------------------+-----------+-----------+
+// | Allows changing the request method from   | 301       | 302       |
+// | POST to GET                               |           |           |
+// | Does not allow changing the request       | 308       | 307       |
+// | method from POST to GET                   |           |           |
+// +-------------------------------------------+-----------+-----------+
 function getRedirectMethod(HttpOperation httpVerb, Response response) returns HttpOperation|() {
     int statusCode = response.statusCode;
-    if ((statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_USE_PROXY || statusCode == STATUS_TEMPORARY_REDIRECT
-            || statusCode == STATUS_PERMANENT_REDIRECT) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
-        return httpVerb;
-    } else if ((statusCode == STATUS_MOVED_PERMANENTLY || statusCode == STATUS_FOUND) &&
-        (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
+    if (statusCode == STATUS_MOVED_PERMANENTLY || statusCode == STATUS_FOUND || statusCode == STATUS_SEE_OTHER) {
         return HTTP_GET;
-    } else if (statusCode == STATUS_SEE_OTHER) {
-        return HTTP_GET;
-    } else {
-        return ();
     }
+    if (statusCode == STATUS_TEMPORARY_REDIRECT || statusCode == STATUS_PERMANENT_REDIRECT ||
+               statusCode == STATUS_MULTIPLE_CHOICES || statusCode == STATUS_USE_PROXY) {
+        return httpVerb;
+    }
+    log:printDebug(function() returns string {
+        return "unsupported redirect status code" + statusCode.toString();
+    });
+    return ();
 }
 
-function createRedirectRequest(int statusCode, Request request) returns Request {
-    Request redirectRequest = new;
-    string[] headerNames = <@untainted string[]> request.getHeaderNames();
-    foreach var headerName in headerNames {
-        string[] headerValues = request.getHeaders(headerName);
-        foreach var headerValue in headerValues {
-            redirectRequest.addHeader(headerName, headerValue);
-        }
+function createRedirectRequest(Request request, boolean allowAuthHeaders) returns Request {
+    if (allowAuthHeaders) {
+        return request;
     }
-    if (statusCode == STATUS_SEE_OTHER) {
-        redirectRequest.removeHeader(TRANSFER_ENCODING);
-        redirectRequest.removeHeader(CONTENT_LENGTH);
-    }
-    return redirectRequest;
+    request.removeHeader(AUTHORIZATION);
+    request.removeHeader(PROXY_AUTHORIZATION);
+    return request;
 }
 
 function isAbsolute(string locationUrl) returns boolean {

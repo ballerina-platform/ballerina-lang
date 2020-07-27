@@ -27,8 +27,8 @@ import org.objectweb.asm.MethodTooLargeException;
 import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -107,12 +107,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupBa
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.cleanupPathSeperators;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateDefaultConstructor;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateField;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.generateStrandMetadata;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunction;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getFunctions;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMainFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getMethodDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.getTypeDef;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.isExternFunc;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen.visitStrandMetadataField;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTerminatorGen.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateCreateTypesMethod;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.generateUserDefinedTypeFields;
@@ -234,19 +236,23 @@ public class JvmPackageGen {
     }
 
     private static void generateStaticInitializer(ClassWriter cw, String className,
-                                                  boolean serviceEPAvailable) {
+                                                  BIRPackage module, boolean isInitClass,
+                                                  boolean serviceEPAvailable, AsyncDataCollector asyncDataCollector) {
 
+        if (!isInitClass && asyncDataCollector.getStrandMetadata().isEmpty()) {
+            return;
+        }
         MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
-
-        String lockStoreClass = "L" + LOCK_STORE + ";";
-        mv.visitTypeInsn(NEW, LOCK_STORE);
-        mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, "()V", false);
-        mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, lockStoreClass);
-
-        setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
-        setModuleStatusField(cw, mv, className);
-
+        if (isInitClass) {
+            String lockStoreClass = "L" + LOCK_STORE + ";";
+            mv.visitTypeInsn(NEW, LOCK_STORE);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, LOCK_STORE, JVM_INIT_METHOD, "()V", false);
+            mv.visitFieldInsn(PUTSTATIC, className, LOCK_STORE_VAR_NAME, lockStoreClass);
+            setServiceEPAvailableField(cw, mv, serviceEPAvailable, className);
+            setModuleStatusField(cw, mv, className);
+        }
+        generateStrandMetadata(mv, className, module, asyncDataCollector);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -500,13 +506,15 @@ public class JvmPackageGen {
             String moduleClass = entry.getKey();
             JavaClass javaClass = entry.getValue();
             ClassWriter cw = new BallerinaClassWriter(COMPUTE_FRAMES);
-            LambdaMetadata lambdaMetadata = new LambdaMetadata(moduleClass);
-
-            if (Objects.equals(moduleClass, moduleInitClass)) {
+            AsyncDataCollector asyncDataCollector = new AsyncDataCollector(moduleClass);
+            boolean serviceEPAvailable = false;
+            boolean isInitClass = Objects.equals(moduleClass, moduleInitClass);
+            if (isInitClass) {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 generateDefaultConstructor(cw, VALUE_CREATOR);
                 generateUserDefinedTypeFields(cw, module.typeDefs);
-                generateValueCreatorMethods(cw, module.typeDefs, module, moduleInitClass, symbolTable);
+                generateValueCreatorMethods(cw, module.typeDefs, module, moduleInitClass, symbolTable,
+                                            asyncDataCollector);
                 // populate global variable to class name mapping and generate them
                 for (BIRGlobalVariableDcl globalVar : module.globalVars) {
                     if (globalVar != null) {
@@ -521,19 +529,20 @@ public class JvmPackageGen {
                             cleanupPathSeperators(cleanupBalExt(mainFunc.pos.getSource().cUnitName)));
                 }
 
-                boolean serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
+                serviceEPAvailable = isServiceDefAvailable(module.typeDefs);
 
-                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable);
+                jvmMethodGen.generateMainMethod(mainFunc, cw, module, moduleClass, serviceEPAvailable,
+                                                asyncDataCollector);
                 if (mainFunc != null) {
                     jvmMethodGen.generateLambdaForMain(mainFunc, cw, mainClass);
                 }
                 jvmMethodGen.generateLambdaForPackageInits(cw, module, moduleClass, moduleImports);
 
                 generateLockForVariable(cw);
-                generateStaticInitializer(cw, moduleClass, serviceEPAvailable);
                 generateCreateTypesMethod(cw, module.typeDefs, moduleInitClass, symbolTable);
                 jvmMethodGen.generateModuleInitializer(cw, module, moduleInitClass);
-                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports);
+                jvmMethodGen.generateExecutionStopMethod(cw, moduleInitClass, module, moduleImports,
+                                                         asyncDataCollector);
             } else {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, OBJECT, null);
                 generateDefaultConstructor(cw, OBJECT);
@@ -542,14 +551,18 @@ public class JvmPackageGen {
             // generate methods
             for (BIRFunction func : javaClass.functions) {
                 String workerName = getFunction(func).workerName == null ? null : func.workerName.value;
-                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, lambdaMetadata);
+                jvmMethodGen.generateMethod(getFunction(func), cw, module, null, moduleClass, workerName,
+                                            asyncDataCollector);
             }
             // generate lambdas created during generating methods
-            for (Map.Entry<String, BIRInstruction> lambda : lambdaMetadata.getLambdas().entrySet()) {
+            for (Map.Entry<String, BIRInstruction> lambda : asyncDataCollector.getLambdas().entrySet()) {
                 String name = lambda.getKey();
                 BIRInstruction call = lambda.getValue();
                 jvmMethodGen.generateLambdaMethod(call, cw, name);
             }
+            visitStrandMetadataField(cw, asyncDataCollector);
+            generateStaticInitializer(cw, moduleClass, module, isInitClass, serviceEPAvailable,
+                                      asyncDataCollector);
             cw.visitEnd();
 
             byte[] bytes = getBytes(cw, module);
