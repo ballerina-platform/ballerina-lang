@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -170,7 +170,7 @@ public class IdentifierLiteralTestCase extends BaseTest {
         LogLeecher runLeecher = new LogLeecher(runLog);
         BMainInstance bMainInstance = new BMainInstance(balServer);
         bMainInstance.runMain(projectPath.toString(), "pkg.main", new LogLeecher[]{runLeecher});
-        Assert.assertEquals(runLeecher.isTextFound(), true);
+        Assert.assertTrue(runLeecher.isTextFound());
     }
 
     private void assertErrorLines(String[] logLines, String expectedError) {
