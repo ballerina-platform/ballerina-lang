@@ -1099,7 +1099,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         //TODO: if (UnicodePatternSyntaxChar) return false
-        return !(c == Character.MAX_VALUE);
+        return (c != Character.MAX_VALUE);
     }
 
     /**
