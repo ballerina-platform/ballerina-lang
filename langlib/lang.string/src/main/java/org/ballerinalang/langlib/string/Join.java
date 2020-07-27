@@ -19,7 +19,6 @@
 package org.ballerinalang.langlib.string;
 
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.api.BString;
 
 import java.util.StringJoiner;
@@ -38,11 +37,12 @@ import java.util.StringJoiner;
 //)
 public class Join {
 
-    public static BString join(BString separator, ArrayValue strs) {
+    public static BString join(BString separator, Object... strs) {
         StringJoiner stringJoiner = new StringJoiner(separator.getValue());
-        int size = strs.size();
+        int size = strs.length;
         for (int i = 0; i < size; i++) {
-            stringJoiner.add(strs.getBString(i).getValue());
+            String str = ((BString) strs[i]).getValue();
+            stringJoiner.add(str);
         }
         return StringUtils.fromString(stringJoiner.toString());
     }
