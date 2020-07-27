@@ -3360,8 +3360,9 @@ public class BallerinaParser extends AbstractParser {
                         STNode fieldName = ((STSimpleNameReferenceNode) fieldNameOrTypeDesc).name;
                         return parseFieldDescriptorRhs(metadata, readOnlyQualifier, type, fieldName);
                     default:
-                        // else,
-                        type = fieldNameOrTypeDesc;
+                        // else, treat a as the type-name
+                        type = parseComplexTypeDescriptor(fieldNameOrTypeDesc,
+                                ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
                         break;
                 }
             }
@@ -5536,11 +5537,12 @@ public class BallerinaParser extends AbstractParser {
                         // Then treat "readonly" as type-desc, and "a" as the field-name
                         type = createBuiltinSimpleNameReference(readonlyQualifier);
                         readonlyQualifier = STNodeFactory.createEmptyNode();
-                        return parseObjectFieldRhs(metadata, methodQualifiers, readonlyQualifier, type,
-                                fieldNameOrTypeDesc);
+                        STNode fieldName = ((STSimpleNameReferenceNode) fieldNameOrTypeDesc).name;
+                        return parseObjectFieldRhs(metadata, methodQualifiers, readonlyQualifier, type, fieldName);
                     default:
-                        // else,
-                        type = fieldNameOrTypeDesc;
+                        // else, treat a as the type-name
+                        type = parseComplexTypeDescriptor(fieldNameOrTypeDesc,
+                                ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD, false);
                         break;
                 }
             }
