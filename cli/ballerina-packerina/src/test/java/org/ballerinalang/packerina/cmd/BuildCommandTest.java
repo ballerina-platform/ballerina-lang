@@ -804,9 +804,33 @@ public class BuildCommandTest extends CommandTest {
                 "\nGenerating executables\n" +
                 "\ttarget/bin/module1.jar\n");
     }
-    
-    // Check compile command inside a module directory
 
+    @Test(description = "Test the project with Maven dependencies")
+    public void testBuildWithMavenDependencies() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("project-with-maven-dependencies");
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("-a");
+        buildCommand.execute();
+        Path target = validBalFilePath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
+        Path platformLibsDir = target.resolve("platform-libs");
+        Assert.assertTrue(Files.exists(target), "Check if target directory is created");
+        Assert.assertTrue(Files.exists(platformLibsDir), "Check if platform-libs is created");
+
+        //Assert maven dependencies are downloaded
+        Assert.assertTrue(Files.exists(Paths.get(getJarPath(platformLibsDir.toString(), "org.apache.maven",
+                "maven-artifact", "3.6.3"))));
+        Assert.assertTrue(Files.exists(Paths.get(getJarPath(platformLibsDir.toString(), "org.ballerinalang",
+                "wso2-cassandra", "0.8.3"))));
+
+    }
+
+    public static String getJarPath(String targetPath, String groupId, String artifactId, String version) {
+        return targetPath + File.separator + groupId.replace('.', File.separatorChar) + File.separator +
+                artifactId + File.separator + version + File.separator + artifactId + "-" + version + ".jar";
+    }
+
+    // Check compile command inside a module directory
 
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
