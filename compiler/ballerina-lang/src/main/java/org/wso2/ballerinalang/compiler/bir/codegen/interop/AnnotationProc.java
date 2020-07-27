@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.CONSTRUCTOR_ANNOT_TAG;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_MODULE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.interop.JInterop.INTEROP_ANNOT_ORG;
@@ -170,7 +171,7 @@ public class AnnotationProc {
                                                   BIRFunction birFunc) {
 
         if (annotTagRef.equals(CONSTRUCTOR_ANNOT_TAG)) {
-            return "<init>";
+            return JVM_INIT_METHOD;
         } else {
             String methodName = (String) getLiteralValueFromAnnotValue(jNameValueEntry);
             return methodName != null ? methodName : birFunc.name.value;

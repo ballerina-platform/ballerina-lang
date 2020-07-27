@@ -137,7 +137,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                if (peek() == LexerTerminals.DOT) {
+                if (peek() == LexerTerminals.DOT && reader.peek(1) != LexerTerminals.DOT) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
                 } else if (peek() == LexerTerminals.COLON) {
@@ -987,6 +987,14 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
             case LexerTerminals.EQUALS:
                 return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
+            case LexerTerminals.ORDER:
+                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
+            case LexerTerminals.BY:
+                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
+            case LexerTerminals.ASCENDING:
+                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
+            case LexerTerminals.DESCENDING:
+                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             default:
                 return getIdentifierToken();
         }
@@ -1286,25 +1294,22 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process any token that starts with '/'.
      *
-     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     * @return One of the tokens: <code>'/', '/*', '/**\/<' </code>
      */
     private STToken processSlashToken() {
-        switch (peek()) { // check for the second char
-            case LexerTerminals.LT:
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
-            case LexerTerminals.ASTERISK:
-                reader.advance();
-                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
-                    reader.advance(3);
-                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
-                } else {
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                }
-            default:
-                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        // check for the second char
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+
+        reader.advance();
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+        } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+        } else {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
         }
     }
 

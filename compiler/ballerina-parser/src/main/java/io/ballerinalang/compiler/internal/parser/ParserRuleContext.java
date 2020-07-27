@@ -243,7 +243,10 @@ public enum ParserRuleContext {
     ARG_MATCH_PATTERN("arg-match-pattern"),
     ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
-
+    ORDER_BY_CLAUSE("order-by-clause"),
+    ORDER_KEY("order-key"),
+    ORDER_KEY_LIST_END("order-key-list-end"),
+    ORDER_DIRECTION_RHS("order-direction-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -359,6 +362,10 @@ public enum ParserRuleContext {
     OUTER_KEYWORD("outer"),
     VAR_KEYWORD("var"),
     FAIL_KEYWORD("fail"),
+    ORDER_KEYWORD("order"),
+    BY_KEYWORD("by"),
+    ASCENDING_KEYWORD("ascending"),
+    DESCENDING_KEYWORD("descending"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -487,6 +494,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
+    ORDER_CLAUSE_END("order-clause-end"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

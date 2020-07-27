@@ -2442,6 +2442,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 endBacktick);
     }
 
+    @Override
+    public STOrderByClauseNode transform(
+            STOrderByClauseNode orderByClauseNode) {
+        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
+        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
+        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public STOrderKeyNode transform(
+            STOrderKeyNode orderKeyNode) {
+        STNode expression = modifyNode(orderKeyNode.expression);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
+    }
+
     // Tokens
 
     public STToken transform(STToken token) {

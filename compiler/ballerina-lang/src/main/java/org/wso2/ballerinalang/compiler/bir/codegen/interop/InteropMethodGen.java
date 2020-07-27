@@ -100,10 +100,13 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VAL
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.RUNTIME_ERRORS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.getNextDesugarBBId;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -176,9 +179,7 @@ public class InteropMethodGen {
 
         // Generate if blocks to check and set default values to parameters
         int birFuncParamIndex = 0;
-        int paramDefaultsBBIndex = 0;
         for (BIRNode.BIRFunctionParameter birFuncParam : birFuncParams) {
-//            var birFuncParam = (BIRFunctionParam) birFuncParamOptional;
             // Skip boolean function parameters to indicate the existence of default values
             if (birFuncParamIndex % 2 != 0 || !birFuncParam.hasDefaultExpr) {
                 // Skip the loop if:
@@ -204,7 +205,6 @@ public class InteropMethodGen {
             mv.visitLabel(paramNextLabel);
 
             birFuncParamIndex += 1;
-            paramDefaultsBBIndex += 1;
         }
 
         JavaField jField = jFieldFuncWrapper.jField;
@@ -214,7 +214,7 @@ public class InteropMethodGen {
         if (!jField.isStatic()) {
             int receiverLocalVarIndex = indexMap.getIndex(birFuncParams.get(0));
             mv.visitVarInsn(ALOAD, receiverLocalVarIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, "getValue", "()Ljava/lang/Object;", false);
+            mv.visitMethodInsn(INVOKEVIRTUAL, HANDLE_VALUE, GET_VALUE_METHOD, "()Ljava/lang/Object;", false);
             mv.visitTypeInsn(CHECKCAST, jField.getDeclaringClassName());
 
             Label ifNonNullLabel = labelGen.getLabel("receiver_null_check");
@@ -237,7 +237,6 @@ public class InteropMethodGen {
 
         // Load java method parameters
         birFuncParamIndex = jField.isStatic() ? 0 : 2;
-        int jMethodParamIndex = 0;
         if (birFuncParamIndex < birFuncParams.size()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
             int paramLocalVarIndex = indexMap.getIndex(birFuncParam);
@@ -274,7 +273,7 @@ public class InteropMethodGen {
             mv.visitTypeInsn(NEW, HANDLE_VALUE);
             mv.visitInsn(DUP);
             mv.visitVarInsn(ALOAD, returnJObjectVarRefIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, "<init>", "(Ljava/lang/Object;)V", false);
+            mv.visitMethodInsn(INVOKESPECIAL, HANDLE_VALUE, JVM_INIT_METHOD, "(Ljava/lang/Object;)V", false);
         } else {
             // bType is a value-type
             if (jField.getFieldType().isPrimitive() /*jFieldType instanceof JPrimitiveType*/) {
@@ -306,7 +305,7 @@ public class InteropMethodGen {
         JType jMethodRetType = JInterop.getJType(jMethod.getReturnType());
 
         jvmMethodGen.resetIds();
-        String bbPrefix = "wrapperGen";
+        String bbPrefix = WRAPPER_GEN_BB_ID_NAME;
 
         BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, bbPrefix, jvmMethodGen);
         BIRBasicBlock retBB = new BIRBasicBlock(getNextDesugarBBId(bbPrefix, jvmMethodGen));
@@ -318,7 +317,6 @@ public class InteropMethodGen {
         // Load receiver which is the 0th parameter in the birFunc
         if (jMethod.kind == JMethodKind.METHOD && !jMethod.isStatic()) {
             BIRNode.BIRFunctionParameter birFuncParam = birFuncParams.get(birFuncParamIndex);
-            BType bPType = birFuncParam.type;
             BIROperand argRef = new BIROperand(birFuncParam);
             args.add(argRef);
             birFuncParamIndex = 1;
@@ -342,7 +340,7 @@ public class InteropMethodGen {
                 String varName = "$_param_jobject_var" + birFuncParamIndex + "_$";
                 BIRVariableDcl paramVarDcl = new BIRVariableDcl(jPType, new Name(varName), null, VarKind.LOCAL);
                 birFunc.localVars.add(paramVarDcl);
-                BIROperand paramVarRef = new BIROperand(paramVarDcl/*type:jPType, variableDcl:paramVarDcl*/);
+                BIROperand paramVarRef = new BIROperand(paramVarDcl);
                 JCast jToBCast = new JCast(birFunc.pos);
                 jToBCast.lhsOp = paramVarRef;
                 jToBCast.rhsOp = argRef;
@@ -382,9 +380,8 @@ public class InteropMethodGen {
         thenBB.terminator = new BIRTerminator.GOTO(birFunc.pos, retBB);
 
         if (!(retType.tag == TypeTags.NIL)) {
-            BIROperand retRef = new BIROperand(getVariableDcl(birFunc.localVars.get(0))
-                    /*variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType*/);
-            if (!(JType.jVoid == jMethodRetType) /*!(jMethodRetType instanceof JVoid)*/) {
+            BIROperand retRef = new BIROperand(getVariableDcl(birFunc.localVars.get(0)));
+            if (!(JType.jVoid == jMethodRetType)) {
                 BIRVariableDcl retJObjectVarDcl = new BIRVariableDcl(jMethodRetType, new Name("$_ret_jobject_var_$"),
                         null, VarKind.LOCAL);
                 birFunc.localVars.add(retJObjectVarDcl);
@@ -410,7 +407,6 @@ public class InteropMethodGen {
             birFunc.errorTable.add(ee);
         }
 
-        String jMethodName = birFunc.name.value;
         // We may be able to use the same instruction rather than two, check later
         if (jMethod.kind == JMethodKind.CONSTRUCTOR) {
             JIConstructorCall jCall = new JIConstructorCall(birFunc.pos);
@@ -445,12 +441,9 @@ public class InteropMethodGen {
 
     private static boolean isMatchingBAndJType(BType sourceTypes, JType targetType) {
 
-        if ((TypeTags.isIntegerTypeTag(sourceTypes.tag) && targetType.jTag == JTypeTags.JLONG) ||
+        return (TypeTags.isIntegerTypeTag(sourceTypes.tag) && targetType.jTag == JTypeTags.JLONG) ||
                 (sourceTypes.tag == TypeTags.FLOAT && targetType.jTag == JTypeTags.JDOUBLE) ||
-                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN)) {
-            return true;
-        }
-        return false;
+                (sourceTypes.tag == TypeTags.BOOLEAN && targetType.jTag == JTypeTags.JBOOLEAN);
     }
 
     // These conversions are already validate beforehand, therefore I am just emitting type conversion instructions
