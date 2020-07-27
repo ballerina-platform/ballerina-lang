@@ -3369,8 +3369,9 @@ public class BallerinaParser extends AbstractParser {
         } else if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
             // readonly ...
             type = createBuiltinSimpleNameReference(readOnlyQualifier);
+            fieldOrRestDesc = parseFieldDescriptor(isInclusive, metadata, type);
             endContext();
-            return parseFieldDescriptor(isInclusive, metadata, type);
+            return fieldOrRestDesc;
         } else if (isTypeStartingToken(nextToken.kind)) {
             type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RECORD_FIELD);
         } else {
