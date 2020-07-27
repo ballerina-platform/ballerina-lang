@@ -2177,7 +2177,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             expressions.add(createExpression(expr));
         }
         tupleVarRef.expressions = expressions;
-
+        tupleVarRef.pos = getPosition(listBindingPatternNode);
         Optional<RestBindingPatternNode> restBindingPattern = listBindingPatternNode.restBindingPattern();
         if (restBindingPattern.isPresent()) {
             tupleVarRef.restParam = createExpression(restBindingPattern.get());
@@ -2292,6 +2292,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 (BLangTupleDestructure) TreeBuilder.createTupleDestructureStatementNode();
         tupleDestructure.varRef = (BLangTupleVarRef) createExpression(assignmentStmtNode.varRef());
         tupleDestructure.setExpression(createExpression(assignmentStmtNode.expression()));
+        tupleDestructure.pos = getPosition(assignmentStmtNode);
         return tupleDestructure;
     }
 

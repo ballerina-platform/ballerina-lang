@@ -618,12 +618,15 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgsBindingPatternEnd();
             case TABLE_ROW_END:
                 return parseTableRowEnd();
+            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+                return parseListBindingPatternOrListConstructorMember(peek().kind);
+            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+                return parseTupleTypeDescOrListConstructorMember(peek().kind, (STNode) args[0]);
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
             // case RECEIVE_FIELD_END:
             // case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
-            // case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -15671,7 +15674,8 @@ public class BallerinaParser extends AbstractParser {
                     return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
                 }
 
-                Solution solution = recover(peek(), ParserRuleContext.TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER);
+                Solution solution = recover(peek(), ParserRuleContext.TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER,
+                        annots);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
