@@ -41,6 +41,7 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNilLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
+import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;
@@ -4498,38 +4499,14 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (lhsExpr.kind == SyntaxKind.ASYNC_SEND_ACTION) {
-            // Async-send action can only exists in an action-statement.
-            // It also has to be the right-most action. i.e: Should be
-            // followed by a semicolon
+            // Async-send action can only exists in an action-statement. It also has to be the 
+            // right-most action. i.e: Should be followed by a semicolon
             return lhsExpr;
         }
 
         if (!isValidExprRhsStart(tokenKind, lhsExpr.kind)) {
-            STToken token = peek();
-            Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
-                    isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
-
-            // If the current rule was recovered by removing a token,
-            // then this entire rule is already parsed while recovering.
-            // so we done need to parse the remaining of this rule again.
-            // Proceed only if the recovery action was an insertion.
-            if (solution.action == Action.REMOVE) {
-                return solution.recoveredNode;
-            }
-
-            // If the parser recovered by inserting a token, then try to re-parse the same
-            // rule with the inserted token. This is done to pick the correct branch to
-            // continue the parsing.
-            if (solution.ctx == ParserRuleContext.BINARY_OPERATOR) {
-                // We come here if the operator is missing. Treat this as injecting an operator
-                // that matches to the current operator precedence level, and continue.
-                SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
-                return parseExpressionRhs(binaryOpKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
-                        isInMatchGuard, isInConditionalExpr);
-            } else {
-                return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
-                        isInMatchGuard, isInConditionalExpr);
-            }
+            return recoverExpressionRhs(currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                    isInConditionalExpr);
         }
 
         // Look for >> and >>> tokens as they are not sent from lexer due to ambiguity. e.g. <map<int>> a
@@ -4541,9 +4518,8 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        // If the precedence level of the operator that was being parsed is higher than
-        // the newly found (next) operator, then return and finish the previous expr,
-        // because it has a higher precedence.
+        // If the precedence level of the operator that was being parsed is higher than the newly found (next)
+        // operator, then return and finish the previous expr, because it has a higher precedence.
         OperatorPrecedence nextOperatorPrecedence = getOpPrecedence(tokenKind);
         if (currentPrecedenceLevel.isHigherThanOrEqual(nextOperatorPrecedence, allowActions)) {
             return lhsExpr;
@@ -4599,6 +4575,19 @@ public class BallerinaParser extends AbstractParser {
                 newLhsExpr = parseXMLStepExpression(lhsExpr);
                 break;
             default:
+                // Handle 'a/<b|c>...' scenarios. These have ambiguity between being a xml-step expr
+                // or a binary expr (division), with a type-cast as the denominator.
+                if (tokenKind == SyntaxKind.SLASH_TOKEN && peek(2).kind == SyntaxKind.LT_TOKEN) {
+                    SyntaxKind expectedNodeType = getExpectedNodeKind(3, isRhsExpr, isInMatchGuard, lhsExpr.kind);
+                    if (expectedNodeType == SyntaxKind.XML_STEP_EXPRESSION) {
+                        newLhsExpr = createXMLStepExpression(lhsExpr);
+                        break;
+                    }
+
+                    // if (expectedNodeType == SyntaxKind.TYPE_CAST_EXPRESSION) or anything else.
+                    // Fall through, and continue to parse as a binary expr
+                }
+
                 if (tokenKind == SyntaxKind.DOUBLE_GT_TOKEN) {
                     operator = parseSignedRightShiftToken();
                 } else if (tokenKind == SyntaxKind.TRIPPLE_GT_TOKEN) {
@@ -4607,11 +4596,12 @@ public class BallerinaParser extends AbstractParser {
                     operator = parseBinaryOperator();
                 }
 
-                // Parse the expression that follows the binary operator, until a operator
-                // with different precedence is encountered. If an operator with a lower
-                // precedence is reached, then come back here and finish the current
-                // binary expr. If a an operator with higher precedence level is reached,
-                // then complete that binary-expr, come back here and finish the current expr.
+                // Treat everything else as binary expression.
+
+                // Parse the expression that follows the binary operator, until a operator with different precedence
+                // is encountered. If an operator with a lower precedence is reached, then come back here and finish
+                // the current binary expr. If a an operator with higher precedence level is reached, then complete
+                // that binary-expr, come back here and finish the current expr.
 
                 // Actions within binary-expressions are not allowed.
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false, isInConditionalExpr);
@@ -4623,6 +4613,129 @@ public class BallerinaParser extends AbstractParser {
         // Then continue the operators with the same precedence level.
         return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                 isInConditionalExpr);
+    }
+
+    private STNode recoverExpressionRhs(OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr, boolean isRhsExpr,
+                                        boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
+        STToken token = peek();
+        Solution solution = recover(token, ParserRuleContext.EXPRESSION_RHS, currentPrecedenceLevel, lhsExpr,
+                isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
+
+        // If the current rule was recovered by removing a token, then this entire rule is already 
+        // parsed while recovering. so we done need to parse the remaining of this rule again.
+        // Proceed only if the recovery action was an insertion.
+        if (solution.action == Action.REMOVE) {
+            return solution.recoveredNode;
+        }
+
+        // If the parser recovered by inserting a token, then try to re-parse the same rule with the
+        // inserted token. This is done to pick the correct branch to continue the parsing.
+        if (solution.ctx == ParserRuleContext.BINARY_OPERATOR) {
+            // We come here if the operator is missing. Treat this as injecting an operator
+            // that matches to the current operator precedence level, and continue.
+            SyntaxKind binaryOpKind = getBinaryOperatorKindToInsert(currentPrecedenceLevel);
+            return parseExpressionRhs(binaryOpKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
+                    isInMatchGuard, isInConditionalExpr);
+        } else {
+            return parseExpressionRhs(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
+                    isInMatchGuard, isInConditionalExpr);
+        }
+    }
+
+    private STNode createXMLStepExpression(STNode lhsExpr) {
+        STNode newLhsExpr;
+        STNode slashToken = parseSlashToken();
+        STNode ltToken = parseLTToken();
+
+        STNode slashLT;
+        if (hasTrailingMinutiae(slashToken) || hasLeadingMinutiae(ltToken)) {
+            List<STNodeDiagnostic> diagnostics = new ArrayList<>();
+            diagnostics
+                    .add(SyntaxErrors.createDiagnostic(DiagnosticErrorCode.ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN));
+            slashLT = STNodeFactory.createMissingToken(SyntaxKind.SLASH_LT_TOKEN, diagnostics);
+            slashLT = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(slashLT, slashToken);
+            slashLT = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(slashLT, ltToken);
+        } else {
+            slashLT = STNodeFactory.createToken(SyntaxKind.SLASH_LT_TOKEN, slashToken.leadingMinutiae(),
+                    ltToken.trailingMinutiae());
+        }
+
+        STNode namePattern = parseXMLNamePatternChain(slashLT);
+        newLhsExpr = STNodeFactory.createXMLStepExpressionNode(lhsExpr, namePattern);
+        return newLhsExpr;
+    }
+
+    private SyntaxKind getExpectedNodeKind(int lookahead, boolean isRhsExpr, boolean isInMatchGuard,
+                                           SyntaxKind precedingNodeKind) {
+        STToken nextToken = peek(lookahead);
+        switch (nextToken.kind) {
+            case ASTERISK_TOKEN:
+                return SyntaxKind.XML_STEP_EXPRESSION;
+            case GT_TOKEN:
+                break;
+            case PIPE_TOKEN:
+                return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
+            case IDENTIFIER_TOKEN:
+                nextToken = peek(++lookahead);
+                switch (nextToken.kind) {
+                    case GT_TOKEN: // a>
+                        break;
+                    case PIPE_TOKEN: // a|
+                        return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard, precedingNodeKind);
+                    case COLON_TOKEN:
+                        nextToken = peek(++lookahead);
+                        switch (nextToken.kind) {
+                            case ASTERISK_TOKEN: // a:*
+                            case GT_TOKEN: // a:>
+                                return SyntaxKind.XML_STEP_EXPRESSION;
+                            case IDENTIFIER_TOKEN: // a:b
+                                nextToken = peek(++lookahead);
+
+                                // a:b |
+                                if (nextToken.kind == SyntaxKind.PIPE_TOKEN) {
+                                    return getExpectedNodeKind(++lookahead, isRhsExpr, isInMatchGuard,
+                                            precedingNodeKind);
+                                }
+
+                                // a:b> or everything else
+                                break;
+                            default:
+                                return SyntaxKind.TYPE_CAST_EXPRESSION;
+                        }
+                        break;
+                    default:
+                        return SyntaxKind.TYPE_CAST_EXPRESSION;
+                }
+                break;
+            default:
+                return SyntaxKind.TYPE_CAST_EXPRESSION;
+        }
+
+        nextToken = peek(++lookahead);
+        switch (nextToken.kind) {
+            case OPEN_BRACKET_TOKEN:
+            case OPEN_BRACE_TOKEN:
+            case PLUS_TOKEN:
+            case MINUS_TOKEN:
+            case FROM_KEYWORD:
+            case LET_KEYWORD:
+                return SyntaxKind.XML_STEP_EXPRESSION;
+            default:
+                if (isValidExpressionStart(nextToken.kind, lookahead)) {
+                    break;
+                }
+                return SyntaxKind.XML_STEP_EXPRESSION;
+        }
+
+        return SyntaxKind.TYPE_CAST_EXPRESSION;
+    }
+
+    private boolean hasTrailingMinutiae(STNode node) {
+        return node.widthWithTrailingMinutiae() > node.width();
+    }
+
+    private boolean hasLeadingMinutiae(STNode node) {
+        return node.widthWithLeadingMinutiae() > node.width();
     }
 
     private boolean isValidExprRhsStart(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
@@ -11317,7 +11430,7 @@ public class BallerinaParser extends AbstractParser {
         STNode doubleGTToken = STNodeFactory.createToken(SyntaxKind.DOUBLE_GT_TOKEN, openGTToken.leadingMinutiae(),
                 endLGToken.trailingMinutiae());
 
-        if (!validateRightShiftOperatorWS(openGTToken)) {
+        if (hasTrailingMinutiae(openGTToken)) {
             doubleGTToken = SyntaxErrors.addDiagnostic(doubleGTToken,
                     DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP);
         }
@@ -11336,8 +11449,8 @@ public class BallerinaParser extends AbstractParser {
         STNode unsignedRightShiftToken = STNodeFactory.createToken(SyntaxKind.TRIPPLE_GT_TOKEN,
                 openGTToken.leadingMinutiae(), endLGToken.trailingMinutiae());
 
-        boolean validOpenGTToken = validateRightShiftOperatorWS(openGTToken);
-        boolean validMiddleGTToken = validateRightShiftOperatorWS(middleGTToken);
+        boolean validOpenGTToken = !hasTrailingMinutiae(openGTToken);
+        boolean validMiddleGTToken = !hasTrailingMinutiae(middleGTToken);
         if (validOpenGTToken && validMiddleGTToken) {
             return unsignedRightShiftToken;
         }
@@ -11345,17 +11458,6 @@ public class BallerinaParser extends AbstractParser {
         unsignedRightShiftToken = SyntaxErrors.addDiagnostic(unsignedRightShiftToken,
                 DiagnosticErrorCode.ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP);
         return unsignedRightShiftToken;
-    }
-
-    /**
-     * Validate the whitespace between '>' tokens of right shift operators.
-     *
-     * @param node Preceding node
-     * @return the validated node
-     */
-    private boolean validateRightShiftOperatorWS(STNode node) {
-        int diff = node.widthWithTrailingMinutiae() - node.width();
-        return diff == 0;
     }
 
     /**

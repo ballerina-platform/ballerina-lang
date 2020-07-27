@@ -34,7 +34,7 @@ function testFilterIterable() returns float {
         index += 1;
         return value;
     }).filter(num => num[0] >= 3).map(num => num[1]);
-    return (<float>(ints:sum(...avg))) / <float>avg.length();
+    return (<float>(ints:sum(...avg)))/<float>avg.length();
 }
 
 function testTwoLevelMapIterable () returns map<string> {
