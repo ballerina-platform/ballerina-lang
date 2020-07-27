@@ -4098,14 +4098,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, boolean isRhsExpr,
                                    boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
         STNode expr = parseTerminalExpression(kind, isRhsExpr, allowActions, isInConditionalExpr);
-        STNode actionOrExpression =
-                parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
-        //braced actions are just paranthesis enclosing actions, no need to add a diagnostic there when we have added
-        //diagnostics to its children
-        if (!allowActions && isAction(actionOrExpression) && actionOrExpression.kind != SyntaxKind.BRACED_ACTION) {
-            actionOrExpression = attachErrorExpectedActionFoundDiagnostic(actionOrExpression);
-        }
-        return actionOrExpression;
+        return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
     }
 
     private boolean containsDiagnostics(STNode node, DiagnosticErrorCode diagnosticErrorCode) {
@@ -4121,11 +4114,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode attachErrorExpectedActionFoundDiagnostic(STNode node) {
-        if (!containsDiagnostics(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND)) {
-            return SyntaxErrors.addDiagnostic(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
-        }
-        return node;
+        return SyntaxErrors.addDiagnostic(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
     }
+
     private STNode parseExpression(SyntaxKind kind, OperatorPrecedence precedenceLevel, STNode annots,
                                    boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode expr = parseTerminalExpression(kind, annots, isRhsExpr, allowActions, isInConditionalExpr);
@@ -4474,7 +4465,7 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseExpressionRhs(OperatorPrecedence precedenceLevel, STNode lhsExpr, boolean isRhsExpr,
                                       boolean allowActions, boolean isInMatchGuard, boolean isInConditionalExpr) {
         STToken token = peek();
-        return parseExpressionRhs(token.kind, precedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+        return getCleanedExpressionRhs(token.kind, precedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                 isInConditionalExpr);
     }
 
@@ -4489,6 +4480,20 @@ public class BallerinaParser extends AbstractParser {
      * @param isInMatchGuard Flag indicating whether this expression is in a match-guard
      * @return Parsed node
      */
+    private STNode getCleanedExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
+                                      boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
+                                      boolean isInConditionalExpr) {
+        STNode actionOrExpression =
+                parseExpressionRhs(tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+                        isInConditionalExpr);
+        //braced actions are just paranthesis enclosing actions, no need to add a diagnostic there when we have added
+        //diagnostics to its children
+        if (!allowActions && isAction(actionOrExpression) && actionOrExpression.kind != SyntaxKind.BRACED_ACTION) {
+            actionOrExpression = attachErrorExpectedActionFoundDiagnostic(actionOrExpression);
+        }
+        return actionOrExpression;
+    }
+
     private STNode parseExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
                                       boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
                                       boolean isInConditionalExpr) {
@@ -4565,15 +4570,9 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case RIGHT_ARROW_TOKEN:
                 newLhsExpr = parseRemoteMethodCallOrAsyncSendAction(lhsExpr, isRhsExpr);
-                if (!allowActions) {
-                    newLhsExpr = attachErrorExpectedActionFoundDiagnostic(newLhsExpr);
-                }
                 break;
             case SYNC_SEND_TOKEN:
                 newLhsExpr = parseSyncSendAction(lhsExpr);
-                if (!allowActions) {
-                    newLhsExpr = attachErrorExpectedActionFoundDiagnostic(newLhsExpr);
-                }
                 break;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 newLhsExpr = parseImplicitAnonFunc(lhsExpr, isRhsExpr);
@@ -4621,7 +4620,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhs(currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
+        return parseExpressionRhs(peek().kind, currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
                 isInConditionalExpr);
     }
 
@@ -13952,7 +13951,7 @@ public class BallerinaParser extends AbstractParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind, typeOrExpr.kind)) {
-                    return parseExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false,
+                    return getCleanedExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false,
                             false);
                 }
 
