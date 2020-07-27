@@ -87,6 +87,12 @@ public class WorkspaceDocument {
         setTree(SyntaxTree.from(TextDocuments.from(this.content)));
     }
 
+    public void setIncrementContent(String content) {
+        this.content = content;
+        // TODO: Fix this, each time creates a new tree
+        setTree(SyntaxTree.from(TextDocuments.from(this.content)));
+    }
+
     public void setPrunedContent(String prunedContent) {
         this.prunedContent = prunedContent;
         this.usePrunedSource = true;
@@ -101,6 +107,8 @@ public class WorkspaceDocument {
 
     public void setTree(SyntaxTree tree) {
         this.tree = tree;
+        // TODO: Added to support inter-operability. Remove this once getContent() is removed
+        this.content = tree.toSourceCode();
     }
 
     public void resetPrunedContent() {

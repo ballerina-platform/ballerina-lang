@@ -47,7 +47,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"nonEmptyLineCompletion.json", "function"},
                 {"actionInvocationSuggestion1.json", "function"},
 //                {"actionInvocationSuggestion2.json", "function"}, // parser fix
-                {"aliasedModuleContentSuggestion1.json", "function"}, 
+                {"aliasedModuleContentSuggestion1.json", "function"},
                 {"variableBoundItemSuggestions1.json", "function"},
                 {"variableBoundItemSuggestions2.json", "function"},
                 {"variableBoundItemSuggestions3.json", "function"},
@@ -126,7 +126,7 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
                 {"externalKeywordSuggestion1.json", "function"},
 //                {"externalKeywordSuggestion2.json", "function"}, // Parser fix needed
 //                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
-                {"ifWhileConditionContextCompletion2.json", "function"}, 
+                {"ifWhileConditionContextCompletion2.json", "function"},
 //                {"ifWhileConditionContextCompletion3.json", "function"},
 //                {"ifWhileConditionContextCompletion4.json", "function"}, // LS Fix
                 {"ifWhileConditionContextCompletion5.json", "function"},
