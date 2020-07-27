@@ -41,7 +41,6 @@ import io.ballerinalang.compiler.internal.parser.tree.STMissingToken;
 import io.ballerinalang.compiler.internal.parser.tree.STNamedArgumentNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNilLiteralNode;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
-import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STOptionalFieldAccessExpressionNode;
@@ -69,7 +68,6 @@ import io.ballerinalang.compiler.text.TextDocuments;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -4101,18 +4099,6 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
     }
 
-    private boolean containsDiagnostics(STNode node, DiagnosticErrorCode diagnosticErrorCode) {
-        // the time complexity can be converted to O(1) if we use a hashtable to store the diag error codes
-        Iterator diagnostics = node.diagnostics().iterator();
-        while (diagnostics.hasNext()) {
-            STNodeDiagnostic diag = (STNodeDiagnostic) diagnostics.next();
-            if (diag.diagnosticCode() == diagnosticErrorCode) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     private STNode attachErrorExpectedActionFoundDiagnostic(STNode node) {
         return SyntaxErrors.addDiagnostic(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
     }
@@ -4480,8 +4466,8 @@ public class BallerinaParser extends AbstractParser {
      * @param isInMatchGuard Flag indicating whether this expression is in a match-guard
      * @return Parsed node
      */
-    private STNode getCleanedExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel, STNode lhsExpr,
-                                      boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
+    private STNode getCleanedExpressionRhs(SyntaxKind tokenKind, OperatorPrecedence currentPrecedenceLevel,
+                                      STNode lhsExpr, boolean isRhsExpr, boolean allowActions, boolean isInMatchGuard,
                                       boolean isInConditionalExpr) {
         STNode actionOrExpression =
                 parseExpressionRhs(tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions, isInMatchGuard,
@@ -4620,8 +4606,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Then continue the operators with the same precedence level.
-        return parseExpressionRhs(peek().kind, currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions, isInMatchGuard,
-                isInConditionalExpr);
+        return parseExpressionRhs(peek().kind, currentPrecedenceLevel, newLhsExpr, isRhsExpr, allowActions,
+                isInMatchGuard, isInConditionalExpr);
     }
 
     private boolean isValidExprRhsStart(SyntaxKind tokenKind, SyntaxKind precedingNodeKind) {
@@ -13951,8 +13937,8 @@ public class BallerinaParser extends AbstractParser {
                 // If the next token is part of a valid expression, then still parse it
                 // as a statement that starts with an expression.
                 if (isValidExprRhsStart(nextTokenKind, typeOrExpr.kind)) {
-                    return getCleanedExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false, false, false,
-                            false);
+                    return getCleanedExpressionRhs(nextTokenKind, DEFAULT_OP_PRECEDENCE, typeOrExpr, false,
+                            false, false, false);
                 }
 
                 STToken token = peek();
