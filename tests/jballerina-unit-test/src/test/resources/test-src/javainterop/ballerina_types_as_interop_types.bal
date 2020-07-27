@@ -472,30 +472,30 @@ function echoImmutableRecordField(Details & readonly value, string key) returns 
 } external;
 
 function testReadOnlyAsParamAndReturnTypes() {
-    readonly r1 = acceptAndReturnReadOnly(1);
-    assertTrue(r1 is int);
-    assertEquality(100, r1);
+    readonly oneAsReadOnly = acceptAndReturnReadOnly(1);
+    assertTrue(oneAsReadOnly is int);
+    assertEquality(100, oneAsReadOnly);
 
     map<int|string|float> & readonly m0 = {first: 1.0, second: 2};
-    readonly r2 = acceptAndReturnReadOnly(m0);
-    assertTrue(r2 is float);
-    assertEquality(1.0, r2);
+    readonly floatMemAsReadOnly = acceptAndReturnReadOnly(m0);
+    assertTrue(floatMemAsReadOnly is float);
+    assertEquality(1.0, floatMemAsReadOnly);
 
     map<string> & readonly m1 = {
         third: "baz",
         first: "foo",
         second: "bar"
     };
-    readonly r3 = acceptAndReturnReadOnly(m1);
-    assertTrue(r3 is string);
-    assertEquality("foo", r3);
+    readonly stringMemAsReadOnly = acceptAndReturnReadOnly(m1);
+    assertTrue(stringMemAsReadOnly is string);
+    assertEquality("foo", stringMemAsReadOnly);
 
     record { } & readonly m2 = {
         "third": "baz",
         "num": 21231
     };
-    readonly r4 = acceptAndReturnReadOnly(m2);
-    assertTrue(r4 is ());
+    readonly missingMemAsReadOnly = acceptAndReturnReadOnly(m2);
+    assertTrue(missingMemAsReadOnly is ());
 
     readonly object {
         int i = 21;
@@ -504,17 +504,17 @@ function testReadOnlyAsParamAndReturnTypes() {
             return self.i;
         }
     } ob = new;
-    readonly r5 = acceptAndReturnReadOnly(ob);
-    assertTrue(r5 is readonly & abstract object { int i; function getInt() returns int; });
-    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> r5;
+    readonly objectAsReadOnly = acceptAndReturnReadOnly(ob);
+    assertTrue(objectAsReadOnly is readonly & abstract object { int i; function getInt() returns int; });
+    var cObj = <abstract object { int i; function getInt() returns int; } & readonly> objectAsReadOnly;
     assertEquality(21, cObj.getInt());
-    assertEquality(ob, r5);
+    assertEquality(ob, objectAsReadOnly);
 
     readonly & boolean[] arr = [true, false];
-    readonly r6 = acceptAndReturnReadOnly(arr);
-    assertTrue(r6 is readonly & boolean[2]);
-    assertEquality(<boolean[]> [true, false], r6);
-    assertEquality(arr, r6);
+    readonly arrayAsReadOnly = acceptAndReturnReadOnly(arr);
+    assertTrue(arrayAsReadOnly is readonly & boolean[2]);
+    assertEquality(<boolean[]> [true, false], arrayAsReadOnly);
+    assertEquality(arr, arrayAsReadOnly);
 }
 
 function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method {
@@ -522,90 +522,90 @@ function acceptAndReturnReadOnly(readonly value) returns readonly = @java:Method
 } external;
 
 function testNarrowerTypesAsReadOnlyReturnTypes() {
-    readonly r1 = getNilAsReadOnly();
-    assertTrue(r1 is ());
+    readonly nilAsReadOnly = getNilAsReadOnly();
+    assertTrue(nilAsReadOnly is ());
 
-    readonly r2 = getBooleanAsReadOnly();
-    assertTrue(r2 is boolean);
-    assertTrue(<boolean> r2);
+    readonly booleanAsReadOnly = getBooleanAsReadOnly();
+    assertTrue(booleanAsReadOnly is boolean);
+    assertTrue(<boolean> booleanAsReadOnly);
 
-    readonly r3 = getIntAsReadOnly();
-    assertTrue(r3 is int);
-    assertEquality(100, r3);
+    readonly intAsReadOnly = getIntAsReadOnly();
+    assertTrue(intAsReadOnly is int);
+    assertEquality(100, intAsReadOnly);
 
     float f = 12.3;
-    readonly r4 = getFloatAsReadOnly(f);
-    assertTrue(r4 is float);
-    assertEquality(f, r4);
+    readonly floatAsReadOnly = getFloatAsReadOnly(f);
+    assertTrue(floatAsReadOnly is float);
+    assertEquality(f, floatAsReadOnly);
 
     decimal d = 120.5;
-    readonly r5 = getDecimalAsReadOnly(d);
-    assertTrue(r5 is decimal);
-    assertEquality(d, <decimal> r5);
+    readonly decimalAsReadOnly = getDecimalAsReadOnly(d);
+    assertTrue(decimalAsReadOnly is decimal);
+    assertEquality(d, <decimal> decimalAsReadOnly);
 
     string s1 = "hello";
     string s2 = "world";
-    readonly r6 = getStringAsReadOnly(s1, s2);
-    assertTrue(r6 is string);
-    assertEquality(s1 + s2, r6);
+    readonly stringAsReadOnly = getStringAsReadOnly(s1, s2);
+    assertTrue(stringAsReadOnly is string);
+    assertEquality(s1 + s2, stringAsReadOnly);
 
     error e = error("Oops!");
-    readonly r7 = getErrorAsReadOnly(e);
-    assertTrue(r7 is error);
-    assertEquality(e, r7);
+    readonly errorAsReadOnly = getErrorAsReadOnly(e);
+    assertTrue(errorAsReadOnly is error);
+    assertEquality(e, errorAsReadOnly);
 
     var func = function () returns int => 123;
-    readonly r8 = getFunctionPointerAsReadOnly(func);
-    assertTrue(r8 is function () returns int);
-    assertEquality(func, r8);
+    readonly functionPointerAsReadOnly = getFunctionPointerAsReadOnly(func);
+    assertTrue(functionPointerAsReadOnly is function () returns int);
+    assertEquality(func, functionPointerAsReadOnly);
 
     Bar bar = new (23);
-    readonly r9 = getObjectOrServiceAsReadOnly(bar);
-    assertTrue(r9 is Bar);
-    assertEquality(bar, r9);
+    readonly objectAsReadOnly = getObjectOrServiceAsReadOnly(bar);
+    assertTrue(objectAsReadOnly is Bar);
+    assertEquality(bar, objectAsReadOnly);
 
     typedesc t = typeof bar;
-    readonly r10 = getTypedescAsReadOnly(t);
-    assertTrue(r10 is typedesc);
-    assertEquality(t, r10);
+    readonly typedescAsReadOnly = getTypedescAsReadOnly(t);
+    assertTrue(typedescAsReadOnly is typedesc);
+    assertEquality(t, typedescAsReadOnly);
 
     handle h = getHandle();
-    readonly r11 = getHandleAsReadOnly(h);
-    assertTrue(r11 is handle);
-    assertEquality(h, r11);
+    readonly handleAsReadOnly = getHandleAsReadOnly(h);
+    assertTrue(handleAsReadOnly is handle);
+    assertEquality(h, handleAsReadOnly);
 
     'xml:Element & readonly x = xml `<Employee><name>Maryam</name></Employee>`;
-    readonly r12 = getXmlAsReadOnly(x);
-    assertTrue(r12 is readonly & xml);
-    assertEquality(x, r12);
+    readonly xmlAsReadOnly = getXmlAsReadOnly(x);
+    assertTrue(xmlAsReadOnly is readonly & xml);
+    assertEquality(x, xmlAsReadOnly);
 
     int[] & readonly arr = [1, 2];
-    readonly r13 = getListAsReadOnly(arr);
-    assertTrue(r13 is int[] & readonly);
-    assertEquality(arr, r13);
+    readonly arrayAsReadOnly = getListAsReadOnly(arr);
+    assertTrue(arrayAsReadOnly is int[] & readonly);
+    assertEquality(arr, arrayAsReadOnly);
 
     [int, int...] & readonly tup = [1];
-    readonly r14 = getListAsReadOnly(tup);
-    assertTrue(r14 is [int] & readonly);
-    assertEquality(tup, r14);
+    readonly tupleAsReadOnly = getListAsReadOnly(tup);
+    assertTrue(tupleAsReadOnly is [int] & readonly);
+    assertEquality(tup, tupleAsReadOnly);
 
     map<int|string> & readonly mp = {a: 1, b: 2};
-    readonly r15 = getMappingAsReadOnly(mp);
-    assertTrue(r15 is map<int> & readonly);
-    assertEquality(mp, r15);
+    readonly mapAsReadOnly = getMappingAsReadOnly(mp);
+    assertTrue(mapAsReadOnly is map<int> & readonly);
+    assertEquality(mp, mapAsReadOnly);
 
     record {|string a;|} & readonly rec = {a: "hello world"};
-    readonly r16 = getMappingAsReadOnly(rec);
-    assertTrue(r16 is record {|string a;|} & readonly);
-    assertEquality(rec, r16);
+    readonly recordAsReadOnly = getMappingAsReadOnly(rec);
+    assertTrue(recordAsReadOnly is record {|string a;|} & readonly);
+    assertEquality(rec, recordAsReadOnly);
 
     table<map<int>> & readonly tb = table [
         {a: 1, b: 2},
         {a: 2, b: 20}
     ];
-    readonly r17 = getTableAsReadOnly(tb);
-    assertTrue(r17 is table<map<int>> & readonly);
-    assertEquality(tb, r17);
+    readonly tableAsReadOnly = getTableAsReadOnly(tb);
+    assertTrue(tableAsReadOnly is table<map<int>> & readonly);
+    assertEquality(tb, tableAsReadOnly);
 }
 
 type Bar readonly object {
