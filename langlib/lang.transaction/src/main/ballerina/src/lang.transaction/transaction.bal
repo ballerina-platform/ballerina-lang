@@ -82,12 +82,12 @@ public transactional function getRollbackOnly() returns boolean = @java:Method {
     name: "getRollbackOnly"
 } external;
 
-public transactional function setData(readonly e) = @java:Method {
+public transactional function setData((any|error) & readonly e) = @java:Method {
     class: "org.ballerinalang.langlib.transaction.SetData",
     name: "setData"
 } external;
 
-public transactional function getData() returns readonly = @java:Method {
+public transactional function getData() returns (any|error) & readonly = @java:Method {
     class: "org.ballerinalang.langlib.transaction.GetData",
     name: "getData"
 } external;
