@@ -3,7 +3,12 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "ERROR_KEYWORD"
+      "kind": "ERROR_TYPE_DESC",
+      "children": [
+        {
+          "kind": "ERROR_KEYWORD"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN",
@@ -31,17 +36,17 @@
           ]
         },
         {
+          "kind": "COMMA_TOKEN",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
           "kind": "NAMED_ARG",
           "children": [
-            {
-              "kind": "COMMA_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
             {
               "kind": "SIMPLE_NAME_REFERENCE",
               "children": [

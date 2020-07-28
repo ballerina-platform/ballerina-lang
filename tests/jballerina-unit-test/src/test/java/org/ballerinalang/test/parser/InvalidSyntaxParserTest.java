@@ -66,7 +66,7 @@ public class InvalidSyntaxParserTest {
         CompileResult result = BCompileUtil.compile("test-src/parser/service-without-resource-name-negative.bal");
         BAssertUtil.validateError(result, 0,
                                   "mismatched input '('. expecting {'public', 'private', 'resource', 'function', " +
-                                          "'remote', '}', '@', DocumentationLineStart}", 6, 3);
+                                          "'remote', 'transactional', '}', '@', DocumentationLineStart}", 6, 3);
         BAssertUtil.validateError(result, 1, "mismatched input 'caller'. expecting {')', '[', '?', '&', '|'}", 6, 16);
         BAssertUtil.validateError(result, 2, "mismatched input ','. expecting ';'", 6, 22);
         BAssertUtil.validateError(result, 3, "mismatched input ')'. expecting ';'", 6, 44);
@@ -113,7 +113,7 @@ public class InvalidSyntaxParserTest {
         BAssertUtil.validateError(result, 1, "mismatched input '('. expecting {'[', '?', '&', '|', Identifier}", 6, 21);
         BAssertUtil.validateError(result, 2, "extraneous input 'a'", 6, 26);
         BAssertUtil.validateError(result, 3, "mismatched input 'returns'. expecting {'[', '?', '&', '|', Identifier}",
-                                  6, 29);
+                6, 29);
         BAssertUtil.validateError(result, 4, "extraneous input '}'", 8, 1);
     }
 

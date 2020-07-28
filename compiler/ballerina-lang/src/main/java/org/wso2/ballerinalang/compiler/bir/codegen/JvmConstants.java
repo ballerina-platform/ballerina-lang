@@ -106,6 +106,7 @@ public class JvmConstants {
     public static final String SCHEDULER = "org/ballerinalang/jvm/scheduling/Scheduler";
     public static final String JSON_UTILS = "org/ballerinalang/jvm/JSONUtils";
     public static final String STRAND = "org/ballerinalang/jvm/scheduling/Strand";
+    public static final String STRAND_METADATA = "org/ballerinalang/jvm/scheduling/StrandMetadata";
     public static final String TYPE_CONVERTER = "org/ballerinalang/jvm/TypeConverter";
     public static final String LIST_UTILS = "org/ballerinalang/jvm/Lists";
     public static final String STRAND_STATE = "org/ballerinalang/jvm/scheduling/State";
@@ -150,6 +151,7 @@ public class JvmConstants {
     public static final String COLLECTION = "java/util/Collection";
     public static final String BIG_DECIMAL = "java/math/BigDecimal";
     public static final String NUMBER = "java/lang/Number";
+    public static final String HASH_MAP = "java/util/HashMap";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "org/ballerinalang/jvm/AnnotationUtils";
@@ -185,6 +187,7 @@ public class JvmConstants {
 
     // code generation related constants.
     public static final String MODULE_INIT_CLASS_NAME = "___init";
+    public static final String CONSTRUCTOR_INIT_METHOD = "<init>";
     public static final String CURRENT_MODULE_INIT = "$currentModuleInit";
     public static final String MODULE_INIT = "$moduleInit";
     public static final String MODULE_START = "$moduleStart";
@@ -202,17 +205,37 @@ public class JvmConstants {
     public static final String MODULE_STARTED = "$moduleStarted";
     public static final String START_FUNCTION_SUFFIX = "<start>";
     public static final String STOP_FUNCTION_SUFFIX = "<stop>";
+    public static final String DESUGARED_BB_ID_NAME = "desugaredBB";
+    public static final String WRAPPER_GEN_BB_ID_NAME = "wrapperGen";
+    public static final String JVM_INIT_METHOD = "<init>";
+    public static final String JVM_TO_STRING_METHOD = "toString";
+    public static final String JVM_TO_UNSIGNED_INT_METHOD = "toUnsignedInt";
+    public static final String GET_VALUE_METHOD = "getValue";
+    public static final String ANY_TO_BYTE_METHOD = "anyToByte";
+    public static final String ANY_TO_INT_METHOD = "anyToInt";
+    public static final String DECIMAL_VALUE_OF_J_METHOD = "valueOfJ";
+    public static final String VALUE_OF_METHOD = "valueOf";
+    public static final String POPULATE_INITIAL_VALUES_METHOD = "populateInitialValues";
+    public static final String CREATE_TYPES_METHOD = "$createTypes";
+    public static final String CREATE_TYPE_INSTANCES_METHOD = "$createTypeInstances";
+    public static final String GLOBAL_LOCK_NAME = "lock";
+    public static final String SERVICE_EP_AVAILABLE = "serviceEPAvailable";
+    public static final String LOCK_STORE_VAR_NAME = "LOCK_STORE";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
     public static final String SCHEDULE_LOCAL_METHOD = "scheduleLocal";
     public static final String SCHEDULER_START_METHOD = "start";
+    public static final String CREATE_RECORD_VALUE = "createRecordValue";
+    public static final String CREATE_OBJECT_VALUE = "createObjectValue";
 
     // strand data related constants
     public static final String STRAND_ANNOTATION = "strand";
     public static final String STRAND_THREAD = "thread";
-    public static final String STRAND_DATA_NAME = "name";
+    public static final String STRAND_NAME = "name";
+    public static final String STRAND_POLICY_NAME = "policy";
     public static final String STRAND_VALUE_ANY = "any";
+    public static final String STRAND_METADATA_VAR_PREFIX = "$strand_metadata$";
     public static final String DEFAULT_STRAND_DISPATCHER = "DEFAULT";
 
     // observability related constants
@@ -242,5 +265,4 @@ public class JvmConstants {
     public static final String METHOD_TOO_LARGE = "MethodTooLarge";
     public static final String CLASS_TOO_LARGE = "ClassTooLarge";
 
-    public static final String GLOBAL_LOCK_NAME = "lock";
 }

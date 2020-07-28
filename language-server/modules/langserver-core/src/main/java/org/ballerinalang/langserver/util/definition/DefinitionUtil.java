@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -22,13 +23,15 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
-import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferenceFindingVisitor;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.Location;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -60,34 +63,36 @@ public class DefinitionUtil {
     /**
      * Get the definition.
      *
-     * @param context Definition context
+     * @param context  Definition context
+     * @param position cursor position
      * @return {@link List} List of definition locations
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static List<Location> getDefinition(LSContext context) throws WorkspaceDocumentException,
-            CompilationFailedException, LSStdlibCacheException {
-        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        ReferencesUtil.findReferences(modules, context);
-        SymbolReferencesModel referencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
+    public static List<Location> getDefinition(LSContext context, Position position)
+            throws WorkspaceDocumentException, CompilationFailedException, LSStdlibCacheException,
+                   TokenOrSymbolNotFoundException {
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
+        SymbolReferencesModel refModel = ReferencesUtil.findReferencesForCurrentCUnit(tokenAtCursor, modules, context);
         // If the definition list contains an item after the prepare reference mode, then return it.
         // In this case, definition is in the current compilation unit it self
-        if (!referencesModel.getDefinitions().isEmpty()) {
-            return ReferencesUtil.getLocations(Collections.singletonList(referencesModel.getDefinitions().get(0)),
-                    context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
+        if (!refModel.getDefinitions().isEmpty()) {
+            return ReferencesUtil.getLocations(Collections.singletonList(refModel.getDefinitions().get(0)),
+                                               context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
         }
         // If symbol at the cursor's module is a standard library module we find the module in standard library
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = referencesModel.getReferenceAtCursor();
+        SymbolReferencesModel.Reference symbolAtCursor = refModel.getReferenceAtCursor();
         /*
         Here we do not check whether the symbol at cursor exist since in the prepareReferences processing step
         we check the presence 
          */
-        PackageID pkgID = symbolAtCursor.get().getSymbol().pkgID;
+        PackageID pkgID = symbolAtCursor.getSymbol().pkgID;
         if (isStandardLibModule(pkgID)) {
-            return getStdLibDefinitionLocations(context, pkgID, symbolAtCursor.get());
+            return getStdLibDefinitionLocations(context, pkgID, symbolAtCursor);
         }
         // Ignore the optional check since it has been handled during prepareReference and throws exception
-        String symbolPkgName = symbolAtCursor.get().getSymbolPkgName();
+        String symbolPkgName = symbolAtCursor.getSymbolPkgName();
         Optional<BLangPackage> module = modules.stream()
                 .filter(bLangPackage -> bLangPackage.symbol.getName().getValue().equals(symbolPkgName))
                 .findAny();
@@ -95,14 +100,15 @@ public class DefinitionUtil {
             return new ArrayList<>();
         }
         for (BLangCompilationUnit compilationUnit : module.get().getCompilationUnits()) {
-            SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, symbolPkgName);
+            SymbolReferenceFindingVisitor refVisitor = new SymbolReferenceFindingVisitor(context, tokenAtCursor,
+                                                                                         symbolPkgName);
             refVisitor.visit(compilationUnit);
-            if (!referencesModel.getDefinitions().isEmpty()) {
+            if (!refModel.getDefinitions().isEmpty()) {
                 break;
             }
         }
 
-        return ReferencesUtil.getLocations(referencesModel.getDefinitions(),
+        return ReferencesUtil.getLocations(refModel.getDefinitions(),
                 context.get(DocumentServiceKeys.SOURCE_ROOT_KEY));
     }
 

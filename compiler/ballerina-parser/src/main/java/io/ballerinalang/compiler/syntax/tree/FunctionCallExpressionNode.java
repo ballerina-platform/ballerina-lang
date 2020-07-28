@@ -32,7 +32,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         super(internalNode, position, parent);
     }
 
-    public Node functionName() {
+    public NameReferenceNode functionName() {
         return childInBucket(0);
     }
 
@@ -40,8 +40,8 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         return childInBucket(1);
     }
 
-    public NodeList<FunctionArgumentNode> arguments() {
-        return new NodeList<>(childInBucket(2));
+    public SeparatedNodeList<FunctionArgumentNode> arguments() {
+        return new SeparatedNodeList<>(childInBucket(2));
     }
 
     public Token closeParenToken() {
@@ -68,9 +68,9 @@ public class FunctionCallExpressionNode extends ExpressionNode {
     }
 
     public FunctionCallExpressionNode modify(
-            Node functionName,
+            NameReferenceNode functionName,
             Token openParenToken,
-            NodeList<FunctionArgumentNode> arguments,
+            SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
         if (checkForReferenceEquality(
                 functionName,
@@ -98,9 +98,9 @@ public class FunctionCallExpressionNode extends ExpressionNode {
      */
     public static class FunctionCallExpressionNodeModifier {
         private final FunctionCallExpressionNode oldNode;
-        private Node functionName;
+        private NameReferenceNode functionName;
         private Token openParenToken;
-        private NodeList<FunctionArgumentNode> arguments;
+        private SeparatedNodeList<FunctionArgumentNode> arguments;
         private Token closeParenToken;
 
         public FunctionCallExpressionNodeModifier(FunctionCallExpressionNode oldNode) {
@@ -112,7 +112,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         }
 
         public FunctionCallExpressionNodeModifier withFunctionName(
-                Node functionName) {
+                NameReferenceNode functionName) {
             Objects.requireNonNull(functionName, "functionName must not be null");
             this.functionName = functionName;
             return this;
@@ -126,7 +126,7 @@ public class FunctionCallExpressionNode extends ExpressionNode {
         }
 
         public FunctionCallExpressionNodeModifier withArguments(
-                NodeList<FunctionArgumentNode> arguments) {
+                SeparatedNodeList<FunctionArgumentNode> arguments) {
             Objects.requireNonNull(arguments, "arguments must not be null");
             this.arguments = arguments;
             return this;

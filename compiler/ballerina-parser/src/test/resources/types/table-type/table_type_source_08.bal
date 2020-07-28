@@ -14,4 +14,3 @@ public function foo(){
     table<Myrecord> key<id,name> a;
     table<Myrecord> key(int) a;
 }
-

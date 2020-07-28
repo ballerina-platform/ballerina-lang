@@ -47,6 +47,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi");
         restartServerAndGiveTimeClientConnectToServer();
         sendTextDataAndAssert("Hi madam");
+        client.sendText("close");
         closeConnection();
     }
 
@@ -60,6 +61,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi madam");
         restartServerAndGiveTimeClientConnectToServer();
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 
@@ -87,6 +89,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendBinaryDataAndAssert();
         restartServerAndGiveTimeClientConnectToServer();
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 
@@ -112,7 +115,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         CountDownLatch latchForRestart = new CountDownLatch(1);
         latchForRestart.await(7, TimeUnit.SECONDS);
         remoteServer.run();
-        latchForRestart.await(2, TimeUnit.SECONDS);
+        CountDownLatch latch = new CountDownLatch(1);
+        latch.await(2, TimeUnit.SECONDS);
     }
 
     private void sendTextDataAndAssert(String text) throws InterruptedException {

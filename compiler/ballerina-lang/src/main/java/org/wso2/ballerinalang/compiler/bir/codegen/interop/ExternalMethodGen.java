@@ -21,7 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.objectweb.asm.ClassWriter;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmPackageGen;
-import org.wso2.ballerinalang.compiler.bir.codegen.internal.LambdaMetadata;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRBasicBlock;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -66,16 +67,19 @@ public class ExternalMethodGen {
                                                   BType attachedType,
                                                   JvmMethodGen jvmMethodGen,
                                                   JvmPackageGen jvmPackageGen,
-                                                  LambdaMetadata lambdaGenMetadata) {
+                                                  String moduleClassName,
+                                                  String serviceName,
+                                                  AsyncDataCollector lambdaGenMetadata) {
 
         ExternalFunctionWrapper extFuncWrapper = getExternalFunctionWrapper(birModule, birFunc, attachedType,
                 jvmPackageGen);
 
         if (extFuncWrapper instanceof JFieldFunctionWrapper) {
             genJFieldForInteropField((JFieldFunctionWrapper) extFuncWrapper, cw, birModule, jvmPackageGen,
-                    jvmMethodGen, lambdaGenMetadata);
+                    jvmMethodGen, moduleClassName, serviceName, lambdaGenMetadata);
         } else {
-            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, false, "", attachedType, lambdaGenMetadata);
+            jvmMethodGen.genJMethodForBFunc(birFunc, cw, birModule, moduleClassName,
+                                            attachedType, lambdaGenMetadata);
         }
     }
 
@@ -117,13 +121,12 @@ public class ExternalMethodGen {
             BIRVariableDcl localVar = getVariableDcl(birFunc.localVars.get(0));
             BIRVariableDcl variableDcl = new BIRVariableDcl(retType, localVar.name, localVar.scope, localVar.kind);
             retRef = new BIROperand(variableDcl);
-            //retRef = new (variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType);
         }
 
         jvmMethodGen.resetIds();
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, "wrapperGen", jvmMethodGen);
-        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, "wrapperGen", jvmMethodGen);
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
+        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
 
         List<BIROperand> args = new ArrayList<>();
 
@@ -196,7 +199,6 @@ public class ExternalMethodGen {
                                                                                         SymbolTable symbolTable) {
 
         List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
-        /*birFunc.type.paramTypes.clone();*/
         if (isEntryModule) {
             addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
         }

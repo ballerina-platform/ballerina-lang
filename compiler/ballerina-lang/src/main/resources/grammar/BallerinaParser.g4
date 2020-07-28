@@ -145,12 +145,12 @@ objectMethod
     ;
 
 methodDeclaration
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TRANSACTIONAL? (REMOTE | RESOURCE)? FUNCTION
             anyIdentifierName functionSignature SEMICOLON
     ;
 
 methodDefinition
-    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? (REMOTE | RESOURCE)? FUNCTION
+    :   documentationString? annotationAttachment* (PUBLIC | PRIVATE)? TRANSACTIONAL? (REMOTE | RESOURCE)? FUNCTION
             anyIdentifierName functionSignature functionDefinitionBody
     ;
 
@@ -816,6 +816,7 @@ expression
     |   serviceConstructorExpr                                              # serviceConstructorExpression
     |   CHECK expression                                                    # checkedExpression
     |   CHECKPANIC expression                                               # checkPanickedExpression
+    |   FAIL expression                                                     # failExpression
     |   (ADD | SUB | BIT_COMPLEMENT | NOT | TYPEOF) expression              # unaryExpression
     |   LT (annotationAttachment+ typeName? | typeName) GT expression       # typeConversionExpression
     |   expression (MUL | DIV | MOD) expression                             # binaryDivMulModExpression
@@ -909,6 +910,18 @@ selectClause
     :   SELECT expression
     ;
 
+orderDirection
+    :   ASCENDING|DESCENDING
+    ;
+
+orderKey
+    :   expression orderDirection?
+    ;
+
+orderByClause
+    :   ORDER BY orderKey (COMMA orderKey)*
+    ;
+
 onClause
     :   ON expression
     ;
@@ -922,7 +935,7 @@ letClause
     ;
 
 joinClause
-    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN VAR bindingPattern) IN expression
+    :   (JOIN (typeName | VAR) bindingPattern | OUTER JOIN (typeName | VAR) bindingPattern) IN expression onClause?
     ;
 
 fromClause
@@ -934,7 +947,7 @@ doClause
     ;
 
 queryPipeline
-    :   fromClause ((fromClause | letClause | whereClause)* | (joinClause onClause)?)
+    :   fromClause (fromClause | joinClause | letClause | whereClause)*
     ;
 
 queryConstructType
@@ -942,7 +955,7 @@ queryConstructType
     ;
 
 queryExpr
-    :   queryConstructType? queryPipeline selectClause onConflictClause? limitClause?
+    :   queryConstructType? queryPipeline orderByClause? selectClause onConflictClause? limitClause?
     ;
 
 queryAction

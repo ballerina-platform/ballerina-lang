@@ -15,7 +15,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
+import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
@@ -29,9 +29,10 @@ import org.ballerinalang.langserver.compiler.LSModuleCompiler;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
-import org.ballerinalang.langserver.util.references.ReferencesKeys;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -216,19 +217,21 @@ public class CodeActionUtil {
      */
     public static SymbolReferencesModel.Reference getSymbolAtCursor(LSContext context, LSDocumentIdentifier document,
                                                                     Position position)
-            throws WorkspaceDocumentException, CompilationFailedException {
+            throws WorkspaceDocumentException, CompilationFailedException,
+                   TokenOrSymbolNotFoundException {
         TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
         TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        List<BLangPackage> modules = ReferencesUtil.findCursorTokenAndCompileModules(context, false);
-        Optional<SymbolReferencesModel.Reference> symbolAtCursor = findSymbol(modules, context);
+
+        List<BLangPackage> modules = ReferencesUtil.compileModules(context);
         context.put(DocumentServiceKeys.BLANG_PACKAGES_CONTEXT_KEY, modules);
-        return symbolAtCursor.orElse(null);
+        return findSymbolAtCursor(modules, context);
     }
 
-    private static Optional<SymbolReferencesModel.Reference> findSymbol(List<BLangPackage> modules, LSContext context) {
+    private static SymbolReferencesModel.Reference findSymbolAtCursor(List<BLangPackage> modules, LSContext context)
+            throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
         String currentPkgName = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
         /*
         In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
@@ -249,16 +252,17 @@ public class CodeActionUtil {
                 .filter(cUnit -> cUnit.name.equals(currentCUnitName))
                 .findAny();
 
-        CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(context, currentPkgName, true);
-        refVisitor.visit(currentCUnit.get());
-
-        // Prune the found symbol references
-        SymbolReferencesModel symbolReferencesModel = context.get(ReferencesKeys.REFERENCES_KEY);
-        if (!symbolReferencesModel.getReferenceAtCursor().isPresent()) {
-            String nodeName = context.get(NodeContextKeys.NODE_NAME_KEY);
-            throw new IllegalStateException("Symbol at cursor '" + nodeName + "' not supported or could not find!");
+        if (!currentCUnit.isPresent()) {
+            throw new UserErrorException("Not supported due to compilation failures!");
         }
 
+        // With the syntax-tree, find the cursor token
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+
+        CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(tokenAtCursor, context,
+                                                                               currentPkgName, true);
+        SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
         return symbolReferencesModel.getReferenceAtCursor();
     }
 }

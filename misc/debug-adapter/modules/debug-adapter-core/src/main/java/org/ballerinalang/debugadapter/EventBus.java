@@ -58,6 +58,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.MODULE_VERSION_REGEX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.findProjectRoot;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getDirectoryRelativePath;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getSourceNames;
 
 /**
@@ -247,13 +248,12 @@ public class EventBus {
             Optional<Location> firstLocation =
                     allLineLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
             // We are going to add breakpoints for each and every line and continue the debugger.
-
             if (!firstLocation.isPresent()) {
                 return;
             }
             int nextStepPoint = firstLocation.get().lineNumber();
-
-            while (true) {
+            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
                 if (locations.size() > 0) {
                     Location nextStepLocation = locations.get(0);
@@ -265,13 +265,8 @@ public class EventBus {
                     }
                 }
                 nextStepPoint++;
-                if (nextStepPoint > lastLocation.get().lineNumber()) {
-                    break;
-                }
-            }
-
+            } while (nextStepPoint <= lastLocation.get().lineNumber());
             context.getDebuggee().resume();
-
             // We are resuming all threads, we need to notify debug client about this.
             ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
             continuedEventArguments.setAllThreadsContinued(true);
@@ -303,7 +298,7 @@ public class EventBus {
         String fileSeparatorRegex = File.separatorChar == '\\' ? "\\\\" : File.separator;
         String[] srcNames = getSourceNames(sourceName);
         String fileName = srcNames[srcNames.length - 1];
-        String relativePath = sourcePath.replace(sourceName, fileName);
+        String relativePath = getDirectoryRelativePath(sourcePath, refType.toString(), sourceName, fileName);
 
         // Replaces org name with the ballerina src directory name, as the JDI path is prepended with the org name
         // for the bal files inside ballerina modules.

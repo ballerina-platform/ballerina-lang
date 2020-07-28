@@ -121,15 +121,59 @@ public function testStreamOfStreams() returns int[] {
     stream<stream<int>> numberStream = new (numStreamGen);
     record {| stream<int> value; |}? nextStream = numberStream.next();
     int[] integers = from var strm in numberStream
-                     from var num in liftError(strm.toArray())
-                     select num;
+                     from var num in liftError(toArray(strm))
+                     select <int>num;
 
     return integers;
 }
 
-function liftError (int[]|error arrayData) returns int[] {
+function toArray (stream<any|error, error> strm) returns any[]|error {
+    any[] arr = [];
+    record {| any|error value; |}|error? v = strm.next();
+    while (v is record {| any|error value; |}) {
+        any|error value = v.value;
+        if (!(value is error)) {
+            arr.push(value);
+        }
+        v = strm.next();
+    }
+    if (v is error) {
+        return v;
+    }
+    return arr;
+}
+
+function liftError (any[]|error arrayData) returns any[] {
     if(!(arrayData is error)) {
         return arrayData;
     }
     return [];
+}
+
+public function testIteratorInStream() returns int[]|error {
+    int[] intArray = [1, 2, 3, 4, 5];
+    stream<int> numberStream = intArray.toStream();
+    int[]|error integers = from var num in getIterableObject(numberStream.iterator())
+                     select <int>num;
+
+    return integers;
+}
+
+public type _Iterator abstract object {
+    public function next() returns record {|any|error value;|}|error?;
+};
+
+type IterableFromIterator object {
+        _Iterator itr;
+        public function init(_Iterator itr) {
+            self.itr = itr;
+        }
+
+        public function __iterator() returns _Iterator {
+            return self.itr;
+        }
+};
+
+function getIterableObject(_Iterator iterator) returns IterableFromIterator {
+    return new IterableFromIterator(iterator);
 }

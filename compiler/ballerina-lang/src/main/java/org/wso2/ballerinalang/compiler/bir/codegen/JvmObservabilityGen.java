@@ -112,7 +112,7 @@ class JvmObservabilityGen {
 
     private Map<Object, BIROperand> compileTimeConstants;
 
-    public JvmObservabilityGen(JvmPackageGen pkgGen) {
+    JvmObservabilityGen(JvmPackageGen pkgGen) {
         compileTimeConstants = new HashMap<>();
         packageCache = pkgGen.packageCache;
         symbolTable = pkgGen.symbolTable;
@@ -126,7 +126,7 @@ class JvmObservabilityGen {
      *
      * @param pkg The package to instrument
      */
-    public void rewriteObservableFunctions(BIRPackage pkg) {
+    void rewriteObservableFunctions(BIRPackage pkg) {
         for (int i = 0; i < pkg.functions.size(); i++) {
             BIRFunction func = pkg.functions.get(i);
             rewriteAsyncInvocations(func, null, pkg);
@@ -176,7 +176,7 @@ class JvmObservabilityGen {
      * @param attachedTypeDef The type definition to which the function was attached to or null
      * @param pkg The package containing the function
      */
-    public void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
+    private void rewriteAsyncInvocations(BIRFunction func, BIRTypeDefinition attachedTypeDef, BIRPackage pkg) {
         PackageID currentPkgId = new PackageID(pkg.org, pkg.name, pkg.version);
         BSymbol functionOwner;
         List<BIRFunction> scopeFunctionsList;
@@ -188,88 +188,90 @@ class JvmObservabilityGen {
             scopeFunctionsList = attachedTypeDef.attachedFuncs;
         }
         for (BIRBasicBlock currentBB : func.basicBlocks) {
-            if (currentBB.terminator.kind == InstructionKind.ASYNC_CALL
-                    && isObservable((AsyncCall) currentBB.terminator)) {
-                AsyncCall asyncCallIns = (AsyncCall) currentBB.terminator;
-                /*
-                 * The wrapper function generated below invokes the actual function synchronously, allowing the
-                 * instrumentation to record the actual start and end times of the function. The wrapper function
-                 * is invoked asynchronously preserving the asynchronous behaviour.
-                 */
+            if (currentBB.terminator.kind != InstructionKind.ASYNC_CALL
+                    || !isObservable((AsyncCall) currentBB.terminator)) {
+                continue;
+            }
 
-                // Creating the lambda for this async call
-                BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
-                List<BType> argTypes = asyncCallIns.args.stream()
-                        .map(arg -> arg.variableDcl.type)
-                        .collect(Collectors.toList());
-                Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
-                        asyncCallIns.name.value.replace(".", "_")));
-                BInvokableType bInvokableType = new BInvokableType(argTypes, null,
-                        returnType, null);
-                BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
-                        func.workerName, 0, null);
-                desugaredFunc.receiver = func.receiver;
-                scopeFunctionsList.add(desugaredFunc);
+            AsyncCall asyncCallIns = (AsyncCall) currentBB.terminator;
+            /*
+             * The wrapper function generated below invokes the actual function synchronously, allowing the
+             * instrumentation to record the actual start and end times of the function. The wrapper function
+             * is invoked asynchronously preserving the asynchronous behaviour.
+             */
 
-                // Creating the return variable
-                BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
-                        new Name(String.format("$%s$retVal", lambdaName.value)), VarScope.FUNCTION, VarKind.RETURN);
-                BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
-                desugaredFunc.localVars.add(funcReturnVariableDcl);
-                desugaredFunc.returnVariable = funcReturnVariableDcl;
+            // Creating the lambda for this async call
+            BType returnType = ((BFutureType) asyncCallIns.lhsOp.variableDcl.type).constraint;
+            List<BType> argTypes = asyncCallIns.args.stream()
+                    .map(arg -> arg.variableDcl.type)
+                    .collect(Collectors.toList());
+            Name lambdaName = new Name(String.format("$lambda$observability%d$%s", lambdaIndex++,
+                    asyncCallIns.name.value.replace(".", "_")));
+            BInvokableType bInvokableType = new BInvokableType(argTypes, null,
+                    returnType, null);
+            BIRFunction desugaredFunc = new BIRFunction(asyncCallIns.pos, lambdaName, 0, bInvokableType,
+                    func.workerName, 0, null);
+            desugaredFunc.receiver = func.receiver;
+            scopeFunctionsList.add(desugaredFunc);
 
-                // Creating and adding invokable symbol to the relevant scope
-                BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
-                        currentPkgId, bInvokableType, functionOwner);
-                invokableSymbol.retType = funcReturnVariableDcl.type;
-                invokableSymbol.kind = SymbolKind.FUNCTION;
-                invokableSymbol.params = asyncCallIns.args.stream()
-                        .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
-                                invokableSymbol))
-                        .collect(Collectors.toList());
-                invokableSymbol.scope = new Scope(invokableSymbol);
-                invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
-                if (attachedTypeDef == null) {
-                    functionOwner.scope.define(lambdaName, invokableSymbol);
+            // Creating the return variable
+            BIRVariableDcl funcReturnVariableDcl = new BIRVariableDcl(returnType,
+                    new Name(String.format("$%s$retVal", lambdaName.value)), VarScope.FUNCTION, VarKind.RETURN);
+            BIROperand funcReturnOperand = new BIROperand(funcReturnVariableDcl);
+            desugaredFunc.localVars.add(funcReturnVariableDcl);
+            desugaredFunc.returnVariable = funcReturnVariableDcl;
+
+            // Creating and adding invokable symbol to the relevant scope
+            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.FUNCTION, 0, lambdaName,
+                    currentPkgId, bInvokableType, functionOwner);
+            invokableSymbol.retType = funcReturnVariableDcl.type;
+            invokableSymbol.kind = SymbolKind.FUNCTION;
+            invokableSymbol.params = asyncCallIns.args.stream()
+                    .map(arg -> new BVarSymbol(0, arg.variableDcl.name, currentPkgId, arg.variableDcl.type,
+                            invokableSymbol))
+                    .collect(Collectors.toList());
+            invokableSymbol.scope = new Scope(invokableSymbol);
+            invokableSymbol.params.forEach(param -> invokableSymbol.scope.define(param.name, param));
+            if (attachedTypeDef == null) {
+                functionOwner.scope.define(lambdaName, invokableSymbol);
+            }
+
+            // Creating and adding function parameters
+            List<BIROperand> funcParamOperands = new ArrayList<>();
+            Name selfArgName = new Name("%self");
+            for (int i = 0; i < asyncCallIns.args.size(); i++) {
+                BIROperand arg = asyncCallIns.args.get(i);
+                BIRFunctionParameter funcParam;
+                if (arg.variableDcl.kind == VarKind.SELF) {
+                    funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
+                            VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
+                } else {
+                    Name argName = new Name(String.format("$funcParam%d", i));
+                    funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
+                            argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
+                    desugaredFunc.localVars.add(funcParam);
+                    desugaredFunc.parameters.put(funcParam, Collections.emptyList());
+                    desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
+                    desugaredFunc.argsCount++;
                 }
+                funcParamOperands.add(new BIROperand(funcParam));
+            }
 
-                // Creating and adding function parameters
-                List<BIROperand> funcParamOperands = new ArrayList<>();
-                Name selfArgName = new Name("%self");
-                for (int i = 0; i < asyncCallIns.args.size(); i++) {
-                    BIROperand arg = asyncCallIns.args.get(i);
-                    BIRFunctionParameter funcParam;
-                    if (arg.variableDcl.kind == VarKind.SELF) {
-                        funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type, selfArgName,
-                                VarScope.FUNCTION, VarKind.SELF, selfArgName.value, false);
-                    } else {
-                        Name argName = new Name(String.format("$funcParam%d", i));
-                        funcParam = new BIRFunctionParameter(asyncCallIns.pos, arg.variableDcl.type,
-                                argName, VarScope.FUNCTION, VarKind.ARG, argName.value, false);
-                        desugaredFunc.localVars.add(funcParam);
-                        desugaredFunc.parameters.put(funcParam, Collections.emptyList());
-                        desugaredFunc.requiredParams.add(new BIRParameter(asyncCallIns.pos, argName, 0));
-                        desugaredFunc.argsCount++;
-                    }
-                    funcParamOperands.add(new BIROperand(funcParam));
-                }
+            // Generating function body
+            BIRBasicBlock callInsBB = insertBasicBlock(desugaredFunc, 0);
+            BIRBasicBlock returnInsBB = insertBasicBlock(desugaredFunc, 1);
+            callInsBB.terminator = new Call(asyncCallIns.pos, InstructionKind.CALL, asyncCallIns.isVirtual,
+                    asyncCallIns.calleePkg, asyncCallIns.name, funcParamOperands, funcReturnOperand,
+                    returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags);
+            returnInsBB.terminator = new Return(asyncCallIns.pos);
 
-                // Generating function body
-                BIRBasicBlock callInsBB = insertBasicBlock(desugaredFunc, 0);
-                BIRBasicBlock returnInsBB = insertBasicBlock(desugaredFunc, 1);
-                callInsBB.terminator = new Call(asyncCallIns.pos, InstructionKind.CALL, asyncCallIns.isVirtual,
-                        asyncCallIns.calleePkg, asyncCallIns.name, funcParamOperands, funcReturnOperand,
-                        returnInsBB, asyncCallIns.calleeAnnotAttachments, asyncCallIns.calleeFlags);
-                returnInsBB.terminator = new Return(asyncCallIns.pos);
-
-                // Updating terminator to call the generated lambda asynchronously
-                asyncCallIns.name = lambdaName;
-                asyncCallIns.calleePkg = currentPkgId;
-                asyncCallIns.isVirtual = attachedTypeDef != null;
-                if (attachedTypeDef != null) {
-                    asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
-                            selfArgName, VarScope.FUNCTION, VarKind.SELF)));
-                }
+            // Updating terminator to call the generated lambda asynchronously
+            asyncCallIns.name = lambdaName;
+            asyncCallIns.calleePkg = currentPkgId;
+            asyncCallIns.isVirtual = attachedTypeDef != null;
+            if (attachedTypeDef != null) {
+                asyncCallIns.args.add(0, new BIROperand(new BIRVariableDcl(attachedTypeDef.type,
+                        selfArgName, VarScope.FUNCTION, VarKind.SELF)));
             }
         }
     }

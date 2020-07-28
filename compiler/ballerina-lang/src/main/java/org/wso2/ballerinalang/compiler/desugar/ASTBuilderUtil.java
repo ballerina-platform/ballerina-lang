@@ -35,6 +35,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
@@ -636,6 +637,10 @@ public class ASTBuilderUtil {
     }
 
     static BLangListConstructorExpr createListConstructorExpr(DiagnosticPos pos, BType type) {
+        if (type.tag == TypeTags.INTERSECTION) {
+            type = ((BIntersectionType) type).effectiveType;
+        }
+
         if (type.tag != TypeTags.ARRAY && type.tag != TypeTags.TUPLE) {
             throw new IllegalArgumentException("Expected a 'BArrayType' instance or a 'BTupleType' instance");
         }
@@ -811,6 +816,7 @@ public class ASTBuilderUtil {
         dupFuncSymbol.scope = invokableSymbol.scope;
         dupFuncSymbol.tag = invokableSymbol.tag;
         dupFuncSymbol.schedulerPolicy = invokableSymbol.schedulerPolicy;
+        dupFuncSymbol.strandName = invokableSymbol.strandName;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
         dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes),

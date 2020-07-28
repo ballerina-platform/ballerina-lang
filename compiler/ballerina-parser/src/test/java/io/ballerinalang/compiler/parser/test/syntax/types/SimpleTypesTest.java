@@ -25,7 +25,12 @@ import org.testng.annotations.Test;
 public class SimpleTypesTest extends AbstractTypesTest {
 
     @Test
-    public void testSimpleBinaryExpression() {
+    public void testSimpleTypes() {
         testTopLevelNode("simple-types/simple_types_source_01.bal", "simple-types/simple_types_assert_01.json");
+    }
+    
+    @Test
+    public void testVar() {
+        testFile("simple-types/simple_types_source_02.bal", "simple-types/simple_types_assert_02.json");
     }
 }

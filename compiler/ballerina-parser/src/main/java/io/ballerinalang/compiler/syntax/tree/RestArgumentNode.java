@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -33,16 +32,12 @@ public class RestArgumentNode extends FunctionArgumentNode {
         super(internalNode, position, parent);
     }
 
-    public Optional<Token> leadingComma() {
-        return optionalChildInBucket(0);
-    }
-
     public Token ellipsis() {
-        return childInBucket(1);
+        return childInBucket(0);
     }
 
     public ExpressionNode expression() {
-        return childInBucket(2);
+        return childInBucket(1);
     }
 
     @Override
@@ -58,24 +53,20 @@ public class RestArgumentNode extends FunctionArgumentNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "leadingComma",
                 "ellipsis",
                 "expression"};
     }
 
     public RestArgumentNode modify(
-            Token leadingComma,
             Token ellipsis,
             ExpressionNode expression) {
         if (checkForReferenceEquality(
-                leadingComma,
                 ellipsis,
                 expression)) {
             return this;
         }
 
         return NodeFactory.createRestArgumentNode(
-                leadingComma,
                 ellipsis,
                 expression);
     }
@@ -91,22 +82,13 @@ public class RestArgumentNode extends FunctionArgumentNode {
      */
     public static class RestArgumentNodeModifier {
         private final RestArgumentNode oldNode;
-        private Token leadingComma;
         private Token ellipsis;
         private ExpressionNode expression;
 
         public RestArgumentNodeModifier(RestArgumentNode oldNode) {
             this.oldNode = oldNode;
-            this.leadingComma = oldNode.leadingComma().orElse(null);
             this.ellipsis = oldNode.ellipsis();
             this.expression = oldNode.expression();
-        }
-
-        public RestArgumentNodeModifier withLeadingComma(
-                Token leadingComma) {
-            Objects.requireNonNull(leadingComma, "leadingComma must not be null");
-            this.leadingComma = leadingComma;
-            return this;
         }
 
         public RestArgumentNodeModifier withEllipsis(
@@ -125,7 +107,6 @@ public class RestArgumentNode extends FunctionArgumentNode {
 
         public RestArgumentNode apply() {
             return oldNode.modify(
-                    leadingComma,
                     ellipsis,
                     expression);
         }

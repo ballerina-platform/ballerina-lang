@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel.Reference;
+import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
@@ -139,7 +140,9 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             context.put(ReferencesKeys.DO_NOT_SKIP_NULL_SYMBOLS, true);
             Position afterAliasPos = offsetPositionToInvocation(diagnosedContent, position);
             Reference refAtCursor = getSymbolAtCursor(context, document, afterAliasPos);
-
+            if (refAtCursor == null) {
+                return actions;
+            }
             BSymbol symbolAtCursor = refAtCursor.getSymbol();
 
             boolean isInvocation = symbolAtCursor instanceof BInvokableSymbol;
@@ -189,7 +192,8 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
                     actions.add(createQuickFixCodeAction(commandTitle, getIgnoreCodeActionEdits(position), uri));
                 }
             }
-        } catch (CompilationFailedException | WorkspaceDocumentException | IOException e) {
+        } catch (WorkspaceDocumentException | CompilationFailedException | TokenOrSymbolNotFoundException |
+                IOException e) {
             // ignore
         }
         return actions;

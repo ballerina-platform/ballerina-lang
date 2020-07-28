@@ -137,7 +137,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                if (peek() == LexerTerminals.DOT) {
+                if (peek() == LexerTerminals.DOT && reader.peek(1) != LexerTerminals.DOT) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
                 } else if (peek() == LexerTerminals.COLON) {
@@ -151,7 +151,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processStringLiteral();
                 break;
             case LexerTerminals.HASH:
-                token = processDocumentationLine();
+                token = processDocumentationString();
                 break;
             case LexerTerminals.AT:
                 token = getSyntaxToken(SyntaxKind.AT_TOKEN);
@@ -318,7 +318,7 @@ public class BallerinaLexer extends AbstractLexer {
         return STNodeFactory.createToken(kind, leadingTrivia, trailingTrivia);
     }
 
-    private STToken getIdentifierToken(String tokenText) {
+    private STToken getIdentifierToken() {
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
         STNode trailingTrivia = processTrailingTrivia();
@@ -434,14 +434,6 @@ public class BallerinaLexer extends AbstractLexer {
                 if (reader.peek() == LexerTerminals.NEWLINE) {
                     reader.advance();
                 }
-                // Ballerina spec 2020R1/#lexical_structure section says that you should
-                // normalize newline chars as follows.
-                // - the two character sequence 0xD 0xA is replaced by 0xA
-                // - a single 0xD character that is not followed by 0xD is replaced by 0xA
-                //
-                // This implementation does not replace any characters to maintain
-                // the exact source text as it is, but it does not count \r\n as two characters.
-                // Therefore, we have to specifically send the width of the lexeme when creating the Minutia node.
                 return STNodeFactory.createMinutiae(SyntaxKind.END_OF_LINE_MINUTIAE, getLexeme());
             default:
                 throw new IllegalStateException();
@@ -482,8 +474,11 @@ public class BallerinaLexer extends AbstractLexer {
      * <p>
      * Process a comment, and add it to trivia list.
      * </p>
-     * <code>Comment := // AnyCharButNewline*
-     * <br/><br/>AnyCharButNewline := ^ 0xA</code>
+     * <code>
+     * Comment := // AnyCharButNewline*
+     * <br/><br/>
+     * AnyCharButNewline := ^ 0xA
+     * </code>
      */
     private STNode processComment() {
         // We reach here after verifying up to 2 code-points ahead. Hence advance(2).
@@ -870,6 +865,8 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.FALSE_KEYWORD);
             case LexerTerminals.CHECK:
                 return getSyntaxToken(SyntaxKind.CHECK_KEYWORD);
+            case LexerTerminals.FAIL:
+                return getSyntaxToken(SyntaxKind.FAIL_KEYWORD);
             case LexerTerminals.CHECKPANIC:
                 return getSyntaxToken(SyntaxKind.CHECKPANIC_KEYWORD);
             case LexerTerminals.CONTINUE:
@@ -990,8 +987,16 @@ public class BallerinaLexer extends AbstractLexer {
                 return getSyntaxToken(SyntaxKind.OUTER_KEYWORD);
             case LexerTerminals.EQUALS:
                 return getSyntaxToken(SyntaxKind.EQUALS_KEYWORD);
+            case LexerTerminals.ORDER:
+                return getSyntaxToken(SyntaxKind.ORDER_KEYWORD);
+            case LexerTerminals.BY:
+                return getSyntaxToken(SyntaxKind.BY_KEYWORD);
+            case LexerTerminals.ASCENDING:
+                return getSyntaxToken(SyntaxKind.ASCENDING_KEYWORD);
+            case LexerTerminals.DESCENDING:
+                return getSyntaxToken(SyntaxKind.DESCENDING_KEYWORD);
             default:
-                return getIdentifierToken(tokenText);
+                return getIdentifierToken();
         }
     }
 
@@ -1289,33 +1294,30 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process any token that starts with '/'.
      *
-     * @return One of the tokens: <code>'/', '/<', '/*', '/**\/<' </code>
+     * @return One of the tokens: <code>'/', '/*', '/**\/<' </code>
      */
     private STToken processSlashToken() {
-        switch (peek()) { // check for the second char
-            case LexerTerminals.LT:
-                reader.advance();
-                return getSyntaxToken(SyntaxKind.SLASH_LT_TOKEN);
-            case LexerTerminals.ASTERISK:
-                reader.advance();
-                if (peek() != LexerTerminals.ASTERISK) { // check for the third char
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
-                    reader.advance(3);
-                    return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
-                } else {
-                    return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
-                }
-            default:
-                return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        // check for the second char
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_TOKEN);
+        }
+
+        reader.advance();
+        if (peek() != LexerTerminals.ASTERISK) {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
+        } else if (reader.peek(1) == LexerTerminals.SLASH && reader.peek(2) == LexerTerminals.LT) {
+            reader.advance(3);
+            return getSyntaxToken(SyntaxKind.DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN);
+        } else {
+            return getSyntaxToken(SyntaxKind.SLASH_ASTERISK_TOKEN);
         }
     }
 
     /**
-     * Process and return documentation line.
+     * Process and return documentation string.
      * <p>
      * <code>
-     * DocumentationLine := BlankSpace* # [Space] DocumentationContent
+     * DocumentationContentString := ( BlankSpace* # [DocumentationContent] )+
      * <br/>
      * DocumentationContent := (^ 0xA)* 0xA
      * <br/>
@@ -1326,19 +1328,43 @@ public class BallerinaLexer extends AbstractLexer {
      * Tab := 0x9
      * </code>
      *
-     * @return Documentation line token
+     * @return Documentation string token
      */
-    private STToken processDocumentationLine() {
-        // TODO: validate the markdown syntax.
-        int nextToken = peek();
+    private STToken processDocumentationString() {
+        int nextChar = peek();
         while (!reader.isEOF()) {
-            switch (nextToken) {
-                case LexerTerminals.NEWLINE:
+            switch (nextChar) {
                 case LexerTerminals.CARRIAGE_RETURN:
-                    break;
+                case LexerTerminals.NEWLINE:
+
+                    // Advance reader for the new line
+                    if (peek() == LexerTerminals.CARRIAGE_RETURN && reader.peek(1) == LexerTerminals.NEWLINE) {
+                        reader.advance();
+                    }
+                    reader.advance();
+
+                    // Look ahead and see if next line also belongs to the documentation.
+                    // i.e. look for a `WS #` match
+                    // If there's a match, advance reader for the next line as well.
+                    // Otherwise terminate documentation content after the new line.
+                    int lookAheadCount = 0;
+                    int lookAheadChar = reader.peek(lookAheadCount);
+                    while (lookAheadChar == LexerTerminals.SPACE || lookAheadChar == LexerTerminals.TAB) {
+                        lookAheadCount++;
+                        lookAheadChar = reader.peek(lookAheadCount);
+                    }
+
+                    if (lookAheadChar != LexerTerminals.HASH) {
+                        // Next line does not belong to documentation, hence break
+                        break;
+                    }
+
+                    reader.advance(lookAheadCount);
+                    nextChar = peek();
+                    continue;
                 default:
                     reader.advance();
-                    nextToken = peek();
+                    nextChar = peek();
                     continue;
             }
             break;
@@ -1346,8 +1372,9 @@ public class BallerinaLexer extends AbstractLexer {
 
         STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
         String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createDocumentationLineToken(lexeme, leadingTrivia, trailingTrivia);
+        STNode trailingTrivia = STNodeFactory.createNodeList(new ArrayList<>(0)); // No trailing trivia
+        return STNodeFactory.createLiteralValueToken(SyntaxKind.DOCUMENTATION_STRING, lexeme, leadingTrivia,
+                trailingTrivia);
     }
 
     private STToken getBacktickToken() {
@@ -1401,14 +1428,7 @@ public class BallerinaLexer extends AbstractLexer {
                 }
         }
 
-        return getTemplateString(SyntaxKind.TEMPLATE_STRING);
-    }
-
-    private STToken getTemplateString(SyntaxKind kind) {
-        STNode leadingTrivia = STNodeFactory.createNodeList(this.leadingTriviaList);
-        String lexeme = getLexeme();
-        STNode trailingTrivia = processTrailingTrivia();
-        return STNodeFactory.createLiteralValueToken(kind, lexeme, leadingTrivia, trailingTrivia);
+        return getLiteral(SyntaxKind.TEMPLATE_STRING);
     }
 
     /**
@@ -1464,7 +1484,7 @@ public class BallerinaLexer extends AbstractLexer {
             break;
         }
 
-        return getIdentifierToken(getLexeme());
+        return getIdentifierToken();
     }
 
     private STToken processTokenStartWithGt() {

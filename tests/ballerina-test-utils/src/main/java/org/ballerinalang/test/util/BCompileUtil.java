@@ -210,7 +210,7 @@ public class BCompileUtil {
                 }
             };
             final FutureValue out = scheduler.schedule(new Object[1], func, null, null, null,
-                    BTypes.typeAny);
+                    BTypes.typeAny, null, null);
             scheduler.start();
             final Throwable t = out.panic;
             if (t != null) {

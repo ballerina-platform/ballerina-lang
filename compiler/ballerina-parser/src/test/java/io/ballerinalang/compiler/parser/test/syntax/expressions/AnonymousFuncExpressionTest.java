@@ -44,6 +44,11 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
+    public void testOpPrecedenceForSubsequentAnonFuncOperators() {
+        testFile("anon-func/anon_func_source_11.bal", "anon-func/anon_func_assert_11.json");
+    }
+
+    @Test
     public void testSimpleImplicitAnonFunc() {
         testFile("anon-func/anon_func_source_07.bal", "anon-func/anon_func_assert_07.json");
     }
@@ -66,7 +71,7 @@ public class AnonymousFuncExpressionTest extends AbstractExpressionsTest {
     }
 
     @Test
-    public void testMissingFUncBody() {
+    public void testMissingFuncBody() {
         testFile("anon-func/anon_func_source_06.bal", "anon-func/anon_func_assert_06.json");
     }
 

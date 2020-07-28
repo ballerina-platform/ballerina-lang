@@ -175,7 +175,7 @@ public class RecordVariableReferenceTest {
 //        Assert.assertEquals(((BMap) returns[2]).get("format").stringValue(), "Y");
 //    }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test(groups = {"disableOnOldParser", "brokenOnNewParser"})
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
                 "-semantics-negative.bal");
@@ -187,6 +187,7 @@ public class RecordVariableReferenceTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'theAge'", 43, 40);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'format'", 43, 48);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, undefinedSymbol + "'theMap'", 43, 61);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid expression statement", 94, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "variable assignment is required", 94, 5);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
                 "incompatible types: expected 'Bar', found 'string'", 95, 12);

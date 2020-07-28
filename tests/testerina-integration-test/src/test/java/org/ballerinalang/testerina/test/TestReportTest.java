@@ -121,7 +121,7 @@ public class TestReportTest extends BaseTestCase {
     private void validateCoverage() {
         JsonParser parser = new JsonParser();
         // service module
-        int[] serviceMainCovered = new int[]{10, 19, 20, 23, 24}, serviceMainMissed = new int[]{21};
+        int[] serviceMainCovered = new int[]{16, 19, 20, 23, 24}, serviceMainMissed = new int[]{21};
         float serviceMainPercentageVal =
                 (float) (serviceMainCovered.length) / (serviceMainCovered.length + serviceMainMissed.length) * 100;
         float serviceMainPercentage =

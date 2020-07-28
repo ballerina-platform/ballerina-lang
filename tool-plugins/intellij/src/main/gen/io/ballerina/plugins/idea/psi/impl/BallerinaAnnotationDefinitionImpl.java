@@ -43,15 +43,9 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
   }
 
   @Override
-  @NotNull
-  public List<BallerinaAttachmentPoint> getAttachmentPointList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAttachmentPoint.class);
-  }
-
-  @Override
   @Nullable
-  public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
+  public BallerinaRecoverableAnnotationContent getRecoverableAnnotationContent() {
+    return findChildByClass(BallerinaRecoverableAnnotationContent.class);
   }
 
   @Override
@@ -70,18 +64,6 @@ public class BallerinaAnnotationDefinitionImpl extends ASTWrapperPsiElement impl
   @Nullable
   public PsiElement getConst() {
     return findChildByType(CONST);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getOn() {
-    return findChildByType(ON);
   }
 
   @Override
