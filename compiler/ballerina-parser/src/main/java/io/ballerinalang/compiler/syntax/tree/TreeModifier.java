@@ -531,7 +531,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FunctionCallExpressionNode transform(
             FunctionCallExpressionNode functionCallExpressionNode) {
-        Node functionName =
+        NameReferenceNode functionName =
                 modifyNode(functionCallExpressionNode.functionName());
         Token openParenToken =
                 modifyToken(functionCallExpressionNode.openParenToken());
@@ -3067,8 +3067,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(documentationReferenceNode.referenceType().orElse(null));
         Token startBacktick =
                 modifyToken(documentationReferenceNode.startBacktick());
-        Token backtickContent =
-                modifyToken(documentationReferenceNode.backtickContent());
+        Node backtickContent =
+                modifyNode(documentationReferenceNode.backtickContent());
         Token endBacktick =
                 modifyToken(documentationReferenceNode.endBacktick());
         return documentationReferenceNode.modify(
@@ -3076,6 +3076,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public OrderByClauseNode transform(
+            OrderByClauseNode orderByClauseNode) {
+        Token orderKeyword =
+                modifyToken(orderByClauseNode.orderKeyword());
+        Token byKeyword =
+                modifyToken(orderByClauseNode.byKeyword());
+        SeparatedNodeList<OrderKeyNode> orderKey =
+                modifySeparatedNodeList(orderByClauseNode.orderKey());
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public OrderKeyNode transform(
+            OrderKeyNode orderKeyNode) {
+        ExpressionNode expression =
+                modifyNode(orderKeyNode.expression());
+        Token orderDirection =
+                modifyToken(orderKeyNode.orderDirection().orElse(null));
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
     }
 
     // Tokens

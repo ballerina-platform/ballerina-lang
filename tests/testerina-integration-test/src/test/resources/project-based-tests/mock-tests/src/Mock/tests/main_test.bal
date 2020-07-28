@@ -1,24 +1,39 @@
 import ballerina/test;
 import ballerina/io;
+import ballerina/math;
+import Mock2;
 
 //
 // MOCK FUNCTION OBJECTS
 //
 
-@test:MockFn {
+@test:Mock {
     functionName : "intAdd"
 }
 test:MockFunction mock_intAdd = new();
 
-@test:MockFn {
+@test:Mock {
     functionName : "stringAdd"
 }
 test:MockFunction mock_stringAdd = new();
 
-@test:MockFn {
+@test:Mock {
     functionName: "floatAdd"
 }
 test:MockFunction mock_floatAdd = new();
+
+
+@test:Mock {
+    moduleName : "ballerina/math",
+    functionName : "absInt"
+}
+test:MockFunction mock_absInt = new();
+
+@test:Mock {
+    moduleName : "mock-tests/Mock2",
+    functionName : "intAdd2"
+}
+test:MockFunction mock2_intAdd = new();
 
 //
 //  MOCK FUNCTIONS
@@ -46,6 +61,10 @@ public function mockStringAdd(string str1) returns (string) {
 
 public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
+}
+
+public function mockAbsInt(int value) returns (int) {
+    return 100;
 }
 
 //
@@ -108,9 +127,23 @@ public function call_Test4() {
 @test:Config {
 }
 public function call_Test5() {
-    io:println("[call_Test4] Test mock function with invalid parameters");
+    io:println("[call_Test5] Test mock function with invalid parameters");
     test:when(mock_intAdd).call("mockIntAdd4");
     test:assertEquals(intAdd(10, 6), 4);
+}
+
+@test:Config {}
+public function call_Test6() {
+    io:println("[call_Test6] Test mock function in import package");
+    test:when(mock_absInt).call("mockAbsInt");
+    test:assertEquals(math:absInt(-5), 100);
+}
+
+@test:Config {}
+public function call_Test7() {
+    io:println("[call_Test7] Test mock function in import package in same project");
+    test:when(mock2_intAdd).call("mockIntAdd2");
+    test:assertEquals(Mock2:intAdd2(10, 5), 50);
 }
 
 @test:Config {

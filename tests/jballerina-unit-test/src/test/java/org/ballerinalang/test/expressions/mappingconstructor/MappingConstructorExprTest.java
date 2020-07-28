@@ -68,7 +68,7 @@ public class MappingConstructorExprTest {
     public void diagnosticsTest() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 10);
+        Assert.assertEquals(result.getErrorCount(), 13);
         validateError(result, 0, "incompatible mapping constructor expression for type '(string|Person)'", 33, 23);
         validateError(result, 1, "ambiguous type '(PersonTwo|PersonThree)'", 37, 31);
         validateError(result, 2,
@@ -76,12 +76,14 @@ public class MappingConstructorExprTest {
         validateError(result, 3, "ambiguous type '(map<int>|map<string>)'", 45, 31);
         validateError(result, 4, "ambiguous type '(map<(int|string)>|map<(string|boolean)>)'", 47, 46);
         validateError(result, 5, "unknown type 'NoRecord'", 55, 5);
-        validateError(result, 6, "a type compatible with mapping constructor expressions not found in type 'other'",
-                      55, 18);
-        validateError(result, 7, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
-        validateError(result, 8, "invalid operation: type 'PersonThree' does not support field access for " +
+        validateError(result, 6, "incompatible types: 'int' cannot be cast to 'string'", 55, 22);
+        validateError(result, 7, "invalid operation: type 'PersonThree' does not support field access for " +
                 "non-required field 'salary'", 55, 41);
-        validateError(result, 9, "undefined symbol 'c'", 55, 55);
+        validateError(result, 8, "undefined symbol 'c'", 55, 55);
+        validateError(result, 9, "unknown type 'Foo'", 59, 5);
+        validateError(result, 10, "incompatible types: 'string' cannot be cast to 'boolean'", 59, 17);
+        validateError(result, 11, "unknown type 'Foo'", 60, 5);
+        validateError(result, 12, "incompatible types: 'int' cannot be cast to 'boolean'", 60, 30);
     }
 
     @Test
@@ -218,7 +220,7 @@ public class MappingConstructorExprTest {
     public void testRecordInferringInSelectNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/mapping_constructor_infer_record_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 16);
+        Assert.assertEquals(compileResult.getErrorCount(), 15);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'string[]', found 'record {| string fn; " +
@@ -241,8 +243,6 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "incompatible types: expected 'record {| int i; boolean b; decimal a; " +
                 "float f; anydata...; |}', found 'record {| (int|string) i; boolean b; decimal a; float f?; anydata.." +
                 ".; |}'", 126, 12);
-        validateError(compileResult, index++,
-                      "a type compatible with mapping constructor expressions not found in type 'other'", 137, 19);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Rec1'", 139, 9);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'future'", 140, 12);
         validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
@@ -341,13 +341,9 @@ public class MappingConstructorExprTest {
         validateError(compileResult, index++, "cannot update 'readonly' record field 'd1' in 'record {| readonly " +
                 "(Details & readonly) d1; readonly (Details & readonly) d2; record {| string str; |} d3; " +
                 "readonly record {| string str; readonly int count; |} & readonly d4; int...; |}'", 109, 5);
-        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
-                "type 'other'", 109, 14);
         validateError(compileResult, index++, "cannot update 'readonly' record field 'd1' in 'record {| readonly " +
                 "(Details & readonly) d1; readonly (Details & readonly) d2; record {| string str; |} d3; " +
                 "readonly record {| string str; readonly int count; |} & readonly d4; int...; |}'", 113, 5);
-        validateError(compileResult, index++, "a type compatible with mapping constructor expressions not found in " +
-                "type 'other'", 119, 16);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 120, 18);
         validateError(compileResult, index++, "incompatible types: expected 'readonly', found 'Details'", 122, 23);
         Assert.assertEquals(compileResult.getErrorCount(), index);

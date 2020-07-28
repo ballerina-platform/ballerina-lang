@@ -78,10 +78,10 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
      * Public constructor.
      * @param context    Document service context for the signature operation
      */
-    public SignatureTreeVisitor(LSContext context) {
+    public SignatureTreeVisitor(LSContext context, Position position) {
         blockPositionStack = new ArrayDeque<>();
         lsContext = context;
-        cursorPosition = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        cursorPosition = position;
 
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         symTable = SymbolTable.getInstance(compilerContext);

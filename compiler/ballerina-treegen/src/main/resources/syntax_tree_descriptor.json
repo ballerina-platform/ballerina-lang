@@ -678,7 +678,7 @@
             "attributes": [
                 {
                     "name": "functionName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -4086,11 +4086,47 @@
                 },
                 {
                     "name": "backtickContent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "endBacktick",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "OrderByClauseNode",
+            "base": "ClauseNode",
+            "kind": "ORDER_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "orderKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "orderKey",
+                    "type": "OrderKeyNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "OrderKeyNode",
+            "base": "Node",
+            "kind": "ORDER_KEY",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "orderDirection",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }
