@@ -17,63 +17,51 @@ import java.util.Map;
  * This class is a simple representation of an HTTP response.
  */
 public class HttpResponse {
-
     private String data;
     private int responseCode;
     private String responseMessage;
     private Map<String, String> headers;
 
     public HttpResponse(String data, int responseCode) {
-
         this.data = data;
         this.responseCode = responseCode;
     }
 
     public HttpResponse(String data, int responseCode, Map<String, String> headers) {
-
         this.data = data;
         this.responseCode = responseCode;
         this.headers = headers;
     }
 
     public String getData() {
-
         return data;
-
     }
 
     public void setData(String data) {
-
         this.data = data;
     }
 
     public int getResponseCode() {
-
         return responseCode;
     }
 
     public void setResponseCode(int responseCode) {
-
         this.responseCode = responseCode;
     }
 
     public Map<String, String> getHeaders() {
-
         return headers;
     }
 
     public void setHeaders(Map<String, String> headers) {
-
         this.headers = headers;
     }
 
     public String getResponseMessage() {
-
         return responseMessage;
     }
 
     public void setResponseMessage(String responseMessage) {
-
         this.responseMessage = responseMessage;
     }
 }

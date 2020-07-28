@@ -52,14 +52,16 @@ import java.util.regex.Matcher;
 /**
  * Automatic data mapping code action related utils.
  */
-class AIDataMapperCodeActionUtil {
-
+public class AIDataMapperCodeActionUtil {
+    private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
+    private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
+    private static final int HTTP_200_OK = 200;
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
 
     /**
-     * Returns the workspace edits for the automatic data mapping code action
+     * Returns the workspace edits for the automatic data mapping code action.
      *
      * @param context     {@link LSContext}
      * @param refAtCursor {@link SymbolReferencesModel.Reference}
@@ -72,7 +74,6 @@ class AIDataMapperCodeActionUtil {
                                                          SymbolReferencesModel.Reference refAtCursor,
                                                          Diagnostic diagnostic)
             throws IOException, WorkspaceDocumentException {
-
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.getMessage();
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
@@ -118,7 +119,7 @@ class AIDataMapperCodeActionUtil {
     }
 
     /**
-     * Given two record types, this returns a function with mapped schemas
+     * Given two record types, this returns a function with mapped schemas.
      *
      * @param bLangNode      {@link BLangNode}
      * @param symbolAtCursor {@link BSymbol}
@@ -130,7 +131,6 @@ class AIDataMapperCodeActionUtil {
     private static String getGeneratedRecordMappingFunction(BLangNode bLangNode, BSymbol symbolAtCursor,
                                                             String foundTypeLeft, String foundTypeRight)
             throws IOException {
-
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
@@ -164,43 +164,31 @@ class AIDataMapperCodeActionUtil {
     }
 
     /**
-     * For a give array of schemas, return a mapping function
+     * For a give array of schemas, return a mapping function.
      *
      * @param schemas {@link JsonArray}
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
     private static String getMapping(JsonArray schemas) throws IOException {
-
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
         }
-
-        AIDataMapperNetworkUtil backEndService = new AIDataMapperNetworkUtil();
-        Map<String, String> headers = new HashMap<>();
-        headers.put("Content-Type", "application/json; utf-8");
-        headers.put("Accept", "application/json");
-        backEndService.setHeaders(headers);
-        backEndService.setEndpoint(LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl());
-        backEndService.setDataToSend(schemas);
         try {
-            String mappedFunction = AIDataMapperNetworkUtil.getMapping();
+            String mappedFunction = getMappingFromServer(schemas);
             mappingCache.put(hashCode, mappedFunction);
             return mappedFunction;
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
 
     private static JsonElement recordToJSON(List<BField> schemaFields) {
-
         JsonObject properties = new JsonObject();
         for (BField attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             fieldDetails.addProperty("id", "dummy_id");
-            /* TODO: Do we need to go to lower levels?*/
-            /* TODO: consider unifying the schema*/
             if (attribute.type instanceof BArrayType) {
                 BType attributeEType = ((BArrayType) attribute.type).eType;
                 if (attributeEType instanceof BRecordType) {
@@ -220,5 +208,28 @@ class AIDataMapperCodeActionUtil {
             properties.add(String.valueOf(attribute.name), fieldDetails);
         }
         return properties;
+    }
+
+    private static String getMappingFromServer(JsonArray dataToSend) throws IOException {
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Content-Type", "application/json; utf-8");
+            headers.put("Accept", "application/json");
+            HttpResponse response =
+                    HttpClientRequest.doPost(LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl(),
+                            dataToSend.toString(), headers);
+            int responseCode = response.getResponseCode();
+            if (responseCode != HTTP_200_OK) {
+                if (responseCode == HTTP_422_UN_PROCESSABLE_ENTITY) {
+                    throw new IOException("Error: Un-processable data");
+                } else if (responseCode == HTTP_500_INTERNAL_SERVER_ERROR) {
+                    throw new IOException("Error: AI service error");
+                }
+            }
+            JsonParser parser = new JsonParser();
+            return parser.parse(response.getData()).getAsJsonObject().get("answer").getAsString();
+        } catch (IOException e) {
+            throw new IOException("Error connecting the AI service" + e.getMessage(), e);
+        }
     }
 }

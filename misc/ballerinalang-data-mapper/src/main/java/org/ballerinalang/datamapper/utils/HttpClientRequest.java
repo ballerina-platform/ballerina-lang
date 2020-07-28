@@ -48,7 +48,6 @@ public class HttpClientRequest {
      */
     public static HttpResponse doGet(String requestUrl, Map<String, String> headers)
             throws IOException {
-
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, headers);
     }
 
@@ -63,7 +62,6 @@ public class HttpClientRequest {
      */
     public static HttpResponse doGet(String requestUrl, int readTimeout, CheckedFunction responseBuilder)
             throws IOException {
-
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), readTimeout,
                 responseBuilder);
     }
@@ -76,7 +74,6 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the GET request
      */
     public static HttpResponse doGet(String requestUrl) throws IOException {
-
         return doGet(requestUrl, new HashMap<>());
     }
 
@@ -90,12 +87,10 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the GET request or in case an error response is received
      */
     public static HttpResponse doGet(String requestUrl, boolean throwError) throws IOException {
-
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>(), throwError);
     }
 
     public static HttpResponse doGetAndPreserveNewlineInResponseData(String requestUrl) throws IOException {
-
         return executeRequestAndPreserveNewline(TestConstant.HTTP_METHOD_GET, requestUrl, new HashMap<>());
     }
 
@@ -110,7 +105,6 @@ public class HttpClientRequest {
      */
     public static HttpResponse doPost(String endpoint, String postBody, Map<String, String> headers)
             throws IOException {
-
         HttpURLConnection urlConnection = null;
         try {
             urlConnection = getURLConnection(endpoint);
@@ -140,7 +134,6 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the OPTIONS request
      */
     public static HttpResponse doOptions(String requestUrl, Map<String, String> headers) throws IOException {
-
         return executeRequestWithoutRequestBody(TestConstant.HTTP_METHOD_OPTIONS, requestUrl, headers);
     }
 
@@ -152,7 +145,6 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the HEAD request
      */
     public static HttpResponse doHead(String requestUrl) throws IOException {
-
         return doHead(requestUrl, new HashMap<>());
     }
 
@@ -165,7 +157,6 @@ public class HttpClientRequest {
      * @throws IOException If an error occurs while sending the HEAD request
      */
     public static HttpResponse doHead(String requestUrl, Map<String, String> headers) throws IOException {
-
         HttpURLConnection conn = null;
         HttpResponse httpResponse;
         try {
@@ -185,21 +176,18 @@ public class HttpClientRequest {
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
-
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
                 defaultResponseBuilder);
     }
 
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl, Map<String
             , String> headers, boolean throwError) throws IOException {
-
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
                 defaultResponseBuilder, throwError);
     }
 
     private static HttpResponse executeRequestAndPreserveNewline(String method, String requestUrl, Map<String
             , String> headers) throws IOException {
-
         return executeRequestWithoutRequestBody(method, requestUrl, headers, DEFAULT_READ_TIMEOUT,
                 preserveNewLineResponseBuilder);
     }
@@ -207,7 +195,6 @@ public class HttpClientRequest {
     private static HttpResponse executeRequestWithoutRequestBody(String method, String requestUrl,
                                                                  Map<String, String> headers, int readTimeout,
                                                                  CheckedFunction responseBuilder) throws IOException {
-
         HttpURLConnection conn = null;
         try {
             conn = getURLConnection(requestUrl, readTimeout);
@@ -225,7 +212,6 @@ public class HttpClientRequest {
                                                                  Map<String, String> headers, int readTimeout,
                                                                  CheckedFunction responseBuilder, boolean throwError)
             throws IOException {
-
         HttpURLConnection conn = null;
         try {
             conn = getURLConnection(requestUrl, readTimeout);
@@ -240,12 +226,10 @@ public class HttpClientRequest {
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl) throws IOException {
-
         return getURLConnection(requestUrl, DEFAULT_READ_TIMEOUT);
     }
 
     private static HttpURLConnection getURLConnection(String requestUrl, int readTimeout) throws IOException {
-
         URL url = new URL(requestUrl);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setDoOutput(true);
@@ -258,7 +242,6 @@ public class HttpClientRequest {
     }
 
     private static Map<String, String> readHeaders(URLConnection urlConnection) {
-
         Iterator<String> itr = urlConnection.getHeaderFields().keySet().iterator();
         Map<String, String> headers = new HashMap();
         while (itr.hasNext()) {
@@ -272,7 +255,6 @@ public class HttpClientRequest {
 
     private static void setHeadersAndMethod(HttpURLConnection conn, Map<String, String> headers, String method)
             throws ProtocolException {
-
         for (Map.Entry<String, String> e : headers.entrySet()) {
             conn.addRequestProperty(e.getKey(), e.getValue());
         }
@@ -280,14 +262,12 @@ public class HttpClientRequest {
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn) throws IOException {
-
         return buildResponse(conn, defaultResponseBuilder, false);
     }
 
     private static HttpResponse buildResponse(HttpURLConnection conn,
                                               CheckedFunction<BufferedReader, String> responseBuilder,
                                               boolean throwError) throws IOException {
-
         HttpResponse httpResponse;
         BufferedReader rd = null;
         String responseData;
@@ -320,8 +300,6 @@ public class HttpClientRequest {
                 rd.close();
             }
         }
-//        System.out.println("##################");
-//        System.out.println(responseData);
         Map<String, String> responseHeaders = readHeaders(conn);
         httpResponse = new HttpResponse(responseData, conn.getResponseCode(), responseHeaders);
         httpResponse.setResponseMessage(conn.getResponseMessage());
@@ -355,7 +333,6 @@ public class HttpClientRequest {
      */
     @FunctionalInterface
     public interface CheckedFunction<T, R> {
-
         R apply(T t) throws IOException;
     }
 }

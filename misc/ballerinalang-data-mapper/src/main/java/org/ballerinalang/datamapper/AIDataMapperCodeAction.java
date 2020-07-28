@@ -63,7 +63,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     public List<CodeAction> getDiagBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                     List<Diagnostic> diagnosticsOfRange,
                                                     List<Diagnostic> allDiagnostics) {
-
         List<CodeAction> actions = new ArrayList<>();
         WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(lsContext.get(DocumentServiceKeys.FILE_URI_KEY));
@@ -89,7 +88,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionNodeType nodeType, LSContext lsContext,
                                                     List<Diagnostic> allDiagnostics) {
-
         throw new UnsupportedOperationException("Not supported");
     }
 
@@ -98,7 +96,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     @Override
     public boolean isEnabled() {
-
         return LSClientConfigHolder.getInstance().getConfig().getDataMapper().isEnabled();
     }
 
@@ -113,7 +110,6 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
      */
     private static CodeAction getAIDataMapperCommand(LSDocumentIdentifier document, Diagnostic diagnostic,
                                                      LSContext context) throws LSCodeActionProviderException {
-
         Position startingPosition = diagnostic.getRange().getStart();
         Position endingPosition = diagnostic.getRange().getEnd();
 
@@ -129,8 +125,7 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             BType symbolAtCursorType = refAtCursor.getSymbol().type;
 
             if (refAtCursor.getbLangNode().parent instanceof BLangFieldBasedAccess) {
-                /*TODO : instead of checking instanceof use 'getkind()'*/
-                throw new LSCodeActionProviderException("Invalid code action provider");/*TODO: Change message*/
+                throw new LSCodeActionProviderException("Invalid code action provider"); /*TODO: Change message*/
             }
             if (symbolAtCursorType instanceof BRecordType) {
                 CodeAction action = new CodeAction("Generate mapping function");
@@ -143,7 +138,8 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 action.setDiagnostics(new ArrayList<>());
                 return action;
             }
-        } catch (CompilationFailedException | WorkspaceDocumentException | IOException | TokenOrSymbolNotFoundException e) {
+        } catch (CompilationFailedException | WorkspaceDocumentException | IOException |
+                TokenOrSymbolNotFoundException e) {
             // ignore
         }
         throw new LSCodeActionProviderException("Invalid code action provider"); /*TODO: Change message*/

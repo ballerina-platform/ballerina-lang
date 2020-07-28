@@ -15,18 +15,16 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.datamapper.AIDataMapperNetworkUtil;
+import org.ballerinalang.datamapper.AIDataMapperCodeActionUtil;
 import org.ballerinalang.datamapper.util.FileUtils;
 import org.ballerinalang.datamapper.util.TestUtil;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
-import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -40,10 +38,11 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.mockito.Matchers.any;
 
 /**
  * Test Cases for CodeActions.
@@ -51,7 +50,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(AIDataMapperNetworkUtil.class)
+@PrepareForTest(AIDataMapperCodeActionUtil.class)
 public class CodeActionTest extends PowerMockTestCase {
 
     private Endpoint serviceEndpoint;
@@ -71,32 +70,34 @@ public class CodeActionTest extends PowerMockTestCase {
     }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider")
-    public void testDataMapperCodeAction(String config, String source)
-            throws IOException, CompilationFailedException {
-        PowerMockito.mockStatic(AIDataMapperNetworkUtil.class);
-        Mockito.when(AIDataMapperNetworkUtil.getMapping())
-                .thenReturn("\nfunction mapStudentToGrades (Student student) returns Grades " +
-                        "{\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades = " +
-                        "{maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};" +
-                        "\n\treturn grades;\n}");
+    public void testDataMapperCodeAction(String config, String source) throws Exception {
+        PowerMockito.spy(AIDataMapperCodeActionUtil.class);
+        PowerMockito.doReturn("\nfunction mapStudentToGrades (Student student) returns Grades " +
+                "{\n// Some record fields might be missing in the AI based mapping.\n\tGrades grades = " +
+                "{maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};" +
+                "\n\treturn grades;\n}").when(AIDataMapperCodeActionUtil.class, "getMappingFromServer",
+                any(Object.class));
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
 
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
         List<Diagnostic> diagnostics = new ArrayList<>(
                 CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
         CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
+
         Position position = new Position(configJsonObject.get("line").getAsInt(),
                 configJsonObject.get("character").getAsInt());
         Range range = new Range(position, position);
         String response =
                 TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-        System.out.println(response);
+
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
 
+        int numberOfDataMappingCodeAction = 0;
         boolean codeActionFound = false;
+        boolean codeActionFoundOnlyOnce = false;
         JsonObject responseJson = this.getResponseJson(response);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonElement right = jsonElement.getAsJsonObject().get("right");
@@ -106,16 +107,17 @@ public class CodeActionTest extends PowerMockTestCase {
             }
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
-            System.out.println(edit);
-            System.out.println(expectedResponse.get("edits").getAsJsonArray());
             boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
-                break;
+                numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
             }
         }
+        if (codeActionFound && numberOfDataMappingCodeAction == 1) {
+            codeActionFoundOnlyOnce = true;
+        }
         String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
-        Assert.assertTrue(codeActionFound,
+        Assert.assertTrue(codeActionFoundOnlyOnce,
                 "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
