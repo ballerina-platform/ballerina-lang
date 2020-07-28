@@ -33,9 +33,9 @@ import java.util.Collections;
 public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
     public final STNode visibilityQualifier;
-    public final STNode classKeyword;
     public final STNode classTypeQualifiers;
-    public final STNode typeName;
+    public final STNode classKeyword;
+    public final STNode className;
     public final STNode openBrace;
     public final STNode members;
     public final STNode closeBrace;
@@ -44,9 +44,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     STClassDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode classKeyword,
             STNode classTypeQualifiers,
-            STNode typeName,
+            STNode classKeyword,
+            STNode className,
             STNode openBrace,
             STNode members,
             STNode closeBrace,
@@ -54,9 +54,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         this(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,
@@ -67,9 +67,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     STClassDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode classKeyword,
             STNode classTypeQualifiers,
-            STNode typeName,
+            STNode classKeyword,
+            STNode className,
             STNode openBrace,
             STNode members,
             STNode closeBrace,
@@ -78,9 +78,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         super(SyntaxKind.CLASS_DEFINITION, diagnostics);
         this.metadata = metadata;
         this.visibilityQualifier = visibilityQualifier;
-        this.classKeyword = classKeyword;
         this.classTypeQualifiers = classTypeQualifiers;
-        this.typeName = typeName;
+        this.classKeyword = classKeyword;
+        this.className = className;
         this.openBrace = openBrace;
         this.members = members;
         this.closeBrace = closeBrace;
@@ -89,9 +89,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         addChildren(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,
@@ -102,9 +102,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         return new STClassDefinitionNode(
                 this.metadata,
                 this.visibilityQualifier,
-                this.classKeyword,
                 this.classTypeQualifiers,
-                this.typeName,
+                this.classKeyword,
+                this.className,
                 this.openBrace,
                 this.members,
                 this.closeBrace,
@@ -115,9 +115,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
     public STClassDefinitionNode modify(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode classKeyword,
             STNode classTypeQualifiers,
-            STNode typeName,
+            STNode classKeyword,
+            STNode className,
             STNode openBrace,
             STNode members,
             STNode closeBrace,
@@ -125,9 +125,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,
@@ -138,9 +138,9 @@ public class STClassDefinitionNode extends STModuleMemberDeclarationNode {
         return new STClassDefinitionNode(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,

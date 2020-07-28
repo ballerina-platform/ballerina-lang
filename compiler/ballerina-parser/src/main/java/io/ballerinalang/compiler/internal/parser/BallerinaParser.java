@@ -698,6 +698,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case CLASS_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
             case IDENTIFIER_TOKEN:
@@ -771,6 +772,7 @@ public class BallerinaParser extends AbstractParser {
             case XMLNS_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
+            case CLASS_KEYWORD:
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
@@ -1329,6 +1331,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFuncDefOrFuncTypeDesc(metadata, false, getQualifier(qualifier), null);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
+            case CLASS_KEYWORD:
+                return parserClassDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
                 return parseListenerDeclaration(metadata, getQualifier(qualifier));
             case CONST_KEYWORD:
@@ -3058,6 +3062,100 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * <p>
+     * Parse a class definition.
+     * </p>
+     * <code>module-class-defn := metadata [public] class-type-quals class identifier { class-member* } ;</code>
+     * <code>class-type-quals := (distinct | client | readonly)*</code>
+     *
+     * @param metadata Metadata
+     * @param qualifier Visibility qualifier
+     * @return Parsed node
+     */
+    private STNode parserClassDefinition(STNode metadata, STNode qualifier) {
+        startContext(ParserRuleContext.MODULE_CLASS_DEFINITION);
+        STNode classTypeQualifiers = parserClassTypeQualifiers();
+        STNode classKeyword = parseClassKeyword();
+        STNode className = parseClassName();
+        STNode openBrace = parseOpenBrace();
+        STNode classMembers = parseObjectMembers();
+        STNode closeBrace = parseCloseBrace();
+        STNode semicolon = parseSemicolon();
+        endContext();
+        return STNodeFactory.createClassDefinitionNode(metadata, qualifier, classTypeQualifiers, classKeyword,
+                className, openBrace, classMembers, closeBrace, semicolon);
+    }
+
+    private STNode parserClassTypeQualifiers() {
+        STToken peek = peek();
+        return parseClassTypeQualifiers(peek.kind);
+    }
+
+    private STNode parseClassTypeQualifiers(SyntaxKind kind) {
+        STNode firstQualifier;
+        switch (kind) {
+            case CLIENT_KEYWORD:
+                firstQualifier = parseClientKeyword();
+                break;
+            case READONLY_KEYWORD:
+                firstQualifier = parseReadonlyKeyword();
+                break;
+            case DISTINCT_KEYWORD:
+                firstQualifier = parseDistinctKeyword();
+                break;
+            default:
+                Solution solution = recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseClassTypeQualifiers(solution.tokenKind);
+        }
+
+        return parseClassTypeNextQualifiers(firstQualifier);
+    }
+
+    private STNode parseClassTypeNextQualifiers(STNode firstQualifier) {
+        List<STNode> qualifiers = new ArrayList<>();
+        qualifiers.add(firstQualifier);
+
+        // Parse the second and third qualifiers
+        for (int i = 0; i < 2; i++) {
+            STNode nextToken = peek();
+            if (isNodeWithSyntaxKindInList(qualifiers, nextToken.kind)) {
+                // Consumer the nextToken
+                nextToken = consume();
+                updateLastNodeInListWithInvalidNode(qualifiers, nextToken,
+                        DiagnosticErrorCode.ERROR_SAME_OBJECT_TYPE_QUALIFIER);
+                continue;
+            }
+
+            STNode nextQualifier;
+            switch (nextToken.kind) {
+                case CLIENT_KEYWORD:
+                    nextQualifier = parseClientKeyword();
+                    break;
+                case DISTINCT_KEYWORD:
+                    nextQualifier = parseDistinctKeyword();
+                    break;
+                case READONLY_KEYWORD:
+                    nextQualifier = parseReadonlyKeyword();
+                    break;
+                case CLASS_KEYWORD:
+                default:
+                    return STNodeFactory.createNodeList(qualifiers);
+            }
+            qualifiers.add(nextQualifier);
+        }
+
+        return STNodeFactory.createNodeList(qualifiers);
+    }
+
+    /**
      * Parse type keyword.
      *
      * @return Parsed node
@@ -3073,6 +3171,21 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
+     * Parse class keyword.
+     *
+     * @return Parsed node
+     */
+    private STNode parseClassKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.CLASS_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CLASS_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
      * Parse type name.
      *
      * @return Parsed node
@@ -3083,6 +3196,21 @@ public class BallerinaParser extends AbstractParser {
             return consume();
         } else {
             Solution sol = recover(token, ParserRuleContext.TYPE_NAME);
+            return sol.recoveredNode;
+        }
+    }
+
+    /**
+     * Parse class name.
+     *
+     * @return Parsed node
+     */
+    private STNode parseClassName() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.CLASS_NAME);
             return sol.recoveredNode;
         }
     }

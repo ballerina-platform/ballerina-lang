@@ -125,7 +125,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION,
-                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
+                    ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL,
+                    ParserRuleContext.MODULE_CLASS_DEFINITION };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -2518,6 +2519,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTIONAL_MATCH_PATTERN_START;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
+            case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.CLASS_KEYWORD;
+            case CLASS_KEYWORD:
+                return ParserRuleContext.IDENTIFIER;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }
@@ -3381,6 +3386,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
+            case MODULE_CLASS_DEFINITION:
+                endContext();
+                return ParserRuleContext.TOP_LEVEL_NODE;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3871,6 +3879,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.XML_NAME_PATTERN_RHS;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.ASSIGN_OP;
+            case MODULE_CLASS_DEFINITION:
+                return ParserRuleContext.OPEN_BRACE;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

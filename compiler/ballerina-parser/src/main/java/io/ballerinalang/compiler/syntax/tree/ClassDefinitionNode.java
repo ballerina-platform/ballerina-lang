@@ -41,15 +41,15 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(1);
     }
 
-    public Token classKeyword() {
-        return childInBucket(2);
-    }
-
     public NodeList<Token> classTypeQualifiers() {
-        return new NodeList<>(childInBucket(3));
+        return new NodeList<>(childInBucket(2));
     }
 
-    public Token typeName() {
+    public Token classKeyword() {
+        return childInBucket(3);
+    }
+
+    public Token className() {
         return childInBucket(4);
     }
 
@@ -84,9 +84,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         return new String[]{
                 "metadata",
                 "visibilityQualifier",
-                "classKeyword",
                 "classTypeQualifiers",
-                "typeName",
+                "classKeyword",
+                "className",
                 "openBrace",
                 "members",
                 "closeBrace",
@@ -96,9 +96,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
     public ClassDefinitionNode modify(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Token classKeyword,
             NodeList<Token> classTypeQualifiers,
-            Token typeName,
+            Token classKeyword,
+            Token className,
             Token openBrace,
             NodeList<Node> members,
             Token closeBrace,
@@ -106,9 +106,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         if (checkForReferenceEquality(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers.underlyingListNode(),
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members.underlyingListNode(),
                 closeBrace,
@@ -119,9 +119,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         return NodeFactory.createClassDefinitionNode(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,
@@ -141,9 +141,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
         private final ClassDefinitionNode oldNode;
         private MetadataNode metadata;
         private Token visibilityQualifier;
-        private Token classKeyword;
         private NodeList<Token> classTypeQualifiers;
-        private Token typeName;
+        private Token classKeyword;
+        private Token className;
         private Token openBrace;
         private NodeList<Node> members;
         private Token closeBrace;
@@ -153,9 +153,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
-            this.classKeyword = oldNode.classKeyword();
             this.classTypeQualifiers = oldNode.classTypeQualifiers();
-            this.typeName = oldNode.typeName();
+            this.classKeyword = oldNode.classKeyword();
+            this.className = oldNode.className();
             this.openBrace = oldNode.openBrace();
             this.members = oldNode.members();
             this.closeBrace = oldNode.closeBrace();
@@ -176,13 +176,6 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ClassDefinitionNodeModifier withClassKeyword(
-                Token classKeyword) {
-            Objects.requireNonNull(classKeyword, "classKeyword must not be null");
-            this.classKeyword = classKeyword;
-            return this;
-        }
-
         public ClassDefinitionNodeModifier withClassTypeQualifiers(
                 NodeList<Token> classTypeQualifiers) {
             Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
@@ -190,10 +183,17 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public ClassDefinitionNodeModifier withTypeName(
-                Token typeName) {
-            Objects.requireNonNull(typeName, "typeName must not be null");
-            this.typeName = typeName;
+        public ClassDefinitionNodeModifier withClassKeyword(
+                Token classKeyword) {
+            Objects.requireNonNull(classKeyword, "classKeyword must not be null");
+            this.classKeyword = classKeyword;
+            return this;
+        }
+
+        public ClassDefinitionNodeModifier withClassName(
+                Token className) {
+            Objects.requireNonNull(className, "className must not be null");
+            this.className = className;
             return this;
         }
 
@@ -229,9 +229,9 @@ public class ClassDefinitionNode extends ModuleMemberDeclarationNode {
             return oldNode.modify(
                     metadata,
                     visibilityQualifier,
-                    classKeyword,
                     classTypeQualifiers,
-                    typeName,
+                    classKeyword,
+                    className,
                     openBrace,
                     members,
                     closeBrace,

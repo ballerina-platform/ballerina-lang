@@ -3031,17 +3031,17 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ClassDefinitionNode createClassDefinitionNode(
             MetadataNode metadata,
             Token visibilityQualifier,
-            Token classKeyword,
             NodeList<Token> classTypeQualifiers,
-            Token typeName,
+            Token classKeyword,
+            Token className,
             Token openBrace,
             NodeList<Node> members,
             Token closeBrace,
             Token semicolonToken) {
         Objects.requireNonNull(metadata, "metadata must not be null");
-        Objects.requireNonNull(classKeyword, "classKeyword must not be null");
         Objects.requireNonNull(classTypeQualifiers, "classTypeQualifiers must not be null");
-        Objects.requireNonNull(typeName, "typeName must not be null");
+        Objects.requireNonNull(classKeyword, "classKeyword must not be null");
+        Objects.requireNonNull(className, "className must not be null");
         Objects.requireNonNull(openBrace, "openBrace must not be null");
         Objects.requireNonNull(members, "members must not be null");
         Objects.requireNonNull(closeBrace, "closeBrace must not be null");
@@ -3050,9 +3050,9 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stClassDefinitionNode = STNodeFactory.createClassDefinitionNode(
                 metadata.internalNode(),
                 getOptionalSTNode(visibilityQualifier),
-                classKeyword.internalNode(),
                 classTypeQualifiers.underlyingListNode().internalNode(),
-                typeName.internalNode(),
+                classKeyword.internalNode(),
+                className.internalNode(),
                 openBrace.internalNode(),
                 members.underlyingListNode().internalNode(),
                 closeBrace.internalNode(),

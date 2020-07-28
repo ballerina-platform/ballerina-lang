@@ -4109,16 +4109,16 @@
                     "isOptional": true
                 },
                 {
-                    "name": "classKeyword",
-                    "type": "Token"
-                },
-                {
                     "name": "classTypeQualifiers",
                     "type": "Token",
                     "occurrences": "MULTIPLE"
                 },
                 {
-                    "name": "typeName",
+                    "name": "classKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "className",
                     "type": "Token"
                 },
                 {

@@ -3085,12 +3085,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(classDefinitionNode.metadata());
         Token visibilityQualifier =
                 modifyToken(classDefinitionNode.visibilityQualifier().orElse(null));
-        Token classKeyword =
-                modifyToken(classDefinitionNode.classKeyword());
         NodeList<Token> classTypeQualifiers =
                 modifyNodeList(classDefinitionNode.classTypeQualifiers());
-        Token typeName =
-                modifyToken(classDefinitionNode.typeName());
+        Token classKeyword =
+                modifyToken(classDefinitionNode.classKeyword());
+        Token className =
+                modifyToken(classDefinitionNode.className());
         Token openBrace =
                 modifyToken(classDefinitionNode.openBrace());
         NodeList<Node> members =
@@ -3102,9 +3102,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return classDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,

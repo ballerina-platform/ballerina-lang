@@ -98,6 +98,7 @@ public enum SyntaxKind {
     JOIN_KEYWORD(244, "join"),
     OUTER_KEYWORD(245, "outer"),
     EQUALS_KEYWORD(246, "equals"),
+    CLASS_KEYWORD(247, "class"),
 
     // Type keywords
     INT_KEYWORD(250, "int"),
@@ -226,6 +227,7 @@ public enum SyntaxKind {
     ANNOTATION_DECLARATION(2007),
     MODULE_XML_NAMESPACE_DECLARATION(2008),
     ENUM_DECLARATION(2009),
+    CLASS_DEFINITION(2010),
 
     // Statements
     BLOCK_STATEMENT(1200),

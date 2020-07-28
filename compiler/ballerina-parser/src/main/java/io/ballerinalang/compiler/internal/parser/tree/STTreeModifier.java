@@ -2447,9 +2447,9 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STClassDefinitionNode classDefinitionNode) {
         STNode metadata = modifyNode(classDefinitionNode.metadata);
         STNode visibilityQualifier = modifyNode(classDefinitionNode.visibilityQualifier);
-        STNode classKeyword = modifyNode(classDefinitionNode.classKeyword);
         STNode classTypeQualifiers = modifyNode(classDefinitionNode.classTypeQualifiers);
-        STNode typeName = modifyNode(classDefinitionNode.typeName);
+        STNode classKeyword = modifyNode(classDefinitionNode.classKeyword);
+        STNode className = modifyNode(classDefinitionNode.className);
         STNode openBrace = modifyNode(classDefinitionNode.openBrace);
         STNode members = modifyNode(classDefinitionNode.members);
         STNode closeBrace = modifyNode(classDefinitionNode.closeBrace);
@@ -2457,9 +2457,9 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return classDefinitionNode.modify(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,

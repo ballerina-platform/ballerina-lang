@@ -2275,9 +2275,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createClassDefinitionNode(
             STNode metadata,
             STNode visibilityQualifier,
-            STNode classKeyword,
             STNode classTypeQualifiers,
-            STNode typeName,
+            STNode classKeyword,
+            STNode className,
             STNode openBrace,
             STNode members,
             STNode closeBrace,
@@ -2286,9 +2286,9 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STClassDefinitionNode(
                 metadata,
                 visibilityQualifier,
-                classKeyword,
                 classTypeQualifiers,
-                typeName,
+                classKeyword,
+                className,
                 openBrace,
                 members,
                 closeBrace,
