@@ -129,6 +129,10 @@ public class JarResolverImpl implements JarResolver {
         HashSet<Path> modulePlatformLibs = new HashSet<>();
         // copy platform libs for all modules(imported modules as well)
         addPlatformLibs(packageID, modulePlatformLibs);
+        Path runtimeJar = getRuntimeJar();
+        if (runtimeJar != null && !isModuleInDistribution(packageID)) {
+            modulePlatformLibs.add(getRuntimeJar());
+        }
 
         if (isProjectModule(packageID)) {
             return modulePlatformLibs;
@@ -167,16 +171,11 @@ public class JarResolverImpl implements JarResolver {
     public HashSet<Path> allDependencies(BLangPackage bLangPackage) {
         HashSet<PackageID> alreadyImportedSet = new HashSet<>();
         PackageID pkgId = bLangPackage.packageID;
-        Path runtimeJar = getRuntimeJar();
         HashSet<Path> modulePlatformLibs = new HashSet<>(nativeDependencies(pkgId));
         copyImportedLibs(pkgId, bLangPackage.symbol.imports, modulePlatformLibs, alreadyImportedSet);
         // copy choreo extension if --observability-included flag is added
         if (!isObservabilitySkipped) {
             modulePlatformLibs.add(getChoreoRuntimeJar());
-        }
-        
-        if (runtimeJar != null) {
-            modulePlatformLibs.add(getRuntimeJar());
         }
         return modulePlatformLibs;
     }
