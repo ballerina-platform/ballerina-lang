@@ -1829,8 +1829,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
         if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-            Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
-            return getFinalResult(currentMatches, fixedPathResult);
+            return fixAndContinue(currentCtx, lookahead, currentDepth, currentMatches, isEntryPoint);
         }
 
         ParserRuleContext nextContext;
@@ -2637,7 +2636,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
+                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION ||
+                        parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
                     return ParserRuleContext.OPEN_PARENTHESIS;
                 }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;

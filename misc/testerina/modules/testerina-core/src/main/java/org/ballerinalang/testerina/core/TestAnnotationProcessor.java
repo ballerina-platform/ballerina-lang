@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.core;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
@@ -123,10 +124,19 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
         TestSuite suite = registry.getTestSuites().get(packageName);
         // Check if the registry contains a test suite for the package
         if (suite == null) {
-            // Add a test suite to the registry if it does not contain one pertaining to the package name
-            suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
-                    new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
-                            parent.packageID.version.value));
+            //Set testable flag for single bal file execution
+            if ((Names.DOT.getValue()).equals(packageName)) {
+                parent.flagSet.add(Flag.TESTABLE);
+            }
+            // Skip adding test suite if no tests are available in the tests path
+            if (parent.getFlags().contains(Flag.TESTABLE)) {
+                // Add a test suite to the registry if it does not contain one pertaining to the package name
+                suite = registry.getTestSuites().computeIfAbsent(packageName, func ->
+                        new TestSuite(parent.packageID.name.value, packageName, parent.packageID.orgName.value,
+                                parent.packageID.version.value));
+            } else {
+                return;
+            }
         }
         // Remove the duplicated annotations.
         annotations = annotations.stream().distinct().collect(Collectors.toList());

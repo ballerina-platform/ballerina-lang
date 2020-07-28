@@ -531,7 +531,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FunctionCallExpressionNode transform(
             FunctionCallExpressionNode functionCallExpressionNode) {
-        Node functionName =
+        NameReferenceNode functionName =
                 modifyNode(functionCallExpressionNode.functionName());
         Token openParenToken =
                 modifyToken(functionCallExpressionNode.openParenToken());

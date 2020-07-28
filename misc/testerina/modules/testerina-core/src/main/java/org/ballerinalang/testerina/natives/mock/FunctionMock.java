@@ -1,4 +1,4 @@
-package org.ballerinalang.testerina.natives.test;
+package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
@@ -26,7 +26,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.testerina.natives.test.MockConstants.MOCK_STRAND_NAME;
+import static org.ballerinalang.testerina.natives.mock.MockConstants.MOCK_STRAND_NAME;
 
 /**
  * Class that contains inter-op function related to function mocking.
