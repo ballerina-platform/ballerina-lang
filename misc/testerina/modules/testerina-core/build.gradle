@@ -85,18 +85,19 @@ task updateVersion {
     )
 }
 
+task restoreToml {
+    ant.move(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml.template",
+            tofile: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            overwrite: 'true',
+            force: 'true'
+    )
+}
+
 createBalo {
     dependsOn "updateVersion"
     jvmTarget = 'true'
-
-    doLast {
-        ant.move(
-                file: "${projectDir}/src/main/ballerina/Ballerina.toml.template",
-                tofile: "${projectDir}/src/main/ballerina/Ballerina.toml",
-                overwrite: 'true',
-                force: 'true'
-        )
-    }
+    finalizedBy restoreToml
 }
 
 description = 'Ballerina - Testerina - Core'
