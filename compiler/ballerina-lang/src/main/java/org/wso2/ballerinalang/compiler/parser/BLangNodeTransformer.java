@@ -4581,15 +4581,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
     }
 
-    // If this is a quoted identifier then unescape it and remove the quote prefix.
-    // Else return original.
-    private static String escapeQuotedIdentifier(String identifier) {
-        if (identifier.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
-            identifier = StringEscapeUtils.unescapeJava(identifier).substring(1);
-        }
-        return identifier;
-    }
-
     private boolean isPresent(Node node) {
         return node.kind() != SyntaxKind.NONE;
     }
