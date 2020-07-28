@@ -133,6 +133,16 @@ public class TransactionStmtTest {
         BRunUtil.invoke(programFile, "testNewStrandWithTransactionalFunc");
     }
 
+    @Test
+    public void testRollbackWithBlockFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithBlockFailure");
+    }
+
+    @Test
+    public void testRollbackWithCommitFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithCommitFailure");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 26);
