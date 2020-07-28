@@ -167,9 +167,7 @@ public class FunctionGenerator {
      */
     public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext ctx) {
         List<String> list = new ArrayList<>();
-        int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        boolean skipFirstParam = CommonUtil.skipFirstParam(symbol, invocationType);
+        boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
         BVarSymbol restParam = symbol.restParam;
         if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
             if (symbol.type instanceof BInvokableType) {

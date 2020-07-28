@@ -2,6 +2,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import org.ballerinalang.langserver.SnippetBlock;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -14,11 +15,15 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class BlockNodeContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
     public BlockNodeContextProvider(Kind kind) {
@@ -106,13 +111,15 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
     protected List<LSCompletionItem> getSymbolCompletions(LSContext context) {
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
                 .filter(scopeEntry -> scopeEntry.symbol instanceof BVarSymbol
                         && !(scopeEntry.symbol instanceof BOperatorSymbol))
                 .collect(Collectors.toList());
-
-        return this.getCompletionItemList(filteredList, context);
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
+        return completionItems;
     }
     
     private boolean withinLoopConstructs(T node) {
@@ -126,5 +133,62 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
         
         return withinLoops;
+    }
+
+    private List<LSCompletionItem> getTypeguardDestructedItems(List<Scope.ScopeEntry> scopeEntries,
+                                                               LSContext ctx) {
+        List<String> capturedSymbols = new ArrayList<>();
+        // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
+        return scopeEntries.stream()
+                .filter(scopeEntry -> (scopeEntry.symbol.type instanceof BUnionType)
+                        && !capturedSymbols.contains(scopeEntry.symbol.name.value))
+                .map(entry -> {
+                    capturedSymbols.add(entry.symbol.name.getValue());
+                    List<BType> errorTypes = new ArrayList<>();
+                    List<BType> resultTypes = new ArrayList<>();
+                    List<BType> members = new ArrayList<>(((BUnionType) entry.symbol.type).getMemberTypes());
+                    members.forEach(bType -> {
+                        if (bType.tag == TypeTags.ERROR) {
+                            errorTypes.add(bType);
+                        } else {
+                            resultTypes.add(bType);
+                        }
+                    });
+                    if (errorTypes.size() == 1) {
+                        resultTypes.addAll(errorTypes);
+                    }
+                    String symbolName = entry.symbol.name.getValue();
+                    String label = symbolName + " - typeguard " + symbolName;
+                    String detail = "Destructure the variable " + symbolName + " with typeguard";
+                    StringBuilder snippet = new StringBuilder();
+                    int paramCounter = 1;
+                    if (errorTypes.size() > 1) {
+                        snippet.append("if (").append(symbolName).append(" is ").append("error) {")
+                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
+                                .append("}");
+                        paramCounter++;
+                    } else if (errorTypes.size() == 1) {
+                        snippet.append("if (").append(symbolName).append(" is ")
+                                .append(CommonUtil.getBTypeName(errorTypes.get(0), ctx, true)).append(") {")
+                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
+                                .append("}");
+                        paramCounter++;
+                    }
+                    int finalParamCounter = paramCounter;
+                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
+                    restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
+                        BType bType = members.get(value);
+                        String placeHolder = "\t${" + (value + finalParamCounter) + "}";
+                        return "if (" + symbolName + " is " + CommonUtil.getBTypeName(bType, ctx, true) + ") {"
+                                + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
+                    }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
+                            + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
+
+                    snippet.append(restSnippet);
+
+                    SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
+                            SnippetBlock.SnippetType.SNIPPET);
+                    return new SnippetCompletionItem(ctx, cItemSnippet);
+                }).collect(Collectors.toList());
     }
 }

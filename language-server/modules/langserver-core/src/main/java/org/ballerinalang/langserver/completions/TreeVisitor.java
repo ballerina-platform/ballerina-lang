@@ -705,7 +705,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangMatch matchNode) {
-        if (!CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
+        if (matchNode.getPosition() != null && !CursorPositionResolvers.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchNode.getPosition(), this, this.lsContext, matchNode, null)) {
             this.blockOwnerStack.push(matchNode);
             matchNode.patternClauses.forEach(patternClause -> {

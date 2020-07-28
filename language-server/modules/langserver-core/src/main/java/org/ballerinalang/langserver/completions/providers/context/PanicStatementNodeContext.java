@@ -17,12 +17,17 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles the completions within the variable declaration node context/
@@ -39,6 +44,13 @@ public class PanicStatementNodeContext extends AbstractCompletionProvider<PanicS
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, PanicStatementNode node)
             throws LSCompletionException {
-        return this.expressionCompletions(context);
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
+        List<Scope.ScopeEntry> filteredList = visibleSymbols.stream()
+                .filter(scopeEntry -> scopeEntry.symbol.type instanceof BErrorType)
+                .collect(Collectors.toList());
+        completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getPackagesCompletionItems(context));
+        return completionItems;
     }
 }

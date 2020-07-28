@@ -18,12 +18,14 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.net.grpc.proto.definition.Method;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -70,7 +72,18 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                         .findFirst()
                         .map(entry -> this.getEntriesForSymbol(fName, ((BInvokableSymbol) entry.symbol).retType, ctx))
                         .orElseGet(ArrayList::new);
-            case FIELD_ACCESS:
+            case METHOD_CALL: {
+                List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
+                        ((MethodCallExpressionNode) expr).expression());
+                String mName = ((SimpleNameReferenceNode) ((MethodCallExpressionNode) expr)
+                        .methodName()).name().text();
+                return filtered.stream()
+                        .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(mName))
+                        .findFirst()
+                        .map(entry -> this.getEntriesForSymbol(mName, ((BInvokableSymbol) entry.symbol).retType, ctx))
+                        .orElseGet(ArrayList::new);
+            }
+            case FIELD_ACCESS: {
                 List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
                         ((FieldAccessExpressionNode) expr).expression());
                 String field = ((SimpleNameReferenceNode) ((FieldAccessExpressionNode) expr).fieldName()).name().text();
@@ -79,6 +92,7 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                         .findFirst()
                         .map(scopeEntry -> this.getEntriesForSymbol(field, scopeEntry.symbol.type, ctx))
                         .orElseGet(ArrayList::new);
+            }
             default:
                 return new ArrayList<>();
         }

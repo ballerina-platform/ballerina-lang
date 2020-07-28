@@ -209,9 +209,7 @@ public class HoverUtil {
             // If it is a parameters set of a function invocation
             BInvokableSymbol invokableSymbol = (BInvokableSymbol) symbol;
             List<BVarSymbol> params = invokableSymbol.params;
-            int invocationType = (ctx == null || ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                    : ctx.get(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY);
-            skipFirstParam = CommonUtil.skipFirstParam(invokableSymbol, invocationType);
+            skipFirstParam = CommonUtil.skipFirstParam(ctx, invokableSymbol);
             for (int i = 0; i < params.size(); i++) {
                 if (i == 0 && skipFirstParam) {
                     continue;

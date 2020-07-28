@@ -197,16 +197,18 @@ public class CompletionUtil {
         Token tokenAtCursor = ((ModulePartNode) syntaxTree.rootNode()).findToken(txtPos);
 
         context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
-        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor));
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor, context));
     }
 
-    private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor) {
+    private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor, LSContext context) {
         NonTerminalNode parent = tokenAtCursor.parent();
+        int cursorLine = context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
 
         while (parent.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
                 || parent.kind() == SyntaxKind.NIL_LITERAL
-                || parent instanceof BasicLiteralNode) {
+                || parent instanceof BasicLiteralNode
+                || cursorLine < parent.lineRange().startLine().line()) {
             parent = parent.parent();
         }
 

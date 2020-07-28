@@ -91,7 +91,8 @@ public final class BFunctionCompletionItemBuilder {
     }
     
     public static CompletionItem build(BObjectTypeSymbol objectTypeSymbol, InitializerBuildMode mode, LSContext ctx) {
-        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc.symbol;
+        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
+                ? null :objectTypeSymbol.initializerFunc.symbol;
         CompletionItem item = new CompletionItem();
         setMeta(item, invokableSymbol, ctx);
         String functionName;
@@ -118,9 +119,7 @@ public final class BFunctionCompletionItemBuilder {
                 Command cmd = new Command("editor.action.triggerParameterHints", "editor.action.triggerParameterHints");
                 item.setCommand(cmd);
             }
-            int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                    : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-            boolean skipFirstParam = CommonUtil.skipFirstParam(bSymbol, invocationType);
+            boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, bSymbol);
             if (bSymbol.markdownDocumentation != null) {
                 item.setDocumentation(getDocumentation(bSymbol, skipFirstParam, ctx));
             }

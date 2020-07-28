@@ -799,14 +799,17 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
         CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
                 BFunctionCompletionItemBuilder.InitializerBuildMode.IMPLICIT, context);
 
-        return new SymbolCompletionItem(context, objectTypeSymbol.initializerFunc.symbol, cItem);
+        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
+                ? null : objectTypeSymbol.initializerFunc.symbol;
+        return new SymbolCompletionItem(context, invokableSymbol, cItem);
     }
 
     protected LSCompletionItem getExplicitNewCompletionItem(BObjectTypeSymbol objectTypeSymbol, LSContext context) {
         CompletionItem cItem = BFunctionCompletionItemBuilder.build(objectTypeSymbol,
                 BFunctionCompletionItemBuilder.InitializerBuildMode.EXPLICIT, context);
-
-        return new SymbolCompletionItem(context, objectTypeSymbol.initializerFunc.symbol, cItem);
+        BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
+                ? null : objectTypeSymbol.initializerFunc.symbol;
+        return new SymbolCompletionItem(context, invokableSymbol, cItem);
 
     }
 
