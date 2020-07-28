@@ -619,9 +619,9 @@ public class BallerinaParser extends AbstractParser {
             case TABLE_ROW_END:
                 return parseTableRowEnd();
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
-                return parseListBindingPatternOrListConstructorMember(peek().kind);
+                return parseListBindingPatternOrListConstructorMember();
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
-                return parseTupleTypeDescOrListConstructorMember(peek().kind, (STNode) args[0]);
+                return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -15627,6 +15627,10 @@ public class BallerinaParser extends AbstractParser {
         return parseTupleTypeDescOrListConstructorRhs(openBracket, memberList, closeBracket, isRoot);
     }
 
+    private STNode parseTupleTypeDescOrListConstructorMember(STNode annots) {
+        return parseTupleTypeDescOrListConstructorMember(peek().kind, annots);
+    }
+
     private STNode parseTupleTypeDescOrListConstructorMember(SyntaxKind nextTokenKind, STNode annots) {
         switch (nextTokenKind) {
             case OPEN_BRACKET_TOKEN:
@@ -16705,6 +16709,10 @@ public class BallerinaParser extends AbstractParser {
         // We reach here if it is still ambiguous, even after parsing the full list.
         STNode closeBracket = parseCloseBracket();
         return parseListBindingPatternOrListConstructor(openBracket, memberList, closeBracket, isRoot);
+    }
+
+    private STNode parseListBindingPatternOrListConstructorMember() {
+        return parseListBindingPatternOrListConstructorMember(peek().kind);
     }
 
     private STNode parseListBindingPatternOrListConstructorMember(SyntaxKind nextTokenKind) {
