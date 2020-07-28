@@ -13118,22 +13118,37 @@ public class BallerinaParser extends AbstractParser {
         STNode openBracketToken = parseOpenBracket();
         List<STNode> matchPatternList = new ArrayList<>();
         STNode restMatchPattern = null;
+        STNode listMatchPatternMemberRhs = null;
+        boolean isEndOfFields = false;
 
         while (!isEndOfListMatchPattern()) {
-            STToken nextToken = peek();
-            if (nextToken.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                restMatchPattern = parseRestMatchPattern();
+            STNode listMatchPatternMember = parseListMatchPatternMember();
+            if (listMatchPatternMember.kind == SyntaxKind.REST_MATCH_PATTERN) {
+                restMatchPattern = listMatchPatternMember;
+                listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
+                isEndOfFields = true;
                 break;
             }
-            STNode matchPatternListMember = parseMatchPattern();
-            matchPatternList.add(matchPatternListMember);
-            STNode matchPatternMemberRhs = parseListMatchPatternMemberRhs();
+            matchPatternList.add(listMatchPatternMember);
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
 
-            if (matchPatternMemberRhs != null) {
-                matchPatternList.add(matchPatternMemberRhs);
+            if (listMatchPatternMemberRhs != null) {
+                matchPatternList.add(listMatchPatternMemberRhs);
             } else {
                 break;
             }
+        }
+
+        // Following loop will only run if there are more fields after the rest match pattern.
+        // Try to parse them and mark as invalid.
+        while (isEndOfFields && listMatchPatternMemberRhs != null) {
+            STNode invalidField = parseListMatchPatternMember();
+            restMatchPattern =
+                    SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, listMatchPatternMemberRhs);
+            restMatchPattern = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restMatchPattern, invalidField);
+            restMatchPattern = SyntaxErrors.addDiagnostic(restMatchPattern,
+                    DiagnosticErrorCode.ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN);
+            listMatchPatternMemberRhs = parseListMatchPatternMemberRhs();
         }
 
         if (restMatchPattern == null) {
@@ -13155,6 +13170,17 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 return false;
+        }
+    }
+
+    private STNode parseListMatchPatternMember() {
+        STNode nextToken = peek();
+        switch (nextToken.kind) {
+            case ELLIPSIS_TOKEN:
+                return parseRestMatchPattern();
+            default:
+                // No need of recovery here
+                return parseMatchPattern();
         }
     }
 
