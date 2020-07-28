@@ -34,7 +34,7 @@ import java.util.List;
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<FunctionBodyBlockNode> {
     public FunctionBodyBlockNodeContext() {
-        super(Kind.MODULE_MEMBER);
+        super(Kind.OTHER);
         this.attachmentPoints.add(FunctionBodyBlockNode.class);
     }
 

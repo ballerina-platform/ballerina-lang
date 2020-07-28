@@ -30,7 +30,6 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link FunctionSignatureNode} context.
@@ -61,8 +60,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 Covers the following cases.
                 (1) function test() returns <cursor>
                 */
-                Predicate<Kind> predicate = providerKind -> providerKind == Kind.OTHER;
-                completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get(), predicate));
+                completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
             }
         }
         return completionItems;

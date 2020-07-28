@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link FunctionDefinitionNode} context.
@@ -51,8 +50,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (canCheckWithinFunctionSignature(context, node)) {
-            Predicate<Kind> predicate = providerKind -> providerKind == Kind.OTHER;
-            return CompletionUtil.route(context, node.functionSignature(), predicate);
+            return CompletionUtil.route(context, node.functionSignature());
         }
         if (node.functionKeyword().isMissing()) {
             /*

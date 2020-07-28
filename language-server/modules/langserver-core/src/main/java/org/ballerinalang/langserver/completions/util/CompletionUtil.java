@@ -53,7 +53,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 /**
  * Common utility methods for the completion operation.
@@ -83,11 +82,8 @@ public class CompletionUtil {
             throws WorkspaceDocumentException, LSCompletionException {
         fillTokenInfoAtCursor(ctx);
         NonTerminalNode nodeAtCursor = ctx.get(CompletionKeys.NODE_AT_CURSOR_KEY);
-        Predicate<CompletionProvider.Kind> predicate = providerKind
-                -> providerKind == CompletionProvider.Kind.MODULE_MEMBER
-                || providerKind == CompletionProvider.Kind.STATEMENT;
 
-        List<LSCompletionItem> items = route(ctx, nodeAtCursor, predicate);
+        List<LSCompletionItem> items = route(ctx, nodeAtCursor);
         return getPreparedCompletionItems(ctx, items);
     }
 
@@ -97,7 +93,7 @@ public class CompletionUtil {
      * @param node node to evaluate
      * @return {@link Optional} provider which resolved
      */
-    public static List<LSCompletionItem> route(LSContext ctx, Node node, Predicate<CompletionProvider.Kind> predicate)
+    public static List<LSCompletionItem> route(LSContext ctx, Node node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         if (node == null) {
@@ -109,7 +105,7 @@ public class CompletionUtil {
 
         while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null && predicate.test(provider.getKind())) {
+            if (provider != null) {
                 break;
             }
             reference = reference.parent();

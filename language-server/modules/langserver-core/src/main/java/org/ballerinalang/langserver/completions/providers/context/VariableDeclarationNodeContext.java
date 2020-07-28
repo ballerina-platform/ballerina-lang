@@ -90,8 +90,7 @@ public class VariableDeclarationNodeContext extends AbstractCompletionProvider<V
                         i<cursor>
                     }
                  */
-                Predicate<Kind> predicate = providerKind -> providerKind == Kind.OTHER;
-                completionItems.addAll(CompletionUtil.route(context, node.parent(), predicate));
+                completionItems.addAll(CompletionUtil.route(context, node.parent()));
             }
         } else if (this.onQualifiedNameIdentifier(context, node.initializer().get())) {
             /*
