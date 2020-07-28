@@ -21,7 +21,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.eclipse.lsp4j.Command;
@@ -58,7 +57,7 @@ public final class BFunctionCompletionItemBuilder {
      * @param bSymbol    BSymbol or null
      * @param label      label
      * @param insertText insert text
-     * @param context {@link LSContext}
+     * @param context    {@link LSContext}
      * @return {@link CompletionItem}
      */
     public static CompletionItem build(BInvokableSymbol bSymbol, String label, String insertText, LSContext context) {
@@ -89,10 +88,10 @@ public final class BFunctionCompletionItemBuilder {
         }
         return item;
     }
-    
+
     public static CompletionItem build(BObjectTypeSymbol objectTypeSymbol, InitializerBuildMode mode, LSContext ctx) {
         BInvokableSymbol invokableSymbol = objectTypeSymbol.initializerFunc == null
-                ? null :objectTypeSymbol.initializerFunc.symbol;
+                ? null : objectTypeSymbol.initializerFunc.symbol;
         CompletionItem item = new CompletionItem();
         setMeta(item, invokableSymbol, ctx);
         String functionName;
@@ -105,7 +104,7 @@ public final class BFunctionCompletionItemBuilder {
                 functionName, ctx);
         item.setInsertText(functionSignature.getLeft());
         item.setLabel(functionSignature.getRight());
-        
+
         return item;
     }
 
@@ -188,7 +187,12 @@ public final class BFunctionCompletionItemBuilder {
 
         return Either.forRight(docMarkupContent);
     }
-    
+
+    /**
+     * Build mode, either explicit or implicit initializer.
+     * 
+     * @since 2.0.0
+     */
     public enum InitializerBuildMode {
         EXPLICIT,
         IMPLICIT

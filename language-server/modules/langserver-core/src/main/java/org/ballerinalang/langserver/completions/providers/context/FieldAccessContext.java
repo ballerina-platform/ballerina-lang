@@ -45,8 +45,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Generic Completion provider for field access providers.
+ * eg: Optional Field access and Field Access
  *
+ * @param <T> Field access node type
  * @since 2.0.0
  */
 public abstract class FieldAccessContext<T extends Node> extends AbstractCompletionProvider<T> {
@@ -54,9 +56,25 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         super(kind);
     }
 
-    protected List<Scope.ScopeEntry> getEntries(LSContext ctx, List<Scope.ScopeEntry> baseEntries, ExpressionNode expr) {
+    /**
+     * Get the entries for the given field access expression.
+     * This particular logic is written in order to capture the chain completion usage as well.
+     *
+     * @param ctx         language server operation context
+     * @param baseEntries base entries to start the field/ entry search
+     * @param expr        expression node to evaluate
+     * @return {@link List} of filtered scope entries
+     */
+    protected List<Scope.ScopeEntry> getEntries(LSContext ctx,
+                                                List<Scope.ScopeEntry> baseEntries,
+                                                ExpressionNode expr) {
         switch (expr.kind()) {
             case SIMPLE_NAME_REFERENCE:
+                /*
+                Captures the following
+                (1) fieldName.<cursor>
+                (2) fieldName.t<cursor>
+                 */
                 String name = ((SimpleNameReferenceNode) expr).name().text();
                 return baseEntries.stream()
                         .filter(scopeEntry -> scopeEntry.symbol.getName().getValue().equals(name))
@@ -64,6 +82,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                         .map(scopeEntry -> this.getEntriesForSymbol(name, scopeEntry.symbol.type, ctx))
                         .orElseGet(ArrayList::new);
             case FUNCTION_CALL:
+                /*
+                Captures the following
+                (1) functionName().<cursor>
+                (2) functionName().t<cursor>
+                 */
                 String fName = ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) expr)
                         .functionName()).name().text();
                 return baseEntries.stream()
@@ -72,6 +95,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                         .map(entry -> this.getEntriesForSymbol(fName, ((BInvokableSymbol) entry.symbol).retType, ctx))
                         .orElseGet(ArrayList::new);
             case METHOD_CALL: {
+                /*
+                Address the following
+                (1) test.testMethod().<cursor>
+                (2) test.testMethod().t<cursor>
+                 */
                 List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
                         ((MethodCallExpressionNode) expr).expression());
                 String mName = ((SimpleNameReferenceNode) ((MethodCallExpressionNode) expr)
@@ -83,6 +111,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                         .orElseGet(ArrayList::new);
             }
             case FIELD_ACCESS: {
+                /*
+                Address the following
+                (1) test1.test2.<cursor>
+                (2) test1.test2.t<cursor>
+                 */
                 List<Scope.ScopeEntry> filtered = this.getEntries(ctx, baseEntries,
                         ((FieldAccessExpressionNode) expr).expression());
                 String field = ((SimpleNameReferenceNode) ((FieldAccessExpressionNode) expr).fieldName()).name().text();
@@ -139,5 +172,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Whether to remove the optional fields during the record fields filtering phase.
+     *
+     * @return {@link Boolean} optional field removal status
+     */
     protected abstract boolean removeOptionalFields();
 }

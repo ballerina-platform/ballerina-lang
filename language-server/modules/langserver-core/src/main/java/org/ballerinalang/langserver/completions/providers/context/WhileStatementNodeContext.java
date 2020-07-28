@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link WhileStatementNode} context.
  *
  * @since 2.0.0
  */

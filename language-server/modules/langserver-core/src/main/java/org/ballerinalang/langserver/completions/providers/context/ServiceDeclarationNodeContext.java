@@ -15,12 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -36,6 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Completion provider for {@link ServiceDeclarationNode} context.
+ *
+ * @since 2.0.0
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<ServiceDeclarationNode> {
 
@@ -63,7 +66,7 @@ public class ServiceDeclarationNodeContext extends AbstractCompletionProvider<Se
             completionItems.addAll(this.getCompletionItemList(listeners, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_NEW.get()));
         }
-        
+
         return completionItems;
     }
 }

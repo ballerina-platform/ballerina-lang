@@ -17,50 +17,30 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
-import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
- * Completion Item Resolver for the Implicit new expression.
+ * Completion provider for {@link ImplicitNewExpressionNode} context.
  *
  * @since 2.0.0
  */

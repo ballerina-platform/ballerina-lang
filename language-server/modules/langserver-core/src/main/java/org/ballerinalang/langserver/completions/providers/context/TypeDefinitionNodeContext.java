@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles completion within the type definition context.
+ * Completion Provider for {@link TypeDefinitionNode} context.
  *
  * @since 2.0.0
  */

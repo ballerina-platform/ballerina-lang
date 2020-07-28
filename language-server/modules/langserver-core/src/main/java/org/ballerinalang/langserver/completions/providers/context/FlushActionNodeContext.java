@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the function body context completions.
+ * Completion Provider for {@link FlushActionNode} context.
  *
  * @since 2.0.0
  */

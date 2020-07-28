@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link SyncSendActionNode} context.
  *
  * @since 2.0.0
  */
@@ -50,7 +50,7 @@ public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSe
         List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
                 .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
                 .collect(Collectors.toList());
-        
+
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
 

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Handles the completions for {@link AssignmentStatementNode} context.
  *
  * @since 2.0.0
  */

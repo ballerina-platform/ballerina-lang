@@ -18,37 +18,25 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.ExplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ImplicitNewExpressionNode;
-import io.ballerinalang.compiler.syntax.tree.ListenerDeclarationNode;
-import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.QualifiedNameReferenceNode;
-import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- * Completion Item Resolver for the Implicit new expression.
+ * Completion provider for {@link ExplicitNewExpressionNode} context.
  *
  * @since 2.0.0
  */
@@ -69,7 +57,7 @@ public class ExplicitNewExpressionNodeContext extends AbstractCompletionProvider
     public List<LSCompletionItem> getCompletions(LSContext context, ExplicitNewExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         TypeDescriptorNode typeDescriptor = node.typeDescriptor();
-        
+
         if (typeDescriptor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
             List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
             /*

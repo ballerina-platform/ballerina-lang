@@ -20,9 +20,7 @@ import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import java.util.ServiceLoader;
-import java.util.function.Predicate;
 
 /**
  * Loads and provides the Completion Providers.

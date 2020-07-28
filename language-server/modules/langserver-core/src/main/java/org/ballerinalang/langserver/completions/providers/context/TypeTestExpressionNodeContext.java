@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion provider for {@link TypeTestExpressionNode} context.
  *
  * @since 2.0.0
  */
@@ -55,7 +55,7 @@ public class TypeTestExpressionNodeContext extends AbstractCompletionProvider<Ty
             completionItems.addAll(this.getTypeItems(context));
             completionItems.addAll(this.getPackagesCompletionItems(context));
         }
-        
+
         return completionItems;
     }
 }

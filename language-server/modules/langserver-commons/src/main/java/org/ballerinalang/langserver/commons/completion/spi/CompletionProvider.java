@@ -28,7 +28,8 @@ import java.util.Optional;
 
 /**
  * Interface for completion item providers.
- *
+ * 
+ * @param <T> generic syntax tree node
  * @since 1.2.0
  */
 public interface CompletionProvider<T extends Node> {

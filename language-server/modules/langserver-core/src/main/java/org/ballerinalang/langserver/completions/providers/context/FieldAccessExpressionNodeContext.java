@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion Provider for {@link FieldAccessExpressionNode} context.
  *
  * @since 2.0.0
  */

@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FilterUtils;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -42,15 +41,16 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Parent completion provider for Right arrow action nodes.
  *
+ * @param <T> Action node type
  * @since 2.0.0
  */
 public class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
     public RightArrowActionNodeContext(Kind kind) {
         super(kind);
     }
-    
+
     protected List<LSCompletionItem> getFilteredItems(LSContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -68,8 +68,8 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
                     BSymbol symbol = scopeEntry.symbol;
                     return symbol instanceof BInvokableSymbol && !(symbol instanceof BOperatorSymbol)
                             && symbol.getName().getValue()
-                            .equals(((SimpleNameReferenceNode)((FunctionCallExpressionNode) node)
-                            .functionName()).name().text());
+                            .equals(((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
+                                    .functionName()).name().text());
                 };
                 break;
             default:
@@ -77,7 +77,7 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
         }
 
         Optional<Scope.ScopeEntry> filteredEntry = visibleSymbols.stream().filter(predicate).findAny();
-        
+
         if (!filteredEntry.isPresent()) {
             return completionItems;
         }
@@ -100,7 +100,7 @@ public class RightArrowActionNodeContext<T extends Node> extends AbstractComplet
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
         }
-        
+
         return completionItems;
     }
 }

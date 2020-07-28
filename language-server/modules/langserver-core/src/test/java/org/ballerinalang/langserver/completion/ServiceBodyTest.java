@@ -19,6 +19,11 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+/**
+ * Service Body Context tests.
+ *
+ * @since 2.0.0
+ */
 public class ServiceBodyTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion provider for {@link CheckExpressionNode} context.
  *
  * @since 2.0.0
  */

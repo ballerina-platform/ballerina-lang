@@ -16,29 +16,16 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.BlockStatementNode;
-import io.ballerinalang.compiler.syntax.tree.FunctionBodyBlockNode;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
- * Handles the function body context completions.
- * 
+ * Completion provider for {@link BlockStatementNode} context.
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
@@ -47,7 +34,7 @@ public class BlockStatementNodeContext extends BlockNodeContextProvider<BlockSta
         super(Kind.OTHER);
         this.attachmentPoints.add(BlockStatementNode.class);
     }
-    
+
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, BlockStatementNode node)
             throws LSCompletionException {

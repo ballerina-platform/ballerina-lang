@@ -16,11 +16,9 @@
 package org.ballerinalang.langserver.completions.util;
 
 import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
-import io.ballerinalang.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.syntax.tree.Token;
@@ -109,9 +107,9 @@ public class CompletionUtil {
         Node reference = node;
         CompletionProvider<Node> provider = null;
 
-        while ((reference != null) || (provider != null && !predicate.test(provider.getKind()))) {
+        while ((reference != null)) {
             provider = providers.get(reference.getClass());
-            if (provider != null) {
+            if (provider != null && predicate.test(provider.getKind())) {
                 break;
             }
             reference = reference.parent();
@@ -142,16 +140,6 @@ public class CompletionUtil {
         }
 
         return completionItems;
-    }
-
-    /**
-     * Check whether the token stream corresponds to a action invocation or a function invocation.
-     *
-     * @param context Completion operation context
-     */
-    @Deprecated
-    private static void setInvocationOrInteractionOrFieldAccessToken(LSContext context) {
-
     }
 
     /**

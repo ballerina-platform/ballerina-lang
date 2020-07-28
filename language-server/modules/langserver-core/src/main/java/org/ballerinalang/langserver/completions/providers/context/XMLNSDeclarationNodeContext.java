@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link XMLNamespaceDeclarationNode} context.
  *
  * @since 2.0.0
  */
@@ -46,7 +46,7 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
         if (node.asKeyword() == null || node.asKeyword().isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
-        
+
         return completionItems;
     }
 }

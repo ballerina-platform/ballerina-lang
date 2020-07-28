@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -34,8 +33,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Handles the function body context completions.
- * 
+ * Completion provider for {@link FunctionSignatureNode} context.
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
@@ -44,12 +43,12 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         super(Kind.OTHER);
         this.attachmentPoints.add(FunctionSignatureNode.class);
     }
-    
+
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, FunctionSignatureNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+
         if (withinReturnTypeDescContext(context, node)) {
             if (!node.returnTypeDesc().isPresent()) {
                 /*
@@ -68,11 +67,11 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         }
         return completionItems;
     }
-    
+
     private boolean withinReturnTypeDescContext(LSContext context, FunctionSignatureNode node) {
         Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         LinePosition closeParanPosition = node.closeParenToken().lineRange().endLine();
-        
+
         return (closeParanPosition.line() == cursor.getLine() && closeParanPosition.offset() < cursor.getCharacter())
                 || closeParanPosition.line() < cursor.getLine();
     }

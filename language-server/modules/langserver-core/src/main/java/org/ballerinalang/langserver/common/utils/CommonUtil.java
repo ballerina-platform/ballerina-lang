@@ -19,7 +19,6 @@ import com.google.common.collect.Lists;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -276,7 +275,7 @@ public class CommonUtil {
      * @return {@link LSCompletionItem} Completion item for the annotation
      */
     public static LSCompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol,
-                                                               LSContext ctx, CommonToken pkgAlias,
+                                                               LSContext ctx, String pkgAlias,
                                                                Map<String, String> pkgAliasMap) {
         PackageID currentPkgID = ctx.get(DocumentServiceKeys.CURRENT_PACKAGE_ID_KEY);
         String currentProjectOrgName = currentPkgID == null ? "" : currentPkgID.orgName.value;
@@ -321,7 +320,7 @@ public class CommonUtil {
         // if the particular import statement not available we add the additional text edit to auto import
         if (!pkgImport.isPresent() && !isLangLib(packageID)) {
             annotationItem.setAdditionalTextEdits(getAutoImportTextEdits(packageID.orgName.getValue(),
-                                                                         packageID.name.getValue(), ctx));
+                    packageID.name.getValue(), ctx));
         }
         return new SymbolCompletionItem(ctx, annotationSymbol, annotationItem);
     }
@@ -577,7 +576,7 @@ public class CommonUtil {
 
     /**
      * Get the completion Item for the error type.
-     * 
+     *
      * @param context LS Operation context
      * @return {@link LSCompletionItem} generated for error type
      */
@@ -588,7 +587,7 @@ public class CommonUtil {
         errorTypeCItem.setDetail(ItemResolverConstants.ERROR);
         errorTypeCItem.setInsertTextFormat(InsertTextFormat.Snippet);
         errorTypeCItem.setKind(CompletionItemKind.Event);
-        
+
         return new StaticCompletionItem(context, errorTypeCItem);
     }
 
@@ -720,7 +719,7 @@ public class CommonUtil {
     private static String getArrayTypeName(BArrayType arrayType, LSContext ctx, boolean doSimplify) {
         return getBTypeName(arrayType.eType, ctx, doSimplify) + "[]";
     }
-    
+
     private static boolean isLangLib(PackageID packageID) {
         return packageID.getOrgName().getValue().equals("ballerina")
                 && packageID.getName().getValue().startsWith("lang.");
@@ -879,8 +878,8 @@ public class CommonUtil {
         String relativeFilePath = ctx.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
         BLangCompilationUnit filteredCUnit = pkgNode.compUnits.stream()
                 .filter(cUnit ->
-                                cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
-                                        .equals(relativeFilePath))
+                        cUnit.getPosition().getSource().cUnitName.replace("/", FILE_SEPARATOR)
+                                .equals(relativeFilePath))
                 .findAny().orElse(null);
         List<TopLevelNode> topLevelNodes = filteredCUnit == null
                 ? new ArrayList<>()
@@ -1317,7 +1316,7 @@ public class CommonUtil {
      * When showing a lang lib invokable symbol over DOT(invocation) we do not show the first param, but when we
      * showing the invocation over package of the langlib with the COLON we show the first param
      *
-     * @param context  context
+     * @param context         context
      * @param invokableSymbol invokable symbol
      * @return {@link Boolean} whether we show the first param or not
      */

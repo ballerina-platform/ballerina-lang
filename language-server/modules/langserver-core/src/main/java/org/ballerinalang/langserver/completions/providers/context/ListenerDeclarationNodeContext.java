@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.Position;
@@ -47,9 +46,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+/**
+ * Completion provider for {@link ListenerDeclarationNode} context.
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<ListenerDeclarationNode> {
 

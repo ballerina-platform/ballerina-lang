@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link ReturnTypeDescriptorNode} context.
  *
  * @since 2.0.0
  */
@@ -48,7 +48,7 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
     public List<LSCompletionItem> getCompletions(LSContext context, ReturnTypeDescriptorNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+
         if (node.type().kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
                 && withinIdentifierContext(context, (QualifiedNameReferenceNode) node.type())) {
             /*
@@ -76,11 +76,11 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
 
         return completionItems;
     }
-    
+
     private boolean withinIdentifierContext(LSContext context, QualifiedNameReferenceNode node) {
         LineRange colonLineRange = node.colon().lineRange();
         Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        
+
         return colonLineRange.endLine().line() == cursor.getLine()
                 && colonLineRange.endLine().offset() <= cursor.getCharacter();
     }

@@ -20,24 +20,21 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the function body context completions.
- * 
+ * Handles the completions for the {@link AsyncSendActionNode}.
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class AsyncSendActionNodeContext extends RightArrowActionNodeContext<AsyncSendActionNode> {
     public AsyncSendActionNodeContext() {
-        super(Kind.MODULE_MEMBER);
+        super(Kind.EXPRESSION);
         this.attachmentPoints.add(AsyncSendActionNode.class);
     }
-    
+
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, AsyncSendActionNode node)
             throws LSCompletionException {

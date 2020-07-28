@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.Node;
@@ -25,6 +40,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * Generic completion resolver for the Block Nodes.
+ *
+ * @param <T> block node type
+ * @since 2.0.0
+ */
 public class BlockNodeContextProvider<T extends Node> extends AbstractCompletionProvider<T> {
     public BlockNodeContextProvider(Kind kind) {
         super(kind);
@@ -38,7 +59,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.addAll(this.getPackagesCompletionItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getSymbolCompletions(context));
-        
+
         return completionItems;
     }
 
@@ -76,9 +97,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
     protected List<LSCompletionItem> getStatementCompletionItems(LSContext context, T node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+
         boolean withinLoop = this.withinLoopConstructs(node);
-        
+
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_IF.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_WHILE.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
@@ -121,17 +142,17 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
         return completionItems;
     }
-    
+
     private boolean withinLoopConstructs(T node) {
         Node evalNode = node;
         boolean withinLoops = false;
-        
+
         while (!withinLoops && evalNode.kind() != SyntaxKind.MODULE_PART) {
             withinLoops = (evalNode.kind() == SyntaxKind.WHILE_STATEMENT)
                     || (evalNode.kind() == SyntaxKind.FOREACH_STATEMENT);
             evalNode = evalNode.parent();
         }
-        
+
         return withinLoops;
     }
 

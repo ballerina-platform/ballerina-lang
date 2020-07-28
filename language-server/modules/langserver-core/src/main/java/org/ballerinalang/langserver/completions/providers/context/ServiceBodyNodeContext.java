@@ -27,6 +27,11 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Completion provider for {@link ServiceBodyNode} context.
+ *
+ * @since 2.0.0
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBodyNode> {
 
@@ -42,7 +47,7 @@ public class ServiceBodyNodeContext extends AbstractCompletionProvider<ServiceBo
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RESOURCE.get()));
         completionItems.addAll(this.getResourceSnippets(context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_FUNCTION.get()));
-        
+
         return completionItems;
     }
 }

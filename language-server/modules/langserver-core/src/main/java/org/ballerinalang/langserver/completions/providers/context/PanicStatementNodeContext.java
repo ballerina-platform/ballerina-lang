@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion provider for {@link PanicStatementNode} context.
  *
  * @since 2.0.0
  */

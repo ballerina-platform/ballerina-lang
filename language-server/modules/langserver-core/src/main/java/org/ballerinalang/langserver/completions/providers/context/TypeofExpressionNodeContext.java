@@ -22,11 +22,10 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion Provider for {@link TypeofExpressionNode} context.
  *
  * @since 2.0.0
  */

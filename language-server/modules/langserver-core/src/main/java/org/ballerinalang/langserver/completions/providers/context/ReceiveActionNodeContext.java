@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.ReceiveActionNode;
-import io.ballerinalang.compiler.syntax.tree.SyncSendActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
@@ -33,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link ReceiveActionNode}.
  *
  * @since 2.0.0
  */
@@ -52,7 +51,7 @@ public class ReceiveActionNodeContext extends AbstractCompletionProvider<Receive
         List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
                 .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
                 .collect(Collectors.toList());
-        
+
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
 

@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.hover;
 
 import org.ballerinalang.langserver.common.constants.ContextConstants;
-import org.ballerinalang.langserver.common.constants.NodeContextKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.elements.Flag;

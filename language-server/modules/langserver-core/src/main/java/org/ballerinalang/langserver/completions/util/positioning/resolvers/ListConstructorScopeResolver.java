@@ -18,14 +18,13 @@ package org.ballerinalang.langserver.completions.util.positioning.resolvers;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.langserver.completions.util.CompletionVisitorUtil;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
  * List Constructor scope position resolver.
- * 
+ *
  * @since 2.0.0
  */
 public class ListConstructorScopeResolver extends CursorPositionResolver {

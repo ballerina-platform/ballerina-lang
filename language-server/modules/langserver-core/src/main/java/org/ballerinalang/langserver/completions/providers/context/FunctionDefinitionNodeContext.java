@@ -17,15 +17,12 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionSignatureNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
@@ -37,8 +34,8 @@ import java.util.List;
 import java.util.function.Predicate;
 
 /**
- * Handles the function body context completions.
- * 
+ * Completion provider for {@link FunctionDefinitionNode} context.
+ *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
@@ -47,12 +44,12 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         super(Kind.MODULE_MEMBER);
         this.attachmentPoints.add(FunctionDefinitionNode.class);
     }
-    
+
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, FunctionDefinitionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+
         if (canCheckWithinFunctionSignature(context, node)) {
             Predicate<Kind> predicate = providerKind -> providerKind == Kind.OTHER;
             return CompletionUtil.route(context, node.functionSignature(), predicate);
@@ -68,7 +65,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         }
         return completionItems;
     }
-    
+
     private boolean canCheckWithinFunctionSignature(LSContext context, FunctionDefinitionNode node) {
         FunctionSignatureNode functionSignatureNode = node.functionSignature();
         if (functionSignatureNode.isMissing()) {
@@ -76,7 +73,7 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
         }
         LinePosition signatureEndLine = functionSignatureNode.lineRange().endLine();
         Position cursor = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        
+
         return (signatureEndLine.line() == cursor.getLine() && signatureEndLine.offset() < cursor.getCharacter())
                 || signatureEndLine.line() < cursor.getLine();
     }

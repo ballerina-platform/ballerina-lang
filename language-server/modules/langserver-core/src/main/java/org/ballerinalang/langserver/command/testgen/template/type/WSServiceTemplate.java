@@ -21,7 +21,6 @@ import org.ballerinalang.langserver.command.testgen.renderer.TemplateBasedRender
 import org.ballerinalang.langserver.command.testgen.template.AbstractTestTemplate;
 import org.ballerinalang.langserver.command.testgen.template.PlaceHolder;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
@@ -37,6 +36,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  *
  * @since 0.985.0
  */
+@Deprecated
 public class WSServiceTemplate extends AbstractTestTemplate {
     private final String serviceUri;
     private final boolean isSecure;
@@ -60,12 +60,12 @@ public class WSServiceTemplate extends AbstractTestTemplate {
         String serviceBasePath = "/" + service.name.value;
 
         // If service base path overridden by annotations
-        for (BLangAnnotationAttachment annotation : service.annAttachments) {
+//        for (BLangAnnotationAttachment annotation : service.annAttachments) {
 //            Optional<String> optionalPath = searchStringField(WebSocketConstants.ANNOTATION_ATTR_PATH.getValue(),
 //                                                              annotation);
-            Optional<String> optionalPath = Optional.empty();
-            serviceBasePath = optionalPath.orElse("");
-        }
+//            Optional<String> optionalPath = Optional.empty();
+//            serviceBasePath = optionalPath.orElse("");
+//        }
         String serviceName = upperCaseFirstLetter(service.name.value);
         this.serviceUriStrName = getSafeName(lowerCaseFirstLetter(service.name.value) + "Uri");
         this.serviceChannelName = getSafeName(lowerCaseFirstLetter(service.name.value) + "Reply");

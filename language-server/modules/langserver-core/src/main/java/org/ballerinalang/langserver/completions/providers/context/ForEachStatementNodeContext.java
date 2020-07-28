@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -30,13 +29,12 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the function body context completions.
+ * Completion provider for {@link ForEachStatementNode} context.
  *
  * @since 2.0.0
  */

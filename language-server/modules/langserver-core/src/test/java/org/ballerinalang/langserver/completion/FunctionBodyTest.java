@@ -19,6 +19,11 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+/**
+ * Function Body Context tests.
+ *
+ * @since 2.0.0
+ */
 public class FunctionBodyTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override
@@ -29,11 +34,11 @@ public class FunctionBodyTest extends CompletionTestNew {
     @Override
     public Object[][] testSubset() {
          // Enable the following in order to test a subset of test cases
-          return new Object[][] {
-                  {"config1.json", this.getTestResourceDir()},
-                  {"config2.json", this.getTestResourceDir()},
-          };
-//        return new Object[0][];
+//          return new Object[][] {
+//                  {"config1.json", this.getTestResourceDir()},
+//                  {"config2.json", this.getTestResourceDir()},
+//          };
+        return new Object[0][];
     }
 
     @Override

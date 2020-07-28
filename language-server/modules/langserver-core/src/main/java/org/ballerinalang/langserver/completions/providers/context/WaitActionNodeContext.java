@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
-import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.WaitActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -34,7 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion provider for {@link WaitActionNode} context.
  *
  * @since 2.0.0
  */
@@ -49,7 +48,7 @@ public class WaitActionNodeContext extends AbstractCompletionProvider<WaitAction
     public List<LSCompletionItem> getCompletions(LSContext context, WaitActionNode node)
             throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+
         if (!node.waitFutureExpr().isMissing() && node.waitFutureExpr().kind() == SyntaxKind.BINARY_EXPRESSION) {
             /*
             Covers the following,

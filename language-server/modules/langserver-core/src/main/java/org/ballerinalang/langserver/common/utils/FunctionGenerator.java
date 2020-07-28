@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.common.utils;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;

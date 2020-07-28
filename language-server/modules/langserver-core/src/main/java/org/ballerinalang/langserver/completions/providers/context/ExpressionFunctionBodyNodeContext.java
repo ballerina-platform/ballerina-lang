@@ -16,20 +16,17 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerinalang.compiler.syntax.tree.ExpressionFunctionBodyNode;
-import io.ballerinalang.compiler.syntax.tree.ExternalFunctionBodyNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Handles the expression function body node context completions.
+ * Completion Provider for {@link ExpressionFunctionBodyNode} context.
  *
  * @since 2.0.0
  */
@@ -39,7 +36,7 @@ public class ExpressionFunctionBodyNodeContext extends AbstractCompletionProvide
         super(Kind.OTHER);
         this.attachmentPoints.add(ExpressionFunctionBodyNode.class);
     }
-    
+
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context, ExpressionFunctionBodyNode node)
             throws LSCompletionException {

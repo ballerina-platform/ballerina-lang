@@ -58,7 +58,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Handles the completions within the variable declaration node context/
+ * Completion provider for {@link MappingConstructorExpressionNode} context.
  *
  * @since 2.0.0
  */

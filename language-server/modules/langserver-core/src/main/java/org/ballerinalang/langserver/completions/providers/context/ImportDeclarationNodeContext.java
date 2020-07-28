@@ -20,17 +20,13 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.IdentifierToken;
 import io.ballerinalang.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocument;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -44,9 +40,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Completion Item Resolver for the Package name context.
- * 
- * @since  2.0.0
+ * Completion provider for {@link ImportDeclarationNode} context.
+ *
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ImportDeclarationNodeContext extends AbstractCompletionProvider<ImportDeclarationNode> {
@@ -81,7 +77,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 //            }
 //            moduleNameJoiner.add(nameComponent.text());
 //        }
-        
+
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<BallerinaPackage> packagesList = new ArrayList<>();
         Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
@@ -189,7 +185,7 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
 
         return new StaticCompletionItem(context, item);
     }
-    
+
     private static boolean withinVersionAndPrefix(LSContext context, ImportDeclarationNode node) {
         SeparatedNodeList<IdentifierToken> moduleName = node.moduleName();
         if (moduleName.isEmpty()) {

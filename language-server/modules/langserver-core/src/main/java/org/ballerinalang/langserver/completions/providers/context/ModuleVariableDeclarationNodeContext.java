@@ -32,6 +32,11 @@ import org.eclipse.lsp4j.Position;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Completion provider for {@link ModuleVariableDeclarationNode} context.
+ *
+ * @since 2.0.0
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ModuleVariableDeclarationNodeContext extends AbstractCompletionProvider<ModuleVariableDeclarationNode> {
     public ModuleVariableDeclarationNodeContext() {

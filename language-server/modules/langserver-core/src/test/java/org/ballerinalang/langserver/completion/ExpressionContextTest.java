@@ -19,6 +19,11 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
+/**
+ * Expression Context tests.
+ * 
+ * @since 2.0.0
+ */
 public class ExpressionContextTest extends CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     @Override

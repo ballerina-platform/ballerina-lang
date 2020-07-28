@@ -19,7 +19,6 @@ import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -27,6 +26,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Completion provider for {@link ModulePartNode} context.
+ *
+ * @since 2.0.0
+ */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePartNode> {
 

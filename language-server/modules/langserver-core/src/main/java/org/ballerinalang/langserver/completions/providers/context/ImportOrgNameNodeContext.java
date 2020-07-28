@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerinalang.compiler.syntax.tree.ImportOrgNameNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
@@ -36,7 +35,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 /**
- * Completion Item Resolver for the Package name context.
+ * Completion provider for {@link ImportOrgNameNode} context.
+ *
+ * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.CompletionProvider")
 public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportOrgNameNode> {
@@ -65,7 +66,7 @@ public class ImportOrgNameNodeContext extends AbstractCompletionProvider<ImportO
         return new ArrayList<>(moduleNameContextCompletions(ctx, orgName, packagesList));
     }
 
-    // TODO: Remove the duplicate code with the ImportDeclarationNodeContext.java
+    // TODO: Remove the duplicate code with the ImportDeclarationNodeContext
     private String getLangLibModuleNameInsertText(String pkgName) {
         return pkgName.replace(".", ".'") + ";";
     }

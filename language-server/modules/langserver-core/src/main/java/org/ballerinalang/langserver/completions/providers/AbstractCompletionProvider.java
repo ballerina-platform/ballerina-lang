@@ -50,7 +50,6 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.DelimiterBasedContentFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.model.ScopeEntry;
 import org.ballerinalang.model.types.TypeKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
@@ -91,7 +90,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -102,6 +100,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.getFunctionIn
 /**
  * Interface for completion item providers.
  *
+ * @param <T> Provider's node type
  * @since 0.995.0
  */
 public abstract class AbstractCompletionProvider<T extends Node> implements CompletionProvider<T> {
@@ -296,7 +295,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     /**
-     * Filter all the types in the Module
+     * Filter all the types in the Module.
      *
      * @param moduleSymbol package symbol
      * @return {@link List} list of filtered type entries
@@ -304,7 +303,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     protected List<Scope.ScopeEntry> filterTypesInModule(BSymbol moduleSymbol) {
         return moduleSymbol.scope.entries.values().stream()
                 .filter(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol
-                        || (scopeEntry.symbol instanceof BConstructorSymbol 
+                        || (scopeEntry.symbol instanceof BConstructorSymbol
                         && Names.ERROR.equals(scopeEntry.symbol.name)))
                 .collect(Collectors.toList());
     }
@@ -1118,7 +1117,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Comp
     }
 
     protected List<LSCompletionItem> actionKWCompletions(LSContext context) {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         /*
         Add the start keywords of the following actions.
         start, wait, flush, check, check panic, trap, query action (query pipeline starts with from keyword)
