@@ -15688,7 +15688,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseStatementStartBracketedListMember(solution.tokenKind);
+                return parseTupleTypeDescOrListConstructorMember(solution.tokenKind, annots);
         }
     }
 
