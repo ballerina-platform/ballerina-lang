@@ -72,15 +72,31 @@ dependencies {
 jar.archiveName("${project.name}-${project.version}.jar")
 
 task updateVersion {
+    ant.copy(
+            file: "${projectDir}/src/main/ballerina/Ballerina.toml",
+            tofile: "${projectDir}/src/main/ballerina/Ballerina.toml.template",
+            overwrite: 'true',
+            force: 'true'
+    )
     ant.replaceregexp(
             file: "${projectDir}/src/main/ballerina/Ballerina.toml",
             match: "${project.name}-(.*).jar",
             replace: "${project.name}-${project.version}.jar"
     )
 }
+
 createBalo {
     dependsOn "updateVersion"
     jvmTarget = 'true'
+
+    doLast {
+        ant.move(
+                file: "${projectDir}/src/main/ballerina/Ballerina.toml.template",
+                tofile: "${projectDir}/src/main/ballerina/Ballerina.toml",
+                overwrite: 'true',
+                force: 'true'
+        )
+    }
 }
 
 description = 'Ballerina - Testerina - Core'
