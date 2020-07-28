@@ -4650,8 +4650,8 @@ public class BallerinaParser extends AbstractParser {
             return parseExpressionRhsInternal(binaryOpKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
                     isInMatchGuard, isInConditionalExpr);
         } else {
-            return parseExpressionRhsInternal(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr, allowActions,
-                    isInMatchGuard, isInConditionalExpr);
+            return parseExpressionRhsInternal(solution.tokenKind, currentPrecedenceLevel, lhsExpr, isRhsExpr,
+                    allowActions, isInMatchGuard, isInConditionalExpr);
         }
     }
 
