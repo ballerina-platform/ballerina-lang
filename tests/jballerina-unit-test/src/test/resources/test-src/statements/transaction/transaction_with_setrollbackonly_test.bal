@@ -14,8 +14,8 @@ function testSetRollbackOnly() returns error? {
         check commit;
         str += " commit";
     }
-
-    assertEquality("In Trx setRollbackOnly", str);
+    str += " -> Trx exited";
+    assertEquality("In Trx -> Trx exited", str);
 }
 
 transactional function setRollbackOnlyError() {

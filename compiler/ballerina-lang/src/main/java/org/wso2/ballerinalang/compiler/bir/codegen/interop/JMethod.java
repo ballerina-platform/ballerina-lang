@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 
 /**
  * Represents a java method in this implementation.
@@ -77,7 +78,7 @@ class JMethod {
     String getName() {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return "<init>";
+            return JVM_INIT_METHOD;
         } else {
             return method.getName();
         }

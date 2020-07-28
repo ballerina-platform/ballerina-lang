@@ -121,9 +121,31 @@ public class TransactionStmtTest {
         Assert.assertEquals(result[0].stringValue(), "trxStarted -> trxCommited -> trxEnded.");
     }
 
+    @Test
+    public void testTransactionalInvoWithinMultiLevelFunc() {
+        BValue[] result = BRunUtil.invoke(programFile, "testTransactionalInvoWithinMultiLevelFunc");
+        Assert.assertEquals(result[0].stringValue(), "trxStarted -> within transactional func2 " +
+                "-> within transactional func1 -> trxEnded.");
+    }
+
+    @Test
+    public void testNewStrandWithTransactionalFunc() {
+        BRunUtil.invoke(programFile, "testNewStrandWithTransactionalFunc");
+    }
+
+    @Test
+    public void testRollbackWithBlockFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithBlockFailure");
+    }
+
+    @Test
+    public void testRollbackWithCommitFailure() {
+        BRunUtil.invoke(programFile, "testRollbackWithCommitFailure");
+    }
+
     @Test(description = "Test transaction statement with errors")
     public void testTransactionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 25);
+        Assert.assertEquals(resultNegative.getErrorCount(), 26);
         BAssertUtil.validateError(resultNegative, 0, "invalid transaction commit count",
                 6, 5);
         BAssertUtil.validateError(resultNegative, 1, "rollback not allowed here",
@@ -175,6 +197,8 @@ public class TransactionStmtTest {
                 "transactional scope is prohibited", 239, 34);
         BAssertUtil.validateError(resultNegative, 24, "invoking transactional function outside " +
                 "transactional scope is prohibited", 241, 17);
+        BAssertUtil.validateError(resultNegative, 25, "invoking transactional function outside " +
+                "transactional scope is prohibited", 274, 17);
     }
 
     @Test(description = "Test incompatible transaction handlers")

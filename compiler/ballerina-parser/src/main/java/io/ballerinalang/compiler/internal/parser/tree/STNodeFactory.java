@@ -2271,5 +2271,25 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 backtickContent,
                 endBacktick);
     }
+
+    public static STNode createOrderByClauseNode(
+            STNode orderKeyword,
+            STNode byKeyword,
+            STNode orderKey) {
+
+        return new STOrderByClauseNode(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    public static STNode createOrderKeyNode(
+            STNode expression,
+            STNode orderDirection) {
+
+        return new STOrderKeyNode(
+                expression,
+                orderDirection);
+    }
 }
 
