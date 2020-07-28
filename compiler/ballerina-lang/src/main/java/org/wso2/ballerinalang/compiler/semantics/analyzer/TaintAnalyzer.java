@@ -864,6 +864,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody.accept(this);
+        if (transactionNode.onFailClause != null) {
+            analyzeNode(transactionNode.onFailClause, env);
+        }
+
         overridingAnalysis = false;
         overridingAnalysis = true;
     }

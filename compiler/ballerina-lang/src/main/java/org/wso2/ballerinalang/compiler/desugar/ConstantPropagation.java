@@ -473,6 +473,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         transactionNode.transactionBody = rewrite(transactionNode.transactionBody);
+        transactionNode.onFailClause = rewrite(transactionNode.onFailClause);
         result = transactionNode;
     }
 

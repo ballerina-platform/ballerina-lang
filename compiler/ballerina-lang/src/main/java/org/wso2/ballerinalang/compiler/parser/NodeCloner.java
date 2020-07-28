@@ -741,6 +741,7 @@ public class NodeCloner extends BLangNodeVisitor {
 
         BLangTransaction clone = new BLangTransaction();
         source.cloneRef = clone;
+        clone.onFailClause = clone(source.onFailClause);
         clone.transactionBody = clone(source.transactionBody);
     }
 

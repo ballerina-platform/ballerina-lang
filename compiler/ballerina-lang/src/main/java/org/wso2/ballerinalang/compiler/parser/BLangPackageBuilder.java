@@ -3241,6 +3241,11 @@ public class BLangPackageBuilder {
         transaction.pos = pos;
         transaction.addWS(ws);
         transaction.setTransactionBody((BLangBlockStmt) this.blockNodeStack.pop());
+
+        if (onFailClauseNodeStack.size() > 0) {
+            transaction.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
+
         addStmtToCurrentBlock(transaction);
     }
 

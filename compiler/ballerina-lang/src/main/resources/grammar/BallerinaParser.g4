@@ -469,7 +469,7 @@ elseClause
     ;
 
 matchStatement
-    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+    :   MATCH  expression  LEFT_BRACE matchPatternClause+ RIGHT_BRACE onFailClause?
     ;
 
 matchPatternClause
@@ -619,7 +619,7 @@ intRangeExpression
     ;
 
 whileStatement
-    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
+    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 continueStatement
@@ -778,7 +778,7 @@ expressionStmt
     ;
 
 transactionStatement
-    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE
+    :   TRANSACTION LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 rollbackStatement
@@ -786,7 +786,7 @@ rollbackStatement
     ;
 
 lockStatement
-    :   LOCK LEFT_BRACE statement* RIGHT_BRACE
+    :   LOCK LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 retrySpec
@@ -794,7 +794,7 @@ retrySpec
     ;
 
 retryStatement
-    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE
+    :   RETRY retrySpec LEFT_BRACE statement* RIGHT_BRACE onFailClause?
     ;
 
 retryTransactionStatement
