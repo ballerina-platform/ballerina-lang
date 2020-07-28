@@ -3138,13 +3138,39 @@ public class BallerinaParser extends AbstractParser {
         STNode bodyStartDelimiter = parseRecordBodyStartDelimiter();
 
         boolean isInclusive = bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN;
-        STNode fields = parseFieldDescriptors(isInclusive);
+
+        ArrayList<STNode> recordFields = new ArrayList<>();
+        STToken token = peek();
+        STNode recordRestDescriptor = null;
+        while (!isEndOfRecordTypeNode(token.kind)) {
+            STNode field = parseFieldOrRestDescriptor(isInclusive);
+            if (field == null) {
+                break;
+            }
+            token = peek();
+            if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
+                recordRestDescriptor = field;
+                break;
+            }
+            recordFields.add(field);
+        }
+
+        // Following loop will only run if there are more fields after the rest type descriptor.
+        // Try to parse them and mark as invalid.
+        while (recordRestDescriptor != null && !isEndOfRecordTypeNode(token.kind)) {
+            STNode invalidField = parseFieldOrRestDescriptor(isInclusive);
+            recordRestDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(recordRestDescriptor,
+                    invalidField, DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
+            token = peek();
+        }
+
+        STNode fields = STNodeFactory.createNodeList(recordFields);
 
         STNode bodyEndDelimiter = parseRecordBodyCloseDelimiter(bodyStartDelimiter.kind);
         endContext();
 
         return STNodeFactory.createRecordTypeDescriptorNode(recordKeyword, bodyStartDelimiter, fields,
-                bodyEndDelimiter);
+                recordRestDescriptor, bodyEndDelimiter);
     }
 
     /**
@@ -3249,43 +3275,6 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.RECORD_KEYWORD);
             return sol.recoveredNode;
         }
-    }
-
-    /**
-     * <p>
-     * Parse field descriptors.
-     * </p>
-     *
-     * @return Parsed node
-     */
-    private STNode parseFieldDescriptors(boolean isInclusive) {
-        ArrayList<STNode> recordFields = new ArrayList<>();
-        STToken token = peek();
-        boolean endOfFields = false;
-        while (!isEndOfRecordTypeNode(token.kind)) {
-            STNode field = parseFieldOrRestDescriptor(isInclusive);
-            if (field == null) {
-                endOfFields = true;
-                break;
-            }
-            recordFields.add(field);
-            token = peek();
-
-            if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
-                break;
-            }
-        }
-
-        // Following loop will only run if there are more fields after the rest type descriptor.
-        // Try to parse them and mark as invalid.
-        while (!endOfFields && !isEndOfRecordTypeNode(token.kind)) {
-            STNode invalidField = parseFieldOrRestDescriptor(isInclusive);
-            updateLastNodeInListWithInvalidNode(recordFields, invalidField,
-                    DiagnosticErrorCode.ERROR_MORE_RECORD_FIELDS_AFTER_REST_FIELD);
-            token = peek();
-        }
-
-        return STNodeFactory.createNodeList(recordFields);
     }
 
     /**

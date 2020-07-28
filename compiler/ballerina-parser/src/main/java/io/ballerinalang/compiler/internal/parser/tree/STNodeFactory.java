@@ -669,15 +669,17 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createRecordTypeDescriptorNode(
-            STNode objectKeyword,
+            STNode recordKeyword,
             STNode bodyStartDelimiter,
             STNode fields,
+            STNode recordRestDescriptor,
             STNode bodyEndDelimiter) {
 
         return new STRecordTypeDescriptorNode(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 

@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.parser;
 
+import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationAttachPointNode;
 import io.ballerinalang.compiler.syntax.tree.AnnotationDeclarationNode;
@@ -1061,13 +1062,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFiled.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
                 recordTypeNode.fields.add(bLFiled);
             } else {
-                if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                    recordTypeNode.restFieldType = createTypeNode(field);
-                    hasRestField = true;
-                } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                    recordTypeNode.addTypeReference(createTypeNode(field));
-                }
+                recordTypeNode.addTypeReference(createTypeNode(field));
             }
+        }
+        Node recordRestDesc = recordTypeDescriptorNode.recordRestDescriptor();
+        if (recordRestDesc != null) {
+            recordTypeNode.restFieldType = createTypeNode(recordRestDesc);
+            hasRestField = true;
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
         recordTypeNode.sealed = !(hasRestField || isOpen);

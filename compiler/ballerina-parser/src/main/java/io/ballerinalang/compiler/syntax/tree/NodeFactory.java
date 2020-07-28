@@ -880,19 +880,22 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RecordTypeDescriptorNode createRecordTypeDescriptorNode(
-            Token objectKeyword,
+            Token recordKeyword,
             Token bodyStartDelimiter,
             NodeList<Node> fields,
+            RecordRestDescriptorNode recordRestDescriptor,
             Token bodyEndDelimiter) {
-        Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+        Objects.requireNonNull(recordKeyword, "recordKeyword must not be null");
         Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
+        Objects.requireNonNull(recordRestDescriptor, "recordRestDescriptor must not be null");
         Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
 
         STNode stRecordTypeDescriptorNode = STNodeFactory.createRecordTypeDescriptorNode(
-                objectKeyword.internalNode(),
+                recordKeyword.internalNode(),
                 bodyStartDelimiter.internalNode(),
                 fields.underlyingListNode().internalNode(),
+                recordRestDescriptor.internalNode(),
                 bodyEndDelimiter.internalNode());
         return stRecordTypeDescriptorNode.createUnlinkedFacade();
     }
