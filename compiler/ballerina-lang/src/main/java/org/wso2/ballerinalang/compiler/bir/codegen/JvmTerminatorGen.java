@@ -87,6 +87,7 @@ import static org.objectweb.asm.Opcodes.POP;
 import static org.objectweb.asm.Opcodes.PUTFIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ANNOTATION_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
@@ -96,6 +97,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BTYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_PACKAGE_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -129,7 +131,10 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_NA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_POLICY_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_THREAD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STREAM_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TABLE_VALUE_IMPL;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
@@ -605,13 +610,67 @@ public class JvmTerminatorGen {
     private void storeReturnFromCallIns(BIRNode.BIRVariableDcl lhsOpVarDcl) {
 
         if (lhsOpVarDcl != null) {
+            this.genCastToLhsType(lhsOpVarDcl);
             this.storeToVar(lhsOpVarDcl);
         } else {
             this.mv.visitInsn(POP);
         }
     }
 
-        private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+    private void genCastToLhsType(BIRNode.BIRVariableDcl lhsOpVarDcl) {
+        String castType;
+        switch (lhsOpVarDcl.type.tag) {
+            case TypeTags.DECIMAL:
+                castType = DECIMAL_VALUE;
+                break;
+            case TypeTags.ARRAY:
+            case TypeTags.TUPLE:
+                castType = ARRAY_VALUE;
+                break;
+            case TypeTags.MAP:
+            case TypeTags.RECORD:
+                castType = MAP_VALUE;
+                break;
+            case TypeTags.ERROR:
+                castType = ERROR_VALUE;
+                break;
+            case TypeTags.STREAM:
+                castType = STREAM_VALUE;
+                break;
+            case TypeTags.TABLE:
+                castType = TABLE_VALUE_IMPL;
+                break;
+            case TypeTags.FUTURE:
+                castType = FUTURE_VALUE;
+                break;
+            case TypeTags.TYPEDESC:
+                castType = TYPEDESC_VALUE;
+                break;
+            case TypeTags.ANY:
+            case TypeTags.ANYDATA:
+            case TypeTags.UNION:
+            case TypeTags.INTERSECTION:
+            case TypeTags.JSON:
+            case TypeTags.FINITE:
+            case TypeTags.READONLY:
+                castType = OBJECT;
+                break;
+            case TypeTags.OBJECT:
+                castType = OBJECT_VALUE;
+                break;
+            case TypeTags.INVOKABLE:
+                castType = FUNCTION_POINTER;
+                break;
+            case TypeTags.HANDLE:
+                castType = HANDLE_VALUE;
+                break;
+            default:
+                return;
+        }
+        this.mv.visitTypeInsn(CHECKCAST, castType);
+    }
+
+    private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
                              String version, int localVarOffset) {
 
         if (!callIns.isVirtual) {
