@@ -78,6 +78,21 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
+    public void testFindTokenWithEndTextPosition() {
+        String text = "import ballerina/http;\n" +
+                "import ballerina/lang.'object as lang;\n" +
+                "\n" +
+                "http:";
+        int lastIndex = text.length();
+
+        SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        Token token = modulePartNode.findToken(lastIndex);
+
+        Assert.assertEquals(text.length(), token.textRangeWithMinutiae().endOffset());
+    }
+
+    @Test
     public void testGetSpecificAncestorOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
         ModulePartNode modulePart = syntaxTree.rootNode();
@@ -89,7 +104,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         //testing a negative case
         ancestor = token.ancestor(node -> node instanceof ForEachStatementNode);
-        Assert.assertEquals(ancestor.isPresent(), false);
+        Assert.assertFalse(ancestor.isPresent());
     }
 
     @Test(enabled = false) //disabled since it fails in windows due to token position
