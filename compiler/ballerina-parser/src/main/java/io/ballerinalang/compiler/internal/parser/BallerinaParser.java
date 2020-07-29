@@ -622,11 +622,16 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPatternOrListConstructorMember();
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
-            // case RECORD_BODY_END:
-            // case OBJECT_MEMBER_WITHOUT_METADATA:
-            // case REMOTE_CALL_OR_ASYNC_SEND_END:
-            // case RECEIVE_FIELD_END:
-            // case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+            case RECORD_BODY_END: // ideally this is never getting called
+                return parseRecordBodyCloseDelimiter((SyntaxKind) args[0]);
+            case OBJECT_MEMBER_WITHOUT_METADATA:
+                return parseObjectMember((STNode) args[0]);
+            case REMOTE_CALL_OR_ASYNC_SEND_END:
+                return parseRemoteCallOrAsyncSendEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+            case RECEIVE_FIELD_END:
+                return parseReceiveFieldEnd();
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+                return parseMappingBindingPatterOrMappingConstructorMember();
             default:
                 throw new IllegalStateException("cannot resume parsing the rule: " + context);
         }
@@ -3211,7 +3216,7 @@ public class BallerinaParser extends AbstractParser {
                 // Ideally should never reach here.
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.RECORD_BODY_END);
+                Solution solution = recover(token, ParserRuleContext.RECORD_BODY_END, startingDelimeter);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -5530,6 +5535,10 @@ public class BallerinaParser extends AbstractParser {
         return parseObjectMember(nextTokenKind, metadata);
     }
 
+    private STNode parseObjectMember(STNode metadata) {
+        return parseObjectMember(peek().kind,metadata);
+    }
+
     private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
         STNode member;
         switch (nextTokenKind) {
@@ -5561,7 +5570,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
 
-                Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA);
+                Solution solution = recover(peek(), ParserRuleContext.OBJECT_MEMBER_WITHOUT_METADATA, metadata);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -7703,6 +7712,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseRemoteCallOrAsyncSendActionRhs(solution.tokenKind, expression, isRhsExpr, rightArrow);
         }
 
+        return parseRemoteCallOrAsyncSendEnd(peek().kind, expression, rightArrow, name);
+    }
+
+    private STNode parseRemoteCallOrAsyncSendEnd(STNode expression, STNode rightArrow, STNode name) {
         return parseRemoteCallOrAsyncSendEnd(peek().kind, expression, rightArrow, name);
     }
 
@@ -11354,6 +11367,10 @@ public class BallerinaParser extends AbstractParser {
             default:
                 return false;
         }
+    }
+
+    private STNode parseReceiveFieldEnd() {
+        return parseReceiveFieldEnd(peek().kind);
     }
 
     private STNode parseReceiveFieldEnd(SyntaxKind nextTokenKind) {
@@ -16542,6 +16559,10 @@ public class BallerinaParser extends AbstractParser {
         // We reach here if it is still ambiguous, even after parsing the full list.
         STNode closeBrace = parseCloseBrace();
         return parseMappingBindingPatternOrMappingConstructor(openBrace, memberList, closeBrace);
+    }
+
+    private STNode parseMappingBindingPatterOrMappingConstructorMember() {
+        return parseMappingBindingPatterOrMappingConstructorMember(peek().kind);
     }
 
     private STNode parseMappingBindingPatterOrMappingConstructorMember(SyntaxKind nextTokenKind) {

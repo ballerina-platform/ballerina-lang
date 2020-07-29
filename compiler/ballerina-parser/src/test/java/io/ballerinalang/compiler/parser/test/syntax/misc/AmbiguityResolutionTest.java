@@ -152,4 +152,9 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testTypeTupleDescOrListConstructorRecovery() {
         testFile("ambiguity/ambiguity_source_26.bal", "ambiguity/ambiguity_assert_26.json");
     }
+
+    @Test
+    public void testInvalidNodeWithMappingBindingPatternOrMappingConstructorRecovery() {
+        testFile("ambiguity/ambiguity_source_27.bal", "ambiguity/ambiguity_assert_27.json");
+    }
 }

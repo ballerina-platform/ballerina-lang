@@ -571,6 +571,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER =
             { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.LIST_CONSTRUCTOR_FIRST_MEMBER};
 
+    private static final ParserRuleContext[] MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER =
+            { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD};
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -685,6 +688,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ORDER_DIRECTION_RHS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
                 return true;
             default:
                 return false;
@@ -1275,6 +1279,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
                 return true;
             default:
                 return false;
@@ -1450,6 +1455,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 alternativeRules = TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER;
+                break;
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+                alternativeRules = MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
