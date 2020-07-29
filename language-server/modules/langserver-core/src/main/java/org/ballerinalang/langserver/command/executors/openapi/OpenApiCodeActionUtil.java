@@ -63,7 +63,7 @@ public class OpenApiCodeActionUtil {
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
         context.put(DocumentServiceKeys.FILE_URI_KEY, document.getURIString());
         context.put(DocumentServiceKeys.COMPILE_FULL_PROJECT, true);
-        TokensUtil.findtokenAtCursor(context);
+        TokensUtil.findTokenAtPosition(context, position);
         return ReferencesUtil.compileModules(context);
     }
 

@@ -28,20 +28,19 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.TRANSACTION_VERSION;
 
 /**
- * Extern function transaction:setRollbackOnly.
+ * Extern function transaction:wrapRollbackError.
  *
  * @since 2.0.0-preview1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.transaction", version = TRANSACTION_VERSION,
-        functionName = "setRollbackOnly",
+        functionName = "wrapRollbackError",
         args = {@Argument(name = "error", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.NIL)},
-        isPublic = true
+        returnType = {@ReturnType(type = TypeKind.NIL)}
 )
-public class SetRollbackOnly {
+public class WrapRollbackError {
 
-    public static void setRollbackOnly(Strand strand, Object error) {
+    public static void wrapRollbackError(Strand strand, Object error) {
         TransactionLocalContext transactionLocalContext = strand.currentTrxContext;
         transactionLocalContext.setRollbackOnlyError(error);
     }

@@ -51,12 +51,12 @@ public class TokensUtil {
     }
 
     /**
-     * Find the token at cursor.
+     * Find the token at position.
      *
+     * @return Token at position
      * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
-     * @return
      */
-    public static io.ballerinalang.compiler.syntax.tree.Token findtokenAtCursor(LSContext context)
+    public static io.ballerinalang.compiler.syntax.tree.Token findTokenAtPosition(LSContext context, Position position)
             throws WorkspaceDocumentException, TokenOrSymbolNotFoundException {
         WorkspaceDocumentManager docManager = context.get(DocumentServiceKeys.DOC_MANAGER_KEY);
         Optional<Path> filePath = CommonUtil.getPathFromURI(context.get(DocumentServiceKeys.FILE_URI_KEY));
@@ -66,18 +66,18 @@ public class TokensUtil {
         SyntaxTree syntaxTree = docManager.getTree(filePath.get());
         TextDocument textDocument = syntaxTree.textDocument();
 
-        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter() - 1));
-        io.ballerinalang.compiler.syntax.tree.Token tokenAtCursor = ((ModulePartNode) syntaxTree.rootNode()).findToken(
-                txtPos);
+        int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        io.ballerinalang.compiler.syntax.tree.Token tokenAtPosition =
+                ((ModulePartNode) syntaxTree.rootNode()).findToken(
+                        txtPos);
 
-        if (tokenAtCursor == null) {
-            throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at cursor!");
+        if (tokenAtPosition == null) {
+            throw new TokenOrSymbolNotFoundException("Couldn't find a valid identifier token at position!");
         }
 
         int tokenType;
         //TODO: Remove this, added for the backward compatibility of code
-        NonTerminalNode nodeAtCursor = getNodeAtCursor(tokenAtCursor);
+        NonTerminalNode nodeAtCursor = getNodeAtCursor(tokenAtPosition);
         switch (nodeAtCursor.kind()) {
             case COLON_TOKEN:
                 tokenType = BallerinaParser.COLON;
@@ -93,7 +93,7 @@ public class TokensUtil {
                 break;
         }
         context.put(NodeContextKeys.INVOCATION_TOKEN_TYPE_KEY, tokenType);
-        return tokenAtCursor;
+        return tokenAtPosition;
     }
 
     private static NonTerminalNode getNodeAtCursor(io.ballerinalang.compiler.syntax.tree.Token tokenAtCursor) {

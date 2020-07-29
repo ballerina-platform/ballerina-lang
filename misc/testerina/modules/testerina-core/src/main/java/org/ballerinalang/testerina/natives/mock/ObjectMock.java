@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.testerina.natives.test;
+package org.ballerinalang.testerina.natives.mock;
 
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.StringUtils;
@@ -38,7 +38,7 @@ import java.util.Map;
 /**
  * Class that contains inter-op function related to mocking.
  */
-public class Mock {
+public class ObjectMock {
 
     /**
      * Returns a generic mock object pretending to be the type of the provided typedesc.
