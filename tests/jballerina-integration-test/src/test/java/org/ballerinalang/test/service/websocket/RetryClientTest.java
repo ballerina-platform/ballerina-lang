@@ -40,7 +40,7 @@ public class RetryClientTest extends WebSocketTestCommons {
     private static final String URL =  "ws://localhost:21030";
     private static final int PORT = 15300;
 
-    @Test(description = "Tests the retry function using the WebSocket client (Restart the server and send the data", enabled = false)
+    @Test(description = "Tests the retry function using the WebSocket client (Restart the server and send the data")
     public void testRetry() throws URISyntaxException, InterruptedException, BallerinaTestException {
         remoteServer = initiateServer();
         client = initiateClient(URL);
