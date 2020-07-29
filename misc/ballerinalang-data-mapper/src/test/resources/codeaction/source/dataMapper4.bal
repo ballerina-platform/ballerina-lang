@@ -26,7 +26,7 @@ type Person record {
 };
 
 public function main() {
-    Supplier supplier_1 = {
+    Supplier s = {
         supplier_details: {
             name: "Amala",
             age: 35,
@@ -42,6 +42,6 @@ public function main() {
         }
     };
 
-    User user_1 = supplier_1;
+    User user_1 = s;
 
 }

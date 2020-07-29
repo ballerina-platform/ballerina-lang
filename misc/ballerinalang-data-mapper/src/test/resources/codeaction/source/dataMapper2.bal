@@ -1,6 +1,6 @@
 type Address record {|
     string city;
-    string country;
+    string[] country;
 |};
 
 type Grades record {|

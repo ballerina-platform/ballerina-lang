@@ -1,16 +1,6 @@
 {
   "line": 44,
   "character": 18,
-  "range": {
-    "start": {
-      "line": 44,
-      "character": 18
-    },
-    "end": {
-      "line": 44,
-      "character": 29
-    }
-  },
   "expected": {
     "title": "Generate mapping function",
     "edits": [
@@ -21,10 +11,10 @@
         },
         "end":{
           "line":44,
-          "character":29
+          "character":20
         }
       },
-        "newText":"mapSupplierToUser(supplier_1);"
+        "newText":"mapSupplierToUser(s);"
       },
       {"range":{
         "start":{

@@ -1,6 +1,7 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 apply from: "$rootDir/gradle/baseNativeStdLibProject.gradle"
 
+//apply plugin: 'jacoco'
 
 configurations {
     dist {
@@ -94,6 +95,18 @@ task buildAndCopy(type: Copy) {
     into  project(':jballerina-tools').projectDir.absolutePath +
             '/build/extracted-distributions/jballerina-tools-' + project.version +
             '/bre/lib';
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled true // coveralls plugin depends on xml format report
+        html.enabled true
+    }
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: '**/utils/**')
+        }))
+    }
 }
 
 sourceCompatibility = 1.8

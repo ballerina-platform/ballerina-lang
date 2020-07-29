@@ -83,7 +83,7 @@ public class TestUtil {
     public static String getCodeActionResponse(Endpoint serviceEndpoint, String filePath, Range range,
                                                CodeActionContext context) {
         LSCompilerCache.clearAll();
-        TextDocumentIdentifier identifier = getTextDocumentIdentifier(filePath);
+        TextDocumentIdentifier identifier = new TextDocumentIdentifier(Paths.get(filePath).toUri().toString());
         CodeActionParams codeActionParams = new CodeActionParams(identifier, range, context);
         CompletableFuture result = serviceEndpoint.request(CODE_ACTION, codeActionParams);
         return getResponseString(result);
@@ -171,13 +171,6 @@ public class TestUtil {
         serviceEndpoint.request(WORKSPACE_CONFIG_CHANGE, params);
     }
 
-    private static TextDocumentIdentifier getTextDocumentIdentifier(String filePath) {
-        TextDocumentIdentifier identifier = new TextDocumentIdentifier();
-        identifier.setUri(Paths.get(filePath).toUri().toString());
-
-        return identifier;
-    }
-
     private static String getResponseString(CompletableFuture completableFuture) {
         ResponseMessage jsonrpcResponse = new ResponseMessage();
         try {
@@ -187,7 +180,7 @@ public class TestUtil {
             ResponseError responseError = new ResponseError();
             responseError.setCode(-32002);
             responseError.setMessage("Attempted to retrieve the result of a task/s" +
-                    "that was aborted by throwing an exception");
+                    " that was aborted by throwing an exception");
             jsonrpcResponse.setError(responseError);
         } catch (ExecutionException e) {
             ResponseError responseError = new ResponseError();
