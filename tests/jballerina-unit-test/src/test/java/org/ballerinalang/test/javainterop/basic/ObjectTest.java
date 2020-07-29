@@ -24,7 +24,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for java interop inside objects.
+ * Test cases for java interop functions inside objects.
  *
  * @since 2.0.0
  */
@@ -38,7 +38,7 @@ public class ObjectTest {
     }
 
     @Test
-    public void testAcceptNothing() {
+    public void testInteropsInsideObject() {
         BRunUtil.invoke(result, "testInteropsInsideObject");
     }
 }
