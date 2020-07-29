@@ -28,9 +28,9 @@ import java.util.Objects;
  */
 public class CPEntry {
 
-    Type entryType;
+    public Type entryType;
 
-    CPEntry(Type entryType) {
+    public CPEntry(Type entryType) {
         this.entryType = entryType;
     }
 
