@@ -101,8 +101,8 @@ public class DocCommand implements BLauncherCmd {
                                                               "dependencies.")
     private boolean offline;
 
-    @CommandLine.Option(names = "--new-parser", description = "Enable new parser.", hidden = true)
-    private boolean newParserEnabled;
+    @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
+    private boolean useOldParser;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -298,7 +298,7 @@ public class DocCommand implements BLauncherCmd {
         options.put(SKIP_TESTS, Boolean.toString(true));
         options.put(TEST_ENABLED, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
-        options.put(NEW_PARSER_ENABLED, Boolean.toString(this.newParserEnabled));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
