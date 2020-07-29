@@ -142,4 +142,14 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testStatementConsistOfOnlyBasicLiterals() {
         testFile("ambiguity/ambiguity_source_23.bal", "ambiguity/ambiguity_assert_23.json");
     }
+
+    @Test
+    public void testListBindingPatternOrListConstrcRecovery() {
+        testFile("ambiguity/ambiguity_source_25.bal", "ambiguity/ambiguity_assert_25.json");
+    }
+
+    @Test
+    public void testTypeTupleDescOrListConstructorRecovery() {
+        testFile("ambiguity/ambiguity_source_26.bal", "ambiguity/ambiguity_assert_26.json");
+    }
 }

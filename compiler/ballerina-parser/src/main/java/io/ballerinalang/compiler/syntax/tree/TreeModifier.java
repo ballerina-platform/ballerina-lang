@@ -897,18 +897,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public RecordTypeDescriptorNode transform(
             RecordTypeDescriptorNode recordTypeDescriptorNode) {
-        Token objectKeyword =
-                modifyToken(recordTypeDescriptorNode.objectKeyword());
+        Token recordKeyword =
+                modifyToken(recordTypeDescriptorNode.recordKeyword());
         Token bodyStartDelimiter =
                 modifyToken(recordTypeDescriptorNode.bodyStartDelimiter());
         NodeList<Node> fields =
                 modifyNodeList(recordTypeDescriptorNode.fields());
+        RecordRestDescriptorNode recordRestDescriptor =
+                modifyNode(recordTypeDescriptorNode.recordRestDescriptor().orElse(null));
         Token bodyEndDelimiter =
                 modifyToken(recordTypeDescriptorNode.bodyEndDelimiter());
         return recordTypeDescriptorNode.modify(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
