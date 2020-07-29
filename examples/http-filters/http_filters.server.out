@@ -1,9 +1,9 @@
 # To start the service, navigate to the directory that contains the
-# `.bal` file and use the `ballerina run` command.
-$ ballerina run http_filters.bal
+# `.bal` file and use the `ballerina run` command below.
+ballerina run http_filters.bal
 [ballerina/http] started HTTP/WS listener 0.0.0.0:9090
 
 # To build a compiled program file, can use the
 # "ballerina build" command followed by
 # the service module.
-$ ballerina build http_filters.bal
+ballerina build http_filters.bal

@@ -705,11 +705,15 @@
             },
             {
                 "name": "AWS Lambda Deployment",
-                "url": "awslambda-deployment"
+                "url": "aws-lambda-deployment"
             },
             {
                 "name": "Knative Deployment",
                 "url": "knative-deployment"
+            },
+            {
+                "name": "Azure Functions Deployment",
+                "url": "azure-functions-deployment"
             }
         ]
     },
@@ -800,6 +804,10 @@
             {
                 "name": "HTTP Interceptors/Filters",
                 "url": "http-filters"
+            },
+            {
+                "name": "HTTP Cookies",
+                "url": "http-cookies"
             }
         ]
     },
@@ -1073,7 +1081,7 @@
             },
             {
                 "name": "Consumer Groups",
-                "url": "kafka-group_service"
+                "url": "kafka-group-service"
             },
             {
                 "name": "SASL Authentication - Consumer",

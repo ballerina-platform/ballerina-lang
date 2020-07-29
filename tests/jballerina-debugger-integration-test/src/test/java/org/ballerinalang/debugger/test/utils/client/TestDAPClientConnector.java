@@ -177,12 +177,12 @@ public class TestDAPClientConnector {
             requestArgs.put(CONFIG_DEBUGEE_PORT, Integer.toString(port));
             requestArgs.put(CONFIG_BAL_HOME, balHome);
             if (launchKind == DebugUtils.DebuggeeExecutionKind.TEST) {
-                requestArgs.put(CONFIG_IS_TEST_CMD, Boolean.toString(true));
+                requestArgs.put(CONFIG_IS_TEST_CMD, true);
             }
             requestManager.launch(requestArgs);
         } catch (Exception e) {
             LOGGER.warn("Debuggee launch request failed.", e);
-            throw new BallerinaTestException("Launching the debugg program is failed.", e);
+            throw new BallerinaTestException("Launching the debug program is failed.", e);
         }
     }
 
@@ -193,7 +193,6 @@ public class TestDAPClientConnector {
             requestManager.disconnect(disconnectArgs);
             stop();
         } catch (Exception e) {
-            LOGGER.warn("Disconnecting from the debug adapter failed", e);
             throw e;
         }
     }

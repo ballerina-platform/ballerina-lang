@@ -4,18 +4,18 @@
                 <img class="url-link-img" src="{{ rootPath }}html-template-resources/images/link.svg">
             </a>
             <h2 {{#if isDeprecated}}class="strike"{{/if}}> {{name}} </h2>
-        {{#if returnParameters }}
         <span class="method-types">
             <p>({{{ paramSummary parameters }}})</p>
-            <b> returns </b>{{{returnParamSummary returnParameters}}}
+            {{#if returnParameters }}
+                <b> returns </b>{{{returnParamSummary returnParameters}}}
+            {{/if}}
         </span>
-        {{/if}}
     </div>
     <div class="function-desc">
         {{#if isDeprecated}}
             <span class="stab">Deprecated</span>
         {{/if}}
-        <p>{{{ description }}}</p>
+        {{{ setStyles description }}}
     </div>
     {{#if parameters}}
         <div class="data-wrapper">

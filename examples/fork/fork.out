@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run fork.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run fork.bal
 [w1] i: 23 s: Colombo
 [w2] f: 10.344
 [main] iW1: 23 sW1: Colombo fW2: 10.344

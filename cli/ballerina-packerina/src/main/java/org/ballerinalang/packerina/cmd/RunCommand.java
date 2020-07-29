@@ -33,6 +33,7 @@ import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
 import org.ballerinalang.packerina.task.PrintExecutablePathTask;
 import org.ballerinalang.packerina.task.PrintRunningExecutableTask;
+import org.ballerinalang.packerina.task.ResolveMavenDependenciesTask;
 import org.ballerinalang.packerina.task.RunExecutableTask;
 import org.ballerinalang.tool.BLauncherCmd;
 import org.ballerinalang.tool.BallerinaCliCommands;
@@ -105,6 +106,9 @@ public class RunCommand implements BLauncherCmd {
 
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
+
+    @CommandLine.Option(names = "--home-cache", description = "Custom home cache")
+    private String homeCache;
 
     public RunCommand() {
         this.outStream = System.err;
@@ -241,6 +245,11 @@ public class RunCommand implements BLauncherCmd {
             return;
         }
 
+        // if home cache is given use that
+        if (homeCache != null) {
+            System.setProperty(RepoUtils.HOME_CACHE_DIR, homeCache);
+        }
+
         // normalize paths
         sourceRootPath = sourceRootPath.normalize();
         sourcePath = sourcePath == null ? null : sourcePath.normalize();
@@ -268,6 +277,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new CreateTargetDirTask()) // create target directory.
                 .addTask(new CompileTask()) // compile the modules
+                .addTask(new ResolveMavenDependenciesTask())
                 .addTask(new CreateBaloTask(), isSingleFileBuild)   // create the balos for modules(projects only)
                 .addTask(new CreateBirTask())   // create the bir
                 .addTask(new CopyNativeLibTask())    // copy the native libs(projects only)

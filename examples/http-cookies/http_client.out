@@ -1,0 +1,4 @@
+# To run this sample, navigate to the directory that contains the
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run http_client.bal
+2020-06-12 15:52:15,513 INFO  [] - Welcome back John

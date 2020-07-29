@@ -13,7 +13,7 @@
                 <ul>
                     {{#each module.functions}}
                         <li {{#equals functions.name name}}class="active"{{/equals}}>
-                            <a href="#{{name}}">{{name}}</a>
+                            <a href="#{{name}}" onclick="menuLinkClick()">{{name}}</a>
                         </li>
                     {{/each}}
                 </ul>
@@ -23,28 +23,6 @@
             {{> allModules }}
         </div>
     </div>
-
-    <div class="ui vertical sidebar menu">
-        <div class="navi-wrapper-sidebar">
-            <div class="navi-wrapper-content">
-                {{> logo }}
-                <div class="primary-list">
-                    <h3>Functions</h3>
-                    <ul>
-                        {{#each module.functions}}
-                            <li {{#equals functions.name name}}class="active"{{/equals}}>
-                                <a href="#{{name}}">{{name}}</a>
-                            </li>
-                        {{/each}}
-                    </ul>
-                </div>
-                <div class="ui divider"></div>
-                {{> currentModule }}
-                {{> allModules }}
-            </div>
-        </div>
-    </div>
-
     <div class="content-wrapper pusher">
         {{> mobMenu }}
         <div class="main-wrapper">
@@ -58,9 +36,9 @@
                 {{/if}}
             </h1>
             <div class="constants">
-                <table class="ui table details-table">
-                    {{#each functions}}
-                        <tbody>
+                <table class="ui table row-border details-table">
+                    <tbody>
+                        {{#each functions}}
                             <tr>
                                 <td width="30%"><a class="functions {{#if isDeprecated}}strike{{/if}}" href="#{{name}}">{{name}}</a></td>
                                 <td width="70%">
@@ -72,8 +50,8 @@
                                     </div>
                                 </td>
                             </tr>
-                        </tbody>
-                    {{/each}}
+                        {{/each}}
+                    </tbody>
                 </table>
                 <div>
                     {{#if functions}}

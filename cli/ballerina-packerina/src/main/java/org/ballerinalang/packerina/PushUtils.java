@@ -64,7 +64,8 @@ import javax.net.ssl.X509TrustManager;
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
-import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_DEV_STAGE_CENTRAL;
+import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_DEV_CENTRAL;
+import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
 import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
@@ -74,9 +75,7 @@ import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
  */
 public class PushUtils {
 
-    private static final String BALLERINA_CENTRAL_CLI_TOKEN = BALLERINA_DEV_STAGE_CENTRAL ?
-                                                              "https://staging-central.ballerina.io/cli-token" :
-                                                              "https://central.ballerina.io/cli-token";
+    private static final String BALLERINA_CENTRAL_CLI_TOKEN = getBallerinaCentralCliTokenUrl();
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
@@ -252,7 +251,7 @@ public class PushUtils {
             if (isDependencyAvailableInRemote(moduleAsDependency)) {
                 throw createLauncherException("module '" + moduleAsDependency.toString() + "' already exists in " +
                                               "remote repository(" + getRemoteRepoURL() + "). build and push after " +
-                                              "update the version in the Ballerina.toml.");
+                                              "updating the version in the Ballerina.toml.");
             }
     
             balos.put(baloFilePath, manifest.getDependencies());
@@ -548,6 +547,16 @@ public class PushUtils {
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
             return (new PasswordAuthentication(this.proxy.getUserName(), this.proxy.getPassword().toCharArray()));
+        }
+    }
+
+    private static String getBallerinaCentralCliTokenUrl() {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
+            return "https://staging-central.ballerina.io/cli-token";
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return "https://dev-central.ballerina.io/cli-token";
+        } else {
+            return "https://central.ballerina.io/cli-token";
         }
     }
 }

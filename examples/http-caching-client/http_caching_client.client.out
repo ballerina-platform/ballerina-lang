@@ -1,5 +1,5 @@
 #Run the following curl command to run the client. 
-$ curl -v http://localhost:9090/cache
+curl -v http://localhost:9090/cache
 *   Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 9090 (#0)
@@ -20,7 +20,7 @@ $ curl -v http://localhost:9090/cache
 * Connection #0 to host localhost left intact
 {"message":"Hello, World!"}
 
-$ curl -v http://localhost:9090/cache
+curl -v http://localhost:9090/cache
 *   Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 9090 (#0)
@@ -42,7 +42,7 @@ $ curl -v http://localhost:9090/cache
 * Connection #0 to host localhost left intact
 {"message":"Hello, World!"}
 
-$ curl -v http://localhost:9090/cache
+curl -v http://localhost:9090/cache
 *   Trying 127.0.0.1...
 * TCP_NODELAY set
 * Connected to localhost (127.0.0.1) port 9090 (#0)

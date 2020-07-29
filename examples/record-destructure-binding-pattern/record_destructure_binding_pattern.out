@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run record_destructure_binding_pattern.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run record_destructure_binding_pattern.bal
 Name: Peter
 Age: 28
 Other Details: country=Sri Lanka occupation=Software Engineer

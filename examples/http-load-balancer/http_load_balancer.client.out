@@ -1,5 +1,5 @@
 # To invoke the Load Balancer Demo Service, use following cURL command.
-$ curl -v http://localhost:9090/lb
+curl -v http://localhost:9090/lb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -19,7 +19,7 @@ Mock1 resource was invoked.
 
 # Repeat the same cURL command to invoke the Load Balance Demo Service again.
 # The request will be load balanced to the second mock service.
-$ curl -v http://localhost:9090/lb
+curl -v http://localhost:9090/lb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -39,7 +39,7 @@ Mock2 resource was invoked.
 
 # Invoke the Load Balancer Demo Service one more time using the same cURL command.
 # The request will be load balanced to the third mock service.
-$ curl -v http://localhost:9090/lb
+curl -v http://localhost:9090/lb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -59,7 +59,7 @@ Mock3 resource was invoked.
 
 # Invoke the Load Balancer Demo Service using the same cURL command for the last time.
 # The request will be load balanced to the first mock service again.
-$ curl -v http://localhost:9090/lb
+curl -v http://localhost:9090/lb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
