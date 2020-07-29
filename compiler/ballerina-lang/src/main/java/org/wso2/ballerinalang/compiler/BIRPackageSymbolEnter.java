@@ -787,9 +787,9 @@ public class BIRPackageSymbolEnter {
     /**
      * Set taint table to the invokable symbol.
      *
-     * @param invokableSymbol Invokable symbol
-     * @param dataInStream    Input stream
-     * @throws IOException
+     * @param invokableSymbol   Invokable symbol
+     * @param dataInStream      Input stream
+     * @throws IOException      On error while reading the stream
      */
     private void readTaintTable(BInvokableSymbol invokableSymbol, DataInputStream dataInStream)
             throws IOException {
