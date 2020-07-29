@@ -45,8 +45,10 @@ public class ResolveMavenDependenciesTask implements Task {
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
+        List<Library> mavenLibs = manifest.getPlatform().getLibraries();
+        List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
         List<Library> mavenDependencies = new ArrayList<>();
-        if (manifest.getPlatform().getLibraries() == null) {
+        if (mavenLibs == null) {
             return;
         }
 
@@ -54,8 +56,8 @@ public class ResolveMavenDependenciesTask implements Task {
                 + "platform-libs";
         MavenResolver resolver = new MavenResolver(targetRepo);
 
-        if (manifest.getPlatform().getRepositories() != null && manifest.getPlatform().getRepositories().size() > 0) {
-            for (Repository repository : manifest.getPlatform().getRepositories()) {
+        if (mavenCustomRepos != null && mavenCustomRepos.size() > 0) {
+            for (Repository repository : mavenCustomRepos) {
                 String id = repository.getId();
                 String url = repository.getUrl();
                 if (id != null && url != null) {
@@ -70,9 +72,11 @@ public class ResolveMavenDependenciesTask implements Task {
             }
         }
 
-        for (Library library : manifest.getPlatform().getLibraries()) {
+        for (Library library : mavenLibs) {
             if (library.getPath() == null) {
-                mavenDependencies.add(library);
+                if (library.getArtifactId() != null && library.getGroupId() != null && library.getVersion() != null) {
+                    mavenDependencies.add(library);
+                }
             }
         }
 
