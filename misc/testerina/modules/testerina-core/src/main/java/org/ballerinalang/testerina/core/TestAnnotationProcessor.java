@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.runtime.entity.Test;
@@ -142,7 +143,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 suite.addBeforeSuiteFunction(functionName);
             } else if (AFTER_SUITE_ANNOTATION_NAME.equals(annotationName)) {
                 AtomicBoolean alwaysRun = new AtomicBoolean(false);
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -165,7 +166,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[3];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -250,7 +251,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 List<String> groups = registry.getGroups();
                 boolean shouldIncludeGroups = registry.shouldIncludeGroups();
 
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
 

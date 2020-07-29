@@ -430,15 +430,14 @@ public class BTestRunner {
                                           AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest) {
         if (!shouldSkip.get() && !shouldSkipTest.get()) {
             suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
-                String errorMsg2;
                 try {
                     invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
                 } catch (Throwable e) {
                     shouldSkip.set(true);
-                    errorMsg2 = String.format("\t[fail] " + afterEachTest +
+                    String errorMsg = String.format("\t[fail] " + afterEachTest +
                                     " [after each test function for the test %s] :\n\t    %s",
                             test, formatErrorMessage(e));
-                    errStream.println(errorMsg2);
+                    errStream.println(errorMsg);
                 }
             });
         }
