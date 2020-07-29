@@ -34,29 +34,32 @@ type Type any|error;
 @typeParam
 type ErrorType error?;
 
-public type _Iterator abstract object {
+type _Iterator abstract object {
     public function next() returns record {|Type value;|}|error?;
 };
 
-public type _Iterable abstract object {
-    public function __iterator() returns _Iterator;
+type _Iterable abstract object {
+    public function __iterator() returns
+        abstract object {
+            public function next() returns record {|Type value;|}|error?;
+        };
 };
 
-public type _StreamFunction abstract object {
+type _StreamFunction abstract object {
     public _StreamFunction? prevFunc;
     public function process() returns _Frame|error?;
     public function reset();
 };
 
-public type _Frame record{|
+type _Frame record{|
     (any|error|())...;
 |};
 
-public type _StreamPipeline object {
+type _StreamPipeline object {
     _StreamFunction streamFunction;
     typedesc<Type> resType;
 
-    public function init(
+    function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
@@ -73,7 +76,7 @@ public type _StreamPipeline object {
         sf.reset();
     }
 
-    public function addStreamFunction(_StreamFunction streamFunction) {
+    function addStreamFunction(_StreamFunction streamFunction) {
         _StreamFunction existingFunc = self.streamFunction;
         streamFunction.prevFunc = existingFunc;
         self.streamFunction = streamFunction;
@@ -84,7 +87,7 @@ public type _StreamPipeline object {
             public _StreamPipeline pipeline;
             public typedesc<Type> outputType;
 
-            public function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
+            function init(_StreamPipeline pipeline, typedesc<Type> outputType) {
                 self.pipeline = pipeline;
                 self.outputType = outputType;
             }
@@ -105,13 +108,13 @@ public type _StreamPipeline object {
     }
 };
 
-public type _InitFunction object {
+type _InitFunction object {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
     (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
 
-    public function init(
+    function init(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
@@ -162,7 +165,7 @@ public type _InitFunction object {
     }
 };
 
-public type _InputFunction object {
+type _InputFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -172,7 +175,7 @@ public type _InputFunction object {
     #   frame {dept: deptList[x]}
     public function(_Frame _frame) returns _Frame|error? inputFunc;
 
-    public function init(function(_Frame _frame) returns _Frame|error? inputFunc) {
+    function init(function(_Frame _frame) returns _Frame|error? inputFunc) {
         self.inputFunc = inputFunc;
         self.prevFunc = ();
     }
@@ -203,7 +206,7 @@ type _NestedFromFunction object {
     public function(_Frame frame) returns any|error? collectionFunc;
     _Frame|error? currentFrame;
 
-    public function init(function(_Frame frame) returns any|error? collectionFunc) {
+    function init(function(_Frame frame) returns any|error? collectionFunc) {
         self.itr = ();
         self.prevFunc = ();
         self.currentFrame = ();
@@ -278,7 +281,7 @@ type _NestedFromFunction object {
     }
 };
 
-public type _LetFunction object {
+type _LetFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -286,7 +289,7 @@ public type _LetFunction object {
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
     public function(_Frame _frame) returns _Frame|error? letFunc;
 
-    public function init(function(_Frame _frame) returns _Frame|error? letFunc) {
+    function init(function(_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
@@ -310,14 +313,14 @@ public type _LetFunction object {
     }
 };
 
-public type _InnerJoinFunction object {
+type _InnerJoinFunction object {
     *_StreamFunction;
 
     function(_Frame _frame) returns boolean onCondition;
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    public function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
+    function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
         self.pipelineToJoin = pipelineToJoin;
         self.onCondition = onCondition;
         self.prevFunc = ();
@@ -367,14 +370,14 @@ public type _InnerJoinFunction object {
     }
 };
 
-public type _OuterJoinFunction object {
+type _OuterJoinFunction object {
     *_StreamFunction;
 
     function(_Frame _frame) returns boolean onCondition;
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    public function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
+    function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
         self.pipelineToJoin = pipelineToJoin;
         self.onCondition = onCondition;
         self.prevFunc = ();
@@ -423,7 +426,7 @@ public type _OuterJoinFunction object {
         }
     }
 
-    public function getNilFrame(_Frame f) returns _Frame {
+    function getNilFrame(_Frame f) returns _Frame {
         _Frame nilFrame = {};
         foreach var e in f.entries() {
             if (e[1] is _Frame) {
@@ -436,7 +439,7 @@ public type _OuterJoinFunction object {
     }
 };
 
-public type _FilterFunction object {
+type _FilterFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -446,7 +449,7 @@ public type _FilterFunction object {
     # emit the next frame which satisfies the condition
     function(_Frame _frame) returns boolean filterFunc;
 
-    public function init(function(_Frame _frame) returns boolean filterFunc) {
+    function init(function(_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
@@ -469,7 +472,7 @@ public type _FilterFunction object {
     }
 };
 
-public type _SelectFunction object {
+type _SelectFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -480,7 +483,7 @@ public type _SelectFunction object {
     # };
     public function(_Frame _frame) returns _Frame|error? selectFunc;
 
-    public function init(function(_Frame _frame) returns _Frame|error? selectFunc) {
+    function init(function(_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
@@ -504,7 +507,7 @@ public type _SelectFunction object {
     }
 };
 
-public type _DoFunction object {
+type _DoFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
@@ -513,7 +516,7 @@ public type _DoFunction object {
     # };
     public function(_Frame _frame) doFunc;
 
-    public function init(function(_Frame _frame) doFunc) {
+    function init(function(_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
@@ -539,7 +542,7 @@ public type _DoFunction object {
     }
 };
 
-public type _LimitFunction object {
+type _LimitFunction object {
     *_StreamFunction;
 
     # Desugared function to limit the number of results
@@ -547,7 +550,7 @@ public type _LimitFunction object {
     public int lmt;
     public int count = 0;
 
-    public function init(int lmt) {
+    function init(int lmt) {
         self.lmt = lmt;
         self.prevFunc = ();
         if (lmt < 0) {
@@ -573,11 +576,11 @@ public type _LimitFunction object {
     }
 };
 
-public type StreamOrderBy object {
+type StreamOrderBy object {
     public string[] sortFields;
     public boolean[] sortTypes;
 
-    public function init(string[] sortFields, boolean[] sortTypes) {
+    function init(string[] sortFields, boolean[] sortTypes) {
         self.sortFields = sortFields;
         self.sortTypes = sortTypes;
     }
@@ -708,7 +711,7 @@ public type StreamOrderBy object {
     }
 
     public function stringSort(string st1, string st2) returns int {
-        return strings:codePointCompare(st1, st2);
+        return lang_string:codePointCompare(st1, st2);
     }
 
     public function booleanSort(boolean b1, boolean b2) returns int {

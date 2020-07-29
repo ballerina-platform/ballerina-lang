@@ -13,70 +13,69 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/lang.'string as strings;
 import ballerina/lang.'xml;
 
-public function createPipeline(
+function createPipeline(
         (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
         typedesc<Type> resType)
             returns _StreamPipeline {
     return new _StreamPipeline(collection, resType);
 }
 
-public function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
+function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)
         returns _StreamFunction {
     return new _InputFunction(inputFunc);
 }
 
-public function createNestedFromFunction(function(_Frame _frame) returns any|error? collectionFunc)
+function createNestedFromFunction(function(_Frame _frame) returns any|error? collectionFunc)
         returns _StreamFunction {
     return new _NestedFromFunction(collectionFunc);
 }
 
-public function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
+function createLetFunction(function(_Frame _frame) returns _Frame|error? letFunc)
         returns _StreamFunction {
     return new _LetFunction(letFunc);
 }
 
-public function createInnerJoinFunction(_StreamPipeline joinedPipeline,
+function createInnerJoinFunction(_StreamPipeline joinedPipeline,
                                         function(_Frame _frame) returns boolean onCondition)
         returns _StreamFunction {
     return new _InnerJoinFunction(joinedPipeline, onCondition);
 }
 
-public function createOuterJoinFunction(_StreamPipeline joinedPipeline,
+function createOuterJoinFunction(_StreamPipeline joinedPipeline,
                                         function(_Frame _frame) returns boolean onCondition)
         returns _StreamFunction {
     return new _OuterJoinFunction(joinedPipeline, onCondition);
 }
 
-public function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
+function createFilterFunction(function(_Frame _frame) returns boolean filterFunc)
         returns _StreamFunction {
     return new _FilterFunction(filterFunc);
 }
 
-public function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
+function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
         returns _StreamFunction {
     return new _SelectFunction(selectFunc);
 }
 
-public function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunction {
+function createDoFunction(function(_Frame _frame) doFunc) returns _StreamFunction {
     return new _DoFunction(doFunc);
 }
 
-public function createLimitFunction(int lmt) returns _StreamFunction {
+function createLimitFunction(int lmt) returns _StreamFunction {
     return new _LimitFunction(lmt);
 }
 
-public function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
+function addStreamFunction(@tainted _StreamPipeline pipeline, @tainted _StreamFunction streamFunction) {
     pipeline.addStreamFunction(streamFunction);
 }
 
-public function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, error?> {
+function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, error?> {
     return pipeline.getStream();
 }
 
-public function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, stream<Type, error?> strm,
+function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, stream<Type, error?> strm,
 @tainted Type[] arr) returns stream<Type, error?> {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
@@ -90,7 +89,7 @@ public function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, 
     return sortedArr.toStream();
 }
 
-public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
+function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
@@ -102,7 +101,7 @@ public function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|er
     return arr;
 }
 
-public function toXML(stream<Type, error?> strm) returns xml {
+function toXML(stream<Type, error?> strm) returns xml {
     xml result = 'xml:concat();
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
@@ -115,7 +114,7 @@ public function toXML(stream<Type, error?> strm) returns xml {
     return result;
 }
 
-public function toString(stream<Type, error?> strm) returns string {
+function toString(stream<Type, error?> strm) returns string {
     string result = "";
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
@@ -128,7 +127,7 @@ public function toString(stream<Type, error?> strm) returns string {
     return result;
 }
 
-public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
+function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, error? err) returns table<map<Type>>|error {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         error? e = trap tbl.add(<map<Type>> v.value);
@@ -146,7 +145,7 @@ public function addToTable(stream<Type, error?> strm, table<map<Type>> tbl, erro
     return tbl;
 }
 
-public function consumeStream(stream<Type, error?> strm) returns error? {
+function consumeStream(stream<Type, error?> strm) returns error? {
     any|error? v = strm.next();
     while (!(v is () || v is error)) {
         v = strm.next();
@@ -157,4 +156,4 @@ public function consumeStream(stream<Type, error?> strm) returns error? {
 }
 
 // TODO: This for debugging purposes, remove once completed.
-public function print(any|error? data) = external;
+function print(any|error? data) = external;
