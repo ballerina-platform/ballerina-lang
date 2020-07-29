@@ -21,7 +21,7 @@ import ballerina/log;
 
 http:BasicAuthHandler basicAuthHandler = new (new auth:InboundBasicAuthProvider());
 
-listener http:Listener httpServ = new (21041, config = {
+listener http:Listener httpServ = new (21042, config = {
     auth: {
         authHandlers: [inboundBasicAuthHandler],
         mandateSecureSocket: false
