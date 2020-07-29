@@ -79,7 +79,7 @@ public class BIRInstructionWriter extends BIRVisitor {
         // Number of instructions
         // Adding the terminator instruction as well.
         buf.writeInt(birBasicBlock.instructions.size() + 1);
-            birBasicBlock.instructions.forEach(instruction -> ((BIRNonTerminator) instruction).accept(this));
+            birBasicBlock.instructions.forEach(instruction -> instruction.accept(this));
         if (birBasicBlock.terminator == null) {
             throw new BLangCompilerException("Basic block without a terminator : " + birBasicBlock.id);
         }
@@ -201,6 +201,16 @@ public class BIRInstructionWriter extends BIRVisitor {
     }
 
     // Non-terminating instructions
+
+    @Override
+    public void visit(BIRNonTerminator.NewTable newTable) {
+        writePosition(newTable.pos);
+        writeType(newTable.type);
+        newTable.lhsOp.accept(this);
+        newTable.keyColOp.accept(this);
+        newTable.dataOp.accept(this);
+    }
+
 
     public void visit(BIRNonTerminator.Move birMove) {
         writePosition(birMove.pos);
@@ -332,13 +342,14 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewStructure birNewStructure) {
         writePosition(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
-        writeType(birNewStructure.type);
-        buf.writeBoolean(birNewStructure.isExternalDef);
-        if (birNewStructure.isExternalDef) {
-            assert birNewStructure.externalPackageId != null;
-            buf.writeInt(addPkgCPEntry(birNewStructure.externalPackageId));
-            buf.writeInt(addStringCPEntry(birNewStructure.recordName));
-        }
+//        writeType(birNewStructure.type);
+//        buf.writeBoolean(birNewStructure.isExternalDef);
+//        if (birNewStructure.isExternalDef) {
+//            assert birNewStructure.externalPackageId != null;
+//            buf.writeInt(addPkgCPEntry(birNewStructure.externalPackageId));
+//            buf.writeInt(addStringCPEntry(birNewStructure.recordName));
+//        }
+        birNewStructure.rhsOp.accept(this);
         birNewStructure.lhsOp.accept(this);
     }
 
@@ -429,7 +440,9 @@ public class BIRInstructionWriter extends BIRVisitor {
         buf.writeByte(birNewError.kind.getValue());
         writeType(birNewError.type);
         birNewError.lhsOp.accept(this);
-        birNewError.reasonOp.accept(this);
+        birNewError.messageOp.accept(this);
+        birNewError.causeOp.accept(this);
+//        birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);
     }
 
