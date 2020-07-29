@@ -51,7 +51,8 @@ public class AuthenticationTest {
     @Test(description = "Tests with wrong credential")
     public void testBasicAuthenticationFailure() throws URISyntaxException, InterruptedException,
             BallerinaTestException {
-        expectingErrorLog = "error InvalidHandshakeError: Invalid handshake response getStatus: 401 Unauthorized";
+        expectingErrorLog = "error {ballerina/http}WsInvalidHandshakeError message=Invalid handshake " +
+                "response getStatus: 401 Unauthorized";
         logLeecher = new LogLeecher(expectingErrorLog);
         WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
         client = new WebSocketTestClient("ws://localhost:21041");
