@@ -842,11 +842,13 @@ public class BallerinaParser extends AbstractParser {
             case BITWISE_AND_TOKEN: // Scenario foo & (Intersection type descriptor with custom type)
             case OPEN_BRACE_TOKEN: // Scenario foo[] (Array type descriptor with custom type)
             case ERROR_KEYWORD: // Scenario foo error (error-binding-pattern)
+            case EOF_TOKEN:
                 return true;
             case IDENTIFIER_TOKEN:
                 switch (peek(lookahead + 2).kind) {
                     case EQUAL_TOKEN: // Scenario: foo bar =
                     case SEMICOLON_TOKEN: // Scenario: foo bar;
+                    case EOF_TOKEN:
                         return true;
                     default:
                         return false;
@@ -858,11 +860,14 @@ public class BallerinaParser extends AbstractParser {
                     return false;
                 }
 
-                // Scenario: foo:bar baz ...
-                if (peek(lookahead + 2).kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    return false;
+                switch (peek(lookahead + 2).kind) {
+                    case IDENTIFIER_TOKEN: // Scenario: foo:bar baz ...
+                        return isModuleVarDeclStart(lookahead + 2);
+                    case EOF_TOKEN: // Scenario: foo: recovery
+                            return true;
+                    default:
+                        return false;
                 }
-                return isModuleVarDeclStart(lookahead + 2);
             default:
                 return false;
         }
