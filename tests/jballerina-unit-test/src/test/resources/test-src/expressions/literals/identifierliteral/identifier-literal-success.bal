@@ -60,8 +60,8 @@ function passILValuesAsParams(string 'first\ name, string 'last\ name, int 'curr
 }
 
 function testCharInIL() returns (string) {
-    string '\\\|\ \!\#\[\{\]\}\ \"\ \u2324 = "sample value";
-    return '\\\|\ \!\#\[\{\]\}\ \"\ \u2324;
+    string '\\\|\ \!\#\{\}\ \"\ \u2324 = "sample value";
+    return '\\\|\ \!\#\{\}\ \"\ \u2324;
 }
 
 function testFunctionNameWithIL() returns (string) {
