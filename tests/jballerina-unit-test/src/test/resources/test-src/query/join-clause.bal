@@ -461,6 +461,28 @@ function testSimpleJoinClauseWithFunctionInAnEquals() returns boolean {
     return testPassed;
 }
 
+function testSimpleJoinWithAStream() {
+    Person p1 = {id: 1, fname: "Alex", lname: "George"};
+    Person p2 = {id: 2, fname: "Ranjan", lname: "Fonseka"};
+
+    Department d1 = {id: 1, name:"HR"};
+    Department d2 = {id: 2, name:"Operations"};
+
+    Person[] personList = [p1, p2];
+    Department[] deptList = [d1, d2];
+
+    DeptPerson[] deptPersonList =
+       from var person in personList
+       let string deptName = "HR"
+       join var {id,name} in deptList.toStream()
+       on deptName equals getDeptName(id)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : name
+       };
+}
+
 function getDeptName(int id) returns string {
     if (id == 1) {
         return "HR";

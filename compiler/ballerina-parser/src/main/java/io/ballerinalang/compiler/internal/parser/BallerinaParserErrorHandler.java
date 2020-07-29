@@ -565,6 +565,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] ORDER_DIRECTION_RHS =
             { ParserRuleContext.COMMA, ParserRuleContext.EXPRESSION, ParserRuleContext.ORDER_CLAUSE_END };
 
+    private static final ParserRuleContext[] LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER =
+            { ParserRuleContext.LIST_BINDING_PATTERN_MEMBER, ParserRuleContext.LIST_CONSTRUCTOR_FIRST_MEMBER};
+
+    private static final ParserRuleContext[] TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER =
+            { ParserRuleContext.TYPE_DESCRIPTOR, ParserRuleContext.LIST_CONSTRUCTOR_FIRST_MEMBER};
+
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
     }
@@ -677,6 +683,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case ORDER_KEY_LIST_END:
             case ORDER_DIRECTION_RHS:
+            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 return true;
             default:
                 return false;
@@ -1265,6 +1273,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_MATCH_PATTERN_RHS:
             case NAMED_ARG_MATCH_PATTERN_RHS:
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
+            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 return true;
             default:
                 return false;
@@ -1434,6 +1444,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
                 alternativeRules = EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS;
+                break;
+            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+                alternativeRules = LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER;
+                break;
+            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+                alternativeRules = TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -1829,8 +1845,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         STToken nextToken = this.tokenReader.peek(lookahead);
         currentDepth++;
         if (nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-            Result fixedPathResult = fixAndContinue(currentCtx, lookahead, currentDepth);
-            return getFinalResult(currentMatches, fixedPathResult);
+            return fixAndContinue(currentCtx, lookahead, currentDepth, currentMatches, isEntryPoint);
         }
 
         ParserRuleContext nextContext;
@@ -2637,7 +2652,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.SEMICOLON;
             case FUNCTION_KEYWORD:
                 parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION) {
+                if (parentCtx == ParserRuleContext.ANON_FUNC_EXPRESSION ||
+                        parentCtx == ParserRuleContext.FUNC_TYPE_DESC) {
                     return ParserRuleContext.OPEN_PARENTHESIS;
                 }
                 return ParserRuleContext.FUNCTION_KEYWORD_RHS;
