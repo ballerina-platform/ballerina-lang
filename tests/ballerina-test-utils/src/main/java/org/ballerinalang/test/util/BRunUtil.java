@@ -1279,7 +1279,9 @@ public class BRunUtil {
 
             Scheduler scheduler = new Scheduler(false);
             FutureValue futureValue = scheduler.schedule(jvmArgs, func, null, null, new HashMap<>(),
-                    org.ballerinalang.jvm.types.BTypes.typeAny);
+                                                         org.ballerinalang.jvm.types.BTypes.typeAny, "test",
+                                                         new StrandMetadata(ANON_ORG, DOT, DEFAULT_VERSION.value,
+                                                         functionName));
             scheduler.start();
             Object errorMsg = futureValue.strand.getProperty(TEST_FAILED_MSG);
             jvmResult[0] = futureValue.result;

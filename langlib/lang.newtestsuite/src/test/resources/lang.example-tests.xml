@@ -8,6 +8,16 @@
         </source>
         <steps>
             <run>
+                <callFunction name="testFromString">
+                    <parameters>
+                        <string>504023030303030303030.3030303</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>504023030303030303030.3030303</decimal>
+                        </return>
+                    </assert>
+                </callFunction>
                 <callFunction name="concat">
                     <parameters>
                         <string>hello</string>

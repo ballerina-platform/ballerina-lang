@@ -24,7 +24,6 @@ public function assertEquals(anydata actual, anydata expected, string? message =
 # Tests whether a value is of type 'error'.
 #
 # + value - the passed value to be asserted
-# + typ - Assertion error message
 # + expectedErrorMessage - Expected error message
 # + message - Assertion error message
 public function assertError(any|error value, string? expectedErrorMessage = (), string? message = ()) = external;
@@ -64,7 +63,7 @@ public function assertNotSame(any|error actual, any|error expected, string? mess
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
 # + message - Assertion error message
-public function fail(string? message = ()) = external;
+public function fails(string? message = ()) = external;
 
 # Tests value inequality for two values.
 #

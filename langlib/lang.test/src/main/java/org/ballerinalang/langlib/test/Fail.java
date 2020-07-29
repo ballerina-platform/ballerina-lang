@@ -27,17 +27,17 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import static org.ballerinalang.util.BLangCompilerConstants.TEST_VERSION;
 
 /**
- * Native implementation of assertFail(string message? = ()).
+ * Native implementation of fails(string message? = ()).
  *
  * @since 2.0.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "fail",
+        orgName = "ballerina", packageName = "lang.test", version = TEST_VERSION, functionName = "fails",
         args = {@Argument(name = "message", type = TypeKind.UNION)},
         isPublic = true
 )
 public class Fail {
-    public static void fail(Strand strand, Object message) {
+    public static void fails(Strand strand, Object message) {
         String msg = " failed";
         msg = message != null ? message.toString() + msg : msg;
         strand.setProperty(NativeImpConstants.STRAND_PROPERTY_NAME,

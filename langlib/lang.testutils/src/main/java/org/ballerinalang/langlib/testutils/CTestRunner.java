@@ -362,8 +362,7 @@ public class CTestRunner {
                 args = Boolean.parseBoolean(paramValue);
                 break;
             case CTestConstants.TEST_DECIMAL_TAG:
-                args = new DecimalValue(new BigDecimal(paramValue, MathContext.DECIMAL128).setScale(
-                        1, BigDecimal.ROUND_HALF_EVEN));
+                args = new DecimalValue(new BigDecimal(paramValue, MathContext.UNLIMITED));
                 break;
             case CTestConstants.TEST_FLOAT_TAG:
                 args = Double.parseDouble(paramValue);

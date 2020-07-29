@@ -16,7 +16,7 @@
 
 import ballerina/lang.test as test;
 import ballerina/lang.'int as ints;
-
+import ballerina/lang.'decimal as decimals;
 
 function testValueAssignment() {
     ints:Signed32 a1 = 2147483647;
@@ -61,7 +61,11 @@ function sum(int a) returns int {
 }
 
 function testFail(){
-    test:fail();
+    test:fails();
+}
+
+function testFromString(string arg) returns decimal|error {
+    return decimals:fromString(arg);
 }
 
 function concat(string s1, string... sa) returns string {
