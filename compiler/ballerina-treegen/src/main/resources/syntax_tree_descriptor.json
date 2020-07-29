@@ -1193,7 +1193,8 @@
                 },
                 {
                     "name": "recordRestDescriptor",
-                    "type": "RecordRestDescriptorNode"
+                    "type": "RecordRestDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "bodyEndDelimiter",

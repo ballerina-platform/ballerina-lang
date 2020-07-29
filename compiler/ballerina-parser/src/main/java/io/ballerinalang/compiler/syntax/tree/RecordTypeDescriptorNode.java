@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -44,8 +45,8 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
         return new NodeList<>(childInBucket(2));
     }
 
-    public RecordRestDescriptorNode recordRestDescriptor() {
-        return childInBucket(3);
+    public Optional<RecordRestDescriptorNode> recordRestDescriptor() {
+        return optionalChildInBucket(3);
     }
 
     public Token bodyEndDelimiter() {
@@ -117,7 +118,7 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
             this.recordKeyword = oldNode.recordKeyword();
             this.bodyStartDelimiter = oldNode.bodyStartDelimiter();
             this.fields = oldNode.fields();
-            this.recordRestDescriptor = oldNode.recordRestDescriptor();
+            this.recordRestDescriptor = oldNode.recordRestDescriptor().orElse(null);
             this.bodyEndDelimiter = oldNode.bodyEndDelimiter();
         }
 

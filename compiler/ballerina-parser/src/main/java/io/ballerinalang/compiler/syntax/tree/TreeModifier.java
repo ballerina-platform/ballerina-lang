@@ -904,7 +904,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         NodeList<Node> fields =
                 modifyNodeList(recordTypeDescriptorNode.fields());
         RecordRestDescriptorNode recordRestDescriptor =
-                modifyNode(recordTypeDescriptorNode.recordRestDescriptor());
+                modifyNode(recordTypeDescriptorNode.recordRestDescriptor().orElse(null));
         Token bodyEndDelimiter =
                 modifyToken(recordTypeDescriptorNode.bodyEndDelimiter());
         return recordTypeDescriptorNode.modify(

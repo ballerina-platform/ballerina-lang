@@ -888,14 +888,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(recordKeyword, "recordKeyword must not be null");
         Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
-        Objects.requireNonNull(recordRestDescriptor, "recordRestDescriptor must not be null");
         Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
 
         STNode stRecordTypeDescriptorNode = STNodeFactory.createRecordTypeDescriptorNode(
                 recordKeyword.internalNode(),
                 bodyStartDelimiter.internalNode(),
                 fields.underlyingListNode().internalNode(),
-                recordRestDescriptor.internalNode(),
+                getOptionalSTNode(recordRestDescriptor),
                 bodyEndDelimiter.internalNode());
         return stRecordTypeDescriptorNode.createUnlinkedFacade();
     }

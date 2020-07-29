@@ -1064,9 +1064,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 recordTypeNode.addTypeReference(createTypeNode(field));
             }
         }
-        Node recordRestDesc = recordTypeDescriptorNode.recordRestDescriptor();
-        if (recordRestDesc != null) {
-            recordTypeNode.restFieldType = createTypeNode(recordRestDesc);
+        Optional<RecordRestDescriptorNode> recordRestDesc = recordTypeDescriptorNode.recordRestDescriptor();
+        if (recordRestDesc.isPresent()) {
+            recordTypeNode.restFieldType = createTypeNode(recordRestDesc.get());
             hasRestField = true;
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
