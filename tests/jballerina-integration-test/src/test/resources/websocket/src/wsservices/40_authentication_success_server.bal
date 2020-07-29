@@ -19,7 +19,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-http:BasicAuthHandler inboundBasicAuthHandler = new (new auth:InboundBasicAuthProvider({ tableName: "b7a.users" }));
+http:BasicAuthHandler inboundBasicAuthHandler = new (new auth:InboundBasicAuthProvider());
 
 listener http:Listener httpServi = new (21040, config = {
     auth: {

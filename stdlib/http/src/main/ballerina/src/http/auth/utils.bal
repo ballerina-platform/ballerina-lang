@@ -252,10 +252,10 @@ function getResourceAuthConfig(FilterContext context) returns ResourceAuth? {
     }
 }
 
-# Checks whether the `ResourceConfig` has `WebSocketUpgradeConfig` or not.
+# Checks whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not.
 #
 # + context - The `FilterContext` instance
-# + return - Whether the `ResourceConfig` has `WebSocketUpgradeConfig` or not
+# + return - Whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not
 function isWebSocketUpgradeRequest(FilterContext context) returns boolean {
     any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
                                                  ANN_MODULE);
