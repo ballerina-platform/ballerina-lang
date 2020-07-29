@@ -37,7 +37,7 @@ public class AuthenticationTest {
     String expectingErrorLog;
 
     @Test(description = "Tests with correct credential")
-    public void testBasicAuthentication() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testBasicAuthenticationSuccess() throws URISyntaxException, InterruptedException, BallerinaTestException {
         expectingErrorLog = "Hello World!";
         logLeecher = new LogLeecher(expectingErrorLog);
         WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
