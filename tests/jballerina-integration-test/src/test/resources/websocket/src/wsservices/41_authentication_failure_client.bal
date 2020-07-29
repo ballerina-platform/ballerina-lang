@@ -30,7 +30,7 @@ service on new http:Listener(21041) {
 
         string token = checkpanic outboundBasicAuthProvider.generateToken();
 
-        http:WebSocketClient wsClient = new ("ws://localhost:21041/auth/ws",
+        http:WebSocketClient wsClient = new ("ws://localhost:21042/auth/ws",
                                                 config = {
                                                     callbackService: authenticationService,
                                                     customHeaders: {

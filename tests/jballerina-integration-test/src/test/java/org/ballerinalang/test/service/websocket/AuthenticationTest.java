@@ -52,7 +52,7 @@ public class AuthenticationTest {
         expectingErrorLog = "error InvalidHandshakeError: Invalid handshake response getStatus: 401 Unauthorized";
         logLeecher = new LogLeecher(expectingErrorLog);
         WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
-        client = new WebSocketTestClient("ws://localhost:21042");
+        client = new WebSocketTestClient("ws://localhost:21041");
         client.handshake();
         Assert.assertTrue(client.isOpen());
         logLeecher.waitForText(WebSocketTestCommons.TIMEOUT_IN_SECS * 1000);
