@@ -258,6 +258,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE221",
             "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE222", "error.action.as.a.wait.expr"),
+    ERROR_INVALID_USAGE_OF_VAR("BCE223", "error.invalid.usage.of.var"),
+    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE224",
+            "error.more.match.patterns.after.rest.match.pattern"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",
@@ -280,6 +283,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP("BCE601", "error.no.whitespaces.allowed.in.right.shift.op"),
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",
             "error.no.whitespaces.allowed.in.unsigned.right.shift.op"),
+    ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN("BCE603", "error.invalid.whitespace.in.slash.lt.token"),
 
     // Lexer errors
     ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS("BCE1000", "error.leading.zeros.in.numeric.literals"),

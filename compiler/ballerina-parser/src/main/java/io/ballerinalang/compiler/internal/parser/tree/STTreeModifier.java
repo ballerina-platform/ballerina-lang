@@ -707,14 +707,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
-        STNode objectKeyword = modifyNode(recordTypeDescriptorNode.objectKeyword);
+        STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);
         STNode bodyStartDelimiter = modifyNode(recordTypeDescriptorNode.bodyStartDelimiter);
         STNode fields = modifyNode(recordTypeDescriptorNode.fields);
+        STNode recordRestDescriptor = modifyNode(recordTypeDescriptorNode.recordRestDescriptor);
         STNode bodyEndDelimiter = modifyNode(recordTypeDescriptorNode.bodyEndDelimiter);
         return recordTypeDescriptorNode.modify(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 

@@ -65,12 +65,9 @@ public class VarDeclrSemanticTest {
         int indx = 0;
         validateError(result, indx++, "listener variable incompatible types: '$missingNode$0' is not a Listener object",
                       17, 1);
-        validateError(result, indx++, "invalid token 'public'", 19, 8);
-        validateError(result, indx++, "missing open paren token", 19, 17);
-        validateError(result, indx++, "required parameter after the defaultable parameter", 19, 17);
-        validateError(result, indx++, "unknown type 'bar'", 19, 17);
-        validateError(result, indx++, "missing equal token", 19, 20);
-        validateError(result, indx++, "missing close paren token", 22, 1);
+        validateError(result, indx++, "missing object keyword", 18, 1);
+        validateError(result, indx++, "missing open brace token", 18, 1);
+        validateError(result, indx++, "missing close brace token", 22, 1);
         validateError(result, indx++, "missing equal token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);

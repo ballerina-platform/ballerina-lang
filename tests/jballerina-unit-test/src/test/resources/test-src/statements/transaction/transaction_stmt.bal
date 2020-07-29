@@ -309,3 +309,58 @@ function testNewStrandWithTransactionalFunc() returns error? {
 transactional function testTransactionalInvo(string str) returns string {
     return str + " -> transactional call";
 }
+
+function testRollbackWithBlockFailure() returns error? {
+    string str = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        str = str + " -> commit triggered";
+    };
+
+    var onRollbackFunc = function(transactions:Info? info, error? cause, boolean willTry) {
+            str = str + " -> rollback triggered";
+    };
+
+    transaction {
+        transactions:onCommit(onCommitFunc);
+        transactions:onRollback(onRollbackFunc);
+        str += "trx started";
+        check getError(true);
+        var o = commit;
+        str += " -> trx end";
+    }
+
+    assertEquality("trx started -> rollback triggered", str);
+}
+
+function getError(boolean err) returns error? {
+    if(err) {
+       error er = error("Custom Error");
+       return er;
+    }
+}
+
+function testRollbackWithCommitFailure() returns error? {
+    string str = "";
+    var onCommitFunc = function(transactions:Info? info) {
+        str = str + " -> commit triggered";
+    };
+
+    var rollbackFunc = function (transactions:Info info, error? cause, boolean willRetry) {
+        str += "-> rollback triggered ";
+    };
+
+    transaction {
+        transactions:onRollback(rollbackFunc);
+        str += "trx started";
+        setRollbackOnlyError();
+        check commit;
+        str += " commit";
+    }
+    str += "-> transaction block exited.";
+    assertEquality("trx started-> transaction block exited.", str);
+}
+
+transactional function setRollbackOnlyError() {
+    error cause = error("rollback only is set, hence commit failed !");
+    transactions:setRollbackOnly(cause);
+}
