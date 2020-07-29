@@ -3163,6 +3163,9 @@ public class BLangPackageBuilder {
         BLangBlockStmt whileBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         whileBlock.pos = pos;
         whileNode.setBody(whileBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            whileNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(whileNode);
     }
 

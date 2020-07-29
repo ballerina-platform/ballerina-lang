@@ -1360,6 +1360,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
         analyzeExpr(whileNode.expr);
+
+        if (whileNode.onFailClause != null) {
+            analyzeNode(whileNode.onFailClause, env);
+        }
     }
 
     @Override

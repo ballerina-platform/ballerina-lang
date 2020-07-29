@@ -403,6 +403,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         whileNode.expr = rewrite(whileNode.expr);
         whileNode.body = rewrite(whileNode.body);
+        whileNode.onFailClause = rewrite(whileNode.onFailClause);
         result = whileNode;
     }
 

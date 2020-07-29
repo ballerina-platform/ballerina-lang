@@ -2393,6 +2393,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
 
+        if (whileNode.onFailClause != null) {
+            this.analyzeNode(whileNode.onFailClause, env);
+        }
+
         BType actualType = whileNode.expr.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(whileNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
