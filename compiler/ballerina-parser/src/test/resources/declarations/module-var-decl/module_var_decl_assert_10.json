@@ -237,60 +237,10 @@
           "children": [
             {
               "kind": "METADATA",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "LIST",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "ANNOTATION",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "AT_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_AT_TOKEN"
-                          ]
-                        },
-                        {
-                          "kind": "QUALIFIED_NAME_REFERENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "http",
-                              "leadingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "COLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  "children": []
                 }
               ]
             },
@@ -299,15 +249,34 @@
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "TYPE_DESC",
+                  "kind": "QUALIFIED_NAME_REFERENCE",
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "TYPE_DESC",
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "http",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "COLON_TOKEN",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_TYPE_DESC"
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
