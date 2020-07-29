@@ -1061,13 +1061,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFiled.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
                 recordTypeNode.fields.add(bLFiled);
             } else {
-                if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                    recordTypeNode.restFieldType = createTypeNode(field);
-                    hasRestField = true;
-                } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                    recordTypeNode.addTypeReference(createTypeNode(field));
-                }
+                recordTypeNode.addTypeReference(createTypeNode(field));
             }
+        }
+        Optional<RecordRestDescriptorNode> recordRestDesc = recordTypeDescriptorNode.recordRestDescriptor();
+        if (recordRestDesc.isPresent()) {
+            recordTypeNode.restFieldType = createTypeNode(recordRestDesc.get());
+            hasRestField = true;
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
         recordTypeNode.sealed = !(hasRestField || isOpen);

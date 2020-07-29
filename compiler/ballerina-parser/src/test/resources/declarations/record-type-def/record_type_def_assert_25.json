@@ -52,35 +52,34 @@
         },
         {
           "kind": "LIST",
+          "children": []
+        },
+        {
+          "kind": "RECORD_REST_TYPE",
           "children": [
             {
-              "kind": "RECORD_REST_TYPE",
+              "kind": "READONLY_TYPE_DESC",
               "children": [
                 {
-                  "kind": "READONLY_TYPE_DESC",
-                  "children": [
+                  "kind": "READONLY_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "READONLY_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
                     }
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "kind": "ELLIPSIS_TOKEN"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
                 {
-                  "kind": "ELLIPSIS_TOKEN"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
                 }
               ]
             }

@@ -267,42 +267,42 @@
                   ]
                 }
               ]
-            },
+            }
+          ]
+        },
+        {
+          "kind": "RECORD_REST_TYPE",
+          "hasDiagnostics": true,
+          "children": [
             {
-              "kind": "RECORD_REST_TYPE",
-              "hasDiagnostics": true,
+              "kind": "STRING_TYPE_DESC",
               "children": [
                 {
-                  "kind": "STRING_TYPE_DESC",
-                  "children": [
+                  "kind": "STRING_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "STRING_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ]
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
                     }
-                  ]
-                },
-                {
-                  "kind": "ELLIPSIS_TOKEN",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    }
-                  ]
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_SEMICOLON_TOKEN"
                   ]
                 }
+              ]
+            },
+            {
+              "kind": "ELLIPSIS_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "isMissing": true,
+              "hasDiagnostics": true,
+              "diagnostics": [
+                "ERROR_MISSING_SEMICOLON_TOKEN"
               ]
             }
           ]
