@@ -51,7 +51,7 @@ type _StreamFunction abstract object {
     public function reset();
 };
 
-type _Frame record{|
+type _Frame record {|
     (any|error|())...;
 |};
 
@@ -82,7 +82,7 @@ type _StreamPipeline object {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream<Type, error?> {
+    public function getStream() returns stream <Type, error?> {
         object {
             public _StreamPipeline pipeline;
             public typedesc<Type> outputType;
@@ -96,13 +96,13 @@ type _StreamPipeline object {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
-                    Type v = <Type> f["$value$"];
-                    return internal:setNarrowType(self.outputType, {value : v});
+                    Type v = <Type>f["$value$"];
+                    return internal:setNarrowType(self.outputType, {value: v});
                 } else {
                     return f;
                 }
             }
-        } itrObj = new(self, self.resType);
+        } itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
     }
@@ -123,10 +123,10 @@ type _InitFunction object {
     }
 
     public function process() returns _Frame|error? {
-        _Iterator i = <_Iterator> self.itr;
-        record{|(any|error) value;|}|error? v = i.next();
-        if (v is record{|(any|error) value;|}) {
-            record{|(any|error)...;|} _frame = {...v};
+        _Iterator i = <_Iterator>self.itr;
+        record {|(any|error) value;|}|error? v = i.next();
+        if (v is record {|(any|error) value;|}) {
+            record {|(any|error)...;|} _frame = {...v};
             return _frame;
         }
         return v;
@@ -145,7 +145,7 @@ type _InitFunction object {
                 returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
-        } else if (collection is record{}) {
+        } else if (collection is record {}) {
             return lang_map:iterator(collection);
         } else if (collection is map<any|error>) {
             return lang_map:iterator(collection);
@@ -153,7 +153,7 @@ type _InitFunction object {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
-        }  else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<any|error>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.__iterator();
@@ -173,16 +173,16 @@ type _InputFunction object {
     #   frame {nm1: firstName, nm2: lastName}
     # from var dept in deptList
     #   frame {dept: deptList[x]}
-    public function(_Frame _frame) returns _Frame|error? inputFunc;
+    public function (_Frame _frame) returns _Frame|error? inputFunc;
 
-    function init(function(_Frame _frame) returns _Frame|error? inputFunc) {
+    function init(function (_Frame _frame) returns _Frame|error? inputFunc) {
         self.inputFunc = inputFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) returns _Frame|error? f = self.inputFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns _Frame|error? f = self.inputFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -203,10 +203,10 @@ type _NestedFromFunction object {
     *_StreamFunction;
     _Iterator? itr;
 
-    public function(_Frame frame) returns any|error? collectionFunc;
+    public function (_Frame frame) returns any|error? collectionFunc;
     _Frame|error? currentFrame;
 
-    function init(function(_Frame frame) returns any|error? collectionFunc) {
+    function init(function (_Frame frame) returns any|error? collectionFunc) {
         self.itr = ();
         self.prevFunc = ();
         self.currentFrame = ();
@@ -218,14 +218,14 @@ type _NestedFromFunction object {
     # from var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame frame) returns any|error? collectionFunc = self.collectionFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame frame) returns any|error? collectionFunc = self.collectionFunc;
         _Frame|error? cf = self.currentFrame;
         _Iterator? itr = self.itr;
         if (cf is ()) {
             cf = pf.process();
             self.currentFrame = cf;
-            if  (cf is _Frame) {
+            if (cf is _Frame) {
                 any|error? collection = collectionFunc(cf);
                 if (collection is any) {
                     itr = self._getIterator(collection);
@@ -234,8 +234,8 @@ type _NestedFromFunction object {
             }
         }
         if (cf is _Frame && itr is _Iterator) {
-            record{|(any|error) value;|}|error? v = itr.next();
-            if (v is record{|(any|error) value;|}) {
+            record {|(any|error) value;|}|error? v = itr.next();
+            if (v is record {|(any|error) value;|}) {
                 _Frame _frame = {...cf, ...v};
                 return _frame;
             } else if (v is error) {
@@ -262,7 +262,7 @@ type _NestedFromFunction object {
     function _getIterator(any collection) returns _Iterator {
         if (collection is (any|error)[]) {
             return lang_array:iterator(collection);
-        } else if (collection is record{}) {
+        } else if (collection is record {}) {
             return lang_map:iterator(collection);
         } else if (collection is map<any|error>) {
             return lang_map:iterator(collection);
@@ -270,11 +270,11 @@ type _NestedFromFunction object {
             return lang_string:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
-        }  else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<any|error>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.__iterator();
-        } else if (collection is stream<any|error, error?>) {
+        } else if (collection is stream <any|error, error?>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
@@ -287,16 +287,16 @@ type _LetFunction object {
     # Desugared function to do;
     # let Company companyRecord = { name: "WSO2" }
     #   frame { companyRecord: { name: "WSO2" }, ...prevFrame }
-    public function(_Frame _frame) returns _Frame|error? letFunc;
+    public function (_Frame _frame) returns _Frame|error? letFunc;
 
-    function init(function(_Frame _frame) returns _Frame|error? letFunc) {
+    function init(function (_Frame _frame) returns _Frame|error? letFunc) {
         self.letFunc = letFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) returns _Frame|error? f = self.letFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns _Frame|error? f = self.letFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -316,11 +316,11 @@ type _LetFunction object {
 type _InnerJoinFunction object {
     *_StreamFunction;
 
-    function(_Frame _frame) returns boolean onCondition;
+    function (_Frame _frame) returns boolean onCondition;
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
+    function init(_StreamPipeline pipelineToJoin, function (_Frame _frame) returns boolean onCondition) {
         self.pipelineToJoin = pipelineToJoin;
         self.onCondition = onCondition;
         self.prevFunc = ();
@@ -332,8 +332,8 @@ type _InnerJoinFunction object {
     # join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function(_Frame _frame) returns boolean onCondition = self.onCondition;
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function (_Frame _frame) returns boolean onCondition = self.onCondition;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
         _StreamPipeline j = self.pipelineToJoin;
         _Frame|error? cf = self.currentFrame;
         if (cf is ()) {
@@ -373,11 +373,11 @@ type _InnerJoinFunction object {
 type _OuterJoinFunction object {
     *_StreamFunction;
 
-    function(_Frame _frame) returns boolean onCondition;
+    function (_Frame _frame) returns boolean onCondition;
     _StreamPipeline pipelineToJoin;
     _Frame|error? currentFrame;
 
-    function init(_StreamPipeline pipelineToJoin, function(_Frame _frame) returns boolean onCondition) {
+    function init(_StreamPipeline pipelineToJoin, function (_Frame _frame) returns boolean onCondition) {
         self.pipelineToJoin = pipelineToJoin;
         self.onCondition = onCondition;
         self.prevFunc = ();
@@ -389,8 +389,8 @@ type _OuterJoinFunction object {
     # outer join var ... in streamA join var ... in streamB
     # + return - merged two frames { ...frameA, ...frameB }
     public function process() returns _Frame|error? {
-        function(_Frame _frame) returns boolean onCondition = self.onCondition;
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function (_Frame _frame) returns boolean onCondition = self.onCondition;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
         _StreamPipeline j = self.pipelineToJoin;
         _Frame|error? cf = self.currentFrame;
         if (cf is ()) {
@@ -430,7 +430,7 @@ type _OuterJoinFunction object {
         _Frame nilFrame = {};
         foreach var e in f.entries() {
             if (e[1] is _Frame) {
-                nilFrame[e[0]] = self.getNilFrame(<_Frame> e[1]);
+                nilFrame[e[0]] = self.getNilFrame(<_Frame>e[1]);
             } else {
                 nilFrame[e[0]] = ();
             }
@@ -447,16 +447,16 @@ type _FilterFunction object {
     #   1. on dn equals dept.deptName
     #   2. where person.age >= 70
     # emit the next frame which satisfies the condition
-    function(_Frame _frame) returns boolean filterFunc;
+    function (_Frame _frame) returns boolean filterFunc;
 
-    function init(function(_Frame _frame) returns boolean filterFunc) {
+    function init(function (_Frame _frame) returns boolean filterFunc) {
         self.filterFunc = filterFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) returns boolean filterFunc = self.filterFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns boolean filterFunc = self.filterFunc;
         _Frame|error? pFrame = pf.process();
         while (pFrame is _Frame && !filterFunc(pFrame)) {
             pFrame = pf.process();
@@ -481,16 +481,16 @@ type _SelectFunction object {
     #   lastName: person.lastName,
     #   dept : dept.name
     # };
-    public function(_Frame _frame) returns _Frame|error? selectFunc;
+    public function (_Frame _frame) returns _Frame|error? selectFunc;
 
-    function init(function(_Frame _frame) returns _Frame|error? selectFunc) {
+    function init(function (_Frame _frame) returns _Frame|error? selectFunc) {
         self.selectFunc = selectFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) returns _Frame|error? f = self.selectFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) returns _Frame|error? f = self.selectFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             _Frame|error? cFrame = f(pFrame);
@@ -514,16 +514,16 @@ type _DoFunction object {
     # do {
     #   count += value;
     # };
-    public function(_Frame _frame) doFunc;
+    public function (_Frame _frame) doFunc;
 
-    function init(function(_Frame _frame) doFunc) {
+    function init(function (_Frame _frame) doFunc) {
         self.doFunc = doFunc;
         self.prevFunc = ();
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
-        function(_Frame _frame) f = self.doFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
+        function (_Frame _frame) f = self.doFunc;
         _Frame|error? pFrame = pf.process();
         if (pFrame is _Frame) {
             f(pFrame);
@@ -559,7 +559,7 @@ type _LimitFunction object {
     }
 
     public function process() returns _Frame|error? {
-        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        _StreamFunction pf = <_StreamFunction>self.prevFunc;
         if (self.count < self.lmt) {
             _Frame|error? pFrame = pf.process();
             self.count += 1;
@@ -585,7 +585,7 @@ type StreamOrderBy object {
         self.sortTypes = sortTypes;
     }
 
-    public function topDownMergeSort(@tainted Type[] events) returns @tainted Type[]{
+    public function topDownMergeSort(@tainted Type[] events) returns @tainted Type[] {
         int index = 0;
         int n = events.length();
         Type[] b = [];
@@ -597,7 +597,7 @@ type StreamOrderBy object {
         return events;
     }
 
-    function topDownSplitMerge(@tainted Type[] b, int iBegin, int iEnd, @tainted Type[] a) {
+    function topDownSplitMerge(@tainted Type[] b, int iBegin, int iEnd,@tainted Type[] a) {
         if (iEnd - iBegin < 2) {
             return;
         }
@@ -607,7 +607,7 @@ type StreamOrderBy object {
         self.topDownMerge(b, iBegin, iMiddle, iEnd, a);
     }
 
-    function topDownMerge(@tainted Type[] a, int iBegin, int iMiddle, int iEnd, @tainted Type[] b) {
+    function topDownMerge(@tainted Type[] a, int iBegin, int iMiddle, int iEnd,@tainted Type[] b) {
         int i = iBegin;
         int j = iMiddle;
 
@@ -650,7 +650,7 @@ type StreamOrderBy object {
                 return self.callNextSortFunc(x, y, c, fieldIndex + 1);
             } else {
                 panic error("Inconsistent order field value",
-                message = self.sortFields[fieldIndex] + " order field contain non-numeric values");
+                    message = self.sortFields[fieldIndex] + " order field contain non-numeric values");
             }
         } else if (xFieldValue is string) {
             if (yFieldValue is string) {
@@ -663,7 +663,7 @@ type StreamOrderBy object {
                 return self.callNextSortFunc(x, y, c, fieldIndex + 1);
             } else {
                 panic error("Inconsistent order field value",
-                message = self.sortFields[fieldIndex] + " order field contain non-string type values");
+                    message = self.sortFields[fieldIndex] + " order field contain non-string type values");
             }
         } else if (xFieldValue is boolean) {
             if (yFieldValue is boolean) {
@@ -675,12 +675,12 @@ type StreamOrderBy object {
                 }
                 return self.callNextSortFunc(x, y, c, fieldIndex + 1);
             } else {
-                  panic error("Inconsistent order field value",
-                  message = self.sortFields[fieldIndex] + " order field contain non-boolean type values");
+                panic error("Inconsistent order field value",
+                    message = self.sortFields[fieldIndex] + " order field contain non-boolean type values");
             }
         } else {
             panic error("Unable to perform order by",
-            message = self.sortFields[fieldIndex] + " field type incorrect");
+                message = self.sortFields[fieldIndex] + " field type incorrect");
         }
     }
 
@@ -695,15 +695,15 @@ type StreamOrderBy object {
             }
         } else if (val1 is float) {
             if (val2 is int) {
-                return val1 < <float>val2 ? -1 : val1 == <float>val2 ? 0 : 1;
-            } else if (val2 is float){
+                return val1 < <float > val2 ? -1 : val1 == <float>val2 ? 0 : 1;
+            } else if (val2 is float) {
                 return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
             } else {
                 return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
             }
         } else {
             if (val2 is (int|float)) {
-                return val1 < <decimal>val2 ? -1 : val1 == <decimal>val2 ? 0 : 1;
+                return val1 < <decimal > val2 ? -1 : val1 == <decimal>val2 ? 0 : 1;
             } else {
                 return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
             }
