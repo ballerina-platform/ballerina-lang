@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib table test">
+    <description>tests for langlib table</description>
+    <test name="tablelibNegative-test">
+        <description>tablelib negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/tablelib_test_negative.bal</nFile>
+        </source>
+    </test>
+    <test name="tablelib-test">
+        <description>table test</description>
+        <source>
+            <file>test-src/tablelib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testTableLength">
+                    <assert>
+                        <return>
+                            <int>4</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterator">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="getValueFromKey">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMap">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testForeach">
+                    <assert>
+                        <return>
+                            <string>Chiran Granier </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testFilter">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>35.5</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="removeWithKey">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="removeIfHasKey">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testHasKey">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="removeAllFromTable">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="tableToArray">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNextKey">
+                    <assert>
+                        <return>
+                            <int>101</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="getWithInvalidKey">
+                    <assert>
+                        <error>error: {ballerina/lang.table}KeyNotFound message=cannot find key 'AAA'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="removeWithInvalidKey">
+                    <assert>
+                        <error>error: {ballerina/lang.table}KeyNotFound message=cannot find key 'AAA'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddData">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddExistingMember">
+                    <assert>
+                        <error>error: {ballerina/lang.table}KeyConstraintViolation message=A value found for key '5'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentData">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Person' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]> key(name)'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentData2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]> key(name)'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentDataWithMapConstrTbl">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentDataWithMapConstrTbl2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'map<![CDATA[<string>]]>' inconsistent with the inherent table type 'table<![CDATA[<Teacher>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddValidData">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddValidData2">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddValidDataWithMapConstrTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutData">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentData">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Person' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]> key(name)'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentData2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]> key(name)'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentDataWithMapConstrTbl">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentDataWithMapConstrTbl2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'map<![CDATA[<string>]]>' inconsistent with the inherent table type 'table<![CDATA[<Teacher>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutValidData">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutValidData2">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutValidDataWithMapConstrTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutWithKeyLessTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddWithKeyLessTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddNewRecordAfterIteratorCreation">
+                    <assert>
+                        <error>error: {ballerina}IteratorMutabilityError message=Table was mutated after the iterator was created</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemoveAlreadyReturnedRecordFromIterator">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="removeIfHasKeyReturnedRecordFromIterator">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testChangeValueForAGivenKeyWhileIterating">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemoveThenIterate">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutWithKeylessTableAfterIteratorCreation">
+                    <assert>
+                        <error>error: {ballerina}IteratorMutabilityError message=Table was mutated after the iterator was created</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddWithKeylessTableAfterIteratorCreation">
+                    <assert>
+                        <error>error: {ballerina}IteratorMutabilityError message=Table was mutated after the iterator was created</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemoveAllReturnedRecordsFromIteratorKeylessTbl">
+                    <assert>
+                        <error>error: {ballerina}IteratorMutabilityError message=Table was mutated after the iterator was created</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentDataToKeylessTbl">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Person' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddInconsistentDataToKeylessTbl2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentDataToKeylessTbl">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Person' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutInconsistentDataToKeylessTbl2">
+                    <assert>
+                        <error>error: {ballerina/lang.table}InherentTypeViolation message=value type 'Student' inconsistent with the inherent table type 'table<![CDATA[<Engineer>]]>'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddValidDataToKeylessTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPutValidDataToKeylessTbl">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

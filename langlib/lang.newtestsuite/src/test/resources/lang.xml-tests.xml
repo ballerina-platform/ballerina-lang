@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib xml test">
+    <description>tests for langlib xml</description>
+    <test name="xmllibNegative-test">
+        <description>xmllib negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/xmllib_test_negative.bal</nFile>
+        </source>
+    </test>
+    <test name="xmllib-test">
+        <description>xml test</description>
+        <source>
+            <file>test-src/xmllib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testForEach"/>
+                <callFunction name="testLength"/>
+                <callFunction name="testFromString"/>
+                <callFunction name="emptyConcatCall"/>
+                <callFunction name="testConcat"/>
+                <callFunction name="testIsElement"/>
+                <callFunction name="testXmlPI"/>
+                <callFunction name="testXmlIsComment"/>
+                <callFunction name="testXmlIsText"/>
+                <callFunction name="testGetNameOfElement">
+                    <assert>
+                        <return>
+                            <string>elem</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSetElementName"/>
+                <callFunction name="testGetChildren"/>
+                <callFunction name="testSetChildren"/>
+                <callFunction name="testGetAttributes"/>
+                <callFunction name="testGetTarget">
+                    <assert>
+                        <return>
+                            <string>xml-stylesheet</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGetContent"/>
+                <callFunction name="testCreateElement"/>
+                <callFunction name="testCreateProcessingInstruction"/>
+                <callFunction name="testCreateComment"/>
+                <callFunction name="testSlice"/>
+                <callFunction name="testXMLCycleDueToChildrenOfChildren"/>
+                <callFunction name="testGet"/>
+                <callFunction name="testChildren"/>
+                <callFunction name="testElements"/>
+                <callFunction name="testElementsNS"/>
+                <callFunction name="testElementChildren"/>
+                <callFunction name="testElementChildrenNS"/>
+                <callFunction name="testXMLFunctionalCtor"/>
+                <callFunction name="testXMLFunctionalConstructorWithAttributes"/>
+                <callFunction name="testXMLFunctionalConstructorWithAChild"/>
+                <callFunction name="testXMLCommentCtor"/>
+                <callFunction name="testXMLPICtor"/>
+                <callFunction name="testXMLTextCtor"/>
+            </run>
+        </steps>
+    </test>
+    <test name="xmllibcons-test">
+        <description>xml constrained test</description>
+        <source>
+            <file>test-src/xmllib_constrained_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="basicXMLConstrainedType"/>
+                <callFunction name="xmlConstraintMultipleElement"/>
+                <callFunction name="xmlConstraintRuntimeCast"/>
+                <callFunction name="xmlCastSingleElementAsConstrainedSequence"/>
+                <callFunction name="xmlSubtypeArray"/>
+                <callFunction name="xmlSubtypeArrayTwo"/>
+                <callFunction name="xmlSubtypeMap"/>
+                <callFunction name="xmlConstraintRuntimeCastInvalid">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'xml<lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>' cannot be cast to 'xml<lang.xml:Comment>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="xmlConstraintRuntimeCastUnionInvalid">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'xml<lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>' cannot be cast to 'xml<lang.xml:Element|lang.xml:Text>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="xmlElementToConstraintClassInvalid">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'lang.xml:Comment' cannot be cast to 'xml<lang.xml:Element>']]></error>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

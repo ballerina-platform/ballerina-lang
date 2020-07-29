@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib negative test">
+    <description>langlib negative test</description>
+    <test name="laglibNegative-test">
+        <description>langlib negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/langlib_test_negative.bal</nFile>
+        </source>
+    </test>
+</test-group>

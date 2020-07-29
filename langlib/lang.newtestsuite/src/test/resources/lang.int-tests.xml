@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib int test">
+    <description>tests for langlib int</description>
+    <test name="langint-test">
+        <description>int test</description>
+        <source>
+            <file>test-src/intlib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testFromString"/>
+                <callFunction name="testAbs"/>
+                <callFunction name="testFromHexString"/>
+                <callFunction name="testToHexString"/>
+                <callFunction name="testMax">
+                    <parameters>
+                        <int>54</int>
+                        <arrayValue>
+                            <int>23,34</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>54</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>23</int>
+                        <arrayValue>
+                            <int>34,47</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>47</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>-1</int>
+                        <arrayValue>
+                            <int>-20,-4</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>-1</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMin">
+                    <parameters>
+                        <int>54</int>
+                        <arrayValue>
+                            <int>23,34</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>23</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>23</int>
+                        <arrayValue>
+                            <int>34,47</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>23</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>-1</int>
+                        <arrayValue>
+                            <int>-20,-4</int>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>-20</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSum">
+                    <assert>
+                        <return>
+                            <int>110</int>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="subtypeInt-test">
+        <description>int subtype test</description>
+        <source>
+            <file>test-src/subtype.int/int_subtypes_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testValueAssignment"/>
+                <callFunction name="testSigned32Assignment"/>
+                <callFunction name="testSigned16Assignment"/>
+                <callFunction name="testSigned8Assignment"/>
+                <callFunction name="testUnsigned32Assignment"/>
+                <callFunction name="testUnsigned16Assignment"/>
+                <callFunction name="testUnsigned8Assignment"/>
+                <callFunction name="testTypeAlias"/>
+                <callFunction name="testMathsOperators"/>
+                <callFunction name="testTypeCastingWithInt"/>
+                <callFunction name="testTypeCastingWith32"/>
+                <callFunction name="testTypeCastingWith16"/>
+                <callFunction name="testTypeCastingWith8"/>
+                <callFunction name="testTypeCastingWithFloat"/>
+                <callFunction name="testTypeCastingWithDecimal"/>
+                <callFunction name="testTypeTest"/>
+                <callFunction name="testList"/>
+                <callFunction name="testMapping"/>
+                <callFunction name="testLeftShift"/>
+                <callFunction name="testRightShift"/>
+                <callFunction name="testUnsignedRightShift"/>
+                <callFunction name="testBitwiseAnd"/>
+                <callFunction name="testBitwiseOr"/>
+                <callFunction name="testBitwiseXor"/>
+            </run>
+        </steps>
+    </test>
+</test-group>

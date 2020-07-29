@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib decimal test">
+    <description>tests for langlib decimal</description>
+    <test name="decimallib-test">
+        <description>decimal test</description>
+        <source>
+            <file>test-src/decimallib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testMaxAsMethodInvok">
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0.0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>1</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>1</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-1</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>5</decimal>
+                        <arrayValue>
+                            <decimal>0,2,-2</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>5</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>511111111111199999999999222222222.2222222</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>511111111111199999999999222222222.2222222</decimal>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMinAsMethodInvok">
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0.0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>1</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-1</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-1</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>5</decimal>
+                        <arrayValue>
+                            <decimal>0,2,-2</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-2</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-511111111111199999999999222222222.2222222</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-511111111111199999999999222222222.2222222</decimal>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMultiArgMax">
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0.0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>1</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>1</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-1</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>5</decimal>
+                        <arrayValue>
+                            <decimal>0,2,-2</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>5</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-511111111111199999999999222222222.2222222</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMultiArgMin">
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0.0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>0</decimal>
+                        <arrayValue>
+                            <decimal>1</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-1</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-1</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-0</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>0</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>5</decimal>
+                        <arrayValue>
+                            <decimal>0,2,-2</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-2</decimal>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <decimal>-511111111111199999999999222222222.2222222</decimal>
+                        <arrayValue>
+                            <decimal>0</decimal>
+                        </arrayValue>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <decimal>-511111111111199999999999222222222.2222222</decimal>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSum">
+                    <parameters> <decimal>0</decimal> <decimal>0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal> <decimal>0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>0</decimal> <decimal>1</decimal> </parameters>
+                    <assert> <return> <decimal>1</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> <decimal>1</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> <decimal>1</decimal> </parameters>
+                    <assert> <return> <decimal>1</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testOneArgMax">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testOneArgMin">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testAbs">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100.1</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100.1</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303030.3030303</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testRound">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-100</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303030</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testFloor">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-101</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303030</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303031</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testCeiling">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-100</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>101</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303031</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303030</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testFromString">
+                    <parameters> <string>0</string> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <string>0.0</string> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <string>-0</string> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <string>-1</string> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <string>-0.0</string> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <string>-100.1</string> </parameters>
+                    <assert> <return> <decimal>-100.1</decimal> </return> </assert>
+                    <parameters> <string>100.1</string> </parameters>
+                    <assert> <return> <decimal>100.1</decimal> </return> </assert>
+                    <parameters> <string>5</string> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <string>504023030303030303030.3030303</string> </parameters>
+                    <assert> <return> <decimal>504023030303030303030.3030303</decimal> </return> </assert>
+                    <parameters> <string>-504023030303030303030.3030303</string> </parameters>
+                    <assert> <return> <decimal>-504023030303030303030.3030303</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testAbsAsMethodInvok">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0.0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100.1</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100.1</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303030.3030303</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testRoundAsMethodInvok">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-100</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303030</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testFloorAsMethodInvok">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-101</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>100</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303030</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303031</decimal> </return> </assert>
+                </callFunction>
+                <callFunction name="testCeilingAsMethodInvok">
+                    <parameters> <decimal>0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>0.0</decimal></parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-1</decimal> </parameters>
+                    <assert> <return> <decimal>-1</decimal> </return> </assert>
+                    <parameters> <decimal>-0.0</decimal> </parameters>
+                    <assert> <return> <decimal>0</decimal> </return> </assert>
+                    <parameters> <decimal>-100.1</decimal> </parameters>
+                    <assert> <return> <decimal>-100</decimal> </return> </assert>
+                    <parameters> <decimal>100.1</decimal> </parameters>
+                    <assert> <return> <decimal>101</decimal> </return> </assert>
+                    <parameters> <decimal>5</decimal> </parameters>
+                    <assert> <return> <decimal>5</decimal> </return> </assert>
+                    <parameters> <decimal>504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>504023030303030303031</decimal> </return> </assert>
+                    <parameters> <decimal>-504023030303030303030.3030303</decimal> </parameters>
+                    <assert> <return> <decimal>-504023030303030303030</decimal> </return> </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

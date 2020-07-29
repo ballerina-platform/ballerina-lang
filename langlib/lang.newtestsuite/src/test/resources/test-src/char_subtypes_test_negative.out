@@ -1,0 +1,8 @@
+ERROR: .::char_subtypes_test_negative.bal:21:16:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:24:16:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:33:17:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:34:17:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:35:17:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:39:28:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:43:19:: incompatible types: expected 'string:Char', found 'string'
+ERROR: .::char_subtypes_test_negative.bal:48:13:: incompatible types: expected 'string:Char', found 'string'

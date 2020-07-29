@@ -1,0 +1,3 @@
+ERROR: .::foreach-tuples-negative.bal:20:13:: incompatible types: expected '(int|string)', found 'string'
+ERROR: .::foreach-tuples-negative.bal:23:13:: incompatible types: expected '(int|string)', found 'int'
+ERROR: .::foreach-tuples-negative.bal:31:13:: incompatible types: expected '(int|string|boolean)', found '(string|int)'

@@ -1,0 +1,9 @@
+ERROR: .::foreach-iterable-object-negative.bal:158:16:: incompatible types: expected 'object { public function next () returns (record {| int value; |}?); }', found 'object { int[] integers; int cursorIndex; public function next () returns ((record {| int value; |}|CustomError)?); }'
+ERROR: .::foreach-iterable-object-negative.bal:245:25:: iterable objects must have a __iterator function with signature,  public function __iterator() returns (object { public function next () returns (record {| T value; |}?); });
+ERROR: .::foreach-iterable-object-negative.bal:247:25:: iterable objects must have a __iterator function with signature,  public function __iterator() returns (object { public function next () returns (record {| T value; |}?); });
+ERROR: .::foreach-iterable-object-negative.bal:249:25:: iterable objects must have a __iterator function with signature,  public function __iterator() returns (object { public function next () returns (record {| T value; |}?); });
+ERROR: .::foreach-iterable-object-negative.bal:251:25:: iterable objects must have a __iterator function with signature,  public function __iterator() returns (object { public function next () returns (record {| T value; |}?); });
+ERROR: .::foreach-iterable-object-negative.bal:253:25:: iterable objects must have a __iterator function with signature,  public function __iterator() returns (object { public function next () returns (record {| T value; |}?); });
+ERROR: .::foreach-iterable-object-negative.bal:257:25:: incompatible types: expected 'int', found '(int|CustomError)'
+ERROR: .::foreach-iterable-object-negative.bal:259:25:: incompatible types: expected 'int', found '(int|CustomError)'
+ERROR: .::foreach-iterable-object-negative.bal:262:25:: incompatible types: expected 'int', found '(int|CustomError)'

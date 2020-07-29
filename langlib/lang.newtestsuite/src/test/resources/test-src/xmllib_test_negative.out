@@ -1,0 +1,7 @@
+ERROR: .::xmllib_test_negative.bal:21:12:: incompatible types: expected 'xml:Element', found 'xml'
+ERROR: .::xmllib_test_negative.bal:28:5:: incompatible types: expected 'xml:Element', found 'xml'
+ERROR: .::xmllib_test_negative.bal:36:13:: incompatible types: expected 'xml:Element', found 'xml'
+ERROR: .::xmllib_test_negative.bal:44:5:: incompatible types: expected 'xml:Element', found 'xml'
+ERROR: .::xmllib_test_negative.bal:51:12:: incompatible types: expected 'xml:Element', found 'xml'
+ERROR: .::xmllib_test_negative.bal:56:8:: incompatible types: expected 'xml:ProcessingInstruction', found 'xml'
+ERROR: .::xmllib_test_negative.bal:61:12:: incompatible types: expected '(xml:Text|xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'

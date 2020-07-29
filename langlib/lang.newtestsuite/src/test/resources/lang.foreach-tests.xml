@@ -1,0 +1,1084 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib foreach array test">
+    <description>tests for langlib foreach array</description>
+    <test name="foreachIterableObjectNegative-test">
+        <description>foreach iterable object negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/statements.foreach/foreach-iterable-object-negative.bal</nFile>
+        </source>
+    </test>
+    <test name="foreachNegative-test">
+        <description>foreach negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/statements.foreach/foreach-negative.bal</nFile>
+        </source>
+    </test>
+    <test name="foreachTupleNegative-test">
+        <description>foreach tuple negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/statements.foreach/foreach-tuples-negative.bal</nFile>
+        </source>
+    </test>
+    <test name="foreacharray-test">
+        <description>foreach array test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-arrays.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testIntArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <int>23</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIntArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:1 1:-3 2:5 3:-30 4:4 5:11 6:25 7:10 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIntArrayComplex"/>
+                <callFunction name="testFloatArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <string>0:1.123 0:-3.35244 0:5.23 0:-30.45 0:4.32 0:11.56 0:25.967 0:10.345 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testFloatArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:1.123 1:-3.35244 2:5.23 3:-30.45 4:4.32 5:11.56 6:25.967 7:10.345 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testStringArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <string>0:foo 0:bar 0:bax 0:baz </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testStringArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:foo 1:bar 2:bax 3:baz </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testBooleanArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <string>0:true 0:false 0:false 0:false 0:true 0:false </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testBooleanArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:true 1:false 2:false 3:false 4:true 5:false </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <string>0:{"name":"bob", "age":10} 0:{"name":"tom", "age":16} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:{"name":"bob", "age":10} 1:{"name":"tom", "age":16} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testStructArrayWithArityOne">
+                    <assert>
+                        <return>
+                            <string>0:name=bob,age=10 0:name=tom,age=16 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testStructArrayWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>0:name=bob,age=10 1:name=tom,age=16 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayInsertInt">
+                    <assert>
+                        <return>
+                            <string>0:0 1:0 2:0 3:3 4:0 5:0 6:6 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayInsertString">
+                    <assert>
+                        <return>
+                            <string>0:d0 1: 2: 3:d3 4: 5: 6:d6 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayInsertInForeach">
+                    <assert>
+                        <return>
+                            <string>0:d0 1:d1 2:d2 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testBreak">
+                    <assert>
+                        <return>
+                            <string>0:d0 break</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testContinue">
+                    <assert>
+                        <return>
+                            <string>0:d0 continue 2:d2 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReturn">
+                    <assert>
+                        <return>
+                            <string>0:d0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyString">
+                    <assert>
+                        <return>
+                            <string>0:D0 1:D1 2: 3:D3 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNestedWithBreakContinue">
+                    <assert>
+                        <return>
+                            <string>0:d0 13 1:d1 13 2:d2 13 3:d3 13 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithNullElements">
+                    <assert>
+                        <return>
+                            <string>0:d0 1: 2:d2 3: </string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreacharraybinding-test">
+        <description>foreach array binding pattern test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-arrays-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testArrayWithSimpleVariableWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithSimpleVariableWithType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:A 2:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleWithType">
+                    <assert>
+                        <return>
+                            <string>1:A 2:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:A:2.0 2:B:3.0 3:C:4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>1:A:2.0 2:B:3.0 3:C:4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:A 2:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordWithType">
+                    <assert>
+                        <return>
+                            <string>1:A 2:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithRecordInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testArrayWithTupleInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>1:1:A 2:2:B 3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyArrayIteration">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachcomplex-test">
+        <description>foreach complex</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-complex.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testIntRangeComplex">
+                    <assert>
+                        <return>
+                            <string>0 1 2 3 4 5 6 7 8 9 10 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIntRangeEmptySet">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIntRangeSimple">
+                    <parameters>
+                        <int>-5</int>
+                        <int>5</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string>-5 -4 -3 -2 -1 0 1 2 3 4 5 </string>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>5</int>
+                        <int>-5</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIntRangeSimpleArity2">
+                    <parameters>
+                        <int>-5</int>
+                        <int>5</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string>0:-5 1:-4 2:-3 3:-2 4:-1 5:0 6:1 7:2 8:3 9:4 10:5 </string>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <int>5</int>
+                        <int>-5</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNestedForeach">
+                    <assert>
+                        <return>
+                            <string>0:mon 0:tom 0:bob 0:sam \n1:tue 1:tom 1:bob 1:sam \n2:wed 2:tom 2:bob 2:sam \n3:thu 3:tom 3:bob 3:sam \n4:fri 4:tom 4:bob 4:sam \n</string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachIterableObj-test">
+        <description>foreach iterable object test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-iterable-objects.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testIterableObject"/>
+                <callFunction name="testNestedIterableObject"/>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachJson-test">
+        <description>foreach json test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-json.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testJSONObject">
+                <assert>
+                    <return>
+                        <string>bob 10 true [{"subject":"maths", "marks":75}, {"subject":"English", "marks":85}] </string>
+                    </return>
+                </assert>
+                </callFunction>
+                <callFunction name="testJSONArray">
+                <assert>
+                    <return>
+                        <string>{"subject":"maths", "marks":75} {"subject":"English", "marks":85} </string>
+                    </return>
+                </assert>
+                </callFunction>
+                <callFunction name="testArrayOfJSON">
+                    <assert>
+                        <return>
+                            <string>0:{"subject":"maths", "marks":75} 1:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONString">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'string' cannot be cast to 'map<json>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONNumber">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'int' cannot be cast to 'map<json>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONBoolean">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'boolean' cannot be cast to 'map<json>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJSONNull">
+                    <assert>
+                        <error><![CDATA[error: {ballerina}TypeCastError message=incompatible types: 'error' cannot be cast to 'map<json>']]></error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddWhileIteration">
+                    <assert>
+                        <return>
+                            <string>bob 10 true [{"subject":"maths", "marks":75}, {"subject":"English", "marks":85}] smith </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDeleteWhileIteration">
+                    <assert>
+                        <return>
+                            <string>bob 10 true [{"subject":"maths", "marks":75}, {"subject":"English", "marks":85}] bob 10 true </string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachJsonTypedBinding-test">
+        <description>foreach json typed binding patterns test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-json-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testJsonWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:bob 1:10 2:true 3:[{"subject":"maths", "marks":75}, {"subject":"English", "marks":85}] </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJsonWithType">
+                    <assert>
+                        <return>
+                            <string>0:bob 1:10 2:true 3:[{"subject":"maths", "marks":75}, {"subject":"English", "marks":85}] </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDirectAccessJsonArrayWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:{"subject":"maths", "marks":75} 1:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDirectAccessJsonArrayWithType">
+                    <assert>
+                        <return>
+                            <string>0:{"subject":"maths", "marks":75} 1:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJsonArrayWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:{"subject":"maths", "marks":75} 1:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJsonArrayWithType">
+                    <assert>
+                        <return>
+                            <string>0:{"subject":"maths", "marks":75} 1:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDirectAccessInvalidElementWithoutType">
+                    <assert>
+                            <error>error: {ballerina}TypeCastError message=incompatible types: 'error' cannot be cast to 'json'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDirectAccessInvalidElementWithType">
+                    <assert>
+                            <error>error: {ballerina}TypeCastError message=incompatible types: 'error' cannot be cast to 'json'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIteratingCompleteJsonWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:bob 1:10 2:true 3:{"subject":"maths", "marks":75} 3:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIteratingCompleteJsonWithType">
+                    <assert>
+                        <return>
+                            <string>0:bob 1:10 2:true 3:{"subject":"maths", "marks":75} 3:{"subject":"English", "marks":85} </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyJsonIteration">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachMap-test">
+        <description>foreach map test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-maps.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testMapWithArityOne">
+                    <assert>
+                        <return>
+                            <string>1A 2B 3C 4D </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMapWithArityTwo">
+                    <assert>
+                        <return>
+                            <string>1A 2B 3C 4D </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testDeleteWhileIteration">
+                    <assert>
+                        <return>
+                            <string>1A 2B </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAddWhileIteration">
+                    <assert>
+                        <return>
+                            <string>1A 1A 2B 3C 1A1A \n2B 1A 2B 3C 1A1A 2B2B \n3C 1A 2B 3C 1A1A 2B2B 3C3C \n</string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachMapTypedBinding-test">
+        <description>foreach maps typed binding patterns test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-maps-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testUnconstrainedMapWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:A 1:B 2:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 1:2 B 2:3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 1:2 B 2:3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1:A 1:2:B 2:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:1:A 1:2:B 2:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 1:2 B 2:3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 2.0 1:2 B 3.0 2:3 C 4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 2.0 1:2 B 3.0 2:3 C 4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:1:A:2.0 1:2:B:3.0 2:3:C:4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInTupleWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:1 A 2.0 1:2 B 3.0 2:3 C 4.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInTupleWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:2:1:A 1:3:2:B 2:4:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInTupleWithType">
+                    <assert>
+                        <return>
+                            <string>0:2:1:A 1:3:2:B 2:4:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInTupleWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:2 i=1 v=A 1:3 i=2 v=B 2:4 i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=A 1:i=2 v=B 2:i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=A 1:i=2 v=B 2:i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1:A 1:2:B 2:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:1:A 1:2:B 2:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=A 1:i=2 v=B 2:i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithRecordInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:2:1:A 1:3:2:B 2:4:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:2:1:A 1:3:2:B 2:4:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithRecordInRecordWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:i=2 v=i=1 v=A 1:i=3 v=i=2 v=B 2:i=4 v=i=3 v=C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=1 A 1:i=2 v=2 B 2:i=3 v=3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testUnconstrainedMapWithTupleInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=1 A 1:i=2 v=2 B 2:i=3 v=3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1:1:A 1:2:2:B 2:3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:1:1:A 1:2:2:B 2:3:3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConstrainedMapWithTupleInRecordWithAnyType">
+                    <assert>
+                        <return>
+                            <string>0:i=1 v=1 A 1:i=2 v=2 B 2:i=3 v=3 C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyMapIteration">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachRecordTypedBinding-test">
+        <description>foreach record typed binding patterns test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-record-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testSimpleRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1 1:A 2:1.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSimpleRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:1 1:A 2:1.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRecordInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:2 1:B 2:i=1 s=A f=1.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRecordInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:2 1:B 2:i=1 s=A f=1.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleInRecordWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1 1:2 A </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleInRecordWithType">
+                    <assert>
+                        <return>
+                            <string>0:1 1:2 A </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyRecordIteration">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachTableTypedBinding-test">
+        <description>foreach table typed binding patterns test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-table-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testTableWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTableWithType">
+                    <assert>
+                        <return>
+                            <string>0:id=1 name=Mary salary=300.5 1:id=2 name=John salary=200.5 2:id=3 name=Jim salary=330.5 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRecordInTableWithoutType">
+                    <assert>
+                        <return>
+                            <string>0:1:Mary:300.5 1:2:John:200.5 2:3:Jim:330.5 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEmptyTableIteration">
+                    <assert>
+                        <return>
+                            <string></string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterationOverKeylessTable">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachXML-test">
+        <description>foreach xml test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-xml.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testXMLWithArityOne"/>
+                <callFunction name="testXMLWithArityTwo"/>
+                <callFunction name="testXMLWithArityChildren"/>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachXMLTypedBinding-test">
+        <description>foreach xml typed binding pattern test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-xml-typed-binding-patterns.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testXmlWithRootWithSimpleVariableWithoutType"/>
+                <callFunction name="testXmlWithRootWithSimpleVariableWithType"/>
+                <callFunction name="testXmlInnerElementsWithSimpleVariableWithoutType"/>
+                <callFunction name="testXmlInnerElementsWithSimpleVariableWithType"/>
+                <callFunction name="testEmptyXmlIteration"/>
+            </run>
+        </steps>
+    </test>
+    <test name="foreachTuple-test">
+        <description>foreach tuple test</description>
+        <source>
+            <file>test-src/statements.foreach/foreach-tuples.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testIntTupleComplex"/>
+                <callFunction name="testTupleWithBasicTypes">
+                    <assert>
+                        <return>
+                            <string>20stringtrue()15.520.2</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleWithBasicTypesAddingInt">
+                    <assert>
+                        <return>
+                            <int>18</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleWithTypeAny">
+                    <assert>
+                        <return>
+                            <int>8</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleWithTypeAnydata">
+                    <assert>
+                        <return>
+                            <int>8</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testBreak">
+                    <assert>
+                        <return>
+                            <string>0:d0 break</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testContinue">
+                    <assert>
+                        <return>
+                            <string>0:d0 continue 2:d2 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReturn">
+                    <assert>
+                        <return>
+                            <string>0:d0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNestedWithBreakContinue">
+                    <assert>
+                        <return>
+                            <string>0:d0 13 1:d1 13 2:d2 13 3:d3 13 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleWithNullElements">
+                    <assert>
+                        <return>
+                            <string>0:d0 1: 2:d2 3: </string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+    <test name="nestedForeach-test">
+        <description>nested foreach test</description>
+        <source>
+            <file>test-src/statements.foreach/nested-foreach.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="test2LevelNestedForeachWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="test2LevelNestedForeachWithType">
+                    <assert>
+                        <return>
+                            <string>1:A 1:B 1:C 2:A 2:B 2:C 3:A 3:B 3:C </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="test3LevelNestedForeachWithoutType">
+                    <assert>
+                        <return>
+                            <string>1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0 1:C:11.0 1:C:12.0 2:A:10.0 2:A:11.0 2:A:12.0 2:B:10.0 2:B:11.0 2:B:12.0 2:C:10.0 2:C:11.0 2:C:12.0 3:A:10.0 3:A:11.0 3:A:12.0 3:B:10.0 3:B:11.0 3:B:12.0 3:C:10.0 3:C:11.0 3:C:12.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="test3LevelNestedForeachWithType">
+                    <assert>
+                        <return>
+                            <string>1:A:10.0 1:A:11.0 1:A:12.0 1:B:10.0 1:B:11.0 1:B:12.0 1:C:10.0 1:C:11.0 1:C:12.0 2:A:10.0 2:A:11.0 2:A:12.0 2:B:10.0 2:B:11.0 2:B:12.0 2:C:10.0 2:C:11.0 2:C:12.0 3:A:10.0 3:A:11.0 3:A:12.0 3:B:10.0 3:B:11.0 3:B:12.0 3:C:10.0 3:C:11.0 3:C:12.0 </string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNestedForeachWithBreak1">
+                    <assert>
+                        <return>
+                            <string>innerouter</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testNestedForeachWithBreak2">
+                    <assert>
+                        <return>
+                            <string>level4level3level2level1</string>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

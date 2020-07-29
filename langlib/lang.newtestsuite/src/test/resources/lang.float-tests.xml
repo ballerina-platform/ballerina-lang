@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib float test">
+    <description>tests for langlib float</description>
+    <test name="laglibfloat-test">
+        <description>float test</description>
+        <source>
+            <file>test-src/floatlib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testIsFinite"/>
+                <callFunction name="testIsInfinite"/>
+                <callFunction name="testSum"/>
+            </run>
+        </steps>
+    </test>
+</test-group>

@@ -1,0 +1,18 @@
+ERROR: .::arraylib_test_negative.bal:19:22:: cannot call 'push' on fixed length list(s) of type 'int[1]'
+ERROR: .::arraylib_test_negative.bal:24:22:: cannot call 'push' on fixed length list(s) of type '[int,int]'
+ERROR: .::arraylib_test_negative.bal:29:35:: cannot call 'pop' on fixed length list(s) of type 'int[1]'
+ERROR: .::arraylib_test_negative.bal:34:35:: cannot call 'pop' on fixed length list(s) of type '[int,int]'
+ERROR: .::arraylib_test_negative.bal:45:30:: cannot call 'shift' on fixed length list(s) of type 'int[1]'
+ERROR: .::arraylib_test_negative.bal:50:22:: cannot call 'unshift' on fixed length list(s) of type 'int[1]'
+ERROR: .::arraylib_test_negative.bal:55:35:: cannot call 'shift' on fixed length list(s) of type '[int,int]'
+ERROR: .::arraylib_test_negative.bal:60:22:: cannot call 'unshift' on fixed length list(s) of type '[int,int]'
+ERROR: .::arraylib_test_negative.bal:66:22:: cannot call 'push' on fixed length list(s) of type 'int[2]'
+ERROR: .::arraylib_test_negative.bal:67:30:: cannot call 'pop' on fixed length list(s) of type 'int[2]'
+ERROR: .::arraylib_test_negative.bal:68:26:: cannot call 'shift' on fixed length list(s) of type 'int[2]'
+ERROR: .::arraylib_test_negative.bal:69:22:: cannot call 'unshift' on fixed length list(s) of type 'int[2]'
+ERROR: .::arraylib_test_negative.bal:74:22:: cannot call 'push' on fixed length list(s) of type '(int[1]|float[1])'
+ERROR: .::arraylib_test_negative.bal:79:22:: cannot call 'push' on fixed length list(s) of type '([int,int][1]|[float,float][1])'
+ERROR: .::arraylib_test_negative.bal:84:24:: cannot call 'shift' on tuple(s) of type '[int,string...]': cannot violate inherent type
+ERROR: .::arraylib_test_negative.bal:89:24:: cannot call 'shift' on tuple(s) of type '[int,string,int...]': cannot violate inherent type
+ERROR: .::arraylib_test_negative.bal:100:22:: cannot call 'push' on fixed length list(s) of type '([int,int]|[float,float])'
+ERROR: .::arraylib_test_negative.bal:118:24:: cannot call 'shift' on fixed length list(s) of type '[string,int]'

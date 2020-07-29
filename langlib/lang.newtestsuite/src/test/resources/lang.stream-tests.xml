@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib stream test">
+    <description>tests for langlib stream</description>
+    <test name="streamlib-test">
+        <description>stream test</description>
+        <source>
+            <file>test-src/streamlib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testFilterFunc">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMapFunc">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testFilterAndMapFunc">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>135.0</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testForEach">
+                    <assert>
+                        <return>
+                            <float>135.0</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterator">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMapFuncWithRecordType">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

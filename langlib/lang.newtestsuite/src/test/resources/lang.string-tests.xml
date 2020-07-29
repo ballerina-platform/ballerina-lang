@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib string test">
+    <description>tests for langlib char</description>
+    <test name="stringlib-test">
+        <description>langlib string test</description>
+        <source>
+            <file>test-src/stringlib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testFromCodePointIntsDataProvider"/>
+                <callFunction name="testFromCodePointsIntNegativeDataProvider"/>
+                <callFunction name="testFromBytes">
+                    <assert>
+                        <return>
+                            <string>Hello Ballerina!</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testLength">
+                    <assert>
+                        <return>
+                            <int>16</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testToLower">
+                    <assert>
+                        <return>
+                            <string>hello ballerina!</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSubString"/>
+                <callFunction name="testIterator"/>
+                <callFunction name="testToLower">
+                    <assert>
+                        <return>
+                            <string>hello ballerina!</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testStartsWith">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testConcat">
+                    <assert>
+                        <return>
+                            <string>Hello from Ballerina</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testFromBytes">
+                    <assert>
+                        <return>
+                            <string>Hello Ballerina!</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testJoin">
+                    <assert>
+                        <return>
+                            <string>Sunday, Monday, Tuesday</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEqualsIgnoreCaseAscii"/>
+                <callFunction name="testEndsWith">
+                    <parameters>
+                        <string>Ballerina!</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>Invalid</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>false</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIndexOf">
+                    <parameters>
+                        <string>Ballerina!</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>6</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>Invalid</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <nil></nil>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testLastIndexOf"/>
+                <callFunction name="testCodePointCompare">
+                    <parameters>
+                        <string>abc</string>
+                        <string>abcd</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>-1</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>abcd</string>
+                        <string>abc</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>1</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string></string>
+                        <string>a</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>-1</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>a</string>
+                        <string></string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>1</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>a</string>
+                        <string>a</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>0</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string></string>
+                        <string></string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>0</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSubstringDataProvider"/>
+                <callFunction name="testSubstringOutRange">
+                    <assert>
+                        <error>error: {ballerina/lang.string}StringOperationError message=string index out of range. Length:'6' requested: '7' to '9'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGetCodepoint">
+                    <parameters>
+                        <string>a</string>
+                        <int>0</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>97</int>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>a👻cd</string>
+                        <int>1</int>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>128123</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGetCodepoint">
+                    <parameters>
+                        <string></string>
+                        <int>1</int>
+                    </parameters>
+                    <assert>
+                        <error>error: {ballerina/lang.string}IndexOutOfRange message=String codepoint index out of range: 1</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testToCodePointIntsDataProvider"/>
+            </run>
+        </steps>
+    </test>
+</test-group>

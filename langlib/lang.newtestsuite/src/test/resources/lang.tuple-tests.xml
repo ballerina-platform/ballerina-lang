@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib tuple test">
+    <description>tests for langlib tuple</description>
+    <test name="tuplelibNegative-test">
+        <description>tuplelib Negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/tuplelib_test_negative.bal</nFile>
+        </source>
+    </test>
+    <test name="tuplelib-test">
+        <description>tuplelib test</description>
+        <source>
+            <file>test-src/tuplelib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testEnumerate"/>
+                <callFunction name="testLength">
+                    <assert>
+                        <return>
+                            <int>4</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMap"/>
+                <callFunction name="testForeach">
+                    <assert>
+                        <return>
+                            <int>26</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSlice"/>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>13.8</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterableOpChain">
+                    <assert>
+                        <return>
+                            <float>3.25</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIndexOf"/>
+                <callFunction name="testPush1">
+                    <assert>
+                        <return>
+                            <int>4</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testPush2">
+                    <assert>
+                        <return>
+                            <int>4</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemove">
+                    <assert>
+                        <error>error: {ballerina/lang.array}OperationNotSupported message=remove() not supported on type 'null'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testSort">
+                    <assert>
+                        <error>error: {ballerina/lang.array}OperationNotSupported message=sort() not supported on type 'null'</error>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

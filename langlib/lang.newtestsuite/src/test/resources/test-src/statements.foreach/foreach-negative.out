@@ -1,0 +1,3 @@
+ERROR: .::foreach-negative.bal:24:9:: unreachable code
+ERROR: .::foreach-negative.bal:29:9:: unreachable code
+ERROR: .::foreach-negative.bal:31:5:: continue cannot be used outside of a loop

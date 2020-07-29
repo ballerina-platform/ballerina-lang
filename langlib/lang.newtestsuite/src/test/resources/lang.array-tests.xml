@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib array test">
+    <description>tests for langlib array</description>
+    <test name="laglibArrayNegative-test">
+        <description>langlib array negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/arraylib_test_negative.bal</nFile>
+        </source>
+    </test>
+    <test name="laglibArray-test">
+        <description>langlib array test</description>
+        <source>
+            <file>test-src/arraylib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testLength">
+                    <assert>
+                        <return>
+                            <int>4</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterator">
+                    <assert>
+                        <return>
+                            <string>HelloWorld!FromBallerina</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testForeach">
+                    <assert>
+                        <return>
+                            <string>HelloWorld!fromBallerina</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>13.8</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterableOpChain">
+                    <assert>
+                        <return>
+                            <float>3.25</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testIterableOpChain2">
+                    <assert>
+                        <return>
+                            <int>420</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMap"/>
+                <callFunction name="testSlice"/>
+                <callFunction name="testPushAfterSlice"/>
+                <callFunction name="testPushAfterSliceFixed"/>
+                <callFunction name="testSliceOnTupleWithRestDesc"/>
+                <callFunction name="testRemove"/>
+                <callFunction name="testSort"/>
+                <callFunction name="testIndexOf"/>
+                <callFunction name="testLastIndexOf"/>
+                <callFunction name="testShift"/>
+                <callFunction name="testUnshift"/>
+                <callFunction name="testUnshiftTypeWithoutFillerValues"/>
+                <callFunction name="testRemoveAll"/>
+                <callFunction name="testTupleRemoveAllForTupleWithJustRestMemberType">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleSetLengthLegal">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleSetLengthToSameAsOriginal">
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testAsyncFpArgsWithArrays"/>
+                <callFunction name="testBooleanPush"/>
+                <callFunction name="testBytePush"/>
+                <callFunction name="testUnionArrayPush"/>
+                <callFunction name="testPushOnUnionOfSameBasicType"/>
+                <callFunction name="testInvalidPushOnUnionOfSameBasicType"/>
+                <callFunction name="testShiftOnTupleWithoutValuesForRestParameter"/>
+                <callFunction name="testSort2"/>
+                <callFunction name="testReverse"/>
+                <callFunction name="testEnumerate"/>
+                <callFunction name="testSetLengthDataProvider"/>
+                <callFunction name="testRemoveAllFixedLengthArray">
+                    <assert>
+                        <error>error: {ballerina/lang.array}InherentTypeViolation message=cannot change the length of an array of fixed length '7' to '0'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleResize">
+                    <assert>
+                        <error>error: {ballerina/lang.array}InherentTypeViolation message=cannot change the length of a tuple of fixed length '2' to '3'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleRemoveAll">
+                    <assert>
+                        <error>error: {ballerina/lang.array}InherentTypeViolation message=cannot change the length of a tuple of fixed length '2' to '0'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleRemoveAllForTupleWithRestMemberType">
+                    <assert>
+                        <error>error: {ballerina/lang.array}InherentTypeViolation message=cannot change the length of a tuple with '2' mandatory member(s) to '0'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testTupleSetLengthIllegal">
+                    <assert>
+                        <error>error: {ballerina/lang.array}InherentTypeViolation message=cannot change the length of a tuple with '2' mandatory member(s) to '1'</error>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

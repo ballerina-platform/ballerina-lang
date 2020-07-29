@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib chat test">
+    <description>tests for langlib char</description>
+    <test name="laglibcharNegative-test">
+        <description>char subtypes negative test</description>
+        <source>
+            <nFile>src/test/resources/test-src/char_subtypes_test_negative.bal</nFile>
+        </source>
+    </test>
+    <test name="laglibchar-subtype-test">
+        <description>char subtypes test</description>
+        <source>
+            <file>test-src/char_subtypes_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testValueAssignment"/>
+                <callFunction name="testTypeAlias"/>
+                <callFunction name="testConcat"/>
+                <callFunction name="testCharLangLib"/>
+                <callFunction name="testList"/>
+                <callFunction name="testMapping"/>
+            </run>
+        </steps>
+    </test>
+</test-group>

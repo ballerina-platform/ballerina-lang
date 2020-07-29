@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib map test">
+    <description>tests for langlib maps</description>
+    <test name="mapLib-test">
+        <description>map test</description>
+        <source>
+            <file>test-src/maplib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testLength"/>
+                <callFunction name="testEntries"/>
+                <callFunction name="testRemoveIfHasKey"/>
+                <callFunction name="testRemove"/>
+                <callFunction name="testRemoveAll"/>
+                <callFunction name="testHasKey">
+                    <parameters>
+                        <string>lk</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>invalid</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>false</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testMap"/>
+                <callFunction name="testFilter"/>
+                <callFunction name="testBasicToArray"/>
+                <callFunction name="testLargeMapToArray"/>
+                <callFunction name="testMapOfUnionToArray"/>
+                <callFunction name="testRecordToArray"/>
+                <callFunction name="testOpenRecordToArray"/>
+                <callFunction name="testRecordWithSameTypeFieldsToArray"/>
+                <callFunction name="testAsyncFpArgsWithMaps"/>
+                <callFunction name="testKeys"/>
+                <callFunction name="testGet">
+                    <parameters>
+                        <string>lk</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string>Sri Lanka</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testForEach">
+                    <assert>
+                        <return>
+                            <string>Sri LankaUSAUnited Kingdom</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>80.5</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGet">
+                    <parameters>
+                        <string>NonExistent</string>
+                    </parameters>
+                    <assert>
+                        <error>error: {ballerina/lang.map}KeyNotFound message=cannot find key 'NonExistent'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemoveNonExistingKey">
+                    <parameters>
+                        <string>NonExistent</string>
+                    </parameters>
+                    <assert>
+                        <error>error: {ballerina/lang.map}KeyNotFound message=cannot find key 'NonExistent'</error>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>

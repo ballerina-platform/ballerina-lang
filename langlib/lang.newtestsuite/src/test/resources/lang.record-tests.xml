@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-group name="langlib record test">
+    <description>tests for langlib char</description>
+    <test name="recordlib-test">
+        <description>langlib record test</description>
+        <source>
+            <file>test-src/recordlib_test.bal</file>
+        </source>
+        <steps>
+            <run>
+                <callFunction name="testLength">
+                    <assert>
+                        <return>
+                            <int>2</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGet">
+                    <parameters>
+                        <string>name</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <string>John Doe</string>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>age</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <int>25</int>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testEntries"/>
+                <callFunction name="testKeys"/>
+                <callFunction name="testHasKey2"/>
+                <callFunction name="testMap"/>
+                <callFunction name="testHasKey">
+                    <parameters>
+                        <string>name</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>age</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>true</boolean>
+                        </return>
+                    </assert>
+                    <parameters>
+                        <string>invalid</string>
+                    </parameters>
+                    <assert>
+                        <return>
+                            <boolean>false</boolean>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testForEach">
+                    <assert>
+                        <return>
+                            <string>John Doe25</string>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testFilter"/>
+                <callFunction name="testReduce">
+                    <assert>
+                        <return>
+                            <float>61.25</float>
+                        </return>
+                    </assert>
+                </callFunction>
+                <callFunction name="testGet">
+                    <parameters>
+                        <string>NonExistingKey</string>
+                    </parameters>
+                    <assert>
+                        <error>error: {ballerina/lang.map}KeyNotFound message=cannot find key 'NonExistingKey'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemove">
+                    <parameters>
+                        <string>name</string>
+                    </parameters>
+                    <assert>
+                        <error>error: {ballerina/lang.map}OperationNotSupported message=failed to remove field: 'name' is a required field in '.:Person'</error>
+                    </assert>
+                </callFunction>
+                <callFunction name="testRemoveAll">
+                    <assert>
+                        <error>error: {ballerina/lang.map}OperationNotSupported message=failed to remove field: 'name' is a required field in '.:Person'</error>
+                    </assert>
+                </callFunction>
+            </run>
+        </steps>
+    </test>
+</test-group>
