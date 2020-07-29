@@ -103,18 +103,17 @@ function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authentica
         return authenticated;
     }
     if (isWebSocketUpgradeRequest(context)) {
-            error? err = caller->cancelWebSocketUpgrade(401, "Authentication failure.");
-            if (err is error) {
-                panic <error> err;
-            }
-        } else {
-            Response response = new;
-            response.statusCode = 401;
-            response.setTextPayload("Authentication failure.");
-            error? err = caller->respond(response);
-            if (err is error) {
-                panic <error> err;
-            }
+        error? err = caller->cancelWebSocketUpgrade(401, "Authentication failure.");
+        if (err is error) {
+            panic <error> err;
+        }
+    } else {
+        Response response = new;
+        response.statusCode = 401;
+        response.setTextPayload("Authentication failure.");
+        error? err = caller->respond(response);
+        if (err is error) {
+            panic <error> err;
         }
     }
     return false;
