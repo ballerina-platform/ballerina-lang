@@ -597,6 +597,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         analyzeNode(lockNode.body, this.env);
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override

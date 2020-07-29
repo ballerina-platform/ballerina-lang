@@ -863,6 +863,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         lockNode.body.accept(this);
+
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override

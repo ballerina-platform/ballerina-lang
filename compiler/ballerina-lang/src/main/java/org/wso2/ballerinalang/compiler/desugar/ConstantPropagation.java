@@ -396,6 +396,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lock) {
         lock.body = rewrite(lock.body);
+        lock.onFailClause = rewrite(lock.onFailClause);
         result = lock;
     }
 

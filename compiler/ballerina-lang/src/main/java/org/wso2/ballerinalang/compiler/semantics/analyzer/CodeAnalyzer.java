@@ -1391,6 +1391,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.withinLockBlock = true;
         lockNode.body.stmts.forEach(e -> analyzeNode(e, env));
         this.withinLockBlock = previousWithinLockBlock;
+
+        if (lockNode.onFailClause != null) {
+            analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override

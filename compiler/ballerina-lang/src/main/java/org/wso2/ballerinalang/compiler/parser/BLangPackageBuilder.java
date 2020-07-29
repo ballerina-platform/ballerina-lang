@@ -3206,6 +3206,9 @@ public class BLangPackageBuilder {
         BLangBlockStmt lockBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         lockBlock.pos = pos;
         lockNode.setBody(lockBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            lockNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(lockNode);
     }
 

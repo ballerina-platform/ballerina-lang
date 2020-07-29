@@ -2418,6 +2418,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLock lockNode) {
         analyzeStmt(lockNode.body, env);
+        if (lockNode.onFailClause != null) {
+            this.analyzeNode(lockNode.onFailClause, env);
+        }
     }
 
     @Override

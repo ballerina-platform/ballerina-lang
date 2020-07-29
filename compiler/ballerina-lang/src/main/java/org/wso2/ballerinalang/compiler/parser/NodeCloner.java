@@ -735,6 +735,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangLock clone = new BLangLock();
         source.cloneRef = clone;
         clone.body = clone(source.body);
+        clone.onFailClause = clone(source.onFailClause);
     }
 
     @Override
