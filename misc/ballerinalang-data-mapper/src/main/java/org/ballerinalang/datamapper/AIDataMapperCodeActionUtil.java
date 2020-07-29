@@ -52,10 +52,10 @@ import java.util.regex.Matcher;
 /**
  * Automatic data mapping code action related utils.
  */
-public class AIDataMapperCodeActionUtil {
+class AIDataMapperCodeActionUtil {
+    private static final int HTTP_200_OK = 200;
     private static final int HTTP_422_UN_PROCESSABLE_ENTITY = 422;
     private static final int HTTP_500_INTERNAL_SERVER_ERROR = 500;
-    private static final int HTTP_200_OK = 200;
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();

@@ -37,28 +37,8 @@ public class HttpResponse {
         return data;
     }
 
-    public void setData(String data) {
-        this.data = data;
-    }
-
     public int getResponseCode() {
         return responseCode;
-    }
-
-    public void setResponseCode(int responseCode) {
-        this.responseCode = responseCode;
-    }
-
-    public Map<String, String> getHeaders() {
-        return headers;
-    }
-
-    public void setHeaders(Map<String, String> headers) {
-        this.headers = headers;
-    }
-
-    public String getResponseMessage() {
-        return responseMessage;
     }
 
     public void setResponseMessage(String responseMessage) {
