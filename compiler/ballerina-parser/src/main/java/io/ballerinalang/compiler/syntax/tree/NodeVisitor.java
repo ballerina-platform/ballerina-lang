@@ -143,6 +143,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(checkExpressionNode);
     }
 
+    public void visit(FailExpressionNode failExpressionNode) {
+        visitSyntaxNode(failExpressionNode);
+    }
+
     public void visit(FieldAccessExpressionNode fieldAccessExpressionNode) {
         visitSyntaxNode(fieldAccessExpressionNode);
     }
@@ -793,6 +797,14 @@ public abstract class NodeVisitor {
 
     public void visit(DocumentationReferenceNode documentationReferenceNode) {
         visitSyntaxNode(documentationReferenceNode);
+    }
+
+    public void visit(OrderByClauseNode orderByClauseNode) {
+        visitSyntaxNode(orderByClauseNode);
+    }
+
+    public void visit(OrderKeyNode orderKeyNode) {
+        visitSyntaxNode(orderKeyNode);
     }
 
     // Tokens

@@ -47,6 +47,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendTextDataAndAssert("Hi");
         restartServerAndGiveTimeClientConnectToServer();
         sendTextDataAndAssert("Hi madam");
+        client.sendText("close");
         closeConnection();
     }
 
@@ -59,9 +60,8 @@ public class RetryClientTest extends WebSocketTestCommons {
         restartServerAndGiveTimeClientConnectToServer();
         sendTextDataAndAssert("Hi madam");
         restartServerAndGiveTimeClientConnectToServer();
-        CountDownLatch latch = new CountDownLatch(1);
-        latch.await(30, TimeUnit.SECONDS);
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 
@@ -89,6 +89,7 @@ public class RetryClientTest extends WebSocketTestCommons {
         sendBinaryDataAndAssert();
         restartServerAndGiveTimeClientConnectToServer();
         sendBinaryDataAndAssert();
+        client.sendText("close");
         closeConnection();
     }
 

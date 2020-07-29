@@ -15,8 +15,8 @@
 // under the License.
 
 import ballerina/cache;
+import ballerina/java;
 import ballerina/log;
-import ballerina/runtime;
 import ballerina/time;
 import ballerina/io;
 import ballerina/lang.'int;
@@ -777,6 +777,11 @@ function getDateValue(Response inboundResponse) returns int {
 }
 
 function getWarningAgent() returns string {
-    string ballerinaVersion = runtime:getProperty("ballerina.version");
+    string ballerinaVersion = getProperty("ballerina.version");
     return "ballerina-http-caching-client/" + ballerinaVersion;
 }
+
+function getProperty(@untainted string name) returns string = @java:Method {
+    name: "getProperty",
+    class: "org.ballerinalang.net.http.util.CacheUtils"
+} external;

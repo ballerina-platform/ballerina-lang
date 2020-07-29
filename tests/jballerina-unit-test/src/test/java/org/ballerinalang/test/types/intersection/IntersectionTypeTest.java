@@ -40,7 +40,7 @@ public class IntersectionTypeTest {
         result = BCompileUtil.compile("test-src/types/intersection/test_intersection_type.bal");
     }
 
-    @Test
+    @Test(groups = "brokenOnNewParser")
     public void testImmutableTypes() {
         BRunUtil.invoke(result, "testIntersectionTypes");
     }

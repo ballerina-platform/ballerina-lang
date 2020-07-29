@@ -44,12 +44,6 @@ public class BallerinaFunctionDefinitionBodyImpl extends ASTWrapperPsiElement im
 
   @Override
   @Nullable
-  public BallerinaBlockFunctionBody getBlockFunctionBody() {
-    return findChildByClass(BallerinaBlockFunctionBody.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaExprFunctionBodySpec getExprFunctionBodySpec() {
     return findChildByClass(BallerinaExprFunctionBodySpec.class);
   }
@@ -58,6 +52,12 @@ public class BallerinaFunctionDefinitionBodyImpl extends ASTWrapperPsiElement im
   @Nullable
   public BallerinaExternalFunctionBody getExternalFunctionBody() {
     return findChildByClass(BallerinaExternalFunctionBody.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaRecoverableBody getRecoverableBody() {
+    return findChildByClass(BallerinaRecoverableBody.class);
   }
 
   @Override

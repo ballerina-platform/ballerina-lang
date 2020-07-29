@@ -56,7 +56,6 @@ public class InitEndpoint {
         // Creates the client connector.
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(clientConnectorConfig);
         webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_FACTORY, connectorFactory);
-        webSocketClient.addNativeData(WebSocketConstants.CONNECTOR_CONFIG, clientConnectorConfig);
         // Add the client connector as a native data
         // because there is no need to create the client connector again when using one URL.
         webSocketClient.addNativeData(WebSocketConstants.CLIENT_CONNECTOR, clientConnector);
