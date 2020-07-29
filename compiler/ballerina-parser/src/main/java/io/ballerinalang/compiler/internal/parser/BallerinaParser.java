@@ -138,7 +138,6 @@ public class BallerinaParser extends AbstractParser {
      */
     @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
-        // TODO: revisit the commented resume-points
         switch (context) {
             case FUNC_BODY:
                 return parseFunctionBody((boolean) args[0]);
@@ -5536,7 +5535,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMember(STNode metadata) {
-        return parseObjectMember(peek().kind,metadata);
+        return parseObjectMember(peek().kind, metadata);
     }
 
     private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
