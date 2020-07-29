@@ -34,6 +34,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
+
 /**
  * Resolve maven dependencies.
  */
@@ -56,9 +58,9 @@ public class ResolveMavenDependenciesTask implements Task {
             for (Repository repository : manifest.getPlatform().getRepositories()) {
                 String id = repository.getId();
                 String url = repository.getUrl();
-                String username = repository.getUser();
-                String password = repository.getToken();
                 if (id != null && url != null) {
+                    String username = repository.getUser();
+                    String password = repository.getToken();
                     if (username != null && password != null) {
                         resolver.addRepository(id, url, username, password);
                         continue;
@@ -82,7 +84,7 @@ public class ResolveMavenDependenciesTask implements Task {
                             library.getVersion(), false);
                     library.setPath(Utils.getJarPath(targetRepo, dependency));
                 } catch (MavenResolverException e) {
-                    buildContext.err().print("cannot resolve " + library.getArtifactId());
+                    throw createLauncherException("cannot resolve " + library.getArtifactId() + ": " + e.getMessage());
                 }
             }
             buildContext.out().println();
