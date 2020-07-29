@@ -37,7 +37,7 @@ public class AuthenticationTest {
     String expectingErrorLog;
 
     @Test(description = "Tests with correct credential")
-    public void testBasicAuthentication() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testBasicAuthenticationSuccess() throws URISyntaxException, InterruptedException, BallerinaTestException {
         expectingErrorLog = "Hello World!";
         logLeecher = new LogLeecher(expectingErrorLog);
         WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
@@ -48,7 +48,7 @@ public class AuthenticationTest {
     }
 
     @Test(description = "Tests with wrong credential")
-    public void negativeTestcase() throws URISyntaxException, InterruptedException, BallerinaTestException {
+    public void testBasicAuthenticationFailure() throws URISyntaxException, InterruptedException, BallerinaTestException {
         expectingErrorLog = "error InvalidHandshakeError: Invalid handshake response getStatus: 401 Unauthorized";
         logLeecher = new LogLeecher(expectingErrorLog);
         WebSocketTestCommons.serverInstance.addLogLeecher(logLeecher);
