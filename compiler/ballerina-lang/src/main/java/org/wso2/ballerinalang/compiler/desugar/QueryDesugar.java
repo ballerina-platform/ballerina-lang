@@ -378,7 +378,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.type, this.env.scope.owner);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
-                collection.type, collection, dataSymbol);
+                collection.type, addTypeConversionExpr(collection, collection.type), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
@@ -689,6 +689,23 @@ public class QueryDesugar extends BLangNodeVisitor {
                 name, tableType, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
         return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
+    }
+
+    /**
+     * Adds a type cast expression to given expression.
+     * @param expr to be casted.
+     * @param type to be casted into.
+     * @return expression with the type cast.
+     */
+    private BLangExpression addTypeConversionExpr(BLangExpression expr, BType type) {
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                TreeBuilder.createTypeConversionNode();
+        conversionExpr.expr = expr;
+        conversionExpr.targetType = type;
+        conversionExpr.type = type;
+        conversionExpr.pos = expr.pos;
+        conversionExpr.checkTypes = false;
+        return conversionExpr;
     }
 
     /**
