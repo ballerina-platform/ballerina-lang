@@ -3282,6 +3282,9 @@ public class BLangPackageBuilder {
         BLangBlockStmt retryBlock = (BLangBlockStmt) this.blockNodeStack.pop();
         retryBlock.pos = pos;
         retryNode.setRetryBody(retryBlock);
+        if (onFailClauseNodeStack.size() > 0) {
+            retryNode.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(retryNode);
     }
 

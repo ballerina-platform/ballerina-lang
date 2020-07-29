@@ -2529,6 +2529,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         SymbolEnv retryEnv = SymbolEnv.createRetryEnv(retryNode, env);
         analyzeStmt(retryNode.retryBody, retryEnv);
+
+        if (retryNode.onFailClause != null) {
+            this.analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override

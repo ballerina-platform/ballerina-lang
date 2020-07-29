@@ -617,6 +617,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         retryNode.retryBody.accept(this);
         retryNode.retryBodyReturns = this.returnWithinLambdaWrappingCheckStack.peek();
         this.returnWithinLambdaWrappingCheckStack.pop();
+
+        if (retryNode.onFailClause != null) {
+            analyzeNode(retryNode.onFailClause, env);
+        }
     }
 
     @Override

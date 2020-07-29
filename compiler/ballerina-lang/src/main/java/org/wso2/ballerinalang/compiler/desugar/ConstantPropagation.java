@@ -817,7 +817,8 @@ public class ConstantPropagation extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRetry retryNode) {
-        //TODO Transaction
+        retryNode.retryBody = rewrite(retryNode.retryBody);
+        retryNode.onFailClause = rewrite(retryNode.onFailClause);
         result = retryNode;
     }
 

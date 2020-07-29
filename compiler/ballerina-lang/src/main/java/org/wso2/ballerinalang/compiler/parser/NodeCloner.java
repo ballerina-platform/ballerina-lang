@@ -598,6 +598,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.retrySpec = clone(source.retrySpec);
         clone.retryBody = clone(source.retryBody);
+        clone.onFailClause = clone(source.onFailClause);
     }
 
     @Override
