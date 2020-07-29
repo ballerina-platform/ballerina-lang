@@ -357,8 +357,7 @@ type TwoPhaseCommitTransaction object {
         future<[(PrepareResult|error)?, Participant]>?[] results = [];
         foreach var participant in self.participants {
             string participantId = participant.participantId;
-            future<[(PrepareResult|error)?, Participant]> f = @strand{thread:"any"} start participant.prepare(protocol);
-            results[results.length()] = f;
+            self.startParticipantPrepare(participant, protocol, results);
         }
         foreach var res in results {
             future<[(PrepareResult|error)?, Participant]> f;
@@ -409,13 +408,18 @@ type TwoPhaseCommitTransaction object {
         return prepareDecision;
     }
 
+    // Todo: Need to revert this change once we fix https://github.com/ballerina-platform/ballerina-lang/issues/24741
+    function startParticipantPrepare(Participant participant, string protocol,
+                                     future<[(PrepareResult|error)?, Participant]>?[] results) {
+        future<[(PrepareResult|error)?, Participant]> f = @strand{thread:"any"} start participant.prepare(protocol);
+        results[results.length()] = f;
+    }
+
     function notifyParticipants(string action, string? protocolName) returns NotifyResult|error {
         NotifyResult|error notifyResult = (action == COMMAND_COMMIT) ? NOTIFY_RESULT_COMMITTED : NOTIFY_RESULT_ABORTED;
         future<(NotifyResult|error)?>?[] results = [];
         foreach var participant in self.participants {
-            future<(NotifyResult|error)?> f = @strand{thread:"any"} start participant.notify(action, protocolName);
-            results[results.length()] = f;
-
+            self.startParticipantNotify(participant, action, protocolName, results);
         }
         foreach var r in results {
             future<(NotifyResult|error)?> f;
@@ -432,6 +436,13 @@ type TwoPhaseCommitTransaction object {
             }
         }
         return notifyResult;
+    }
+
+    // Todo: Need to revert this change once we fix https://github.com/ballerina-platform/ballerina-lang/issues/24741
+    function startParticipantNotify(Participant participant, string action, string? protocolName,
+                                   future<(NotifyResult|error)?>?[] results) {
+        future<(NotifyResult|error)?> f = @strand{thread:"any"} start participant.notify(action, protocolName);
+        results[results.length()] = f;
     }
 
     // This function will be called by the initiator

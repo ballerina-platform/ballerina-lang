@@ -52,9 +52,9 @@ public class TaskManager {
             if (this.scheduler != null && this.scheduler.isStarted()) {
                 return this.scheduler;
             }
-            StdSchedulerFactory stdSchedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
-            this.scheduler = stdSchedulerFactory.getScheduler();
-            this.scheduler.start();
+//            StdSchedulerFactory stdSchedulerFactory = new StdSchedulerFactory(createSchedulerProperties());
+//            this.scheduler = stdSchedulerFactory.getScheduler();
+//            this.scheduler.start();
         } catch (SchedulerException e) {
             throw new SchedulingException("Cannot start the Task Listener/Scheduler.", e);
         }

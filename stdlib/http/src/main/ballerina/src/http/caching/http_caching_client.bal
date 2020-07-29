@@ -725,15 +725,19 @@ function retain2xxWarnings(Response cachedResponse) {
         cachedResponse.removeHeader(WARNING);
         // TODO: Need to handle this in a better way using regex when the required regex APIs are there
         foreach var warningHeader in warningHeaders {
-            if (warningHeader.indexOf("214") is int || warningHeader.indexOf("299") is int) {
-                log:printDebug(function() returns string {
-                    return "Adding warning header: " + warningHeader;
-                });
-                cachedResponse.addHeader(WARNING, warningHeader);
-                continue;
-            }
+            logWarningHeader(cachedResponse, warningHeader);
         }
     }
+}
+
+// Todo: Need to revert this change once we fix https://github.com/ballerina-platform/ballerina-lang/issues/24741
+function logWarningHeader(Response cachedResponse, string warningHeader) {
+      if (warningHeader.indexOf("214") is int || warningHeader.indexOf("299") is int) {
+            log:printDebug(function() returns string {
+                return "Adding warning header: " + warningHeader;
+            });
+            cachedResponse.addHeader(WARNING, warningHeader);
+      }
 }
 
 function getResponseAge(Response cachedResponse) returns @tainted int {
