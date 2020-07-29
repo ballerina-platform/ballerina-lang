@@ -446,6 +446,7 @@ public class ConstantPropagation extends BLangNodeVisitor {
     public void visit(BLangMatch matchNode) {
         matchNode.expr = rewrite(matchNode.expr);
         rewrite(matchNode.patternClauses);
+        matchNode.onFailClause = rewrite(matchNode.onFailClause);
         result = matchNode;
     }
 

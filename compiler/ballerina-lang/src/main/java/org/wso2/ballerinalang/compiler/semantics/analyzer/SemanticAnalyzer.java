@@ -2234,6 +2234,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             patternClause.matchExpr = matchNode.expr;
             patternClause.accept(this);
         });
+
+        if (matchNode.onFailClause != null) {
+            this.analyzeNode(matchNode.onFailClause, env);
+        }
+
         matchNode.exprTypes = exprTypes;
     }
 

@@ -806,6 +806,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             getCurrentAnalysisState().taintedStatus = observedTaintedStatusOfMatchExpr;
             clause.accept(this);
         });
+
+        if (matchStmt.onFailClause != null) {
+            analyzeNode(matchStmt.onFailClause, env);
+        }
     }
 
     @Override

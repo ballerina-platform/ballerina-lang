@@ -3365,6 +3365,9 @@ public class BLangPackageBuilder {
         matchStmt.pos = pos;
         matchStmt.addWS(ws);
         matchStmt.expr = (BLangExpression) this.exprNodeStack.pop();
+        if (onFailClauseNodeStack.size() > 0) {
+            matchStmt.onFailClause = (BLangOnFailClause) onFailClauseNodeStack.pop();
+        }
         addStmtToCurrentBlock(matchStmt);
     }
 

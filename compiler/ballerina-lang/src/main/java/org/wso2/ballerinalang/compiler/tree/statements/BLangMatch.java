@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree.statements;
 
+import org.ballerinalang.model.clauses.OnFailClauseNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -24,6 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     public BLangExpression expr;
     public List<BLangMatchBindingPatternClause> patternClauses;
     public List<BType> exprTypes;
+    public BLangOnFailClause onFailClause;
 
     @Override
     public NodeKind getKind() {
@@ -55,6 +58,16 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     @Override
     public BLangExpression getExpression() {
         return expr;
+    }
+
+    @Override
+    public OnFailClauseNode getOnFailClause() {
+        return this.onFailClause;
+    }
+
+    @Override
+    public void setOnFailClause(OnFailClauseNode onFailClause) {
+        this.onFailClause = (BLangOnFailClause) onFailClause;
     }
 
     @Override

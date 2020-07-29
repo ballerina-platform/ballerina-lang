@@ -528,6 +528,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch match) {
         analyzeNode(match.expr, env);
+        if (match.onFailClause != null) {
+            analyzeNode(match.onFailClause, env);
+        }
+
         Map<BSymbol, InitStatus> uninitVars = new HashMap<>();
         BranchResult lastPatternResult = null;
         for (BLangMatch.BLangMatchBindingPatternClause patternClause : match.patternClauses) {

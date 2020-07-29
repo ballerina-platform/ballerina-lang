@@ -744,6 +744,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             analyzeEmptyMatchPatterns(matchStmt);
             analyzeMatchedPatterns(matchStmt, staticLastPattern, structuredLastPattern);
         }
+
+        if (matchStmt.onFailClause != null) {
+            analyzeNode(matchStmt.onFailClause, env);
+        }
     }
 
     @Override
