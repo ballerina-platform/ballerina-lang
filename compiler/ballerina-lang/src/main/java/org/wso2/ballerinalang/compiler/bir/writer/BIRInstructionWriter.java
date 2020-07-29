@@ -342,13 +342,6 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewStructure birNewStructure) {
         writePosition(birNewStructure.pos);
         buf.writeByte(birNewStructure.kind.getValue());
-//        writeType(birNewStructure.type);
-//        buf.writeBoolean(birNewStructure.isExternalDef);
-//        if (birNewStructure.isExternalDef) {
-//            assert birNewStructure.externalPackageId != null;
-//            buf.writeInt(addPkgCPEntry(birNewStructure.externalPackageId));
-//            buf.writeInt(addStringCPEntry(birNewStructure.recordName));
-//        }
         birNewStructure.rhsOp.accept(this);
         birNewStructure.lhsOp.accept(this);
     }
@@ -442,7 +435,6 @@ public class BIRInstructionWriter extends BIRVisitor {
         birNewError.lhsOp.accept(this);
         birNewError.messageOp.accept(this);
         birNewError.causeOp.accept(this);
-//        birNewError.reasonOp.accept(this);
         birNewError.detailOp.accept(this);
     }
 
