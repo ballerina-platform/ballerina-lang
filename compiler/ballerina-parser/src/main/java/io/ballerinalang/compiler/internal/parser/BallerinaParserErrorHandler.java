@@ -689,6 +689,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+            case TYPE_DESC_OR_EXPR_RHS:
                 return true;
             default:
                 return false;
@@ -1280,6 +1281,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+            case TYPE_DESC_OR_EXPR_RHS:
                 return true;
             default:
                 return false;
@@ -1620,6 +1622,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case BRACKETED_LIST_RHS:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case TYPE_DESC_OR_EXPR_RHS:
                 alternativeRules = BRACKETED_LIST_RHS;
                 break;
             case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:

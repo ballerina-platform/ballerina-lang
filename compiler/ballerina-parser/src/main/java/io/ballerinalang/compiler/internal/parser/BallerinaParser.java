@@ -181,7 +181,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseTypeDescriptorInternal((ParserRuleContext) args[0], (boolean) args[1]);
             case TYPE_NAME:
                 return parseTypeName();
-            case VARIABLE_REF:// 2 resume-points : parseQualifiedIdentifier(context)
+            case VARIABLE_REF:
             case IMPLICIT_ANON_FUNC_PARAM:
             case MAPPING_FIELD_NAME:
             case RECEIVE_FIELD_NAME:
@@ -201,8 +201,10 @@ public class BallerinaParser extends AbstractParser {
             case MAPPING_FIELD:
             case FIRST_MAPPING_FIELD:
                 return parseMappingField((ParserRuleContext) args[0]);
-            case SPECIFIC_FIELD_RHS:// 2 resume-points : parseMappingFieldRhs(key)
+            case SPECIFIC_FIELD_RHS:
                 return parseSpecificFieldRhs((STNode) args[0], (STNode) args[1]);
+            case FIELD_BINDING_PATTERN_END:
+                return parseMappingFieldRhs((STNode) args[0]);
             case STRING_LITERAL:
                 return parseStringLiteral();
             case COLON:
@@ -468,7 +470,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseCommitKeyword();
             case RETRY_KEYWORD:
                 return parseRetryKeyword();
-            case ROLLBACK_KEYWORD:// 2 resume-points : parseTransactionalKeyword()
+            case ROLLBACK_KEYWORD:
                 return parseRollbackKeyword();
             case WAIT_KEYWORD:
                 return parseWaitKeyword();
@@ -482,7 +484,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseBase64Keyword();
             case READONLY_KEYWORD:
                 return parseReadonlyKeyword();
-            case PUBLIC_KEYWORD:// 2 resume-points : parseObjectMemberVisibility()
+            case PUBLIC_KEYWORD:
                 return parseQualifier();
             case TYPE_KEYWORD:
                 return parseTypeKeyword();
@@ -514,6 +516,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseLockKeyword();
             case STRING_KEYWORD:
                 return parseStringKeyword();
+            case TRANSACTIONAL_KEYWORD:
+                return parseTransactionalKeyword();
             default:
                 return resumeOtherNodesParsing(context, args);
         }
@@ -531,6 +535,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseSimpleConstExprInternal();
             case BINDING_PATTERN_OR_EXPR_RHS:// 2 resume-points : parseTypeDescOrExprRhs()
                 return parseTypedBindingPatternOrExprRhs((STNode) args[0], (boolean) args[1]);
+            case TYPE_DESC_OR_EXPR_RHS:
+                return parseTypeDescOrExprRhs((STNode) args[0]);
             case WAIT_FUTURE_EXPR_END:
                 return parseWaitFutureExprEnd((int) args[0]);
             case MEMBER_ACCESS_KEY_EXPR_END:
@@ -5588,7 +5594,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
-                STNode visibilityQualifier = parseObjectMemberVisibility();
+                STNode visibilityQualifier = consume();
                 member = parseObjectMethodOrField(metadata, visibilityQualifier);
                 break;
             case REMOTE_KEYWORD:
@@ -5676,21 +5682,6 @@ public class BallerinaParser extends AbstractParser {
         }
 
         return parseObjectMethodOrField(solution.tokenKind, nextTokenKind, metadata, visibilityQualifier);
-    }
-
-    /**
-     * Parse object visibility. Visibility can be <code>public</code> or <code>private</code>.
-     *
-     * @return Parsed node
-     */
-    private STNode parseObjectMemberVisibility() {
-        STToken token = peek();
-        if (token.kind == SyntaxKind.PUBLIC_KEYWORD || token.kind == SyntaxKind.PRIVATE_KEYWORD) {
-            return consume();
-        } else {
-            Solution sol = recover(token, ParserRuleContext.PUBLIC_KEYWORD);
-            return sol.recoveredNode;
-        }
     }
 
     private STNode parseRemoteKeyword() {
@@ -12330,7 +12321,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.ROLLBACK_KEYWORD);
+            Solution sol = recover(token, ParserRuleContext.TRANSACTIONAL_KEYWORD);
             return sol.recoveredNode;
         }
     }
@@ -14177,7 +14168,7 @@ public class BallerinaParser extends AbstractParser {
                 }
 
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.BINDING_PATTERN_OR_EXPR_RHS, typeOrExpr);
+                Solution solution = recover(token, ParserRuleContext.TYPE_DESC_OR_EXPR_RHS, typeOrExpr);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
@@ -16651,7 +16642,7 @@ public class BallerinaParser extends AbstractParser {
                 return STNodeFactory.createSpecificFieldNode(readonlyKeyword, key, colon, valueExpr);
             default:
                 STToken token = peek();
-                Solution solution = recover(token, ParserRuleContext.SPECIFIC_FIELD_RHS, key);
+                Solution solution = recover(token, ParserRuleContext.FIELD_BINDING_PATTERN_END, key);
 
                 // If the parser recovered by inserting a token, then try to re-parse the same
                 // rule with the inserted token. This is done to pick the correct branch
