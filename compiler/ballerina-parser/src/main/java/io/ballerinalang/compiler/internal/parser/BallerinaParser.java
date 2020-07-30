@@ -138,15 +138,15 @@ public class BallerinaParser extends AbstractParser {
      */
     @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
+        return resumeTopLevelNodeParsing(context, args);
+    }
+
+    public STNode resumeOtherNodesParsing(ParserRuleContext context, Object... args) {
         switch (context) {
-            case FUNC_BODY:
-                return parseFunctionBody((boolean) args[0]);
             case OPEN_BRACE:
                 return parseOpenBrace();
             case CLOSE_BRACE:
                 return parseCloseBrace();
-            case FUNC_NAME:
-                return parseFunctionName();
             case OPEN_PARENTHESIS:
             case ARG_LIST_START:
                 return parseOpenParenthesis(context);
@@ -154,24 +154,12 @@ public class BallerinaParser extends AbstractParser {
                 return parseSimpleTypeDescriptor();
             case ASSIGN_OP:
                 return parseAssignOp();
-            case EXTERNAL_KEYWORD:
-                return parseExternalKeyword();
             case SEMICOLON:
                 return parseSemicolon();
             case CLOSE_PARENTHESIS:
                 return parseCloseParenthesis();
             case VARIABLE_NAME:
                 return parseVariableName();
-            case TERMINAL_EXPRESSION:
-                return parseTerminalExpression((STNode) args[0], (boolean) args[1], (boolean) args[2],
-                        (boolean) args[3]);
-            case STATEMENT:
-                return parseStatement();
-            case STATEMENT_WITHOUT_ANNOTS:
-                return parseStatement((STNode) args[0]);
-            case EXPRESSION_RHS:
-                return parseExpressionRhs((OperatorPrecedence) args[0], (STNode) args[1], (boolean) args[2],
-                        (boolean) args[3], (boolean) args[4], (boolean) args[5]);
             case PARAMETER_START:
                 return parseParameter((SyntaxKind) args[0], (STNode) args[1], (int) args[2], (boolean) args[3]);
             case PARAMETER_WITHOUT_ANNOTS:
@@ -183,73 +171,26 @@ public class BallerinaParser extends AbstractParser {
             case PARAMETER_NAME_RHS:
                 return parseParameterRhs((SyntaxKind) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
                         (STNode) args[4], (STNode) args[5]);
-            case TOP_LEVEL_NODE:
-                return parseTopLevelNode();
-            case TOP_LEVEL_NODE_WITHOUT_METADATA:
-                return parseTopLevelNode((STNode) args[0]);
-            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
-                return parseTopLevelNode((STNode) args[0], (STNode) args[1]);
             case TYPE_NAME_OR_VAR_NAME:
-            case RECORD_FIELD_NAME_OR_TYPE_NAME:
             case TYPE_REFERENCE:
-            case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
                 return parseQualifiedIdentifier(context, (boolean) args[0]);
-            case VAR_DECL_STMT_RHS:
-                return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
             case FIELD_DESCRIPTOR_RHS:
                 return parseFieldDescriptorRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3]);
-            case RECORD_BODY_START:
-                return parseRecordBodyStartDelimiter();
             case TYPE_DESCRIPTOR:
                 return parseTypeDescriptorInternal((ParserRuleContext) args[0], (boolean) args[1]);
-            case OBJECT_MEMBER_START:
-                return parseObjectMember();
-            case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
-                return parseObjectMethodOrField((STNode) args[0], (STNode) args[1]);
-            case OBJECT_FIELD_RHS:
-                return parseObjectFieldRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
-                        (STNode) args[4]);
-            case OBJECT_TYPE_QUALIFIER:
-                return parseObjectTypeQualifiers();
-            case OBJECT_KEYWORD:
-                return parseObjectKeyword();
             case TYPE_NAME:
                 return parseTypeName();
-            case IF_KEYWORD:
-                return parseIfKeyword();
-            case ELSE_KEYWORD:
-                return parseElseKeyword();
-            case ELSE_BODY:
-                return parseElseBody();
-            case WHILE_KEYWORD:
-                return parseWhileKeyword();
-            case PANIC_KEYWORD:
-                return parsePanicKeyword();
-            case IMPORT_DECL_RHS:
-                return parseImportDecl((STNode) args[0], (STNode) args[1]);
-            case IMPORT_PREFIX:
-                return parseImportPrefix();
-            case IMPORT_MODULE_NAME:
-            case IMPORT_ORG_OR_MODULE_NAME:
             case VARIABLE_REF:// 2 resume-points : parseQualifiedIdentifier(context)
-            case SERVICE_NAME:
             case IMPLICIT_ANON_FUNC_PARAM:
             case MAPPING_FIELD_NAME:
             case RECEIVE_FIELD_NAME:
-            case MODULE_ENUM_NAME:
             case ENUM_MEMBER_NAME:
                 return parseIdentifier(context);
-            case IMPORT_KEYWORD:
-                return parseImportKeyword();
             case SLASH:
                 return parseSlashToken();
             case DOT:
                 return parseDotToken();
-            case IMPORT_VERSION_DECL:
-                return parseVersion();
-            case VERSION_KEYWORD:
-                return parseVersionKeyword();
             case VERSION_NUMBER:
                 return parseVersionNumber();
             case DECIMAL_INTEGER_LITERAL:
@@ -257,18 +198,6 @@ public class BallerinaParser extends AbstractParser {
             case MINOR_VERSION:
             case PATCH_VERSION:
                 return parseDecimalIntLiteral(context);
-            case IMPORT_SUB_VERSION:
-                return parseSubVersion(context);
-            case IMPORT_PREFIX_DECL:
-                return parseImportPrefixDecl();
-            case AS_KEYWORD:
-                return parseAsKeyword();
-            case CONTINUE_KEYWORD:
-                return parseContinueKeyword();
-            case BREAK_KEYWORD:
-                return parseBreakKeyword();
-            case RETURN_KEYWORD:
-                return parseReturnKeyword();
             case MAPPING_FIELD:
             case FIRST_MAPPING_FIELD:
                 return parseMappingField((ParserRuleContext) args[0]);
@@ -282,73 +211,219 @@ public class BallerinaParser extends AbstractParser {
                 return parseOpenBracket();
             case RESOURCE_DEF:
                 return parseResource();
-            case OPTIONAL_SERVICE_NAME:
-                return parseServiceName();
-            case SERVICE_KEYWORD:
-                return parseServiceKeyword();
-            case ON_KEYWORD:
-                return parseOnKeyword();
-            case RESOURCE_KEYWORD:
-                return parseResourceKeyword();
-            case LISTENER_KEYWORD:
-                return parseListenerKeyword();
             case NIL_TYPE_DESCRIPTOR:// following method is only referred in resume parsing
                 return parseNilTypeDescriptor();
-            case COMPOUND_ASSIGNMENT_STMT:// following method is only referred in resume parsing
-                return parseCompoundAssignmentStmt();
-            case TYPEOF_KEYWORD:
-                return parseTypeofKeyword();
             case ARRAY_LENGTH:
                 return parseArrayLength();
-            case IS_KEYWORD:
-                return parseIsKeyword();
-            case STMT_START_WITH_EXPR_RHS:
-                return parseStatementStartWithExprRhs((STNode) args[0]);
             case COMMA:
                 return parseComma();
             case CONST_DECL_TYPE:
                 return parseConstDecl((STNode) args[0], (STNode) args[1], (STNode) args[2]);
-            case BINDING_PATTERN_OR_EXPR_RHS:// 2 resume-points : parseTypeDescOrExprRhs()
-                return parseTypedBindingPatternOrExprRhs((STNode) args[0], (boolean) args[1]);
             case LT:
                 return parseLTToken();
             case GT:
                 return parseGTToken();
-            case RECORD_FIELD_OR_RECORD_END:
-                return parseFieldOrRestDescriptor((boolean) args[0]);
-            case ANNOTATION_KEYWORD:
-                return parseAnnotationKeyword();
-            case ANNOT_DECL_OPTIONAL_TYPE:
-                return parseAnnotationDeclFromType((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3]);
-            case ANNOT_DECL_RHS:
-                return parseAnnotationDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
-                        (STNode) args[4]);
-            case ANNOT_OPTIONAL_ATTACH_POINTS:
-                return parseAnnotationDeclAttachPoints((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3], (STNode) args[4], (STNode) args[5]);
-            case SOURCE_KEYWORD:
-                return parseSourceKeyword();
             case ATTACH_POINT_IDENT:
                 return parseAttachPointIdent((STNode) args[0]);
-            case IDENT_AFTER_OBJECT_IDENT:
-                return parseIdentAfterObjectIdent();
-            case FUNCTION_IDENT:
-                return parseFunctionIdent();
             case FIELD_IDENT:
                 return parseFieldIdent();
             case ATTACH_POINT_END:
                 return parseAttachPointEnd();
-            case XMLNS_KEYWORD:
-                return parseXMLNSKeyword();
-            case XML_NAMESPACE_PREFIX_DECL:
-                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
             case NAMESPACE_PREFIX:
                 return parseNamespacePrefix();
-            case WORKER_KEYWORD:
-                return parseWorkerKeyword();
             case WORKER_NAME:
                 return parseWorkerName();
+            case STREAM_TYPE_FIRST_PARAM_RHS:
+                return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
+            case TEMPLATE_START:
+            case TEMPLATE_END:
+                return parseBacktickToken(context);
+            case KEY_CONSTRAINTS_RHS:
+                return parseKeyConstraint((STNode) args[0]);
+            case ORDER_KEY_LIST_END:
+                return parseOrderKeyListMemberEnd();
+            case TABLE_CONSTRUCTOR_OR_QUERY_START:
+                return parseTableConstructorOrQuery((boolean) args[0]);
+            case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
+                return parseTableConstructorOrQueryRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
+            case QUERY_PIPELINE_RHS:
+                return parseIntermediateClause((boolean) args[0]);
+            case ANON_FUNC_BODY:
+                return parseAnonFuncBody((boolean) args[0]);
+            case CLOSE_BRACKET:
+                return parseCloseBracket();
+            case ARG_START_OR_ARG_LIST_END:
+                return parseArgument();
+            case ARG_END:
+                return parseArgEnd();
+            case MAPPING_FIELD_END:
+                return parseMappingFieldEnd();
+            case FIELD_OR_REST_DESCIPTOR_RHS:
+                return parseFieldOrRestDescriptorRhs((STNode) args[0], (STNode) args[1]);
+            case TYPE_DESC_IN_TUPLE_RHS:
+                return parseTupleMemberRhs();
+            case LIST_BINDING_PATTERN_MEMBER_END:
+                return parseListBindingPatternMemberRhs();
+            case MAPPING_BINDING_PATTERN_END:
+                return parseMappingBindingPatternEnd();
+            case FIELD_BINDING_PATTERN_NAME:
+                return parseFieldBindingPattern();
+            case LIST_CONSTRUCTOR_MEMBER_END:
+                return parseListConstructorMemberEnd();
+            case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
+                return parseNilOrParenthesisedTypeDescRhs((STNode) args[0]);
+            case ANON_FUNC_PARAM_RHS:
+                return parseImplicitAnonFuncParamEnd();
+            case LIST_BINDING_PATTERN:// revisit
+                return parseListBindingPattern();
+            case BINDING_PATTERN:
+                return parseBindingPattern();
+            case PEER_WORKER_NAME:
+                return parsePeerWorkerName();
+            case SYNC_SEND_TOKEN:
+                return parseSyncSendToken();
+            case LEFT_ARROW_TOKEN:
+                return parseLeftArrowToken();
+            case RECEIVE_WORKERS:
+                return parseReceiveWorkers();
+            case WAIT_FIELD_NAME:// revisit
+                return parseWaitField();
+            case WAIT_FIELD_END:
+                return parseWaitFieldEnd();
+            case OPTIONAL_CHAINING_TOKEN:
+                return parseOptionalChainingToken();
+            case RETRY_TYPE_PARAM_RHS:
+                return parseRetryTypeParamRhs((STNode) args[0], (STNode) args[1]);
+            case RETRY_BODY:
+                return parseRetryBody();
+            case ENUM_MEMBER_END:
+                return parseEnumMemberEnd();
+            case BRACKETED_LIST_MEMBER_END:
+                return parseBracketedListMemberEnd();
+            case TYPED_BINDING_PATTERN_TYPE_RHS:
+                return parseTypedBindingPatternTypeRhs((STNode) args[0], (ParserRuleContext) args[1],
+                        (boolean) args[2]);
+            case BRACKETED_LIST_RHS:
+                return parseTypedBindingPatternOrMemberAccessRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3], (boolean) args[4], (boolean) args[5], (ParserRuleContext) args[6]);
+            case UNION_OR_INTERSECTION_TOKEN:
+                return parseUnionOrIntersectionToken();
+            case BRACKETED_LIST_MEMBER:
+            case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
+                return parseBracketedListMember((boolean) args[0]);
+            case DOT_LT_TOKEN:
+                return parseDotLTToken();
+            case SLASH_LT_TOKEN:
+                return parseSlashLTToken();
+            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
+                return parseDoubleSlashDoubleAsteriskLTToken();
+            case SPECIFIC_FIELD:
+                return parseSpecificField((STNode) args[0]);
+            case OPTIONAL_MATCH_GUARD:
+                return parseMatchGuard();
+            case MATCH_PATTERN_START:
+                return parseMatchPattern();
+            case MATCH_PATTERN_RHS:
+                return parseMatchPatternEnd();
+            case ENUM_MEMBER_RHS:
+                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
+            case RECEIVE_FIELD:
+                return parseReceiveField();
+            case PARAM_END:
+                return parseParameterRhs();
+            case ELLIPSIS:
+                return parseEllipsis();
+            case BINARY_OPERATOR:
+                return parseBinaryOperator();
+            case QUESTION_MARK:
+                return parseQuestionMark();
+            case COMPOUND_BINARY_OPERATOR:
+                return parseCompoundBinaryOperator();
+            case UNARY_OPERATOR:
+                return parseUnaryOperator();
+            case AT:
+                return parseAtToken();
+            case RIGHT_ARROW:
+                return parseRightArrow();
+            case ATTACH_POINT:
+                return parseAnnotationAttachPoint();
+            case PIPE:
+                return parsePipeToken();
+            case INTERPOLATION_START_TOKEN:
+                return parseInterpolationStart();
+            case LIST_MATCH_PATTERN_MEMBER_RHS:
+                return parseListMatchPatternMemberRhs();
+            case LIST_BINDING_PATTERN_MEMBER:
+                return parseListBindingPatternMember();
+            case FIELD_MATCH_PATTERN_MEMBER:
+                return parseFieldMatchPatternMember();
+            case FIELD_MATCH_PATTERN_MEMBER_RHS:
+                return parseFieldMatchPatternRhs();
+            case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
+                return parseFunctionalMatchPatternOrConsPattern((STNode) args[0]);
+            case ARG_MATCH_PATTERN:
+                return parseArgMatchPattern();
+            case ARG_MATCH_PATTERN_RHS:
+                return parseArgMatchPatternRhs();
+            case ARG_BINDING_PATTERN:
+                return parseArgBindingPattern();
+            case ARG_BINDING_PATTERN_END:
+                return parseArgsBindingPatternEnd();
+            case TABLE_ROW_END:
+                return parseTableRowEnd();
+            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
+                return parseListBindingPatternOrListConstructorMember();
+            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+                return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
+            case REMOTE_CALL_OR_ASYNC_SEND_END:
+                return parseRemoteCallOrAsyncSendEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
+            case RECEIVE_FIELD_END:
+                return parseReceiveFieldEnd();
+            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
+                return parseMappingBindingPatterOrMappingConstructorMember();
+            default:
+                throw new IllegalStateException("cannot resume parsing the rule: " + context);
+        }
+    }
+
+    public STNode resumeKeywordParsing(ParserRuleContext context, Object... args) {
+        switch (context) {
+            case EXTERNAL_KEYWORD:
+                return parseExternalKeyword();
+            case IF_KEYWORD:
+                return parseIfKeyword();
+            case ELSE_KEYWORD:
+                return parseElseKeyword();
+            case ELSE_BODY:
+                return parseElseBody();
+            case WHILE_KEYWORD:
+                return parseWhileKeyword();
+            case PANIC_KEYWORD:
+                return parsePanicKeyword();
+            case VERSION_KEYWORD:
+                return parseVersionKeyword();
+            case AS_KEYWORD:
+                return parseAsKeyword();
+            case CONTINUE_KEYWORD:
+                return parseContinueKeyword();
+            case BREAK_KEYWORD:
+                return parseBreakKeyword();
+            case RETURN_KEYWORD:
+                return parseReturnKeyword();
+            case ON_KEYWORD:
+                return parseOnKeyword();
+            case RESOURCE_KEYWORD:
+                return parseResourceKeyword();
+            case TYPEOF_KEYWORD:
+                return parseTypeofKeyword();
+            case IS_KEYWORD:
+                return parseIsKeyword();
+            case SOURCE_KEYWORD:
+                return parseSourceKeyword();
+            case XMLNS_KEYWORD:
+                return parseXMLNSKeyword();
+            case WORKER_KEYWORD:
+                return parseWorkerKeyword();
             case FORK_KEYWORD:
                 return parseForkKeyword();
             case TRAP_KEYWORD:
@@ -369,16 +444,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseLetKeyword();
             case STREAM_KEYWORD:
                 return parseStreamKeyword();
-            case STREAM_TYPE_FIRST_PARAM_RHS:
-                return parseStreamTypeParamsNode((STNode) args[0], (STNode) args[1]);
-            case TEMPLATE_START:
-            case TEMPLATE_END:
-                return parseBacktickToken(context);
-            case KEY_CONSTRAINTS_RHS:
-                return parseKeyConstraint((STNode) args[0]);
-            case FUNCTION_KEYWORD_RHS:
-                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2], (boolean) args[3],
-                        (STNode[]) args[4]);
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
             case NEW_KEYWORD:
@@ -397,76 +462,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseAscendingKeyword();
             case DESCENDING_KEYWORD:
                 return parseDescendingKeyword();
-            case ORDER_KEY_LIST_END:
-                return parseOrderKeyListMemberEnd();
-            case TABLE_CONSTRUCTOR_OR_QUERY_START:
-                return parseTableConstructorOrQuery((boolean) args[0]);
-            case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
-                return parseTableConstructorOrQueryRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
-            case QUERY_PIPELINE_RHS:
-                return parseIntermediateClause((boolean) args[0]);
-            case ANON_FUNC_BODY:
-                return parseAnonFuncBody((boolean) args[0]);
-            case CLOSE_BRACKET:
-                return parseCloseBracket();
-            case ARG_START_OR_ARG_LIST_END:
-                return parseArgument();
-            case ARG_END:
-                return parseArgEnd();
-            case MAPPING_FIELD_END:
-                return parseMappingFieldEnd();
-            case FUNCTION_KEYWORD:
-                return parseFunctionKeyword();
-            case FIELD_OR_REST_DESCIPTOR_RHS:
-                return parseFieldOrRestDescriptorRhs((STNode) args[0], (STNode) args[1]);
-            case TYPE_DESC_IN_TUPLE_RHS:
-                return parseTupleMemberRhs();
-            case LIST_BINDING_PATTERN_MEMBER_END:
-                return parseListBindingPatternMemberRhs();
-            case MAPPING_BINDING_PATTERN_END:
-                return parseMappingBindingPatternEnd();
-            case FIELD_BINDING_PATTERN_NAME:
-                return parseFieldBindingPattern();
-            case CONSTANT_EXPRESSION_START:
-                return parseSimpleConstExprInternal();
-            case LIST_CONSTRUCTOR_MEMBER_END:
-                return parseListConstructorMemberEnd();
-            case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
-                return parseNilOrParenthesisedTypeDescRhs((STNode) args[0]);
-            case ANON_FUNC_PARAM_RHS:
-                return parseImplicitAnonFuncParamEnd();
-            case LIST_BINDING_PATTERN:// revisit
-                return parseListBindingPattern();
-            case BINDING_PATTERN:
-                return parseBindingPattern();
-            case PEER_WORKER_NAME:
-                return parsePeerWorkerName();
-            case SYNC_SEND_TOKEN:
-                return parseSyncSendToken();
-            case LEFT_ARROW_TOKEN:
-                return parseLeftArrowToken();
-            case RECEIVE_WORKERS:
-                return parseReceiveWorkers();
-            case WAIT_KEYWORD:
-                return parseWaitKeyword();
-            case WAIT_FUTURE_EXPR_END:
-                return parseWaitFutureExprEnd((int) args[0]);
-            case WAIT_FIELD_NAME:// revisit
-                return parseWaitField();
-            case WAIT_FIELD_END:
-                return parseWaitFieldEnd();
-            case ANNOT_CHAINING_TOKEN:
-                return parseAnnotChainingToken();
-            case DO_KEYWORD:
-                return parseDoKeyword();
-            case MEMBER_ACCESS_KEY_EXPR_END:
-                return parseMemberAccessKeyExprEnd();
-            case OPTIONAL_CHAINING_TOKEN:
-                return parseOptionalChainingToken();
-            case RETRY_KEYWORD_RHS:
-                return parseRetryKeywordRhs((STNode) args[0]);
-            case RETRY_TYPE_PARAM_RHS:
-                return parseRetryTypeParamRhs((STNode) args[0], (STNode) args[1]);
             case TRANSACTION_KEYWORD:
                 return parseTransactionKeyword();
             case COMMIT_KEYWORD:
@@ -475,69 +470,22 @@ public class BallerinaParser extends AbstractParser {
                 return parseRetryKeyword();
             case ROLLBACK_KEYWORD:// 2 resume-points : parseTransactionalKeyword()
                 return parseRollbackKeyword();
-            case RETRY_BODY:
-                return parseRetryBody();
-            case ENUM_MEMBER_END:
-                return parseEnumMemberEnd();
-            case BRACKETED_LIST_MEMBER_END:
-                return parseBracketedListMemberEnd();
-            case STMT_START_BRACKETED_LIST_MEMBER:
-                return parseStatementStartBracketedListMember();
-            case TYPED_BINDING_PATTERN_TYPE_RHS:
-                return parseTypedBindingPatternTypeRhs((STNode) args[0], (ParserRuleContext) args[1],
-                        (boolean) args[2]);
-            case BRACKETED_LIST_RHS:
-                return parseTypedBindingPatternOrMemberAccessRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3], (boolean) args[4], (boolean) args[5], (ParserRuleContext) args[6]);
-            case UNION_OR_INTERSECTION_TOKEN:
-                return parseUnionOrIntersectionToken();
-            case BRACKETED_LIST_MEMBER:
-            case LIST_BINDING_MEMBER_OR_ARRAY_LENGTH:
-                return parseBracketedListMember((boolean) args[0]);
+            case WAIT_KEYWORD:
+                return parseWaitKeyword();
+            case DO_KEYWORD:
+                return parseDoKeyword();
+            case RETRY_KEYWORD_RHS:
+                return parseRetryKeywordRhs((STNode) args[0]);
             case BASE16_KEYWORD:
                 return parseBase16Keyword();
             case BASE64_KEYWORD:
                 return parseBase64Keyword();
-            case DOT_LT_TOKEN:
-                return parseDotLTToken();
-            case SLASH_LT_TOKEN:
-                return parseSlashLTToken();
-            case DOUBLE_SLASH_DOUBLE_ASTERISK_LT_TOKEN:
-                return parseDoubleSlashDoubleAsteriskLTToken();
-            case XML_ATOMIC_NAME_PATTERN_START:
-                return parseXMLAtomicNamePatternBody();
-            case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
-                return parseBracedExprOrAnonFuncParamRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
             case READONLY_KEYWORD:
                 return parseReadonlyKeyword();
-            case SPECIFIC_FIELD:
-                return parseSpecificField((STNode) args[0]);
-            case OPTIONAL_MATCH_GUARD:
-                return parseMatchGuard();
-            case MATCH_PATTERN_START:
-                return parseMatchPattern();
-            case MATCH_PATTERN_RHS:
-                return parseMatchPatternEnd();
-            case ENUM_MEMBER_RHS:
-                return parseEnumMemberRhs((STNode) args[0], (STNode) args[1]);
-            case RECEIVE_FIELD:
-                return parseReceiveField();
             case PUBLIC_KEYWORD:// 2 resume-points : parseObjectMemberVisibility()
                 return parseQualifier();
-            case PARAM_END:
-                return parseParameterRhs();
-            case ELLIPSIS:
-                return parseEllipsis();
-            case BINARY_OPERATOR:
-                return parseBinaryOperator();
             case TYPE_KEYWORD:
                 return parseTypeKeyword();
-            case CLOSED_RECORD_BODY_START:
-                return parseClosedRecordBodyStart();
-            case CLOSED_RECORD_BODY_END:
-                return parseClosedRecordBodyEnd();
-            case QUESTION_MARK:
-                return parseQuestionMark();
             case FINAL_KEYWORD:
                 return parseFinalKeyword();
             case CLIENT_KEYWORD:
@@ -550,41 +498,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseFailKeyword();
             case CHECKING_KEYWORD:
                 return parseCheckingKeyword();
-            case COMPOUND_BINARY_OPERATOR:
-                return parseCompoundBinaryOperator();
-            case CONST_DECL_RHS:
-                return parseConstantOrListenerDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
-                        (STNode) args[3], (boolean) args[4]);
-            case CONST_KEYWORD:
-                return parseConstantKeyword();
-            case UNARY_OPERATOR:
-                return parseUnaryOperator();
-            case AT:
-                return parseAtToken();
-            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
-                return parseRemoteCallOrAsyncSendActionRhs((STNode) args[0], (boolean) args[1], (STNode) args[2]);
             case DEFAULT_KEYWORD:
                 return parseDefaultKeyword();
-            case RIGHT_ARROW:
-                return parseRightArrow();
-            case PARAMETERIZED_TYPE:
-                return parseParameterizedTypeKeyword();
-            case ANNOTATION_TAG:
-                return parseAnnotationTag();
-            case ATTACH_POINT:
-                return parseAnnotationAttachPoint();
-            case LOCK_KEYWORD:
-                return parseLockKeyword();
-            case PIPE:
-                return parsePipeToken();
-            case STRING_KEYWORD:
-                return parseStringKeyword();
-            case XML_KEYWORD:
-                return parseXMLKeyword();
-            case INTERPOLATION_START_TOKEN:
-                return parseInterpolationStart();
-            case EXPR_FUNC_BODY_START:
-                return parseDoubleRightArrow();
             case START_KEYWORD:
                 return parseStartKeyword();
             case FLUSH_KEYWORD:
@@ -593,46 +508,165 @@ public class BallerinaParser extends AbstractParser {
                 return parseEnumKeyword();
             case MATCH_KEYWORD:
                 return parseMatchKeyword();
+            case PARAMETERIZED_TYPE:
+                return parseParameterizedTypeKeyword();
+            case LOCK_KEYWORD:
+                return parseLockKeyword();
+            case STRING_KEYWORD:
+                return parseStringKeyword();
+            default:
+                return resumeOtherNodesParsing(context, args);
+        }
+    }
+
+    public STNode resumeActionOrExpressionNodesParsing(ParserRuleContext context, Object... args) {
+        switch (context) {
+            case TERMINAL_EXPRESSION:
+                return parseTerminalExpression((STNode) args[0], (boolean) args[1], (boolean) args[2],
+                        (boolean) args[3]);
+            case EXPRESSION_RHS:
+                return parseExpressionRhs((OperatorPrecedence) args[0], (STNode) args[1], (boolean) args[2],
+                        (boolean) args[3], (boolean) args[4], (boolean) args[5]);
+            case CONSTANT_EXPRESSION_START:
+                return parseSimpleConstExprInternal();
+            case BINDING_PATTERN_OR_EXPR_RHS:// 2 resume-points : parseTypeDescOrExprRhs()
+                return parseTypedBindingPatternOrExprRhs((STNode) args[0], (boolean) args[1]);
+            case WAIT_FUTURE_EXPR_END:
+                return parseWaitFutureExprEnd((int) args[0]);
+            case MEMBER_ACCESS_KEY_EXPR_END:
+                return parseMemberAccessKeyExprEnd();
+            case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
+                return parseBracedExprOrAnonFuncParamRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
+            case EXPR_FUNC_BODY_START:
+                return parseDoubleRightArrow();
+            case REMOTE_CALL_OR_ASYNC_SEND_RHS:
+                return parseRemoteCallOrAsyncSendActionRhs((STNode) args[0], (boolean) args[1], (STNode) args[2]);
+            default:
+                return resumeKeywordParsing(context, args);
+        }
+    }
+
+    public STNode resumeStatementNodeParsing(ParserRuleContext context, Object... args) {
+        switch (context) {
+            case STATEMENT:
+                return parseStatement();
+            case STATEMENT_WITHOUT_ANNOTS:
+                return parseStatement((STNode) args[0]);
+            case STMT_START_WITH_EXPR_RHS:
+                return parseStatementStartWithExprRhs((STNode) args[0]);
+            case STMT_START_BRACKETED_LIST_MEMBER:
+                return parseStatementStartBracketedListMember();
+            case VAR_DECL_STMT_RHS:
+                return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
+            case COMPOUND_ASSIGNMENT_STMT:// following method is only referred in resume parsing
+                return parseCompoundAssignmentStmt();
+            default:
+                return resumeActionOrExpressionNodesParsing(context, args);
+        }
+    }
+
+    public STNode resumeTopLevelNodeParsing(ParserRuleContext context, Object... args) {
+        switch (context) {
+            case TOP_LEVEL_NODE:
+                return parseTopLevelNode();
+            case TOP_LEVEL_NODE_WITHOUT_METADATA:
+                return parseTopLevelNode((STNode) args[0]);
+            case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
+                return parseTopLevelNode((STNode) args[0], (STNode) args[1]);
+            case IMPORT_DECL_RHS:
+                return parseImportDecl((STNode) args[0], (STNode) args[1]);
+            case IMPORT_PREFIX:
+                return parseImportPrefix();
+            case IMPORT_MODULE_NAME:
+            case IMPORT_ORG_OR_MODULE_NAME:
+            case SERVICE_NAME:
+            case MODULE_ENUM_NAME:
+                return parseIdentifier(context);
+            case IMPORT_KEYWORD:
+                return parseImportKeyword();
+            case IMPORT_VERSION_DECL:
+                return parseVersion();
+            case IMPORT_SUB_VERSION:
+                return parseSubVersion(context);
+            case IMPORT_PREFIX_DECL:
+                return parseImportPrefixDecl();
+            case FUNC_BODY:
+                return parseFunctionBody((boolean) args[0]);
+            case FUNC_NAME:
+                return parseFunctionName();
+            case FUNCTION_IDENT:
+                return parseFunctionIdent();
+            case FUNCTION_KEYWORD_RHS:
+                return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2], (boolean) args[3],
+                        (STNode[]) args[4]);
+            case FUNCTION_KEYWORD:
+                return parseFunctionKeyword();
+            case ANNOT_REFERENCE:
+            case RECORD_FIELD_NAME_OR_TYPE_NAME:
+                return parseQualifiedIdentifier(context, (boolean) args[0]);
+            case RECORD_BODY_START:
+                return parseRecordBodyStartDelimiter();
+            case RECORD_FIELD_OR_RECORD_END:
+                return parseFieldOrRestDescriptor((boolean) args[0]);
+            case CLOSED_RECORD_BODY_START:
+                return parseClosedRecordBodyStart();
+            case CLOSED_RECORD_BODY_END:
+                return parseClosedRecordBodyEnd();
             case RECORD_KEYWORD:
                 return parseRecordKeyword();
-            case LIST_MATCH_PATTERN_MEMBER_RHS:
-                return parseListMatchPatternMemberRhs();
-            case LIST_BINDING_PATTERN_MEMBER:
-                return parseListBindingPatternMember();
-            case FIELD_MATCH_PATTERN_MEMBER:
-                return parseFieldMatchPatternMember();
-            case FIELD_MATCH_PATTERN_MEMBER_RHS:
-                return parseFieldMatchPatternRhs();
-            case FUNC_MATCH_PATTERN_OR_CONST_PATTERN:
-                return parseFunctionalMatchPatternOrConsPattern((STNode) args[0]);
-            case ARG_MATCH_PATTERN:
-                return parseArgMatchPattern();
-            case ARG_MATCH_PATTERN_RHS:
-                return parseArgMatchPatternRhs();
-            case ARG_BINDING_PATTERN:
-                return parseArgBindingPattern();
-            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
-                return parseExternalFuncBodyRhs((STNode) args[0]);
-            case ARG_BINDING_PATTERN_END:
-                return parseArgsBindingPatternEnd();
-            case TABLE_ROW_END:
-                return parseTableRowEnd();
-            case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
-                return parseListBindingPatternOrListConstructorMember();
-            case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
-                return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
             case RECORD_BODY_END: // ideally this is never getting called
                 return parseRecordBodyCloseDelimiter((SyntaxKind) args[0]);
+            case OBJECT_MEMBER_START:
+                return parseObjectMember();
+            case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
+                return parseObjectMethodOrField((STNode) args[0], (STNode) args[1]);
+            case OBJECT_FIELD_RHS:
+                return parseObjectFieldRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
+                        (STNode) args[4]);
+            case OBJECT_TYPE_QUALIFIER:
+                return parseObjectTypeQualifiers();
+            case OBJECT_KEYWORD:
+                return parseObjectKeyword();
+            case IDENT_AFTER_OBJECT_IDENT:
+                return parseIdentAfterObjectIdent();
             case OBJECT_MEMBER_WITHOUT_METADATA:
                 return parseObjectMember((STNode) args[0]);
-            case REMOTE_CALL_OR_ASYNC_SEND_END:
-                return parseRemoteCallOrAsyncSendEnd((STNode) args[0], (STNode) args[1], (STNode) args[2]);
-            case RECEIVE_FIELD_END:
-                return parseReceiveFieldEnd();
-            case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
-                return parseMappingBindingPatterOrMappingConstructorMember();
+            case LISTENER_KEYWORD:
+                return parseListenerKeyword();
+            case OPTIONAL_SERVICE_NAME:
+                return parseServiceName();
+            case SERVICE_KEYWORD:
+                return parseServiceKeyword();
+            case CONST_DECL_RHS:
+                return parseConstantOrListenerDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3], (boolean) args[4]);
+            case CONST_KEYWORD:
+                return parseConstantKeyword();
+            case XML_NAMESPACE_PREFIX_DECL:
+                return parseXMLDeclRhs((STNode) args[0], (STNode) args[1], (boolean) args[2]);
+            case XML_ATOMIC_NAME_PATTERN_START:
+                return parseXMLAtomicNamePatternBody();
+            case XML_KEYWORD:
+                return parseXMLKeyword();
+            case ANNOTATION_KEYWORD:
+                return parseAnnotationKeyword();
+            case ANNOT_DECL_OPTIONAL_TYPE:
+                return parseAnnotationDeclFromType((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3]);
+            case ANNOT_DECL_RHS:
+                return parseAnnotationDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (STNode) args[3],
+                        (STNode) args[4]);
+            case ANNOT_OPTIONAL_ATTACH_POINTS:
+                return parseAnnotationDeclAttachPoints((STNode) args[0], (STNode) args[1], (STNode) args[2],
+                        (STNode) args[3], (STNode) args[4], (STNode) args[5]);
+            case ANNOT_CHAINING_TOKEN:
+                return parseAnnotChainingToken();
+            case ANNOTATION_TAG:
+                return parseAnnotationTag();
+            case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
+                return parseExternalFuncBodyRhs((STNode) args[0]);
             default:
-                throw new IllegalStateException("cannot resume parsing the rule: " + context);
+                return resumeStatementNodeParsing(context, args);
         }
     }
 
