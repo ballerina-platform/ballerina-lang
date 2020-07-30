@@ -154,9 +154,6 @@ public class GenericMockObjectValue extends AbstractObjectValue {
         return newArgs.toArray();
     }
 
-    // TODO : Remove unnecessary overrides once changes are made to AbstractObjectValue
-    // AbstractObjectValue is different in master
-
     @Override
     public FutureValue start(Strand strand, String funcName, Object... args) {
         return null;

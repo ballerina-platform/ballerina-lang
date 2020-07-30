@@ -39,10 +39,6 @@ public class FunctionMock {
 
     public static Object mockHandler(ObjectValue mockFuncObj, ArrayValue args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
-        //String originalFunction =
-        //        mockFuncObj.getStringValue("functionToMock");
-        //String originalFunctionPackage = mockFuncObj.getStringValue("functionToMockPackage");
-        //originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
         Object returnVal = null;
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
@@ -91,8 +87,6 @@ public class FunctionMock {
         }
 
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
-        // TODO : Add StrandMetadata
-        //StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, methodName);
         return Executor.executeFunction(strand.scheduler, classLoader, orgName,
                                         packageName, className, methodName, argsList.toArray());
     }
@@ -104,7 +98,6 @@ public class FunctionMock {
                                  packageName, version, jarName);
 
         Method mockMethod = null;
-        //Method originalMethod = null;
 
         // Get the mock method
         try (JarFile jar = new JarFile(jarPath.toString())) {
@@ -119,60 +112,10 @@ public class FunctionMock {
                 }
             }
 
-            //originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
-
         }
 
-        //validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
         return  mockMethod.getDeclaringClass().getSimpleName();
     }
-
-//    private static Method getOriginalMethod(String methodName, String packageName) throws ClassNotFoundException {
-//        Method[] methodList = FunctionMock.class.getClassLoader().loadClass(packageName).getDeclaredMethods();
-//
-//        for (Method method : methodList) {
-//            if (method.getName().equals(methodName)) {
-//                return method;
-//            }
-//        }
-//
-//        return null;
-//    }
-
-//    private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
-//        // Validation
-//        if (mockMethod != null && originalMethod != null) {
-//            // Methods type and parameters
-//            Class<?> mockMethodType = mockMethod.getReturnType();
-//            Class<?>[] mockMethodParameters = mockMethod.getParameterTypes();
-//            Class<?> originalMethodType = originalMethod.getReturnType();
-//            Class<?>[] originalMethodParameters = originalMethod.getParameterTypes();
-//
-//            // Validate Return types
-//            if (mockMethodType != originalMethodType) {
-//                throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-//                                                  "Return Types do not match");
-//            }
-//
-//            // Validate if param number is the same
-//            if (mockMethodParameters.length != originalMethodParameters.length) {
-//                throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-//                                                  "Parameter types do not match");
-//            }
-//
-//            // Validate each param
-//            for (int i = 0; i < mockMethodParameters.length; i++) {
-//                if (mockMethodParameters [i] != originalMethodParameters[i]) {
-//                    throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
-//                                                      "Parameter types do not match");
-//                }
-//            }
-//
-//        } else {
-//            throw BallerinaErrors.createError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
-//                                                      "Mock function \'" + mockMethodName + "\' cannot be found");
-//        }
-//    }
 
     private static Method getClassDeclaredMethod(String file, String methodName) throws ClassNotFoundException {
         String className = file.replace('/', '.').substring(0, file.length() - 6);
@@ -216,11 +159,4 @@ public class FunctionMock {
         return caseIdList;
     }
 
-//    private static String formatFunctionPackage(String fnPackage) {
-//        fnPackage = fnPackage.replace('.', '_');
-//        fnPackage = fnPackage.replace('/', '.');
-//        fnPackage = fnPackage.replace(':', '.');
-//
-//        return fnPackage;
-//    }
 }

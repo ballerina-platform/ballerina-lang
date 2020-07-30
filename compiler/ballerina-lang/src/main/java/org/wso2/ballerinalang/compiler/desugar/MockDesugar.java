@@ -63,6 +63,7 @@ public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_PREFIX = "$MOCK_";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
@@ -137,7 +138,7 @@ public class MockDesugar {
         }
 
         // Set the function name to $MOCK_<functionName>
-        functionName = "$MOCK_" + functionName;
+        functionName = MOCK_PREFIX + functionName;
 
         // Create the Base function with the name
         BLangFunction generatedMock = ASTBuilderUtil.createFunction(bLangPackage.pos, functionName);
@@ -288,7 +289,7 @@ public class MockDesugar {
     }
 
     private List<BLangStatement> generateStatements() {
-        // <MockFunctionObj>.functionToMock = (functionToMock);
+        // The following synthesizes the equivalent of : `<MockFunctionObj>.functionToMock = (functionToMock);`
         String functionToMockVal = (this.originalFunction == null) ?
                 this.importFunction.name.toString() : this.originalFunction.name.toString();
         BLangAssignment bLangAssignment1 = ASTBuilderUtil.createAssignmentStmt(
@@ -296,35 +297,19 @@ public class MockDesugar {
                 generateFieldBasedAccess("functionToMock"),
                 generateRHSExpr(functionToMockVal));
 
-        // <MockFunctionObj>.functionToMockPackage = (functionToMockPackage);  // ballerina/math/natives
-//        String functionToMockPackageVal = (this.originalFunction == null) ?
-//                this.importFunction.pkgID.toString()
-//                        + "/" + getFunctionSource(this.importFunction.source) :
-//                this.originalFunction.symbol.pkgID.toString()
-//                        + "/" + getFunctionSource(this.originalFunction.symbol.source);
-//        BLangAssignment bLangAssignment2 = ASTBuilderUtil.createAssignmentStmt(
-//                bLangPackage.pos,
-//                generateFieldBasedAccess("functionToMockPackage"),
-//                generateRHSExpr(functionToMockPackageVal));
-
-        // BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])
+        // The following synthesizes the equivalent of :
+        // `BLangReturn Statement <retType> test:MockHandler(<MockFunctionObj>, [<args?>])`
         BLangReturn blangReturn =
                 ASTBuilderUtil.createReturnStmt(bLangPackage.pos, generateTypeConversionExpression());
 
         List<BLangStatement> statements = new ArrayList<>();
 
-//        statements.add(bLangAssignment1);
-//        statements.add(bLangAssignment2);
         statements.add(blangReturn);
 
         return statements;
     }
 
-    private String getFunctionSource(String source) {
-        return source.replaceAll(".bal", "");
-    }
-
-    // <mockobj>.functionToMock =
+    // This function synthesizes the Ballerina equivalent of : `<mockobj>.functionToMock =`
     private BLangFieldBasedAccess generateFieldBasedAccess(String fieldName) {
         BLangVariableReference expr = getMockFunctionReference();
         BLangIdentifier field = ASTBuilderUtil.createIdentifier(bLangPackage.pos, fieldName);
@@ -340,7 +325,7 @@ public class MockDesugar {
         return bLangFieldBasedAccess;
     }
 
-    // = (functionToMock)
+    // This function synthesizes the Ballerina equivalent of : `= (functionToMock)`
     private BLangLiteral generateRHSExpr(String val) {
         BType type = symTable.stringType;
         BLangLiteral bLangLiteral = ASTBuilderUtil.createLiteral(bLangPackage.pos, type, val);
@@ -349,6 +334,7 @@ public class MockDesugar {
         return bLangLiteral;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `Return: <type> MockHandler(<mockFnObj>, args)`
     private BLangTypeConversionExpr generateTypeConversionExpression() {
         BLangInvocation bLangInvocation = generateBLangInvocation();
         BType target = generateType();
@@ -362,6 +348,7 @@ public class MockDesugar {
         return typeConversionExpr;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `test:MockHandler(<mockFnObj>, args)`
     private BLangInvocation generateBLangInvocation() {
         BInvokableSymbol invokableSymbol = getMockHandlerInvokableSymbol();
         List<BLangExpression> argsExprs = generateInvocationRequiredArgs();
@@ -375,6 +362,7 @@ public class MockDesugar {
         return bLangInvocation;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `MockHandler()`
     private BInvokableSymbol getMockHandlerInvokableSymbol() {
         BSymbol testPkg = bLangPackage.getTestablePkg().symbol.scope.lookup(new Name("test")).symbol;
 
@@ -396,6 +384,7 @@ public class MockDesugar {
         return requiredArgs;
     }
 
+    // This function synthesizes the Ballerina equivalent of : `(<mockFnObj>`
     private BLangSimpleVarRef getMockFunctionReference() {
         BVarSymbol mockObjectSymbol =
                 (BVarSymbol) bLangPackage.getTestablePkg().symbol.scope.lookup(new Name(this.mockFnObjectName)).symbol;

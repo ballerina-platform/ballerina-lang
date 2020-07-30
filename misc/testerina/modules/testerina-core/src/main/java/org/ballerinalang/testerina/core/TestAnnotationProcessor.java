@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
@@ -240,7 +241,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                 String[] vals = new String[2];
                 // TODO: when default values are supported in annotation struct we can remove this
                 vals[0] = packageName;
-                if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                     List<RecordLiteralNode.RecordField> attributes = ((BLangRecordLiteral) attachmentNode
                             .getExpression()).getFields();
                     attributes.forEach(field -> {
@@ -332,7 +333,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                     String[] annotationValues = new String[2]; // [0] - moduleName, [1] - functionName
                     annotationValues[0] = packageName; // Set default value of the annotation as the current package
 
-                    if (attachmentNode.getExpression() instanceof BLangRecordLiteral) {
+                    if (attachmentNode.getExpression().getKind() == NodeKind.RECORD_LITERAL_EXPR) {
                         // Get list of attributes in the Mock annotation
                         List<RecordLiteralNode.RecordField> fields =
                                 ((BLangRecordLiteral) attachmentNode.getExpression()).getFields();

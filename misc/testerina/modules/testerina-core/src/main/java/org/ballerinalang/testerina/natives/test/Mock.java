@@ -53,9 +53,6 @@ public class Mock {
                     objectValue.getType().getFields().size() == 0) {
                 String detail = "mock object type '" + objectValue.getType().getName()
                         + "' should have at least one member function or field declared.";
-                // TODO : Uncomment when createDistinctError is added to BallerinaErrors
-                //throw BallerinaErrors.createDistinctError(
-                //        MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID, detail);
                 return BallerinaErrors.createError(MockConstants.INVALID_MOCK_OBJECT_ERROR, detail);
             } else {
                 for (AttachedFunction attachedFunction : objectValue.getType().getAttachedFunctions()) {
@@ -92,8 +89,6 @@ public class Mock {
         if (!objectType.contains(MockConstants.DEFAULT_MOCK_OBJ_ANON)) {
             String detail = "cases cannot be registered to user-defined object type '"
                     + genericMock.getType().getName() + "'";
-            //return BallerinaErrors.createDistinctError(
-            //        MockConstants.INVALID_MOCK_OBJECT_ERROR, MockConstants.TEST_PACKAGE_ID, detail);
             return BallerinaErrors.createError(
                     MockConstants.INVALID_MOCK_OBJECT_ERROR, detail);
         }
@@ -112,8 +107,6 @@ public class Mock {
         GenericMockObjectValue genericMock = (GenericMockObjectValue) mockObject;
         if (!validateFunctionName(functionName, genericMock.getType().getAttachedFunctions())) {
             String detail = "invalid function name '" + functionName + " ' provided";
-            //return BallerinaErrors.createDistinctError(
-            //        MockConstants.FUNCTION_NOT_FOUND_ERROR, MockConstants.TEST_PACKAGE_ID, detail);
             return BallerinaErrors.createError(
                     MockConstants.FUNCTION_NOT_FOUND_ERROR, detail);
         }
@@ -144,9 +137,6 @@ public class Mock {
      * @return an optional error if a validation fails
      */
     public static ErrorValue validateArguments(ObjectValue caseObj) {
-        //TODO : Use StringUtils.fromString when BObject implementation changes
-        //GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue(
-        //        StringUtils.fromString("mockObject"));
         GenericMockObjectValue genericMock = (GenericMockObjectValue) caseObj.getObjectValue("mockObject");
         String functionName = caseObj.getStringValue("functionName");
         ArrayValue argsList = caseObj.getArrayValue("args");
