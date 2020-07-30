@@ -410,7 +410,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseAnonFuncBody((boolean) args[0]);
             case CLOSE_BRACKET:
                 return parseCloseBracket();
-            case ARG_START_OR_ARG_LIST_END:
+            case ARG_START:
                 return parseArgument();
             case ARG_END:
                 return parseArgEnd();
@@ -4790,7 +4790,9 @@ public class BallerinaParser extends AbstractParser {
 
         // If this is in RHS, then its definitely a member-access.
         if (isRhsExpr && ((STNodeList) keyExpr).isEmpty()) {
-            keyExpr = STNodeFactory.createNodeList(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+            STNode missingVarRef = STNodeFactory
+                    .createSimpleNameReferenceNode(SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN));
+            keyExpr = STNodeFactory.createNodeList(missingVarRef);
             closeBracket = SyntaxErrors.addDiagnostic(closeBracket,
                     DiagnosticErrorCode.ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR);
         }
@@ -5314,7 +5316,7 @@ public class BallerinaParser extends AbstractParser {
             // Treat everything else as a single expression. If something is missing,
             // expression-parsing will recover it.
             default:
-                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, false, false);
+                argNameOrExpr = parseExpressionRhs(DEFAULT_OP_PRECEDENCE, argNameOrExpr, true, false);
                 return STNodeFactory.createPositionalArgumentNode(argNameOrExpr);
         }
     }

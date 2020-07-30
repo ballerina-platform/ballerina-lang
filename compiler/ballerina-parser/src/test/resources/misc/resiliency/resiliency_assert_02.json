@@ -254,9 +254,11 @@
                                     },
                                     {
                                       "kind": "POSITIONAL_ARG",
+                                      "hasDiagnostics": true,
                                       "children": [
                                         {
                                           "kind": "INDEXED_EXPRESSION",
+                                          "hasDiagnostics": true,
                                           "children": [
                                             {
                                               "kind": "SIMPLE_NAME_REFERENCE",
@@ -272,10 +274,24 @@
                                             },
                                             {
                                               "kind": "LIST",
-                                              "children": []
+                                              "children": [
+                                                {
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "isMissing": true
+                                                    }
+                                                  ]
+                                                }
+                                              ]
                                             },
                                             {
-                                              "kind": "CLOSE_BRACKET_TOKEN"
+                                              "kind": "CLOSE_BRACKET_TOKEN",
+                                              "hasDiagnostics": true,
+                                              "diagnostics": [
+                                                "ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR"
+                                              ]
                                             }
                                           ]
                                         }
