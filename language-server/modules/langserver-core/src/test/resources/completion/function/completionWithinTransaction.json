@@ -1505,6 +1505,14 @@
       "sortText": "130",
       "insertText": "remoteEp",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "i - typeguard i",
+      "kind": "Snippet",
+      "detail": "Destructure the variable i with typeguard",
+      "sortText": "240",
+      "insertText": "if (i is error) {\n\t${1}\n} else {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
