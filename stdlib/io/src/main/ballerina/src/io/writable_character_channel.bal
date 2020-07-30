@@ -73,8 +73,8 @@ public type WritableCharacterChannel object {
     # + properties - The map<string> that contains keys and values.
     # + comment - Comment describing the property list
     # + return - `()` or else `io:Error` if any error occurred
-    public function writeProperties(map<string> properties, string comments) returns Error? {
-        return writePropertiesExtern(self, properties, comments);
+    public function writeProperties(map<string> properties, string comment) returns Error? {
+        return writePropertiesExtern(self, properties, comment);
     }
 
     # Closes a given `WritableCharacterChannel` channel.
@@ -111,7 +111,7 @@ function writeXmlExtern(WritableCharacterChannel characterChannel, xml content) 
 } external;
 
 function writePropertiesExtern(WritableCharacterChannel characterChannel, map<string> properties,
-                                string comments) returns Error? = @java:Method {
+                                string comment) returns Error? = @java:Method {
     name: "writeProperties",
     class: "org.ballerinalang.stdlib.io.nativeimpl.CharacterChannelUtils"
 } external;

@@ -94,7 +94,7 @@ public class PropertyUtils {
     // Write properties map to a .properties file
     public static void writePropertyContent(CharacterChannel characterChannel,
                                                   BMap<BString, BString> propertiesMap,
-                                                  BString comments) throws IOException {
+                                                  BString comment) throws IOException {
 
         Properties writableProperties = new Properties();
         Set<Map.Entry<BString, BString>> propertiesSet = propertiesMap.entrySet();
@@ -103,7 +103,7 @@ public class PropertyUtils {
         }
         writableProperties.store(
                 Channels.newOutputStream(characterChannel.getChannel().getByteChannel()),
-                comments.getValue()
+                comment.getValue()
         );
     }
 }

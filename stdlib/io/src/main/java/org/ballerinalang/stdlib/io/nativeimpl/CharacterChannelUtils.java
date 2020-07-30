@@ -170,11 +170,11 @@ public class CharacterChannelUtils {
     }
 
     public static Object writeProperties(ObjectValue characterChannelObj,
-                                         BMap<BString, BString> propertyMap, BString comments) {
+                                         BMap<BString, BString> propertyMap, BString comment) {
         try {
             CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
                     .getNativeData(CHARACTER_CHANNEL_NAME);
-            PropertyUtils.writePropertyContent(characterChannel, propertyMap, comments);
+            PropertyUtils.writePropertyContent(characterChannel, propertyMap, comment);
         } catch (IOException e) {
             return IOUtils.createError(e);
         }
