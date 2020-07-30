@@ -17,27 +17,25 @@
 import ballerina/test;
 import ballerina/io;
 
-// This tests the functionality of before and after functions in a test
-// using string concatenation
+// This tests the single test execution option
 
 string testString = "";
 
-function beforeFunc() {
-    testString += "before";
+@test:BeforeEach
+function beforeEachFunc() {
+    testString += "beforeEach";
 }
 
 // 2nd function
-@test:Config {
-    before:"beforeFunc",
-    after:"afterFunc"
-}
+@test:Config {}
 public function testFunc() {
     testString += "test";
 }
 
 // After function
-public function afterFunc() {
-    testString += "after";
+@test:AfterEach
+public function afterEachFunc() {
+    testString += "afterEach";
 }
 
 // 2nd function
@@ -46,5 +44,24 @@ public function afterFunc() {
 }
 public function testFunc2() {
     io:println("TestFunc2");
-    test:assertEquals(testString, "beforetestafter");
+    test:assertEquals(testString, "beforeEachtestafterEachbeforeEach");
+}
+
+// Disabled function
+@test:Config {
+    enable: false
+}
+public function testDisabledFunc() {
+    io:println("testDisabledFunc");
+    testString += "disabled";
+    test:assertEquals(testString, "beforeEachdisabled");
+}
+
+// Test Dependent on disabled function
+@test:Config {
+    dependsOn: ["testDisabledFunc"]
+}
+public function testDependentDisabledFunc() {
+    io:println("testDependentDisabledFunc");
+    test:assertEquals(testString, "beforeEachdisabledafterEachbeforeEach");
 }
