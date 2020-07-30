@@ -1061,13 +1061,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFiled.markdownDocumentationAttachment = createMarkdownDocumentationAttachment(doc);
                 recordTypeNode.fields.add(bLFiled);
             } else {
-                if (field.kind() == SyntaxKind.RECORD_REST_TYPE) {
-                    recordTypeNode.restFieldType = createTypeNode(field);
-                    hasRestField = true;
-                } else if (field.kind() == SyntaxKind.TYPE_REFERENCE) {
-                    recordTypeNode.addTypeReference(createTypeNode(field));
-                }
+                recordTypeNode.addTypeReference(createTypeNode(field));
             }
+        }
+        Optional<RecordRestDescriptorNode> recordRestDesc = recordTypeDescriptorNode.recordRestDescriptor();
+        if (recordRestDesc.isPresent()) {
+            recordTypeNode.restFieldType = createTypeNode(recordRestDesc.get());
+            hasRestField = true;
         }
         boolean isOpen = recordTypeDescriptorNode.bodyStartDelimiter().kind() == SyntaxKind.OPEN_BRACE_TOKEN;
         recordTypeNode.sealed = !(hasRestField || isOpen);
@@ -4367,20 +4367,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 referenceType.ifPresent(
                         refType -> {
                             bLangRefDoc.type = stringToRefType(refType.text());
-                            transformDocumentationIdentifier(backtickContent, bLangRefDoc);
                             docText.append(refType.toString());
                         }
                 );
 
-                if (!referenceType.isPresent()) {
-                    if (backtickContent.kind() != SyntaxKind.BACKTICK_CONTENT) {
-                        transformDocumentationExpr(backtickContent, bLangRefDoc);
-                    } else {
-                        // reaching here means, backtick content is not in one of x(), m:x(), T.y(), m:T.y() formats
-                        // no warning is logged for this case
-                        bLangRefDoc.hasParserWarnings = true;
-                    }
-                }
+                transformDocumentationBacktickContent(backtickContent, bLangRefDoc);
 
                 docText.append(startBacktick.isMissing() ? "" : startBacktick.text());
                 docText.append(contentString);
@@ -4403,50 +4394,54 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return text.substring(countToStrip);
     }
 
-    private void transformDocumentationIdentifier(Node backtickContent,
-                                                  BLangMarkdownReferenceDocumentation bLangRefDoc) {
+    private void transformDocumentationBacktickContent(Node backtickContent,
+                                                       BLangMarkdownReferenceDocumentation bLangRefDoc) {
+        QualifiedNameReferenceNode qualifiedRef;
+        SimpleNameReferenceNode simpleRef;
+
         switch (backtickContent.kind()) {
             case BACKTICK_CONTENT:
-                // backtick content preceded by a special keyword, should be a name reference
+                // reaching here means backtick content is invalid.
+                // therefore, set hasParserWarnings to true. so that,
+                // doc analyzer will avoid further checks on this.
                 bLangRefDoc.hasParserWarnings = true;
                 break;
             case QUALIFIED_NAME_REFERENCE:
-                QualifiedNameReferenceNode qualifiedRef =
-                        (QualifiedNameReferenceNode) backtickContent;
+                qualifiedRef = (QualifiedNameReferenceNode) backtickContent;
                 bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
                 bLangRefDoc.identifier = qualifiedRef.identifier().text();
                 break;
             case SIMPLE_NAME_REFERENCE:
+                simpleRef = (SimpleNameReferenceNode) backtickContent;
+                bLangRefDoc.identifier = simpleRef.name().text();
+                break;
+            case FUNCTION_CALL:
+                Node funcName = (((FunctionCallExpressionNode) backtickContent).functionName());
+                if (funcName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    qualifiedRef = (QualifiedNameReferenceNode) funcName;
+                    bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
+                    bLangRefDoc.identifier = qualifiedRef.identifier().text();
+                } else {
+                    simpleRef = (SimpleNameReferenceNode) funcName;
+                    bLangRefDoc.identifier = simpleRef.name().text();
+                }
+                break;
+            case METHOD_CALL:
+                MethodCallExpressionNode methodCallExprNode = (MethodCallExpressionNode) backtickContent;
+                bLangRefDoc.identifier =
+                        ((SimpleNameReferenceNode) methodCallExprNode.methodName()).name().text();
+                Node refName = methodCallExprNode.expression();
+                if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                    qualifiedRef = (QualifiedNameReferenceNode) refName;
+                    bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
+                    bLangRefDoc.typeName = qualifiedRef.identifier().text();
+                } else {
+                    simpleRef = (SimpleNameReferenceNode) refName;
+                    bLangRefDoc.typeName = simpleRef.name().text();
+                }
+                break;
             default:
-                SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) backtickContent;
-                bLangRefDoc.identifier = simpleRef.name().text();
-        }
-    }
-
-    private void transformDocumentationExpr(Node backtickContent, BLangMarkdownReferenceDocumentation bLangRefDoc) {
-        if (backtickContent.kind() == SyntaxKind.FUNCTION_CALL) {
-            Node funcName = (((FunctionCallExpressionNode) backtickContent).functionName());
-            if (funcName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) funcName;
-                bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
-                bLangRefDoc.identifier = qualifiedRef.identifier().text();
-            } else {
-                SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) funcName;
-                bLangRefDoc.identifier = simpleRef.name().text();
-            }
-        } else if (backtickContent.kind() == SyntaxKind.METHOD_CALL) {
-            MethodCallExpressionNode methodCallExprNode = (MethodCallExpressionNode) backtickContent;
-            bLangRefDoc.identifier =
-                    ((SimpleNameReferenceNode) methodCallExprNode.methodName()).name().text();
-            Node refName = methodCallExprNode.expression();
-            if (refName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-                QualifiedNameReferenceNode qualifiedRef = (QualifiedNameReferenceNode) refName;
-                bLangRefDoc.qualifier = qualifiedRef.modulePrefix().text();
-                bLangRefDoc.typeName = qualifiedRef.identifier().text();
-            } else {
-                SimpleNameReferenceNode simpleRef = (SimpleNameReferenceNode) refName;
-                bLangRefDoc.typeName = simpleRef.name().text();
-            }
+                throw new IllegalArgumentException("Invalid backtick content transformation");
         }
     }
 
