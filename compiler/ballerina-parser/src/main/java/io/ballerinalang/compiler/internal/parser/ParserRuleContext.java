@@ -244,9 +244,8 @@ public enum ParserRuleContext {
     ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
     ORDER_BY_CLAUSE("order-by-clause"),
-    ORDER_KEY("order-key"),
+    ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),
-    ORDER_DIRECTION_RHS("order-direction-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -364,8 +363,6 @@ public enum ParserRuleContext {
     FAIL_KEYWORD("fail"),
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
-    ASCENDING_KEYWORD("ascending"),
-    DESCENDING_KEYWORD("descending"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -433,6 +430,7 @@ public enum ParserRuleContext {
     NAMESPACE_PREFIX("namespace-prefix"),
     WORKER_NAME("worker-name"),
     FIELD_OR_FUNC_NAME("field-or-func-name"),
+    ORDER_DIRECTION("order-direction"),
 
     // Expressions
     EXPRESSION("expression"),
