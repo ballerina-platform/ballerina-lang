@@ -1010,7 +1010,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STToken invalidToken = STNodeFactory.createInvalidToken(tokenText);
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
         this.leadingTriviaList.add(invalidNodeMinutiae);
     }
