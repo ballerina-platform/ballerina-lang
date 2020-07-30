@@ -30,10 +30,8 @@ import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.JavaClass;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JInteropException;
-import org.wso2.ballerinalang.compiler.bir.codegen.interop.OldStyleExternalFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.model.BIRInstruction;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRFunction;
@@ -614,7 +612,7 @@ public class JvmPackageGen {
         linkModuleStopFunction(pkgName, initClass, orgName, moduleName, version);
 
         // link typedef - object attached native functions
-        linkTypeDefinitions(module, pkgName, isEntry, orgName, moduleName, version);
+        linkTypeDefinitions(module, pkgName, interopValidator, isEntry, orgName, moduleName, version);
 
         return jvmClassMap;
     }
@@ -636,7 +634,9 @@ public class JvmPackageGen {
         globalVarClassMap.put(pkgName + "LOCK_STORE", initClass);
     }
 
-    private void linkTypeDefinitions(BIRPackage module, String pkgName, boolean isEntry, String orgName,
+    private void linkTypeDefinitions(BIRPackage module, String pkgName,
+                                     InteropValidator interopValidator,
+                                     boolean isEntry, String orgName,
                                      String moduleName, String version) {
 
         List<BIRTypeDefinition> typeDefs = module.typeDefs;
@@ -656,27 +656,19 @@ public class JvmPackageGen {
             for (BIRFunction func : attachedFuncs) {
 
                 // link the bir function for lookup
-                BIRFunction currentFunc = getFunction(func);
-                String functionName = currentFunc.name.value;
+                BIRFunction birFunc = getFunction(func);
+                String functionName = birFunc.name.value;
                 String lookupKey = typeName + "." + functionName;
 
-                if (!isExternFunc(currentFunc)) {
-                    String className = getTypeValueClassName(module, typeName);
-                    birFunctionMap.put(pkgName + lookupKey, getFunctionWrapper(currentFunc, orgName, moduleName,
-                            version, className));
-                    continue;
+                String className = getTypeValueClassName(module, typeName);
+                try {
+                    BIRFunctionWrapper birFuncWrapperOrError =
+                            getBirFunctionWrapper(interopValidator, isEntry, orgName, moduleName, version, birFunc,
+                                                  className, lookupKey);
+                    birFunctionMap.put(pkgName + lookupKey, birFuncWrapperOrError);
+                } catch (JInteropException e) {
+                    dlog.error(birFunc.pos, e.getCode(), e.getMessage());
                 }
-
-                String jClassName = lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
-
-                if (jClassName == null) {
-                    throw new BLangCompilerException("native function not available: " + pkgName + lookupKey);
-                }
-
-                OldStyleExternalFunctionWrapper wrapper =
-                        ExternalMethodGen.createOldStyleExternalFunctionWrapper(currentFunc, orgName,
-                                moduleName, version, jClassName, jClassName, isEntry, symbolTable);
-                birFunctionMap.put(pkgName + lookupKey, wrapper);
             }
         }
     }
@@ -769,24 +761,34 @@ public class JvmPackageGen {
 
             interopValidator.setEntryModuleValidation(isEntry);
 
-            BIRFunctionWrapper birFuncWrapperOrError;
             try {
-                if (isExternFunc(getFunction(birFunc)) && isEntry) {
-                    birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
-                            moduleName, version, birModuleClassName, this);
-                } else {
-                    if (isEntry) {
-                        addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
-                    }
-                    birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
-                            birModuleClassName);
-                }
+                BIRFunctionWrapper birFuncWrapperOrError =
+                        getBirFunctionWrapper(interopValidator, isEntry, orgName, moduleName, version, birFunc,
+                                              birModuleClassName, birFuncName);
+                birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
             } catch (JInteropException e) {
                 dlog.error(birFunc.pos, e.getCode(), e.getMessage());
-                continue;
             }
-            birFunctionMap.put(pkgName + birFuncName, birFuncWrapperOrError);
         }
+    }
+
+    private BIRFunctionWrapper getBirFunctionWrapper(InteropValidator interopValidator, boolean isEntry,
+                                                     String orgName, String moduleName, String version,
+                                                     BIRFunction birFunc, String birModuleClassName,
+                                                     String lookupKey) {
+        BIRFunctionWrapper birFuncWrapperOrError;
+        if (isExternFunc(getFunction(birFunc)) && isEntry) {
+            birFuncWrapperOrError = createExternalFunctionWrapper(interopValidator, birFunc, orgName,
+                                                                  moduleName, version, birModuleClassName,
+                                                                  lookupKey, this);
+        } else {
+            if (isEntry && birFunc.receiver == null) {
+                addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
+            }
+            birFuncWrapperOrError = getFunctionWrapper(birFunc, orgName, moduleName, version,
+                                                       birModuleClassName);
+        }
+        return birFuncWrapperOrError;
     }
 
     public String lookupExternClassName(String pkgName, String functionName) {
