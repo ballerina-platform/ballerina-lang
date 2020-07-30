@@ -24,11 +24,11 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
-public class NameReferenceEvaluator extends Evaluator {
+public class SimpleNameReferenceEvaluator extends Evaluator {
 
     private final SimpleNameReferenceNode syntaxNode;
 
-    public NameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
+    public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
         this.syntaxNode = node;
     }

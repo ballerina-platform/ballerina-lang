@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation;
 
+import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
@@ -31,10 +32,11 @@ import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.engine.BasicLiteralEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
-import org.ballerinalang.debugadapter.evaluation.engine.NameReferenceEvaluator;
+import org.ballerinalang.debugadapter.evaluation.engine.SimpleNameReferenceEvaluator;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -134,16 +136,20 @@ public class EvaluatorBuilder extends NodeVisitor {
         supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
         supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
 
-        // variable identifiers
-        supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
+        // name reference
+        // Todo - add rest
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
-        supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
 
-        // numeric literals
+        // basic literal
+        supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+        supportedSyntax.add(SyntaxKind.TRUE_KEYWORD);
+        supportedSyntax.add(SyntaxKind.FALSE_KEYWORD);
+        supportedSyntax.add(SyntaxKind.STRING_LITERAL);
 
         // misc
+        supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.NONE);
@@ -151,7 +157,7 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     /**
-     * Parses a given ballerina expression and transforms into its corresponding java expression.
+     * Parses a given ballerina expression and transforms into a tree of executable {@link Evaluator} instances.
      *
      * @param expression Ballerina expression(user input).
      * @throws EvaluationException If validation/parsing is failed.
@@ -179,6 +185,11 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     @Override
     public void visit(BinaryExpressionNode binaryExpressionNode) {
+        binaryExpressionNode.lhsExpr().accept(this);
+        Evaluator lhsEvaluator = result;
+        binaryExpressionNode.rhsExpr().accept(this);
+        Evaluator rhsEvaluator = result;
+        result = new BinaryExpressionEvaluator(context, binaryExpressionNode, lhsEvaluator, rhsEvaluator);
         visitSyntaxNode(binaryExpressionNode);
     }
 
@@ -223,8 +234,14 @@ public class EvaluatorBuilder extends NodeVisitor {
 
     @Override
     public void visit(SimpleNameReferenceNode simpleNameReferenceNode) {
-        result = new NameReferenceEvaluator(context, simpleNameReferenceNode);
+        result = new SimpleNameReferenceEvaluator(context, simpleNameReferenceNode);
         visitSyntaxNode(simpleNameReferenceNode);
+    }
+
+    @Override
+    public void visit(BasicLiteralNode basicLiteralNode) {
+        result = new BasicLiteralEvaluator(context, basicLiteralNode);
+        visitSyntaxNode(basicLiteralNode);
     }
 
     @Override

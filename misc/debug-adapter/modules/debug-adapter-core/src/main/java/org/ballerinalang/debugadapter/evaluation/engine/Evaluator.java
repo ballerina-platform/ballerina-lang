@@ -34,15 +34,15 @@ public abstract class Evaluator {
     }
 
     /**
-     * @throws EvaluationException
+     * Executes the evaluation process.
      */
     public abstract BExpressionValue evaluate() throws EvaluationException;
 
     /**
-     * In order to obtain a modifier the expression must be evaluated first
+     * In order to obtain a modifier the expression must be evaluated first.
      *
      * @return a modifier object allowing to set a value in case the expression is lvalue,
-     * otherwise null is returned
+     * otherwise null is returned.
      */
     Modifier getModifier() {
         return null;
