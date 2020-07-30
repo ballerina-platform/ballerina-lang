@@ -88,8 +88,13 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "IDENTIFIER_TOKEN",
-                        "value": "bar"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "IDENTIFIER_TOKEN",
+                            "value": "bar"
+                          }
+                        ]
                       }
                     }
                   ],

@@ -64,11 +64,7 @@ public class CreateExecutableTask implements Task {
                 if (module.symbol.entryPointExists) {
                     Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
                     Path jarFromCachePath = buildContext.getJarPathFromTargetCache(module.packageID);
-                    Path runtimeJar = jarResolver.getRuntimeJar();
                     HashSet<Path> dependencies = new HashSet<>(jarResolver.allDependencies(module));
-                    if (runtimeJar != null) {
-                        dependencies.add(runtimeJar);
-                    }
                     try (ZipArchiveOutputStream outStream = new ZipArchiveOutputStream(new BufferedOutputStream(
                             new FileOutputStream(String.valueOf(executablePath))))) {
                         assembleExecutable(jarFromCachePath, dependencies, outStream);

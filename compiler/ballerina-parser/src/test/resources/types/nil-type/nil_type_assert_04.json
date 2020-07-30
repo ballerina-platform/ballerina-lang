@@ -47,8 +47,13 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "DECIMAL_INTEGER_LITERAL",
-                    "value": "4"
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "DECIMAL_INTEGER_LITERAL",
+                        "value": "4"
+                      }
+                    ]
                   }
                 }
               ],

@@ -140,7 +140,12 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "IMPORT_KEYWORD"
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
+                                      {
+                                        "kind": "IMPORT_KEYWORD"
+                                      }
+                                    ]
                                   }
                                 }
                               ],

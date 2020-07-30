@@ -1179,7 +1179,7 @@
             "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "objectKeyword",
+                    "name": "recordKeyword",
                     "type": "Token"
                 },
                 {
@@ -1190,6 +1190,11 @@
                     "name": "fields",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "recordRestDescriptor",
+                    "type": "RecordRestDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "bodyEndDelimiter",

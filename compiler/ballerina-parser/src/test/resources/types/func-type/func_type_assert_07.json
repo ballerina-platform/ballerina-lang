@@ -300,7 +300,12 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "INT_KEYWORD"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "INT_KEYWORD"
+                                  }
+                                ]
                               }
                             }
                           ],

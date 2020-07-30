@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 3,
+    "character": 9
+  },
+  "source": "statement_context/source/wait_action_ctx_source1.bal",
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

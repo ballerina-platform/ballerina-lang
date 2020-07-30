@@ -70,19 +70,17 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "VAR_TYPE_DESC",
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                     "children": [
                                       {
-                                        "kind": "VAR_KEYWORD",
-                                        "trailingMinutiae": [
-                                          {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": " "
-                                          }
-                                        ]
+                                        "kind": "VAR_KEYWORD"
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
                             }
@@ -137,19 +135,17 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "VAR_TYPE_DESC",
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                 "children": [
                                   {
-                                    "kind": "VAR_KEYWORD",
-                                    "trailingMinutiae": [
-                                      {
-                                        "kind": "WHITESPACE_MINUTIAE",
-                                        "value": " "
-                                      }
-                                    ]
+                                    "kind": "VAR_KEYWORD"
                                   }
                                 ]
                               }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
@@ -205,18 +201,16 @@
                                       ],
                                       "leadingMinutiae": [
                                         {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        },
+                                        {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "VAR_TYPE_DESC",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
-                                                "kind": "VAR_KEYWORD",
-                                                "leadingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "    "
-                                                  }
-                                                ]
+                                                "kind": "VAR_KEYWORD"
                                               }
                                             ]
                                           }
@@ -290,18 +284,16 @@
                                       ],
                                       "leadingMinutiae": [
                                         {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        },
+                                        {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "VAR_TYPE_DESC",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
-                                                "kind": "VAR_KEYWORD",
-                                                "leadingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "    "
-                                                  }
-                                                ]
+                                                "kind": "VAR_KEYWORD"
                                               }
                                             ]
                                           }
@@ -399,19 +391,17 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "VAR_TYPE_DESC",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
-                                                "kind": "VAR_KEYWORD",
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
-                                                  }
-                                                ]
+                                                "kind": "VAR_KEYWORD"
                                               }
                                             ]
                                           }
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     }
@@ -470,18 +460,16 @@
                                       ],
                                       "leadingMinutiae": [
                                         {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        },
+                                        {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "VAR_TYPE_DESC",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
-                                                "kind": "VAR_KEYWORD",
-                                                "leadingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "    "
-                                                  }
-                                                ]
+                                                "kind": "VAR_KEYWORD"
                                               }
                                             ]
                                           }
@@ -591,7 +579,7 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "VAR_TYPE_DESC",
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                         "children": [
                           {
                             "kind": "VAR_KEYWORD"
@@ -704,27 +692,23 @@
                               ],
                               "leadingMinutiae": [
                                 {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": "    "
+                                },
+                                {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "VAR_TYPE_DESC",
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                     "children": [
                                       {
-                                        "kind": "VAR_KEYWORD",
-                                        "leadingMinutiae": [
-                                          {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": "    "
-                                          }
-                                        ],
-                                        "trailingMinutiae": [
-                                          {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": " "
-                                          }
-                                        ]
+                                        "kind": "VAR_KEYWORD"
                                       }
                                     ]
                                   }
+                                },
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
                                 }
                               ]
                             }
@@ -775,18 +759,16 @@
                                   ],
                                   "leadingMinutiae": [
                                     {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    },
+                                    {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "VAR_TYPE_DESC",
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                         "children": [
                                           {
-                                            "kind": "VAR_KEYWORD",
-                                            "leadingMinutiae": [
-                                              {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": "    "
-                                              }
-                                            ]
+                                            "kind": "VAR_KEYWORD"
                                           }
                                         ]
                                       }

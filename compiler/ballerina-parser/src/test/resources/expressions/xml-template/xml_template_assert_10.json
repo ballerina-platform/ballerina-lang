@@ -166,20 +166,31 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "INTERPOLATION",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
                                                 "kind": "INTERPOLATION_START_TOKEN"
-                                              },
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "SIMPLE_NAME_REFERENCE",
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "y"
-                                                  }
-                                                ]
-                                              },
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "y"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
                                                 "kind": "CLOSE_BRACE_TOKEN"
                                               }
@@ -288,20 +299,31 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "INTERPOLATION",
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                             "children": [
                                               {
                                                 "kind": "INTERPOLATION_START_TOKEN"
-                                              },
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "SIMPLE_NAME_REFERENCE",
-                                                "children": [
-                                                  {
-                                                    "kind": "IDENTIFIER_TOKEN",
-                                                    "value": "y"
-                                                  }
-                                                ]
-                                              },
+                                                "kind": "IDENTIFIER_TOKEN",
+                                                "value": "y"
+                                              }
+                                            ]
+                                          }
+                                        },
+                                        {
+                                          "kind": "INVALID_NODE_MINUTIAE",
+                                          "invalidNode": {
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
                                                 "kind": "CLOSE_BRACE_TOKEN"
                                               }

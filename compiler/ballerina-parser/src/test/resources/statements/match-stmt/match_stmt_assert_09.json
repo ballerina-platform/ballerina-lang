@@ -556,7 +556,12 @@
                                                     {
                                                       "kind": "INVALID_NODE_MINUTIAE",
                                                       "invalidNode": {
-                                                        "kind": "COLON_TOKEN"
+                                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                        "children": [
+                                                          {
+                                                            "kind": "COLON_TOKEN"
+                                                          }
+                                                        ]
                                                       }
                                                     }
                                                   ]
@@ -697,20 +702,28 @@
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "DOT_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "DOT_TOKEN"
+                                                  }
+                                                ]
                                               }
                                             },
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "DOT_TOKEN",
-                                                "trailingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "DOT_TOKEN"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ],
                                           "trailingMinutiae": [
@@ -1288,7 +1301,12 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "CLOSE_BRACKET_TOKEN"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                  }
+                                ]
                               }
                             }
                           ],
@@ -1393,33 +1411,58 @@
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "BITWISE_AND_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "BITWISE_AND_TOKEN"
+                                                  }
+                                                ]
                                               }
                                             },
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "BITWISE_XOR_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "BITWISE_XOR_TOKEN"
+                                                  }
+                                                ]
                                               }
                                             },
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "PERCENT_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "PERCENT_TOKEN"
+                                                  }
+                                                ]
                                               }
                                             },
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "INVALID_TOKEN",
-                                                "value": "INVALID_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": "$"
+                                                  }
+                                                ]
                                               }
                                             },
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "INVALID_TOKEN",
-                                                "value": "INVALID_TOKEN"
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "INVALID_TOKEN",
+                                                    "value": " "
+                                                  }
+                                                ]
                                               }
                                             }
                                           ]
@@ -1697,11 +1740,25 @@
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "COMMA_TOKEN",
-                                                "trailingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "COMMA_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "OPEN_BRACKET_TOKEN"
                                                   }
                                                 ]
                                               }
@@ -1709,100 +1766,126 @@
                                             {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "LIST_MATCH_PATTERN",
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "a"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "COMMA_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                 "children": [
                                                   {
                                                     "kind": "OPEN_BRACKET_TOKEN"
-                                                  },
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                      {
-                                                        "kind": "SIMPLE_NAME_REFERENCE",
-                                                        "children": [
-                                                          {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "COMMA_TOKEN",
-                                                        "trailingMinutiae": [
-                                                          {
-                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                            "value": " "
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "LIST_MATCH_PATTERN",
-                                                        "children": [
-                                                          {
-                                                            "kind": "OPEN_BRACKET_TOKEN"
-                                                          },
-                                                          {
-                                                            "kind": "LIST",
-                                                            "children": [
-                                                              {
-                                                                "kind": "SIMPLE_NAME_REFERENCE",
-                                                                "children": [
-                                                                  {
-                                                                    "kind": "IDENTIFIER_TOKEN",
-                                                                    "value": "b"
-                                                                  }
-                                                                ]
-                                                              }
-                                                            ]
-                                                          },
-                                                          {
-                                                            "kind": "CLOSE_BRACKET_TOKEN"
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "COMMA_TOKEN",
-                                                        "trailingMinutiae": [
-                                                          {
-                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                            "value": " "
-                                                          }
-                                                        ]
-                                                      }
-                                                    ]
-                                                  },
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "b"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "REST_MATCH_PATTERN",
-                                                    "children": [
-                                                      {
-                                                        "kind": "ELLIPSIS_TOKEN",
-                                                        "trailingMinutiae": [
-                                                          {
-                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                            "value": " "
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "VAR_KEYWORD",
-                                                        "trailingMinutiae": [
-                                                          {
-                                                            "kind": "WHITESPACE_MINUTIAE",
-                                                            "value": " "
-                                                          }
-                                                        ]
-                                                      },
-                                                      {
-                                                        "kind": "SIMPLE_NAME_REFERENCE",
-                                                        "children": [
-                                                          {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "c"
-                                                          }
-                                                        ]
-                                                      }
-                                                    ]
-                                                  },
+                                                    "kind": "CLOSE_BRACKET_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "COMMA_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "ELLIPSIS_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "VAR_KEYWORD"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "c"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
                                                     "kind": "CLOSE_BRACKET_TOKEN"
                                                   }

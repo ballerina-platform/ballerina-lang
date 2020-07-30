@@ -5200,7 +5200,7 @@ public class Desugar extends BLangNodeVisitor {
         if (expr.type.tag == TypeTags.ERROR) {
             return expr;
         }
-        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), expr.type, expr.pos);
+        BLangInvocation cloneInvok = createLangLibInvocationNode("clone", expr, new ArrayList<>(), null, expr.pos);
         return addConversionExprIfRequired(cloneInvok, lhsType);
     }
 

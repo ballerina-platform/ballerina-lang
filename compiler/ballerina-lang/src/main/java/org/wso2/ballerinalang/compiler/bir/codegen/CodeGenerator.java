@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
-import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -51,9 +50,6 @@ import java.util.Set;
 
 import static org.ballerinalang.compiler.JarResolver.JAR_RESOLVER_KEY;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_BRE;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_JAR_EXT;
 
 /**
  * JVM byte code generator from BIR model.
@@ -160,7 +156,6 @@ public class CodeGenerator {
 
         if (jarResolver != null) {
             moduleDependencies.addAll(jarResolver.nativeDependencies(packageID));
-            moduleDependencies.add(getRuntimeAllJarPath());
         }
 
         return moduleDependencies;
@@ -192,13 +187,6 @@ public class CodeGenerator {
             throw new BLangCompilerException("error reading interop jar file names", e);
         }
         return interopDependencies;
-    }
-
-    private Path getRuntimeAllJarPath() {
-
-        String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
-        String runtimeJarName = "ballerina-rt-" + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
-        return Paths.get(ballerinaHome.toString(), BALLERINA_HOME_BRE, BALLERINA_HOME_LIB, runtimeJarName);
     }
 
     private ClassLoader makeClassLoader(Set<Path> moduleDependencies) {

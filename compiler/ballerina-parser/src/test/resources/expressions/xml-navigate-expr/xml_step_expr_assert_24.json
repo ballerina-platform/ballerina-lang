@@ -67,14 +67,17 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "PUBLIC_KEYWORD",
-                        "trailingMinutiae": [
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
                           {
-                            "kind": "WHITESPACE_MINUTIAE",
-                            "value": " "
+                            "kind": "PUBLIC_KEYWORD"
                           }
                         ]
                       }
+                    },
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 },
