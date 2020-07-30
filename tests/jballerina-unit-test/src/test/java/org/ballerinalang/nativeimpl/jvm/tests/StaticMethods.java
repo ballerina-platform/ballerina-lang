@@ -151,6 +151,10 @@ public class StaticMethods {
         return p;
     }
 
+    public static int acceptObjectAndReturnField(ObjectValue p) {
+        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
+    }
+
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
         e.put(StringUtils.fromString("name"), newVal);
         return e;

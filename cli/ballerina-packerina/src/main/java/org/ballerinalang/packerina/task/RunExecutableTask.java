@@ -145,7 +145,6 @@ public class RunExecutableTask implements Task {
         cp.add(this.executableJarPath.toString());
         // Adds all the dependency paths for modules.
         HashSet<Path> dependencySet = new HashSet<>(jarResolver.allDependencies(executableModule));
-        dependencySet.add(jarResolver.getRuntimeJar());
         dependencySet.forEach(path -> cp.add(path.toString()));
         // Adds bre/lib/* to the class-path since we need to have ballerina runtime related dependencies
         // when running single bal files

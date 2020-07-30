@@ -137,7 +137,7 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processPipeOperator();
                 break;
             case LexerTerminals.QUESTION_MARK:
-                if (peek() == LexerTerminals.DOT) {
+                if (peek() == LexerTerminals.DOT && reader.peek(1) != LexerTerminals.DOT) {
                     reader.advance();
                     token = getSyntaxToken(SyntaxKind.OPTIONAL_CHAINING_TOKEN);
                 } else if (peek() == LexerTerminals.COLON) {
@@ -1010,7 +1010,7 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         String tokenText = getLexeme();
-        STNode invalidToken = STNodeFactory.createInvalidToken(tokenText);
+        STToken invalidToken = STNodeFactory.createInvalidToken(tokenText);
         STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidToken);
         this.leadingTriviaList.add(invalidNodeMinutiae);
     }

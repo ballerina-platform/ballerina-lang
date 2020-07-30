@@ -3,7 +3,12 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "ERROR_KEYWORD"
+      "kind": "ERROR_TYPE_DESC",
+      "children": [
+        {
+          "kind": "ERROR_KEYWORD"
+        }
+      ]
     },
     {
       "kind": "OPEN_PAREN_TOKEN",

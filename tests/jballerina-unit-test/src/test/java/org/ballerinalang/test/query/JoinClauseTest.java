@@ -22,6 +22,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.util.BCompileUtil;
 import org.ballerinalang.test.util.BRunUtil;
 import org.ballerinalang.test.util.CompileResult;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -170,6 +171,12 @@ public class JoinClauseTest {
     public void testSimpleJoinClauseWithFunctionInAnEquals() {
         BValue[] values = BRunUtil.invoke(result, "testSimpleJoinClauseWithFunctionInAnEquals");
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = ".*cannot reset an already consumed iterator.*")
+    public void testSimpleJoinWithAStream() {
+        BRunUtil.invoke(result, "testSimpleJoinWithAStream");
     }
 
     @Test(description = "Test negative scenarios for query expr with join clause")

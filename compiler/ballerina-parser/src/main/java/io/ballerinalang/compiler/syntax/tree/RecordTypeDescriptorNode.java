@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -32,7 +33,7 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
         super(internalNode, position, parent);
     }
 
-    public Token objectKeyword() {
+    public Token recordKeyword() {
         return childInBucket(0);
     }
 
@@ -44,8 +45,12 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
         return new NodeList<>(childInBucket(2));
     }
 
+    public Optional<RecordRestDescriptorNode> recordRestDescriptor() {
+        return optionalChildInBucket(3);
+    }
+
     public Token bodyEndDelimiter() {
-        return childInBucket(3);
+        return childInBucket(4);
     }
 
     @Override
@@ -61,29 +66,33 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "objectKeyword",
+                "recordKeyword",
                 "bodyStartDelimiter",
                 "fields",
+                "recordRestDescriptor",
                 "bodyEndDelimiter"};
     }
 
     public RecordTypeDescriptorNode modify(
-            Token objectKeyword,
+            Token recordKeyword,
             Token bodyStartDelimiter,
             NodeList<Node> fields,
+            RecordRestDescriptorNode recordRestDescriptor,
             Token bodyEndDelimiter) {
         if (checkForReferenceEquality(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields.underlyingListNode(),
+                recordRestDescriptor,
                 bodyEndDelimiter)) {
             return this;
         }
 
         return NodeFactory.createRecordTypeDescriptorNode(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
@@ -98,23 +107,25 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
      */
     public static class RecordTypeDescriptorNodeModifier {
         private final RecordTypeDescriptorNode oldNode;
-        private Token objectKeyword;
+        private Token recordKeyword;
         private Token bodyStartDelimiter;
         private NodeList<Node> fields;
+        private RecordRestDescriptorNode recordRestDescriptor;
         private Token bodyEndDelimiter;
 
         public RecordTypeDescriptorNodeModifier(RecordTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
-            this.objectKeyword = oldNode.objectKeyword();
+            this.recordKeyword = oldNode.recordKeyword();
             this.bodyStartDelimiter = oldNode.bodyStartDelimiter();
             this.fields = oldNode.fields();
+            this.recordRestDescriptor = oldNode.recordRestDescriptor().orElse(null);
             this.bodyEndDelimiter = oldNode.bodyEndDelimiter();
         }
 
-        public RecordTypeDescriptorNodeModifier withObjectKeyword(
-                Token objectKeyword) {
-            Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
-            this.objectKeyword = objectKeyword;
+        public RecordTypeDescriptorNodeModifier withRecordKeyword(
+                Token recordKeyword) {
+            Objects.requireNonNull(recordKeyword, "recordKeyword must not be null");
+            this.recordKeyword = recordKeyword;
             return this;
         }
 
@@ -132,6 +143,13 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
             return this;
         }
 
+        public RecordTypeDescriptorNodeModifier withRecordRestDescriptor(
+                RecordRestDescriptorNode recordRestDescriptor) {
+            Objects.requireNonNull(recordRestDescriptor, "recordRestDescriptor must not be null");
+            this.recordRestDescriptor = recordRestDescriptor;
+            return this;
+        }
+
         public RecordTypeDescriptorNodeModifier withBodyEndDelimiter(
                 Token bodyEndDelimiter) {
             Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
@@ -141,9 +159,10 @@ public class RecordTypeDescriptorNode extends TypeDescriptorNode {
 
         public RecordTypeDescriptorNode apply() {
             return oldNode.modify(
-                    objectKeyword,
+                    recordKeyword,
                     bodyStartDelimiter,
                     fields,
+                    recordRestDescriptor,
                     bodyEndDelimiter);
         }
     }

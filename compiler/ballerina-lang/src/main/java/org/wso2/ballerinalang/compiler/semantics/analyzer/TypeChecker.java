@@ -190,6 +190,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -240,8 +241,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private ResolvedTypeBuilder typeBuilder;
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
-    private SymbolEnv narrowedQueryEnv;
-    private BLangSelectClause selectClause;
+    private Stack<SymbolEnv> queryEnvs, prevEnvs;
+    private Stack<BLangSelectClause> selectClauses;
     private BLangMissingNodesHelper missingNodesHelper;
 
     /**
@@ -320,6 +321,9 @@ public class TypeChecker extends BLangNodeVisitor {
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
+        this.selectClauses = new Stack<>();
+        this.queryEnvs = new Stack<>();
+        this.prevEnvs = new Stack<>();
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -4230,18 +4234,113 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        selectClause = queryExpr.getSelectClause();
-        narrowedQueryEnv = env;
+        if (prevEnvs.empty()) {
+            prevEnvs.push(env.createClone());
+        } else {
+            prevEnvs.push(prevEnvs.peek());
+        }
+        queryEnvs.push(prevEnvs.peek().createClone());
+        selectClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type,
-                expType, queryExpr);
-        if (actualType != symTable.semanticError) {
-            resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        BType actualType = findAssignableType(queryEnvs.peek(),
+                selectClauses.peek().expression, collectionNode.type, expType, queryExpr);
+        resultType = (actualType == symTable.semanticError) ? actualType :
+                types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        selectClauses.pop();
+        queryEnvs.pop();
+        prevEnvs.pop();
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        if (prevEnvs.empty()) {
+            prevEnvs.push(env.createClone());
         } else {
-            resultType = actualType;
+            prevEnvs.push(prevEnvs.peek());
         }
+        queryEnvs.push(prevEnvs.peek().createClone());
+        selectClauses.push(null);
+        BLangDoClause doClause = queryAction.getDoClause();
+        List<BLangNode> clauses = queryAction.getQueryClauses();
+        clauses.forEach(clause -> clause.accept(this));
+        // Analyze foreach node's statements.
+        semanticAnalyzer.analyzeStmt(doClause.body, SymbolEnv.createBlockEnv(doClause.body, queryEnvs.peek()));
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        selectClauses.pop();
+        queryEnvs.pop();
+        prevEnvs.pop();
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop()));
+        checkExpr(fromClause.collection, queryEnvs.peek());
+        // Set the type of the foreach node's type node.
+        types.setInputClauseTypedBindingPatternType(fromClause);
+        handleInputClauseVariables(fromClause, queryEnvs.peek());
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop()));
+        checkExpr(joinClause.collection, queryEnvs.peek());
+        // Set the type of the foreach node's type node.
+        types.setInputClauseTypedBindingPatternType(joinClause);
+        handleInputClauseVariables(joinClause, queryEnvs.peek());
+        if (joinClause.onClause != null) {
+            ((BLangOnClause) joinClause.onClause).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(letClause, queryEnvs.pop()));
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, queryEnvs.peek());
+        }
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        handleFilterClauses(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        BType exprType = checkExpr(onConflictClause.expression, queryEnvs.peek(), symTable.errorType);
+        if (!types.isAssignable(exprType, symTable.errorType)) {
+            dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
+                    symTable.errorType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        BType exprType = checkExpr(limitClause.expression, queryEnvs.peek());
+        if (!types.isAssignable(exprType, symTable.intType)) {
+            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    symTable.intType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        handleFilterClauses(onClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
@@ -4335,97 +4434,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    @Override
-    public void visit(BLangQueryAction queryAction) {
-        narrowedQueryEnv = env;
-        BLangDoClause doClause = queryAction.getDoClause();
-        List<BLangNode> clauses = queryAction.getQueryClauses();
-        clauses.forEach(clause -> clause.accept(this));
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClause.body, narrowedQueryEnv);
-        // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeStmt(doClause.body, blockEnv);
-        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        resultType = types.checkType(doClause.pos, actualType, expType,
-                DiagnosticCode.INCOMPATIBLE_TYPES);
-    }
-
-    @Override
-    public void visit(BLangFromClause fromClause) {
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
-        checkExpr(fromClause.collection, narrowedQueryEnv);
-        // Set the type of the foreach node's type node.
-        types.setInputClauseTypedBindingPatternType(fromClause);
-        handleInputClauseVariables(fromClause, narrowedQueryEnv);
-    }
-
-    @Override
-    public void visit(BLangJoinClause joinClause) {
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
-        checkExpr(joinClause.collection, narrowedQueryEnv);
-        // Set the type of the foreach node's type node.
-        types.setInputClauseTypedBindingPatternType(joinClause);
-        handleInputClauseVariables(joinClause, narrowedQueryEnv);
-        if (joinClause.onClause != null) {
-            ((BLangOnClause) joinClause.onClause).accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangLetClause letClause) {
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(letClause, narrowedQueryEnv);
-        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, narrowedQueryEnv);
-        }
-    }
-
-    @Override
-    public void visit(BLangWhereClause whereClause) {
-        handleFilterClauses(whereClause.expression);
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-    }
-
-    @Override
-    public void visit(BLangDoClause doClause) {
-    }
-
-    @Override
-    public void visit(BLangOnConflictClause onConflictClause) {
-        BType exprType = checkExpr(onConflictClause.expression, narrowedQueryEnv, symTable.errorType);
-        if (!types.isAssignable(exprType, symTable.errorType)) {
-            dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
-                    symTable.errorType, exprType);
-        }
-    }
-
-    @Override
-    public void visit(BLangLimitClause limitClause) {
-        BType exprType = checkExpr(limitClause.expression, narrowedQueryEnv);
-        if (!types.isAssignable(exprType, symTable.intType)) {
-            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                    symTable.intType, exprType);
-        }
-    }
-
-    @Override
-    public void visit(BLangOnClause onClause) {
-        handleFilterClauses(onClause.expression);
-    }
-
-    @Override
-    public void visit(BLangOrderByClause orderByClause) {
-    }
-
     private void handleFilterClauses (BLangExpression filterExpression) {
-        checkExpr(filterExpression, narrowedQueryEnv, symTable.booleanType);
+        checkExpr(filterExpression, queryEnvs.peek(), symTable.booleanType);
         BType actualType = filterExpression.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(filterExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        narrowedQueryEnv = typeNarrower.evaluateTruth(filterExpression, selectClause, narrowedQueryEnv);
+        queryEnvs.push(typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop()));
     }
 
     private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
