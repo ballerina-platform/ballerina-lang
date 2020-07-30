@@ -170,26 +170,32 @@
                                         {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "CLOSE_PAREN_TOKEN",
-                                            "trailingMinutiae": [
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": " "
+                                                "kind": "CLOSE_PAREN_TOKEN"
                                               }
                                             ]
                                           }
                                         },
                                         {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        },
+                                        {
                                           "kind": "INVALID_NODE_MINUTIAE",
                                           "invalidNode": {
-                                            "kind": "COLON_TOKEN",
-                                            "trailingMinutiae": [
+                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                            "children": [
                                               {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": " "
+                                                "kind": "COLON_TOKEN"
                                               }
                                             ]
                                           }
+                                        },
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
                                         }
                                       ]
                                     }
@@ -365,7 +371,12 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "CLOSE_PAREN_TOKEN"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "CLOSE_PAREN_TOKEN"
+                                  }
+                                ]
                               }
                             }
                           ],

@@ -88,27 +88,23 @@
                       ],
                       "trailingMinutiae": [
                         {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        },
+                        {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "STRING_TYPE_DESC",
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                             "children": [
                               {
-                                "kind": "STRING_KEYWORD",
-                                "leadingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": "    "
-                                  }
-                                ],
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
-                                  }
-                                ]
+                                "kind": "STRING_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
                       ]
                     }

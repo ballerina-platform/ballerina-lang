@@ -218,6 +218,7 @@ public enum SyntaxKind {
 
     // Invalid nodes
     INVALID_TOKEN(1600),
+    INVALID_TOKEN_MINUTIAE_NODE(1601),
 
     // module-level declarations
     IMPORT_DECLARATION(2000),
