@@ -46,7 +46,7 @@ public type AuthnFilter object {
                 authenticated = handleAuthRequest(self.authHandlers, request);
             }
         }
-        return isAuthnSuccessful(caller, authenticated);
+        return isAuthnSuccessful(caller, authenticated, context);
     }
 };
 
@@ -97,16 +97,24 @@ function checkForAuthHandlers(InboundAuthHandler[] authHandlers, Request request
 # + caller - Caller for outbound HTTP response
 # + authenticated - Authentication status for the request, or `AuthenticationError` if error occurred
 # + return - Authentication result to indicate if the filter can proceed(true) or not(false)
-function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authenticated) returns boolean {
-    Response response = new;
-    response.statusCode = 401;
+function isAuthnSuccessful(Caller caller, boolean|AuthenticationError authenticated, FilterContext context)
+                returns boolean {
     if (authenticated is boolean && authenticated) {
         return authenticated;
     }
-    response.setTextPayload("Authentication failure.");
-    error? err = caller->respond(response);
-    if (err is error) {
-        panic <error> err;
+    if (isWebSocketUpgradeRequest(context)) {
+        error? err = caller->cancelWebSocketUpgrade(401, "Authentication failure.");
+        if (err is error) {
+            panic <error> err;
+        }
+    } else {
+        Response response = new;
+        response.statusCode = 401;
+        response.setTextPayload("Authentication failure.");
+        error? err = caller->respond(response);
+        if (err is error) {
+            panic <error> err;
+        }
     }
     return false;
 }
