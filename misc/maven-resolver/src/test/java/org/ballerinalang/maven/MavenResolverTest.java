@@ -29,6 +29,9 @@ import java.nio.file.Paths;
  */
 public class MavenResolverTest {
     String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "platform-libs";
+    String mavenArtifactVersion = "3.6.3";
+    String cassandraVersion = "0.8.3";
+    String commandDistVersion = "0.8.5";
     MavenResolver resolver = new MavenResolver(targetRepo);
 
     @Test
@@ -36,7 +39,7 @@ public class MavenResolverTest {
         try {
             Dependency dependency = resolver.resolve("org.json", "json", "20190722", false);
             String jarPath = Utils.getJarPath(targetRepo, dependency);
-            Assert.assertEquals(new File(jarPath).exists(), true);
+            Assert.assertTrue(new File(jarPath).exists());
         } catch (MavenResolverException e) {
             Assert.fail(e.getMessage());
         }
@@ -45,9 +48,10 @@ public class MavenResolverTest {
     @Test
     public void testTransitiveDependency() {
         try {
-            Dependency dependency = resolver.resolve("org.apache.maven", "maven-artifact", "3.6.3", true);
+            Dependency dependency = resolver.resolve("org.apache.maven", "maven-artifact", mavenArtifactVersion,
+                    true);
             String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
-            Assert.assertEquals(new File(jarPath).exists(), true);
+            Assert.assertTrue(new File(jarPath).exists());
         } catch (MavenResolverException e) {
             Assert.fail(e.getMessage());
         }
@@ -58,7 +62,7 @@ public class MavenResolverTest {
         try {
             resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
             Dependency dependency = resolver.resolve("org.ballerinalang", "wso2-cassandra",
-                    "0.8.3", true);
+                    cassandraVersion, true);
             String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
             Assert.assertTrue(new File(jarPath).exists());
         } catch (MavenResolverException e) {
@@ -74,7 +78,7 @@ public class MavenResolverTest {
             resolver.addRepository("ballerina-github",
                     "https://maven.pkg.github.com/ballerina-platform/ballerina-update-tool", username, password);
             Dependency dependency = resolver.resolve("org.ballerinalang", "ballerina-command-distribution",
-                    "0.8.5", false);
+                    commandDistVersion, false);
             String jarPath = Utils.getJarPath(targetRepo, dependency.getDepedencies().get(0));
             Assert.assertTrue(new File(jarPath).exists());
         } catch (MavenResolverException e) {

@@ -45,10 +45,10 @@ public class ResolveMavenDependenciesTask implements Task {
     public void execute(BuildContext buildContext) {
         CompilerContext context = buildContext.get(BuildContextField.COMPILER_CONTEXT);
         Manifest manifest = ManifestProcessor.getInstance(context).getManifest();
-        List<Library> mavenLibs = manifest.getPlatform().getLibraries();
+        List<Library> platformLibs = manifest.getPlatform().getLibraries();
         List<Repository> mavenCustomRepos = manifest.getPlatform().getRepositories();
         List<Library> mavenDependencies = new ArrayList<>();
-        if (mavenLibs == null) {
+        if (platformLibs == null) {
             return;
         }
 
@@ -60,23 +60,33 @@ public class ResolveMavenDependenciesTask implements Task {
             for (Repository repository : mavenCustomRepos) {
                 String id = repository.getId();
                 String url = repository.getUrl();
-                if (id != null && url != null) {
-                    String username = repository.getUser();
-                    String password = repository.getToken();
-                    if (username != null && password != null) {
-                        resolver.addRepository(id, url, username, password);
-                        continue;
-                    }
-                    resolver.addRepository(id, url);
+                if (id == null && url == null) {
+                    throw createLauncherException("custom maven repository properties are not specified for " +
+                            "given platform repository.");
                 }
+
+                String username = repository.getUser();
+                String password = repository.getToken();
+                if (username != null && password != null) {
+                    resolver.addRepository(id, url, username, password);
+                    continue;
+                }
+                resolver.addRepository(id, url);
             }
         }
 
-        for (Library library : mavenLibs) {
+        for (Library library : platformLibs) {
             if (library.getPath() == null) {
-                if (library.getArtifactId() != null && library.getGroupId() != null && library.getVersion() != null) {
-                    mavenDependencies.add(library);
+                if (library.getArtifactId() == null && library.getGroupId() == null && library.getVersion() == null) {
+                    throw createLauncherException("path or maven dependency properties are not specified for " +
+                            "given platform library dependency.");
                 }
+
+                if (library.getArtifactId() == null || library.getGroupId() == null || library.getVersion() == null) {
+                    throw createLauncherException("artifact-id, group-id, and version should be specified to " +
+                                    "resolve the maven dependency.");
+                }
+                mavenDependencies.add(library);
             }
         }
 

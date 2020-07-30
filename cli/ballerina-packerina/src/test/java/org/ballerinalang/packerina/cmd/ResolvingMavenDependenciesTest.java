@@ -40,6 +40,8 @@ import java.nio.file.StandardOpenOption;
  */
 public class ResolvingMavenDependenciesTest extends CommandTest {
     private Path testResources;
+    private String mavenArtifactVersion = "3.6.3";
+    private String cassandraVersion = "0.8.3";
 
     @BeforeClass
     public void setup() throws IOException {
@@ -69,26 +71,20 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
 
         //Assert maven dependencies are downloaded
         Assert.assertTrue(Files.exists(getJarPath(platformLibsDir.toString(), "org.apache.maven",
-                "maven-artifact", "3.6.3")));
+                "maven-artifact", mavenArtifactVersion)));
         Assert.assertTrue(Files.exists(getJarPath(platformLibsDir.toString(), "org.ballerinalang",
-                "wso2-cassandra", "0.8.3")));
+                "wso2-cassandra", cassandraVersion)));
     }
 
     @Test(description = "Test the project without listing the custom maven repos to [platform.repositories]")
-    public void testWithoutCustomMavenDependencies() {
+    public void testWithoutCustomMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-a");
-        buildCommand.execute();
-        Path target = validBalFilePath.resolve(ProjectDirConstants.TARGET_DIR_NAME);
-        Path platformLibsDir = target.resolve("platform-libs");
-        Assert.assertTrue(Files.exists(target), "Check if target directory is created");
-        Assert.assertTrue(Files.exists(platformLibsDir), "Check if platform-libs is created");
-
-        //Assert maven dependencies are downloaded
-        Assert.assertTrue(Files.exists(getJarPath(platformLibsDir.toString(), "org.apache.maven",
-                "maven-artifact", "3.6.3")));
+        String exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "error: custom maven repository properties are not specified for " +
+                "given platform repository.");
     }
 
     @Test(description = "Test the project with adding invalid maven dependencies",
@@ -104,14 +100,36 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "[[platform.libraries]]\n\t" +
                 "artifactId=\"maven-artifact\"\n\t" +
                 "groupId=\"org.apche.maven\"\n\t" +
-                "version=\"3.6.3\"";
+                "version=\"" + mavenArtifactVersion + "\"";
         Files.write(validBalFilePath.resolve("Ballerina.toml"), tomlContent.getBytes(),
                 StandardOpenOption.TRUNCATE_EXISTING);
         BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
         new CommandLine(buildCommand).parse("-a");
         String exMsg = executeAndGetException(buildCommand);
-        Assert.assertEquals(exMsg, "error: cannot resolve maven-artifact: Could not find artifact " +
-                "org.apche.maven:maven-artifact:jar:3.6.3 in central (https://repo.maven.apache.org/maven2/)");
+        Assert.assertEquals(exMsg, "error: cannot resolve maven-artifact: Could not find artifact org.apche.maven:" +
+                "maven-artifact:jar:" + mavenArtifactVersion + " in central (https://repo.maven.apache.org/maven2/)");
+    }
+
+    @Test(description = "Validate the maven dependencies",
+            dependsOnMethods = {"testWithInvalidMavenDependencies"})
+    public void validateMavenDependencies() throws IOException {
+        // valid source root path
+        Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");
+        String tomlContent = "[project]\n" +
+                "org-name=\"foo\"\n" +
+                "version=\"0.1.0\"\n\n" +
+                "[platform]\n" +
+                "target=\"java\"\n\n\t" +
+                "[[platform.libraries]]\n\t" +
+                "artifactId=\"maven-artifact\"\n\t" +
+                "groupId=\"org.apache.maven\"\n\t";
+        Files.write(validBalFilePath.resolve("Ballerina.toml"), tomlContent.getBytes(),
+                StandardOpenOption.TRUNCATE_EXISTING);
+        BuildCommand buildCommand = new BuildCommand(validBalFilePath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse("-a");
+        String exMsg = executeAndGetException(buildCommand);
+        Assert.assertEquals(exMsg, "error: artifact-id, group-id, and version should be specified to resolve " +
+                "the maven dependency.");
     }
 
     public static Path getJarPath(String targetPath, String groupId, String artifactId, String version) {
