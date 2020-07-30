@@ -15,7 +15,8 @@
  */
 package org.ballerinalang.langserver.completions;
 
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -26,29 +27,29 @@ import java.util.ServiceLoader;
  *
  * @since 0.990.4
  */
-public class LSCompletionProviderHolder {
+public class ProviderFactory {
 
-    private static final Map<Class, LSCompletionProvider> providers = new HashMap<>();
+    private static final Map<Class<?>, CompletionProvider<Node>> providers = new HashMap<>();
 
-    private static final LSCompletionProviderHolder INSTANCE = new LSCompletionProviderHolder();
+    private static final ProviderFactory INSTANCE = new ProviderFactory();
 
-    private LSCompletionProviderHolder() {
-        ServiceLoader<LSCompletionProvider> providerServices = ServiceLoader.load(LSCompletionProvider.class);
-        for (LSCompletionProvider provider : providerServices) {
+    private ProviderFactory() {
+        ServiceLoader<CompletionProvider> providerServices = ServiceLoader.load(CompletionProvider.class);
+        for (CompletionProvider<Node> provider : providerServices) {
             if (provider == null) {
                 continue;
             }
-            for (Class attachmentPoint : provider.getAttachmentPoints()) {
+            for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
                 if (!providers.containsKey(attachmentPoint) ||
-                        (providers.get(attachmentPoint).getPrecedence() == LSCompletionProvider.Precedence.LOW
-                        && provider.getPrecedence() == LSCompletionProvider.Precedence.HIGH)) {
+                        (providers.get(attachmentPoint).getPrecedence() == CompletionProvider.Precedence.LOW
+                                && provider.getPrecedence() == CompletionProvider.Precedence.HIGH)) {
                     providers.put(attachmentPoint, provider);
                 }
             }
         }
     }
 
-    public static LSCompletionProviderHolder getInstance() {
+    public static ProviderFactory instance() {
         return INSTANCE;
     }
 
@@ -57,8 +58,8 @@ public class LSCompletionProviderHolder {
      *
      * @param provider completion provider to register
      */
-    public void register(LSCompletionProvider provider) {
-        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+    public void register(CompletionProvider<Node> provider) {
+        for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.put(attachmentPoint, provider);
         }
     }
@@ -68,23 +69,23 @@ public class LSCompletionProviderHolder {
      *
      * @param provider completion provider to unregister
      */
-    public void unregister(LSCompletionProvider provider) {
-        for (Class attachmentPoint : provider.getAttachmentPoints()) {
+    public void unregister(CompletionProvider<?> provider) {
+        for (Class<?> attachmentPoint : provider.getAttachmentPoints()) {
             providers.remove(attachmentPoint, provider);
         }
     }
 
-    public Map<Class, LSCompletionProvider> getProviders() {
+    public Map<Class<?>, CompletionProvider<Node>> getProviders() {
         return providers;
     }
 
     /**
      * Get Provider by Class key.
      *
-     * @param key   Provider key
-     * @return {@link LSCompletionProvider} Completion provider  
+     * @param key Provider key
+     * @return {@link CompletionProvider} Completion provider
      */
-    public LSCompletionProvider getProvider(Class key) {
+    public CompletionProvider<?> getProvider(Class<?> key) {
         return providers.get(key);
     }
 }

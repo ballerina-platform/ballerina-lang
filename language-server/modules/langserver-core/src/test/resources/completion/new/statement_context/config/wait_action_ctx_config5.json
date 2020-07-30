@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 4,
+    "character": 19
+  },
+  "source": "statement_context/source/wait_action_ctx_source5.bal",
+  "items": [
+    {
+      "label": "fs2",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "130",
+      "insertText": "fs2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fs",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "130",
+      "insertText": "fs",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
