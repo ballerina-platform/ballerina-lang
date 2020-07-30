@@ -19,6 +19,8 @@ package io.ballerinalang.compiler.parser.test.tree;
 
 import io.ballerinalang.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerinalang.compiler.syntax.tree.InvalidTokenMinutiaeNode;
+import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
@@ -93,6 +95,76 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
     }
 
     @Test
+    public void testFindTokenInsideMinutiae() {
+        String text = "import ballerina/http;\n" +
+                "import ballerina/lang.'object as lang;\n" +
+                "\n" +
+                "@http:ServiceConfig";
+        int position = text.indexOf(":ServiceConfig");
+
+        SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+        Token token = modulePartNode.findToken(position, true);
+        Assert.assertEquals(SyntaxKind.COLON_TOKEN, token.kind());
+        Assert.assertEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
+
+        InvalidTokenMinutiaeNode invalidTokenMinutiaeNode = (InvalidTokenMinutiaeNode) token.parent();
+        Token attachedToken = invalidTokenMinutiaeNode.parentMinutiae().parentToken();
+        Assert.assertEquals(SyntaxKind.EOF_TOKEN, attachedToken.kind());
+
+        MinutiaeList leadingMinutiae = attachedToken.leadingMinutiae();
+        Assert.assertEquals(5, leadingMinutiae.size());
+        Assert.assertEquals(SyntaxKind.WHITESPACE_MINUTIAE, leadingMinutiae.get(0).kind());
+        Assert.assertEquals(SyntaxKind.AT_TOKEN,
+                leadingMinutiae.get(1).invalidTokenMinutiaeNode().get().invalidToken().kind());
+    }
+
+    @Test
+    public void testFindTokenInsideMinutiaeSimple() {
+        String text = "import ballerina/http;\n" +
+                "import ballerina/lang.'object as lang;\n" +
+                "\n" +
+                "public & function foo() returns int {" +
+                "int a = 5;" +
+                "return a;" +
+                "}";
+        int position = text.indexOf("&");
+
+        SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+
+        Token token = modulePartNode.findToken(position, true);
+        Assert.assertEquals(SyntaxKind.BITWISE_AND_TOKEN, token.kind());
+        Assert.assertEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
+
+        token = modulePartNode.findToken(position, false);
+        Assert.assertEquals(SyntaxKind.FUNCTION_KEYWORD, token.kind());
+        Assert.assertNotEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
+    }
+
+    @Test
+    public void testFindTokenInsideMinutiaeNamedWorkerDecl() {
+        String text = "function sar() {\n" +
+                "    int a = 12;\n" +
+                "    \n" +
+                "    worker myWorker r  {\n" +
+                "    }\n" +
+                "}";
+        int position = text.indexOf("r  {");
+
+        SyntaxTree syntaxTree = SyntaxTree.from(TextDocuments.from(text));
+        ModulePartNode modulePartNode = syntaxTree.rootNode();
+
+        Token token = modulePartNode.findToken(position, true);
+        Assert.assertEquals(SyntaxKind.IDENTIFIER_TOKEN, token.kind());
+        Assert.assertEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
+
+        token = modulePartNode.findToken(position, false);
+        Assert.assertEquals(SyntaxKind.OPEN_BRACE_TOKEN, token.kind());
+        Assert.assertNotEquals(SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE, token.parent().kind());
+    }
+
+    @Test
     public void testGetSpecificAncestorOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
         ModulePartNode modulePart = syntaxTree.rootNode();
@@ -140,7 +212,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         //testing a negative case
         ancestor = funcToken.ancestor(node -> node instanceof ForEachStatementNode);
-        Assert.assertEquals(ancestor.isPresent(), false);
+        Assert.assertFalse(ancestor.isPresent());
     }
 
     @Test
