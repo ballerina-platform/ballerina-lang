@@ -169,7 +169,12 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "PUBLIC_KEYWORD"
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
+                                      {
+                                        "kind": "PUBLIC_KEYWORD"
+                                      }
+                                    ]
                                   }
                                 }
                               ],

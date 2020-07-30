@@ -114,7 +114,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         MinutiaeList leadingMinutiae = attachedToken.leadingMinutiae();
         Assert.assertEquals(5, leadingMinutiae.size());
-        Assert.assertEquals(SyntaxKind.WHITESPACE_MINUTIAE, leadingMinutiae.get(0).kind());
+        Assert.assertEquals(SyntaxKind.END_OF_LINE_MINUTIAE, leadingMinutiae.get(0).kind());
         Assert.assertEquals(SyntaxKind.AT_TOKEN,
                 leadingMinutiae.get(1).invalidTokenMinutiaeNode().get().invalidToken().kind());
     }
