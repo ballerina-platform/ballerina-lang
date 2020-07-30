@@ -280,7 +280,9 @@ function isResourceAuthEnabled(ResourceAuth? resourceAuth) returns boolean? {
 function isWebSocketUpgradeRequest(FilterContext context) returns boolean {
     any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
                                                  ANN_MODULE);
-    if (!(annData is ())) {
+    if (annData is ()) {
+        return false;
+    } else {
         HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
         if (resourceConfig?.webSocketUpgrade is  WebSocketUpgradeConfig) {
             return true;
