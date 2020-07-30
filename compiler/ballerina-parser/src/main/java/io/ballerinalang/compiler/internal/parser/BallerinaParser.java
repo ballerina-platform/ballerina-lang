@@ -5481,6 +5481,7 @@ public class BallerinaParser extends AbstractParser {
             case PRIVATE_KEYWORD:
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
+            case TRANSACTION_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
             case DOCUMENTATION_STRING:
