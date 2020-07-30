@@ -20,6 +20,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 
+/**
+ * Base representation of ballerina debug expression evaluator.
+ *
+ * @since 2.0.0
+ */
 public abstract class Evaluator {
 
     SuspendedContext context;

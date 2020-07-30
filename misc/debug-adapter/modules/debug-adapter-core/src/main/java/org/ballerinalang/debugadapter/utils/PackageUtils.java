@@ -19,6 +19,8 @@ package org.ballerinalang.debugadapter.utils;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
+import org.ballerinalang.debugadapter.evaluation.EvaluationException;
+import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.toml.model.Manifest;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.wso2.ballerinalang.util.TomlParserUtils;
@@ -27,6 +29,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,6 +38,8 @@ import java.util.List;
  */
 public class PackageUtils {
 
+    public static final String SRC_DIR_NAME = "src";
+    public static final String BAL_FILE_EXT = ".bal";
     public static final String MANIFEST_FILE_NAME = "Ballerina.toml";
     private static final String MODULE_VERSION_REGEX = "\\d+_\\d+_\\d+";
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
@@ -108,11 +114,11 @@ public class PackageUtils {
 
         String orgName = getOrgName(projectRoot);
         if (!orgName.isEmpty() && relativePath.startsWith(orgName)) {
-            relativePath = relativePath.replaceFirst(orgName, "src");
+            relativePath = relativePath.replaceFirst(orgName, SRC_DIR_NAME);
         }
         // Removes module version part from the JDI reference source path.
         relativePath = relativePath.replaceFirst(SEPARATOR_REGEX + MODULE_VERSION_REGEX, "");
-        return relativePath;
+        return projectRoot + File.separator + relativePath;
     }
 
     /**
@@ -142,6 +148,53 @@ public class PackageUtils {
     }
 
     /**
+     * Returns the module version for a given ballerina project source.
+     *
+     * @param projectRoot ballerina source project root
+     * @return module/project version
+     */
+    public static String getModuleVersion(Path projectRoot) {
+        if (projectRoot == null) {
+            return "";
+        }
+        Manifest manifest = TomlParserUtils.getManifest(projectRoot);
+        return manifest.getProject().getVersion();
+    }
+
+    /**
+     * Returns all the module file names which belong to the current module that is being debugged.
+     *
+     * @param entryFilePath Current module file where the debug hit is occurred.
+     * @return All the module file names which belong to the current module that is being debugged.
+     */
+    public static List<String> getAllModuleFileNames(String entryFilePath) throws EvaluationException {
+        try {
+            // Gets path of the module directory.
+            Path moduleDirPath = null;
+            String[] split = entryFilePath.split(SEPARATOR_REGEX);
+            for (int index = 0; index < split.length; index++) {
+                if (split[index].equals(SRC_DIR_NAME)) {
+                    String join = String.join(File.separator, Arrays.copyOfRange(split, index + 2, split.length));
+                    moduleDirPath = Paths.get(entryFilePath.replace(join, ""));
+                    break;
+                }
+            }
+            List<String> moduleFileNames = new ArrayList<>();
+            if (moduleDirPath == null) {
+                return moduleFileNames;
+            }
+            // Traverses the file system and retrieve all the bal source files available in the module directory.
+            String moduleDirPathString = moduleDirPath.toString();
+            Files.walk(moduleDirPath).filter(Files::isRegularFile).forEach(path ->
+                    moduleFileNames.add(path.toAbsolutePath().toString().replace(moduleDirPathString, "")));
+            return moduleFileNames;
+        } catch (Exception e) {
+            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
+                    "occurred when trying to retrieve source file names of the current module."));
+        }
+    }
+
+    /**
      * Returns the module name for a given ballerina module source.
      *
      * @param balFilePath ballerina source path
@@ -156,8 +209,8 @@ public class PackageUtils {
             }
             Path relativePath = projectRoot.relativize(path);
             String packagePath = relativePath.toString();
-            if (packagePath.startsWith("src")) {
-                packagePath = packagePath.replaceFirst("src" + SEPARATOR_REGEX, "");
+            if (packagePath.startsWith(SRC_DIR_NAME)) {
+                packagePath = packagePath.replaceFirst(SRC_DIR_NAME + SEPARATOR_REGEX, "");
             }
             // Directly using file separator as a regex will fail on windows.
             return packagePath.split(SEPARATOR_REGEX)[0];

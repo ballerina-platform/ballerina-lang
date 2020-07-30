@@ -17,6 +17,7 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
+import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
 import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
@@ -35,6 +36,7 @@ public class SuspendedContext {
 
     private final VirtualMachine attachedVm;
     private final ThreadReference owningThread;
+    private final ClassLoaderReference classLoader;
     private final StackFrame frame;
     private final DebugSourceType sourceType;
     private final Optional<String> orgName;
@@ -47,6 +49,7 @@ public class SuspendedContext {
         this.attachedVm = vm;
         this.frame = frame;
         this.owningThread = threadRef;
+        this.classLoader = frame.location().declaringType().classLoader();
         this.sourceType = projectRoot != null ? DebugSourceType.MODULE : DebugSourceType.SINGLE_FILE;
         this.orgName = projectRoot == null ? Optional.empty() : Optional.of(PackageUtils.getOrgName(projectRoot));
         this.version = projectRoot == null ? Optional.empty() : Optional.of(PackageUtils.getModuleVersion(projectRoot));
@@ -62,6 +65,10 @@ public class SuspendedContext {
 
     public ThreadReference getOwningThread() {
         return owningThread;
+    }
+
+    public ClassLoaderReference getClassLoader() {
+        return classLoader;
     }
 
     public StackFrame getFrame() {

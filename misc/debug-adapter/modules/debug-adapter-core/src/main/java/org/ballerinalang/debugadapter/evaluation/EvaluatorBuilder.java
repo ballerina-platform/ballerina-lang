@@ -17,16 +17,21 @@
 package org.ballerinalang.debugadapter.evaluation;
 
 import io.ballerinalang.compiler.syntax.tree.BinaryExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeVisitor;
+import io.ballerinalang.compiler.syntax.tree.PositionalArgumentNode;
+import io.ballerinalang.compiler.syntax.tree.RestArgumentNode;
 import io.ballerinalang.compiler.syntax.tree.SeparatedNodeList;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.engine.BinaryExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator;
 import org.ballerinalang.debugadapter.evaluation.engine.NameReferenceEvaluator;
@@ -111,31 +116,33 @@ public class EvaluatorBuilder extends NodeVisitor {
 
         this.context = context;
 
-        // expressions
-        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
+        // braced expression
         supportedSyntax.add(SyntaxKind.BRACED_EXPRESSION);
 
-        // Function invocation.
-        supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
-        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
-
-        // arithmetic operators
-        supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
-        supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
-        supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
-        supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
-        // relational operators
+        // binary expression
+        supportedSyntax.add(SyntaxKind.BINARY_EXPRESSION);
         supportedSyntax.add(SyntaxKind.LT_TOKEN);
         supportedSyntax.add(SyntaxKind.LT_EQUAL_TOKEN);
         supportedSyntax.add(SyntaxKind.GT_TOKEN);
         supportedSyntax.add(SyntaxKind.GT_EQUAL_TOKEN);
+        supportedSyntax.add(SyntaxKind.PLUS_TOKEN);
+        supportedSyntax.add(SyntaxKind.MINUS_TOKEN);
+        supportedSyntax.add(SyntaxKind.ASTERISK_TOKEN);
+        supportedSyntax.add(SyntaxKind.SLASH_TOKEN);
+
+        // function invocation expression
+        supportedSyntax.add(SyntaxKind.FUNCTION_CALL);
+        supportedSyntax.add(SyntaxKind.POSITIONAL_ARG);
+
         // variable identifiers
         supportedSyntax.add(SyntaxKind.BASIC_LITERAL);
         supportedSyntax.add(SyntaxKind.SIMPLE_NAME_REFERENCE);
         supportedSyntax.add(SyntaxKind.IDENTIFIER_TOKEN);
+
         // numeric literals
         supportedSyntax.add(SyntaxKind.DECIMAL_INTEGER_LITERAL);
         supportedSyntax.add(SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL);
+
         // misc
         supportedSyntax.add(SyntaxKind.OPEN_PAREN_TOKEN);
         supportedSyntax.add(SyntaxKind.CLOSE_PAREN_TOKEN);
@@ -166,6 +173,11 @@ public class EvaluatorBuilder extends NodeVisitor {
     }
 
     @Override
+    public void visit(BracedExpressionNode bracedExpressionNode) {
+        bracedExpressionNode.expression().accept(this);
+    }
+
+    @Override
     public void visit(BinaryExpressionNode binaryExpressionNode) {
         visitSyntaxNode(binaryExpressionNode);
     }
@@ -175,7 +187,7 @@ public class EvaluatorBuilder extends NodeVisitor {
         // Evaluates arguments.
         List<Evaluator> argEvaluators = new ArrayList<>();
         SeparatedNodeList<FunctionArgumentNode> args = functionCallExpressionNode.arguments();
-        // Removes separator nodes from the args list.
+        // Removes argument separator nodes from the args list.
         for (int index = args.size() - 2; index > 0; index -= 2) {
             args.remove(index);
         }
@@ -183,8 +195,8 @@ public class EvaluatorBuilder extends NodeVisitor {
             final FunctionArgumentNode argExprNode = args.get(idx);
             argExprNode.accept(this);
             if (result == null) {
-                builderException = new EvaluationException(String.format("Unsupported/Invalid argument found: %s",
-                        argExprNode.toString()));
+                builderException = new EvaluationException(String.format(EvaluationExceptionKind.INVALID_ARGUMENT
+                        .getString(), argExprNode.toString()));
                 return;
             }
             // Todo - should we disable GC like intellij does?
@@ -192,6 +204,21 @@ public class EvaluatorBuilder extends NodeVisitor {
         }
         result = new FunctionInvocationExpressionEvaluator(context, functionCallExpressionNode, argEvaluators);
         visitSyntaxNode(functionCallExpressionNode);
+    }
+
+    @Override
+    public void visit(PositionalArgumentNode positionalArgumentNode) {
+        positionalArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(NamedArgumentNode namedArgumentNode) {
+        namedArgumentNode.expression().accept(this);
+    }
+
+    @Override
+    public void visit(RestArgumentNode restArgumentNode) {
+        restArgumentNode.expression().accept(this);
     }
 
     @Override
