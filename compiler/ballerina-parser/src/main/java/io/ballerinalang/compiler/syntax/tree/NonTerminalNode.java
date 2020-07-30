@@ -107,6 +107,22 @@ public abstract class NonTerminalNode extends Node {
         return (Token) foundNode;
     }
 
+    public Token findToken(int position, boolean insideMinutiae) {
+        Token token = findToken(position);
+        if (!insideMinutiae) {
+            return token;
+        }
+
+        Optional<Token> tokenInsideMinutiae = Optional.empty();
+        if (positionWithinLeadingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.leadingMinutiae(), position);
+        } else if (positionWithinTrailingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.trailingMinutiae(), position);
+        }
+
+        return tokenInsideMinutiae.orElse(token);
+    }
+
     // Node modification operations
 
     /**
@@ -217,5 +233,22 @@ public abstract class NonTerminalNode extends Node {
         internalNode.diagnostics().stream()
                 .map(this::createSyntaxDiagnostic)
                 .forEach(diagnosticList::add);
+    }
+
+    private boolean positionWithinLeadingMinutiae(int position, Token token) {
+        return token.containsLeadingMinutiae() && position < token.textRange().startOffset();
+    }
+
+    private boolean positionWithinTrailingMinutiae(int position, Token token) {
+        return token.containsTrailingMinutiae() && token.textRange().endOffset() <= position;
+    }
+
+    private Optional<Token> getInvalidNodeMinutiae(MinutiaeList minutiaeList, int position) {
+        for (Minutiae minutiae : minutiaeList) {
+            if (minutiae.textRange().contains(position) && minutiae.isInvalidNodeMinutiae()) {
+                return Optional.of(minutiae.invalidTokenMinutiaeNode().get().invalidToken());
+            }
+        }
+        return Optional.empty();
     }
 }
