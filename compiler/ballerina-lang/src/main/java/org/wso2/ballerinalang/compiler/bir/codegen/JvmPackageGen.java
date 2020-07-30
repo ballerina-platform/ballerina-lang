@@ -292,7 +292,11 @@ public class JvmPackageGen {
     }
 
     static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName) {
+        return getModuleLevelClassName(orgName, moduleName, version, sourceFileName, "/");
+    }
 
+    static String getModuleLevelClassName(String orgName, String moduleName, String version, String sourceFileName,
+            String separator) {
         String className = cleanupSourceFileName(sourceFileName);
         // handle source file path start with '/'.
         if (className.startsWith(JAVA_PACKAGE_SEPERATOR)) {
@@ -301,13 +305,13 @@ public class JvmPackageGen {
 
         if (!moduleName.equals(".")) {
             if (!version.equals("")) {
-                className = cleanupName(version) + "/" + className;
+                className = cleanupName(version) + separator + className;
             }
-            className = cleanupName(moduleName) + "/" + className;
+            className = cleanupName(moduleName) + separator + className;
         }
 
         if (!orgName.equalsIgnoreCase("$anon")) {
-            className = cleanupName(orgName) + "/" + className;
+            className = cleanupName(orgName) + separator + className;
         }
 
         return className;
@@ -494,7 +498,8 @@ public class JvmPackageGen {
         // clear class name mappings
         clearPackageGenInfo();
 
-        return new CompiledJarFile(moduleInitClass, jarEntries);
+        return new CompiledJarFile(getModuleLevelClassName(orgName, moduleName, version, MODULE_INIT_CLASS_NAME, "."),
+                jarEntries);
     }
 
     private void generateModuleClasses(BIRPackage module, Map<String, byte[]> jarEntries, String moduleInitClass,

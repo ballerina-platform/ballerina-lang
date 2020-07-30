@@ -611,7 +611,7 @@ public class JvmTerminatorGen {
         }
     }
 
-        private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
+    private void genCall(BIRTerminator.Call callIns, String orgName, String moduleName,
                              String version, int localVarOffset) {
 
         if (!callIns.isVirtual) {
