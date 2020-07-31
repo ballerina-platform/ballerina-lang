@@ -261,7 +261,12 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "START_KEYWORD"
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
+                                      {
+                                        "kind": "START_KEYWORD"
+                                      }
+                                    ]
                                   }
                                 }
                               ]
