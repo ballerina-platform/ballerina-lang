@@ -44,14 +44,14 @@ public class ServiceDebugTest extends DebugAdapterBaseTestCase {
         testModuleName = "myService";
         projectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
 
-        testModuleFileName = Paths.get("tests","hello_service_test.bal").toString();
+        testModuleFileName = Paths.get("tests", "hello_service_test.bal").toString();
         testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
     @Test(enabled = false)
     public void testDirectoryServiceDebugScenarios() throws BallerinaTestException {
-        String fileName1 = Paths.get("serviceDirectory","serviceFile.bal").toString();
+        String fileName1 = Paths.get("serviceDirectory", "serviceFile.bal").toString();
         String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName1).toString();
         String fileName2 = "helloService.bal";
         String filePath2 = Paths.get(testProjectPath, "src", testModuleName, fileName2).toString();
