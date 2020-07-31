@@ -83,11 +83,11 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ORDER_BY_CLAUSE",
+              "kind": "JOIN_CLAUSE",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "ORDER_KEYWORD",
+                  "kind": "JOIN_KEYWORD",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -96,38 +96,13 @@
                   ]
                 },
                 {
-                  "kind": "BY_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "hasDiagnostics": true,
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "ORDER_KEY",
+                      "kind": "INT_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ASCENDING_KEYWORD",
+                          "kind": "INT_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -138,22 +113,66 @@
                       ]
                     },
                     {
-                      "kind": "COMMA_TOKEN",
+                      "kind": "CAPTURE_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "IN_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_COMMA_TOKEN"
+                        "ERROR_MISSING_IDENTIFIER"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "ON_CLAUSE",
+                  "children": [
+                    {
+                      "kind": "ON_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
                       ]
                     },
                     {
-                      "kind": "ORDER_KEY",
+                      "kind": "BINARY_EXPRESSION",
                       "children": [
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
+                              "value": "e",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -162,26 +181,22 @@
                               ]
                             }
                           ]
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "COMMA_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_COMMA_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "ORDER_KEY",
-                      "children": [
+                        },
+                        {
+                          "kind": "EQUALS_KEYWORD",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
                         {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "children": [
                             {
                               "kind": "IDENTIFIER_TOKEN",
-                              "value": "e",
+                              "value": "f",
                               "trailingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
@@ -218,7 +233,7 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "f"
+              "value": "g"
             }
           ]
         }
