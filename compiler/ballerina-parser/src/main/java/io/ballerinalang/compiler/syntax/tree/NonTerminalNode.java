@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
+import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -83,9 +84,19 @@ public abstract class NonTerminalNode extends Node {
     // TODO Find an efficient implementation which uses the previous children positions
     // TODO Can we optimize this algo?
     public Token findToken(int position) {
-        if (!textRangeWithMinutiae().contains(position)) {
-            // TODO Fix with a proper error message
-            throw new IllegalArgumentException();
+        TextRange textRangeWithMinutiae = textRangeWithMinutiae();
+        // Check whether this position is the same as the end text position of the text.
+        // If that is the case, return the eof token.
+        // Fixes 24905
+        if (textRangeWithMinutiae.endOffset() == position &&
+                this instanceof ModulePartNode) {
+            ModulePartNode modulePartNode = (ModulePartNode) this;
+            return modulePartNode.eofToken();
+        }
+
+        if (!textRangeWithMinutiae.contains(position)) {
+            throw new IndexOutOfBoundsException("Index: '" + position +
+                    "', Size: '" + textRangeWithMinutiae.endOffset() + "'");
         }
 
         Node foundNode = this;
@@ -94,6 +105,22 @@ public abstract class NonTerminalNode extends Node {
         }
 
         return (Token) foundNode;
+    }
+
+    public Token findToken(int position, boolean insideMinutiae) {
+        Token token = findToken(position);
+        if (!insideMinutiae) {
+            return token;
+        }
+
+        Optional<Token> tokenInsideMinutiae = Optional.empty();
+        if (positionWithinLeadingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.leadingMinutiae(), position);
+        } else if (positionWithinTrailingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.trailingMinutiae(), position);
+        }
+
+        return tokenInsideMinutiae.orElse(token);
     }
 
     // Node modification operations
@@ -206,5 +233,22 @@ public abstract class NonTerminalNode extends Node {
         internalNode.diagnostics().stream()
                 .map(this::createSyntaxDiagnostic)
                 .forEach(diagnosticList::add);
+    }
+
+    private boolean positionWithinLeadingMinutiae(int position, Token token) {
+        return token.containsLeadingMinutiae() && position < token.textRange().startOffset();
+    }
+
+    private boolean positionWithinTrailingMinutiae(int position, Token token) {
+        return token.containsTrailingMinutiae() && token.textRange().endOffset() <= position;
+    }
+
+    private Optional<Token> getInvalidNodeMinutiae(MinutiaeList minutiaeList, int position) {
+        for (Minutiae minutiae : minutiaeList) {
+            if (minutiae.textRange().contains(position) && minutiae.isInvalidNodeMinutiae()) {
+                return Optional.of(minutiae.invalidTokenMinutiaeNode().get().invalidToken());
+            }
+        }
+        return Optional.empty();
     }
 }

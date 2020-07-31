@@ -405,7 +405,8 @@ public class FilterUtils {
      * @param context    Language Server Operation Context
      * @return {@link Map} Scope Entry Map
      */
-    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(String symbolName, BType symbolType,
+    @Deprecated
+    public static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(String symbolName, BType symbolType,
                                                                                 LSContext context) {
         Integer invocationToken = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
@@ -444,7 +445,7 @@ public class FilterUtils {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 
-    private static Map<Name, Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
+    public static Map<Name, Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
                                                                          BObjectTypeSymbol objectSymbol,
                                                                          String symbolName) {
         String currentModule = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
@@ -488,14 +489,14 @@ public class FilterUtils {
      * @param context   Language server operation context
      * @return {@link Map} map of scope entries
      */
-    private static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
+    public static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
                                                                                    LSContext context) {
         ArrayList<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
         Map<Name, Scope.ScopeEntry> resultEntries = new HashMap<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
-        Integer invocationTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
+//        Integer invocationTokenType = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
         // check whether union consists of same type tag symbols
         BType firstMemberType = memberTypes.get(0);
         boolean allMatch = memberTypes.stream().allMatch(bType -> bType.tag == firstMemberType.tag);
@@ -537,8 +538,8 @@ public class FilterUtils {
                 }
                 Name name = firstMemberFieldKeys.get(i);
                 BSymbol symbol = firstMemberEntries.get(name).symbol;
-                if (firstMemberType.tag == TypeTags.RECORD && (invocationTokenType == BallerinaParser.DOT
-                        || invocationTokenType == BallerinaParser.NOT)
+                if (firstMemberType.tag == TypeTags.RECORD /*&& (invocationTokenType == BallerinaParser.DOT
+                        || invocationTokenType == BallerinaParser.NOT)*/
                         && (org.ballerinalang.jvm.util.Flags.isFlagOn(symbol.flags, Flags.OPTIONAL))) {
                     continue;
                 }

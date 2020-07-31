@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 3,
+    "character": 19
+  },
+  "source": "statement_context/source/foreach_stmt_ctx_source4.bal",
+  "items": [
+    {
+      "label": "in",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "220",
+      "insertText": "in ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

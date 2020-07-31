@@ -24,6 +24,8 @@ import io.ballerinalang.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeFactory;
 import io.ballerinalang.compiler.internal.parser.tree.STNodeList;
 import io.ballerinalang.compiler.internal.parser.tree.STToken;
+import io.ballerinalang.compiler.internal.syntax.NodeListUtils;
+import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
 import java.util.ArrayList;
@@ -456,9 +458,9 @@ public class SyntaxErrors {
                                                               STNode invalidNode,
                                                               DiagnosticCode diagnosticCode,
                                                               Object... args) {
-        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
+        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode);
         STNodeList leadingMinutiae = (STNodeList) toClone.leadingMinutiae();
-        leadingMinutiae = leadingMinutiae.add(0, invalidNodeMinutiae);
+        leadingMinutiae = leadingMinutiae.addAll(0, minutiaeList);
         STToken cloned = toClone.modifyWith(leadingMinutiae, toClone.trailingMinutiae());
         return diagnosticCode == null ? cloned : addDiagnostic(cloned, diagnosticCode, args);
     }
@@ -506,10 +508,52 @@ public class SyntaxErrors {
                                                                STNode invalidNode,
                                                                DiagnosticCode diagnosticCode,
                                                                Object... args) {
-        STNode invalidNodeMinutiae = STNodeFactory.createInvalidNodeMinutiae(invalidNode);
+        List<STNode> minutiaeList = convertInvalidNodeToMinutiae(invalidNode);
         STNodeList trailingMinutiae = (STNodeList) toClone.trailingMinutiae();
-        trailingMinutiae = trailingMinutiae.add(invalidNodeMinutiae);
+        trailingMinutiae = trailingMinutiae.addAll(minutiaeList);
         STToken cloned = toClone.modifyWith(toClone.leadingMinutiae(), trailingMinutiae);
         return diagnosticCode == null ? cloned : addDiagnostic(cloned, diagnosticCode, args);
+    }
+
+    /**
+     * Converts the invalid node into a list of {@code STMinutiae} nodes.
+     * <p>
+     * Here are the steps:
+     * 1) Iterates through all the tokens in the invalid node. For each token:
+     * 2) Add the leading minutiae to the list
+     * 3) Create a new token without leading or trailing minutiae and add it to the list
+     * 4) Add the trailing minutiae to the list
+     *
+     * @param invalidNode the invalid node to be converted
+     * @return a lit of {@code STMinutiae} nodes
+     */
+    private static List<STNode> convertInvalidNodeToMinutiae(STNode invalidNode) {
+        List<STNode> minutiaeList = new ArrayList<>();
+        List<STToken> tokens = invalidNode.tokens();
+        for (STToken token : tokens) {
+            addMinutiaeToList(minutiaeList, token.leadingMinutiae());
+            if (!token.isMissing()) {
+                STToken tokenWithNoMinutiae = token.modifyWith(
+                        STNodeFactory.createEmptyNodeList(), STNodeFactory.createEmptyNodeList());
+                minutiaeList.add(STNodeFactory.createInvalidNodeMinutiae(tokenWithNoMinutiae));
+            }
+            addMinutiaeToList(minutiaeList, token.trailingMinutiae());
+        }
+        return minutiaeList;
+    }
+
+    private static void addMinutiaeToList(List<STNode> list, STNode minutiae) {
+        if (!NodeListUtils.isSTNodeList(minutiae)) {
+            list.add(minutiae);
+            return;
+        }
+
+        STNodeList minutiaeList = (STNodeList) minutiae;
+        for (int index = 0; index < minutiaeList.size(); index++) {
+            STNode element = minutiaeList.get(index);
+            if (SyntaxUtils.isSTNodePresent(element)) {
+                list.add(element);
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ configurations.all {
 
 configurations {
     dist {
-      transitive false
+        transitive false
     }
     dependency {
         transitive false
@@ -199,8 +199,6 @@ task buildAndCopy(type: Copy) {
     dependsOn build
     from 'build/libs/language-server-core-' + project.version + '.jar'
     into  project(':jballerina-tools').projectDir.absolutePath +
-        '/build/extracted-distributions/jballerina-tools-' + project.version +
-        '/bre/lib';
+            '/build/extracted-distributions/jballerina-tools-' + project.version +
+            '/bre/lib';
 }
-
-

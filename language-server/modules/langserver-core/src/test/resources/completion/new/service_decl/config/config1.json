@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 4,
+    "character": 23
+  },
+  "source": "service_decl/source/source1.bal",
+  "items": [
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "150",
+      "insertText": "l1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "new ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
