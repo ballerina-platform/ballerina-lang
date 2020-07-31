@@ -1,3 +1,3 @@
-type Student object {
+class Student {
     int b 7;
 };

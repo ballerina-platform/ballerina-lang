@@ -1,3 +1,3 @@
-type Foo readonly object {
+readonly class Foo {
     string name;
-};
+}

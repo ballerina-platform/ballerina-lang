@@ -1,3 +1,3 @@
-type Foo client abstract readonly object {
+class client readonly Foo {
     string name;
 };

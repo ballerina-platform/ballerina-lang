@@ -72,7 +72,7 @@ public class ParserTestUtils {
      * <b>WARNING</b>: Enabling this flag will update all the assertion files in unit tests.
      * Should be used only if there is a bulk update that needs to be made to the test assertions.
      */
-    private static final boolean UPDATE_ASSERTS = false;
+    private static final boolean UPDATE_ASSERTS = true;
 
     /**
      * Test parsing a valid source.
@@ -453,6 +453,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ANNOTATION_DECLARATION;
             case "ENUM_DECLARATION":
                 return SyntaxKind.ENUM_DECLARATION;
+            case "CLASS_DEFINITION":
+                return SyntaxKind.CLASS_DEFINITION;
 
             // Keywords
             case "PUBLIC_KEYWORD":
@@ -629,6 +631,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE64_KEYWORD;
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
+            case "CLASS_KEYWORD":
+                return SyntaxKind.CLASS_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":

@@ -1,4 +1,4 @@
-type Foo object {
+class Foo {
 
     *A;
 
@@ -26,12 +26,10 @@ type Foo object {
         public int status = 0;
         private float score;
 
-        public function init() {
-        }
+        public function init();
 
         *B;
 
-        function getName() {
-        }
+        function getName();
     } parent;
 };

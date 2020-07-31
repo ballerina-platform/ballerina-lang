@@ -1,4 +1,4 @@
-type Student object {
+class Student {
     public int a;
     
     object {

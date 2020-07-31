@@ -1,3 +1,3 @@
-type Foo client client client object {
+class client client client Foo {
     string name;
 };

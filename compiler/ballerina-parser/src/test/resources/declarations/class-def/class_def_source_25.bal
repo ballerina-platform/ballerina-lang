@@ -1,3 +1,3 @@
-type Foo readonly abstract object {
+class distinct Foo {
     string name;
 };

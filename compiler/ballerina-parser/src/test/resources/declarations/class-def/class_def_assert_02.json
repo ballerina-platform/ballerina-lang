@@ -1,5 +1,5 @@
 {
-  "kind": "TYPE_DEFINITION",
+  "kind": "CLASS_DEFINITION",
   "children": [
     {
       "kind": "METADATA",
@@ -11,7 +11,11 @@
       ]
     },
     {
-      "kind": "TYPE_KEYWORD",
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLASS_KEYWORD",
       "trailingMinutiae": [
         {
           "kind": "WHITESPACE_MINUTIAE",
@@ -30,42 +34,24 @@
       ]
     },
     {
-      "kind": "OBJECT_TYPE_DESC",
-      "children": [
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
         {
-          "kind": "LIST",
-          "children": []
-        },
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "leadingMinutiae": [
         {
-          "kind": "OBJECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "OPEN_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
-        },
-        {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "leadingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     },

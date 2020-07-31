@@ -607,6 +607,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseArgsBindingPatternEnd();
             case TABLE_ROW_END:
                 return parseTableRowEnd();
+            case CLASS_NAME:
+                return parserClassDefinition((STNode) args[0], (STNode) args[1]);
+            case MODULE_CLASS_DEFINITION:
+                return parserClassDefinition(null, null);
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -774,6 +778,7 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTIONAL_KEYWORD:
             case CLASS_KEYWORD:
                 break;
+            case READONLY_KEYWORD:
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
@@ -1331,6 +1336,11 @@ public class BallerinaParser extends AbstractParser {
                 return parseFuncDefOrFuncTypeDesc(metadata, false, getQualifier(qualifier), null);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
+            case READONLY_KEYWORD:
+                if (isModuleVarDeclStart(1)) {
+                    return parseModuleVarDecl(metadata, qualifier);
+                }
+                // fall through
             case CLASS_KEYWORD:
                 return parserClassDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
@@ -3076,7 +3086,7 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.MODULE_CLASS_DEFINITION);
         STNode classTypeQualifiers = parserClassTypeQualifiers();
         STNode classKeyword = parseClassKeyword();
-        STNode className = parseClassName();
+        STNode className = parseClassName(metadata, qualifier);
         STNode openBrace = parseOpenBrace();
         STNode classMembers = parseObjectMembers();
         STNode closeBrace = parseCloseBrace();
@@ -3103,6 +3113,8 @@ public class BallerinaParser extends AbstractParser {
             case DISTINCT_KEYWORD:
                 firstQualifier = parseDistinctKeyword();
                 break;
+            case CLASS_KEYWORD:
+                return STNodeFactory.createEmptyNodeList();
             default:
                 Solution solution = recover(peek(), ParserRuleContext.MODULE_CLASS_DEFINITION);
 
@@ -3204,13 +3216,15 @@ public class BallerinaParser extends AbstractParser {
      * Parse class name.
      *
      * @return Parsed node
+     * @param metadata
+     * @param qualifier
      */
-    private STNode parseClassName() {
+    private STNode parseClassName(STNode metadata, STNode qualifier) {
         STToken token = peek();
         if (token.kind == SyntaxKind.IDENTIFIER_TOKEN) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.CLASS_NAME);
+            Solution sol = recover(token, ParserRuleContext.CLASS_NAME, metadata, qualifier);
             return sol.recoveredNode;
         }
     }

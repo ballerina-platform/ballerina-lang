@@ -2619,6 +2619,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_KEYWORD:
                 return ParserRuleContext.TYPE_NAME;
             case OBJECT_KEYWORD:
+            case CLASS_NAME:
                 return ParserRuleContext.OPEN_BRACE;
             case REMOTE_KEYWORD:
                 return ParserRuleContext.FUNCTION_KEYWORD;
@@ -3293,6 +3294,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end body block
                 return getNextRuleForCloseBraceInFuncBody();
             case SERVICE_DECL:
+            case MODULE_CLASS_DEFINITION:
                 endContext();
                 return ParserRuleContext.TOP_LEVEL_NODE;
             case OBJECT_MEMBER:
@@ -3386,9 +3388,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
                 endContext();
                 return getNextRuleForMatchPattern();
-            case MODULE_CLASS_DEFINITION:
+            case CLASS_NAME:
                 endContext();
-                return ParserRuleContext.TOP_LEVEL_NODE;
+                return ParserRuleContext.OPEN_BRACE;
             default:
                 throw new IllegalStateException("found close-brace in: " + parentCtx);
         }
@@ -3603,6 +3605,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EOF;
             }
             return ParserRuleContext.TOP_LEVEL_NODE;
+        } else if (parentCtx == ParserRuleContext.MODULE_CLASS_DEFINITION) {
+            return ParserRuleContext.OBJECT_MEMBER;
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -3881,6 +3885,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.ASSIGN_OP;
             case MODULE_CLASS_DEFINITION:
                 return ParserRuleContext.OPEN_BRACE;
+            case COMP_UNIT:
+                return ParserRuleContext.TOP_LEVEL_NODE;
+            case OBJECT_MEMBER:
+                return ParserRuleContext.SEMICOLON;
             default:
                 throw new IllegalStateException(parentCtx.toString());
         }

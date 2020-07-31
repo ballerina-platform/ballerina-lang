@@ -1,4 +1,4 @@
-type Foo object {
+class Foo {
     readonly a;
     readonly readonly a;
     readonly a b;

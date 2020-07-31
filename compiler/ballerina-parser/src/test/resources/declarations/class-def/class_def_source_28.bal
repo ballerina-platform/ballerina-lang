@@ -1,3 +1,3 @@
-type Foo client readonly object {
+class distinct client readonly Foo {
     string name;
 };

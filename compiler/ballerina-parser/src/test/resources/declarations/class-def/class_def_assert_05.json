@@ -1,5 +1,5 @@
 {
-  "kind": "TYPE_DEFINITION",
+  "kind": "CLASS_DEFINITION",
   "hasDiagnostics": true,
   "children": [
     {
@@ -12,7 +12,11 @@
       ]
     },
     {
-      "kind": "TYPE_KEYWORD",
+      "kind": "LIST",
+      "children": []
+    },
+    {
+      "kind": "CLASS_KEYWORD",
       "trailingMinutiae": [
         {
           "kind": "WHITESPACE_MINUTIAE",
@@ -31,91 +35,72 @@
       ]
     },
     {
-      "kind": "OBJECT_TYPE_DESC",
-      "hasDiagnostics": true,
+      "kind": "OPEN_BRACE_TOKEN",
+      "trailingMinutiae": [
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
+    },
+    {
+      "kind": "LIST",
       "children": [
         {
-          "kind": "LIST",
-          "children": []
-        },
-        {
-          "kind": "OBJECT_KEYWORD",
-          "trailingMinutiae": [
-            {
-              "kind": "WHITESPACE_MINUTIAE",
-              "value": " "
-            }
-          ]
-        },
-        {
-          "kind": "OPEN_BRACE_TOKEN",
-          "trailingMinutiae": [
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
-            }
-          ]
-        },
-        {
-          "kind": "LIST",
+          "kind": "OBJECT_FIELD",
           "children": [
             {
-              "kind": "OBJECT_FIELD",
+              "kind": "METADATA",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
+                  "kind": "LIST",
+                  "children": []
+                }
+              ]
+            },
+            {
+              "kind": "INT_TYPE_DESC",
+              "children": [
+                {
+                  "kind": "INT_KEYWORD",
+                  "leadingMinutiae": [
                     {
-                      "kind": "LIST",
-                      "children": []
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": "    "
                     }
-                  ]
-                },
-                {
-                  "kind": "INT_TYPE_DESC",
-                  "children": [
-                    {
-                      "kind": "INT_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "a"
-                },
-                {
-                  "kind": "SEMICOLON_TOKEN",
+                  ],
                   "trailingMinutiae": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 }
               ]
+            },
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "a"
+            },
+            {
+              "kind": "SEMICOLON_TOKEN",
+              "trailingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ]
             }
           ]
-        },
-        {
-          "kind": "CLOSE_BRACE_TOKEN",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_CLOSE_BRACE_TOKEN"
-          ]
         }
+      ]
+    },
+    {
+      "kind": "CLOSE_BRACE_TOKEN",
+      "isMissing": true,
+      "hasDiagnostics": true,
+      "diagnostics": [
+        "ERROR_MISSING_CLOSE_BRACE_TOKEN"
       ]
     },
     {

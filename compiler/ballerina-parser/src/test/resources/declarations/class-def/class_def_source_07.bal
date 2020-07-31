@@ -1,4 +1,4 @@
-type Student {
+class Student {
     
     function foo() {
     

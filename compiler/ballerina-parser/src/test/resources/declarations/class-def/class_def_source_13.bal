@@ -1,4 +1,4 @@
-type Foo object {
+class Foo {
     *;
     string name;
 };
