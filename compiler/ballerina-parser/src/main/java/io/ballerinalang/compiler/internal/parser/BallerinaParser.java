@@ -213,8 +213,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseOpenBracket();
             case RESOURCE_DEF:
                 return parseResource();
-            case NIL_TYPE_DESCRIPTOR:// following method is only referred in resume parsing
-                return parseNilTypeDescriptor();
             case ARRAY_LENGTH:
                 return parseArrayLength();
             case COMMA:
@@ -276,8 +274,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseNilOrParenthesisedTypeDescRhs((STNode) args[0]);
             case ANON_FUNC_PARAM_RHS:
                 return parseImplicitAnonFuncParamEnd();
-            case LIST_BINDING_PATTERN:// revisit
-                return parseListBindingPattern();
             case BINDING_PATTERN:
                 return parseBindingPattern();
             case PEER_WORKER_NAME:
@@ -288,7 +284,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseLeftArrowToken();
             case RECEIVE_WORKERS:
                 return parseReceiveWorkers();
-            case WAIT_FIELD_NAME:// revisit
+            case WAIT_FIELD_NAME:
                 return parseWaitField();
             case WAIT_FIELD_END:
                 return parseWaitFieldEnd();
@@ -533,7 +529,7 @@ public class BallerinaParser extends AbstractParser {
                         (boolean) args[3], (boolean) args[4], (boolean) args[5]);
             case CONSTANT_EXPRESSION_START:
                 return parseSimpleConstExprInternal();
-            case BINDING_PATTERN_OR_EXPR_RHS:// 2 resume-points : parseTypeDescOrExprRhs()
+            case BINDING_PATTERN_OR_EXPR_RHS:
                 return parseTypedBindingPatternOrExprRhs((STNode) args[0], (boolean) args[1]);
             case TYPE_DESC_OR_EXPR_RHS:
                 return parseTypeDescOrExprRhs((STNode) args[0]);
@@ -564,8 +560,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatementStartBracketedListMember();
             case VAR_DECL_STMT_RHS:
                 return parseVarDeclRhs((STNode) args[0], (STNode) args[1], (STNode) args[2], (boolean) args[3]);
-            case COMPOUND_ASSIGNMENT_STMT:// following method is only referred in resume parsing
-                return parseCompoundAssignmentStmt();
             default:
                 return resumeActionOrExpressionNodesParsing(context, args);
         }
@@ -6521,22 +6515,6 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse compound assignment statement, which takes the following format.
-     * </p>
-     * <code>assignment-stmt := lvexpr CompoundAssignmentOperator action-or-expr ;</code>
-     *
-     * @return Parsed node
-     */
-    private STNode parseCompoundAssignmentStmt() {
-        startContext(ParserRuleContext.COMPOUND_ASSIGNMENT_STMT);
-        STNode varName = parseVariableName();
-        STNode compoundAssignmentStmt = parseCompoundAssignmentStmtRhs(varName);
-        endContext();
-        return compoundAssignmentStmt;
-    }
-
-    /**
-     * <p>
      * Parse the RHS portion of the compound assignment.
      * </p>
      * <code>compound-assignment-stmt-rhs := CompoundAssignmentOperator action-or-expr ;</code>
@@ -7143,22 +7121,6 @@ public class BallerinaParser extends AbstractParser {
             Solution sol = recover(token, ParserRuleContext.CONST_KEYWORD);
             return sol.recoveredNode;
         }
-    }
-
-    /**
-     * Parse nil type descriptor.
-     * <p>
-     * <code>nil-type-descriptor :=  ( ) </code>
-     * </p>
-     *
-     * @return Parsed node
-     */
-    private STNode parseNilTypeDescriptor() {
-        startContext(ParserRuleContext.NIL_TYPE_DESCRIPTOR);
-        STNode openParenthesisToken = parseOpenParenthesis(ParserRuleContext.OPEN_PARENTHESIS);
-        STNode closeParenthesisToken = parseCloseParenthesis();
-        endContext();
-        return STNodeFactory.createNilTypeDescriptorNode(openParenthesisToken, closeParenthesisToken);
     }
 
     /**
