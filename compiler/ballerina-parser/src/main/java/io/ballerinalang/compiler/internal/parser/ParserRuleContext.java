@@ -246,6 +246,8 @@ public enum ParserRuleContext {
     ORDER_BY_CLAUSE("order-by-clause"),
     ORDER_KEY_LIST("order-key-list"),
     ORDER_KEY_LIST_END("order-key-list-end"),
+    ON_CONFLICT_CLAUSE("on-conflict-clause"),
+    LIMIT_CLAUSE("limit-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -475,6 +477,7 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_START("table-constructor-or-query-start"),
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
+    QUERY_EXPRESSION_RHS("query-expr-rhs"),
     QUERY_EXPRESSION_END("query-expr-end"),
     FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
     QUERY_PIPELINE_RHS("query-pipeline-rhs"),

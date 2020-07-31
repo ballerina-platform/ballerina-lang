@@ -222,6 +222,18 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_BASE64_KEYWORD;
             case MATCH_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_MATCH_KEYWORD;
+            case CONFLICT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_CONFLICT_KEYWORD;
+            case LIMIT_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_LIMIT_KEYWORD;
+            case ORDER_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_ORDER_KEYWORD;
+            case BY_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_BY_KEYWORD;
+            case ASCENDING_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_ASCENDING_KEYWORD;
+            case DESCENDING_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_DESCENDING_KEYWORD;
 
             // Type keywords
             case INT_KEYWORD:

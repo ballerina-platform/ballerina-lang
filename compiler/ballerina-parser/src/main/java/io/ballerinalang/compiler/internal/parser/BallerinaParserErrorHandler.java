@@ -375,10 +375,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
             { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
 
-    private static final ParserRuleContext[] QUERY_EXPRESSION_RHS =
-            { ParserRuleContext.SELECT_CLAUSE, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
-                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.DO_CLAUSE,
-                    ParserRuleContext.QUERY_EXPRESSION_END };
+    private static final ParserRuleContext[] QUERY_PIPELINE_RHS =
+            { ParserRuleContext.QUERY_EXPRESSION_RHS, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
+                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE,
+//                    ParserRuleContext.DO_CLAUSE,ParserRuleContext.QUERY_EXPRESSION_END
+            };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -1103,6 +1104,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BASE16_KEYWORD:
             case BASE64_KEYWORD:
             case DISTINCT_KEYWORD:
+            case CONFLICT_KEYWORD:
+            case LIMIT_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1750,7 +1753,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 alternativeRules = TABLE_CONSTRUCTOR_OR_QUERY_RHS;
                 break;
             case QUERY_PIPELINE_RHS:
-                alternativeRules = QUERY_EXPRESSION_RHS;
+                alternativeRules = QUERY_PIPELINE_RHS;
                 break;
             case BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS:
             case ANON_FUNC_PARAM_RHS:
@@ -1996,6 +1999,26 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.MATCH_BODY;
         } else if (parentCtx == ParserRuleContext.MATCH_BODY) {
             nextContext = ParserRuleContext.RIGHT_DOUBLE_ARROW;
+        } else if (parentCtx == ParserRuleContext.SELECT_CLAUSE) {
+            STToken nextToken = this.tokenReader.peek(lookahead);
+            switch (nextToken.kind) {
+                case ON_KEYWORD:
+                case CONFLICT_KEYWORD:
+                    nextContext = ParserRuleContext.ON_CONFLICT_CLAUSE;
+                    break;
+                case LIMIT_KEYWORD:
+                    nextContext = ParserRuleContext.LIMIT_CLAUSE;
+                    break;
+                default:
+                    nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
+            }
+        } else if (parentCtx == ParserRuleContext.ON_CONFLICT_CLAUSE) {
+            STToken nextToken = this.tokenReader.peek(lookahead);
+            if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
+                nextContext = ParserRuleContext.LIMIT_CLAUSE;
+            } else {
+                nextContext = ParserRuleContext.QUERY_EXPRESSION_END;
+            }
         } else {
             throw new IllegalStateException(parentCtx.toString());
         }
@@ -2390,11 +2413,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST_START:
                 return ParserRuleContext.ARG_LIST;
             case ARG_LIST_END:
-            case QUERY_EXPRESSION_END:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
             case ARG_LIST:
                 return ParserRuleContext.ARG_START_OR_ARG_LIST_END;
+            case QUERY_EXPRESSION_END:
+                endContext(); // end select, on-conflict or limit clause ctx
+                endContext(); // end query-expr ctx
+                return ParserRuleContext.EXPRESSION_RHS;
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
             case TYPE_DESC_IN_RECORD_FIELD:
@@ -2432,8 +2458,21 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.LET_KEYWORD;
             case ORDER_BY_CLAUSE:
                 return ParserRuleContext.ORDER_KEYWORD;
+            case ON_CONFLICT_CLAUSE:
+                return ParserRuleContext.ON_KEYWORD;
+            case LIMIT_CLAUSE:
+                // Assume limit-clause is only used in query-expr
+                endContext(); // end select-clause or on-conflict-clause
+                endContext(); // end query-expr
+                return ParserRuleContext.LIMIT_KEYWORD;
             case QUERY_EXPRESSION:
                 return ParserRuleContext.FROM_CLAUSE;
+            case QUERY_EXPRESSION_RHS:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
+                    endContext();
+                }
+                return ParserRuleContext.SELECT_CLAUSE;
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
                 return ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START;
             case BITWISE_AND_OPERATOR:
@@ -2583,6 +2622,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 parentCtx = getParentContext();
                 if (parentCtx == ParserRuleContext.ANNOTATION_DECL) {
                     return ParserRuleContext.ANNOT_ATTACH_POINTS_LIST;
+                } else if (parentCtx == ParserRuleContext.ON_CONFLICT_CLAUSE) {
+                    return ParserRuleContext.CONFLICT_KEYWORD;
                 }
                 return ParserRuleContext.LISTENERS_LIST;
             case RESOURCE_KEYWORD:
@@ -2716,14 +2757,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case BASE64_KEYWORD:
                 return ParserRuleContext.TEMPLATE_START;
             case SELECT_KEYWORD:
-                parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.QUERY_EXPRESSION) {
-                    endContext(); // end query-expression
-                }
-                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
-                    endContext(); // end let-clause-let-var-decl
-                    endContext(); // end query-expression
-                }
                 return ParserRuleContext.EXPRESSION;
             case WHERE_KEYWORD:
                 parentCtx = getParentContext();
@@ -2786,6 +2819,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     return ParserRuleContext.VARIABLE_NAME;
                 }
                 return ParserRuleContext.BINDING_PATTERN;
+            case CONFLICT_KEYWORD:
+            case LIMIT_KEYWORD:
+                return ParserRuleContext.EXPRESSION;
             default:
                 throw new IllegalStateException("cannot find the next rule for: " + currentCtx);
         }
@@ -2885,6 +2921,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
             case FUNCTIONAL_MATCH_PATTERN:
             case NAMED_ARG_MATCH_PATTERN:
+            case SELECT_CLAUSE:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2909,6 +2946,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         switch (currentCtx) {
             case TABLE_CONSTRUCTOR:
             case QUERY_EXPRESSION:
+            case ON_CONFLICT_CLAUSE:
                 switchContext(currentCtx);
                 break;
             default:
@@ -4497,6 +4535,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.DISTINCT_KEYWORD;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_KEYWORD;
+            case CONFLICT_KEYWORD:
+                return SyntaxKind.CONFLICT_KEYWORD;
+            case LIMIT_KEYWORD:
+                return SyntaxKind.LIMIT_KEYWORD;
             default:
                 return SyntaxKind.NONE;
         }

@@ -129,6 +129,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_IMPORT_KEYWORD("BCE02064", "error.missing.import.keyword"),
     ERROR_MISSING_CONST_KEYWORD("BCE02065", "error.missing.const.keyword"),
     ERROR_MISSING_EXTERNAL_KEYWORD("BCE02066", "error.missing.external.keyword"),
+    ERROR_MISSING_ORDER_KEYWORD("BCE02067", "error.missing.order.keyword"),
+    ERROR_MISSING_BY_KEYWORD("BCE02068", "error.missing.by.keyword"),
+    ERROR_MISSING_CONFLICT_KEYWORD("BCE02069", "error.missing.conflict.keyword"),
+    ERROR_MISSING_LIMIT_KEYWORD("BCE02070", "error.missing.limit.keyword"),
+    ERROR_MISSING_ASCENDING_KEYWORD("BCE02071", "error.missing.ascending.keyword"),
+    ERROR_MISSING_DESCENDING_KEYWORD("BCE02072", "error.missing.descending.keyword"),
 
     // Type keywords
     ERROR_MISSING_INT_KEYWORD("BCE02101", "error.missing.int.keyword"),

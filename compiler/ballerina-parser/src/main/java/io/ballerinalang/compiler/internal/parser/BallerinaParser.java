@@ -616,6 +616,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPatternOrListConstructorMember();
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
+            case CONFLICT_KEYWORD:
+                return parseConflictKeyword();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -10342,6 +10344,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
+            // TODO: log error for invalid query construct type inside parseQueryAction
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
             return parseQueryAction(queryPipeline, selectClause, isRhsExpr);
@@ -10676,11 +10679,13 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSelectClause(boolean isRhsExpr) {
+        startContext(ParserRuleContext.SELECT_CLAUSE);
         STNode selectKeyword = parseSelectKeyword();
 
         // allow-actions flag is always false, since there will not be any actions
         // within the select-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        endContext();
         return STNodeFactory.createSelectClauseNode(selectKeyword, expression);
     }
 
@@ -10709,15 +10714,16 @@ public class BallerinaParser extends AbstractParser {
      * @return On conflict clause node
      */
     private STNode parseOnConflictClause(boolean isRhsExpr) {
-        // TODO: add error handling
+        startContext(ParserRuleContext.ON_CONFLICT_CLAUSE);
         STToken nextToken = peek();
-        if (nextToken.kind != SyntaxKind.ON_KEYWORD) {
+        if (nextToken.kind != SyntaxKind.ON_KEYWORD && nextToken.kind != SyntaxKind.CONFLICT_KEYWORD) {
             return STNodeFactory.createEmptyNode();
         }
 
-        STNode onKeyword = consume();
+        STNode onKeyword = parseOnKeyword();
         STNode conflictKeyword = parseConflictKeyword();
         STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        endContext();
         return STNodeFactory.createOnConflictClauseNode(onKeyword, conflictKeyword, expr);
     }
 
@@ -10744,7 +10750,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Limit expression node
      */
     private STNode parseLimitClause(boolean isRhsExpr) {
-        // TODO: add error handling
         STToken nextToken = peek();
         if (nextToken.kind != SyntaxKind.LIMIT_KEYWORD) {
             return STNodeFactory.createEmptyNode();
@@ -11670,7 +11675,7 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse query action.
      * <p>
-     * <code>query-action := query-pipeline do-clause
+     * <code>query-action := query-pipeline do-clause limit-clause?
      * <br/>
      * do-clause := do block-stmt
      * </code>
