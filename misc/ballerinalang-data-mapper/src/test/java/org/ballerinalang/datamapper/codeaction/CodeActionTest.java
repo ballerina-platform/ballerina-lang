@@ -77,13 +77,13 @@ public class CodeActionTest extends PowerMockTestCase {
     @Test(dataProvider = "codeAction-data-mapper-data-provider")
     public void testDataMapperCodeAction(String config, String source) throws Exception {
         String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
-                "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\tGrades grades " +
-                "= {maths: student.grades.maths, chemistry: student.grades.chemistry, physics: student.grades.physics};" +
-                "\\n\\treturn grades;\\n}\"}";
+                "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
+                "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
+                "physics: student.grades.physics};\\n\\treturn grades;\\n}\"}";
         HttpResponse httpResponse = new HttpResponse(responseData, HTTP_200_OK);
         PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class), any(String.class),
-                any(Map.class));
+        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
+                any(String.class), any(Map.class));
 
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -135,8 +135,8 @@ public class CodeActionTest extends PowerMockTestCase {
         String responseData = "";
         HttpResponse httpResponse = new HttpResponse(responseData, HTTP_422_UN_PROCESSABLE_ENTITY);
         PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class), any(String.class),
-                any(Map.class));
+        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
+                any(String.class), any(Map.class));
 
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);
@@ -178,8 +178,8 @@ public class CodeActionTest extends PowerMockTestCase {
         String responseData = "";
         HttpResponse httpResponse = new HttpResponse(responseData, HTTP_500_INTERNAL_SERVER_ERROR);
         PowerMockito.spy(HttpClientRequest.class);
-        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class), any(String.class),
-                any(Map.class));
+        PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
+                any(String.class), any(Map.class));
 
         String configJsonPath = "codeaction" + File.separator + config;
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

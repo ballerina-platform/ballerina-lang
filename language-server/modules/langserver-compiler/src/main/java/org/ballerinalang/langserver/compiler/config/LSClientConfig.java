@@ -108,8 +108,12 @@ public class LSClientConfig {
         return goToDefinition;
     }
 
+    /**
+     * Returns Returns Data Mapper Code Action Configs.
+     *
+     * @return {@link DataMapperConfig}
+     */
     public DataMapperConfig getDataMapper() {
-
         return dataMapper;
     }
 }

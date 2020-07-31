@@ -19,18 +19,15 @@ import java.util.Map;
 public class HttpResponse {
     private String data;
     private int responseCode;
-    private String responseMessage;
-    private Map<String, String> headers;
 
     public HttpResponse(String data, int responseCode) {
         this.data = data;
         this.responseCode = responseCode;
     }
 
-    public HttpResponse(String data, int responseCode, Map<String, String> headers) {
+    HttpResponse(String data, int responseCode, Map<String, String> headers) {
         this.data = data;
         this.responseCode = responseCode;
-        this.headers = headers;
     }
 
     public String getData() {
@@ -39,10 +36,6 @@ public class HttpResponse {
 
     public int getResponseCode() {
         return responseCode;
-    }
-
-    public void setResponseMessage(String responseMessage) {
-        this.responseMessage = responseMessage;
     }
 }
 

@@ -21,25 +21,20 @@ package org.ballerinalang.langserver.commons.codeaction;
  * @since 2.0.0
  */
 public class LSCodeActionProviderException extends Exception {
-
     public LSCodeActionProviderException(String message) {
-
         super(message);
     }
 
     public LSCodeActionProviderException(String message, Throwable cause) {
-
         super(message, cause);
     }
 
     public LSCodeActionProviderException(Throwable cause) {
-
         super(cause);
     }
 
     public LSCodeActionProviderException(String message, Throwable cause, boolean enableSuppression,
                                          boolean writableStackTrace) {
-
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

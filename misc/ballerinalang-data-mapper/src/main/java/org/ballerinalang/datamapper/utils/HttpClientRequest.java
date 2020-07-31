@@ -53,13 +53,9 @@ public class HttpClientRequest {
         try {
             urlConnection = getURLConnection(endpoint);
             setHeadersAndMethod(urlConnection, headers, "POST");
-            OutputStream out = urlConnection.getOutputStream();
-            try {
-                Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+            try (OutputStream out = urlConnection.getOutputStream();
+                 Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
                 writer.write(postBody);
-                writer.close();
-            } finally {
-                out.close();
             }
             return buildResponse(urlConnection);
         } finally {
@@ -115,19 +111,25 @@ public class HttpClientRequest {
         HttpResponse httpResponse;
         BufferedReader rd = null;
         String responseData;
-        try {
-            rd = new BufferedReader(new InputStreamReader(conn.getInputStream()
-                    , Charset.defaultCharset()));
+        try (InputStreamReader inputStreamReader = new InputStreamReader(conn.getInputStream(),
+                Charset.defaultCharset())) {
+            rd = new BufferedReader(inputStreamReader);
             responseData = responseBuilder.apply(rd);
         } catch (IOException ex) {
             if (conn.getErrorStream() == null) {
                 if (throwError) {
                     if (ex instanceof FileNotFoundException) {
+                        if (rd != null) {
+                            rd.close();
+                        }
                         throw new IOException("Server returned HTTP response code: 404 or 410");
                     }
                     throw ex;
                 } else {
                     LOG.error("Error in building HTTP response", ex.getMessage());
+                    if (rd != null) {
+                        rd.close();
+                    }
                     return null;
                 }
             }
@@ -146,7 +148,6 @@ public class HttpClientRequest {
         }
         Map<String, String> responseHeaders = readHeaders(conn);
         httpResponse = new HttpResponse(responseData, conn.getResponseCode(), responseHeaders);
-        httpResponse.setResponseMessage(conn.getResponseMessage());
         return httpResponse;
     }
 
