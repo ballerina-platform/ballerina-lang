@@ -110,8 +110,7 @@ public class ResolvingMavenDependenciesTest extends CommandTest {
                 "maven-artifact:jar:" + mavenArtifactVersion + " in central (https://repo.maven.apache.org/maven2/)");
     }
 
-    @Test(description = "Validate the maven dependencies",
-            dependsOnMethods = {"testWithInvalidMavenDependencies"})
+    @Test(description = "Validate the maven dependencies", dependsOnMethods = {"testWithInvalidMavenDependencies"})
     public void validateMavenDependencies() throws IOException {
         // valid source root path
         Path validBalFilePath = this.testResources.resolve("project-without-custom-maven-dependencies");

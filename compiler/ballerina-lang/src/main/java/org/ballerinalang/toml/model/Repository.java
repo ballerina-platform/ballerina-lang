@@ -26,8 +26,8 @@ package org.ballerinalang.toml.model;
 public class Repository {
     private String id;
     private String url;
-    private String user;
-    private String token;
+    private String username;
+    private String password;
 
     public String getId() {
         return id;
@@ -45,11 +45,11 @@ public class Repository {
         this.url = url;
     }
 
-    public String getUser() {
-        return user;
+    public String getUsername() {
+        return username;
     }
 
-    public String getToken() {
-        return token;
+    public String getPassword() {
+        return password;
     }
 }

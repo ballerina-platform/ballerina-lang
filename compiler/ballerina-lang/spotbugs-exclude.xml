@@ -79,7 +79,11 @@
     </Match>
     <Match>
         <Class name = "org.ballerinalang.toml.model.Repository"/>
-        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD, NM_CONFUSING"/>
+    </Match>
+    <Match>
+        <Class name = "org.ballerinalang.toml.model.Proxy"/>
+        <Bug pattern="NM_CONFUSING"/>
     </Match>
     <Match>
         <Class name = "org.ballerinalang.toml.model.Platform"/>

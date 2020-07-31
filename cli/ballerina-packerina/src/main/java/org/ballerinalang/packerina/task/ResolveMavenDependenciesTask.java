@@ -65,8 +65,8 @@ public class ResolveMavenDependenciesTask implements Task {
                             "given platform repository.");
                 }
 
-                String username = repository.getUser();
-                String password = repository.getToken();
+                String username = repository.getUsername();
+                String password = repository.getPassword();
                 if (username != null && password != null) {
                     resolver.addRepository(id, url, username, password);
                     continue;

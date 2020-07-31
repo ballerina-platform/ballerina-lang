@@ -70,10 +70,13 @@ public class MavenResolverTest {
         }
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAddRemoteRepositoryWithCredentials() {
-        String username = System.getenv("GIT_USER");
-        String password = System.getenv("GIT_TOKEN");
+        String username = System.getenv("MAVEN_RESOLVER_USERNAME");
+        String password = System.getenv("MAVEN_RESOLVER_PASSWORD");
+        if (username == null && password == null) {
+            return;
+        }
         try {
             resolver.addRepository("ballerina-github",
                     "https://maven.pkg.github.com/ballerina-platform/ballerina-update-tool", username, password);
