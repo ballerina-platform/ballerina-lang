@@ -248,6 +248,7 @@ public enum ParserRuleContext {
     ORDER_KEY_LIST_END("order-key-list-end"),
     ON_CONFLICT_CLAUSE("on-conflict-clause"),
     LIMIT_CLAUSE("limit-clause"),
+    ON_CLAUSE("on-clause"),
 
     // Statements
     STATEMENT("statement"),
@@ -365,6 +366,7 @@ public enum ParserRuleContext {
     FAIL_KEYWORD("fail"),
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
+    EQUALS_KEYWORD("equals"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -480,7 +482,7 @@ public enum ParserRuleContext {
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
     QUERY_EXPRESSION_END("query-expr-end"),
     FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
-    QUERY_PIPELINE_RHS("query-pipeline-rhs"),
+    QUERY_PIPELINE_RHS("query-pipeline-rhs"), // consider changing to intermediate_clause
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
     SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
@@ -496,6 +498,8 @@ public enum ParserRuleContext {
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
     ORDER_CLAUSE_END("order-clause-end"),
+    JOIN_CLAUSE_END("join-clause-end"),
+    JOIN_CLAUSE_START("join-clause-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

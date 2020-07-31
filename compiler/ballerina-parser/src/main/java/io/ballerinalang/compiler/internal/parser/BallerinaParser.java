@@ -10764,7 +10764,7 @@ public class BallerinaParser extends AbstractParser {
      * Parse join clause.
      * <p>
      * <code>
-     * join-clause := (join-var-decl | outer-join-var-decl) in expression
+     * join-clause := (join-var-decl | outer-join-var-decl) in expression on-clause?
      * <br/>
      * join-var-decl := join (typeName | var) bindingPattern
      * <br/>
@@ -10774,7 +10774,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Join clause
      */
     private STNode parseJoinClause(boolean isRhsExpr) {
-        // TODO Add error handling
+        startContext(ParserRuleContext.JOIN_CLAUSE);
         STNode outerKeyword;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.OUTER_KEYWORD) {
@@ -10786,10 +10786,12 @@ public class BallerinaParser extends AbstractParser {
         STNode joinKeyword = parseJoinKeyword();
         STNode typedBindingPattern = parseTypedBindingPattern(ParserRuleContext.JOIN_CLAUSE);
         STNode inKeyword = parseInKeyword();
-        STNode onCondition;
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        endContext();
+
+        STNode onCondition;
         nextToken = peek();
         if (nextToken.kind == SyntaxKind.ON_KEYWORD) {
             onCondition = parseOnClause(isRhsExpr);
@@ -10809,6 +10811,8 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseOnClause(boolean isRhsExpr) {
         STNode onKeyword = parseOnKeyword();
+        // note that parsing expression includes following.
+        // equals-expr := expression `equals` expression
         STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
         return STNodeFactory.createOnClauseNode(onKeyword, expression);
     }

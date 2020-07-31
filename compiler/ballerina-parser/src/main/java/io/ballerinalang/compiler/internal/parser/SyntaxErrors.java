@@ -234,6 +234,10 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_ASCENDING_KEYWORD;
             case DESCENDING_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DESCENDING_KEYWORD;
+            case JOIN_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_JOIN_KEYWORD;
+            case OUTER_KEYWORD:
+                return DiagnosticErrorCode.ERROR_MISSING_OUTER_KEYWORD;
 
             // Type keywords
             case INT_KEYWORD:
