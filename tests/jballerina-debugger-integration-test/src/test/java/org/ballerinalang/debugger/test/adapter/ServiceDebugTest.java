@@ -24,10 +24,10 @@ import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
@@ -39,30 +39,41 @@ public class ServiceDebugTest extends DebugAdapterBaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() {
+    public void setup() throws BallerinaTestException {
         testProjectName = "breakpoint-tests";
         testModuleName = "myService";
-        projectPath = testProjectBaseDir + File.separator + testProjectName;
+        projectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
 
-        testModuleFileName = "tests" + File.separator + "hello_service_test.bal";
-        testProjectPath = testProjectBaseDir.toString() + File.separator + testProjectName;
+        testModuleFileName = Paths.get("tests","hello_service_test.bal").toString();
+        testProjectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test
-    public void testServiceDebugScenarios() throws BallerinaTestException {
-        String fileName = "serviceDirectory" + File.separator + "serviceFile.bal";
-        String filePath = Paths.get(testProjectPath, "src", testModuleName, fileName).toString();
+    @Test(enabled = false)
+    public void testDirectoryServiceDebugScenarios() throws BallerinaTestException {
+        String fileName1 = Paths.get("serviceDirectory","serviceFile.bal").toString();
+        String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName1).toString();
+        String fileName2 = "helloService.bal";
+        String filePath2 = Paths.get(testProjectPath, "src", testModuleName, fileName2).toString();
         int port = findFreePort();
 
         runDebuggeeProgram(projectPath, port);
-        addBreakPoint(new BallerinaTestDebugPoint(filePath, 36));
+        addBreakPoint(new BallerinaTestDebugPoint(filePath2, 11));
+        addBreakPoint(new BallerinaTestDebugPoint(filePath1, 36));
         initDebugSession(null, port);
 
-        // Test for service debug engage
+        // Test for service debug where service is inside a directory
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+        resumeProgram(debugHitInfo.getRight(), DebugResumeKind.NEXT_BREAKPOINT);
 
+        // Test for service debug where service is in the root module
+        debugHitInfo = waitForDebugHit(20000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() {
         terminateDebugSession();
     }
 }
