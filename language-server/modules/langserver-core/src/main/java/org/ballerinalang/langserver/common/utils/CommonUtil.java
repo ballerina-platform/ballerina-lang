@@ -1321,8 +1321,8 @@ public class CommonUtil {
      * @return {@link Boolean} whether we show the first param or not
      */
     public static boolean skipFirstParam(LSContext context, BInvokableSymbol invokableSymbol) {
-        NonTerminalNode evalNode = context.get(CompletionKeys.TOKEN_AT_CURSOR_KEY).parent();
-        return isLangLibSymbol(invokableSymbol) && evalNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
+        NonTerminalNode nodeAtCursor = context.get(CompletionKeys.NODE_AT_CURSOR_KEY);
+        return isLangLibSymbol(invokableSymbol) && nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE;
     }
 
     /**

@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
+import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
@@ -121,6 +122,46 @@ public abstract class NonTerminalNode extends Node {
         }
 
         return tokenInsideMinutiae.orElse(token);
+    }
+
+    /**
+     * Find the inner most node encapsulating the given position.
+     * Note: When evaluating the position of a node to check the range this will include the start offset while
+     * excluding the end offset
+     *
+     * @param position to evaluate and find the node
+     * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
+     */
+    public NonTerminalNode findNode(int position) {
+        TextRange textRangeWithMinutiae = textRangeWithMinutiae();
+
+        if (textRangeWithMinutiae.endOffset() == position &&
+                this instanceof ModulePartNode) {
+            ModulePartNode modulePartNode = (ModulePartNode) this;
+            return modulePartNode;
+        }
+
+        if (!textRangeWithMinutiae.contains(position)) {
+            throw new IndexOutOfBoundsException("Index: '" + position +
+                    "', Size: '" + textRangeWithMinutiae.endOffset() + "'");
+        }
+
+        NonTerminalNode foundNode = this;
+        Node temp = foundNode;
+        while (SyntaxUtils.isNonTerminalNode(temp)) {
+            temp = ((NonTerminalNode) temp).findChildNode(position);
+            int nodeStart = temp.syntaxTree().textDocument().textPositionFrom(
+                    LinePosition.from(temp.lineRange().startLine().line(), temp.lineRange().startLine().offset())
+            );
+            if (nodeStart >= position) {
+                break;
+            }
+            if (SyntaxUtils.isNonTerminalNode(temp)) {
+                foundNode = (NonTerminalNode) temp;
+            }
+        }
+
+        return foundNode;
     }
 
     // Node modification operations

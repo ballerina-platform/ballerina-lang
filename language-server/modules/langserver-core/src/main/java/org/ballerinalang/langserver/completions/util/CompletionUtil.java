@@ -15,13 +15,10 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
-import io.ballerinalang.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.ModulePartNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
-import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -178,24 +175,7 @@ public class CompletionUtil {
 
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
-        Token tokenAtCursor = ((ModulePartNode) syntaxTree.rootNode()).findToken(txtPos);
-
-        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
-        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, getNodeAtCursor(tokenAtCursor, context));
-    }
-
-    private static NonTerminalNode getNodeAtCursor(Token tokenAtCursor, LSContext context) {
-        NonTerminalNode parent = tokenAtCursor.parent();
-        int cursorLine = context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-
-        while (parent.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE
-                || parent.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE
-                || parent.kind() == SyntaxKind.NIL_LITERAL
-                || parent instanceof BasicLiteralNode
-                || cursorLine < parent.lineRange().startLine().line()) {
-            parent = parent.parent();
-        }
-
-        return parent;
+        
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, ((ModulePartNode) syntaxTree.rootNode()).findNode(txtPos));
     }
 }

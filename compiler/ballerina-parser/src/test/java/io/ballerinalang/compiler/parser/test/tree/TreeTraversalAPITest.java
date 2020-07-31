@@ -66,6 +66,22 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
 
+    @Test
+    public void testFindNodeFromPosition() {
+        String sourceFilePath = "find_node_test_1.bal";
+        SyntaxTree syntaxTree = parseFile(sourceFilePath);
+        ModulePartNode modulePart = syntaxTree.rootNode();
+        
+        NonTerminalNode nodeListInFunction = modulePart.findNode(55);
+        NonTerminalNode blockStmtNode = modulePart.findNode(158);
+        NonTerminalNode bracedExprNode = modulePart.findNode(146);
+        Assert.assertSame(nodeListInFunction.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
+        Assert.assertTrue(blockStmtNode.kind() == SyntaxKind.BLOCK_STATEMENT
+                && blockStmtNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT);
+        Assert.assertTrue(bracedExprNode.kind() == SyntaxKind.BRACED_EXPRESSION
+                && bracedExprNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT);
+    }
+
     @Test(enabled = false) //disabled since it fails in windows due to token position
     public void testGetParentOfToken() {
         SyntaxTree syntaxTree = parseFile("find_token_test_1.bal");
