@@ -86,7 +86,7 @@ public class ResponseBodyCompressionTestCase {
 
         streamId = streamId + 2;
         responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, "deflate;q=1.0, gzip;q=0.8");
-        assertCompressedResults("deflate;q=1.0, gzip;q=0.8", responseHandler.getFullResponse(streamId),
+        assertCompressedResults("deflate", responseHandler.getFullResponse(streamId),
                                 responseHandler.getResponsePayload(streamId));
 
         streamId = streamId + 2;
