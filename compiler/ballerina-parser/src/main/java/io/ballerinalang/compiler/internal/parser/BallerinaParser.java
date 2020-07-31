@@ -5576,8 +5576,9 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case REMOTE_KEYWORD:
                 STNode remoteKeyword = parseRemoteKeyword();
+                qualifiers.add(visibilityQualifier);
                 qualifiers.add(remoteKeyword);
-                //Fall through
+                return parseObjectMethod(metadata, qualifiers);
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
                 qualifiers.add(visibilityQualifier);
