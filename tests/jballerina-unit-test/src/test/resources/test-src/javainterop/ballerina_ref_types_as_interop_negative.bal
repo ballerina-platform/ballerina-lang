@@ -12,20 +12,20 @@ function testAcceptAllInts() returns int {
 
 function getAllInts() returns ALL_INT = @java:Method {
     name:"getAllFloats",
-    class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
 } external;
 
 function acceptAllInts(ALL_INT x) returns int = @java:Method {
     name:"acceptAllFloats",
-    class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
 } external;
 
 function getMixType() returns MIX_TYPE = @java:Method {
     name:"getAllInts",
-    class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
 } external;
 
 function acceptMixType(MIX_TYPE x) returns any = @java:Method {
     name:"acceptAllInts",
-    class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
+    'class:"org/ballerinalang/test/javainterop/RefTypeNegativeTests"
 } external;

@@ -349,7 +349,7 @@ public function testFromHandleWithHandle(handle arrayHandle) returns boolean {
 }
 
 @java:Binding {
-  class: "java.lang.String"
+  'class: "java.lang.String"
 }
 public type String object {
 
@@ -371,6 +371,6 @@ public function newString(string arg0) returns String {
 }
 
 function java_lang_String_newString(handle arg0) returns handle = @java:Constructor {
-    class: "java.lang.String",
+    'class: "java.lang.String",
     paramTypes: ["java.lang.String"]
 } external;

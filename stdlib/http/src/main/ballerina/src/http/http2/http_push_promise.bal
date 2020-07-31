@@ -97,48 +97,48 @@ public type PushPromise object {
 
 function externPromiseHasHeader(PushPromise promise, string headerName) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "hasHeader"
 } external;
 
 function externPromiseGetHeader(PushPromise promise, string headerName) returns string =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "getHeader"
 } external;
 
 function externPromiseGetHeaders(PushPromise promise, string headerName) returns string[] =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "getHeaders"
 } external;
 
 function externPromiseAddHeader(PushPromise promise, string headerName, string headerValue) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "addHeader"
 } external;
 
 function externPromiseSetHeader(PushPromise promise, string headerName, string headerValue) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "setHeader"
 } external;
 
 function externPromiseRemoveHeader(PushPromise promise, string headerName) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "removeHeader"
 } external;
 
 function externRemoveAllHeaders(PushPromise promise) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "removeAllHeaders"
 } external;
 
 function externPromiseGetHeaderNames(PushPromise promise) returns string[] =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternPushPromise",
     name: "getHeaderNames"
 } external;

@@ -86,16 +86,16 @@ public type ListenerConfig record {|
 |};
 
 function initEndpoint(Listener fileListener) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.InitEndpoint",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.InitEndpoint",
     name: "initEndpoint"
 } external;
 
 function register(Listener fileListener, service s, string? name) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.Register",
     name: "register"
 } external;
 
 function startEndpoint(Listener fileListener) returns error? = @java:Method {
-    class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
+    'class: "org.ballerinalang.stdlib.file.service.endpoint.Start",
     name: "start"
 } external;

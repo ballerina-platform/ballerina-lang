@@ -247,7 +247,7 @@ public type CommonClientConfiguration record {|
 # + return - A tuple containing the value and its parameter map or else an `http:ClientError` if the header parsing fails
 //TODO: Make the error nillable
 public function parseHeader(string headerValue) returns [string, map<any>]|ClientError = @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
+    'class: "org.ballerinalang.net.http.nativeimpl.ParseHeader",
     name: "parseHeader"
 } external;
 
@@ -464,6 +464,6 @@ function addObservabilityInformation(string path, string method, int statusCode,
 
 //Resolve a given path against a given URI.
 function resolve(string baseUrl, string path) returns string|ClientError = @java:Method {
-    class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
+    'class: "org.ballerinalang.net.uri.nativeimpl.Resolve",
     name: "resolve"
 } external;

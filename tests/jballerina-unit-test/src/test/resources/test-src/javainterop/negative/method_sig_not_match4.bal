@@ -13,5 +13,5 @@ public type Person object {
 
 public function acceptRefTypesAndReturnMapWhichThrowsCheckedException(Person a, [int, string, Person] b,
                     int|string|Employee c, error d, any e, anydata f, Employee g) returns map<any> = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

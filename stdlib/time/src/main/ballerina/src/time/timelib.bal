@@ -51,7 +51,7 @@ public type Time record {|
 # + return - The ISO 8601-formatted string of the given time
 public function toString(Time time) returns string = @java:Method {
     name: "toString",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the formatted string representation of the given time.
@@ -66,7 +66,7 @@ public function toString(Time time) returns string = @java:Method {
 # + return - The formatted string of the given time or else a `time:Error` if failed to format the time
 public function format(Time time, string timeFormat) returns string|Error = @java:Method {
     name: "format",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the year representation of the given time.
@@ -80,7 +80,7 @@ public function format(Time time, string timeFormat) returns string|Error = @jav
 # + return - The year representation
 public function getYear(Time time) returns int = @java:Method {
     name: "getYear",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the month representation of the given time.
@@ -94,7 +94,7 @@ public function getYear(Time time) returns int = @java:Method {
 # + return - The month-of-year from 1 (January) to 12 (December)
 public function getMonth(Time time) returns int = @java:Method {
     name: "getMonth",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the date representation of the given time.
@@ -108,7 +108,7 @@ public function getMonth(Time time) returns int = @java:Method {
 # + return - The day-of-month from 1 to 31
 public function getDay(Time time) returns int = @java:Method {
     name: "getDay",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the weekday representation of the given time.
@@ -122,7 +122,7 @@ public function getDay(Time time) returns int = @java:Method {
 # + return - The weekday representation from SUNDAY to SATURDAY
 public function getWeekday(Time time) returns string = @java:Method {
     name: "getWeekday",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the hour representation of the given time.
@@ -136,7 +136,7 @@ public function getWeekday(Time time) returns string = @java:Method {
 # + return - The hour-of-day from 0 to 23
 public function getHour(Time time) returns int = @java:Method {
     name: "getHour",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the minute representation of the given time.
@@ -150,7 +150,7 @@ public function getHour(Time time) returns int = @java:Method {
 # + return - The minute-of-hour to represent from 0 to 59
 public function getMinute(Time time) returns int = @java:Method {
     name: "getMinute",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the second representation of the given time.
@@ -164,7 +164,7 @@ public function getMinute(Time time) returns int = @java:Method {
 # + return - The second-of-minute from 0 to 59
 public function getSecond(Time time) returns int = @java:Method {
     name: "getSecond",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the millisecond representation of the given time.
@@ -178,7 +178,7 @@ public function getSecond(Time time) returns int = @java:Method {
 # + return - The milli-of-second from 0 to 999
 public function getMilliSecond(Time time) returns int = @java:Method {
     name: "getMilliSecond",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the date representation of the given time.
@@ -194,7 +194,7 @@ public function getMilliSecond(Time time) returns int = @java:Method {
 #            the day-of-month from 1 to 31
 public function getDate(Time time) returns [int, int, int] = @java:Method {
     name: "getDate",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the time representation of the given time.
@@ -211,7 +211,7 @@ public function getDate(Time time) returns [int, int, int] = @java:Method {
 #            and the milli-of-second from 0 to 999
 public function getTime(Time time) returns [int, int, int, int] = @java:Method {
     name: "getTime",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Add specified durations to the given time value.
@@ -236,7 +236,7 @@ public function getTime(Time time) returns [int, int, int, int] = @java:Method {
 public function addDuration(Time time, int years, int months, int days, int hours, int minutes, int seconds,
                             int milliSeconds) returns Time = @java:Method {
     name: "addDuration",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Subtract specified durations from the given time value.
@@ -261,7 +261,7 @@ public function addDuration(Time time, int years, int months, int days, int hour
 public function subtractDuration(Time time, int years, int months, int days, int hours, int minutes, int seconds,
                                  int milliSeconds) returns Time = @java:Method {
     name: "subtractDuration",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Change the time-zone of the given time.
@@ -278,7 +278,7 @@ public function subtractDuration(Time time, int years, int months, int days, int
 #            or else a `time:Error` if failed to format the time
 public function toTimeZone(Time time, string zoneId) returns Time|Error = @java:Method {
     name: "toTimeZone",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the current time value with the default system time-zone.
@@ -289,7 +289,7 @@ public function toTimeZone(Time time, string zoneId) returns Time|Error = @java:
 # + return - Time object containing the time and the zone information
 public function currentTime() returns Time = @java:Method {
     name: "currentTime",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the current system time in nano seconds.
@@ -300,7 +300,7 @@ public function currentTime() returns Time = @java:Method {
 # + return - Integer value of the current system time in nano seconds
 public function nanoTime() returns int = @java:Method {
     name: "nanoTime",
-    class: "java.lang.System"
+    'class: "java.lang.System"
 } external;
 
 # Returns the Time object correspoding to the given time components and time-zone.
@@ -320,7 +320,7 @@ public function nanoTime() returns int = @java:Method {
 public function createTime(int year, int month, int date, int hour, int minute, int second, int milliSecond,
                            string zoneId) returns Time|Error = @java:Method {
     name: "createTime",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;
 
 # Returns the time for the given string representation based on the given format string.
@@ -334,5 +334,5 @@ public function createTime(int year, int month, int date, int hour, int minute, 
 # + return - Time object containing the time and zone information or else  a `time:Error` if failed to parse the given string
 public function parse(string data, string timeFormat) returns Time|Error = @java:Method {
     name: "parse",
-    class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.time.nativeimpl.ExternMethods"
 } external;

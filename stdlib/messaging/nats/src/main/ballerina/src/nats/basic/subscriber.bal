@@ -73,30 +73,30 @@ public type Listener object {
 
 function basicRegister(Listener lis, service serviceType, string? name) returns error? =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.Register"
+    'class: "org.ballerinalang.nats.basic.consumer.Register"
 } external;
 
 function basicDetach(Listener lis, service serviceType) returns error? =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.Detach"
+    'class: "org.ballerinalang.nats.basic.consumer.Detach"
 } external;
 
 function basicStart(Listener lis) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.Start"
+    'class: "org.ballerinalang.nats.basic.consumer.Start"
 } external;
 
 function basicGracefulStop(Listener lis) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.GracefulStop"
+    'class: "org.ballerinalang.nats.basic.consumer.GracefulStop"
 } external;
 
 function basicImmediateStop(Listener lis) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
+    'class: "org.ballerinalang.nats.basic.consumer.ImmediateStop"
 } external;
 
 function consumerInit(Listener lis, Connection c) =
 @java:Method {
-    class: "org.ballerinalang.nats.basic.consumer.Init"
+    'class: "org.ballerinalang.nats.basic.consumer.Init"
 } external;

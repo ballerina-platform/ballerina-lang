@@ -114,5 +114,5 @@ public type ReadableCSVChannel object {
 function getTableExtern(ReadableCSVChannel csvChannel, typedesc<record {}> structType, public string[] fieldNames)
             returns @tainted table<record {}>|Error = @java:Method {
     name: "getTable",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.GetTable"
 } external;

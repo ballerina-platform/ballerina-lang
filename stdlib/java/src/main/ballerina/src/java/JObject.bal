@@ -34,5 +34,5 @@ public function jObjToString(handle jObj) returns string {
 
 function toStringInternal(handle jObj) returns handle = @Method {
     name: "toString",
-    class: "java.lang.Object"
+    'class: "java.lang.Object"
 } external;

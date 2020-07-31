@@ -2574,6 +2574,6 @@ function nameOfNonBStringFunc(string funcName) returns string {
 }
 
 function getProperty(handle propertyName) returns handle = @java:Method {
-    class: "java.lang.System",
+    'class: "java.lang.System",
     name: "getProperty"
 } external;

@@ -6,5 +6,5 @@ function asyncTest() returns int {
 
 // Interop functions
 public function countSlowly() returns int = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/AsyncInterop"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/AsyncInterop"
 } external;

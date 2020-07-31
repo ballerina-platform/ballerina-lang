@@ -77,12 +77,12 @@ public type SmtpClient client object {
 function initSmtpClientEndpoint(SmtpClient clientEndpoint, string host, string username, string password,
         SmtpConfig config) = @java:Method {
     name : "initClientEndpoint",
-    class : "org.ballerinalang.stdlib.email.client.SmtpClient"
+    'class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
 function send(SmtpClient clientEndpoint, Email email) returns Error? = @java:Method {
     name : "sendMessage",
-    class : "org.ballerinalang.stdlib.email.client.SmtpClient"
+    'class : "org.ballerinalang.stdlib.email.client.SmtpClient"
 } external;
 
 # Configuration of the SMTP Endpoint.

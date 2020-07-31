@@ -36,7 +36,7 @@ public type XmlOptions record {
 # + return - The JSON representation of the given XML on success, else returns an `error`
 public function fromXML(xml x, XmlOptions options = {}) returns json|error = @java:Method {
     name: "fromXML",
-    class: "org.ballerinalang.stdlib.jsonutils.FromXML"
+    'class: "org.ballerinalang.stdlib.jsonutils.FromXML"
 } external;
 
 
@@ -62,5 +62,5 @@ public function fromTable(table<record{}> tableValue) returns json {
 
 function externFromTable(table<record{}> tableValue) returns json = @java:Method {
     name: "fromTable",
-    class: "org.ballerinalang.stdlib.jsonutils.FromTable"
+    'class: "org.ballerinalang.stdlib.jsonutils.FromTable"
 } external;

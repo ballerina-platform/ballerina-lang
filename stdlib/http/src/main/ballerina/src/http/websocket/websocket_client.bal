@@ -270,11 +270,11 @@ public type WebSocketRetryConfig record {|
 |};
 
 function externWSInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.InitEndpoint",
     name: "initEndpoint"
 } external;
 
 function externRetryInitEndpoint(WebSocketClient wsClient) = @java:Method {
-    class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
+    'class: "org.ballerinalang.net.http.websocket.client.RetryInitEndpoint",
     name: "initEndpoint"
 } external;

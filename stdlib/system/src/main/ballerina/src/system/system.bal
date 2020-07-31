@@ -33,7 +33,7 @@ public function getEnv(@untainted string name) returns string {
 
 function nativeGetEnv(handle key) returns handle = @java:Method {
     name: "getenv",
-    class: "java.lang.System",
+    'class: "java.lang.System",
     paramTypes: ["java.lang.String"]
 } external;
 
@@ -45,7 +45,7 @@ function nativeGetEnv(handle key) returns handle = @java:Method {
 # + return - Current user's name if it can be determined or else an empty string
 public function getUsername() returns string = @java:Method {
     name: "getUsername",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.GetUsername"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.GetUsername"
 } external;
 
 # Returns the current user's home directory path.
@@ -56,7 +56,7 @@ public function getUsername() returns string = @java:Method {
 # + return - Current user's home directory if it can be determined or else an empty string
 public function getUserHome() returns string = @java:Method {
     name: "getUserHome",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.GetUserHome"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.GetUserHome"
 } external;
 
 # Returns a random UUID string.
@@ -76,7 +76,7 @@ public function uuid() returns string {
 
 function nativeUuid() returns handle = @java:Method {
     name: "randomUUID",
-    class: "java.util.UUID"
+    'class: "java.util.UUID"
 } external;
 
 # Executes an operating system command as a subprocess of the current process.
@@ -92,5 +92,5 @@ function nativeUuid() returns handle = @java:Method {
 public function exec(@untainted string command, @untainted map<string> env = {},
                      @untainted string? dir = (), @untainted string... args) returns Process|Error = @java:Method {
     name: "exec",
-    class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
+    'class: "org.ballerinalang.stdlib.system.nativeimpl.Exec"
 } external;

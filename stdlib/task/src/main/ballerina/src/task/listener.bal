@@ -126,35 +126,35 @@ public type Listener object {
 
 function pauseExternal(Listener task) returns ListenerError? = @java:Method {
     name: "pause",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function resumeExternal(Listener task) returns ListenerError? = @java:Method {
     name: "resume",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function stopExternal(Listener task) returns ListenerError? = @java:Method {
     name: "stop",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function startExternal(Listener task) returns ListenerError? = @java:Method {
     name: "start",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function initExternal(Listener task) returns ListenerError? = @java:Method {
     name: "init",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function detachExternal(Listener task, service attachedService) returns ListenerError? = @java:Method {
     name: "detach",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;
 
 function attachExternal(Listener task, service s, any... attachments) returns ListenerError? = @java:Method {
     name: "attach",
-    class: "org.ballerinalang.stdlib.task.actions.TaskActions"
+    'class: "org.ballerinalang.stdlib.task.actions.TaskActions"
 } external;

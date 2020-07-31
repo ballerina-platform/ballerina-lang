@@ -50,5 +50,5 @@ public type StreamingMessage client object {
 
 function externAck(StreamingMessage message) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.message.Ack"
+    'class: "org.ballerinalang.nats.streaming.message.Ack"
 } external;

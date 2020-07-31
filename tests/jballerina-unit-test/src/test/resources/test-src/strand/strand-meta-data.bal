@@ -127,51 +127,51 @@ function assertStrandMetadataResult(string assertString) {
 }
 
 function getName(handle strand) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
 function get(handle optional) returns handle = @java:Method {
-    class: "java.util.Optional"
+    'class: "java.util.Optional"
 } external;
 
 function nonNull(handle optional) returns boolean = @java:Method {
-    class: "java.util.Objects"
+    'class: "java.util.Objects"
 } external;
 
 function isPresent(handle optional) returns boolean = @java:Method {
-    class: "java.util.Optional"
+    'class: "java.util.Optional"
 } external;
 
 function getId(handle strand) returns int = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
 function getStrand() returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.Scheduler"
+    'class: "org.ballerinalang.jvm.scheduling.Scheduler"
 } external;
 
 function getMetadata(handle strand) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.Strand"
+    'class: "org.ballerinalang.jvm.scheduling.Strand"
 } external;
 
 function getModuleOrg(handle strandMetadata) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 function getModuleName(handle strandMetadata) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 function getModuleVersion(handle strandMetadata) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 function getParentFunctionName(handle strandMetadata) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 function getTypeName(handle strandMetadata) returns handle = @java:Method {
-    class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
+    'class: "org.ballerinalang.jvm.scheduling.StrandMetadata"
 } external;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

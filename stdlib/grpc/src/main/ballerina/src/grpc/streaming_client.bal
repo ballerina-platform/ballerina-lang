@@ -55,15 +55,15 @@ public type StreamingClient client object {
 
 function streamSend(StreamingClient streamConnection, anydata res) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;
 
 function streamComplete(StreamingClient streamConnection) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;
 
 function streamSendError(StreamingClient streamConnection, int statusCode, string message) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.streamingclient.FunctionUtils"
 } external;

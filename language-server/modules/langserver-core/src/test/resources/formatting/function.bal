@@ -58,10 +58,10 @@ function name17(int i,string name = "john",
 }
 
    function name18()=    @ java : Method    {name: "dfadfa",
-class: "a.b.Foo"
+'class: "a.b.Foo"
    }    external  ;
 
-    function name19() =  @ java : Method  {   name :  "dfadfa",class:"a.b.Foo"   }   external;
+    function name19() =  @ java : Method  {   name :  "dfadfa",'class:"a.b.Foo"   }   external;
 
 public function main1() {
             _=start     foo  (  )  ;

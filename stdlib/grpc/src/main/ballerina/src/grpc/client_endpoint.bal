@@ -138,27 +138,27 @@ function retryBlockingExecute(Client grpcClient, string methodID, anydata payloa
 
 function externInit(Client clientEndpoint, string url, ClientConfiguration config, PoolConfiguration globalPoolConfig)
                 returns Error? = @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
 function externInitStub(Client genericEndpoint, AbstractClientEndpoint clientEndpoint, string stubType,
                         string descriptorKey, map<any> descriptorMap) returns Error? = @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
 function externBlockingExecute(Client clientEndpoint, string methodID, anydata payload, Headers? headers)
                 returns ([anydata, Headers]|Error) = @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
 function externNonBlockingExecute(Client clientEndpoint, string methodID, anydata payload, service listenerService,
                   Headers? headers) returns Error? = @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
 function externStreamingExecute(Client clientEndpoint, string methodID, service listenerService,
                 Headers? headers) returns StreamingClient|Error = @java:Method {
-    class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
+    'class: "org.ballerinalang.net.grpc.nativeimpl.client.FunctionUtils"
 } external;
 
 

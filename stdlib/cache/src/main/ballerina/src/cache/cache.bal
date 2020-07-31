@@ -279,33 +279,33 @@ function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPo
 }
 
 function externInit(Cache cache, int capacity) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externPut(Cache cache, string key, Node value) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externGet(Cache cache, string key) returns Node = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externRemove(Cache cache, string key) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externRemoveAll(Cache cache) = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externHasKey(Cache cache, string key) returns boolean = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externKeys(Cache cache) returns string[] = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
 function externSize(Cache cache) returns int = @java:Method {
-    class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
+    'class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;

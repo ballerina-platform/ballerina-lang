@@ -7,7 +7,7 @@ function testReturningBIntJByte(handle receiver) returns int {
 
 public function getBIntJByte(handle receiver) returns int = @java:Method {
     name:"byteValue",
-    class:"java.lang.Long"
+    'class:"java.lang.Long"
 } external;
 
 
@@ -18,7 +18,7 @@ function testReturningBIntJShort(handle receiver) returns int {
 
 public function getBIntJShort(handle receiver) returns int = @java:Method {
     name:"shortValue",
-    class:"java.lang.Long"
+    'class:"java.lang.Long"
 } external;
 
 
@@ -29,7 +29,7 @@ function testReturningBIntJChar(handle receiver) returns int {
 
 public function getBIntJChar(handle receiver) returns int = @java:Method {
     name:"charValue",
-    class:"java.lang.Character"
+    'class:"java.lang.Character"
 } external;
 
 
@@ -40,7 +40,7 @@ function testReturningBIntJInt(handle receiver) returns int {
 
 public function getBIntJInt(handle receiver) returns int = @java:Method {
     name:"intValue",
-    class:"java.lang.Long"
+    'class:"java.lang.Long"
 } external;
 
 
@@ -51,7 +51,7 @@ function testReturningBFloatJByte(handle receiver) returns float {
 
 public function getBFloatJByte(handle receiver) returns float = @java:Method {
     name:"byteValue",
-    class:"java.lang.Double"
+    'class:"java.lang.Double"
 } external;
 
 
@@ -62,7 +62,7 @@ function testReturningBFloatJShort(handle receiver) returns float {
 
 public function getBFloatJShort(handle receiver) returns float = @java:Method {
     name:"shortValue",
-    class:"java.lang.Double"
+    'class:"java.lang.Double"
 } external;
 
 
@@ -73,7 +73,7 @@ function testReturningBFloatJChar(handle receiver) returns float {
 
 public function getBFloatJChar(handle receiver) returns float = @java:Method {
     name:"charValue",
-    class:"java.lang.Character"
+    'class:"java.lang.Character"
 } external;
 
 
@@ -84,7 +84,7 @@ function testReturningBFloatJInt(handle receiver) returns float {
 
 public function getBFloatJInt(handle receiver) returns float = @java:Method {
     name:"intValue",
-    class:"java.lang.Double"
+    'class:"java.lang.Double"
 } external;
 
 
@@ -95,5 +95,5 @@ function testReturningBFloatJFloat(handle receiver) returns float {
 
 public function getBFloatJFloat(handle receiver) returns float = @java:Method {
     name:"floatValue",
-    class:"java.lang.Double"
+    'class:"java.lang.Double"
 } external;

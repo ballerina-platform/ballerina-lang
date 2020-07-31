@@ -68,20 +68,20 @@ public type ReadableByteChannel object {
 
 function byteReadExtern(ReadableByteChannel byteChannel, @untainted int nBytes) returns @tainted byte[]|Error = @java:Method {
     name: "read",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 function base64EncodeExtern(ReadableByteChannel byteChannel) returns ReadableByteChannel|Error = @java:Method {
     name: "base64Encode",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 function base64DecodeExtern(ReadableByteChannel byteChannel) returns ReadableByteChannel|Error = @java:Method {
     name: "base64Decode",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;
 
 function closeReadableByteChannelExtern(ReadableByteChannel byteChannel) returns Error? = @java:Method {
     name: "closeByteChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.ByteChannelUtils"
 } external;

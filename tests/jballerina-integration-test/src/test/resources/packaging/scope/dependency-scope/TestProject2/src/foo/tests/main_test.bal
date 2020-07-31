@@ -3,7 +3,7 @@ import ballerina/test;
 import ballerina/java;
 
 public function getString() returns handle = @java:Method {
-    class:"org.wso2.test.StaticMethods"
+    'class:"org.wso2.test.StaticMethods"
 } external;
 
 # Before Suite Function

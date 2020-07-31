@@ -68,9 +68,9 @@ public function generateApplicationErrorStream(string message) returns stream<re
 }
 
 function nextResult(ResultIterator iterator) returns record {}|Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
+    'class: "org.ballerinalang.sql.utils.RecordItertorUtils"
 } external;
 
 function closeResult(ResultIterator iterator) returns Error? = @java:Method {
-    class: "org.ballerinalang.sql.utils.RecordItertorUtils"
+    'class: "org.ballerinalang.sql.utils.RecordItertorUtils"
 } external;

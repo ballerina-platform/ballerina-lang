@@ -151,7 +151,7 @@ public type LdapConnection record {|
 # + return - Array of groups of the provided user or else an `ldap:Error` if it fails
 public function getGroups(LdapConnection ldapConnection, string username) returns string[]|Error = @java:Method {
     name: "getGroups",
-    class: "org.ballerinalang.stdlib.ldap.nativeimpl.GetGroups"
+    'class: "org.ballerinalang.stdlib.ldap.nativeimpl.GetGroups"
 } external;
 
 # Authenticates with the username and password.
@@ -166,7 +166,7 @@ public function getGroups(LdapConnection ldapConnection, string username) return
 public function doAuthenticate(LdapConnection ldapConnection, string username, string password)
                                returns boolean|Error = @java:Method {
     name: "doAuthenticate",
-    class: "org.ballerinalang.stdlib.ldap.nativeimpl.Authenticate"
+    'class: "org.ballerinalang.stdlib.ldap.nativeimpl.Authenticate"
 } external;
 
 # Initailizes the LDAP connection context.
@@ -180,5 +180,5 @@ public function doAuthenticate(LdapConnection ldapConnection, string username, s
 public function initLdapConnectionContext(LdapConnectionConfig ldapConnectionConfig, string instanceId)
                                           returns LdapConnection|Error = @java:Method {
     name: "initLdapConnectionContext",
-    class: "org.ballerinalang.stdlib.ldap.nativeimpl.InitLdapConnectionContext"
+    'class: "org.ballerinalang.stdlib.ldap.nativeimpl.InitLdapConnectionContext"
 } external;

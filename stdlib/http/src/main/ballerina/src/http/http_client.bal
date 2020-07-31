@@ -184,56 +184,56 @@ public type HttpClient client object {
 
 function externGetResponse(HttpClient httpClient, HttpFuture httpFuture) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetResponse",
+    'class: "org.ballerinalang.net.http.actions.httpclient.GetResponse",
     name: "getResponse"
 } external;
 
 function externHasPromise(HttpClient httpClient, HttpFuture httpFuture) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HasPromise",
+    'class: "org.ballerinalang.net.http.actions.httpclient.HasPromise",
     name: "hasPromise"
 } external;
 
 function externGetNextPromise(HttpClient httpClient, HttpFuture httpFuture) returns PushPromise|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetNextPromise",
+    'class: "org.ballerinalang.net.http.actions.httpclient.GetNextPromise",
     name: "getNextPromise"
 } external;
 
 function externGetPromisedResponse(HttpClient httpClient, PushPromise promise) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.GetPromisedResponse",
+    'class: "org.ballerinalang.net.http.actions.httpclient.GetPromisedResponse",
     name: "getPromisedResponse"
 } external;
 
 function externRejectPromise(HttpClient httpClient, PushPromise promise) =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
+    'class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "rejectPromise"
 } external;
 
 function externExecute(HttpClient caller, string httpVerb, string path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Execute",
+    'class: "org.ballerinalang.net.http.actions.httpclient.Execute",
     name: "execute"
 } external;
 
 function externSubmit(HttpClient caller, string httpVerb, string path, Request req) returns HttpFuture|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Submit",
+    'class: "org.ballerinalang.net.http.actions.httpclient.Submit",
     name: "submit"
 } external;
 
 function externForward(HttpClient caller, string path, Request req) returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.Forward",
+    'class: "org.ballerinalang.net.http.actions.httpclient.Forward",
     name: "forward"
 } external;
 
 function externExecuteClientAction(HttpClient caller, string path, Request req, string httpMethod)
                                   returns Response|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
+    'class: "org.ballerinalang.net.http.actions.httpclient.HttpClientAction",
     name: "executeClientAction"
 } external;
 

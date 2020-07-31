@@ -19,5 +19,5 @@ public function interopWithRecordReturn() returns boolean {
 }
 
 public function acceptRecordAndRecordReturn(Employee e, int a,  string newVal) returns Employee = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

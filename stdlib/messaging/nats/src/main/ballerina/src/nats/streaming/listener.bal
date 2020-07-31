@@ -89,26 +89,26 @@ public type StreamingListener object {
 
 function streamingListenerInit(StreamingListener lis) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.consumer.Init"
+    'class: "org.ballerinalang.nats.streaming.consumer.Init"
 } external;
 
 function streamingSubscribe(StreamingListener streamingClient, Connection conn,
                             string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
+    'class: "org.ballerinalang.nats.streaming.consumer.Subscribe"
 } external;
 
 function streamingAttach(StreamingListener lis, service serviceType, Connection conn) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.consumer.Attach"
+    'class: "org.ballerinalang.nats.streaming.consumer.Attach"
 } external;
 
 function streamingDetach(StreamingListener lis, service serviceType) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.consumer.Detach"
+    'class: "org.ballerinalang.nats.streaming.consumer.Detach"
 } external;
 
 function streamingListenerClose(StreamingListener lis,  Connection natsConnection) returns error? =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.consumer.Close"
+    'class: "org.ballerinalang.nats.streaming.consumer.Close"
 } external;

@@ -19,5 +19,5 @@ public type Callback object {
 
 // Interop functions
 public function startTimer(int interval, int count, Callback c) = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/Timer"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/Timer"
 } external;

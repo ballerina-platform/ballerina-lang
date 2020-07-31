@@ -44,10 +44,10 @@ public type Connection object {
 
 function externInit(Connection connection, string[] url, ConnectionConfig config) =
 @java:Method {
-    class: "org.ballerinalang.nats.connection.Init"
+    'class: "org.ballerinalang.nats.connection.Init"
 } external;
 
 function externClose(Connection connection, boolean forceful = false) returns Error? =
 @java:Method {
-    class: "org.ballerinalang.nats.connection.Close"
+    'class: "org.ballerinalang.nats.connection.Close"
 } external;

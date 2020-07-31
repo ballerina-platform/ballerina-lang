@@ -462,24 +462,24 @@ public type Response object {
 
 function externCreateNewResEntity(Response response) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
     name: "createNewEntity"
 } external;
 
 function externSetResEntity(Response response, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
     name: "setEntity"
 } external;
 
 function externGetResEntity(Response response) returns mime:Entity|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
     name: "getEntity"
 } external;
 
 function externGetResEntityWithoutBody(Response response) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternResponse",
     name: "getEntityWithoutBody"
 } external;

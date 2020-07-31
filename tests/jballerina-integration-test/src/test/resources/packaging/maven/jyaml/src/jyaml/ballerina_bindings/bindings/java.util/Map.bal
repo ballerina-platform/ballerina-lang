@@ -265,151 +265,151 @@ type Map object {
 
 function java_util_Map_clear(handle receiver) = @java:Method {
     name: "clear",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_compute(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "compute",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.util.function.BiFunction"]
 } external;
 
 function java_util_Map_computeIfAbsent(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "computeIfAbsent",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.util.function.Function"]
 } external;
 
 function java_util_Map_computeIfPresent(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "computeIfPresent",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.util.function.BiFunction"]
 } external;
 
 function java_util_Map_containsKey(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "containsKey",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_util_Map_containsValue(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "containsValue",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_util_Map_entrySet(handle receiver) returns handle = @java:Method {
     name: "entrySet",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_util_Map_forEach(handle receiver, handle arg0) = @java:Method {
     name: "forEach",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.util.function.BiConsumer"]
 } external;
 
 function java_util_Map_get(handle receiver, handle arg0) returns handle = @java:Method {
     name: "get",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_util_Map_getOrDefault(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "getOrDefault",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_hashCode(handle receiver) returns int = @java:Method {
     name: "hashCode",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_isEmpty(handle receiver) returns boolean = @java:Method {
     name: "isEmpty",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_keySet(handle receiver) returns handle = @java:Method {
     name: "keySet",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_merge(handle receiver, handle arg0, handle arg1, handle arg2) returns handle = @java:Method {
     name: "merge",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object", "java.util.function.BiFunction"]
 } external;
 
 function java_util_Map_put(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "put",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_putAll(handle receiver, handle arg0) = @java:Method {
     name: "putAll",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.util.Map"]
 } external;
 
 function java_util_Map_putIfAbsent(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "putIfAbsent",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_remove1(handle receiver, handle arg0) returns handle = @java:Method {
     name: "remove",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object"]
 } external;
 
 function java_util_Map_remove2(handle receiver, handle arg0, handle arg1) returns boolean = @java:Method {
     name: "remove",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_replace1(handle receiver, handle arg0, handle arg1) returns handle = @java:Method {
     name: "replace",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_replace2(handle receiver, handle arg0, handle arg1, handle arg2) returns boolean = @java:Method {
     name: "replace",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.lang.Object", "java.lang.Object", "java.lang.Object"]
 } external;
 
 function java_util_Map_replaceAll(handle receiver, handle arg0) = @java:Method {
     name: "replaceAll",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: ["java.util.function.BiFunction"]
 } external;
 
 function java_util_Map_size(handle receiver) returns int = @java:Method {
     name: "size",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 
 function java_util_Map_values(handle receiver) returns handle = @java:Method {
     name: "values",
-    class: "java.util.Map",
+    'class: "java.util.Map",
     paramTypes: []
 } external;
 

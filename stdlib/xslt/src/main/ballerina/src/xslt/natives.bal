@@ -26,5 +26,5 @@ import ballerina/java;
 # + return - The transformed result represented in an XML object or else an `error` if the given `XML` object
 #            can't be transformed
 public function transform(xml input, xml xsl) returns xml|error = @java:Method {
-    class: "org.ballerinalang.xslt.XsltTransformer"
+    'class: "org.ballerinalang.xslt.XsltTransformer"
 } external;

@@ -73,16 +73,16 @@ public type StreamingProducer client object {
 function streamingProducerInit(StreamingProducer streamingClient, Connection conn,
     string clusterId, string? clientId, StreamingConfig? streamingConfig) =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.producer.Init"
+    'class: "org.ballerinalang.nats.streaming.producer.Init"
 } external;
 
 function streamingProducerClose(StreamingProducer streamingClient, Connection natsConnection) returns error? =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.producer.Close"
+    'class: "org.ballerinalang.nats.streaming.producer.Close"
 } external;
 
 function externStreamingPublish(StreamingProducer producer, string subject, string|byte[] data,
     Connection connection) returns string|Error =
 @java:Method {
-    class: "org.ballerinalang.nats.streaming.producer.Publish"
+    'class: "org.ballerinalang.nats.streaming.producer.Publish"
 } external;

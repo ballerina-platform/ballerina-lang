@@ -570,43 +570,43 @@ public type Request object {
 
 function externCreateNewReqEntity(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "createNewEntity"
 } external;
 
 function externSetReqEntity(Request request, mime:Entity entity) =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "setEntity"
 } external;
 
 function externGetQueryParams(Request request) returns map<string[]> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getQueryParams"
 } external;
 
 function externGetMatrixParams(Request request, string path) returns map<any> =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getMatrixParams"
 } external;
 
 function externGetReqEntity(Request request) returns mime:Entity|ClientError =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntity"
 } external;
 
 function externGetReqEntityWithoutBody(Request request) returns mime:Entity =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "getEntityWithoutBody"
 } external;
 
 function externCheckReqEntityBodyAvailability(Request request) returns boolean =
 @java:Method {
-    class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
+    'class: "org.ballerinalang.net.http.nativeimpl.ExternRequest",
     name: "checkEntityBodyAvailability"
 } external;
 

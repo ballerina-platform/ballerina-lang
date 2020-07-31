@@ -6,5 +6,5 @@ public function interopWithErrorReturn() returns string {
 }
 
 public function acceptStringOrErrorReturn(string s) returns error = @java:Method {
-    class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

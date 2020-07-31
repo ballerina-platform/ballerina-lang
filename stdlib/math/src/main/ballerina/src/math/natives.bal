@@ -35,7 +35,7 @@ public function exp(float val) returns float {
 
 function externExp(float val) returns float = @java:Method {
     name: "exp",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the value of the 'a' raised to the power of 'b'.
@@ -52,7 +52,7 @@ public function pow(float a, float b) returns float {
 
 function externPow(float a, float b) returns float = @java:Method {
     name: "pow",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Selects a random number between 0.0 and 1.0.
@@ -63,7 +63,7 @@ function externPow(float a, float b) returns float = @java:Method {
 # + return - Selected random value
 public function random() returns float = @java:Method {
     name: "random",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Selects a random number between the given start(inclusive) and end(exclusive) values.
@@ -76,7 +76,7 @@ public function random() returns float = @java:Method {
 # + return - Selected random value or else `Error` if start range is greater than the end range
 public function randomInRange(int startRange, int endRange) returns int|Error = @java:Method {
     name: "randomInRange",
-    class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
 } external;
 
 # Calculates rounded positive square root of the given value.
@@ -88,7 +88,7 @@ public function randomInRange(int startRange, int endRange) returns int|Error = 
 # + return - Calculated square root value
 public function sqrt(float val) returns float = @java:Method {
     name: "sqrt",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the absolute value of a float value.
@@ -100,7 +100,7 @@ public function sqrt(float val) returns float = @java:Method {
 # + return - Calculated absolute value
 public function absFloat(float val) returns float = @java:Method {
     name: "abs",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -113,7 +113,7 @@ public function absFloat(float val) returns float = @java:Method {
 # + return - Calculated absolute value
 public function absInt(int val) returns int = @java:Method {
     name: "abs",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["long"]
 } external;
 
@@ -126,7 +126,7 @@ public function absInt(int val) returns int = @java:Method {
 # + return - Calculated arc cosine value
 public function acos(float val) returns float = @java:Method {
     name: "acos",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the arc sine of a value.
@@ -138,7 +138,7 @@ public function acos(float val) returns float = @java:Method {
 # + return - Calculates arc sine value
 public function asin(float val) returns float = @java:Method {
     name: "asin",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the arc tangent of a value.
@@ -150,7 +150,7 @@ public function asin(float val) returns float = @java:Method {
 # + return - Calculated arc tangent value
 public function atan(float val) returns float = @java:Method {
     name: "atan",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the angle theta from the conversion of rectangular coordinates (a, b) to polar coordinates (r, theta).
@@ -163,7 +163,7 @@ public function atan(float val) returns float = @java:Method {
 # + return - Calculated angle theta
 public function atan2(float a, float b) returns float = @java:Method {
     name: "atan2",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the cube root of a float value.
@@ -175,7 +175,7 @@ public function atan2(float a, float b) returns float = @java:Method {
 # + return - Calculated cube root value
 public function cbrt(float val) returns float = @java:Method {
     name: "cbrt",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the smallest (closest to negative infinity) double value that is greater than or equal to the argument and
@@ -188,7 +188,7 @@ public function cbrt(float val) returns float = @java:Method {
 # + return - Calculated smallest double value
 public function ceil(float val) returns float = @java:Method {
     name: "ceil",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the first floating-point argument with the sign of the second floating-point argument.
@@ -201,7 +201,7 @@ public function ceil(float val) returns float = @java:Method {
 # + return - Calculated floating-point argument
 public function copySign(float a, float b) returns float = @java:Method {
     name: "copySign",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double", "double"]
 } external;
 
@@ -214,7 +214,7 @@ public function copySign(float a, float b) returns float = @java:Method {
 # + return - Calculated cosine value
 public function cos(float val) returns float = @java:Method {
     name: "cos",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the hyperbolic cosine of a float value.
@@ -226,7 +226,7 @@ public function cos(float val) returns float = @java:Method {
 # + return - Calculated hyperbolic cosine of given float value
 public function cosh(float val) returns float = @java:Method {
     name: "cosh",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates (e to the power of x) -1.
@@ -238,7 +238,7 @@ public function cosh(float val) returns float = @java:Method {
 # + return - Calculated result
 public function expm1(float val) returns float = @java:Method {
     name: "expm1",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the largest (closest to positive infinity) float value that is less than or equal to the argument and is
@@ -251,7 +251,7 @@ public function expm1(float val) returns float = @java:Method {
 # + return - Calculated float value
 public function floor(float val) returns float = @java:Method {
     name: "floor",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the largest (closest to positive infinity) int value that is less than or equal to the algebraic quotient.
@@ -264,7 +264,7 @@ public function floor(float val) returns float = @java:Method {
 # + return - Calculated int value or else `Error` if b is 0
 public function floorDiv(int a, int b) returns int|Error = @java:Method {
     name: "floorDiv",
-    class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
 } external;
 
 # Calculates the floor modulus of the long arguments.
@@ -277,7 +277,7 @@ public function floorDiv(int a, int b) returns int|Error = @java:Method {
 # + return - Calculated floor modulus or else `Error` if b is 0
 public function floorMod(int a, int b) returns int|Error = @java:Method {
     name: "floorMod",
-    class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
 } external;
 
 # Calculates the unbiased exponent used in the representation of a float.
@@ -289,7 +289,7 @@ public function floorMod(int a, int b) returns int|Error = @java:Method {
 # + return - Calculated unbiased exponent of the argument
 public function getExponent(float val) returns int = @java:Method {
     name: "getExponent",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -303,7 +303,7 @@ public function getExponent(float val) returns int = @java:Method {
 # + return - Calculated square root value
 public function hypot(float a, float b) returns float = @java:Method {
     name: "hypot",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Computes the remainder operation on two arguments as prescribed by the IEEE 754 standard.
@@ -316,7 +316,7 @@ public function hypot(float a, float b) returns float = @java:Method {
 # + return - Computed remainder when a is divided by b
 public function remainder(float a, float b) returns float = @java:Method {
     name: "IEEEremainder",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the natural logarithm (base e) of a float value.
@@ -328,7 +328,7 @@ public function remainder(float a, float b) returns float = @java:Method {
 # + return - Calculated natural logarithm value
 public function log(float val) returns float = @java:Method {
     name: "log",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the base 10 logarithm of a float value.
@@ -340,7 +340,7 @@ public function log(float val) returns float = @java:Method {
 # + return - Calculated base 10 logarithm of a given float value
 public function log10(float val) returns float = @java:Method {
     name: "log10",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the natural logarithm of the sum of the argument and 1.
@@ -352,7 +352,7 @@ public function log10(float val) returns float = @java:Method {
 # + return - Calculated natural log of x + 1
 public function log1p(float val) returns float = @java:Method {
     name: "log1p",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the negation of the argument.
@@ -364,7 +364,7 @@ public function log1p(float val) returns float = @java:Method {
 # + return - Calculated negation value or else `Error` if overflow occurred
 public function negateExact(int val) returns int|Error = @java:Method {
     name: "negateExact",
-    class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
 } external;
 
 # Calculates the floating-point number adjacent to the first argument in the direction of the second argument.
@@ -377,7 +377,7 @@ public function negateExact(int val) returns int|Error = @java:Method {
 # + return - Calculated floating-point number
 public function nextAfter(float a, float b) returns float = @java:Method {
     name: "nextAfter",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double", "double"]
 } external;
 
@@ -390,7 +390,7 @@ public function nextAfter(float a, float b) returns float = @java:Method {
 # + return - Calculated floating-point value
 public function nextDown(float val) returns float = @java:Method {
     name: "nextDown",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -403,7 +403,7 @@ public function nextDown(float val) returns float = @java:Method {
 # + return - Calculates floating-point value
 public function nextUp(float val) returns float = @java:Method {
     name: "nextUp",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -416,7 +416,7 @@ public function nextUp(float val) returns float = @java:Method {
 # + return - Calculated double value
 public function rint(float val) returns float = @java:Method {
     name: "rint",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the closest int to the argument, with ties rounding to positive infinity.
@@ -428,7 +428,7 @@ public function rint(float val) returns float = @java:Method {
 # + return - Calculated value of the argument rounded to the nearest int value
 public function round(float val) returns int = @java:Method {
     name: "round",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -443,7 +443,7 @@ public function round(float val) returns int = @java:Method {
 # + return - Calculated result
 public function scalb(float a, int b) returns float = @java:Method {
     name: "scalb",
-    class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
+    'class: "org.ballerinalang.stdlib.math.nativeimpl.ExternMethods"
 } external;
 
 # Calculates the signum function of the argument.
@@ -455,7 +455,7 @@ public function scalb(float a, int b) returns float = @java:Method {
 # + return - Calculated signum function of the argument
 public function signum(float val) returns float = @java:Method {
     name: "signum",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;
 
@@ -468,7 +468,7 @@ public function signum(float val) returns float = @java:Method {
 # + return - Calculated sine of the argument
 public function sin(float val) returns float = @java:Method {
     name: "sin",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the hyperbolic sine of a float value.
@@ -480,7 +480,7 @@ public function sin(float val) returns float = @java:Method {
 # + return - Calculated hyperbolic sine of a given float
 public function sinh(float val) returns float = @java:Method {
     name: "sinh",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the trigonometric tangent of an angle.
@@ -492,7 +492,7 @@ public function sinh(float val) returns float = @java:Method {
 # + return - Calculated tangent of the argument
 public function tan(float val) returns float = @java:Method {
     name: "tan",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Calculates the hyperbolic tangent of a double value.
@@ -504,7 +504,7 @@ public function tan(float val) returns float = @java:Method {
 # + return - Calculated hyperbolic tangent of x
 public function tanh(float val) returns float = @java:Method {
     name: "tanh",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Converts an angle measured in radians to an approximately equivalent angle measured in degrees.
@@ -516,7 +516,7 @@ public function tanh(float val) returns float = @java:Method {
 # + return - Measurement of the angle angrad in degrees
 public function toDegrees(float val) returns float = @java:Method {
     name: "toDegrees",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Converts an angle measured in degrees to an approximately equivalent angle measured in radians.
@@ -528,7 +528,7 @@ public function toDegrees(float val) returns float = @java:Method {
 # + return - Measurement of the angle angdeg in radians
 public function toRadians(float val) returns float = @java:Method {
     name: "toRadians",
-    class: "java.lang.Math"
+    'class: "java.lang.Math"
 } external;
 
 # Returns the size of an ulp of the argument.
@@ -540,6 +540,6 @@ public function toRadians(float val) returns float = @java:Method {
 # + return - Size of an ulp of the argument
 public function ulp(float val) returns float = @java:Method {
     name: "ulp",
-    class: "java.lang.Math",
+    'class: "java.lang.Math",
     paramTypes: ["double"]
 } external;

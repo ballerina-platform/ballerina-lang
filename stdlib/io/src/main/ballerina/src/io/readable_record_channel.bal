@@ -70,20 +70,20 @@ public type ReadableTextRecordChannel object {
 function initReadableTextRecordChannel(ReadableTextRecordChannel textChannel, ReadableCharacterChannel charChannel,
                                        string fs, string rs, string fmt) = @java:Method {
     name: "initRecordChannel",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function hasNextExtern(ReadableTextRecordChannel textChannel) returns boolean = @java:Method {
     name: "hasNext",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function getNextExtern(ReadableTextRecordChannel textChannel) returns @tainted string[]|Error = @java:Method {
     name: "getNext",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
 
 function closeReadableTextRecordChannelExtern(ReadableTextRecordChannel textChannel) returns Error? = @java:Method {
     name: "close",
-    class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
+    'class: "org.ballerinalang.stdlib.io.nativeimpl.RecordChannelUtils"
 } external;
