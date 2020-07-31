@@ -51,13 +51,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static FunctionDefinitionNode createFunctionDefinitionNode(
             MetadataNode metadata,
-            Token visibilityQualifier,
-            Token transactionalKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(functionName, "functionName must not be null");
         Objects.requireNonNull(functionSignature, "functionSignature must not be null");
@@ -65,8 +65,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stFunctionDefinitionNode = STNodeFactory.createFunctionDefinitionNode(
                 metadata.internalNode(),
-                getOptionalSTNode(visibilityQualifier),
-                getOptionalSTNode(transactionalKeyword),
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 functionName.internalNode(),
                 functionSignature.internalNode(),
@@ -2143,12 +2142,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MethodDeclarationNode createMethodDeclarationNode(
             MetadataNode metadata,
-            Token visibilityQualifier,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
             Token semicolon) {
         Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(methodName, "methodName must not be null");
         Objects.requireNonNull(methodSignature, "methodSignature must not be null");
@@ -2156,7 +2156,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stMethodDeclarationNode = STNodeFactory.createMethodDeclarationNode(
                 metadata.internalNode(),
-                getOptionalSTNode(visibilityQualifier),
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 methodName.internalNode(),
                 methodSignature.internalNode(),
@@ -2772,14 +2772,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ObjectMethodDefinitionNode createObjectMethodDefinitionNode(
             MetadataNode metadata,
-            Token visibilityQualifier,
-            Token remoteKeyword,
-            Token transactionalKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
             FunctionBodyNode functionBody) {
         Objects.requireNonNull(metadata, "metadata must not be null");
+        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
         Objects.requireNonNull(methodName, "methodName must not be null");
         Objects.requireNonNull(methodSignature, "methodSignature must not be null");
@@ -2787,9 +2786,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stObjectMethodDefinitionNode = STNodeFactory.createObjectMethodDefinitionNode(
                 metadata.internalNode(),
-                getOptionalSTNode(visibilityQualifier),
-                getOptionalSTNode(remoteKeyword),
-                getOptionalSTNode(transactionalKeyword),
+                qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
                 methodName.internalNode(),
                 methodSignature.internalNode(),

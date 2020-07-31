@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -37,32 +36,24 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         return childInBucket(0);
     }
 
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(1);
-    }
-
-    public Optional<Token> remoteKeyword() {
-        return optionalChildInBucket(2);
-    }
-
-    public Optional<Token> transactionalKeyword() {
-        return optionalChildInBucket(3);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token functionKeyword() {
-        return childInBucket(4);
+        return childInBucket(2);
     }
 
     public IdentifierToken methodName() {
-        return childInBucket(5);
+        return childInBucket(3);
     }
 
     public FunctionSignatureNode methodSignature() {
-        return childInBucket(6);
+        return childInBucket(4);
     }
 
     public FunctionBodyNode functionBody() {
-        return childInBucket(7);
+        return childInBucket(5);
     }
 
     @Override
@@ -79,9 +70,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "visibilityQualifier",
-                "remoteKeyword",
-                "transactionalKeyword",
+                "qualifierList",
                 "functionKeyword",
                 "methodName",
                 "methodSignature",
@@ -90,18 +79,14 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
 
     public ObjectMethodDefinitionNode modify(
             MetadataNode metadata,
-            Token visibilityQualifier,
-            Token remoteKeyword,
-            Token transactionalKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken methodName,
             FunctionSignatureNode methodSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -111,9 +96,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
 
         return NodeFactory.createObjectMethodDefinitionNode(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -132,9 +115,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
     public static class ObjectMethodDefinitionNodeModifier {
         private final ObjectMethodDefinitionNode oldNode;
         private MetadataNode metadata;
-        private Token visibilityQualifier;
-        private Token remoteKeyword;
-        private Token transactionalKeyword;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken methodName;
         private FunctionSignatureNode methodSignature;
@@ -143,9 +124,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         public ObjectMethodDefinitionNodeModifier(ObjectMethodDefinitionNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
-            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
-            this.remoteKeyword = oldNode.remoteKeyword().orElse(null);
-            this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.methodName = oldNode.methodName();
             this.methodSignature = oldNode.methodSignature();
@@ -159,24 +138,10 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
             return this;
         }
 
-        public ObjectMethodDefinitionNodeModifier withVisibilityQualifier(
-                Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
-            this.visibilityQualifier = visibilityQualifier;
-            return this;
-        }
-
-        public ObjectMethodDefinitionNodeModifier withRemoteKeyword(
-                Token remoteKeyword) {
-            Objects.requireNonNull(remoteKeyword, "remoteKeyword must not be null");
-            this.remoteKeyword = remoteKeyword;
-            return this;
-        }
-
-        public ObjectMethodDefinitionNodeModifier withTransactionalKeyword(
-                Token transactionalKeyword) {
-            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
-            this.transactionalKeyword = transactionalKeyword;
+        public ObjectMethodDefinitionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -211,9 +176,7 @@ public class ObjectMethodDefinitionNode extends NonTerminalNode {
         public ObjectMethodDefinitionNode apply() {
             return oldNode.modify(
                     metadata,
-                    visibilityQualifier,
-                    remoteKeyword,
-                    transactionalKeyword,
+                    qualifierList,
                     functionKeyword,
                     methodName,
                     methodSignature,

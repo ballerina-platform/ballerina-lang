@@ -32,9 +32,7 @@ import java.util.Collections;
  */
 public class STObjectMethodDefinitionNode extends STNode {
     public final STNode metadata;
-    public final STNode visibilityQualifier;
-    public final STNode remoteKeyword;
-    public final STNode transactionalKeyword;
+    public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode methodName;
     public final STNode methodSignature;
@@ -42,18 +40,14 @@ public class STObjectMethodDefinitionNode extends STNode {
 
     STObjectMethodDefinitionNode(
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
             STNode functionBody) {
         this(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -63,9 +57,7 @@ public class STObjectMethodDefinitionNode extends STNode {
 
     STObjectMethodDefinitionNode(
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -73,9 +65,7 @@ public class STObjectMethodDefinitionNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.OBJECT_METHOD_DEFINITION, diagnostics);
         this.metadata = metadata;
-        this.visibilityQualifier = visibilityQualifier;
-        this.remoteKeyword = remoteKeyword;
-        this.transactionalKeyword = transactionalKeyword;
+        this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.methodName = methodName;
         this.methodSignature = methodSignature;
@@ -83,9 +73,7 @@ public class STObjectMethodDefinitionNode extends STNode {
 
         addChildren(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -95,9 +83,7 @@ public class STObjectMethodDefinitionNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STObjectMethodDefinitionNode(
                 this.metadata,
-                this.visibilityQualifier,
-                this.remoteKeyword,
-                this.transactionalKeyword,
+                this.qualifierList,
                 this.functionKeyword,
                 this.methodName,
                 this.methodSignature,
@@ -107,18 +93,14 @@ public class STObjectMethodDefinitionNode extends STNode {
 
     public STObjectMethodDefinitionNode modify(
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
             STNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -128,9 +110,7 @@ public class STObjectMethodDefinitionNode extends STNode {
 
         return new STObjectMethodDefinitionNode(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,

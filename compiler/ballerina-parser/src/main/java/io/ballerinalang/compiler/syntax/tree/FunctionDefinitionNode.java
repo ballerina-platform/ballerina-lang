@@ -20,7 +20,6 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -37,28 +36,24 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         return childInBucket(0);
     }
 
-    public Optional<Token> visibilityQualifier() {
-        return optionalChildInBucket(1);
-    }
-
-    public Optional<Token> transactionalKeyword() {
-        return optionalChildInBucket(2);
+    public NodeList<Token> qualifierList() {
+        return new NodeList<>(childInBucket(1));
     }
 
     public Token functionKeyword() {
-        return childInBucket(3);
+        return childInBucket(2);
     }
 
     public IdentifierToken functionName() {
-        return childInBucket(4);
+        return childInBucket(3);
     }
 
     public FunctionSignatureNode functionSignature() {
-        return childInBucket(5);
+        return childInBucket(4);
     }
 
     public FunctionBodyNode functionBody() {
-        return childInBucket(6);
+        return childInBucket(5);
     }
 
     @Override
@@ -75,8 +70,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
-                "visibilityQualifier",
-                "transactionalKeyword",
+                "qualifierList",
                 "functionKeyword",
                 "functionName",
                 "functionSignature",
@@ -85,16 +79,14 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
 
     public FunctionDefinitionNode modify(
             MetadataNode metadata,
-            Token visibilityQualifier,
-            Token transactionalKeyword,
+            NodeList<Token> qualifierList,
             Token functionKeyword,
             IdentifierToken functionName,
             FunctionSignatureNode functionSignature,
             FunctionBodyNode functionBody) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList.underlyingListNode(),
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -104,8 +96,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createFunctionDefinitionNode(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -124,8 +115,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     public static class FunctionDefinitionNodeModifier {
         private final FunctionDefinitionNode oldNode;
         private MetadataNode metadata;
-        private Token visibilityQualifier;
-        private Token transactionalKeyword;
+        private NodeList<Token> qualifierList;
         private Token functionKeyword;
         private IdentifierToken functionName;
         private FunctionSignatureNode functionSignature;
@@ -134,8 +124,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         public FunctionDefinitionNodeModifier(FunctionDefinitionNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata();
-            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
-            this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
+            this.qualifierList = oldNode.qualifierList();
             this.functionKeyword = oldNode.functionKeyword();
             this.functionName = oldNode.functionName();
             this.functionSignature = oldNode.functionSignature();
@@ -149,17 +138,10 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
             return this;
         }
 
-        public FunctionDefinitionNodeModifier withVisibilityQualifier(
-                Token visibilityQualifier) {
-            Objects.requireNonNull(visibilityQualifier, "visibilityQualifier must not be null");
-            this.visibilityQualifier = visibilityQualifier;
-            return this;
-        }
-
-        public FunctionDefinitionNodeModifier withTransactionalKeyword(
-                Token transactionalKeyword) {
-            Objects.requireNonNull(transactionalKeyword, "transactionalKeyword must not be null");
-            this.transactionalKeyword = transactionalKeyword;
+        public FunctionDefinitionNodeModifier withQualifierList(
+                NodeList<Token> qualifierList) {
+            Objects.requireNonNull(qualifierList, "qualifierList must not be null");
+            this.qualifierList = qualifierList;
             return this;
         }
 
@@ -194,8 +176,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         public FunctionDefinitionNode apply() {
             return oldNode.modify(
                     metadata,
-                    visibilityQualifier,
-                    transactionalKeyword,
+                    qualifierList,
                     functionKeyword,
                     functionName,
                     functionSignature,

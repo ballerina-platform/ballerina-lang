@@ -48,14 +48,9 @@
                     "type": "MetadataNode"
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -2912,9 +2907,9 @@
                     "type": "MetadataNode"
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -3756,19 +3751,9 @@
                     "type": "MetadataNode"
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",

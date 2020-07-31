@@ -49,8 +49,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createFunctionDefinitionNode(
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode functionName,
             STNode functionSignature,
@@ -58,8 +57,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STFunctionDefinitionNode(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -1611,7 +1609,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createMethodDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -1619,7 +1617,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STMethodDeclarationNode(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2080,9 +2078,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createObjectMethodDefinitionNode(
             STNode metadata,
-            STNode visibilityQualifier,
-            STNode remoteKeyword,
-            STNode transactionalKeyword,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -2090,9 +2086,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STObjectMethodDefinitionNode(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,

@@ -379,7 +379,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseKeyConstraint((STNode) args[0]);
             case FUNCTION_KEYWORD_RHS:
                 return parseFunctionKeywordRhs((STNode) args[0], (STNode) args[1], (boolean) args[2], (boolean) args[3],
-                        (STNode[]) args[4]);
+                        (List<STNode>) args[4]);
             case RETURNS_KEYWORD:
                 return parseReturnsKeyword();
             case NEW_KEYWORD:
@@ -1337,7 +1337,9 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTIONAL_KEYWORD:
                 // ANything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
-                return parseFuncDefOrFuncTypeDesc(metadata, false, getQualifier(qualifier), null);
+                List<STNode> qualifiers = new ArrayList<>();
+                qualifiers.add(qualifier);
+                return parseFuncDefOrFuncTypeDesc(metadata, false, qualifiers);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
@@ -1434,8 +1436,7 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
-    private STNode parseFuncDefinition(STNode metadata, boolean isObjectMethod, STNode... qualifiers) {
-        parseTransactionalQUalifier(qualifiers);
+    private STNode parseFuncDefinition(STNode metadata, boolean isObjectMethod, List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_DEF);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcDef = parseFunctionKeywordRhs(metadata, functionKeyword, true, isObjectMethod, qualifiers);
@@ -1452,33 +1453,26 @@ public class BallerinaParser extends AbstractParser {
      * </code>
      *
      * @param metadata Metadata
-     * @param visibilityQualifier Visibility qualifier
+     * @param qualifiers qualifier list
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, boolean isObjectMethod, STNode... qualifiers) {
-        parseTransactionalQUalifier(qualifiers);
+    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, boolean isObjectMethod, List<STNode> qualifiers) {
+        if (peek().kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
+            qualifiers.add(consume());
+        }
         startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcDefOrType = parseFunctionKeywordRhs(metadata, functionKeyword, false, isObjectMethod, qualifiers);
         return funcDefOrType;
     }
 
-    private void parseTransactionalQUalifier(STNode... qualifiers) {
-        // TODO: This is a hack. Properly implement this.
-        if (peek().kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
-            qualifiers[qualifiers.length - 1] = consume();
-        } else {
-            qualifiers[qualifiers.length - 1] = STNodeFactory.createEmptyNode();
-        }
-    }
-
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode functionKeyword, boolean isFuncDef,
-                                           boolean isObjectMethod, STNode... qualifiers) {
+                                           boolean isObjectMethod, List<STNode> qualifiers) {
         return parseFunctionKeywordRhs(peek().kind, metadata, functionKeyword, isFuncDef, isObjectMethod, qualifiers);
     }
 
     private STNode parseFunctionKeywordRhs(SyntaxKind nextTokenKind, STNode metadata, STNode functionKeyword,
-                                           boolean isFuncDef, boolean isObjectMethod, STNode... qualifiers) {
+                                           boolean isFuncDef, boolean isObjectMethod, List<STNode> qualifiers) {
         STNode name;
         switch (nextTokenKind) {
             case IDENTIFIER_TOKEN:
@@ -1516,19 +1510,20 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode createFuncDefOrMethodDecl(STNode metadata, STNode functionKeyword, boolean isObjectMethod,
-                                             STNode name, STNode funcSignature, STNode... qualifiers) {
+                                             STNode name, STNode funcSignature, List<STNode> qualifiers) {
         STNode body = parseFunctionBody(isObjectMethod);
+        STNode qualifierList = STNodeFactory.createNodeList(qualifiers);
         if (body.kind == SyntaxKind.SEMICOLON_TOKEN) {
-            return STNodeFactory.createMethodDeclarationNode(metadata, qualifiers[0], functionKeyword, name,
+            return STNodeFactory.createMethodDeclarationNode(metadata, qualifierList, functionKeyword, name,
                     funcSignature, body);
         }
 
         if (isObjectMethod) {
-            return STNodeFactory.createObjectMethodDefinitionNode(metadata, qualifiers[0], qualifiers[1], qualifiers[2],
+            return STNodeFactory.createObjectMethodDefinitionNode(metadata, qualifierList,
                     functionKeyword, name, funcSignature, body);
         }
 
-        return STNodeFactory.createFunctionDefinitionNode(metadata, qualifiers[0], qualifiers[1], functionKeyword, name,
+        return STNodeFactory.createFunctionDefinitionNode(metadata, qualifierList, functionKeyword, name,
                 funcSignature, body);
     }
 
@@ -1554,7 +1549,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseReturnTypeDescRhs(STNode metadata, STNode functionKeyword, STNode funcSignature,
-                                          boolean isObjectMethod, STNode... qualifiers) {
+                                          boolean isObjectMethod, List<STNode> qualifiers) {
         switch (peek().kind) {
             // var-decl with function type
             case SEMICOLON_TOKEN:
@@ -1568,12 +1563,12 @@ public class BallerinaParser extends AbstractParser {
                 if (isObjectMethod) {
                     STNode readonlyQualifier = STNodeFactory.createEmptyNode();
                     STNode fieldName = parseVariableName();
-                    return parseObjectFieldRhs(metadata, qualifiers[0], readonlyQualifier, typeDesc, fieldName);
+                    return parseObjectFieldRhs(metadata, qualifiers.get(0), readonlyQualifier, typeDesc, fieldName);
                 }
 
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
-                return parseVarDeclRhs(metadata, qualifiers[0], typedBindingPattern, true);
+                return parseVarDeclRhs(metadata, qualifiers.get(0), typedBindingPattern, true);
             case OPEN_BRACE_TOKEN: // function body block
             case EQUAL_TOKEN: // external function
                 break;
@@ -5481,7 +5476,7 @@ public class BallerinaParser extends AbstractParser {
             case PRIVATE_KEYWORD:
             case REMOTE_KEYWORD:
             case FUNCTION_KEYWORD:
-            case TRANSACTION_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
                 metadata = createEmptyMetadata();
                 break;
             case DOCUMENTATION_STRING:
@@ -5533,7 +5528,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                member = parseObjectMethod(metadata, STNodeFactory.createEmptyNode(), STNodeFactory.createEmptyNode());
+                member = parseObjectMethod(metadata, new ArrayList<>());
                 break;
             default:
                 if (isTypeStartingToken(nextTokenKind)) {
@@ -5577,14 +5572,16 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseObjectMethodOrField(SyntaxKind nextTokenKind, SyntaxKind nextNextTokenKind, STNode metadata,
                                             STNode visibilityQualifier) {
+        List<STNode> qualifiers = new ArrayList<>();
         switch (nextTokenKind) {
             case REMOTE_KEYWORD:
                 STNode remoteKeyword = parseRemoteKeyword();
-                return parseObjectMethod(metadata, visibilityQualifier, remoteKeyword);
+                qualifiers.add(remoteKeyword);
+                //Fall through
             case FUNCTION_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                remoteKeyword = STNodeFactory.createEmptyNode();
-                return parseObjectMethod(metadata, visibilityQualifier, remoteKeyword);
+                qualifiers.add(visibilityQualifier);
+                return parseObjectMethod(metadata, qualifiers);
 
             // All 'type starting tokens' here. should be same as 'parseTypeDescriptor(...)'
             case IDENTIFIER_TOKEN:
@@ -5753,8 +5750,8 @@ public class BallerinaParser extends AbstractParser {
                 equalsToken, expression, semicolonToken);
     }
 
-    private STNode parseObjectMethod(STNode metadata, STNode visibilityQualifier, STNode remoteKeyword) {
-        return parseFuncDefOrFuncTypeDesc(metadata, true, visibilityQualifier, remoteKeyword, null);
+    private STNode parseObjectMethod(STNode metadata, List<STNode> qualifiers) {
+        return parseFuncDefOrFuncTypeDesc(metadata, true, qualifiers);
     }
 
     /**
@@ -6813,16 +6810,17 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseResource(SyntaxKind nextTokenKind, STNode metadata) {
+        List<STNode> qualifiers = new ArrayList<>();
         switch (nextTokenKind) {
             case RESOURCE_KEYWORD:
-                STNode resourceKeyword = parseResourceKeyword();
-                return parseFuncDefinition(metadata, false, resourceKeyword, null);
+                qualifiers.add(parseResourceKeyword());
+                break;
             case TRANSACTIONAL_KEYWORD:
-                STNode transactionalKeyword = parseTransactionalKeyword();
-                STNode resourceKey = parseResourceKeyword();
-                return parseFuncDefinition(metadata, false, resourceKey, transactionalKeyword, null);
+                qualifiers.add(parseTransactionalKeyword());
+                qualifiers.add(parseResourceKeyword());
+                break;
             case FUNCTION_KEYWORD:
-                return parseFuncDefinition(metadata, false, STNodeFactory.createEmptyNode(), null);
+                break;
             default:
                 STToken token = peek();
                 Solution solution = recover(token, ParserRuleContext.RESOURCE_DEF, metadata);
@@ -6836,6 +6834,7 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseResource(solution.tokenKind, metadata);
         }
+        return parseFuncDefinition(metadata, false, qualifiers);
     }
 
     /**

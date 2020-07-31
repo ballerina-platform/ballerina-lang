@@ -43,16 +43,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STFunctionDefinitionNode transform(
             STFunctionDefinitionNode functionDefinitionNode) {
         STNode metadata = modifyNode(functionDefinitionNode.metadata);
-        STNode visibilityQualifier = modifyNode(functionDefinitionNode.visibilityQualifier);
-        STNode transactionalKeyword = modifyNode(functionDefinitionNode.transactionalKeyword);
+        STNode qualifierList = modifyNode(functionDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(functionDefinitionNode.functionKeyword);
         STNode functionName = modifyNode(functionDefinitionNode.functionName);
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
         STNode functionBody = modifyNode(functionDefinitionNode.functionBody);
         return functionDefinitionNode.modify(
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -1726,14 +1724,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STMethodDeclarationNode transform(
             STMethodDeclarationNode methodDeclarationNode) {
         STNode metadata = modifyNode(methodDeclarationNode.metadata);
-        STNode visibilityQualifier = modifyNode(methodDeclarationNode.visibilityQualifier);
+        STNode qualifierList = modifyNode(methodDeclarationNode.qualifierList);
         STNode functionKeyword = modifyNode(methodDeclarationNode.functionKeyword);
         STNode methodName = modifyNode(methodDeclarationNode.methodName);
         STNode methodSignature = modifyNode(methodDeclarationNode.methodSignature);
         STNode semicolon = modifyNode(methodDeclarationNode.semicolon);
         return methodDeclarationNode.modify(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2238,18 +2236,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STObjectMethodDefinitionNode transform(
             STObjectMethodDefinitionNode objectMethodDefinitionNode) {
         STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
-        STNode visibilityQualifier = modifyNode(objectMethodDefinitionNode.visibilityQualifier);
-        STNode remoteKeyword = modifyNode(objectMethodDefinitionNode.remoteKeyword);
-        STNode transactionalKeyword = modifyNode(objectMethodDefinitionNode.transactionalKeyword);
+        STNode qualifierList = modifyNode(objectMethodDefinitionNode.qualifierList);
         STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
         STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
         STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
         STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
         return objectMethodDefinitionNode.modify(
                 metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
