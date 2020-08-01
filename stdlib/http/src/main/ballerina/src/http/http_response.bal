@@ -191,7 +191,7 @@ public type Response object {
         if (result is error) {
             return result;
         } else {
-            var payload = result.getJson();
+            var payload = externGetJson(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -213,7 +213,7 @@ public type Response object {
         if (result is error) {
             return result;
         } else {
-            var payload = result.getXml();
+            var payload = externGetXml(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -235,7 +235,7 @@ public type Response object {
         if (result is error) {
             return result;
         } else {
-            var payload = result.getText();
+            var payload = externGetText(result);
             if (payload is mime:Error) {
                 if (payload.cause() is mime:NoContentError) {
                     return createErrorForNoPayload(payload);
@@ -258,7 +258,7 @@ public type Response object {
         if (result is error) {
             return result;
         } else {
-            var payload = result.getByteChannel();
+            var payload = externGetByteChannel(result);
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the byte channel from the response";
                 return GenericClientError(message, payload);
@@ -276,7 +276,7 @@ public type Response object {
         if (result is error) {
             return result;
         } else {
-            var payload = result.getByteArray();
+            var payload = externGetByteArray(result);
             if (payload is mime:Error) {
                 string message = "Error occurred while retrieving the binary payload from the response";
                 return GenericClientError(message, payload);
