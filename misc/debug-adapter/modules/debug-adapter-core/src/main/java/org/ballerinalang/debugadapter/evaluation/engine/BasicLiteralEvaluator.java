@@ -32,10 +32,12 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
 public class BasicLiteralEvaluator extends Evaluator {
 
     private final BasicLiteralNode syntaxNode;
+    private final String literalString;
 
     public BasicLiteralEvaluator(SuspendedContext context, BasicLiteralNode node) {
         super(context);
         this.syntaxNode = node;
+        this.literalString = node.toSourceCode().trim();
     }
 
     @Override
@@ -45,21 +47,21 @@ public class BasicLiteralEvaluator extends Evaluator {
             // int literal
             case DECIMAL_INTEGER_LITERAL:
             case HEX_INTEGER_LITERAL:
-                return EvaluationUtils.make(context, Long.parseLong(syntaxNode.toString()));
+                return EvaluationUtils.make(context, Long.parseLong(literalString));
             // float literal
             case DECIMAL_FLOATING_POINT_LITERAL:
             case HEX_FLOATING_POINT_LITERAL:
-                return EvaluationUtils.make(context, Double.parseDouble(syntaxNode.toString()));
+                return EvaluationUtils.make(context, Double.parseDouble(literalString));
             // boolean literal
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
-                return EvaluationUtils.make(context, Boolean.parseBoolean(syntaxNode.toString()));
+                return EvaluationUtils.make(context, Boolean.parseBoolean(literalString));
             // string literal
             case STRING_LITERAL:
-                return EvaluationUtils.make(context, syntaxNode.toString());
+                return EvaluationUtils.make(context, literalString);
             default:
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                        "Unsupported basic literal detected: " + syntaxNode.toString()));
+                        "Unsupported basic literal detected: " + literalString));
         }
     }
 }

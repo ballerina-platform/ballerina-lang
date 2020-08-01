@@ -23,10 +23,8 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
-import com.sun.jdi.VirtualMachine;
 import com.sun.tools.jdi.ConcreteMethodImpl;
 import io.ballerinalang.compiler.syntax.tree.Node;
-import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 
 import java.util.ArrayList;
@@ -70,11 +68,6 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load required classes to execute the function: " + syntaxNode.toString()));
         }
-    }
-
-    public static BExpressionValue performOperation(VirtualMachine vm, BExpressionValue lhs, BExpressionValue rhs,
-                                                    Token token) throws EvaluationException {
-        return lhs;
     }
 
     public static BExpressionValue make(SuspendedContext context, boolean val) {

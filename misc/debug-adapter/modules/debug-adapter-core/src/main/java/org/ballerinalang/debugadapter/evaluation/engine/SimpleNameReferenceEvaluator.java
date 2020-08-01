@@ -24,26 +24,37 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
+/**
+ * Simple name reference evaluator implementation.
+ *
+ * @since 2.0.0
+ */
 public class SimpleNameReferenceEvaluator extends Evaluator {
 
     private final SimpleNameReferenceNode syntaxNode;
+    private final String nameRef;
 
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
         this.syntaxNode = node;
+        this.nameRef = node.toSourceCode().trim();
     }
 
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            LocalVariable jvmVar = context.getFrame().visibleVariableByName(syntaxNode.toString());
+            LocalVariable jvmVar = context.getFrame().visibleVariableByName(nameRef);
+            if (jvmVar == null) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
+                        syntaxNode.toString()));
+            }
             return new BExpressionValue(context, context.getFrame().getValue(jvmVar));
         } catch (AbsentInformationException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
-                    syntaxNode.toString()));
+                    nameRef));
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR.getString(),
-                    syntaxNode.toString()));
+                    nameRef));
         }
     }
 }

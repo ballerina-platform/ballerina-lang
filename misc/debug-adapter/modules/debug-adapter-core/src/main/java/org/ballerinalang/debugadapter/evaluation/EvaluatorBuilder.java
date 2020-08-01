@@ -170,7 +170,8 @@ public class EvaluatorBuilder extends NodeVisitor {
         if (unsupportedSyntaxDetected()) {
             final StringJoiner errors = new StringJoiner(System.lineSeparator());
             unsupportedNodes.forEach(node -> errors.add(String.format("%s - %s", node.toString(), node.kind())));
-            throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED.getString(), errors));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
+                    errors));
         }
         if (result == null) {
             throw builderException;
