@@ -375,11 +375,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
             { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
 
-    private static final ParserRuleContext[] QUERY_PIPELINE_RHS =
-            { ParserRuleContext.QUERY_EXPRESSION_RHS, ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE,
-                    ParserRuleContext.LET_CLAUSE, ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE
-//                    ParserRuleContext.DO_CLAUSE,ParserRuleContext.QUERY_EXPRESSION_END
-            };
+    private static final ParserRuleContext[] QUERY_PIPELINE_RHS = { ParserRuleContext.QUERY_EXPRESSION_RHS,
+            ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE,
+            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.QUERY_ACTION_RHS };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -2434,7 +2432,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ARG_LIST:
                 return ParserRuleContext.ARG_START_OR_ARG_LIST_END;
             case QUERY_EXPRESSION_END:
-                endContext(); // end select, on-conflict or limit clause ctx
+                endContext(); // end select, on-conflict, limit or do-clause ctx
                 endContext(); // end query-expr ctx
                 return ParserRuleContext.EXPRESSION_RHS;
             case JOIN_CLAUSE_END:
@@ -2480,8 +2478,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ON_CONFLICT_CLAUSE:
                 return ParserRuleContext.ON_KEYWORD;
             case LIMIT_CLAUSE:
-                // We assume limit-clause is only used in query-expr
-                endContext(); // end select-clause or on-conflict-clause
+                // We assume limit-clause is only used in query-action-or-expr
+                endContext(); // end select-clause, on-conflict-clause or do-clause
                 endContext(); // end query-expr
                 return ParserRuleContext.LIMIT_KEYWORD;
             case JOIN_CLAUSE:
@@ -2498,6 +2496,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                 }
                 return ParserRuleContext.SELECT_CLAUSE;
+            case QUERY_ACTION_RHS:
+                return ParserRuleContext.DO_CLAUSE;
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
                 return ParserRuleContext.TABLE_CONSTRUCTOR_OR_QUERY_START;
             case BITWISE_AND_OPERATOR:
@@ -3498,9 +3498,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MULTI_RECEIVE_WORKERS:
             case MULTI_WAIT_FIELDS:
             case SERVICE_CONSTRUCTOR_EXPRESSION:
-            case DO_CLAUSE:
                 endContext();
                 return ParserRuleContext.EXPRESSION_RHS;
+            case DO_CLAUSE:
+                STToken nextToken = this.tokenReader.peek(nextLookahead);
+                if (nextToken.kind == SyntaxKind.LIMIT_KEYWORD) {
+                    return ParserRuleContext.LIMIT_CLAUSE;
+                }
+                return ParserRuleContext.QUERY_EXPRESSION_END;
             case ENUM_MEMBER_LIST:
                 endContext(); // end ENUM_MEMBER_LIST context
                 endContext(); // end MODULE_ENUM_DECLARATION ctx

@@ -287,6 +287,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_ARRAY_LENGTH("BCE501", "error.invalid.array.length"),
     ERROR_SELECT_CLAUSE_IN_QUERY_ACTION("BCE502", "error.select.clause.in.query.action"),
     ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE("BCE503", "error.more.clauses.after.select.clause"),
+    ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION("BCE504", "error.query.construct.type.in.query.action"),
 
     ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP("BCE601", "error.no.whitespaces.allowed.in.right.shift.op"),
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",

@@ -10344,10 +10344,9 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (peek().kind == SyntaxKind.DO_KEYWORD) {
-            // TODO: log error for invalid query construct type inside parseQueryAction
             STNode intermediateClauses = STNodeFactory.createNodeList(clauses);
             STNode queryPipeline = STNodeFactory.createQueryPipelineNode(fromClause, intermediateClauses);
-            return parseQueryAction(queryPipeline, selectClause, isRhsExpr);
+            return parseQueryAction(queryConstructType, queryPipeline, selectClause, isRhsExpr);
         }
 
         if (selectClause == null) {
@@ -11684,11 +11683,17 @@ public class BallerinaParser extends AbstractParser {
      * do-clause := do block-stmt
      * </code>
      *
+     * @param queryConstructType Query construct type. This is only for validation
      * @param queryPipeline Query pipeline
      * @param selectClause Select clause if any This is only for validation.
      * @return Query action node
      */
-    private STNode parseQueryAction(STNode queryPipeline, STNode selectClause, boolean isRhsExpr) {
+    private STNode parseQueryAction(STNode queryConstructType, STNode queryPipeline, STNode selectClause,
+                                    boolean isRhsExpr) {
+        if (queryConstructType != null) {
+            queryPipeline = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(queryPipeline, queryConstructType,
+                    DiagnosticErrorCode.ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION);
+        }
         if (selectClause != null) {
             queryPipeline = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(queryPipeline, selectClause,
                     DiagnosticErrorCode.ERROR_SELECT_CLAUSE_IN_QUERY_ACTION);

@@ -249,6 +249,7 @@ public enum ParserRuleContext {
     ON_CONFLICT_CLAUSE("on-conflict-clause"),
     LIMIT_CLAUSE("limit-clause"),
     ON_CLAUSE("on-clause"),
+    QUERY_ACTION_RHS("query-action-rhs"),
 
     // Statements
     STATEMENT("statement"),
