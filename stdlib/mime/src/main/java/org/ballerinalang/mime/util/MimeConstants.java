@@ -160,7 +160,6 @@ public class MimeConstants {
 
     public static final int FIRST_ELEMENT = 0;
 
-    public static final short ONE_BYTE = 1;
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final double MAX_THRESHOLD_PERCENTAGE = 0.1;
 

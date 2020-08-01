@@ -110,6 +110,7 @@ import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_TRAILER_HEADERS;
+import static org.ballerinalang.mime.util.MimeConstants.INVALID_CONTENT_LENGTH_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.OCTET_STREAM;
@@ -141,6 +142,8 @@ import static org.ballerinalang.net.http.HttpConstants.LISTENER_CONFIGURATION;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_CERTIFICATE;
 import static org.ballerinalang.net.http.HttpConstants.MUTUAL_SSL_HANDSHAKE_RECORD;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
+import static org.ballerinalang.net.http.HttpConstants.NO_CONTENT_LENGTH_FOUND;
+import static org.ballerinalang.net.http.HttpConstants.ONE_BYTE;
 import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
 import static org.ballerinalang.net.http.HttpConstants.PKCS_STORE_TYPE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_HTTPS;
@@ -277,7 +280,7 @@ public class HttpUtil {
             MultipartDecoder.parseBody(entityObj, contentType,
                                        new HttpMessageDataStreamer(httpCarbonMessage).getInputStream());
         } else {
-            long contentLength = MimeUtil.extractContentLength(httpCarbonMessage);
+            long contentLength = HttpUtil.extractContentLength(httpCarbonMessage);
             if (contentLength > 0) {
                 if (streaming) {
                     entityObj.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
@@ -294,6 +297,27 @@ public class HttpUtil {
         }
         messageObj.set(request ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD, entityObj);
         messageObj.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+    }
+
+    /**
+     * Given a {@link HttpCarbonMessage}, returns the content length extracting from headers.
+     *
+     * @param httpCarbonMessage Represent the message
+     * @return length of the content
+     */
+    public static long extractContentLength(HttpCarbonMessage httpCarbonMessage) {
+        long contentLength = NO_CONTENT_LENGTH_FOUND;
+        String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        try {
+            contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
+            if (contentLength == NO_CONTENT_LENGTH_FOUND) {
+                //Read one byte to make sure the incoming stream has data
+                contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
+            }
+        } catch (NumberFormatException e) {
+            throw MimeUtil.createError(INVALID_CONTENT_LENGTH_ERROR, "Invalid content length");
+        }
+        return contentLength;
     }
 
     public static ObjectValue extractEntity(ObjectValue request) {
