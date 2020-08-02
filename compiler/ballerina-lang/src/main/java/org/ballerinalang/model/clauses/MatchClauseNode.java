@@ -26,7 +26,7 @@ import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import java.util.List;
 
 public interface MatchClauseNode extends Node {
-    // TODO : add getters and setters from match-pattern-list
+
     MatchGuard getMatchGuard();
 
     void setMatchGuard(MatchGuard matchGuard);

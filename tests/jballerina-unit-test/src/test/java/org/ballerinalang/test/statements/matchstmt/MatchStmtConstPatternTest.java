@@ -24,7 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-public class MatchStmtConstPattern {
+public class MatchStmtConstPatternTest {
 
     private CompileResult result, resultNegative;
 
