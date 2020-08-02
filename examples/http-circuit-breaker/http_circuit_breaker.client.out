@@ -1,5 +1,5 @@
 # The first two requests complete without any errors.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -17,7 +17,7 @@ $ curl -v http://localhost:9090/cb
 * Connection #0 to host localhost left intact
 Hello World!!!
 
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -38,7 +38,7 @@ Hello World!!!
 # The third request responds with a `500 Internal Server Error` because the
 # mock service sends a `500` http status code when responding to every third
 # request.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -58,7 +58,7 @@ Internal error occurred while processing the request.
 
 # Subsequent requests fail immediately since the reset timeout period has not
 # elapsed.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -76,7 +76,7 @@ $ curl -v http://localhost:9090/cb
 * Connection #0 to host localhost left intact
 Upstream service unavailable. Requests to upstream service will be suspended for 8340 milliseconds.
 
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -94,7 +94,7 @@ $ curl -v http://localhost:9090/cb
 * Connection #0 to host localhost left intact
 Upstream service unavailable. Requests to upstream service will be suspended for 6079 milliseconds.
 
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -116,7 +116,7 @@ Upstream service unavailable. Requests to upstream service will be suspended for
 # request. It is sent to see if the backend service is back to normal.
 # If this request is successful, the circuit is set to `close` and normal
 # functionality resumes.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -136,7 +136,7 @@ Hello World!!!
 
 # The fifth request times out because the mock service times out when
 # responding to every fifth request.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -156,7 +156,7 @@ Idle timeout triggered before initiating inbound response
 
 # Subsequent requests fail immediately since the reset timeout period has not
 # elapsed.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -178,7 +178,7 @@ Upstream service unavailable. Requests to upstream service will be suspended for
 # request. It is sent to see if the backend service is back to normal.
 # If this request is successful, the circuit is set to `close` and normal
 # functionality resumes.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)
@@ -198,7 +198,7 @@ Hello World!!!
 
 # Since the immediate request after the timeout expired was successful, the
 # requests sent after that complete normally.
-$ curl -v http://localhost:9090/cb
+curl -v http://localhost:9090/cb
 *   Trying ::1...
 * TCP_NODELAY set
 * Connected to localhost (::1) port 9090 (#0)

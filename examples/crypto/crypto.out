@@ -1,7 +1,7 @@
 # To run this sample, navigate to the directory that contains the
 # `.bal` file, make sure `sampleKeystore.p12` file is present in the
 # same folder and issue the `ballerina run` command.
-$ ballerina run crypto.bal
+ballerina run crypto.bal
 Hex encoded hash with MD5: 0605402ee16d8e96511a58ff105bc24a
 Base64 encoded hash with SHA1: /8fwbGIevBvv2Nl3gEL9DtWas+Q=
 Hex encoded hash with SHA256: a984a643c350b17f0738bac0fef17f2cd91d91e04596351d0

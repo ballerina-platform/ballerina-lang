@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run http_client_endpoint.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run http_client_endpoint.bal
 GET request:
 {"args":{"test":"123"}, "headers":{"x-forwarded-proto":"https", "host":"postman-echo.com", "user-agent":"ballerina/1.0.0-beta", "x-forwarded-port":"80"}, "url":"https://postman-echo.com/get?test=123"}
 

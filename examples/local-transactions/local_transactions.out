@@ -2,8 +2,8 @@
 # Before running this sample, change the H2 DB connection properties as required.
 
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental local_transactions.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run --experimental local_transactions.bal
 [ballerina/http] started HTTP/WS listener 172.17.0.1:49479
 Create CUSTOMER table status: 0
 Create SALARY table status: 0

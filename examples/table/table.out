@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run table.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run table.bal
 Table Information: id=1 name=Mary salary=300.5 id=2 name=John salary=200.5 id=3 name=Jim salary=330.5
 Adding record to table successful
 Adding record to table successful

@@ -143,7 +143,10 @@ public type SecureSocket record {|
 |};
 
 # Represets the LDAP connection.
+#
+# + instanceId - Instance ID of the endpoint
 public type LdapConnection record {|
+    string instanceId;
 |};
 
 # Retrieves the group(s) of the user related to the provided username.

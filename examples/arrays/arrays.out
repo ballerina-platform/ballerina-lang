@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run arrays.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run arrays.bal
 0
 1
 8
