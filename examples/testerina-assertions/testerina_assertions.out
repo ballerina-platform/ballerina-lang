@@ -1,5 +1,5 @@
 # For the moment `ballerina test` works only in projects.
-$ ballerina test test_module
+ballerina test test_module
 Compiling source
         ballerinatest/test_module:0.1.0
 

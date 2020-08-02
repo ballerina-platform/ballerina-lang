@@ -134,11 +134,10 @@ public class Writer {
                 return newDescription;
             });
 
-            handlebars.registerHelper("removePTags", (Helper<String>) (string, options) -> {
-                //remove paragraph tags
+            handlebars.registerHelper("removeTags", (Helper<String>) (string, options) -> {
+                //remove html tags
                 if (string != null) {
-                    String newString = string.replaceAll("<\\/?p>", "");
-                    return newString;
+                    return string.replaceAll("<\\/?[^>]*>", "");
                 } else {
                     return "";
                 }
@@ -202,6 +201,13 @@ public class Writer {
         } else if (type.isArrayType) {
             label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
                     + "</span>";
+        } else if (type.isRestParam) {
+            label = "<span class=\"array-type\">" + getTypeLabel(type.elementType, context) + getSuffixes(type)
+                    + "</span>";
+        } else if ("map".equals(type.category) && type.constraint != null) {
+            // set map constraint
+            label = "<span class=\"builtin-type\">" + type.name + "</span><" +
+                    getTypeLabel(type.constraint, context) + ">";
         } else if ("stream".equals(type.category)) {
             label = "<span class=\"builtin-type\">" + type.name + "<";
             label += type.memberTypes.stream()
@@ -240,7 +246,12 @@ public class Writer {
     }
 
     private static String getSuffixes(Type type) {
-        String suffix = type.isArrayType ? StringUtils.repeat("[]", type.arrayDimensions) : "";
+        String suffix = "";
+        if (type.isArrayType) {
+            suffix = StringUtils.repeat("[]", type.arrayDimensions);
+        } else if (type.isRestParam) {
+            suffix = "...";
+        }
         suffix += type.isNullable ? "?" : "";
         return suffix;
     }

@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run jdbc2_complex_type_queries.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run jdbc2_complex_type_queries.bal
 
 ------ Query Binary Type -------
 Result 1:

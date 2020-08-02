@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
@@ -68,6 +69,8 @@ public class Type {
     @Expose
     public boolean isTuple;
     @Expose
+    public boolean isRestParam;
+    @Expose
     public boolean isLambda;
     @Expose
     public boolean isDeprecated;
@@ -83,6 +86,8 @@ public class Type {
     public Type elementType;
     @Expose
     public Type returnType;
+    @Expose
+    public Type constraint;
 
     private Type() {
     }
@@ -184,6 +189,9 @@ public class Type {
                 memberTypeNodes.add(Type.fromTypeNode(((BLangStreamType) type).error, currentModule));
             }
             typeModel.memberTypes = memberTypeNodes;
+        } else if (type instanceof BLangConstrainedType) {
+            typeModel = new Type(type, currentModule);
+            typeModel.constraint = Type.fromTypeNode(((BLangConstrainedType) type).constraint, currentModule);
         }
         if (typeModel == null) {
             typeModel = new Type(type, currentModule);
@@ -243,6 +251,10 @@ public class Type {
                         this.category = "types"; break;
                 case TypeTags
                         .ERROR: this.category = "errors"; break;
+                case TypeTags
+                        .MAP: this.category = "map"; break;
+                case TypeTags
+                        .TUPLE: this.category = "types"; break;
                 case TypeTags.INT:
                 case TypeTags.BYTE:
                 case TypeTags.FLOAT:
@@ -255,7 +267,6 @@ public class Type {
                 case TypeTags.ANY:
                 case TypeTags.ANYDATA:
                 case TypeTags.XMLNS:
-                case TypeTags.MAP: // TODO generate type for constraint type
                 case TypeTags.TABLE:
                 case TypeTags.FUTURE:
                 case TypeTags.HANDLE:

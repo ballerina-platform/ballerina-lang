@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run json_objects.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run json_objects.bal
 {"name":"apple", "color":"red", "price":100}
 j is map<json>: true
 {"fname":"John", "lname":"Stallone", "age":30}

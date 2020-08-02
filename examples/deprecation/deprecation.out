@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run deprecation.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run deprecation.bal
 warning: .::deprecation.bal:35:5: usage of construct 'Address' is deprecated
 warning: .::deprecation.bal:39:22: usage of construct 'LKA' is deprecated
 warning: .::deprecation.bal:68:5: usage of construct 'Person' is deprecated

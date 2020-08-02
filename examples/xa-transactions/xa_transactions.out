@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file, and execute the `ballerina run` command.
-$ ballerina run --experimental xa_transactions.bal
+# `.bal` file, and execute the `ballerina run` command below.
+ballerina run --experimental xa_transactions.bal
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
 2019-12-16 10:25:35,658 INFO  [ballerina/transactions] - Created transaction: ab7cc71e-30f0-45ac-982e-01e0a0e39875

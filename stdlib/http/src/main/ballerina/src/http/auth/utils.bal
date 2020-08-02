@@ -273,6 +273,23 @@ function isResourceAuthEnabled(ResourceAuth? resourceAuth) returns boolean? {
     }
 }
 
+# Checks whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not.
+#
+# + context - The `FilterContext` instance
+# + return - Whether the `http:ResourceConfig` has `http:WebSocketUpgradeConfig` or not
+function isWebSocketUpgradeRequest(FilterContext context) returns boolean {
+    any annData = reflect:getResourceAnnotations(context.getService(), context.getResourceName(), RESOURCE_ANN_NAME,
+                                                 ANN_MODULE);
+    if (annData is ()) {
+        return false;
+    }
+    HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
+    if (resourceConfig?.webSocketUpgrade is  WebSocketUpgradeConfig) {
+        return true;
+    }
+    return false;
+}
+
 # Creates a map out of the headers of the HTTP response.
 #
 # + resp - The `Response` instance

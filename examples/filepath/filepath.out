@@ -1,6 +1,6 @@
 # To run this sample, navigate to the directory that contains the
-# `.bal` file and issue the `ballerina run` command.
-$ ballerina run filepath.bal
+# `.bal` file and issue the `ballerina run` command below.
+ballerina run filepath.bal
 On Unix:
 /A/B/C is absolute: true
 Filename of /A/B/C: C

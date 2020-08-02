@@ -1,6 +1,6 @@
 #  To run this sample, navigate to the directory that contains the
-# `.bal` file and execute the `ballerina run` command.
-$ ballerina run mysql_query_operation.bal
+# `.bal` file and execute the `ballerina run` command below.
+ballerina run mysql_query_operation.bal
 
 ------ Start Simple Query -------
 Customer full details: customerId=1 FirstName=Peter LastName=Stuart RegistrationID=1 CreditLimit=5000.75 Country=USA
