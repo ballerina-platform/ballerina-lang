@@ -194,6 +194,8 @@
             <class name="org.ballerinalang.test.types.var.VarIgnoreTest"></class>
             <class name="org.ballerinalang.test.documentation.MultilineDocsTest"></class>
             <class name="org.ballerinalang.test.documentation.ObjectFieldDefaultValueTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPattern"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPattern"></class>
             <!--<class name="org.ballerinalang.test.closures.VarMutabilityClosureTest" />-->
             <!--<class name="org.ballerinalang.test.lock.LocksInMainTest">-->
             <!--<methods>-->
