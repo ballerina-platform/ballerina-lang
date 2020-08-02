@@ -75,6 +75,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -83,6 +86,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -99,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
@@ -187,6 +192,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -208,6 +215,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBind
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchTypedBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -2912,6 +2920,123 @@ public class Desugar extends BLangNodeVisitor {
         result = matchBlockStmt;
         this.onFailClause = currentOnFailClause;
         this.onFailCallFuncDef = currentOnFailCallDef;
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        BLangBlockStmt matchBlockStmt = (BLangBlockStmt) TreeBuilder.createBlockNode();
+        matchBlockStmt.pos = matchStatement.pos;
+
+        String matchExprVarName = GEN_VAR_PREFIX.value;
+
+        BLangExpression matchExpr = matchStatement.expr;
+        BLangSimpleVariable matchExprVar = ASTBuilderUtil.createVariable(matchExpr.pos,
+                matchExprVarName, matchExpr.type, matchExpr, new BVarSymbol(0,
+                        names.fromString(matchExprVarName),
+                        this.env.scope.owner.pkgID, matchExpr.type, this.env.scope.owner));
+
+        BLangSimpleVariableDef matchExprVarDef = ASTBuilderUtil.createVariableDef(matchBlockStmt.pos, matchExprVar);
+        matchBlockStmt.stmts.add(matchExprVarDef);
+        matchBlockStmt.stmts.add(convertMatchClausesToIfElseStmt(matchStatement.matchClauses, matchExprVar));
+        rewrite(matchBlockStmt, this.env);
+
+        result = matchBlockStmt;
+    }
+
+    private BLangStatement convertMatchClausesToIfElseStmt(List<BLangMatchClause> matchClauses,
+                                                           BLangSimpleVariable matchExprVar) {
+        BLangIf parentIfNode = convertMatchClauseToIfStmt(matchClauses.get(0), matchExprVar);
+        BLangIf currentIfNode = parentIfNode;
+        for (int i = 1; i < matchClauses.size(); i++) {
+            currentIfNode.elseStmt = convertMatchClauseToIfStmt(matchClauses.get(i), matchExprVar);
+            currentIfNode = (BLangIf) currentIfNode.elseStmt;
+        }
+
+        return parentIfNode;
+    }
+
+    private BLangIf convertMatchClauseToIfStmt(BLangMatchClause matchClause, BLangSimpleVariable matchExprVar) {
+        BLangExpression ifCondition = createConditionFromMatchPatterns(matchClause.matchPatterns, matchExprVar,
+                matchClause.pos);
+        if (matchClause.matchGuard != null) {
+            ifCondition = ASTBuilderUtil.createBinaryExpr(matchClause.pos, ifCondition, matchClause.matchGuard.expr,
+                    symTable.booleanType, OperatorKind.AND, (BOperatorSymbol) symResolver
+                            .resolveBinaryOperator(OperatorKind.AND, symTable.booleanType, symTable.booleanType));
+        }
+        return ASTBuilderUtil.createIfElseStmt(matchClause.pos, ifCondition, matchClause.blockStmt, null);
+    }
+
+    private BLangExpression createConditionFromMatchPatterns(List<BLangMatchPattern> matchPatterns,
+                                                             BLangSimpleVariable matchExprVar, DiagnosticPos pos) {
+        BLangSimpleVariableDef resultVarDef = createVarDef("$result$", symTable.booleanType, null, pos);
+        BLangSimpleVarRef resultVarRef = ASTBuilderUtil.createVariableRef(pos, resultVarDef.var.symbol);
+        // $result$ = true
+        BLangBlockStmt successBody = ASTBuilderUtil.createBlockStmt(pos);
+        BLangAssignment successAssignment =
+                ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(true));
+        successBody.addStatement(successAssignment);
+        // $result$ = false
+        BLangBlockStmt failureBody = ASTBuilderUtil.createBlockStmt(pos);
+        BLangAssignment failureAssignment =
+                ASTBuilderUtil.createAssignmentStmt(pos, resultVarRef, getBooleanLiteral(false));
+        failureBody.addStatement(failureAssignment);
+
+        BLangIf parentIfElse = createIfElseStmtFromMatchPattern(matchPatterns.get(0), matchExprVar, successBody, pos);
+        BLangIf currentIfElse = parentIfElse;
+
+        for (int i = 1; i < matchPatterns.size(); i++) {
+            currentIfElse.elseStmt = createIfElseStmtFromMatchPattern(matchPatterns.get(i), matchExprVar, successBody,
+                    matchPatterns.get(i).pos);
+            currentIfElse = (BLangIf) currentIfElse.elseStmt;
+        }
+        currentIfElse.elseStmt = failureBody;
+
+        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(pos, Lists.of(resultVarDef, parentIfElse));
+        BLangStatementExpression stmtExpr = createStatementExpression(blockStmt, resultVarRef);
+
+        return rewriteExpr(stmtExpr);
+    }
+
+    private BLangIf createIfElseStmtFromMatchPattern(BLangMatchPattern matchPattern,
+                                                             BLangSimpleVariable matchExprVar,
+                                                             BLangBlockStmt successBody,
+                                                             DiagnosticPos pos) {
+        NodeKind patternKind = matchPattern.getKind();
+        BLangSimpleVarRef matchExprVarRef = ASTBuilderUtil.createVariableRef(matchExprVar.pos, matchExprVar.symbol);
+
+        switch (patternKind) {
+            case WILDCARD_MATCH_PATTERN:
+                return ASTBuilderUtil.createIfElseStmt(pos, ASTBuilderUtil.createLiteral(pos,
+                        symTable.booleanType, ((BLangWildCardMatchPattern) matchPattern).matchesAll), successBody, null);
+            case CONST_MATCH_PATTERN:
+                BLangConstPattern constMatchPattern = (BLangConstPattern) matchPattern;
+                return ASTBuilderUtil.createIfElseStmt(pos, createBinaryExpression(constMatchPattern.pos, matchExprVarRef,
+                        constMatchPattern.expr), successBody, null);
+            case VAR_BINDING_PATTERN_MATCH_PATTERN:
+                // var [a, b] or var a
+                BLangVarBindingPatternMatchPattern varBindingPattern = (BLangVarBindingPatternMatchPattern) matchPattern;
+                BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
+
+                switch (bindingPattern.getKind()) {
+                    case CAPTURE_BINDING_PATTERN:
+                        // always matches a value
+                        BLangCaptureBindingPattern captureBindingPattern =
+                                (BLangCaptureBindingPattern) varBindingPattern.getBindingPattern();
+
+                        BLangSimpleVariable captureBindingPatternVar = ASTBuilderUtil.createVariable(pos,
+                                captureBindingPattern.getIdentifier().getValue(), matchExprVar.type, matchExprVarRef,
+                                captureBindingPattern.symbol);
+                        BLangSimpleVariableDef captureBindingPatternVarDef =
+                                ASTBuilderUtil.createVariableDef(pos, captureBindingPatternVar);
+
+                        successBody.addStatement(captureBindingPatternVarDef);
+                        return ASTBuilderUtil.createIfElseStmt(pos, ASTBuilderUtil.createLiteral(pos,
+                                symTable.booleanType, true), successBody, null);
+                }
+        }
+        // If some patterns are not implemented, those should be detected before this phase
+        // TODO : Remove this after all patterns are implemented
+        return null;
     }
 
     @Override

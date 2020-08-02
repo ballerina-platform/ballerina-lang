@@ -32,9 +32,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -42,12 +44,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -127,6 +132,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -451,6 +457,38 @@ public class ConstantPropagation extends BLangNodeVisitor {
         compoundAssignNode.modifiedExpr = rewrite(compoundAssignNode.modifiedExpr);
         compoundAssignNode.expr = rewrite(compoundAssignNode.expr);
         result = compoundAssignNode;
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        matchStatement.expr = rewrite(matchStatement.expr);
+        rewrite(matchStatement.matchClauses);
+        result = matchStatement;
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+            rewrite(matchPattern);
+        }
+        matchClause.blockStmt = rewrite(matchClause.blockStmt);
+        result = matchClause;
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        constMatchPattern.expr = rewrite(constMatchPattern.expr);
+        result = constMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+        result = wildCardMatchPattern;
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        result = varBindingPattern;
     }
 
     @Override

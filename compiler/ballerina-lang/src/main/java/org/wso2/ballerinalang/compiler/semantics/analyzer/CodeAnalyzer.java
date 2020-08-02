@@ -58,6 +58,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -65,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -77,6 +81,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
@@ -84,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -167,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStaticBindingPatternClause;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStructuredBindingPatternClause;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -209,6 +217,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLogHelper;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -248,7 +257,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean failureHandled;
+    private boolean matchClauseReturns;
     private boolean lastStatement;
+    private boolean hasLastPattern = false;
     private boolean withinLockBlock;
     private SymbolTable symTable;
     private Types types;
@@ -277,6 +288,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
+    private List<BType> matchExprTypes;
+    private BType matchExprType;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -730,7 +743,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.returnWithinLambdaWrappingCheckStack.pop();
             this.returnWithinLambdaWrappingCheckStack.push(true);
         }
-        this.statementReturns = true;
+
+        if (returnStmt.parent != null && returnStmt.parent.parent.getKind() == NodeKind.MATCH_CLAUSE) {
+            this.matchClauseReturns = true;
+        } else {
+            this.statementReturns = true;
+        }
         analyzeExpr(returnStmt.expr);
         this.returnTypes.peek().add(returnStmt.expr.type);
     }
@@ -767,6 +785,61 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             this.statementReturns = ifStmtReturns && this.statementReturns;
         }
         analyzeExpr(ifStmt.expr);
+    }
+
+    @Override
+    public void visit(BLangMatchStatement matchStatement) {
+        analyzeExpr(matchStatement.expr);
+        matchExprType = matchStatement.expr.type;
+
+        boolean matchStmtReturns = true;
+        for (BLangMatchClause matchClause : matchStatement.matchClauses) {
+            analyzeNode(matchClause, env);
+            matchStmtReturns = this.matchClauseReturns && matchClause.matchGuard == null && hasLastPattern;
+        }
+        this.statementReturns = matchStmtReturns;
+        hasLastPattern = false;
+    }
+
+    @Override
+    public void visit(BLangMatchClause matchClause) {
+        for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
+            if (hasLastPattern && matchClause.matchGuard == null) {
+                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN_AVAILABLE);
+            }
+            if (matchPattern.type == symTable.noType) {
+                dlog.error(matchClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+            }
+
+            this.isJSONContext = types.isJSONContext(matchExprType);
+            analyzeNode(matchPattern, env);
+        }
+
+        analyzeNode(matchClause.blockStmt, env);
+        resetStatementReturns();
+    }
+
+    @Override
+    public void visit(BLangConstPattern constMatchPattern) {
+        analyzeNode(constMatchPattern.expr, env);
+    }
+
+    @Override
+    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
+        hasLastPattern = wildCardMatchPattern.matchesAll = types.isAssignable(wildCardMatchPattern.matchExpr.type,
+                symTable.anyType);
+    }
+
+    @Override
+    public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
+        BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
+        analyzeNode(bindingPattern, env);
+        hasLastPattern = hasLastPattern && !varBindingPattern.matchGuardIsAvailable;
+    }
+
+    @Override
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+        hasLastPattern = true;
     }
 
     @Override
@@ -906,23 +979,23 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return false;
         }
         List<BLangMatchStaticBindingPatternClause> matchedPatterns = new ArrayList<>();
-        for (BLangMatchStaticBindingPatternClause pattern : matchStmt.getStaticPatternClauses()) {
-            analyzeNode(pattern, env);
+        for (BLangMatchStaticBindingPatternClause patternClause : matchStmt.getStaticPatternClauses()) {
+            analyzeNode(patternClause, env);
 
             List<BType> matchedExpTypes = matchStmt.exprTypes
                     .stream()
-                    .filter(exprType -> isValidStaticMatchPattern(exprType, pattern.literal))
+                    .filter(exprType -> isValidStaticMatchPattern(exprType, patternClause.literal))
                     .collect(Collectors.toList());
 
             if (matchedExpTypes.isEmpty()) {
                 // log error if a pattern will not match to any of the expected types
-                dlog.error(pattern.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
+                dlog.error(patternClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
             }
 
             this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
-            analyzeNode(pattern.literal, env);
-            matchedPatterns.add(pattern);
+            analyzeNode(patternClause.literal, env);
+            matchedPatterns.add(patternClause);
         }
 
         if (matchedPatterns.isEmpty()) {

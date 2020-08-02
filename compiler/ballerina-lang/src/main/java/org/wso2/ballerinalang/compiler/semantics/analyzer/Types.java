@@ -65,7 +65,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangInputClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -281,6 +283,69 @@ public class Types {
         }
 
         return ((BUnionType) type).getMemberTypes().stream().allMatch(this::isSubTypeOfList);
+    }
+
+    public BType resolvePatternTypeFromMatchExpr(BType matchExprType, BLangConstPattern constMatchPattern) {
+        BLangExpression constPatternExpr = constMatchPattern.expr;
+        BType constMatchPatternExprType = constPatternExpr.type;
+
+        if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BType varRefSymbolType = ((BLangSimpleVarRef) constPatternExpr).symbol.type;
+            if (isAssignable(varRefSymbolType, matchExprType)) {
+                return varRefSymbolType;
+            }
+            return symTable.noType;
+        }
+
+        // After the above check, according to spec all other const-patterns should be literals.
+        BLangLiteral constPatternLiteral = (BLangLiteral) constPatternExpr;
+
+        if (containsAnyType(constMatchPatternExprType)) {
+            return matchExprType;
+        } else if (containsAnyType(matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        // This should handle specially
+        if (matchExprType.tag == TypeTags.BYTE && constMatchPatternExprType.tag == TypeTags.INT) {
+            return matchExprType;
+        }
+
+        if (isAssignable(constMatchPatternExprType, matchExprType)) {
+            return constMatchPatternExprType;
+        }
+
+        if (matchExprType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) matchExprType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.FINITE) {
+                    if (isAssignableToFiniteType(memberType, constPatternLiteral)) {
+                        return memberType;
+                    }
+                } else {
+                    if (isAssignable(constMatchPatternExprType, matchExprType)) {
+                        return constMatchPatternExprType;
+                    }
+                }
+            }
+        } else if (matchExprType.tag == TypeTags.FINITE) {
+            if (isAssignableToFiniteType(matchExprType, constPatternLiteral)) {
+                return matchExprType;
+            }
+        }
+        return symTable.noType;
+    }
+
+    public boolean containsAnyType(BType type) {
+        if (type.tag != TypeTags.UNION) {
+            return type.tag == TypeTags.ANY;
+        }
+
+        for (BType memberTypes : ((BUnionType) type).getMemberTypes()) {
+            if (memberTypes.tag == TypeTags.ANY) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isSubTypeOfMapping(BType type) {
