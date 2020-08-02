@@ -232,6 +232,7 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
+import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -243,6 +244,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -264,12 +269,15 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
@@ -359,7 +367,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordVariableDef;
@@ -3738,46 +3746,96 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(MatchStatementNode matchStatementNode) {
-        BLangMatch bLangMatch = (BLangMatch) TreeBuilder.createMatchStatement();
-        bLangMatch.expr = createExpression(matchStatementNode.condition());
+        BLangMatchStatement matchStatement = (BLangMatchStatement) TreeBuilder.createMatchStatementNode();
+        BLangExpression matchStmtExpr = createExpression(matchStatementNode.condition());
+        matchStatement.setExpression(matchStmtExpr);
 
-        for (Node matchClauseNode : matchStatementNode.matchClauses()) {
-            MatchClauseNode matchClause = (MatchClauseNode) matchClauseNode;
-            BLangMatch.BLangMatchStaticBindingPatternClause patternClause =
-                    (BLangMatch.BLangMatchStaticBindingPatternClause)
-                            TreeBuilder.createMatchStatementStaticBindingPattern();
-            bLangMatch.patternClauses.add(patternClause);
+        for (MatchClauseNode matchClauseNode : matchStatementNode.matchClauses()) {
+            BLangMatchClause bLangMatchClause = (BLangMatchClause) TreeBuilder.createMatchClause();
+            bLangMatchClause.pos = getPosition(matchClauseNode);
+            bLangMatchClause.expr = matchStmtExpr;
+            boolean matchGuardAvailable = false;
 
-            SeparatedNodeList<Node> matchPatterns = matchClause.matchPatterns();
-            Node firstPattern = matchPatterns.get(0);
-            patternClause.pos = getPosition(firstPattern);
-
-            if (matchPatterns.size() == 1) {
-                patternClause.literal = createLiteralOrReference(firstPattern);
-            } else { // spec says atleast one match pattern so this else will mean more than one
-                BLangBinaryExpr expr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-                expr.lhsExpr = createLiteralOrReference(firstPattern);
-                for (int i = 1; i < matchPatterns.size(); i++) {
-                    if (expr.rhsExpr != null) {
-                        BLangBinaryExpr tempExpr = ((BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode());
-                        tempExpr.lhsExpr = expr;
-                        expr = tempExpr;
-                    }
-                    expr.opKind = OperatorKind.BITWISE_OR;
-                    expr.rhsExpr = createLiteralOrReference(matchPatterns.get(i));
-                }
-                patternClause.literal = expr;
+            if (matchClauseNode.matchGuard().isPresent()) {
+                matchGuardAvailable = true;
+                BLangMatchGuard bLangMatchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
+                bLangMatchGuard.expr = createExpression(matchClauseNode.matchGuard().get().expression());
+                bLangMatchClause.setMatchGuard(bLangMatchGuard);
             }
 
-            patternClause.body = (BLangBlockStmt) transform(((MatchClauseNode) matchClause).blockStatement());
+            for (Node matchPattern : matchClauseNode.matchPatterns()) {
+                DiagnosticPos matchPatternPos = getPosition(matchPattern);
+                if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                        ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
+                    // wildcard match
+                    BLangWildCardMatchPattern bLangWildCardMatchPattern =
+                            (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
+                    bLangWildCardMatchPattern.matchExpr = matchStmtExpr;
+                    bLangWildCardMatchPattern.pos = matchPatternPos;
+
+                    bLangMatchClause.addMatchPattern(bLangWildCardMatchPattern);
+                } else if (matchPattern.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
+                        matchPattern.kind() == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL ||
+                        matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
+                        matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                        matchPattern.kind() == SyntaxKind.TRUE_KEYWORD ||
+                        matchPattern.kind() == SyntaxKind.FALSE_KEYWORD) {
+                    BLangConstPattern bLangConstMatchPattern =
+                            (BLangConstPattern) TreeBuilder.createConstMatchPattern();
+                    bLangConstMatchPattern.setExpression(createExpression(matchPattern));
+                    bLangConstMatchPattern.matchExpr = matchStmtExpr;
+                    bLangConstMatchPattern.pos = matchPatternPos;
+
+                    bLangMatchClause.addMatchPattern(bLangConstMatchPattern);
+                } else if (matchPattern.kind() == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
+                    TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
+                    BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
+                            (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
+                    bLangVarBindingPattern.matchExpr = matchStmtExpr;
+                    bLangVarBindingPattern.pos = matchPatternPos;
+                    bLangVarBindingPattern.matchGuardIsAvailable = matchGuardAvailable;
+
+                    SyntaxKind patternKind = typedBindingPatternNode.bindingPattern().kind();
+                    switch (patternKind) {
+                        case CAPTURE_BINDING_PATTERN:
+                            // TODO : check whether why cant we call the existing transform method
+                            CaptureBindingPatternNode captureBindingPattern =
+                                    (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
+                            BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                                    createCaptureBindingPattern(captureBindingPattern);
+                            bLangVarBindingPattern.setBindingPattern(bLangCaptureBindingPattern);
+                            break;
+                        default:
+                            // TODO : Remove this after all binding patterns are implemented
+                            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+                    }
+                    bLangMatchClause.addMatchPattern(bLangVarBindingPattern);
+                } else {
+                    // TODO : Remove this after all binding patterns are implemented
+                    dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+                }
+            }
+
+            bLangMatchClause.setBlockStatement((BLangBlockStmt) transform(matchClauseNode.blockStatement()));
+            matchStatement.addMatchClause(bLangMatchClause);
         }
 
         matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
-            bLangMatch.setOnFailClause(
+            matchStatement.setOnFailClause(
                     (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
         });
 
-        return bLangMatch;
+        return matchStatement;
+
+    }
+
+    private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode captureBindingPatternNode) {
+        BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
+        bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPatternNode
+                .variableName()));
+        bLangCaptureBindingPattern.pos = getPosition(captureBindingPatternNode);
+        return bLangCaptureBindingPattern;
     }
 
     public BLangExpression createLiteralOrReference(Node node) {
