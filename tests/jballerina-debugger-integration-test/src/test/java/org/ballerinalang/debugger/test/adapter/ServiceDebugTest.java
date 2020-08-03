@@ -21,10 +21,11 @@ package org.ballerinalang.debugger.test.adapter;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.debugger.test.DebugAdapterBaseTestCase;
 import org.ballerinalang.debugger.test.utils.BallerinaTestDebugPoint;
+import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -39,7 +40,8 @@ public class ServiceDebugTest extends DebugAdapterBaseTestCase {
     private String projectPath;
 
     @BeforeClass
-    public void setup() throws BallerinaTestException {
+    public void setup() {
+        testSingleFileName = "hello_service.bal";
         testProjectName = "breakpoint-tests";
         testModuleName = "myService";
         projectPath = Paths.get(testProjectBaseDir.toString(), testProjectName).toString();
@@ -49,8 +51,9 @@ public class ServiceDebugTest extends DebugAdapterBaseTestCase {
         testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
     }
 
-    @Test(enabled = false)
-    public void testDirectoryServiceDebugScenarios() throws BallerinaTestException {
+    @Test(enabled = false, description = "Test for service module debug engage")
+    public void testModuleServiceDebugScenarios() throws BallerinaTestException {
+        testEntryFilePath = Paths.get(testProjectPath, "src", testModuleName, testModuleFileName).toString();
         String fileName1 = Paths.get("serviceDirectory", "serviceFile.bal").toString();
         String filePath1 = Paths.get(testProjectPath, "src", testModuleName, fileName1).toString();
         String fileName2 = "helloService.bal";
@@ -72,7 +75,17 @@ public class ServiceDebugTest extends DebugAdapterBaseTestCase {
         Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(1));
     }
 
-    @AfterClass(alwaysRun = true)
+    @Test(enabled = false, description = "Test for single bal file debug engage")
+    public void testSingleBalFileServiceDebugScenarios() throws BallerinaTestException {
+        testEntryFilePath = Paths.get(testSingleFileBaseDir.toString(), testSingleFileName).toString();
+        addBreakPoint(new BallerinaTestDebugPoint(testEntryFilePath, 8));
+        initDebugSession(DebugUtils.DebuggeeExecutionKind.TEST);
+
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = waitForDebugHit(20000);
+        Assert.assertEquals(debugHitInfo.getLeft(), testBreakpoints.get(0));
+    }
+
+    @AfterMethod(alwaysRun = true)
     public void cleanUp() {
         terminateDebugSession();
     }
