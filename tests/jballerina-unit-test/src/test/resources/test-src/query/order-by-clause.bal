@@ -24,6 +24,18 @@ type CustomerProfile record {|
     int noOfItems;
 |};
 
+type Employee record {|
+    string name;
+    Address address;
+    map<float?> tokens;
+    int[] noOfShifts;
+|};
+
+type Address record {|
+    int unitNo;
+    string street;
+|};
+
 type CustomerTable table<Customer> key(id, name);
 
 type CustomerValue record {|
@@ -63,7 +75,7 @@ function testQueryExprWithOrderByClause() returns boolean {
     Student[] studentList = [s1, s2, s3, s4];
 
     Student[] opStudentList = from var student in studentList
-       order by fname descending, impact
+       order by student.fname descending, student.impact
        select student;
 
     testPassed = testPassed &&  opStudentList[0] ==  studentList[3];
@@ -85,7 +97,7 @@ function testQueryExprWithOrderByClause2() returns boolean {
     Student[] studentList = [s1, s2, s3, s4];
 
     Student[] opStudentList = from var student in studentList
-       order by isUndergrad, fee
+       order by student.isUndergrad ascending, student.fee
        select student;
 
     testPassed = testPassed &&  opStudentList[0] ==  studentList[1];
@@ -112,7 +124,7 @@ function testQueryExprWithOrderByClause3() returns Customer[] {
            from var person in personList
            let string customerName = "Johns"
            where person.lastName == "James"
-           order by id descending
+           order by customer.id descending
            select {
                id: customer.id,
                name: customerName,
@@ -139,7 +151,7 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
     CustomerTable|error customerTable = table key(id, name) from var customer in customerList
          from var person in personList
          where person.firstName == "Frank"
-         order by noOfItems descending, id
+         order by customer.noOfItems descending, customer.id
          select {
              id: customer.id,
              name: customer.name,
@@ -152,9 +164,9 @@ function testQueryExprWithOrderByClauseReturnTable() returns boolean {
         Customer? customer = getCustomer(itr.next());
         testPassed = testPassed && customer == customerList[2];
         customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == customerList[0];
+        testPassed = testPassed && customer == customerList[3];
         customer = getCustomer(itr.next());
-        testPassed = testPassed && customer == customerList[1];
+        testPassed = testPassed && customer == customerList[0];
         customer = getCustomer(itr.next());
         testPassed = testPassed && customer == ();
     }
@@ -183,7 +195,7 @@ function testQueryExprWithOrderByClauseReturnStream() returns boolean {
         let string newFirstName = "Johnas"
         where customer.name == "John"
         where person.lastName == "Fonseka"
-        order by age descending
+        order by person.age descending
         select {
             firstName: newFirstName,
             lastName: newLastName,
@@ -227,7 +239,7 @@ function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
     CustomerProfile[] customerProfileList = from var customer in customerList
          join var person in personList
          on customer.name equals person.lastName
-         order by noOfItems
+         order by customer.noOfItems
          select {
              name: person.firstName,
              age : person.age,
@@ -235,4 +247,124 @@ function testQueryExprWithOrderByClauseAndJoin() returns CustomerProfile[] {
          };
 
     return customerProfileList;
+}
+
+function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction() returns boolean {
+    boolean testPassed = true;
+
+    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+
+    Employee[] empList = [e1, e2, e3, e4];
+
+    Employee[] opEmpList = from var emp in empList
+        order by emp.address.unitNo descending, emp.address.street.toLowerAscii()
+        select emp;
+
+    testPassed = testPassed &&  opEmpList[0] ==  empList[2];
+    testPassed = testPassed &&  opEmpList[1] ==  empList[1];
+    testPassed = testPassed &&  opEmpList[2] ==  empList[3];
+    testPassed = testPassed &&  opEmpList[3] ==  empList[0];
+
+    return testPassed;
+}
+
+function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction2() returns boolean {
+    boolean testPassed = true;
+
+    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:11, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:111, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1111, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e5 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:1111, two:2, three:3},
+    noOfShifts: [3, 2, 3]};
+
+    Employee[] empList = [e1, e2, e3, e4, e5];
+
+    Employee[] opEmpList = from var emp in empList
+        order by emp.name, emp.tokens["one"] descending, emp.noOfShifts[0] descending
+        select emp;
+
+    testPassed = testPassed &&  opEmpList[0] ==  empList[4];
+    testPassed = testPassed &&  opEmpList[1] ==  empList[3];
+    testPassed = testPassed &&  opEmpList[2] ==  empList[0];
+    testPassed = testPassed &&  opEmpList[3] ==  empList[2];
+    testPassed = testPassed &&  opEmpList[4] ==  empList[1];
+
+    return testPassed;
+}
+
+function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() returns CustomerProfile[] {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 12};
+    Customer c2 = {id: 2, name: "James", noOfItems: 5};
+    Customer c3 = {id: 3, name: "James", noOfItems: 25};
+    Customer c4 = {id: 4, name: "James", noOfItems: 25};
+
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+
+    Customer[] customerList = [c1, c2, c3, c4];
+    Person[] personList = [p1, p2];
+
+    CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList select c)
+         join var person in personList
+         on customer.name equals person.lastName
+         order by incrementCount(0), customer.noOfItems descending
+         select {
+             name: person.firstName,
+             age : person.age,
+             noOfItems: customer.noOfItems
+         };
+
+    return customerProfileList;
+}
+
+function testQueryExprWithOrderByClauseHavingNaNNilValues() returns boolean {
+    boolean testPassed = true;
+
+    Employee e1 = {name: "Frank", address: {unitNo: 111, street: "Main Street"}, tokens: {one:1, two:2, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e2 = {name: "James", address: {unitNo: 222, street: "Main Street"}, tokens: {one:11, two:(), three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e3 = {name: "James", address: {unitNo: 222, street: "Cross Street"}, tokens: {one:11, two:(0.0/0.0),
+    three:3}, noOfShifts: [1, 2, 3]};
+    Employee e4 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:3},
+    noOfShifts: [1, 2, 3]};
+    Employee e5 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:()},
+    noOfShifts: [1, 2, 3]};
+    Employee e6 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4,
+    three:(0.0/0.0)}, noOfShifts: [1, 2, 3]};
+    Employee e7 = {name: "Frank", address: {unitNo: 111, street: "Cross Street"}, tokens: {one:11, two:4, three:55},
+    noOfShifts: [1, 2, 3]};
+
+    Employee[] empList = [e1, e2, e3, e4, e5, e6, e7];
+
+    Employee[] opEmpList = from var emp in empList
+        order by emp.tokens["two"] descending, emp.tokens["three"] ascending
+        select emp;
+
+    testPassed = testPassed &&  opEmpList[0] ==  empList[3];
+    testPassed = testPassed &&  opEmpList[1] ==  empList[6];
+    testPassed = testPassed &&  opEmpList[2] ==  empList[5];
+    testPassed = testPassed &&  opEmpList[3] ==  empList[4];
+    testPassed = testPassed &&  opEmpList[4] ==  empList[0];
+    testPassed = testPassed &&  opEmpList[5] ==  empList[2];
+    testPassed = testPassed &&  opEmpList[6] ==  empList[1];
+
+    return testPassed;
+}
+
+function incrementCount(int i) returns int {
+    int count = i + 2;
+    return count;
 }
