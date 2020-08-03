@@ -34,6 +34,9 @@ type Type any|error;
 @typeParam
 type ErrorType error?;
 
+anydata[][] orderFieldValsArr = [];
+boolean[] orderDirectionsArr = [];
+
 type _Iterator abstract object {
     public function next() returns record {|Type value;|}|error?;
 };
@@ -96,6 +99,14 @@ type _StreamPipeline object {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
+                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
+                        anydata[] v = <anydata[]>f["$orderKey$"];
+                        map<anydata> m = <map<anydata>> f["$value$"];
+                        v.push(m);
+                        orderFieldValsArr.push(v);
+                        boolean[] x = <boolean[]>f["$orderDirection$"];
+                        orderDirectionsArr = x;
+                    }
                     Type v = <Type>f["$value$"];
                     return internal:setNarrowType(self.outputType, {value: v});
                 } else {
@@ -472,6 +483,39 @@ type _FilterFunction object {
     }
 };
 
+type _OrderByFunction object {
+    *_StreamFunction;
+
+    # Desugared function to do;
+    # order by person.fname, person.age
+    function(_Frame _frame) orderFunc;
+
+    function init(function(_Frame _frame) orderFunc) {
+        self.orderFunc = orderFunc;
+        self.prevFunc = ();
+        orderFieldValsArr = [];
+        orderDirectionsArr = [];
+    }
+
+    public function process() returns _Frame|error? {
+        _StreamFunction pf = <_StreamFunction> self.prevFunc;
+        function(_Frame _frame) f = self.orderFunc;
+        _Frame|error? pFrame = pf.process();
+        if (pFrame is _Frame) {
+            f(pFrame);
+            return pFrame;
+        }
+        return pFrame;
+    }
+
+    public function reset() {
+        _StreamFunction? pf = self.prevFunc;
+        if (pf is _StreamFunction) {
+            pf.reset();
+        }
+    }
+};
+
 type _SelectFunction object {
     *_StreamFunction;
 
@@ -577,114 +621,99 @@ type _LimitFunction object {
 };
 
 type StreamOrderBy object {
-    public string[] sortFields;
-    public boolean[] sortTypes;
+    anydata[][] sortFields = [];
+    boolean[] sortTypes = [];
 
-    function init(string[] sortFields, boolean[] sortTypes) {
-        self.sortFields = sortFields;
-        self.sortTypes = sortTypes;
+    function init() {
+        self.sortFields = orderFieldValsArr;
+        self.sortTypes = orderDirectionsArr;
     }
 
-    public function topDownMergeSort(@tainted Type[] events) returns @tainted Type[] {
-        int index = 0;
-        int n = events.length();
-        Type[] b = [];
-        while (index < n) {
-            b[index] = events[index];
-            index += 1;
-        }
-        self.topDownSplitMerge(b, 0, n, events);
-        return events;
+    function topDownMergeSort() returns @tainted Type[] {
+        anydata[][] sortFieldsClone = self.sortFields.clone();
+        self.topDownSplitMerge(sortFieldsClone, 0, self.sortFields.length(), self.sortFields);
+        return self.sortFields;
     }
 
-    function topDownSplitMerge(@tainted Type[] b, int iBegin, int iEnd,@tainted Type[] a) {
+    function topDownSplitMerge(@tainted anydata[][] sortArrClone, int iBegin, int iEnd, @tainted anydata[][] sortArr) {
         if (iEnd - iBegin < 2) {
             return;
         }
         int iMiddle = (iEnd + iBegin) / 2;
-        self.topDownSplitMerge(a, iBegin, iMiddle, b);
-        self.topDownSplitMerge(a, iMiddle, iEnd, b);
-        self.topDownMerge(b, iBegin, iMiddle, iEnd, a);
+        self.topDownSplitMerge(sortArr, iBegin, iMiddle, sortArrClone);
+        self.topDownSplitMerge(sortArr, iMiddle, iEnd, sortArrClone);
+        self.topDownMerge(sortArrClone, iBegin, iMiddle, iEnd, sortArr);
     }
 
-    function topDownMerge(@tainted Type[] a, int iBegin, int iMiddle, int iEnd,@tainted Type[] b) {
+    function topDownMerge(@tainted anydata[][] sortArrClone, int iBegin, int iMiddle, int iEnd,
+    @tainted anydata[][] sortArr) {
         int i = iBegin;
         int j = iMiddle;
-
         int k = iBegin;
+
         while (k < iEnd) {
-            if (i < iMiddle && (j >= iEnd || self.sortFunc(a[i], a[j], 0) < 0)) {
-                b[k] = a[i];
+            if (i < iMiddle && (j >= iEnd || self.sortFunc(sortArrClone[i], sortArrClone[j], 0) < 0)) {
+                sortArr[k] = sortArrClone[i];
                 i = i + 1;
             } else {
-                b[k] = a[j];
+                sortArr[k] = sortArrClone[j];
                 j = j + 1;
             }
             k += 1;
         }
     }
 
-    function sortFunc(Type x, Type y, int fieldIndex) returns @tainted int {
-        map<anydata> xMapValue = <map<anydata>>x;
-        map<anydata> yMapValue = <map<anydata>>y;
-
-        var xFieldValue = xMapValue.get(self.sortFields[fieldIndex]);
-        var yFieldValue = yMapValue.get(self.sortFields[fieldIndex]);
-
-        if (xFieldValue is ()) {
-            if (yFieldValue is ()) {
-                return 0;
-            } else {
-                return 1;
+    function sortFunc(anydata[] x, anydata[] y, int i) returns @tainted int {
+        // () should always come last irrespective of the order direction.
+        if (x[i] is ()) {
+            if (y[i] is ()) {
+                return self.callNextSortFunc(x, y, 0, i + 1);
             }
-        } else if (yFieldValue is ()) {
+            return 1;
+        } else if (y[i] is ()) {
             return -1;
-        } else if (xFieldValue is (int|float|decimal)) {
-            if (yFieldValue is (int|float|decimal)) {
+        } else if (x[i] is string) {
+            if (y[i] is string) {
                 int c;
-                if (self.sortTypes[fieldIndex]) {
-                    c = self.numberSort(xFieldValue, yFieldValue);
+                if (self.sortTypes[i]) {
+                    c = self.stringSort(<string>x[i], <string>y[i]);
                 } else {
-                    c = self.numberSort(yFieldValue, xFieldValue);
+                    c = self.stringSort(<string>y[i], <string>x[i]);
                 }
-                return self.callNextSortFunc(x, y, c, fieldIndex + 1);
+                return self.callNextSortFunc(x, y, c, i + 1);
             } else {
-                panic error("Inconsistent order field value",
-                    message = self.sortFields[fieldIndex] + " order field contain non-numeric values");
+                panic error("Inconsistent order field value", message = "order field contain non-string type values");
             }
-        } else if (xFieldValue is string) {
-            if (yFieldValue is string) {
+        } else if (x[i] is (int|float|decimal)) {
+             if (y[i] is (int|float|decimal)) {
+                 int c;
+                 if (self.sortTypes[i]) {
+                     c = self.numberSort(<int|float|decimal>x[i], <int|float|decimal>y[i], self.sortTypes[i]);
+                 } else {
+                     c = self.numberSort(<int|float|decimal>y[i], <int|float|decimal>x[i], self.sortTypes[i]);
+                 }
+                 return self.callNextSortFunc(x, y, c, i + 1);
+             } else {
+                 panic error("Inconsistent order field value", message = "order field contain non-numeric values");
+             }
+        } else if (x[i] is boolean) {
+            if (y[i] is boolean) {
                 int c;
-                if (self.sortTypes[fieldIndex]) {
-                    c = self.stringSort(xFieldValue, yFieldValue);
+                if (self.sortTypes[i]) {
+                    c = self.booleanSort(<boolean>x[i], <boolean>y[i]);
                 } else {
-                    c = self.stringSort(yFieldValue, xFieldValue);
+                    c = self.booleanSort(<boolean>y[i], <boolean>x[i]);
                 }
-                return self.callNextSortFunc(x, y, c, fieldIndex + 1);
+                return self.callNextSortFunc(x, y, c, i + 1);
             } else {
-                panic error("Inconsistent order field value",
-                    message = self.sortFields[fieldIndex] + " order field contain non-string type values");
-            }
-        } else if (xFieldValue is boolean) {
-            if (yFieldValue is boolean) {
-                int c;
-                if (self.sortTypes[fieldIndex]) {
-                    c = self.booleanSort(xFieldValue, yFieldValue);
-                } else {
-                    c = self.booleanSort(yFieldValue, xFieldValue);
-                }
-                return self.callNextSortFunc(x, y, c, fieldIndex + 1);
-            } else {
-                panic error("Inconsistent order field value",
-                    message = self.sortFields[fieldIndex] + " order field contain non-boolean type values");
+                panic error("Inconsistent order field value", message = "order field contain non-boolean type values");
             }
         } else {
-            panic error("Unable to perform order by",
-                message = self.sortFields[fieldIndex] + " field type incorrect");
+            panic error("Unable to perform order by", message = "order field type incorrect");
         }
     }
 
-    public function numberSort(int|float|decimal val1, int|float|decimal val2) returns int {
+    public function numberSort(int|float|decimal val1, int|float|decimal val2, boolean dir) returns int {
         if (val1 is int) {
             if (val2 is int) {
                 return val1 - val2;
@@ -694,19 +723,36 @@ type StreamOrderBy object {
                 return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
             }
         } else if (val1 is float) {
-            if (val2 is int) {
-                return val1 < <float > val2 ? -1 : val1 == <float>val2 ? 0 : 1;
-            } else if (val2 is float) {
+            if (isNaN(val1)) {
+                // need to check the direction because NaN should always come last.
+                if (dir) {
+                    return 1;
+                }
+                return -1;
+            } else if (val2 is int) {
+                return val1 < <float>val2 ? -1 : val1 == <float>val2 ? 0 : 1;
+            } else if (val2 is float){
+                if (isNaN(val1)) {
+                    if (isNaN(val2)) {
+                        return 0;
+                    }
+                } else if (isNaN(val2)) {
+                    // need to check the direction because NaN should always come last.
+                    if (dir) {
+                        return -1;
+                    }
+                    return 1;
+                }
                 return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
             } else {
                 return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
             }
         } else {
-            if (val2 is (int|float)) {
-                return val1 < <decimal > val2 ? -1 : val1 == <decimal>val2 ? 0 : 1;
-            } else {
+             if (val2 is (int|float)) {
+                 return val1 < <decimal>val2 ? -1 : val1 == <decimal>val2 ? 0 : 1;
+             } else {
                 return val1 < val2 ? -1 : val1 == val2 ? 0 : 1;
-            }
+             }
         }
     }
 
@@ -730,12 +776,11 @@ type StreamOrderBy object {
         }
     }
 
-    function callNextSortFunc(Type x, Type y, int c, int fieldIndex) returns @tainted int {
+    function callNextSortFunc(anydata[] x, anydata[] y, int c, int i) returns @tainted int {
         int result = c;
-        if (result == 0 && (self.sortTypes.length() > fieldIndex)) {
-            result = self.sortFunc(x, y, fieldIndex);
+        if (result == 0 && (self.sortTypes.length() > i) && (i < self.sortFields.length()-1)) {
+            result = self.sortFunc(x, y, i);
         }
         return result;
     }
-
 };

@@ -3468,14 +3468,15 @@ public class Types {
     }
 
     /**
-     * Check whether a type is a basic type.
+     * Check whether a order-key expression type is a basic type.
      *
-     * @param type type of the field.
+     * @param type type of the order-key expression.
      * @return boolean whether the type is basic type or not.
      */
     public boolean checkBasicType(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
+            case TypeTags.BYTE:
             case TypeTags.FLOAT:
             case TypeTags.DECIMAL:
             case TypeTags.STRING:

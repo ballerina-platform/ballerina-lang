@@ -54,6 +54,11 @@ function createFilterFunction(function(_Frame _frame) returns boolean filterFunc
     return new _FilterFunction(filterFunc);
 }
 
+function createOrderByFunction(function(_Frame _frame) orderFunc)
+        returns _StreamFunction {
+    return new _OrderByFunction(orderFunc);
+}
+
 function createSelectFunction(function(_Frame _frame) returns _Frame|error? selectFunc)
         returns _StreamFunction {
     return new _SelectFunction(selectFunc);
@@ -75,18 +80,48 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, er
     return pipeline.getStream();
 }
 
-function createOrderByFunction(string[] fieldNames, boolean[] sortTypes, stream<Type, error?> strm,
-@tainted Type[] arr) returns stream<Type, error?> {
+function sortStreamFunction(stream<Type, error?> strm, @tainted Type[] arr, int lmt) returns stream<Type, error?> {
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
         arr.push(v.value);
         v = strm.next();
     }
 
-    StreamOrderBy streamOrderByObj = new StreamOrderBy(fieldNames, sortTypes);
-    var sortedArr = <@untainted>streamOrderByObj.topDownMergeSort(arr);
+    int n = arr.length();
+    Type[] clonedArr = [];
+    int index = 0;
+    while (index < n) {
+        clonedArr[index] = arr[index];
+        index += 1;
+    }
 
-    return sortedArr.toStream();
+    StreamOrderBy streamOrderByObj = new StreamOrderBy();
+    var sortedArr = <@untainted>streamOrderByObj.topDownMergeSort();
+
+    int i = 0;
+    int k = 0;
+    arr.removeAll();
+    foreach var e in sortedArr {
+        if (!(lmt == 0) && (k == lmt)) {
+            break;
+        }
+        int j = 0;
+        while (j < clonedArr.length()) {
+            if (e is anydata[]) {
+                if (clonedArr[j] is map<anydata>) {
+                    if (e[e.length()-1] == <map<anydata>>clonedArr[j]) {
+                        arr[i] = clonedArr[j];
+                        var val = clonedArr.remove(j);
+                        i += 1;
+                    }
+                }
+            }
+            j += 1;
+        }
+        k += 1;
+    }
+
+    return arr.toStream();
 }
 
 function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
@@ -98,6 +133,7 @@ function toArray(stream<Type, error?> strm, Type[] arr) returns Type[]|error {
     if (v is error) {
         return v;
     }
+
     return arr;
 }
 
@@ -154,6 +190,8 @@ function consumeStream(stream<Type, error?> strm) returns error? {
         return v;
     }
 }
+
+function isNaN(float x) returns boolean = external;
 
 // TODO: This for debugging purposes, remove once completed.
 function print(any|error? data) = external;
