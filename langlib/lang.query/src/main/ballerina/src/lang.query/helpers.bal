@@ -191,7 +191,7 @@ function consumeStream(stream<Type, error?> strm) returns error? {
     }
 }
 
-function isNaN(float x) returns boolean = external;
+function checkNaN(float x) returns boolean = external;
 
 // TODO: This for debugging purposes, remove once completed.
 function print(any|error? data) = external;

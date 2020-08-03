@@ -26,19 +26,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import static org.ballerinalang.util.BLangCompilerConstants.QUERY_VERSION;
 
 /**
- * Implementation of lang.float:isNaN(float).
+ * Implementation of lang.query:checkNaN(float).
  *
  * @since Swan Lake
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "lang.query", version = QUERY_VERSION, functionName = "isNaN",
+        orgName = "ballerina", packageName = "lang.query", version = QUERY_VERSION, functionName = "checkNaN",
         args = {@Argument(name = "x", type = TypeKind.FLOAT)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-        isPublic = true
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN)}
 )
-public class IsNaN {
+public class CheckNaN {
 
-    public static boolean isNaN(Strand strand, double x) {
+    public static boolean checkNaN(Strand strand, double x) {
         return Double.isNaN(x);
     }
 }

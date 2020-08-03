@@ -391,7 +391,6 @@ public class QueryDesugar extends BLangNodeVisitor {
                     break;
             }
         }
-
         return addGetStreamFromPipeline(block, initPipeline);
     }
 

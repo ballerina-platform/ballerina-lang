@@ -723,7 +723,7 @@ type StreamOrderBy object {
                 return <decimal>val1 < val2 ? -1 : <decimal>val1 == val2 ? 0 : 1;
             }
         } else if (val1 is float) {
-            if (isNaN(val1)) {
+            if (checkNaN(val1)) {
                 // need to check the direction because NaN should always come last.
                 if (dir) {
                     return 1;
@@ -732,11 +732,11 @@ type StreamOrderBy object {
             } else if (val2 is int) {
                 return val1 < <float>val2 ? -1 : val1 == <float>val2 ? 0 : 1;
             } else if (val2 is float){
-                if (isNaN(val1)) {
-                    if (isNaN(val2)) {
+                if (checkNaN(val1)) {
+                    if (checkNaN(val2)) {
                         return 0;
                     }
-                } else if (isNaN(val2)) {
+                } else if (checkNaN(val2)) {
                     // need to check the direction because NaN should always come last.
                     if (dir) {
                         return -1;
