@@ -23,6 +23,7 @@ import org.ballerinalang.jvm.XMLFactory;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.XMLValue;
+import org.ballerinalang.jvm.values.api.BMap;
 import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
@@ -31,6 +32,7 @@ import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
+import org.ballerinalang.stdlib.io.utils.PropertyUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,6 +106,26 @@ public class CharacterChannelUtils {
         }
     }
 
+    public static Object readProperty(ObjectValue channel, BString key, BString defaultValue) {
+        CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel);
+        try {
+            return PropertyUtils.readProperty(reader, key, defaultValue, Integer.toString(charChannel.id()));
+        } catch (IOException e) {
+            return IOUtils.createError(e);
+        }
+    }
+
+    public static Object readAllProperties(ObjectValue channel) {
+        CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
+        CharacterChannelReader reader = new CharacterChannelReader(charChannel);
+        try {
+            return PropertyUtils.readAllProperties(reader, Integer.toString(charChannel.id()));
+        } catch (IOException e) {
+            return IOUtils.createError(e);
+        }
+    }
+
     public static Object close(ObjectValue channel) {
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(CHARACTER_CHANNEL_NAME);
         try {
@@ -142,6 +164,18 @@ public class CharacterChannelUtils {
                     .getNativeData(CHARACTER_CHANNEL_NAME);
             IOUtils.writeFull(characterChannel, content.toString());
         } catch (BallerinaIOException e) {
+            return IOUtils.createError(e);
+        }
+        return null;
+    }
+
+    public static Object writeProperties(ObjectValue characterChannelObj,
+                                         BMap<BString, BString> propertyMap, BString comment) {
+        try {
+            CharacterChannel characterChannel = (CharacterChannel) characterChannelObj
+                    .getNativeData(CHARACTER_CHANNEL_NAME);
+            PropertyUtils.writePropertyContent(characterChannel, propertyMap, comment);
+        } catch (IOException e) {
             return IOUtils.createError(e);
         }
         return null;
