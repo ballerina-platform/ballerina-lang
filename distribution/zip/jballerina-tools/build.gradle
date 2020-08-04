@@ -107,6 +107,7 @@ dependencies {
 
     dist project(':testerina:testerina-core')
     dist project(':formatter:formatter-core')
+    dist project(':formatter:formatter-cli')
     dist project(':ballerina-formatter')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')

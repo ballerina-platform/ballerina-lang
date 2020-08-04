@@ -129,6 +129,7 @@ include(':build-config:checkstyle')
 include(':debug-adapter:debug-adapter-core')
 include(':debug-adapter:debug-adapter-cli')
 include(':formatter:formatter-core')
+include(':formatter:formatter-cli')
 include(':ballerina-libs')
 project(':ballerina-parser').projectDir = file('compiler/ballerina-parser')
 project(':ballerina-lang').projectDir = file('compiler/ballerina-lang')
@@ -254,6 +255,7 @@ project(':openapi-integration-tests').projectDir = file('tests/openapi-integrati
 project(':debug-adapter:debug-adapter-core').projectDir = file('misc/debug-adapter/modules/debug-adapter-core')
 project(':debug-adapter:debug-adapter-cli').projectDir = file('misc/debug-adapter/modules/debug-adapter-cli')
 project(':formatter:formatter-core').projectDir = file('misc/formatter/modules/formatter-core')
+project(':formatter:formatter-cli').projectDir = file('misc/formatter/modules/formatter-cli')
 buildCache {
     remote(HttpBuildCache) {
         url = "http://192.168.58.132:5071/cache/"
