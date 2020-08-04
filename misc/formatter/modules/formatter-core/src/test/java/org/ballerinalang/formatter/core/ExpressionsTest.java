@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.expressions;
+package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Test formatting for expressions.
  *
  * @since 2.0.0
  */
-public class ExpressionTestImpl extends AbstractExpressionTest {
+public class ExpressionsTest {
+
+    private void testFile(String sourceFilePath, String filePath) {
+        FormatterTestUtils.test(Paths.get("expressions/", sourceFilePath), Paths.get("expressions/", filePath));
+    }
 
     @Test(description = "Test the formatting of constant expressions")
     public void testConstantExpressions() {

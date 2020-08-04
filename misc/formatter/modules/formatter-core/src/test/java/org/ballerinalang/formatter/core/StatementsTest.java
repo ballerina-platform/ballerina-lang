@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.statements;
+package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Test formatting for statements.
  *
  * @since 2.0.0
  */
-public class StatementTestImpl extends AbstractStatementTest {
+public class StatementsTest {
+
+    private void testFile(String sourceFilePath, String filePath) {
+        FormatterTestUtils.test(Paths.get("statements/", sourceFilePath), Paths.get("statements/", filePath));
+    }
 
     @Test(description = "Test the formatting of action statements")
     public void testActionStatement() {

@@ -44,12 +44,11 @@ public abstract class FormatterTestUtils {
      * @param assertFilePath File to assert the resulting tree after formatting
      */
     public static void test(Path sourceFilePath, Path assertFilePath) {
-
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         SyntaxTree newSyntaxTree = Formatter.format(syntaxTree, null);
-        Assert.assertEquals(getSourceText(assertFilePath), newSyntaxTree.toSourceCode());
+        Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 
     private static String getSourceText(Path sourceFilePath) {

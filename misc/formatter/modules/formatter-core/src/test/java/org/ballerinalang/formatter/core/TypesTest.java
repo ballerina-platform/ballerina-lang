@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.types;
+package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Test formatting for type descriptors.
  *
  * @since 2.0.0
  */
-public class TypeTestImpl extends AbstractTypeTest {
+public class TypesTest {
+
+    private void testFile(String sourceFilePath, String filePath) {
+        FormatterTestUtils.test(Paths.get("types/", sourceFilePath), Paths.get("types/", filePath));
+    }
 
     @Test(description = "Test the formatting of behavioural type descriptors")
     public void testBehaviouralTypes() {

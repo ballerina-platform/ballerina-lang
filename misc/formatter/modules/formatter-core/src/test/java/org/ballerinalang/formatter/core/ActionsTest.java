@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.formatter.core.actions;
+package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
+
+import java.nio.file.Paths;
 
 /**
  * Test formatting for actions.
  *
  * @since 2.0.0
  */
-public class ActionTestImpl extends AbstractActionTest {
+public class ActionsTest {
+
+    private void testFile(String path, String filePath) {
+        FormatterTestUtils.test(Paths.get("actions/", path), Paths.get("actions/", filePath));
+    }
 
     @Test(description = "Test the formatting of checking actions")
     public void testCheckingActions() {
