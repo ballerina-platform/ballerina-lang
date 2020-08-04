@@ -2435,9 +2435,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 endContext(); // end select, on-conflict, limit or do-clause ctx
                 endContext(); // end query-expr ctx
                 return ParserRuleContext.EXPRESSION_RHS;
-            case JOIN_CLAUSE_END:
-                endContext(); // end join-clause ctx
-                return ParserRuleContext.QUERY_PIPELINE_RHS;
             case TYPE_DESC_IN_ANNOTATION_DECL:
             case TYPE_DESC_BEFORE_IDENTIFIER:
             case TYPE_DESC_IN_RECORD_FIELD:
@@ -2570,6 +2567,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.DO_KEYWORD;
             case LET_CLAUSE_END:
             case ORDER_CLAUSE_END:
+            case JOIN_CLAUSE_END:
                 endContext();
                 return ParserRuleContext.QUERY_PIPELINE_RHS;
             case MEMBER_ACCESS_KEY_EXPR:
@@ -2860,15 +2858,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
     private void startContextIfRequired(ParserRuleContext currentCtx) {
         switch (currentCtx) {
-            case JOIN_CLAUSE:
-                // TODO: refactor logic
-                ParserRuleContext parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
-                    endContext(); // end let-clause-let-var-decl
-                }
-                startContext(currentCtx);
-                break;
-
             case COMP_UNIT:
             case FUNC_DEF_OR_FUNC_TYPE:
             case ANON_FUNC_EXPRESSION:
@@ -2961,7 +2950,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
             case FUNCTIONAL_MATCH_PATTERN:
             case NAMED_ARG_MATCH_PATTERN:
-            case SELECT_CLAUSE:
+
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2977,6 +2966,19 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
+                startContext(currentCtx);
+                break;
+            default:
+                break;
+        }
+
+        switch (currentCtx) {
+            case SELECT_CLAUSE:
+            case JOIN_CLAUSE:
+                ParserRuleContext parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
+                    endContext(); // end let-clause-let-var-decl
+                }
                 startContext(currentCtx);
                 break;
             default:
@@ -3132,7 +3134,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
             case SERVICE_CONSTRUCTOR_EXPRESSION:
             case ORDER_KEY_LIST:
-//            case JOIN_CLAUSE: TODO: check relevance
+            case SELECT_CLAUSE:
+            case JOIN_CLAUSE:
+            case ON_CONFLICT_CLAUSE:
                 return true;
             default:
                 return false;

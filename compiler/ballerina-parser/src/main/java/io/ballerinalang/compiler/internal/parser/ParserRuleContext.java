@@ -224,7 +224,6 @@ public enum ParserRuleContext {
     MATCH_PATTERN_END("match-pattern-end"),
     MATCH_PATTERN_RHS("match-pattern-rhs"),
     OPTIONAL_MATCH_GUARD("optional-match-guard"),
-    JOIN_CLAUSE("join-clause"),
     LIST_MATCH_PATTERN("list-match-pattern"),
     LIST_MATCH_PATTERNS_START("list-match-patterns-start"),
     LIST_MATCH_PATTERN_MEMBER("list-match-pattern-member"),
@@ -248,8 +247,10 @@ public enum ParserRuleContext {
     ORDER_KEY_LIST_END("order-key-list-end"),
     ON_CONFLICT_CLAUSE("on-conflict-clause"),
     LIMIT_CLAUSE("limit-clause"),
+    JOIN_CLAUSE("join-clause"),
+    JOIN_CLAUSE_START("join-clause-start"),
+    JOIN_CLAUSE_END("join-clause-end"),
     ON_CLAUSE("on-clause"),
-    QUERY_ACTION_RHS("query-action-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -481,9 +482,10 @@ public enum ParserRuleContext {
     TABLE_CONSTRUCTOR_OR_QUERY_RHS("table-constructor-or-query-rhs"),
     QUERY_EXPRESSION("query-expr"),
     QUERY_EXPRESSION_RHS("query-expr-rhs"),
+    QUERY_ACTION_RHS("query-action-rhs"),
     QUERY_EXPRESSION_END("query-expr-end"),
     FIELD_ACCESS_IDENTIFIER("field-access-identifier"),
-    QUERY_PIPELINE_RHS("query-pipeline-rhs"), // consider changing to intermediate_clause
+    QUERY_PIPELINE_RHS("query-pipeline-rhs"),
     LET_CLAUSE_END("let-clause-end"),
     CONDITIONAL_EXPRESSION("conditional-expr"),
     SERVICE_CONSTRUCTOR_EXPRESSION("service-constructor-expression"),
@@ -499,8 +501,6 @@ public enum ParserRuleContext {
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
     ORDER_CLAUSE_END("order-clause-end"),
-    JOIN_CLAUSE_END("join-clause-end"),
-    JOIN_CLAUSE_START("join-clause-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
