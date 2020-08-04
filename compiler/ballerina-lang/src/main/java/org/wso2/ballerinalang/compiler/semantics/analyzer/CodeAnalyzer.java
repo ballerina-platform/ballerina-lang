@@ -222,6 +222,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -2276,7 +2277,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         boolean isInferredRecordForMapCET = isRecord && recordLiteral.expectedType != null &&
                 recordLiteral.expectedType.tag == TypeTags.MAP;
 
-        boolean isInclusiveTypeFound = false;
+        int noOfInclusiveTypes = 0;
         for (RecordLiteralNode.RecordField field : fields) {
 
             BLangExpression keyExpr;
@@ -2292,16 +2293,24 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 if (!((BRecordType) spreadOpExpr.type).sealed) {
-                    if (isInclusiveTypeFound) {
-                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.INCLUSIVE_RECORD_LITERAL_WITH_SPREAD_OP,
+                    // More than one inclusive-type-descriptors with spread-fields are not allowed.
+                    if (noOfInclusiveTypes > 0) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MORE_THAN_ONE_INCLUSIVE_TYPES,
                                 recordLiteral.expectedType.getKind().typeName());
                     } else {
-                        isInclusiveTypeFound = true;
+                        noOfInclusiveTypes = noOfInclusiveTypes + 1;
                     }
                 }
 
+                LinkedHashMap<String, BField> fieldsInRecordLiteral = ((BRecordType) spreadOpExpr.type).fields;
                 for (Object fieldName : names) {
-                    if (!((BRecordType) spreadOpExpr.type).fields.containsKey(fieldName)) {
+                    if (fieldsInRecordLiteral.containsKey(fieldName)) {
+                        if (fieldsInRecordLiteral.get(fieldName).type.tag != TypeTags.NEVER) {
+                            // An error is logged if the same field is occurred, and it is not defined as a never-type
+                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                    recordLiteral.expectedType.getKind().typeName(), fieldName, spreadOpField);
+                        }
+                    } else {
                         if (!((BRecordType) spreadOpExpr.type).sealed) {
                             this.dlog.error(spreadOpExpr.pos, DiagnosticCode.INCLUSIVE_RECORD_LITERAL_WITH_SPREAD_OP,
                                     recordLiteral.expectedType.getKind().typeName(), spreadOpExpr);
@@ -2310,14 +2319,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 for (BField bField : ((BRecordType) spreadOpExpr.type).fields.values()) {
-
                     String name = bField.name.value;
-                    if (names.contains(name)) {
-                        if (bField.type.tag != TypeTags.NEVER) {
-                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
-                                    recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
-                        }
-                    } else {
+                    if (!names.contains(name)) {
                         if (bField.type.tag != TypeTags.NEVER) {
                             names.add(name);
                         }
