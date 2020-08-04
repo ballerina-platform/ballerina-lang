@@ -144,6 +144,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "checkNaN()(boolean)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `boolean`   \n  \n"
+        }
+      },
+      "sortText": "120",
+      "insertText": "checkNaN()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "getStreamFromPipeline()(stream<(any|error),error?><(any|error)>)",
       "kind": "Function",
       "detail": "Function",
@@ -393,20 +407,6 @@
       },
       "sortText": "120",
       "insertText": "fromJsonString()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "isNaN()(boolean)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.query:0.0.1_  \n  \n  \n  \n  \n**Returns** `boolean`   \n  \n"
-        }
-      },
-      "sortText": "120",
-      "insertText": "isNaN()",
       "insertTextFormat": "Snippet"
     },
     {
