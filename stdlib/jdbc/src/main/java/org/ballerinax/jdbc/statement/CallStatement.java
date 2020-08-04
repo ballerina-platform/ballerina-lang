@@ -190,17 +190,23 @@ public class CallStatement extends AbstractSQLStatement {
                 // Current result is a ResultSet
                 result = stmt.getResultSet();
                 resultSets.add(result);
-                if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)) {
-                    // TODO: "mysql" equality condition is part of the temporary fix to support returning the result
-                    // set in the case of stored procedures returning only one result set in MySQL. Refer
-                    // ballerina-platform/ballerina-lang#8643
+                if (databaseProductName.contains(Constants.DatabaseNames.MYSQL)
+                        || databaseProductName.contains(Constants.DatabaseNames.MSSQL_SERVER)) {
+                    // TODO: "mysql" & "mssql" equality condition is part of the temporary fix to support returning
+                    //  the result set in the case of stored procedures returning only one result set in MySQL. Refer
+                    //  ballerina-platform/ballerina-lang#12804
                     break;
                 }
             }
             // This point reaches if current result was an update count. So it is needed to capture any remaining
             // results
             try {
-                resultAndNoUpdateCount = stmt.getMoreResults(Statement.KEEP_CURRENT_RESULT);
+                // Check for only MSSQL since MySQL doesnt return update count for each statement.
+                if (databaseProductName.contains(Constants.DatabaseNames.MSSQL_SERVER)) {
+                    resultAndNoUpdateCount = stmt.getMoreResults();
+                } else {
+                    resultAndNoUpdateCount = stmt.getMoreResults(Statement.KEEP_CURRENT_RESULT);
+                }
             } catch (SQLException e) {
                 break;
             }
