@@ -425,8 +425,14 @@ public class SignatureHelpUtil {
         if (restParam != null) {
             parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
         }
+        boolean isLangLib = CommonUtil.isLangLibSymbol(bInvokableSymbol);
         // Create a list of param info models
-        parameters.forEach(param -> {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i == 0 && isLangLib) {
+                // If langlib, skip first param
+                continue;
+            }
+            Parameter param = parameters.get(i);
             String name = param.isOptional ? param.name + "?" : param.name;
             String desc = "";
             if (paramToDesc.containsKey(param.name)) {
@@ -441,7 +447,7 @@ public class SignatureHelpUtil {
                 type += "...";
             }
             paramModels.add(new ParameterInfoModel(name, type, desc));
-        });
+        }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
     }
