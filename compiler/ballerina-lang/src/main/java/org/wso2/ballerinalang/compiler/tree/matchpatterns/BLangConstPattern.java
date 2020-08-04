@@ -19,11 +19,14 @@ package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.matchpatterns.ConstPattern;
+import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 
-public class BLangConstPattern extends BLangMatchPattern implements ConstPattern {
+/**
+ * @since 2.0.0
+ */
+public class BLangConstPattern extends BLangMatchPattern implements ConstPatternNode {
 
     public BLangExpression expr;
 

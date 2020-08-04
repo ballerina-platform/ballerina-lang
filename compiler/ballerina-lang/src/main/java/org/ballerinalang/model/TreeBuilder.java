@@ -107,9 +107,9 @@ import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralN
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
 import org.ballerinalang.model.tree.expressions.XMLTextLiteralNode;
-import org.ballerinalang.model.tree.matchpatterns.ConstPattern;
-import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPattern;
-import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPattern;
+import org.ballerinalang.model.tree.matchpatterns.ConstPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
 import org.ballerinalang.model.tree.statements.AssignmentNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
@@ -165,10 +165,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -188,9 +184,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeySpecifier;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -231,6 +227,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDo
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression.BLangMatchExprPatternClause;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -268,6 +265,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -753,15 +753,15 @@ public class TreeBuilder {
         return new BLangMatchStatement();
     }
 
-    public static WildCardMatchPattern createWildCardMatchPattern() {
+    public static WildCardMatchPatternNode createWildCardMatchPattern() {
         return new BLangWildCardMatchPattern();
     }
 
-    public static ConstPattern createConstMatchPattern() {
+    public static ConstPatternNode createConstMatchPattern() {
         return new BLangConstPattern();
     }
 
-    public static VarBindingPatternMatchPattern createVarBindingPattern() {
+    public static VarBindingPatternMatchPatternNode createVarBindingPattern() {
         return new BLangVarBindingPatternMatchPattern();
     }
 

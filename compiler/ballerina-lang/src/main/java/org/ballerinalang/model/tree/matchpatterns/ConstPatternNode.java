@@ -18,7 +18,16 @@
 package org.ballerinalang.model.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 
-public interface MatchPattern extends Node {
+/**
+ * The interface with the APIs to implement the const-pattern.
+ *
+ * @since 2.0.0
+ */
+public interface ConstPatternNode extends Node {
 
+    ExpressionNode getExpresion();
+
+    void setExpression(ExpressionNode expression);
 }

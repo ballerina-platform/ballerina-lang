@@ -18,11 +18,16 @@
 package org.ballerinalang.model.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 
-public interface ConstPattern extends Node {
+/**
+ * The interface with the APIs to implement the var-binding-pattern match-pattern.
+ *
+ * @since 2.0.0
+ */
+public interface VarBindingPatternMatchPatternNode extends Node {
 
-    ExpressionNode getExpresion();
+    BindingPatternNode getBindingPattern();
 
-    void setExpression(ExpressionNode expression);
+    void setBindingPattern(BindingPatternNode bindingPattern);
 }

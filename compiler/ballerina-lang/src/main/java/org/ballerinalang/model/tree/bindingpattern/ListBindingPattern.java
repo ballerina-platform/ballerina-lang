@@ -21,8 +21,13 @@ import org.ballerinalang.model.tree.Node;
 
 import java.util.List;
 
+/**
+ * The interface with the APIs to implement the list-binding-pattern.
+ *
+ * @since 2.0.0
+ */
 public interface ListBindingPattern extends Node {
-    List<? extends BindingPattern> getBindingPatterns();
+    List<? extends BindingPatternNode> getBindingPatterns();
 
-    void addBindingPattern(BindingPattern bindingPattern);
+    void addBindingPattern(BindingPatternNode bindingPattern);
 }

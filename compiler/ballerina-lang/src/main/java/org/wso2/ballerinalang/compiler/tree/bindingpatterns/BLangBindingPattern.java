@@ -17,9 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
-import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
-public abstract class BLangBindingPattern extends BLangNode implements BindingPattern {
+/**
+ * @since 2.0.0
+ */
+public abstract class BLangBindingPattern extends BLangNode implements BindingPatternNode {
 
 }

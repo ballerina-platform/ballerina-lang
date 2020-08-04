@@ -15,10 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.bindingpattern;
+package org.ballerinalang.model.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.Node;
 
-public interface BindingPattern extends Node {
-
+/**
+ * The interface with the APIs to implement the wild-card-binding-pattern.
+ *
+ * @since 2.0.0
+ */
+public interface WildCardMatchPatternNode extends Node {
 }

@@ -21,6 +21,11 @@ import org.ballerinalang.model.symbols.VariableSymbol;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 
+/**
+ * The interface with the APIs to implement the capture-binding-pattern.
+ *
+ * @since 2.0.0
+ */
 public interface CaptureBindingPattern extends Node {
 
     IdentifierNode getIdentifier();

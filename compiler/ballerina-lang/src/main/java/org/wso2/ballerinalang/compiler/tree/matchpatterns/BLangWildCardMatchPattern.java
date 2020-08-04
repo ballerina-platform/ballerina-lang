@@ -18,10 +18,13 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPattern;
+import org.ballerinalang.model.tree.matchpatterns.WildCardMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-public class BLangWildCardMatchPattern extends BLangMatchPattern implements WildCardMatchPattern {
+/**
+ * @since 2.0.0
+ */
+public class BLangWildCardMatchPattern extends BLangMatchPattern implements WildCardMatchPatternNode {
 
     public boolean matchesAll;
 

@@ -18,22 +18,24 @@
 package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.clauses.MatchClauseNode;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.matchpatterns.MatchPattern;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchGuard;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @since 2.0.0
+ */
 public class BLangMatchClause extends BLangNode implements MatchClauseNode {
 
     public List<BLangMatchPattern> matchPatterns = new ArrayList<>();
@@ -73,12 +75,12 @@ public class BLangMatchClause extends BLangNode implements MatchClauseNode {
     }
 
     @Override
-    public List<? extends MatchPattern> getMatchPatterns() {
+    public List<? extends MatchPatternNode> getMatchPatterns() {
         return matchPatterns;
     }
 
     @Override
-    public void addMatchPattern(MatchPattern matchPattern) {
+    public void addMatchPattern(MatchPatternNode matchPattern) {
         matchPatterns.add((BLangMatchPattern) matchPattern);
     }
 

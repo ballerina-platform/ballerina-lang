@@ -18,12 +18,15 @@
 package org.wso2.ballerinalang.compiler.tree.matchpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
-import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPattern;
+import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
+import org.ballerinalang.model.tree.matchpatterns.VarBindingPatternMatchPatternNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 
-public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPattern {
+/**
+ * @since 2.0.0
+ */
+public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implements VarBindingPatternMatchPatternNode {
 
     BLangBindingPattern bindingPattern;
 
@@ -44,7 +47,7 @@ public class BLangVarBindingPatternMatchPattern extends BLangMatchPattern implem
     }
 
     @Override
-    public void setBindingPattern(BindingPattern bindingPattern) {
+    public void setBindingPattern(BindingPatternNode bindingPattern) {
         this.bindingPattern = (BLangBindingPattern) bindingPattern;
     }
 }

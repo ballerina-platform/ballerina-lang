@@ -232,7 +232,6 @@ import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
-import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
@@ -244,10 +243,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -269,9 +264,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangTableKeyTypeConstraint;
 import org.wso2.ballerinalang.compiler.tree.BLangTupleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -310,6 +304,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecation
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownDocumentationLine;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownReturnParameterDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchGuard;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangNumericLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangObjectConstructorExpression;
@@ -353,6 +348,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
@@ -3829,20 +3827,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     }
 
-    private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode captureBindingPatternNode) {
+    private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode
+                                                                           captureBindingPatternNode) {
         BLangCaptureBindingPattern bLangCaptureBindingPattern =
                 (BLangCaptureBindingPattern) TreeBuilder.createCaptureBindingPattern();
         bLangCaptureBindingPattern.setIdentifier(createIdentifier(captureBindingPatternNode
                 .variableName()));
         bLangCaptureBindingPattern.pos = getPosition(captureBindingPatternNode);
         return bLangCaptureBindingPattern;
-    }
-
-    public BLangExpression createLiteralOrReference(Node node) {
-        if (node.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-            return createExpression(node);
-        }
-        return createSimpleLiteral(node);
     }
 
     private BLangXMLElementFilter createXMLElementFilter(Node node) {

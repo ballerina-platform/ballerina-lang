@@ -17,14 +17,19 @@
  */
 package org.ballerinalang.model.clauses;
 
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
-import org.ballerinalang.model.tree.matchpatterns.MatchPattern;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.MatchGuard;
+import org.ballerinalang.model.tree.matchpatterns.MatchPatternNode;
 import org.ballerinalang.model.tree.statements.BlockStatementNode;
 
 import java.util.List;
 
+/**
+ * The interface with the APIs to implement the match-clause.
+ *
+ * @since 2.0.0
+ */
 public interface MatchClauseNode extends Node {
 
     MatchGuard getMatchGuard();
@@ -35,9 +40,9 @@ public interface MatchClauseNode extends Node {
 
     void setBlockStatement(BlockStatementNode blockStatement);
 
-    List<? extends MatchPattern> getMatchPatterns();
+    List<? extends MatchPatternNode> getMatchPatterns();
 
-    void addMatchPattern(MatchPattern matchPattern);
+    void addMatchPattern(MatchPatternNode matchPattern);
 
     boolean isLastClause();
 

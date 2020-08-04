@@ -15,14 +15,15 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.model.tree.matchpatterns;
+package org.ballerinalang.model.tree.bindingpattern;
 
 import org.ballerinalang.model.tree.Node;
-import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
 
-public interface VarBindingPatternMatchPattern extends Node {
+/**
+ * The interface with the APIs to implement the binding-pattern.
+ *
+ * @since 2.0.0
+ */
+public interface BindingPatternNode extends Node {
 
-    BindingPattern getBindingPattern();
-
-    void setBindingPattern(BindingPattern bindingPattern);
 }

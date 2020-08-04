@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.model.tree.expressions;
 
+/**
+ * The interface with the APIs to implement the match-guard.
+ *
+ * @since 2.0.0
+ */
 public interface MatchGuard {
     ExpressionNode getExpression();
 

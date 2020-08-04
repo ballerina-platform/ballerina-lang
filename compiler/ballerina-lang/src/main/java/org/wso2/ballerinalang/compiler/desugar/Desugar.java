@@ -86,7 +86,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -103,6 +102,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -192,6 +193,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -3007,14 +3010,16 @@ public class Desugar extends BLangNodeVisitor {
         switch (patternKind) {
             case WILDCARD_MATCH_PATTERN:
                 return ASTBuilderUtil.createIfElseStmt(pos, ASTBuilderUtil.createLiteral(pos,
-                        symTable.booleanType, ((BLangWildCardMatchPattern) matchPattern).matchesAll), successBody, null);
+                        symTable.booleanType, ((BLangWildCardMatchPattern) matchPattern).matchesAll), successBody,
+                        null);
             case CONST_MATCH_PATTERN:
                 BLangConstPattern constMatchPattern = (BLangConstPattern) matchPattern;
-                return ASTBuilderUtil.createIfElseStmt(pos, createBinaryExpression(constMatchPattern.pos, matchExprVarRef,
-                        constMatchPattern.expr), successBody, null);
+                return ASTBuilderUtil.createIfElseStmt(pos, createBinaryExpression(constMatchPattern.pos,
+                        matchExprVarRef, constMatchPattern.expr), successBody, null);
             case VAR_BINDING_PATTERN_MATCH_PATTERN:
                 // var [a, b] or var a
-                BLangVarBindingPatternMatchPattern varBindingPattern = (BLangVarBindingPatternMatchPattern) matchPattern;
+                BLangVarBindingPatternMatchPattern varBindingPattern =
+                        (BLangVarBindingPatternMatchPattern) matchPattern;
                 BLangBindingPattern bindingPattern = varBindingPattern.getBindingPattern();
 
                 switch (bindingPattern.getKind()) {

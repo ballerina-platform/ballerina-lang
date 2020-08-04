@@ -18,23 +18,26 @@
 package org.wso2.ballerinalang.compiler.tree.bindingpatterns;
 
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.bindingpattern.BindingPattern;
+import org.ballerinalang.model.tree.bindingpattern.BindingPatternNode;
 import org.ballerinalang.model.tree.bindingpattern.ListBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @since 2.0.0
+ */
 public class BLangListBindingPattern extends BLangBindingPattern implements ListBindingPattern {
     public List<BLangBindingPattern> bindingPatterns = new ArrayList<>();
 
     @Override
-    public List<? extends BindingPattern> getBindingPatterns() {
+    public List<? extends BindingPatternNode> getBindingPatterns() {
         return bindingPatterns;
     }
 
     @Override
-    public void addBindingPattern(BindingPattern bindingPattern) {
+    public void addBindingPattern(BindingPatternNode bindingPattern) {
         bindingPatterns.add((BLangBindingPattern) bindingPattern);
     }
 
