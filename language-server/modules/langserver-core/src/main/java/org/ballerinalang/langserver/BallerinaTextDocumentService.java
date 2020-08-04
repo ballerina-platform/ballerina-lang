@@ -16,8 +16,11 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.JsonObject;
-import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import io.ballerinalang.compiler.syntax.tree.Node;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.Token;
+import io.ballerinalang.compiler.text.LinePosition;
 import org.ballerinalang.langserver.codeaction.CodeActionRouter;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codelenses.CodeLensUtil;
@@ -26,6 +29,7 @@ import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.capability.LSClientCapabilities;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionKeys;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
@@ -54,6 +58,7 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.signature.SignatureTreeVisitor;
 import org.ballerinalang.langserver.symbols.SymbolFindingVisitor;
 import org.ballerinalang.langserver.util.Debouncer;
+import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.TokenOrSymbolNotFoundException;
@@ -118,7 +123,7 @@ import static org.ballerinalang.langserver.compiler.LSClientLogger.notifyUser;
 import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 import static org.ballerinalang.langserver.implementation.GotoImplementationUtil.getImplementationLocation;
 import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFuncScopeEntry;
-import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getFunctionInvocationDetails;
+import static org.ballerinalang.langserver.signature.SignatureHelpUtil.getInvocationSymbolPath;
 
 /**
  * Text document service implementation for ballerina.
@@ -175,7 +180,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                CompletionUtil.pruneSource(context);
+//                CompletionUtil.pruneSource(context);
                 LSModuleCompiler.getBLangPackage(context, docManager, null, false, false, true);
                 // Fill the current file imports
                 context.put(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY, CommonUtil.getCurrentFileImports(context));
@@ -188,12 +193,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 String msg = "Operation 'text/completion' failed!";
                 logError(msg, e, position.getTextDocument(), position.getPosition());
             } finally {
-                try {
-                    docManager.resetPrunedContent(Paths.get(URI.create(fileUri)));
-                } catch (WorkspaceDocumentException e) {
-                    logError("Error resetting pruned state. ", e, position.getTextDocument(),
-                            position.getPosition());
-                }
                 lock.ifPresent(Lock::unlock);
             }
             return Either.forLeft(completions);
@@ -221,7 +220,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             Hover hover;
             try {
-                hover = ReferencesUtil.getHover(context);
+                hover = ReferencesUtil.getHover(context, position.getPosition());
             } catch (TokenOrSymbolNotFoundException e) {
                 hover = HoverUtil.getDefaultHoverObject();
             } catch (Throwable e) {
@@ -254,24 +253,56 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 // Prune the source and compile
-                SignatureHelpUtil.pruneSource(context);
                 BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                        LSCustomErrorStrategy.class, false, false, true);
-                // Capture visible symbols of the cursor position
-                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context);
-                bLangPackage.accept(signatureTreeVisitor);
+                                                                             LSCustomErrorStrategy.class, false, false,
+                                                                             true);
+                // Find token at cursor position
+                Token cursorToken = TokensUtil.findTokenAtPosition(context, position.getPosition());
                 int activeParamIndex = 0;
+                //TODO: Once https://git.io/JJIFp fixed, can get docs directly from the node of syntaxTree
+                NonTerminalNode sNode = cursorToken.parent();
+                SyntaxKind sKind = (sNode != null) ? sNode.kind() : null;
+
+                // Find invocation node
+                while (sNode != null &&
+                        sKind != SyntaxKind.FUNCTION_CALL &&
+                        sKind != SyntaxKind.METHOD_CALL &&
+                        sKind != SyntaxKind.REMOTE_METHOD_CALL_ACTION &&
+                        sKind != SyntaxKind.IMPLICIT_NEW_EXPRESSION &&
+                        sKind != SyntaxKind.EXPLICIT_NEW_EXPRESSION) {
+                    sNode = sNode.parent();
+                    sKind = sNode.kind();
+                }
+
+                // Find parameter index
+                int cLine = position.getPosition().getLine();
+                int cCol = position.getPosition().getCharacter();
+                for (Node child : sNode.children()) {
+                    int sLine = child.lineRange().startLine().line();
+                    int sCol = child.lineRange().startLine().offset();
+                    if ((cLine == sLine && cCol < sCol) || (cLine < sLine)) {
+                        break;
+                    }
+                    if (child.kind() == SyntaxKind.COMMA_TOKEN) {
+                        activeParamIndex++;
+                    }
+                }
+
+                // Find visible symbols for the block statement
+                LinePosition start = sNode.lineRange().startLine();
+                Position pos = new Position(start.line(), start.offset());
+                SignatureTreeVisitor signatureTreeVisitor = new SignatureTreeVisitor(context, pos);
+                bLangPackage.accept(signatureTreeVisitor);
                 List<Scope.ScopeEntry> visibleSymbols = context.get(CommonKeys.VISIBLE_SYMBOLS_KEY);
                 if (visibleSymbols == null) {
                     throw new Exception("Couldn't find the symbol, visible symbols are NULL!");
                 }
+
                 // Search function invocation symbol
                 List<SignatureInformation> signatures = new ArrayList<>();
                 List<Scope.ScopeEntry> symbols = new ArrayList<>(visibleSymbols);
-                Pair<Optional<String>, Integer> funcPathAndParamIndexPair = getFunctionInvocationDetails(context);
-                Optional<String> funcPath = funcPathAndParamIndexPair.getLeft();
-                activeParamIndex = funcPathAndParamIndexPair.getRight();
-                funcPath.ifPresent(pathStr -> {
+                Optional<String> symbolPath = getInvocationSymbolPath(sNode, context);
+                symbolPath.ifPresent(pathStr -> {
                     Optional<Scope.ScopeEntry> searchSymbol = getFuncScopeEntry(context, pathStr, symbols);
                     searchSymbol.ifPresent(entry -> {
                         if (entry.symbol instanceof BInvokableSymbol) {
@@ -316,7 +347,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .withStdLibDefinitionParam(this.enableStdlibDefinition)
                     .build();
             try {
-                return Either.forLeft(DefinitionUtil.getDefinition(context));
+                return Either.forLeft(DefinitionUtil.getDefinition(context, position.getPosition()));
             } catch (UserErrorException e) {
                 notifyUser("Goto Definition", e);
                 return Either.forLeft(new ArrayList<>());
@@ -347,7 +378,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
             try {
                 boolean includeDeclaration = params.getContext().isIncludeDeclaration();
-                return ReferencesUtil.getReferences(context, includeDeclaration);
+                return ReferencesUtil.getReferences(context, includeDeclaration, params.getPosition());
             } catch (UserErrorException e) {
                 notifyUser("Find References", e);
                 return new ArrayList<>();
@@ -577,7 +608,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     .build();
 
             try {
-                return ReferencesUtil.getRenameWorkspaceEdits(context, params.getNewName());
+                return ReferencesUtil.getRenameWorkspaceEdits(context, params.getNewName(), position);
             } catch (UserErrorException e) {
                 notifyUser("Rename", e);
                 return null;

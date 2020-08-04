@@ -25,6 +25,7 @@ import org.ballerinalang.jvm.types.BPackage;
 import org.ballerinalang.jvm.types.BTupleType;
 import org.ballerinalang.jvm.types.BType;
 import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.types.BUnionType;
 import org.ballerinalang.jvm.types.TypeTags;
 import org.ballerinalang.jvm.util.exceptions.BallerinaException;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -32,6 +33,7 @@ import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.DecimalValue;
 import org.ballerinalang.jvm.values.ErrorValue;
+import org.ballerinalang.jvm.values.ListInitialValueEntry;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -48,6 +50,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -139,6 +142,10 @@ public class StaticMethods {
     public static ObjectValue acceptObjectAndObjectReturn(ObjectValue p, int newVal) {
         p.set(StringUtils.fromString("age"), newVal);
         return p;
+    }
+
+    public static int acceptObjectAndReturnField(ObjectValue p) {
+        return ((Long) p.get(StringUtils.fromString("age"))).intValue();
     }
 
     public static MapValue acceptRecordAndRecordReturn(MapValue e, BString newVal) {
@@ -391,5 +398,37 @@ public class StaticMethods {
 
     public static BTypedesc getTypeDescOnly(BTypedesc typeDesc) {
         return typeDesc;
+    }
+
+    public static ArrayValue getValues(MapValue<BString, Long> intMap, MapValue<BString, BString> stringMap) {
+        int length = intMap.size() + stringMap.size();
+        ListInitialValueEntry[] entries = new ListInitialValueEntry[length];
+
+        int index = 0;
+
+        for (Map.Entry<BString, Long> intEntry : intMap.entrySet()) {
+            entries[index++] = new ListInitialValueEntry.ExpressionEntry(intEntry.getValue());
+        }
+
+        for (Map.Entry<BString, BString> stringEntry : stringMap.entrySet()) {
+            entries[index++] = new ListInitialValueEntry.ExpressionEntry(stringEntry.getValue());
+        }
+
+        return new ArrayValueImpl(new BArrayType(new BUnionType(new ArrayList(2) {{
+            add(BTypes.typeInt);
+            add(BTypes.typeString);
+        }}), length, true), length, entries);
+    }
+
+    public static Object echoAnydataAsAny(Object value) {
+        return value;
+    }
+
+    public static ObjectValue echoObject(ObjectValue obj) {
+        return obj;
+    }
+
+    public static boolean echoImmutableRecordField(MapValue value, BString key) {
+        return value.getBooleanValue(key);
     }
 }

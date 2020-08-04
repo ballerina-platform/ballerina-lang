@@ -18,6 +18,9 @@
 
 package org.ballerinalang.net.http.util;
 
+import org.ballerinalang.jvm.StringUtils;
+import org.ballerinalang.jvm.types.BTypes;
+import org.ballerinalang.jvm.values.api.BString;
 import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import java.time.ZonedDateTime;
@@ -111,6 +114,14 @@ public class CacheUtils {
 
     private static boolean isWeakEntityTag(String etag) {
         return etag.startsWith(WEAK_VALIDATOR_TAG);
+    }
+
+    public static BString getProperty(BString name) {
+        String value = System.getProperty(name.getValue());
+        if (value == null) {
+            return BTypes.typeString.getZeroValue();
+        }
+        return StringUtils.fromString(value);
     }
 
     private CacheUtils() {

@@ -119,6 +119,7 @@ public class StatementContextProvider extends AbstractCompletionProvider {
         return completionItems;
     }
 
+    @Deprecated
     private List<LSCompletionItem> getStaticCompletionItems(LSContext context) {
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();

@@ -113,6 +113,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BUILT_IN_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPE_INSTANCES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DOUBLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_TYPE;
@@ -125,6 +127,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VA
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTERSECTION_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INT_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LINKED_HASH_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LIST;
@@ -157,6 +160,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPES_ERROR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_ID_SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.UNION_TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmInstructionGen.loadConstantValue;
@@ -210,11 +214,11 @@ class JvmTypeGen {
         createTypesInstance(cw, typeDefs, typeOwnerClass);
         List<String> populateTypeFuncNames = populateTypes(cw, typeDefs, typeOwnerClass, symbolTable);
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypes", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPES_METHOD, "()V", null, null);
         mv.visitCode();
 
         // Invoke create-type-instances method
-        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypeInstances", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPE_INSTANCES_METHOD, "()V", false);
 
         // Invoke the populate-type functions
         for (String funcName : populateTypeFuncNames) {
@@ -228,7 +232,7 @@ class JvmTypeGen {
 
     private static void createTypesInstance(ClassWriter cw, List<BIRTypeDefinition> typeDefs, String typeOwnerClass) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, "$createTypeInstances", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, CREATE_TYPE_INSTANCES_METHOD, "()V", null, null);
         mv.visitCode();
 
         // Create the type
@@ -357,7 +361,7 @@ class JvmTypeGen {
         // Create TypeIdSet
         mv.visitTypeInsn(NEW, TYPE_ID_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPE_ID_SET, JVM_INIT_METHOD, "()V", false);
 
         for (BTypeIdSet.BTypeId typeId : typeIdSet.primary) {
             addTypeId(mv, typeId, true);
@@ -376,7 +380,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(typeId.packageID.orgName.value);
         mv.visitLdcInsn(typeId.packageID.name.value);
         mv.visitLdcInsn(typeId.packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         mv.visitLdcInsn(typeId.name);
@@ -454,7 +458,7 @@ class JvmTypeGen {
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", BTYPE));
-            mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", BTYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", BTYPE), false);
 
             mv.visitInsn(DUP);
             mv.visitTypeInsn(NEW, STRAND);
@@ -467,8 +471,8 @@ class JvmTypeGen {
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
             mv.visitInsn(ACONST_NULL);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
-                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V",
+                    STRING_VALUE, STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitInsn(SWAP);
             mv.visitMethodInsn(INVOKESTATIC, className, "$init", String.format("(L%s;L%s;)V", STRAND, MAP_VALUE),
                                false);
@@ -542,7 +546,7 @@ class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", BTYPE));
             mv.visitTypeInsn(CHECKCAST, OBJECT_TYPE);
-            mv.visitMethodInsn(INVOKESPECIAL, className, "<init>", String.format("(L%s;)V", OBJECT_TYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, className, JVM_INIT_METHOD, String.format("(L%s;)V", OBJECT_TYPE), false);
 
             BIRVariableDcl tempVar = new BIRVariableDcl(typeDef.type, new Name("tempVar"), VarScope.FUNCTION,
                     VarKind.LOCAL);
@@ -568,8 +572,8 @@ class JvmTypeGen {
             mv.visitVarInsn(ALOAD, schedulerIndex);
             mv.visitVarInsn(ALOAD, parentIndex);
             mv.visitVarInsn(ALOAD, propertiesIndex);
-            mv.visitMethodInsn(INVOKESPECIAL, STRAND, "<init>", String.format("(L%s;L%s;L%s;L%s;L%s;)V", STRING_VALUE
-                    , STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
+            mv.visitMethodInsn(INVOKESPECIAL, STRAND, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;L%s;L%s;)V",
+                    STRING_VALUE, STRAND_METADATA, SCHEDULER, STRAND, MAP), false);
             mv.visitVarInsn(ASTORE, strandVarIndex);
             Label endConditionLabel = new Label();
             mv.visitJumpInsn(GOTO, endConditionLabel);
@@ -641,8 +645,8 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(recordType.tsymbol.flags);
@@ -654,7 +658,7 @@ class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(recordType));
 
         // initialize the record type
-        mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;IZI)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
@@ -669,7 +673,7 @@ class JvmTypeGen {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, "()V", false);
 
         for (BField optionalField : fields.values()) {
             BField field = getRecordField(optionalField);
@@ -714,8 +718,7 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
-                String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
+        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
                 false);
     }
 
@@ -766,14 +769,14 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
 
         // initialize the object
-        mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, OBJECT_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
@@ -801,14 +804,14 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Load flags
         mv.visitLdcInsn(typeSymbol.flags);
 
         // initialize the object
-        mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, SERVICE_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;I)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
@@ -858,7 +861,7 @@ class JvmTypeGen {
         // Create the fields map
         mv.visitTypeInsn(NEW, LINKED_HASH_MAP);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_MAP, JVM_INIT_METHOD, "()V", false);
 
         for (BField optionalField : fields.values()) {
             BField field = getObjectField(optionalField);
@@ -903,8 +906,7 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, "<init>",
-                String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
+        mv.visitMethodInsn(INVOKESPECIAL, BFIELD, JVM_INIT_METHOD, String.format("(L%s;L%s;I)V", BTYPE, STRING_VALUE),
                 false);
     }
 
@@ -1000,7 +1002,7 @@ class JvmTypeGen {
         // Load flags
         mv.visitLdcInsn(attachedFunc.symbol.flags);
 
-        mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, ATTACHED_FUNCTION, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;I)V", STRING_VALUE, OBJECT_TYPE, FUNCTION_TYPE), false);
     }
 
@@ -1030,11 +1032,11 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // initialize the error type
-        mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_TYPE, JVM_INIT_METHOD,
                 String.format("(L%s;L%s;)V", STRING_VALUE, PACKAGE_TYPE), false);
     }
 
@@ -1193,7 +1195,6 @@ class JvmTypeGen {
                     typeFieldName = "typeReadonly";
                     break;
                 default:
-                    // TODO Fix properly - rajith
                     return;
             }
         }
@@ -1223,7 +1224,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, "<init>", String.format("(L%s;IZ)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_TYPE, JVM_INIT_METHOD, String.format("(L%s;IZ)V", BTYPE), false);
     }
 
     /**
@@ -1242,7 +1243,7 @@ class JvmTypeGen {
         loadType(mv, bType.constraint);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, TYPEDESC_TYPE, JVM_INIT_METHOD, String.format("(L%s;)V", BTYPE), false);
     }
 
     /**
@@ -1263,7 +1264,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, MAP_TYPE, JVM_INIT_METHOD, String.format("(L%s;Z)V", BTYPE), false);
     }
 
     private static void loadReadonlyFlag(MethodVisitor mv, BType bType) {
@@ -1292,7 +1293,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, XML_TYPE, JVM_INIT_METHOD, String.format("(L%s;Z)V", BTYPE), false);
     }
 
     /**
@@ -1326,15 +1327,16 @@ class JvmTypeGen {
             }
 
             loadReadonlyFlag(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;[L%s;Z)V", BTYPE, STRING_VALUE),
-                               false);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, JVM_INIT_METHOD,
+                    String.format("(L%s;[L%s;Z)V", BTYPE, STRING_VALUE), false);
         } else if (bType.keyTypeConstraint != null) {
             loadType(mv, bType.keyTypeConstraint);
             loadReadonlyFlag(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;L%s;Z)V", BTYPE, BTYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, JVM_INIT_METHOD,
+                    String.format("(L%s;L%s;Z)V", BTYPE, BTYPE), false);
         } else {
             loadReadonlyFlag(mv, bType);
-            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, "<init>", String.format("(L%s;Z)V", BTYPE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, TABLE_TYPE, JVM_INIT_METHOD, String.format("(L%s;Z)V", BTYPE), false);
         }
     }
 
@@ -1347,7 +1349,7 @@ class JvmTypeGen {
         loadType(mv, bType.constraint);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE, JVM_INIT_METHOD, String.format("(L%s;)V", BTYPE), false);
     }
 
     /**
@@ -1410,7 +1412,7 @@ class JvmTypeGen {
         loadReadonlyFlag(mv, bType);
 
         // initialize the union type using the members array
-        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, "<init>", String.format("([L%s;IZ)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE, JVM_INIT_METHOD, String.format("([L%s;IZ)V", BTYPE), false);
     }
 
     /**
@@ -1432,8 +1434,8 @@ class JvmTypeGen {
         mv.visitLdcInsn(packageID.orgName.value);
         mv.visitLdcInsn(packageID.name.value);
         mv.visitLdcInsn(packageID.version.value);
-        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, "<init>",
-                           "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, PACKAGE_TYPE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         // Create the constituent types array.
         Set<BType> constituentTypes = bType.getConstituentTypes();
@@ -1463,7 +1465,7 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, INTERSECTION_TYPE, JVM_INIT_METHOD,
                            String.format("(L%s;[L%s;L%s;IZ)V", PACKAGE_TYPE, BTYPE, BTYPE), false);
     }
 
@@ -1480,7 +1482,7 @@ class JvmTypeGen {
         //new arraylist
         mv.visitTypeInsn(NEW, ARRAY_LIST);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ARRAY_LIST, JVM_INIT_METHOD, "()V", false);
 
         List<BType> tupleTypes = bType.tupleTypes;
         for (BType tupleType : tupleTypes) {
@@ -1503,7 +1505,8 @@ class JvmTypeGen {
 
         loadReadonlyFlag(mv, bType);
 
-        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, "<init>", String.format("(L%s;L%s;IZ)V", LIST, BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, TUPLE_TYPE, JVM_INIT_METHOD, String.format("(L%s;L%s;IZ)V", LIST, BTYPE),
+                false);
     }
 
     /**
@@ -1541,7 +1544,7 @@ class JvmTypeGen {
         mv.visitInsn(DUP);
 
         loadType(mv, bType.constraint);
-        mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, "<init>", String.format("(L%s;)V", BTYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, FUTURE_TYPE, JVM_INIT_METHOD, String.format("(L%s;)V", BTYPE), false);
     }
 
     /**
@@ -1584,7 +1587,7 @@ class JvmTypeGen {
         loadType(mv, bType.retType);
 
         // initialize the function type using the param types array and the return type
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE, JVM_INIT_METHOD,
                 String.format("([L%s;L%s;L%s;)V", BTYPE, BTYPE, BTYPE), false);
     }
 
@@ -1657,7 +1660,7 @@ class JvmTypeGen {
 
         mv.visitTypeInsn(NEW, LINKED_HASH_SET);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, LINKED_HASH_SET, JVM_INIT_METHOD, "()V", false);
 
         for (BLangExpression valueTypePair : finiteType.getValueSpace()) {
             Object value = ((BLangLiteral) valueTypePair).value;
@@ -1667,15 +1670,23 @@ class JvmTypeGen {
             loadConstantValue(valueType, value, mv);
 
             if (TypeTags.isIntegerTypeTag(valueType.tag)) {
-                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, "valueOf", String.format("(J)L%s;", LONG_VALUE), false);
-            } else if (valueType.tag == TypeTags.BOOLEAN) {
-                mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, "valueOf", String.format("(Z)L%s;", BOOLEAN_VALUE),
+                mv.visitMethodInsn(INVOKESTATIC, LONG_VALUE, VALUE_OF_METHOD, String.format("(J)L%s;", LONG_VALUE),
                         false);
-            } else if (valueType.tag == TypeTags.FLOAT) {
-                mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, "valueOf", String.format("(D)L%s;", DOUBLE_VALUE),
-                        false);
-            } else if (valueType.tag == TypeTags.BYTE) {
-                mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, "valueOf", String.format("(I)L%s;", INT_VALUE), false);
+            } else {
+                switch (valueType.tag) {
+                    case TypeTags.BOOLEAN:
+                        mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
+                                String.format("(Z)L%s;", BOOLEAN_VALUE), false);
+                        break;
+                    case TypeTags.FLOAT:
+                        mv.visitMethodInsn(INVOKESTATIC, DOUBLE_VALUE, VALUE_OF_METHOD,
+                                String.format("(D)L%s;", DOUBLE_VALUE), false);
+                        break;
+                    case TypeTags.BYTE:
+                        mv.visitMethodInsn(INVOKESTATIC, INT_VALUE, VALUE_OF_METHOD,
+                                String.format("(I)L%s;", INT_VALUE), false);
+                        break;
+                }
             }
 
             // Add the value to the set
@@ -1687,8 +1698,8 @@ class JvmTypeGen {
         mv.visitLdcInsn(typeFlag(finiteType));
 
         // initialize the finite type using the value space
-        mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, "<init>", String.format("(L%s;L%s;I)V", STRING_VALUE, SET),
-                false);
+        mv.visitMethodInsn(INVOKESPECIAL, FINITE_TYPE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;I)V", STRING_VALUE, SET), false);
     }
 
     static boolean isServiceDefAvailable(List<BIRTypeDefinition> typeDefs) {

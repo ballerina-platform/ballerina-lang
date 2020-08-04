@@ -356,34 +356,33 @@
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "SELECT_CLAUSE",
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                         "children": [
                                           {
-                                            "kind": "SELECT_KEYWORD",
-                                            "trailingMinutiae": [
-                                              {
-                                                "kind": "WHITESPACE_MINUTIAE",
-                                                "value": " "
-                                              }
-                                            ]
-                                          },
-                                          {
-                                            "kind": "SIMPLE_NAME_REFERENCE",
-                                            "children": [
-                                              {
-                                                "kind": "IDENTIFIER_TOKEN",
-                                                "value": "c",
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
-                                                  }
-                                                ]
-                                              }
-                                            ]
+                                            "kind": "SELECT_KEYWORD"
                                           }
                                         ]
                                       }
+                                    },
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "c"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
                                 }
@@ -786,22 +785,23 @@
                           ],
                           "leadingMinutiae": [
                             {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            },
+                            {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "SEMICOLON_TOKEN",
-                                "leadingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": "    "
-                                  }
-                                ],
-                                "trailingMinutiae": [
-                                  {
-                                    "kind": "END_OF_LINE_MINUTIAE",
-                                    "value": "\n"
+                                    "kind": "SEMICOLON_TOKEN"
                                   }
                                 ]
                               }
+                            },
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
                             }
                           ],
                           "trailingMinutiae": [

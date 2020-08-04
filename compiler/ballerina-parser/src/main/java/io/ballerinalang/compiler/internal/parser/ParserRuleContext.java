@@ -50,6 +50,7 @@ public enum ParserRuleContext {
     ANON_FUNC_BODY("annon-func-body"),
     FUNC_TYPE_DESC_END("func-type-desc-end"),
     EXTERNAL_FUNC_BODY("external-func-body"),
+    EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS("external-func-body-optional-annots"),
     FUNC_BODY_BLOCK("func-body-block"),
     MODULE_TYPE_DEFINITION("type-definition"),
     FIELD_OR_REST_DESCIPTOR_RHS("field-or-rest-descriptor-rhs"),
@@ -242,7 +243,10 @@ public enum ParserRuleContext {
     ARG_MATCH_PATTERN("arg-match-pattern"),
     ARG_MATCH_PATTERN_RHS("arg-match-pattern-rhs"),
     ARG_BINDING_PATTERN_START_IDENT("arg-binding-pattern-start-ident"),
-
+    ORDER_BY_CLAUSE("order-by-clause"),
+    ORDER_KEY("order-key"),
+    ORDER_KEY_LIST_END("order-key-list-end"),
+    ORDER_DIRECTION_RHS("order-direction-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -269,6 +273,7 @@ public enum ParserRuleContext {
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
+    EXPR_STMT_RHS("expr-stmt-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
     EXPRESSION_STATEMENT_START("expression-statement-start"),
     LOCK_STMT("lock-stmt"),
@@ -356,6 +361,11 @@ public enum ParserRuleContext {
     JOIN_KEYWORD("join"),
     OUTER_KEYWORD("outer"),
     VAR_KEYWORD("var"),
+    FAIL_KEYWORD("fail"),
+    ORDER_KEYWORD("order"),
+    BY_KEYWORD("by"),
+    ASCENDING_KEYWORD("ascending"),
+    DESCENDING_KEYWORD("descending"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
@@ -484,6 +494,7 @@ public enum ParserRuleContext {
     XML_ATOMIC_NAME_IDENTIFIER_RHS("xml-atomic_name-identifier-rhs"),
     XML_STEP_START("xml-step-start"),
     VARIABLE_REF_RHS("variable-ref-rhs"),
+    ORDER_CLAUSE_END("order-clause-end"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),
@@ -543,6 +554,7 @@ public enum ParserRuleContext {
     ENUM_MEMBER_END("enum-member-rhs"),
     ENUM_MEMBER_RHS("enum-member-internal-rhs"),
     ENUM_MEMBER_START("enum-member-start"),
+    TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER("tuple-type-desc-or-list-cont-member"),
     ;
 
     private String value;

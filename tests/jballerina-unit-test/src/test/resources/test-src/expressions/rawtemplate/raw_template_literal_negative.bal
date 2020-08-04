@@ -27,7 +27,7 @@ function testSubtyping1() {
     int y = 20;
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public int insertions; // invalid insertions field type
     } temp1 = `${x} + ${y} = ${x + y}`;
 
@@ -38,7 +38,7 @@ function testSubtyping1() {
 }
 
 type Template abstract object {
-    public string[] strings;
+    public (readonly & string[]) strings;
     public [int, string] insertions;
 };
 
@@ -51,7 +51,7 @@ function testSubtyping2() {
     Template t2 = `Using tuples: ${x}`; // missing insertions
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${t1}`;
 }
@@ -65,13 +65,13 @@ function testSubtyping3() {
     int x = 10;
 
     abstract object {
-        public FooBar[] strings;
+        public (FooBar[] & readonly) strings;
         public int[] insertions;
     } temp1 = `Foo ${x}Bar`;
 }
 
 type Template1 object {
-    public string[] strings = [];
+    public (string[] & readonly) strings = [];
     public int[] insertions = [];
 };
 
@@ -88,7 +88,7 @@ function testSubtyping5() {
     float f = 12.34;
 
     object {
-        public string[] strings = [];
+        public (string[] & readonly) strings = [];
         public [anydata...] insertions = [];
         string name = "";
     } temp3 = `Using tuples: ${x}, ${s}, ${f}`;
@@ -96,7 +96,7 @@ function testSubtyping5() {
 
 function testSubtyping6() {
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public int[] insertions;
         int name;
     } rt1 = `Hello World!`;
@@ -105,7 +105,7 @@ function testSubtyping6() {
     } rt2 = `Hello World!`;
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
     } rt3 = `Hello World!`;
 
     abstract object {
@@ -118,7 +118,7 @@ function testSubtyping6() {
     } rt5 = `Hello World!`;
 
     abstract object {
-        public string[] strings;
+        public (readonly & string[]) strings;
         public int[] insertions;
 
         function shouldNotBeHere();
@@ -126,7 +126,7 @@ function testSubtyping6() {
 }
 
 type Temp1 abstract object {
-    public [string, string, string] strings;
+    public ([string, string, string] & readonly) strings;
     public [int, float] insertions;
 };
 
@@ -137,11 +137,24 @@ function testTypeChecking() {
 }
 
 public type Temp2 abstract object {
-    public string[2] strings;
+    public (string[2] & readonly) strings;
     public int[1] insertions;
 };
 
 function testFixedLengthArrays() {
     Temp2 t = `Count:${1}${2}`;
     t = `Count`;
+}
+
+public type Temp3 abstract object {
+    public string[] strings; // non-readonly field
+    public int[] insertions;
+};
+
+function testReadonlyFieldMismatch() {
+    Temp3 t = `Count:${1}${2}`;
+}
+
+function testAmbiguousTypes() {
+    ob:RawTemplate|Template1 rt = `Count: ${10}, ${20}`;
 }

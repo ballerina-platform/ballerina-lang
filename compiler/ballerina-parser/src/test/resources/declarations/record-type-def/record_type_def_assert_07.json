@@ -81,31 +81,64 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_INVALID_TOKEN"
+                        "ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS"
                       ],
-                      "value": "name",
-                      "leadingMinutiae": [
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        },
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "STRING_KEYWORD",
-                            "leadingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": "    "
-                              }
-                            ],
-                            "trailingMinutiae": [
-                              {
-                                "kind": "WHITESPACE_MINUTIAE",
-                                "value": " "
+                                "kind": "STRING_KEYWORD"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
                         }
-                      ],
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "SEMICOLON_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_SEMICOLON_TOKEN"
+                  ]
+                }
+              ]
+            },
+            {
+              "kind": "RECORD_FIELD",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "METADATA",
+                  "children": [
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "value": "name",
                       "trailingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",
@@ -113,6 +146,14 @@
                         }
                       ]
                     }
+                  ]
+                },
+                {
+                  "kind": "IDENTIFIER_TOKEN",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_IDENTIFIER"
                   ]
                 },
                 {

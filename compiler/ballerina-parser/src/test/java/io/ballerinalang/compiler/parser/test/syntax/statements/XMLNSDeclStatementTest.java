@@ -37,6 +37,11 @@ public class XMLNSDeclStatementTest extends AbstractStatementTest {
 
     @Test
     public void testXMLNSDeclRecovery() {
-        testFile("xmlns-decl-stmt/xmlns_decl_stmt_source_01.bal", "xmlns-decl-stmt/xmlns_decl_stmt_assert_01.json");
+        testFile("xmlns-decl-stmt/xmlns_decl_stmt_source_02.bal", "xmlns-decl-stmt/xmlns_decl_stmt_assert_02.json");
+    }
+
+    @Test
+    public void testXMLNSDeclRecoveryWithoutSemicolon() {
+        testFile("xmlns-decl-stmt/xmlns_decl_stmt_source_03.bal", "xmlns-decl-stmt/xmlns_decl_stmt_assert_03.json");
     }
 }

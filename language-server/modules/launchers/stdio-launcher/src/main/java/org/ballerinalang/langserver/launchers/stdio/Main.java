@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.launchers.stdio;
 
 import org.ballerinalang.langserver.BallerinaLanguageServer;
-import org.ballerinalang.langserver.client.ExtendedLanguageClient;
+import org.ballerinalang.langserver.commons.client.ExtendedLanguageClient;
 import org.eclipse.lsp4j.jsonrpc.Launcher;
 
 import java.io.InputStream;
