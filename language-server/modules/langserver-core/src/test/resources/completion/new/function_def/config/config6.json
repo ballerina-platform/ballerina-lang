@@ -1,0 +1,33 @@
+{
+  "position": {
+    "line": 2,
+    "character": 42
+  },
+  "source": "function_def/source/source6.bal",
+  "items": [
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "140",
+      "insertText": "Listener",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "140",
+      "insertText": "TestRecord1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRecord2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "140",
+      "insertText": "TestRecord2",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -20,23 +20,23 @@ io:ReadableCharacterChannel? rch = ();
 io:WritableCharacterChannel? wch = ();
 io:WritableCharacterChannel? wca = ();
 
-function initReadableChannel(string filePath, string encoding) returns @tainted io:Error? {
+function initReadableChannel(string filePath, string encoding) returns io:Error? {
     var byteChannel = io:openReadableFile(filePath);
     if (byteChannel is io:ReadableByteChannel) {
-        rch = <@untainted> new io:ReadableCharacterChannel(byteChannel, encoding);
+        rch = new io:ReadableCharacterChannel(byteChannel, encoding);
     } else {
         return byteChannel;
     }
 }
 
-function initWritableChannel(string filePath, string encoding) returns @tainted io:Error? {
+function initWritableChannel(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath);
-    wch = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
+    wch = new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
-function initWritableChannelToAppend(string filePath, string encoding) returns @tainted io:Error? {
+function initWritableChannelToAppend(string filePath, string encoding) returns io:Error? {
     io:WritableByteChannel byteChannel = check io:openWritableFile(filePath, true);
-    wca = <@untainted> new io:WritableCharacterChannel(byteChannel, encoding);
+    wca = new io:WritableCharacterChannel(byteChannel, encoding);
 }
 
 function readCharacters(int numberOfCharacters) returns @tainted string|error {
@@ -128,6 +128,57 @@ function readXml() returns @tainted xml|error {
     }
     io:GenericError e = io:GenericError("Character channel not initialized properly");
     return e;
+}
+
+function readAvailableProperty(string key) returns @tainted string?|error {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        var result = rCha.readProperty(key);
+        return result;
+    }
+    io:GenericError e = io:GenericError("Character channel not initialized properly");
+    return e;
+}
+
+function readAllProperties() returns boolean {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        var results = rCha.readAllProperties();
+        if (results is map<string>) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function readUnavailableProperty(string key) returns boolean {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        string defaultValue = "Default";
+        var results = rCha.readProperty(key, defaultValue);
+        if (results is string) {
+            if (results == defaultValue) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function writePropertiesFromMap() returns boolean {
+    var wCha = wch;
+    if (wCha is io:WritableCharacterChannel) {
+        map<string> properties = {
+            name: "Anna Johnson",
+            age: "25",
+            occupation: "Banker"
+        };
+        var writeResults = wCha.writeProperties(properties, "Comment");
+        if !(writeResults is io:Error) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function writeJson(json content) {

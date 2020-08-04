@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.IfWhileConditionContextProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.InvocationArgsContextProvider;
@@ -49,7 +49,7 @@ public class BlockStatementScopeProvider extends AbstractCompletionProvider {
 
     @Override
     public List<LSCompletionItem> getCompletions(LSContext context) throws LSCompletionException {
-        Optional<LSCompletionProvider> contextProvider = getContextProvider(context);
+        Optional<CompletionProvider> contextProvider = getContextProvider(context);
         if (contextProvider.isPresent()) {
             return contextProvider.get().getCompletions(context);
         }
@@ -57,7 +57,7 @@ public class BlockStatementScopeProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+    public Optional<CompletionProvider> getContextProvider(LSContext ctx) {
         List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_TOKENS_KEY).stream()
                 .filter(commonToken -> commonToken.getChannel() == Token.DEFAULT_CHANNEL)
                 .collect(Collectors.toList());

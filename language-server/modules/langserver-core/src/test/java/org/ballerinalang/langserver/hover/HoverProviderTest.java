@@ -66,7 +66,8 @@ public class HoverProviderTest {
                 + " character:" + position.getCharacter());
     }
 
-    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition")
+    @Test(description = "Test Hover for current package's functions", dataProvider = "hoverCurrentPackageFuncPosition",
+            enabled = false)
     public void hoverForCurrentPackageFunctionTest(Position position, String expectedFile) throws IOException {
         String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
         String expected = getExpectedValue(expectedFile);

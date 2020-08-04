@@ -141,6 +141,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COMPATIBILITY_CHECKER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONSTRUCTOR_INIT_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULTABLE_ARGS_ANOT_FIELD;
@@ -157,6 +158,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.IS_BLOCKE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_PACKAGE_SEPERATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_RUNTIME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JAVA_THREAD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MAP_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.MODULE_INIT;
@@ -736,7 +738,7 @@ public class JvmMethodGen {
         mv.visitMethodInsn(INVOKESTATIC, JAVA_RUNTIME, "getRuntime", String.format("()L%s;", JAVA_RUNTIME), false);
         mv.visitTypeInsn(NEW, shutdownClassName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, shutdownClassName, JVM_INIT_METHOD, "()V", false);
         mv.visitMethodInsn(INVOKEVIRTUAL, JAVA_RUNTIME, "addShutdownHook", String.format("(L%s;)V", JAVA_THREAD),
                 false);
     }
@@ -785,7 +787,7 @@ public class JvmMethodGen {
                 // var varIndex = indexMap.getIndex(param);
                 loadType(mv, param.type);
             }
-            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), "<init>",
+            mv.visitMethodInsn(INVOKESPECIAL, String.format("%s$ParamInfo", RUNTIME_UTILS), JVM_INIT_METHOD,
                     String.format("(ZL%s;L%s;)V", STRING_VALUE, BTYPE), false);
             mv.visitInsn(AASTORE);
         }
@@ -844,7 +846,7 @@ public class JvmMethodGen {
     }
     private static String calculateModuleInitFuncName(PackageID id) {
 
-        return calculateModuleSpecialFuncName(id, "<init>");
+        return calculateModuleSpecialFuncName(id, JVM_INIT_METHOD);
     }
 
     private static String calculateModuleSpecialFuncName(PackageID id, String funcSuffix) {
@@ -1232,7 +1234,7 @@ public class JvmMethodGen {
         }
     }
 
-    private static String generateReturnType(BType bType, boolean isExtern /* = false */) {
+    private static String generateReturnType(BType bType, boolean isExtern) {
         bType = typeBuilder.build(bType);
 
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
@@ -1316,7 +1318,7 @@ public class JvmMethodGen {
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ACONST_NULL);
         mv.visitInsn(ICONST_0); // mark as not-concurrent ie: 'parent'
-        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, "<init>",
+        mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_POINTER, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;L%s;Z)V", FUNCTION, BTYPE, STRING_VALUE), false);
     }
 
@@ -1446,10 +1448,10 @@ public class JvmMethodGen {
 
     static void generateDefaultConstructor(ClassWriter cw, String ownerClass) {
 
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, JVM_INIT_METHOD, "()V", null, null);
         mv.visitCode();
         mv.visitVarInsn(ALOAD, 0);
-        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, ownerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(1, 1);
         mv.visitEnd();
@@ -1520,7 +1522,7 @@ public class JvmMethodGen {
     public static BIRVariableDcl getVariableDcl(BIRVariableDcl localVar) {
 
         if (localVar == null) {
-            throw new BLangCompilerException("Invalid variable declarion");
+            throw new BLangCompilerException("Invalid variable declaration");
         }
 
         return localVar;
@@ -1831,7 +1833,7 @@ public class JvmMethodGen {
         mv.visitLabel(yieldLable);
         mv.visitTypeInsn(NEW, frameName);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, frameName, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, frameName, JVM_INIT_METHOD, "()V", false);
 
         generateFrameClassFieldUpdate(localVars, mv, indexMap, frameName);
 
@@ -1944,126 +1946,7 @@ public class JvmMethodGen {
                     generateDiagnosticPos(((BIRNode) inst).pos, mv);
                 }
 
-                if (inst instanceof BinaryOp) {
-                    instGen.generateBinaryOpIns((BinaryOp) inst);
-                } else {
-                    switch (insKind) {
-                        case MOVE:
-                            instGen.generateMoveIns((Move) inst);
-                            break;
-                        case CONST_LOAD:
-                            instGen.generateConstantLoadIns((ConstantLoad) inst);
-                            break;
-                        case NEW_STRUCTURE:
-                            instGen.generateMapNewIns((NewStructure) inst, localVarOffset);
-                            break;
-                        case NEW_INSTANCE:
-                            instGen.generateObjectNewIns((NewInstance) inst, localVarOffset);
-                            break;
-                        case MAP_STORE:
-                            instGen.generateMapStoreIns((FieldAccess) inst);
-                            break;
-                        case NEW_TABLE:
-                            instGen.generateTableNewIns((NewTable) inst);
-                            break;
-                        case TABLE_STORE:
-                            instGen.generateTableStoreIns((FieldAccess) inst);
-                            break;
-                        case TABLE_LOAD:
-                            instGen.generateTableLoadIns((FieldAccess) inst);
-                            break;
-                        case NEW_ARRAY:
-                            instGen.generateArrayNewIns((NewArray) inst);
-                            break;
-                        case ARRAY_STORE:
-                            instGen.generateArrayStoreIns((FieldAccess) inst);
-                            break;
-                        case MAP_LOAD:
-                            instGen.generateMapLoadIns((FieldAccess) inst);
-                            break;
-                        case ARRAY_LOAD:
-                            instGen.generateArrayValueLoad((FieldAccess) inst);
-                            break;
-                        case NEW_ERROR:
-                            instGen.generateNewErrorIns((NewError) inst);
-                            break;
-                        case TYPE_CAST:
-                            instGen.generateCastIns((TypeCast) inst);
-                            break;
-                        case IS_LIKE:
-                            instGen.generateIsLikeIns((IsLike) inst);
-                            break;
-                        case TYPE_TEST:
-                            instGen.generateTypeTestIns((TypeTest) inst);
-                            break;
-                        case OBJECT_STORE:
-                            instGen.generateObjectStoreIns((FieldAccess) inst);
-                            break;
-                        case OBJECT_LOAD:
-                            instGen.generateObjectLoadIns((FieldAccess) inst);
-                            break;
-                        case NEW_XML_ELEMENT:
-                            instGen.generateNewXMLElementIns((NewXMLElement) inst);
-                            break;
-                        case NEW_XML_TEXT:
-                            instGen.generateNewXMLTextIns((NewXMLText) inst);
-                            break;
-                        case NEW_XML_COMMENT:
-                            instGen.generateNewXMLCommentIns((NewXMLComment) inst);
-                            break;
-                        case NEW_XML_PI:
-                            instGen.generateNewXMLProcIns((NewXMLProcIns) inst);
-                            break;
-                        case NEW_XML_QNAME:
-                            instGen.generateNewXMLQNameIns((NewXMLQName) inst);
-                            break;
-                        case NEW_STRING_XML_QNAME:
-                            instGen.generateNewStringXMLQNameIns((NewStringXMLQName) inst);
-                            break;
-                        case XML_SEQ_STORE:
-                            instGen.generateXMLStoreIns((XMLAccess) inst);
-                            break;
-                        case XML_SEQ_LOAD:
-                            instGen.generateXMLLoadIns((FieldAccess) inst);
-                            break;
-                        case XML_LOAD:
-                            instGen.generateXMLLoadIns((FieldAccess) inst);
-                            break;
-                        case XML_LOAD_ALL:
-                            instGen.generateXMLLoadAllIns((XMLAccess) inst);
-                            break;
-                        case XML_ATTRIBUTE_STORE:
-                            instGen.generateXMLAttrStoreIns((FieldAccess) inst);
-                            break;
-                        case XML_ATTRIBUTE_LOAD:
-                            instGen.generateXMLAttrLoadIns((FieldAccess) inst);
-                            break;
-                        case FP_LOAD:
-                            instGen.generateFPLoadIns((FPLoad) inst, asyncDataCollector);
-                            break;
-                        case STRING_LOAD:
-                            instGen.generateStringLoadIns((FieldAccess) inst);
-                            break;
-                        case TYPEOF:
-                            instGen.generateTypeofIns((UnaryOP) inst);
-                            break;
-                        case NOT:
-                            instGen.generateNotIns((UnaryOP) inst);
-                            break;
-                        case NEW_TYPEDESC:
-                            instGen.generateNewTypedescIns((NewTypeDesc) inst);
-                            break;
-                        case NEGATE:
-                            instGen.generateNegateIns((UnaryOP) inst);
-                            break;
-                        case PLATFORM:
-                            instGen.generatePlatformIns((JInstruction) inst);
-                            break;
-                        default:
-                            throw new BLangCompilerException("JVM generation is not supported for operation " +
-                                    String.format("%s", inst));
-                    }
-                }
+                generateInstructions(instGen, localVarOffset, asyncDataCollector, insKind, inst);
                 m += 1;
             }
 
@@ -2093,7 +1976,7 @@ public class JvmMethodGen {
                             module.version.value, MODULE_INIT_CLASS_NAME), MODULE_STARTED, "Z");
                 }
                 termGen.genTerminator(terminator, moduleClassName, func, funcName, localVarOffset, returnVarRefIndex,
-                                      attachedType, asyncDataCollector);
+                        attachedType, asyncDataCollector);
             }
 
             errorGen.generateTryCatch(func, funcName, bb, termGen, labelGen);
@@ -2103,6 +1986,132 @@ public class JvmMethodGen {
                 genYieldCheck(mv, termGen.getLabelGenerator(), thenBB, funcName, localVarOffset);
             }
             j += 1;
+        }
+    }
+
+    private void generateInstructions(JvmInstructionGen instGen, int localVarOffset,
+                                      AsyncDataCollector asyncDataCollector, InstructionKind insKind,
+                                      BIRInstruction inst) {
+
+        if (inst instanceof BinaryOp) {
+            instGen.generateBinaryOpIns((BinaryOp) inst);
+        } else {
+            switch (insKind) {
+                case MOVE:
+                    instGen.generateMoveIns((Move) inst);
+                    break;
+                case CONST_LOAD:
+                    instGen.generateConstantLoadIns((ConstantLoad) inst);
+                    break;
+                case NEW_STRUCTURE:
+                    instGen.generateMapNewIns((NewStructure) inst, localVarOffset);
+                    break;
+                case NEW_INSTANCE:
+                    instGen.generateObjectNewIns((NewInstance) inst, localVarOffset);
+                    break;
+                case MAP_STORE:
+                    instGen.generateMapStoreIns((FieldAccess) inst);
+                    break;
+                case NEW_TABLE:
+                    instGen.generateTableNewIns((NewTable) inst);
+                    break;
+                case TABLE_STORE:
+                    instGen.generateTableStoreIns((FieldAccess) inst);
+                    break;
+                case TABLE_LOAD:
+                    instGen.generateTableLoadIns((FieldAccess) inst);
+                    break;
+                case NEW_ARRAY:
+                    instGen.generateArrayNewIns((NewArray) inst);
+                    break;
+                case ARRAY_STORE:
+                    instGen.generateArrayStoreIns((FieldAccess) inst);
+                    break;
+                case MAP_LOAD:
+                    instGen.generateMapLoadIns((FieldAccess) inst);
+                    break;
+                case ARRAY_LOAD:
+                    instGen.generateArrayValueLoad((FieldAccess) inst);
+                    break;
+                case NEW_ERROR:
+                    instGen.generateNewErrorIns((NewError) inst);
+                    break;
+                case TYPE_CAST:
+                    instGen.generateCastIns((TypeCast) inst);
+                    break;
+                case IS_LIKE:
+                    instGen.generateIsLikeIns((IsLike) inst);
+                    break;
+                case TYPE_TEST:
+                    instGen.generateTypeTestIns((TypeTest) inst);
+                    break;
+                case OBJECT_STORE:
+                    instGen.generateObjectStoreIns((FieldAccess) inst);
+                    break;
+                case OBJECT_LOAD:
+                    instGen.generateObjectLoadIns((FieldAccess) inst);
+                    break;
+                case NEW_XML_ELEMENT:
+                    instGen.generateNewXMLElementIns((NewXMLElement) inst);
+                    break;
+                case NEW_XML_TEXT:
+                    instGen.generateNewXMLTextIns((NewXMLText) inst);
+                    break;
+                case NEW_XML_COMMENT:
+                    instGen.generateNewXMLCommentIns((NewXMLComment) inst);
+                    break;
+                case NEW_XML_PI:
+                    instGen.generateNewXMLProcIns((NewXMLProcIns) inst);
+                    break;
+                case NEW_XML_QNAME:
+                    instGen.generateNewXMLQNameIns((NewXMLQName) inst);
+                    break;
+                case NEW_STRING_XML_QNAME:
+                    instGen.generateNewStringXMLQNameIns((NewStringXMLQName) inst);
+                    break;
+                case XML_SEQ_STORE:
+                    instGen.generateXMLStoreIns((XMLAccess) inst);
+                    break;
+                case XML_SEQ_LOAD:
+                    instGen.generateXMLLoadIns((FieldAccess) inst);
+                    break;
+                case XML_LOAD:
+                    instGen.generateXMLLoadIns((FieldAccess) inst);
+                    break;
+                case XML_LOAD_ALL:
+                    instGen.generateXMLLoadAllIns((XMLAccess) inst);
+                    break;
+                case XML_ATTRIBUTE_STORE:
+                    instGen.generateXMLAttrStoreIns((FieldAccess) inst);
+                    break;
+                case XML_ATTRIBUTE_LOAD:
+                    instGen.generateXMLAttrLoadIns((FieldAccess) inst);
+                    break;
+                case FP_LOAD:
+                    instGen.generateFPLoadIns((FPLoad) inst, asyncDataCollector);
+                    break;
+                case STRING_LOAD:
+                    instGen.generateStringLoadIns((FieldAccess) inst);
+                    break;
+                case TYPEOF:
+                    instGen.generateTypeofIns((UnaryOP) inst);
+                    break;
+                case NOT:
+                    instGen.generateNotIns((UnaryOP) inst);
+                    break;
+                case NEW_TYPEDESC:
+                    instGen.generateNewTypedescIns((NewTypeDesc) inst);
+                    break;
+                case NEGATE:
+                    instGen.generateNegateIns((UnaryOP) inst);
+                    break;
+                case PLATFORM:
+                    instGen.generatePlatformIns((JInstruction) inst);
+                    break;
+                default:
+                    throw new BLangCompilerException("JVM generation is not supported for operation " +
+                            String.format("%s", inst));
+            }
         }
     }
 
@@ -2172,35 +2181,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(CHECKCAST, STRAND);
 
         if (isExternFunction) {
-            Label blockedOnExternLabel = new Label();
-
-            mv.visitInsn(DUP);
-
-            mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
-            mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
-
-            mv.visitInsn(DUP);
-            mv.visitInsn(ICONST_0);
-            mv.visitFieldInsn(PUTFIELD, STRAND, BLOCKED_ON_EXTERN_FIELD, "Z");
-
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
-            Label panicLabel = new Label();
-            mv.visitJumpInsn(IFNULL, panicLabel);
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
-            mv.visitVarInsn(ASTORE, closureMapsCount + 1);
-            mv.visitInsn(ACONST_NULL);
-            mv.visitFieldInsn(PUTFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
-            mv.visitVarInsn(ALOAD, closureMapsCount + 1);
-            mv.visitInsn(ATHROW);
-            mv.visitLabel(panicLabel);
-
-            mv.visitInsn(DUP);
-            mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
-            mv.visitInsn(ARETURN);
-
-            mv.visitLabel(blockedOnExternLabel);
+            generateBlockedOnExtern(closureMapsCount, mv);
         }
         List<BType> paramBTypes = new ArrayList<>();
 
@@ -2316,6 +2297,39 @@ public class JvmMethodGen {
         mv.visitEnd();
     }
 
+    private void generateBlockedOnExtern(int closureMapsCount, MethodVisitor mv) {
+
+        Label blockedOnExternLabel = new Label();
+
+        mv.visitInsn(DUP);
+
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRAND, IS_BLOCKED_ON_EXTERN_FIELD, "()Z", false);
+        mv.visitJumpInsn(IFEQ, blockedOnExternLabel);
+
+        mv.visitInsn(DUP);
+        mv.visitInsn(ICONST_0);
+        mv.visitFieldInsn(PUTFIELD, STRAND, BLOCKED_ON_EXTERN_FIELD, "Z");
+
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        Label panicLabel = new Label();
+        mv.visitJumpInsn(IFNULL, panicLabel);
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitVarInsn(ASTORE, closureMapsCount + 1);
+        mv.visitInsn(ACONST_NULL);
+        mv.visitFieldInsn(PUTFIELD, STRAND, PANIC_FIELD, String.format("L%s;", B_ERROR));
+        mv.visitVarInsn(ALOAD, closureMapsCount + 1);
+        mv.visitInsn(ATHROW);
+        mv.visitLabel(panicLabel);
+
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETFIELD, STRAND, "returnValue", "Ljava/lang/Object;");
+        mv.visitInsn(ARETURN);
+
+        mv.visitLabel(blockedOnExternLabel);
+    }
+
     private void genLoadDataForObjectAttachedLambdas(AsyncCall ins, MethodVisitor mv, int closureMapsCount,
                                                      List<BIROperand> paramTypes,
                                                      boolean isBuiltinModule) {
@@ -2419,7 +2433,7 @@ public class JvmMethodGen {
         mv.visitTypeInsn(NEW, SCHEDULER);
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(Z)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(Z)V", false);
         BIRVariableDcl schedulerVar = new BIRVariableDcl(symbolTable.anyType, new Name("schedulerdummy"),
                 VarScope.FUNCTION, VarKind.ARG);
         int schedulerVarIndex = indexMap.getIndex(schedulerVar);
@@ -2698,7 +2712,7 @@ public class JvmMethodGen {
                                    BIRPackage pkg, List<PackageID> moduleImports) {
 
         JavaClass javaClass = jvmClassMap.get(typeOwnerClass);
-        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, "<init>");
+        BIRFunction initFunc = generateDepModInit(moduleImports, pkg, MODULE_INIT, JVM_INIT_METHOD);
         javaClass.functions.add(initFunc);
         pkg.functions.add(initFunc);
 
@@ -2834,18 +2848,20 @@ public class JvmMethodGen {
 
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             List<BIRFunction> attachedFuncs = typeDef.attachedFuncs;
-            if (attachedFuncs != null) {
-                BType attachedType;
-                if (typeDef.type.tag == TypeTags.RECORD) {
-                    // Only attach function of records is the record init. That should be
-                    // generated as a static function.
-                    attachedType = null;
-                } else {
-                    attachedType = typeDef.type;
-                }
-                attachedFuncs.parallelStream().forEach(func ->
-                        generateFrameClassForFunction(pkg, func, pkgEntries, attachedType));
+            if (attachedFuncs == null || attachedFuncs.size() == 0) {
+                continue;
             }
+
+            BType attachedType;
+            if (typeDef.type.tag == TypeTags.RECORD) {
+                // Only attach function of records is the record init. That should be
+                // generated as a static function.
+                attachedType = null;
+            } else {
+                attachedType = typeDef.type;
+            }
+            attachedFuncs.parallelStream().forEach(func ->
+                    generateFrameClassForFunction(pkg, func, pkgEntries, attachedType));
         }
     }
 
@@ -2896,10 +2912,10 @@ public class JvmMethodGen {
                 String.format("(L%s;)L%s;", STRAND, OBJECT), null, null);
         mv.visitCode();
 
-        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, "$createTypes", "()V", false);
+        mv.visitMethodInsn(INVOKESTATIC, typeOwnerClass, CREATE_TYPES_METHOD, "()V", false);
         mv.visitTypeInsn(NEW, typeOwnerClass);
         mv.visitInsn(DUP);
-        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, "<init>", "()V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, typeOwnerClass, JVM_INIT_METHOD, "()V", false);
         mv.visitVarInsn(ASTORE, 1);
         mv.visitLdcInsn(orgName);
         mv.visitLdcInsn(moduleName);
@@ -2939,7 +2955,7 @@ public class JvmMethodGen {
         mv.visitInsn(DUP);
         mv.visitInsn(ICONST_1);
         mv.visitInsn(ICONST_0);
-        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, "<init>", "(IZ)V", false);
+        mv.visitMethodInsn(INVOKESPECIAL, SCHEDULER, JVM_INIT_METHOD, "(IZ)V", false);
 
         mv.visitVarInsn(ASTORE, schedulerIndex);
 

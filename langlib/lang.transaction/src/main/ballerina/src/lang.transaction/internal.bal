@@ -239,8 +239,8 @@ type TwoPhaseCommitTransaction object {
     }
 
     // This function will be called by the initiator
-    function twoPhaseCommit() returns string|error {
-        string|error ret = "";
+    function twoPhaseCommit() returns string|Error {
+        string|Error ret = "";
 
         // Prepare local resource managers
         boolean localPrepareSuccessful = prepareResourceManagers(self.transactionId, self.transactionBlockId);
@@ -269,14 +269,12 @@ type TwoPhaseCommitTransaction object {
                 var result = self.notifyParticipants(COMMAND_COMMIT, ());
                 if (result is error) {
                     // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                    error err = error(OUTCOME_HAZARD);
-                    ret = err;
+                    ret = prepareError(OUTCOME_HAZARD);
                 } else {
                     boolean localCommitSuccessful = commitResourceManagers(self.transactionId, self.transactionBlockId);
                     if (!localCommitSuccessful) {
-                        error err = error(OUTCOME_HAZARD);
                         // "Local commit failed"
-                        ret = err;
+                        ret = prepareError(OUTCOME_HAZARD);
                     } else {
                         ret = OUTCOME_COMMITTED;
                     }
@@ -287,13 +285,11 @@ type TwoPhaseCommitTransaction object {
                 var result = self.notifyParticipants(COMMAND_ABORT, ());
                 if (result is error) {
                     // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                    error err = error(OUTCOME_HAZARD);
-                    ret = err;
+                    ret = prepareError(OUTCOME_HAZARD);
                 } else {
                     boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
                     if (!localAbortSuccessful) {
-                        error err = error(OUTCOME_HAZARD);
-                        ret = err;
+                        ret = prepareError(OUTCOME_HAZARD);
                     } else {
                         if (self.possibleMixedOutcome) {
                             ret = OUTCOME_MIXED;
@@ -309,13 +305,11 @@ type TwoPhaseCommitTransaction object {
             var result = self.notifyParticipants(COMMAND_ABORT, PROTOCOL_VOLATILE);
             if (result is error) {
                 // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-                error err = error(OUTCOME_HAZARD);
-                ret = err;
+                ret = prepareError(OUTCOME_HAZARD);
             } else {
                 boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
                 if (!localAbortSuccessful) {
-                    error err = error(OUTCOME_HAZARD);
-                    ret = err;
+                    ret = prepareError(OUTCOME_HAZARD);
                 } else {
                     if (self.possibleMixedOutcome) {
                         ret = OUTCOME_MIXED;
@@ -435,19 +429,17 @@ type TwoPhaseCommitTransaction object {
     }
 
     // This function will be called by the initiator
-    function abortInitiatorTransaction() returns string|error {
-        string|error ret = "";
+    function abortInitiatorTransaction() returns string|Error {
+        string|Error ret = "";
         // return response to the initiator. ( Aborted | Mixed )
         var result = self.notifyParticipants(COMMAND_ABORT, ());
         if (result is error) {
             // return Hazard outcome if a participant cannot successfully end its branch of the transaction
-            error err = error(OUTCOME_HAZARD);
-            ret = err;
+            ret = prepareError(OUTCOME_HAZARD);
         } else {
             boolean localAbortSuccessful = abortResourceManagers(self.transactionId, self.transactionBlockId);
             if (!localAbortSuccessful) {
-                error err = error(OUTCOME_HAZARD);
-                ret = err;
+                ret = prepareError(OUTCOME_HAZARD);
             } else {
                 if (self.possibleMixedOutcome) {
                     ret = OUTCOME_MIXED;
@@ -511,8 +503,7 @@ public function startTransaction(string transactionBlockId, Info? prevAttempt = 
 # + transactionBlockId - ID of the transaction block. Each transaction block in a process has a unique ID.
 # + return - A string or an error representing the transaction end succcess status or failure respectively.
 public transactional function endTransaction(string transactionId, string transactionBlockId)
-        returns @tainted string|error? {
-
+        returns @tainted string|Error? {
     if (getRollbackOnly()) {
         return getRollbackOnlyError();
     }
@@ -522,6 +513,8 @@ public transactional function endTransaction(string transactionId, string transa
         error err = error("Transaction: " + participatedTxnId + " not found");
         panic err;
     }
+
+    setContextAsNonTransactional();
 
     // Only the initiator can end the transaction. Here we check whether the entity trying to end the transaction is
     // an initiator or just a local participant
@@ -533,7 +526,7 @@ public transactional function endTransaction(string transactionId, string transa
             if (initiatedTxn.state == TXN_STATE_ABORTED) {
                 return initiatedTxn.abortInitiatorTransaction();
             } else {
-                string|error ret = initiatedTxn.twoPhaseCommit();
+                string|Error ret = initiatedTxn.twoPhaseCommit();
                 removeInitiatedTransaction(transactionId);
                 return ret;
             }
@@ -624,4 +617,6 @@ function uuid() returns string = external;
 
 function timeNow() returns int = external;
 
-function getRollbackOnlyError() returns error? = external;
+function getRollbackOnlyError() returns Error? = external;
+
+function setContextAsNonTransactional() = external;

@@ -19,17 +19,18 @@
 package org.ballerinalang.packerina.task;
 
 import com.google.gson.Gson;
+import org.ballerinalang.compiler.JarResolver;
 import org.ballerinalang.packerina.OsUtils;
 import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.model.ExecutableJar;
 import org.ballerinalang.test.runtime.entity.ModuleCoverage;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
+import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.tool.LauncherUtils;
 import org.ballerinalang.tool.util.BFileUtil;
@@ -77,8 +78,10 @@ public class RunTestsTask implements Task {
     private final String[] args;
     private boolean report;
     private boolean coverage;
-    private Path testJarPath;
+    private boolean isSingleTestExecution;
+    private List<String> singleExecTests;
     TestReport testReport;
+    private JarResolver jarResolver;
 
     public RunTestsTask(boolean report, boolean coverage, String[] args) {
         this.coverage = coverage;
@@ -90,10 +93,11 @@ public class RunTestsTask implements Task {
     }
 
     public RunTestsTask(boolean report, boolean coverage, String[] args, List<String> groupList,
-                        List<String> disableGroupList) {
+                        List<String> disableGroupList,  List<String> testList) {
         this.args = args;
         this.report = report;
         this.coverage = coverage;
+        this.isSingleTestExecution = false;
         TesterinaRegistry testerinaRegistry = TesterinaRegistry.getInstance();
         if (disableGroupList != null) {
             testerinaRegistry.setGroups(disableGroupList);
@@ -101,6 +105,9 @@ public class RunTestsTask implements Task {
         } else if (groupList != null) {
             testerinaRegistry.setGroups(groupList);
             testerinaRegistry.setShouldIncludeGroups(true);
+        } else if (testList != null) {
+            isSingleTestExecution = true;
+            singleExecTests = testList;
         }
 
         if (report || coverage) {
@@ -110,6 +117,7 @@ public class RunTestsTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
+        jarResolver = buildContext.get(BuildContextField.JAR_RESOLVER);
         Path targetDir = Paths.get(buildContext.get(BuildContextField.TARGET_DIR).toString());
         buildContext.out().println();
         buildContext.out().print("Running Tests");
@@ -133,6 +141,9 @@ public class RunTestsTask implements Task {
         // in packages.
         for (BLangPackage bLangPackage : moduleBirMap) {
             TestSuite suite = TesterinaRegistry.getInstance().getTestSuites().get(bLangPackage.packageID.toString());
+            if (isSingleTestExecution) {
+                suite.setTests(TesterinaUtils.getSingleExecutionTests(suite.getTests(), singleExecTests));
+            }
             if (suite == null) {
                 if (!DOT.equals(bLangPackage.packageID.toString())) {
                     buildContext.out().println();
@@ -141,9 +152,13 @@ public class RunTestsTask implements Task {
                 buildContext.out().println("\t" + "No tests found");
                 buildContext.out().println();
                 continue;
+            } else if (isSingleTestExecution && suite.getTests().size() == 0) {
+                buildContext.out().println("\t" + "No tests found with the given name/s");
+                buildContext.out().println();
+                continue;
             }
             suite.setReportRequired(report || coverage);
-            HashSet<Path> testDependencies = getTestDependencies(buildContext, bLangPackage);
+            HashSet<Path> testDependencies = new HashSet<>(jarResolver.allTestDependencies(bLangPackage));
             Path jsonPath = buildContext.getTestJsonPathTargetCache(bLangPackage.packageID);
             createTestJson(bLangPackage, suite, sourceRootPath, jsonPath);
             int testResult = runTestSuit(jsonPath, buildContext, testDependencies, bLangPackage);
@@ -335,7 +350,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(jsonPath.toString());
             cmdArgs.addAll(Arrays.asList(args));
             cmdArgs.add(targetDir.toString());
-            cmdArgs.add(testJarPath.toString());
+            cmdArgs.add(jarResolver.moduleTestJar(bLangPackage).toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
             ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
@@ -347,7 +362,7 @@ public class RunTestsTask implements Task {
     }
 
     private int generateCoverageReport(BuildContext buildContext, HashSet<Path> testDependencies,
-                                       BLangPackage bLangPackage) {
+                                        BLangPackage bLangPackage) {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         String mainClassName = TesterinaConstants.CODE_COV_GENERATOR_CLASS_NAME;
@@ -360,7 +375,7 @@ public class RunTestsTask implements Task {
             String classPath = getClassPath(getTestRuntimeJar(buildContext), testDependencies);
             cmdArgs.addAll(Lists.of("-cp", classPath, mainClassName, jsonPath.toString()));
             cmdArgs.add(targetDir.toString());
-            cmdArgs.add(testJarPath.toString());
+            cmdArgs.add(jarResolver.moduleTestJar(bLangPackage).toString());
             cmdArgs.add(orgName);
             cmdArgs.add(packageName);
             cmdArgs.add(version);
@@ -371,20 +386,6 @@ public class RunTestsTask implements Task {
         } catch (IOException | InterruptedException e) {
             throw createLauncherException("unable to run the tests: " + e.getMessage());
         }
-    }
-
-    private HashSet<Path> getTestDependencies(BuildContext buildContext, BLangPackage bLangPackage) {
-        if (bLangPackage.containsTestablePkg()) {
-            testJarPath = buildContext.getTestJarPathFromTargetCache(bLangPackage.packageID);
-        } else {
-            // Single bal file test code will be in module jar
-            testJarPath = buildContext.getJarPathFromTargetCache(bLangPackage.packageID);
-        }
-        ExecutableJar executableJar = buildContext.moduleDependencyPathMap.get(bLangPackage.packageID);
-        HashSet<Path> testDependencies = new HashSet<>(executableJar.moduleLibs);
-        testDependencies.addAll(executableJar.testLibs);
-        testDependencies.add(testJarPath);
-        return testDependencies;
     }
 
     private String getClassPath(Path testRuntimeJar, HashSet<Path> testDependencies) {

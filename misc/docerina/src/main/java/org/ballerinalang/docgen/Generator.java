@@ -37,6 +37,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.SimpleVariableNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -46,6 +47,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
@@ -124,11 +126,13 @@ public class Generator {
             addDocForObjectType(objectType, typeDefinition, module);
             added = true;
         } else if (kind == NodeKind.FINITE_TYPE_NODE) {
-            BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
-            List<String> values = enumNode.getValueSet().stream()
-                    .map(java.lang.Object::toString)
-                    .collect(Collectors.toList());
-            module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), isDeprecated, values));
+            if (!typeDefinition.getFlags().contains(Flag.ANONYMOUS)) {
+                BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeNode;
+                List<String> values = enumNode.getValueSet().stream()
+                        .map(java.lang.Object::toString)
+                        .collect(Collectors.toList());
+                module.finiteTypes.add(new FiniteType(typeName, description(typeDefinition), isDeprecated, values));
+            }
             added = true;
         } else if (kind == NodeKind.RECORD_TYPE) {
             BLangRecordTypeNode recordNode = (BLangRecordTypeNode) typeNode;
@@ -305,6 +309,10 @@ public class Generator {
                         } else {
                             defaultValue = ((BLangTypeInit) param.getInitialExpression()).getType().toString();
                         }
+                    } else if (param.getInitialExpression() instanceof BLangLiteral &&
+                                param.getInitialExpression().expectedType.getKind() == TypeKind.STRING &&
+                                param.getInitialExpression().toString().equals("")) {
+                        defaultValue = "\"\"";
                     } else {
                         defaultValue = param.getInitialExpression().toString();
                     }
@@ -312,6 +320,9 @@ public class Generator {
                 DefaultableVariable field = new DefaultableVariable(name, desc,
                         isDeprecated(param.getAnnotationAttachments()),
                         Type.fromTypeNode(param.typeNode, param.type, module.id), defaultValue);
+                if (param.getFlags().contains(Flag.OPTIONAL)) {
+                    field.type.isNullable = true;
+                }
                 fields.add(field);
             }
         }

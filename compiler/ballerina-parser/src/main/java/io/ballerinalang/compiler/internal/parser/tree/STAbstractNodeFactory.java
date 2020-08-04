@@ -125,8 +125,16 @@ public abstract class STAbstractNodeFactory {
         return new STMinutiae(kind, text, width);
     }
 
-    public static STNode createInvalidNodeMinutiae(STNode invalidNode) {
-        return new STInvalidNodeMinutiae(invalidNode);
+    public static STNode createInvalidNodeMinutiae(STToken invalidToken) {
+        return new STInvalidNodeMinutiae(createInvalidTokenMinutiaeNode(invalidToken));
+    }
+
+    public static STNode createInvalidNodeMinutiae(STInvalidTokenMinutiaeNode invalidTokenTriviaNode) {
+        return new STInvalidNodeMinutiae(invalidTokenTriviaNode);
+    }
+
+    public static STInvalidTokenMinutiaeNode createInvalidTokenMinutiaeNode(STToken invalidToken) {
+        return new STInvalidTokenMinutiaeNode(invalidToken);
     }
 
     public static STToken createDocumentationLineToken(String text, STNode leadingTrivia, STNode trailingTrivia) {
