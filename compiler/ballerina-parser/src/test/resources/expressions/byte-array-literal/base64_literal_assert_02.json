@@ -166,8 +166,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "TEMPLATE_STRING",
-                                "value": "aGVsbG8gYmFsbGVyaW5hICEhIQ\u003d\u003d;\n    byte[] arr2 \u003d base64 "
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "TEMPLATE_STRING",
+                                    "value": "aGVsbG8gYmFsbGVyaW5hICEhIQ\u003d\u003d;\n    byte[] arr2 \u003d base64 "
+                                  }
+                                ]
                               }
                             }
                           ]
@@ -358,7 +363,12 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "EQUAL_TOKEN"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "EQUAL_TOKEN"
+                          }
+                        ]
                       }
                     }
                   ],

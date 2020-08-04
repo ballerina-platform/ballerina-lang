@@ -55,9 +55,9 @@ public class BallerinaTypeDescReferenceTypeNameImpl extends ASTWrapperPsiElement
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getLt() {
-    return findNotNullChildByType(LT);
+    return findChildByType(LT);
   }
 
   @Override

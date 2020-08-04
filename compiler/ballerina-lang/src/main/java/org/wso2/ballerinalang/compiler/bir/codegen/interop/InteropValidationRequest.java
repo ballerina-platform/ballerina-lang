@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.bir.codegen.interop;
 
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.List;
 
@@ -44,6 +45,7 @@ public abstract class InteropValidationRequest {
         JMethodKind methodKind;
         List<JType> paramTypeConstraints;
         boolean restParamExist = false;
+        BType receiverType = null;
 
         MethodValidationRequest(String name, String klass, BInvokableType bFuncType,
                                 JMethodKind methodKind) {

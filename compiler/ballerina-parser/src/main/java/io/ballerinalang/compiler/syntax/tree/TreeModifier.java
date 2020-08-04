@@ -501,6 +501,19 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public FailExpressionNode transform(
+            FailExpressionNode failExpressionNode) {
+        Token failKeyword =
+                modifyToken(failExpressionNode.failKeyword());
+        ExpressionNode expression =
+                modifyNode(failExpressionNode.expression());
+        return failExpressionNode.modify(
+                failExpressionNode.kind(),
+                failKeyword,
+                expression);
+    }
+
+    @Override
     public FieldAccessExpressionNode transform(
             FieldAccessExpressionNode fieldAccessExpressionNode) {
         ExpressionNode expression =
@@ -518,7 +531,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public FunctionCallExpressionNode transform(
             FunctionCallExpressionNode functionCallExpressionNode) {
-        Node functionName =
+        NameReferenceNode functionName =
                 modifyNode(functionCallExpressionNode.functionName());
         Token openParenToken =
                 modifyToken(functionCallExpressionNode.openParenToken());
@@ -884,18 +897,21 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     @Override
     public RecordTypeDescriptorNode transform(
             RecordTypeDescriptorNode recordTypeDescriptorNode) {
-        Token objectKeyword =
-                modifyToken(recordTypeDescriptorNode.objectKeyword());
+        Token recordKeyword =
+                modifyToken(recordTypeDescriptorNode.recordKeyword());
         Token bodyStartDelimiter =
                 modifyToken(recordTypeDescriptorNode.bodyStartDelimiter());
         NodeList<Node> fields =
                 modifyNodeList(recordTypeDescriptorNode.fields());
+        RecordRestDescriptorNode recordRestDescriptor =
+                modifyNode(recordTypeDescriptorNode.recordRestDescriptor().orElse(null));
         Token bodyEndDelimiter =
                 modifyToken(recordTypeDescriptorNode.bodyEndDelimiter());
         return recordTypeDescriptorNode.modify(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
@@ -3054,8 +3070,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(documentationReferenceNode.referenceType().orElse(null));
         Token startBacktick =
                 modifyToken(documentationReferenceNode.startBacktick());
-        Token backtickContent =
-                modifyToken(documentationReferenceNode.backtickContent());
+        Node backtickContent =
+                modifyNode(documentationReferenceNode.backtickContent());
         Token endBacktick =
                 modifyToken(documentationReferenceNode.endBacktick());
         return documentationReferenceNode.modify(
@@ -3063,6 +3079,33 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public OrderByClauseNode transform(
+            OrderByClauseNode orderByClauseNode) {
+        Token orderKeyword =
+                modifyToken(orderByClauseNode.orderKeyword());
+        Token byKeyword =
+                modifyToken(orderByClauseNode.byKeyword());
+        SeparatedNodeList<OrderKeyNode> orderKey =
+                modifySeparatedNodeList(orderByClauseNode.orderKey());
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public OrderKeyNode transform(
+            OrderKeyNode orderKeyNode) {
+        ExpressionNode expression =
+                modifyNode(orderKeyNode.expression());
+        Token orderDirection =
+                modifyToken(orderKeyNode.orderDirection().orElse(null));
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
     }
 
     // Tokens

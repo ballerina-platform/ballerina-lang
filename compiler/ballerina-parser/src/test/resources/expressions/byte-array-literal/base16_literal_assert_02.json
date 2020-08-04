@@ -166,8 +166,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "TEMPLATE_STRING",
-                                "value": "b3 c e;\n    byte[] arr2 \u003d base16 "
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "TEMPLATE_STRING",
+                                    "value": "b3 c e;\n    byte[] arr2 \u003d base16 "
+                                  }
+                                ]
                               }
                             }
                           ]

@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.nativeimpl.jvm.tests;
 
+import org.ballerinalang.jvm.values.BmpStringValue;
 import org.ballerinalang.jvm.values.HandleValue;
+import org.ballerinalang.jvm.values.ObjectValue;
 
 /**
  * This class contains a set of utility instance methods required for interoperability testing.
@@ -159,4 +161,19 @@ public class InstanceMethods {
         return 10;
     }
 
+    public int getObjectValueField(ObjectValue objectValue) {
+        return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
+    }
+
+    public int getInt(ObjectValue objectValue, int x) {
+        return ((Long) objectValue.get(new BmpStringValue("age"))).intValue();
+    }
+
+    public int getInt(int x) {
+        return x;
+    }
+
+    public int getRandomInt() {
+        return 123;
+    }
 }

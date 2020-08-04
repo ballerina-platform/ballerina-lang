@@ -144,6 +144,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(checkExpressionNode);
     }
 
+    public T transform(FailExpressionNode failExpressionNode) {
+        return transformSyntaxNode(failExpressionNode);
+    }
+
     public T transform(FieldAccessExpressionNode fieldAccessExpressionNode) {
         return transformSyntaxNode(fieldAccessExpressionNode);
     }
@@ -794,6 +798,14 @@ public abstract class NodeTransformer<T> {
 
     public T transform(DocumentationReferenceNode documentationReferenceNode) {
         return transformSyntaxNode(documentationReferenceNode);
+    }
+
+    public T transform(OrderByClauseNode orderByClauseNode) {
+        return transformSyntaxNode(orderByClauseNode);
+    }
+
+    public T transform(OrderKeyNode orderKeyNode) {
+        return transformSyntaxNode(orderKeyNode);
     }
 
     // Tokens

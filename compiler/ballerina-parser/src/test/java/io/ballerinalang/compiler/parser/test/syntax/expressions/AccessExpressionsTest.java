@@ -111,6 +111,7 @@ public class AccessExpressionsTest extends AbstractExpressionsTest {
     @Test
     public void testMissingKeyExprInMemberAccess() {
         test("x[].y", "access-expr/member_access_expr_assert_03.json");
+        test("foo(bar[])", "access-expr/member_access_expr_assert_10.json");
     }
 
     @Test

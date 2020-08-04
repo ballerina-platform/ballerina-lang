@@ -20,7 +20,6 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
-import com.google.common.base.Strings;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -87,8 +86,8 @@ public class BallerinaDiagramUtils {
         String balSdkPath = BallerinaSdkUtils.getBallerinaSdkFor(project).getSdkPath();
 
         // Checks for the user-configured auto detection settings.
-        if (Strings.isNullOrEmpty(balSdkPath)
-                &&  BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
+        if (BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)
+                && BallerinaProjectSettings.getStoredSettings(project).isAutodetect()) {
             try {
                 balSdkPath = BallerinaSdkUtils.autoDetectSdk(project);
             } catch (BallerinaCmdException e) {
@@ -97,7 +96,7 @@ public class BallerinaDiagramUtils {
             }
         }
 
-        if (Strings.isNullOrEmpty(balSdkPath)) {
+        if (BallerinaSdkUtils.stringIsNullOrEmpty(balSdkPath)) {
             LOG.warn(String.format("No Ballerina SDK is found for the project: %s", project.getName()));
             return "";
         }

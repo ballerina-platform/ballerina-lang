@@ -401,3 +401,88 @@ function javaStackPop(handle stack) returns any = @java:Method {
     class: "java/util/Stack",
     name: "pop"
 } external;
+
+// Intersection types with interop.
+function testDifferentRefTypesForIntersectionEffectiveType() {
+    map<int> & readonly intMap = {a: 1, b: 2, e: 3};
+    map<string> & readonly stringMap = {c: "hello", d: "world"};
+
+    (int|string)[] & readonly readOnlyArr = getValues(intMap, stringMap); // Valid assignment.
+    (int|string)[] arr = getValues(intMap, stringMap);
+
+    assertEquality(5, arr.length());
+    assertEquality(true, arr.isReadOnly());
+
+    assertTrue(arr.indexOf(1) != ());
+    assertTrue(arr.indexOf(2) != ());
+    assertTrue(arr.indexOf(3) != ());
+    assertTrue(arr.indexOf("hello") != ());
+    assertTrue(arr.indexOf("world") != ());
+    assertEquality((), arr.indexOf("ballerina"));
+}
+
+function getValues(map<int> & readonly intMap, map<string> & readonly stringMap)
+    returns (int|string)[] & readonly = @java:Method {
+        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function testUsingIntersectionEffectiveType() {
+    int a = 1;
+    any & readonly r1 = echoAnydataAsAny(a);
+    assertEquality(a, r1);
+
+    Graduate b = new ("Jo", 1234);
+    readonly & abstract object {} r2 = echoObject(b);
+    assertEquality(b, r2);
+
+    Details & readonly c = {
+        emp: b,
+        employed: true
+    };
+    boolean r3 = echoImmutableRecordField(c, "employed");
+    assertTrue(r3);
+}
+
+type Graduate readonly object {
+    string name;
+    int id;
+
+    function init(string name, int id) {
+        self.name = name;
+        self.id = id;
+    }
+};
+
+type Details record {
+    Graduate emp;
+    boolean employed;
+};
+
+function echoAnydataAsAny(anydata & readonly value) returns any & readonly = @java:Method {
+    class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function echoObject(abstract object {string name; int id;} & readonly obj)
+    returns abstract object {} & readonly = @java:Method {
+        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function echoImmutableRecordField(Details & readonly value, string key) returns boolean = @java:Method {
+        class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

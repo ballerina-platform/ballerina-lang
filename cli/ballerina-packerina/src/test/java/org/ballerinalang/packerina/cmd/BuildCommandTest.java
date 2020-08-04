@@ -804,9 +804,8 @@ public class BuildCommandTest extends CommandTest {
                 "\nGenerating executables\n" +
                 "\ttarget/bin/module1.jar\n");
     }
-    
-    // Check compile command inside a module directory
 
+    // Check compile command inside a module directory
 
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;

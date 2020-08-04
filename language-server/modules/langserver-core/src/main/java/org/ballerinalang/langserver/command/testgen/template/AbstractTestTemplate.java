@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.command.testgen.template;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangTestablePackage;
@@ -152,8 +151,7 @@ public abstract class AbstractTestTemplate implements TestTemplate {
                 BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) expression;
                 if (namedArgsExpression.name.value.equals("config") &&
                         namedArgsExpression.expr instanceof BLangRecordLiteral) {
-                    return isRecordValueExists(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET.getValue(),
-                                               (BLangRecordLiteral) namedArgsExpression.expr);
+                    return isRecordValueExists("secureSocket", (BLangRecordLiteral) namedArgsExpression.expr);
                 }
             }
         }

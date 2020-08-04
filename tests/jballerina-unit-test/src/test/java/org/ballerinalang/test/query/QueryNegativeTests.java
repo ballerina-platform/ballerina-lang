@@ -32,7 +32,7 @@ import static org.ballerinalang.test.util.BAssertUtil.validateError;
  */
 public class QueryNegativeTests {
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 23);
