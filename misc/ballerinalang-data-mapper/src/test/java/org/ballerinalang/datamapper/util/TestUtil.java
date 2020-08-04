@@ -143,11 +143,9 @@ public class TestUtil {
 
         textDocumentClientCapabilities.setCompletion(completionCapabilities);
         textDocumentClientCapabilities.setSignatureHelp(signatureHelpCapabilities);
-
         capabilities.setTextDocument(textDocumentClientCapabilities);
         params.setCapabilities(capabilities);
         endpoint.request("initialize", params);
-
         return endpoint;
     }
 
@@ -188,7 +186,6 @@ public class TestUtil {
             responseError.setMessage("Current thread was interrupted");
             jsonrpcResponse.setError(responseError);
         }
-
         return GSON.toJson(jsonrpcResponse).replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 
@@ -205,7 +202,6 @@ public class TestUtil {
         if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
             diagnostics = ((CollectDiagnosticListener) compilerContext.get(DiagnosticListener.class)).getDiagnostics();
         }
-
         return diagnostics;
     }
 }
