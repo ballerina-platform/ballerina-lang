@@ -799,6 +799,14 @@ public abstract class NodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(OnFailClauseNode onFailClauseNode) {
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(DoStatementNode doStatementNode) {
+        visitSyntaxNode(doStatementNode);
+    }
+
     // Tokens
 
     public void visit(Token token) {

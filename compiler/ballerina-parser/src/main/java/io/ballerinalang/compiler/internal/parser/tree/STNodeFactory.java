@@ -261,12 +261,14 @@ public class STNodeFactory extends STAbstractNodeFactory {
     public static STNode createWhileStatementNode(
             STNode whileKeyword,
             STNode condition,
-            STNode whileBody) {
+            STNode whileBody,
+            STNode onFailClause) {
 
         return new STWhileStatementNode(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     public static STNode createPanicStatementNode(
@@ -2270,6 +2272,32 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    public static STNode createOnFailClauseNode(
+            STNode onKeyword,
+            STNode failKeyword,
+            STNode typeDescriptor,
+            STNode failErrorName,
+            STNode blockStatement) {
+
+        return new STOnFailClauseNode(
+                onKeyword,
+                failKeyword,
+                typeDescriptor,
+                failErrorName,
+                blockStatement);
+    }
+
+    public static STNode createDoStatementNode(
+            STNode doKeyword,
+            STNode blockStatement,
+            STNode onFailClause) {
+
+        return new STDoStatementNode(
+                doKeyword,
+                blockStatement,
+                onFailClause);
     }
 }
 

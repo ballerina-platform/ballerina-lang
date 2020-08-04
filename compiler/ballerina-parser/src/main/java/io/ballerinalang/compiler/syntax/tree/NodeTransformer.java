@@ -800,6 +800,14 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
+    public T transform(OnFailClauseNode onFailClauseNode) {
+        return transformSyntaxNode(onFailClauseNode);
+    }
+
+    public T transform(DoStatementNode doStatementNode) {
+        return transformSyntaxNode(doStatementNode);
+    }
+
     // Tokens
 
     public T transform(Token token) {

@@ -27,26 +27,22 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class WhileStatementNode extends StatementNode {
+public class DoStatementNode extends StatementNode {
 
-    public WhileStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
+    public DoStatementNode(STNode internalNode, int position, NonTerminalNode parent) {
         super(internalNode, position, parent);
     }
 
-    public Token whileKeyword() {
+    public Token doKeyword() {
         return childInBucket(0);
     }
 
-    public ExpressionNode condition() {
+    public BlockStatementNode blockStatement() {
         return childInBucket(1);
     }
 
-    public BlockStatementNode whileBody() {
-        return childInBucket(2);
-    }
-
     public Optional<OnFailClauseNode> onFailClause() {
-        return optionalChildInBucket(3);
+        return optionalChildInBucket(2);
     }
 
     @Override
@@ -62,34 +58,30 @@ public class WhileStatementNode extends StatementNode {
     @Override
     protected String[] childNames() {
         return new String[]{
-                "whileKeyword",
-                "condition",
-                "whileBody",
+                "doKeyword",
+                "blockStatement",
                 "onFailClause"};
     }
 
-    public WhileStatementNode modify(
-            Token whileKeyword,
-            ExpressionNode condition,
-            BlockStatementNode whileBody,
+    public DoStatementNode modify(
+            Token doKeyword,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
-                whileKeyword,
-                condition,
-                whileBody,
+                doKeyword,
+                blockStatement,
                 onFailClause)) {
             return this;
         }
 
-        return NodeFactory.createWhileStatementNode(
-                whileKeyword,
-                condition,
-                whileBody,
+        return NodeFactory.createDoStatementNode(
+                doKeyword,
+                blockStatement,
                 onFailClause);
     }
 
-    public WhileStatementNodeModifier modify() {
-        return new WhileStatementNodeModifier(this);
+    public DoStatementNodeModifier modify() {
+        return new DoStatementNodeModifier(this);
     }
 
     /**
@@ -97,54 +89,44 @@ public class WhileStatementNode extends StatementNode {
      *
      * @since 2.0.0
      */
-    public static class WhileStatementNodeModifier {
-        private final WhileStatementNode oldNode;
-        private Token whileKeyword;
-        private ExpressionNode condition;
-        private BlockStatementNode whileBody;
+    public static class DoStatementNodeModifier {
+        private final DoStatementNode oldNode;
+        private Token doKeyword;
+        private BlockStatementNode blockStatement;
         private OnFailClauseNode onFailClause;
 
-        public WhileStatementNodeModifier(WhileStatementNode oldNode) {
+        public DoStatementNodeModifier(DoStatementNode oldNode) {
             this.oldNode = oldNode;
-            this.whileKeyword = oldNode.whileKeyword();
-            this.condition = oldNode.condition();
-            this.whileBody = oldNode.whileBody();
+            this.doKeyword = oldNode.doKeyword();
+            this.blockStatement = oldNode.blockStatement();
             this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
-        public WhileStatementNodeModifier withWhileKeyword(
-                Token whileKeyword) {
-            Objects.requireNonNull(whileKeyword, "whileKeyword must not be null");
-            this.whileKeyword = whileKeyword;
+        public DoStatementNodeModifier withDoKeyword(
+                Token doKeyword) {
+            Objects.requireNonNull(doKeyword, "doKeyword must not be null");
+            this.doKeyword = doKeyword;
             return this;
         }
 
-        public WhileStatementNodeModifier withCondition(
-                ExpressionNode condition) {
-            Objects.requireNonNull(condition, "condition must not be null");
-            this.condition = condition;
+        public DoStatementNodeModifier withBlockStatement(
+                BlockStatementNode blockStatement) {
+            Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+            this.blockStatement = blockStatement;
             return this;
         }
 
-        public WhileStatementNodeModifier withWhileBody(
-                BlockStatementNode whileBody) {
-            Objects.requireNonNull(whileBody, "whileBody must not be null");
-            this.whileBody = whileBody;
-            return this;
-        }
-
-        public WhileStatementNodeModifier withOnFailClause(
+        public DoStatementNodeModifier withOnFailClause(
                 OnFailClauseNode onFailClause) {
             Objects.requireNonNull(onFailClause, "onFailClause must not be null");
             this.onFailClause = onFailClause;
             return this;
         }
 
-        public WhileStatementNode apply() {
+        public DoStatementNode apply() {
             return oldNode.modify(
-                    whileKeyword,
-                    condition,
-                    whileBody,
+                    doKeyword,
+                    blockStatement,
                     onFailClause);
         }
     }

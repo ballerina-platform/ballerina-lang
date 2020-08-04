@@ -3668,6 +3668,7 @@ public class BallerinaParser extends AbstractParser {
             case RETRY_KEYWORD:
             case ROLLBACK_KEYWORD:
             case MATCH_KEYWORD:
+            case ON_KEYWORD:
 
                 // action-statements
             case CHECK_KEYWORD:
@@ -4928,6 +4929,7 @@ public class BallerinaParser extends AbstractParser {
             case LIMIT_KEYWORD:
             case JOIN_KEYWORD:
             case OUTER_KEYWORD:
+            case FAIL_KEYWORD:
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
@@ -5737,7 +5739,13 @@ public class BallerinaParser extends AbstractParser {
         STNode condition = parseExpression();
         STNode whileBody = parseBlockNode();
         endContext();
-        return STNodeFactory.createWhileStatementNode(whileKeyword, condition, whileBody);
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createWhileStatementNode(whileKeyword, condition, whileBody, onFailClause);
     }
 
     /**
@@ -10275,9 +10283,9 @@ public class BallerinaParser extends AbstractParser {
     }
 
     /**
-     * Parse select-keyword.
+     * Parse outer-keyword.
      *
-     * @return Select-keyword node
+     * @return Outer-keyword node
      */
     private STNode parseOuterKeyword() {
         STToken token = peek();
@@ -11824,6 +11832,24 @@ public class BallerinaParser extends AbstractParser {
                 Solution solution = recover(peek(), ParserRuleContext.RETRY_BODY);
                 return parseRetryBody(solution.tokenKind);
         }
+    }
+
+    private STNode parseOnFailClause() {
+        STNode onKeyword = parseOnKeyword();
+        STNode failKeyword;
+        STToken nextToken = peek();
+        if (nextToken.kind == SyntaxKind.FAIL_KEYWORD) {
+            failKeyword = parseFailKeyword();
+        } else {
+            // No other cases for now
+            failKeyword = STNodeFactory.createEmptyNode();
+        }
+        STNode typeDescriptorNode = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_DEF);
+        STNode identifierNode = parseIdentifier(ParserRuleContext.VARIABLE_REF);
+        STNode blockStatement = parseBlockNode();
+
+        return STNodeFactory.createOnFailClauseNode(onKeyword, failKeyword, typeDescriptorNode, identifierNode,
+                blockStatement);
     }
 
     /**

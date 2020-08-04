@@ -120,6 +120,7 @@ import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
+import io.ballerinalang.compiler.syntax.tree.OnFailClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.OptionalTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.PanicStatementNode;
@@ -263,6 +264,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -2327,6 +2329,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt bLBlockStmt = (BLangBlockStmt) whileStmtNode.whileBody().apply(this);
         bLBlockStmt.pos = getPosition(whileStmtNode.whileBody());
         bLWhile.setBody(bLBlockStmt);
+        whileStmtNode.onFailClause().ifPresent(onFailClauseNode -> {
+            bLWhile.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
         return bLWhile;
     }
 
@@ -3212,6 +3218,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         queryExpr.isStream = isStream;
         queryExpr.isTable = isTable;
         return queryExpr;
+    }
+
+    public BLangNode transform(OnFailClauseNode onFailClauseNode) {
+        BLangSimpleVariableDef variableDefinitionNode = (BLangSimpleVariableDef) TreeBuilder.
+                createSimpleVariableDefinitionNode();
+        BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
+        boolean isDeclaredWithVar = onFailClauseNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
+        var.isDeclaredWithVar = isDeclaredWithVar;
+        if(!isDeclaredWithVar) {
+            var.setTypeNode(createTypeNode(onFailClauseNode.typeDescriptor()));
+        }
+        var.pos = getPosition(onFailClauseNode);
+        var.setName(this.createIdentifier(onFailClauseNode.failErrorName()));
+        var.name.pos = getPosition(onFailClauseNode.failErrorName());
+        variableDefinitionNode.setVariable(var);
+
+
+        BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.isDeclaredWithVar = isDeclaredWithVar;
+        markVariableAsFinal(variableDefinitionNode.getVariable());
+        onFailClause.variableDefinitionNode = variableDefinitionNode;
+        BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
+        blockNode.pos = getPosition(onFailClauseNode);
+        onFailClause.body = blockNode;
+        return onFailClause;
     }
 
     @Override

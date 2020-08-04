@@ -789,6 +789,14 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(documentationReferenceNode);
     }
 
+    public T transform(STOnFailClauseNode onFailClauseNode) {
+        return transformSyntaxNode(onFailClauseNode);
+    }
+
+    public T transform(STDoStatementNode doStatementNode) {
+        return transformSyntaxNode(doStatementNode);
+    }
+
     // Tokens
 
     public T transform(STToken token) {

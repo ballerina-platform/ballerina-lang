@@ -347,10 +347,13 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(whileStatementNode.condition());
         BlockStatementNode whileBody =
                 modifyNode(whileStatementNode.whileBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(whileStatementNode.onFailClause().orElse(null));
         return whileStatementNode.modify(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     @Override
@@ -1052,7 +1055,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             TypeReferenceNode typeReferenceNode) {
         Token asteriskToken =
                 modifyToken(typeReferenceNode.asteriskToken());
-        NameReferenceNode typeName =
+        Node typeName =
                 modifyNode(typeReferenceNode.typeName());
         Token semicolonToken =
                 modifyToken(typeReferenceNode.semicolonToken());
@@ -3076,6 +3079,42 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public OnFailClauseNode transform(
+            OnFailClauseNode onFailClauseNode) {
+        Token onKeyword =
+                modifyToken(onFailClauseNode.onKeyword());
+        Token failKeyword =
+                modifyToken(onFailClauseNode.failKeyword());
+        TypeDescriptorNode typeDescriptor =
+                modifyNode(onFailClauseNode.typeDescriptor());
+        IdentifierToken failErrorName =
+                modifyNode(onFailClauseNode.failErrorName());
+        BlockStatementNode blockStatement =
+                modifyNode(onFailClauseNode.blockStatement());
+        return onFailClauseNode.modify(
+                onKeyword,
+                failKeyword,
+                typeDescriptor,
+                failErrorName,
+                blockStatement);
+    }
+
+    @Override
+    public DoStatementNode transform(
+            DoStatementNode doStatementNode) {
+        Token doKeyword =
+                modifyToken(doStatementNode.doKeyword());
+        BlockStatementNode blockStatement =
+                modifyNode(doStatementNode.blockStatement());
+        OnFailClauseNode onFailClause =
+                modifyNode(doStatementNode.onFailClause().orElse(null));
+        return doStatementNode.modify(
+                doKeyword,
+                blockStatement,
+                onFailClause);
     }
 
     // Tokens

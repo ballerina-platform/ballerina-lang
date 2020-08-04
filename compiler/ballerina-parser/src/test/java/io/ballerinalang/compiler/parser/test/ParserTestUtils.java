@@ -1083,6 +1083,8 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_CLAUSE;
             case "LET_CLAUSE":
                 return SyntaxKind.LET_CLAUSE;
+            case "ON_FAIL_CLAUSE":
+                return SyntaxKind.ON_FAIL_CLAUSE;
             case "QUERY_PIPELINE":
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":

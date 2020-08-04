@@ -270,10 +270,12 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode whileKeyword = modifyNode(whileStatementNode.whileKeyword);
         STNode condition = modifyNode(whileStatementNode.condition);
         STNode whileBody = modifyNode(whileStatementNode.whileBody);
+        STNode onFailClause = modifyNode(whileStatementNode.onFailClause);
         return whileStatementNode.modify(
                 whileKeyword,
                 condition,
-                whileBody);
+                whileBody,
+                onFailClause);
     }
 
     @Override
@@ -2440,6 +2442,34 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public STOnFailClauseNode transform(
+            STOnFailClauseNode onFailClauseNode) {
+        STNode onKeyword = modifyNode(onFailClauseNode.onKeyword);
+        STNode failKeyword = modifyNode(onFailClauseNode.failKeyword);
+        STNode typeDescriptor = modifyNode(onFailClauseNode.typeDescriptor);
+        STNode failErrorName = modifyNode(onFailClauseNode.failErrorName);
+        STNode blockStatement = modifyNode(onFailClauseNode.blockStatement);
+        return onFailClauseNode.modify(
+                onKeyword,
+                failKeyword,
+                typeDescriptor,
+                failErrorName,
+                blockStatement);
+    }
+
+    @Override
+    public STDoStatementNode transform(
+            STDoStatementNode doStatementNode) {
+        STNode doKeyword = modifyNode(doStatementNode.doKeyword);
+        STNode blockStatement = modifyNode(doStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(doStatementNode.onFailClause);
+        return doStatementNode.modify(
+                doKeyword,
+                blockStatement,
+                onFailClause);
     }
 
     // Tokens

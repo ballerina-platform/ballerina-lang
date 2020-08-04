@@ -789,6 +789,14 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(documentationReferenceNode);
     }
 
+    public void visit(STOnFailClauseNode onFailClauseNode) {
+        visitSyntaxNode(onFailClauseNode);
+    }
+
+    public void visit(STDoStatementNode doStatementNode) {
+        visitSyntaxNode(doStatementNode);
+    }
+
     // STNodeList
     public void visit(STNodeList nodeList) {
         visitChildren(nodeList);

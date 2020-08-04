@@ -334,7 +334,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static WhileStatementNode createWhileStatementNode(
             Token whileKeyword,
             ExpressionNode condition,
-            BlockStatementNode whileBody) {
+            BlockStatementNode whileBody,
+            OnFailClauseNode onFailClause) {
         Objects.requireNonNull(whileKeyword, "whileKeyword must not be null");
         Objects.requireNonNull(condition, "condition must not be null");
         Objects.requireNonNull(whileBody, "whileBody must not be null");
@@ -342,7 +343,8 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stWhileStatementNode = STNodeFactory.createWhileStatementNode(
                 whileKeyword.internalNode(),
                 condition.internalNode(),
-                whileBody.internalNode());
+                whileBody.internalNode(),
+                getOptionalSTNode(onFailClause));
         return stWhileStatementNode.createUnlinkedFacade();
     }
 
@@ -1029,7 +1031,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static TypeReferenceNode createTypeReferenceNode(
             Token asteriskToken,
-            NameReferenceNode typeName,
+            Node typeName,
             Token semicolonToken) {
         Objects.requireNonNull(asteriskToken, "asteriskToken must not be null");
         Objects.requireNonNull(typeName, "typeName must not be null");
@@ -3026,6 +3028,41 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 backtickContent.internalNode(),
                 endBacktick.internalNode());
         return stDocumentationReferenceNode.createUnlinkedFacade();
+    }
+
+    public static OnFailClauseNode createOnFailClauseNode(
+            Token onKeyword,
+            Token failKeyword,
+            TypeDescriptorNode typeDescriptor,
+            IdentifierToken failErrorName,
+            BlockStatementNode blockStatement) {
+        Objects.requireNonNull(onKeyword, "onKeyword must not be null");
+        Objects.requireNonNull(failKeyword, "failKeyword must not be null");
+        Objects.requireNonNull(typeDescriptor, "typeDescriptor must not be null");
+        Objects.requireNonNull(failErrorName, "failErrorName must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stOnFailClauseNode = STNodeFactory.createOnFailClauseNode(
+                onKeyword.internalNode(),
+                failKeyword.internalNode(),
+                typeDescriptor.internalNode(),
+                failErrorName.internalNode(),
+                blockStatement.internalNode());
+        return stOnFailClauseNode.createUnlinkedFacade();
+    }
+
+    public static DoStatementNode createDoStatementNode(
+            Token doKeyword,
+            BlockStatementNode blockStatement,
+            OnFailClauseNode onFailClause) {
+        Objects.requireNonNull(doKeyword, "doKeyword must not be null");
+        Objects.requireNonNull(blockStatement, "blockStatement must not be null");
+
+        STNode stDoStatementNode = STNodeFactory.createDoStatementNode(
+                doKeyword.internalNode(),
+                blockStatement.internalNode(),
+                getOptionalSTNode(onFailClause));
+        return stDoStatementNode.createUnlinkedFacade();
     }
 }
 

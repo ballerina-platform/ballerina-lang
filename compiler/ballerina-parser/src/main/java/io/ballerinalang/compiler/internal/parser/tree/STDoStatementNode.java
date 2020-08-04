@@ -17,10 +17,10 @@
  */
 package io.ballerinalang.compiler.internal.parser.tree;
 
+import io.ballerinalang.compiler.syntax.tree.DoStatementNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -30,76 +30,66 @@ import java.util.Collections;
  *
  * @since 2.0.0
  */
-public class STWhileStatementNode extends STStatementNode {
-    public final STNode whileKeyword;
-    public final STNode condition;
-    public final STNode whileBody;
+public class STDoStatementNode extends STStatementNode {
+    public final STNode doKeyword;
+    public final STNode blockStatement;
     public final STNode onFailClause;
 
-    STWhileStatementNode(
-            STNode whileKeyword,
-            STNode condition,
-            STNode whileBody,
+    STDoStatementNode(
+            STNode doKeyword,
+            STNode blockStatement,
             STNode onFailClause) {
         this(
-                whileKeyword,
-                condition,
-                whileBody,
+                doKeyword,
+                blockStatement,
                 onFailClause,
                 Collections.emptyList());
     }
 
-    STWhileStatementNode(
-            STNode whileKeyword,
-            STNode condition,
-            STNode whileBody,
+    STDoStatementNode(
+            STNode doKeyword,
+            STNode blockStatement,
             STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.WHILE_STATEMENT, diagnostics);
-        this.whileKeyword = whileKeyword;
-        this.condition = condition;
-        this.whileBody = whileBody;
+        super(SyntaxKind.DO_STATEMENT, diagnostics);
+        this.doKeyword = doKeyword;
+        this.blockStatement = blockStatement;
         this.onFailClause = onFailClause;
 
         addChildren(
-                whileKeyword,
-                condition,
-                whileBody,
+                doKeyword,
+                blockStatement,
                 onFailClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
-        return new STWhileStatementNode(
-                this.whileKeyword,
-                this.condition,
-                this.whileBody,
+        return new STDoStatementNode(
+                this.doKeyword,
+                this.blockStatement,
                 this.onFailClause,
                 diagnostics);
     }
 
-    public STWhileStatementNode modify(
-            STNode whileKeyword,
-            STNode condition,
-            STNode whileBody,
+    public STDoStatementNode modify(
+            STNode doKeyword,
+            STNode blockStatement,
             STNode onFailClause) {
         if (checkForReferenceEquality(
-                whileKeyword,
-                condition,
-                whileBody,
+                doKeyword,
+                blockStatement,
                 onFailClause)) {
             return this;
         }
 
-        return new STWhileStatementNode(
-                whileKeyword,
-                condition,
-                whileBody,
+        return new STDoStatementNode(
+                doKeyword,
+                blockStatement,
                 onFailClause,
                 diagnostics);
     }
 
     public Node createFacade(int position, NonTerminalNode parent) {
-        return new WhileStatementNode(this, position, parent);
+        return new DoStatementNode(this, position, parent);
     }
 
     @Override
