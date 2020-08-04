@@ -251,6 +251,8 @@ public enum ParserRuleContext {
     JOIN_CLAUSE_START("join-clause-start"),
     JOIN_CLAUSE_END("join-clause-end"),
     ON_CLAUSE("on-clause"),
+    INTERMEDIATE_CLAUSE("intermediate-clause"),
+    INTERMEDIATE_CLAUSE_START("intermediate-clause-start"),
 
     // Statements
     STATEMENT("statement"),

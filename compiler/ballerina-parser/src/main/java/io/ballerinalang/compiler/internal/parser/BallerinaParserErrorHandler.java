@@ -375,9 +375,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TABLE_CONSTRUCTOR_OR_QUERY_RHS =
             { ParserRuleContext.TABLE_CONSTRUCTOR, ParserRuleContext.QUERY_EXPRESSION };
 
-    private static final ParserRuleContext[] QUERY_PIPELINE_RHS = { ParserRuleContext.QUERY_EXPRESSION_RHS,
-            ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE,
-            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE, ParserRuleContext.QUERY_ACTION_RHS };
+    private static final ParserRuleContext[] QUERY_PIPELINE_RHS =
+            { ParserRuleContext.QUERY_EXPRESSION_RHS, ParserRuleContext.INTERMEDIATE_CLAUSE,
+                    ParserRuleContext.QUERY_ACTION_RHS };
+
+    private static final ParserRuleContext[] INTERMEDIATE_CLAUSE_START =
+            { ParserRuleContext.WHERE_CLAUSE, ParserRuleContext.FROM_CLAUSE, ParserRuleContext.LET_CLAUSE,
+            ParserRuleContext.JOIN_CLAUSE, ParserRuleContext.ORDER_BY_CLAUSE };
 
     private static final ParserRuleContext[] BRACED_EXPR_OR_ANON_FUNC_PARAM_RHS =
             { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
@@ -1279,6 +1283,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
             case JOIN_CLAUSE_START:
+            case INTERMEDIATE_CLAUSE_START:
                 return true;
             default:
                 return false;
@@ -1665,6 +1670,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case JOIN_CLAUSE_START:
                 alternativeRules = JOIN_CLAUSE_START;
+                break;
+            case INTERMEDIATE_CLAUSE_START:
+                alternativeRules = INTERMEDIATE_CLAUSE_START;
                 break;
             default:
                 return seekMatchInExprRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -2493,6 +2501,12 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                 }
                 return ParserRuleContext.SELECT_CLAUSE;
+            case INTERMEDIATE_CLAUSE:
+                parentCtx = getParentContext();
+                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
+                    endContext();
+                }
+                return ParserRuleContext.INTERMEDIATE_CLAUSE_START;
             case QUERY_ACTION_RHS:
                 return ParserRuleContext.DO_CLAUSE;
             case TABLE_CONSTRUCTOR_OR_QUERY_EXPRESSION:
@@ -2950,7 +2964,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case MAPPING_MATCH_PATTERN:
             case FUNCTIONAL_MATCH_PATTERN:
             case NAMED_ARG_MATCH_PATTERN:
-
+            case SELECT_CLAUSE:
+            case JOIN_CLAUSE:
 
                 // Contexts that expect a type
             case TYPE_DESC_IN_ANNOTATION_DECL:
@@ -2966,19 +2981,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PARENTHESIS:
             case TYPE_DESC_IN_NEW_EXPR:
             case TYPE_DESC_IN_TUPLE:
-                startContext(currentCtx);
-                break;
-            default:
-                break;
-        }
-
-        switch (currentCtx) {
-            case SELECT_CLAUSE:
-            case JOIN_CLAUSE:
-                ParserRuleContext parentCtx = getParentContext();
-                if (parentCtx == ParserRuleContext.LET_CLAUSE_LET_VAR_DECL) {
-                    endContext(); // end let-clause-let-var-decl
-                }
                 startContext(currentCtx);
                 break;
             default:
