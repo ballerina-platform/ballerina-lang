@@ -27,19 +27,19 @@ string '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_global_var = "IL with special charact
 string 'üňĩćőđę_ĠĿŐΒȂɭ_var = "IL with unicode characters in global var";
 
 
-function testFinalVariableIL(){
+function testFinalVariableIL() {
     assertEquality(77.80,'const_IL_123);
     assertEquality(88.90,'\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_IL);
     assertEquality(99.10,'üňĩćőđę_ƈȏɳʂʈ_IL);
 }
 
-function testGlobalVariableIL(){
+function testGlobalVariableIL() {
     assertEquality("IL with global var",'global_var_123 );
     assertEquality("IL with special characters in global var",'\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_global_var);
     assertEquality("IL with unicode characters in global var",'üňĩćőđę_ĠĿŐΒȂɭ_var);
 }
 
-function testLocalVariableIL(){
+function testLocalVariableIL() {
     string 'local_var_123 = 'global_var_123;
     string '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_local_var = '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_global_var;
     string 'üňĩćőđę_ɬȭςαʆ_var = "IL with unicode characters in local var";
@@ -54,7 +54,7 @@ type Person record {
     int 'Ȧɢέ;
 };
 
-function useILWithinStruct(){
+function useILWithinStruct() {
     Person person = {'1st_name: "Tom", '\\\|\ \!\#\$\.\[\;\/\{\"\:\<\>\u2324_last_name:"Hank", 'Ȧɢέ: 50};
     assertEquality("Tom",person.'1st_name);
     assertEquality("Hank",person.'\\\|\ \!\#\$\.\[\;\/\{\"\:\<\>\u2324_last_name);
@@ -74,18 +74,17 @@ type '\u2324\ 1\!\$\.\[\;\:\<_123_ƮέŞŢ_Person record {
     string name;
 };
 
-function useILInStructName(){
+function useILInStructName() {
     '\u2324\ 1\!\$\.\[\;\:\<_123_ƮέŞŢ_Person person = {name: "Jack"};
-
     assertEquality("Jack",person.name);
 }
 
-function '\u2324\ 1\!\$\.\[\;\:\<_123_ƮέŞŢ_IL_function(string val) returns (string) {
+function '\u2324\ 1\!\$\.\[\;\:\<_123_ƮέŞŢ_IL_function(string val) returns string {
     string s = " with IL function name";
     return val + s;
 }
 
-function testFunctionNameWithIL(){
+function testFunctionNameWithIL() {
      assertEquality("test with IL function name", '\u2324\ 1\!\$\.\[\;\:\<_123_ƮέŞŢ_IL_function("test"));
 }
 
@@ -99,7 +98,7 @@ function passILValuesToFunction() {
 }
 
 function passILValuesAsParams(string '1st_Arg, string '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_arg2, int 'üňĩćőđę_arg3)
-returns (string) {
+returns string {
     string result = "first name :" + '1st_Arg +
     ", last name :" + '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_arg2 +
     ", age :" + 'üňĩćőđę_arg3.toString();
@@ -113,28 +112,28 @@ public type '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_ƮέŞŢ_Connector client object
 
     }
 
-    public remote function action1() returns (string) {
+    public remote function action1() returns string {
         string 'sample_String_1 = "this ";
         string '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var = "is ";
         string 'üňĩćőđę_var = "action 1";
-        return 'sample_String_1 + '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var + 'üňĩćőđę_var ;
+        return 'sample_String_1 + '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var + 'üňĩćőđę_var;
     }
 
-    public remote function '\u2324_\"\{\ \|\\\!\[\#\$\;_ƮέŞŢ_Action() returns (string){
+    public remote function '\u2324_\"\{\ \|\\\!\[\#\$\;_ƮέŞŢ_Action() returns string {
         string 'sample_String_2 = "this ";
         string '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var2 = "is ";
         string 'üňĩćőđę_var2 = "action 2";
-        return 'sample_String_2 + '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var2 + 'üňĩćőđę_var2 ;
+        return 'sample_String_2 + '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_var2 + 'üňĩćőđę_var2;
     }
 };
 
-function testConnectorNameWithIL(){
+function testConnectorNameWithIL() {
     '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);
     string value = testConnector->action1();
     assertEquality("this is action 1", value);
 }
 
-function testConnectorActionWithIL(){
+function testConnectorActionWithIL() {
     '\\\|\ \!\#\$\.\[\;\{\"\:\<\>\u2324_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);
     string value = testConnector->'\u2324_\"\{\ \|\\\!\[\#\$\;_ƮέŞŢ_Action();
     assertEquality("this is action 2", value);
@@ -147,8 +146,8 @@ function useILAsArrayIndex() {
     assertEquality(8834.834, value);
 }
 
-function useILAsWorkerName(){
-     worker '\u2324\ 1\!\$\.\[\;\:\<_ƮέŞŢ_Worker returns (string) {
+function useILAsWorkerName() {
+     worker '\u2324\ 1\!\$\.\[\;\:\<_ƮέŞŢ_Worker returns string {
          string 'var1_\!\$\.\[\;\:\<_ƮέŞŢ = "sample result";
          return "this is a " + 'var1_\!\$\.\[\;\:\<_ƮέŞŢ;
      }

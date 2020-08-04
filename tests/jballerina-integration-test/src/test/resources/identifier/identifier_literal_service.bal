@@ -22,7 +22,7 @@ listener http:Listener testEP = new(9090);
     basePath:"/identifierLiteral"
 }
 
-service 'ʂαɱρʆę_Service_\u2324\ 1\!\$\[\; on testEP{
+service 'ʂαɱρʆę_Service_\u2324\ 1\!\$\[\; on testEP {
 
     @http:ResourceConfig {
         methods:["GET"],

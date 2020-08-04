@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function getStringValue() returns (string) {
+function getStringValue() returns string {
     string '\a\B\c\x\y\z_var = "sample value";
     return '\a\B\c\x\y\z_var;
 }

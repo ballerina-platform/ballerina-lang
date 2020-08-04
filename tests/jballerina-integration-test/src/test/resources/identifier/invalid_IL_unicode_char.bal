@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function getStringValue() returns (string) {
+function getStringValue() returns string {
     string '    whiteSpace = "sample value";
     return '    whiteSpace;
 }

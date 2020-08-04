@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function getStringValue() returns (string) {
+function getStringValue() returns string {
     string '_&"*%_var = "sample value";
     return '_&"*%_var;
 }

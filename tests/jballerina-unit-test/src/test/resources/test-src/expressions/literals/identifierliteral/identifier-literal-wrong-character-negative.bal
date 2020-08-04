@@ -1,5 +1,5 @@
 
-function getGlobalVarWithIL() returns (string) {
+function getGlobalVarWithIL() returns string {
     string 'global\ var" = "dfs";
     return 'global\ v\ ar;
 }
