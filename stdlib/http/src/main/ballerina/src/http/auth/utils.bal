@@ -261,11 +261,10 @@ function isWebSocketUpgradeRequest(FilterContext context) returns boolean {
                                                  ANN_MODULE);
     if (annData is ()) {
         return false;
-    } else {
-        HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
-        if (resourceConfig?.webSocketUpgrade is  WebSocketUpgradeConfig) {
-            return true;
-        }
+    }
+    HttpResourceConfig resourceConfig = <HttpResourceConfig> annData;
+    if (resourceConfig?.webSocketUpgrade is WebSocketUpgradeConfig) {
+        return true;
     }
     return false;
 }

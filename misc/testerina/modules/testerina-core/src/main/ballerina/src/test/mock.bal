@@ -365,8 +365,7 @@ function thenReturnFuncExt(FunctionStub case) returns Error? = @java:Method {
 # + mockFunction - mockFunction object
 # + args - function arguments
 # + return - function return value or error if case registration failed
-public function mockHandler(MockFunction mockFunction, anydata|error[] args) returns any|Error = @java:Method {
+public function mockHandler(MockFunction mockFunction, (any|error)... args) returns any|Error = @java:Method {
     name: "mockHandler",
     class: "org.ballerinalang.testerina.natives.mock.FunctionMock"
 } external;
-
