@@ -622,6 +622,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseListBindingPatternOrListConstructorMember();
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
                 return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
+            case OBJECT_METHOD_START_WITHOUT_REMOTE:
+            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
+                return parseFuncDefOrFuncTypeDesc((ParserRuleContext) args[0], (STNode) args[1], (boolean) args[2],
+                        (List<STNode>) args[3]);
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
@@ -1347,7 +1351,8 @@ public class BallerinaParser extends AbstractParser {
                 // or a module-var-decl with function type desc.
                 List<STNode> qualifiers = new ArrayList<>();
                 qualifiers.add(qualifier);
-                return parseFuncDefOrFuncTypeDesc(metadata, false, qualifiers);
+                return parseFuncDefOrFuncTypeDesc(ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, metadata,
+                        false, qualifiers);
             case TYPE_KEYWORD:
                 return parseModuleTypeDefinition(metadata, getQualifier(qualifier));
             case LISTENER_KEYWORD:
@@ -1464,10 +1469,30 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers qualifier list
      * @return Parsed node
      */
-    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, boolean isObjectMethod, List<STNode> qualifiers) {
-        if (peek().kind == SyntaxKind.TRANSACTIONAL_KEYWORD) {
-            qualifiers.add(consume());
+    private STNode parseFuncDefOrFuncTypeDesc(ParserRuleContext context, STNode metadata,
+                                              boolean isObjectMethod, List<STNode> qualifiers) {
+        return parseFuncDefOrFuncTypeDesc(peek().kind, context, metadata, isObjectMethod, qualifiers);
+    }
+    private STNode parseFuncDefOrFuncTypeDesc(SyntaxKind nextTokenKind, ParserRuleContext context, STNode metadata,
+                                              boolean isObjectMethod, List<STNode> qualifiers) {
+        switch (nextTokenKind) {
+            case TRANSACTIONAL_KEYWORD:
+                qualifiers.add(parseTransactionalKeyword());
+                break;
+            case FUNCTION_KEYWORD:
+                break;
+            default:
+                Solution solution = recover(peek(), context, context, metadata, isObjectMethod, qualifiers);
+
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+                return parseFuncDefOrFuncTypeDesc(solution.tokenKind, context, metadata, isObjectMethod, qualifiers);
         }
+        return parseFuncDefOrFuncTypeDesc(metadata, isObjectMethod, qualifiers);
+    }
+
+    private STNode parseFuncDefOrFuncTypeDesc(STNode metadata, boolean isObjectMethod, List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE);
         STNode functionKeyword = parseFunctionKeyword();
         STNode funcDefOrType = parseFunctionKeywordRhs(metadata, functionKeyword, false, isObjectMethod, qualifiers);
@@ -5774,7 +5799,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMethod(STNode metadata, List<STNode> qualifiers) {
-        return parseFuncDefOrFuncTypeDesc(metadata, true, qualifiers);
+        return parseFuncDefOrFuncTypeDesc(ParserRuleContext.OBJECT_METHOD_START_WITHOUT_REMOTE, metadata, true, qualifiers);
     }
 
     /**

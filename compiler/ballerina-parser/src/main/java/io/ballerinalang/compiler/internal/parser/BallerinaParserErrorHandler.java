@@ -121,11 +121,15 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.PUBLIC_KEYWORD, ParserRuleContext.TOP_LEVEL_NODE_WITHOUT_MODIFIER };
 
     private static final ParserRuleContext[] TOP_LEVEL_NODE_WITHOUT_MODIFIER =
-            { ParserRuleContext.EOF, ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE,
+            { ParserRuleContext.EOF, ParserRuleContext.VAR_DECL_STMT,
+                    ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC,
                     ParserRuleContext.MODULE_TYPE_DEFINITION, ParserRuleContext.SERVICE_DECL,
                     ParserRuleContext.LISTENER_DECL, ParserRuleContext.CONSTANT_DECL, ParserRuleContext.ANNOTATION_DECL,
                     ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.XML_NAMESPACE_DECLARATION,
                     ParserRuleContext.MODULE_ENUM_DECLARATION, ParserRuleContext.IMPORT_DECL };
+
+    private static final ParserRuleContext[] TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC =
+            { ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE, ParserRuleContext.TRANSACTIONAL_KEYWORD };
 
     private static final ParserRuleContext[] TYPE_OR_VAR_NAME =
             { ParserRuleContext.VARIABLE_NAME, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN };
@@ -191,7 +195,11 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.OBJECT_METHOD_START };
 
     private static final ParserRuleContext[] OBJECT_METHOD_START =
-            { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
+            { ParserRuleContext.REMOTE_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD,
+                    ParserRuleContext.OBJECT_METHOD_START_WITHOUT_REMOTE };
+
+    private static final ParserRuleContext[] OBJECT_METHOD_START_WITHOUT_REMOTE =
+            { ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNCTION_KEYWORD };
 
     private static final ParserRuleContext[] OBJECT_TYPE_DESCRIPTOR_START =
             { ParserRuleContext.OBJECT_TYPE_QUALIFIER, ParserRuleContext.OBJECT_KEYWORD };
@@ -252,7 +260,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.SERVICE_NAME, ParserRuleContext.ON_KEYWORD };
 
     private static final ParserRuleContext[] RESOURCE_DEF_START =
-            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.FUNC_DEF, ParserRuleContext.CLOSE_BRACE };
+            { ParserRuleContext.RESOURCE_KEYWORD, ParserRuleContext.TRANSACTIONAL_KEYWORD, ParserRuleContext.FUNC_DEF,
+                    ParserRuleContext.CLOSE_BRACE };
 
     private static final ParserRuleContext[] CONST_DECL_RHS =
             { ParserRuleContext.TYPE_NAME_OR_VAR_NAME, ParserRuleContext.ASSIGN_OP };
@@ -685,6 +694,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ORDER_DIRECTION_RHS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+            case OBJECT_METHOD_START_WITHOUT_REMOTE:
+            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
                 return true;
             default:
                 return false;
@@ -1055,6 +1066,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FAIL_KEYWORD:
             case DO_KEYWORD:
             case TRANSACTION_KEYWORD:
+            case TRANSACTIONAL_KEYWORD:
             case COMMIT_KEYWORD:
             case RETRY_KEYWORD:
             case ROLLBACK_KEYWORD:
@@ -1275,6 +1287,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS:
             case LIST_BP_OR_LIST_CONSTRUCTOR_MEMBER:
             case TUPLE_TYPE_DESC_OR_LIST_CONST_MEMBER:
+            case OBJECT_METHOD_START_WITHOUT_REMOTE:
+            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
                 return true;
             default:
                 return false;
@@ -1293,6 +1307,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TOP_LEVEL_NODE_WITHOUT_METADATA:
                 alternativeRules = TOP_LEVEL_NODE_WITHOUT_METADATA;
+                break;
+            case TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC:
+                alternativeRules = TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC;
                 break;
             case FUNC_OPTIONAL_RETURNS:
                 ParserRuleContext parentCtx = getParentContext();
@@ -1369,6 +1386,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_METHOD_START:
                 alternativeRules = OBJECT_METHOD_START;
+                break;
+            case OBJECT_METHOD_START_WITHOUT_REMOTE:
+                alternativeRules = OBJECT_METHOD_START_WITHOUT_REMOTE;
                 break;
             case OBJECT_FUNC_OR_FIELD:
                 alternativeRules = OBJECT_FUNC_OR_FIELD;
@@ -2666,7 +2686,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OBJECT_KEYWORD:
                 return ParserRuleContext.OPEN_BRACE;
             case REMOTE_KEYWORD:
-                return ParserRuleContext.FUNCTION_KEYWORD;
+                return ParserRuleContext.OBJECT_METHOD_START_WITHOUT_REMOTE;
             case ABSTRACT_KEYWORD:
             case CLIENT_KEYWORD:
                 return ParserRuleContext.OBJECT_KEYWORD;
@@ -2774,7 +2794,18 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case RETRY_KEYWORD:
                 return ParserRuleContext.RETRY_KEYWORD_RHS;
             case TRANSACTIONAL_KEYWORD:
-                return ParserRuleContext.EXPRESSION_RHS;
+                parentCtx = getParentContext();
+                switch (parentCtx) {
+                    case COMP_UNIT:
+                        return ParserRuleContext.FUNC_DEF_OR_FUNC_TYPE;
+                    case OBJECT_MEMBER:
+                        return ParserRuleContext.FUNCTION_KEYWORD;
+                    case SERVICE_CONSTRUCTOR_EXPRESSION:
+                    case SERVICE_DECL:
+                        return ParserRuleContext.RESOURCE_KEYWORD;
+                    default:
+                        return ParserRuleContext.EXPRESSION_RHS;
+                }
             case ENUM_KEYWORD:
                 return ParserRuleContext.MODULE_ENUM_NAME;
             case MATCH_KEYWORD:
