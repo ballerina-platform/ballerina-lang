@@ -2,7 +2,7 @@
     "name": "ballerina",
     "displayName": "Ballerina",
     "description": "Language Intelligence, Diagram View, Debugging, code formatting and refactoring for Ballerina",
-    "version": "2.0.0-Preview1",
+    "version": "2.0.0-Preview2-SNAPSHOT",
     "publisher": "ballerina",
     "repository": {
         "type": "git",
@@ -118,8 +118,8 @@
                 },
                 "ballerina.dataMapper.url": {
                     "type": "string",
-                    "default": "https://datamapper.dv.choreo.dev/uploader",
-                    "description": "URL for data mapper back end"
+                    "default": "https://datamapper.dv.choreo.dev",
+                    "description": "URL of the host for data mapper back end"
                 }
             }
         },

@@ -20,6 +20,11 @@ public class HttpResponse {
     private String data;
     private int responseCode;
 
+    /**
+     * This method set data and response code of a HTTP request response.
+     * @param data {@link String}
+     * @param responseCode {@link int}
+     */
     public HttpResponse(String data, int responseCode) {
         this.data = data;
         this.responseCode = responseCode;
@@ -30,10 +35,18 @@ public class HttpResponse {
         this.responseCode = responseCode;
     }
 
+    /**
+     * This method returns data of HTTP request response.
+     * @return data {@link String}
+     */
     public String getData() {
         return data;
     }
 
+    /**
+     * This method returns response code of HTTP request.
+     * @return responseCode {@link int}
+     */
     public int getResponseCode() {
         return responseCode;
     }

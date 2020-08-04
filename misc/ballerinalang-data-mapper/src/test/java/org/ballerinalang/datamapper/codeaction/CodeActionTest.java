@@ -20,6 +20,7 @@ import org.ballerinalang.datamapper.util.TestUtil;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
+import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
@@ -39,6 +40,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -76,6 +78,7 @@ public class CodeActionTest extends PowerMockTestCase {
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider")
     public void testDataMapperCodeAction(String config, String source) throws Exception {
+        // Mocking server response
         String responseData = "{\"answer\":\"\\nfunction mapStudentToGrades (Student student) " +
                 "returns Grades {\\n// Some record fields might be missing in the AI based mapping.\\n\\t" +
                 "Grades grades = {maths: student.grades.maths, chemistry: student.grades.chemistry, " +
@@ -85,28 +88,18 @@ public class CodeActionTest extends PowerMockTestCase {
         PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
                 any(String.class), any(Map.class));
 
+        // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        List<Diagnostic> diagnostics = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
-        CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
-
-        Position position = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
-        Range range = new Range(position, position);
-        String response =
-                TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
+
+        // Get code action from language server
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
 
         int numberOfDataMappingCodeAction = 0;
         boolean codeActionFound = false;
         boolean codeActionFoundOnlyOnce = false;
-        JsonObject responseJson = this.getResponseJson(response);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonElement right = jsonElement.getAsJsonObject().get("right");
             JsonElement editText = right.getAsJsonObject().get("edit");
@@ -124,40 +117,29 @@ public class CodeActionTest extends PowerMockTestCase {
         if (codeActionFound && numberOfDataMappingCodeAction == 1) {
             codeActionFoundOnlyOnce = true;
         }
-        String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
         Assert.assertTrue(codeActionFoundOnlyOnce,
-                "Cannot find expected Code Action for: " + title + ", cursor at " + cursorStr);
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+                "Cannot find expected Code Action for: " + title);
     }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider-un-processable-data")
     public void testDataMapperCodeActionWithUnProcessableData(String config, String source) throws Exception {
+        // Mocking server response
         String responseData = "";
         HttpResponse httpResponse = new HttpResponse(responseData, HTTP_422_UN_PROCESSABLE_ENTITY);
         PowerMockito.spy(HttpClientRequest.class);
         PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
                 any(String.class), any(Map.class));
 
+        // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        List<Diagnostic> diagnostics = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
-        CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
-
-        Position position = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
-        Range range = new Range(position, position);
-        String response =
-                TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
 
+        // Get code action from language server
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
+
         boolean codeActionFound = false;
-        JsonObject responseJson = this.getResponseJson(response);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonElement right = jsonElement.getAsJsonObject().get("right");
             JsonElement editText = right.getAsJsonObject().get("edit");
@@ -168,39 +150,28 @@ public class CodeActionTest extends PowerMockTestCase {
                 codeActionFound = true;
             }
         }
-        Assert.assertFalse(codeActionFound,
-                "Returned an invalid code action");
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+        Assert.assertFalse(codeActionFound,"Returned an invalid code action");
     }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider-server-error")
     public void testDataMapperCodeActionWithServerError(String config, String source) throws Exception {
+        // Mocking server response
         String responseData = "";
         HttpResponse httpResponse = new HttpResponse(responseData, HTTP_500_INTERNAL_SERVER_ERROR);
         PowerMockito.spy(HttpClientRequest.class);
         PowerMockito.doReturn(httpResponse).when(HttpClientRequest.class, "doPost", any(String.class),
                 any(String.class), any(Map.class));
 
+        // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
-        Path sourcePath = sourcesPath.resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        TestUtil.openDocument(serviceEndpoint, sourcePath);
-        List<Diagnostic> diagnostics = new ArrayList<>(
-                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
-        CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
-
-        Position position = new Position(configJsonObject.get("line").getAsInt(),
-                configJsonObject.get("character").getAsInt());
-        Range range = new Range(position, position);
-        String response =
-                TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
-
         JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
         String title = expectedResponse.get("title").getAsString();
 
+        // Get code action from language server
+        JsonObject responseJson = getCodeActionResponse(source, configJsonObject);
+
         boolean codeActionFound = false;
-        JsonObject responseJson = this.getResponseJson(response);
         for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
             JsonElement right = jsonElement.getAsJsonObject().get("right");
             JsonElement editText = right.getAsJsonObject().get("edit");
@@ -213,7 +184,6 @@ public class CodeActionTest extends PowerMockTestCase {
         }
         Assert.assertFalse(codeActionFound,
                 "Returned an invalid code action");
-        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }
 
     @DataProvider(name = "codeAction-data-mapper-data-provider")
@@ -256,4 +226,20 @@ public class CodeActionTest extends PowerMockTestCase {
         return responseJson;
     }
 
+    private JsonObject getCodeActionResponse(String source, JsonObject configJsonObject) throws IOException,
+            CompilationFailedException {
+        Position position = new Position(configJsonObject.get("line").getAsInt(),
+                configJsonObject.get("character").getAsInt());
+        Range range = new Range(position, position);
+        Path sourcePath = sourcesPath.resolve("source").resolve(source);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        List<Diagnostic> diagnostics = new ArrayList<>(
+                CodeActionUtil.toDiagnostics(TestUtil.compileAndGetDiagnostics(sourcePath)));
+        CodeActionContext codeActionContext = new CodeActionContext(diagnostics);
+        String response =
+                TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+
+        TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+        return this.getResponseJson(response);
+    }
 }

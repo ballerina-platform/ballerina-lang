@@ -215,9 +215,8 @@ class AIDataMapperCodeActionUtil {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            HttpResponse response =
-                    HttpClientRequest.doPost(LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl(),
-                            dataToSend.toString(), headers);
+            String url = LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl() + "/uploader_v_1";
+            HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {
                 if (responseCode == HTTP_422_UN_PROCESSABLE_ENTITY) {
