@@ -106,6 +106,7 @@ dependencies {
     dist project(':ballerina-choreo-extension-rt')
 
     dist project(':testerina:testerina-core')
+    dist project(':formatter:formatter-core')
     dist project(':ballerina-formatter')
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
