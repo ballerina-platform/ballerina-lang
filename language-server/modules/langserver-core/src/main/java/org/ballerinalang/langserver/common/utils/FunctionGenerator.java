@@ -577,6 +577,16 @@ public class FunctionGenerator {
             String paramsStr = String.join(", ", list);
             String newObjStr = "new " + pkgPrefix + bStruct.name.getValue() + "(" + paramsStr + ")";
             return template.replace("{%1}", newObjStr);
+        } else if (bType instanceof BRecordType) {
+            BRecordType recordType = (BRecordType) bType;
+            StringJoiner sb = new StringJoiner(", ");
+            if (recordType.tsymbol != null && recordType.tsymbol.name != null &&
+                    (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
+                for (BField field : recordType.fields.values()) {
+                    sb.add(field.name.value + ": " + generateReturnValue(field.type.tsymbol, "{%1}"));
+                }
+            }
+            return template.replace("{%1}", "{" + sb.toString() + "}");
         }
         return (bType.tsymbol != null) ? generateReturnValue(bType.tsymbol, template) :
                 template.replace("{%1}", "()");
