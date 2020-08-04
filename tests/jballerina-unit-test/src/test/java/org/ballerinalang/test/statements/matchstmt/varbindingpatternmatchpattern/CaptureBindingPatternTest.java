@@ -25,6 +25,11 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test cases to verify the behaviour of the var binding-pattern capture-pattern.
+ *
+ * @since 2.0.0
+ */
 @Test(groups = { "disableOnOldParser" })
 public class CaptureBindingPatternTest {
     private CompileResult result, resultNegative;
