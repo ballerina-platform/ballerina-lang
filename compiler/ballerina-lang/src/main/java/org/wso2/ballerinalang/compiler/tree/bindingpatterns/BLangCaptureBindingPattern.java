@@ -57,9 +57,4 @@ public class BLangCaptureBindingPattern extends BLangBindingPattern implements C
     public VariableSymbol getSymbol() {
         return symbol;
     }
-
-    @Override
-    public void setSymbol(VariableSymbol symbol) {
-        this.symbol = (BVarSymbol) symbol;
-    }
 }

@@ -41,6 +41,12 @@
         <Package name="org.wso2.ballerinalang.compiler.tree" />
     </Match>
     <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.bindingpatterns" />
+    </Match>
+    <Match>
+        <Package name="org.wso2.ballerinalang.compiler.tree.matchpatterns" />
+    </Match>
+    <Match>
         <Package name="org.wso2.ballerinalang.compiler.parser" />
     </Match>
     <Match>

@@ -33,6 +33,4 @@ public interface CaptureBindingPattern extends Node {
     void setIdentifier(IdentifierNode variableName);
 
     VariableSymbol getSymbol();
-
-    void setSymbol(VariableSymbol symbol);
 }
