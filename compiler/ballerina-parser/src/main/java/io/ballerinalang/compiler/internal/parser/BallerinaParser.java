@@ -2682,6 +2682,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
             case IF_KEYWORD:
             case WHILE_KEYWORD:
+            case DO_KEYWORD:
             case AT_TOKEN:
                 return true;
             default:
@@ -2703,6 +2704,7 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
             case IF_KEYWORD:
             case WHILE_KEYWORD:
+            case DO_KEYWORD:
                 return true;
             default:
                 return endOfModuleLevelNode(1);
@@ -3654,6 +3656,7 @@ public class BallerinaParser extends AbstractParser {
                 // Statements starts other than var-decl
             case IF_KEYWORD:
             case WHILE_KEYWORD:
+            case DO_KEYWORD:
             case PANIC_KEYWORD:
             case CONTINUE_KEYWORD:
             case BREAK_KEYWORD:
@@ -3753,6 +3756,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseIfElseBlock();
             case WHILE_KEYWORD:
                 return parseWhileStatement();
+            case DO_KEYWORD:
+                return parseDoStatement();
             case PANIC_KEYWORD:
                 return parsePanicStatement();
             case CONTINUE_KEYWORD:
@@ -5725,6 +5730,26 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseElseBody(solution.tokenKind);
         }
+    }
+
+    /**
+     * Parse do statement.
+     * <code>do-stmt := do block-stmt</code>
+     *
+     * @return Do statement
+     */
+    private STNode parseDoStatement() {
+        startContext(ParserRuleContext.DO_BLOCK);
+        STNode doKeyword = parseDoKeyword();
+        STNode doBody = parseBlockNode();
+        endContext();
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createDoStatementNode(doKeyword, doBody, onFailClause);
     }
 
     /**
@@ -9891,6 +9916,7 @@ public class BallerinaParser extends AbstractParser {
             case LISTENER_KEYWORD:
             case IF_KEYWORD:
             case WHILE_KEYWORD:
+            case DO_KEYWORD:
             case OPEN_BRACE_TOKEN:
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return true;

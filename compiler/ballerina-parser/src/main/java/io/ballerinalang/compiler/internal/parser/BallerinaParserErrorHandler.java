@@ -109,7 +109,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             ParserRuleContext.EXPRESSION_STATEMENT, ParserRuleContext.LOCK_STMT, ParserRuleContext.BLOCK_STMT,
             ParserRuleContext.NAMED_WORKER_DECL, ParserRuleContext.FORK_STMT, ParserRuleContext.FOREACH_STMT,
             ParserRuleContext.XML_NAMESPACE_DECLARATION, ParserRuleContext.TRANSACTION_STMT,
-            ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.MATCH_STMT };
+            ParserRuleContext.RETRY_STMT, ParserRuleContext.ROLLBACK_STMT, ParserRuleContext.MATCH_STMT,
+            ParserRuleContext.DO_BLOCK};
 
     private static final ParserRuleContext[] VAR_DECL_RHS =
             { ParserRuleContext.ASSIGN_OP, ParserRuleContext.SEMICOLON };
@@ -1932,7 +1933,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
 
         ParserRuleContext nextContext;
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ||
-                parentCtx == ParserRuleContext.FOREACH_STMT) {
+                parentCtx == ParserRuleContext.FOREACH_STMT || parentCtx == ParserRuleContext.DO_BLOCK) {
             nextContext = ParserRuleContext.BLOCK_STMT;
         } else if (isStatement(parentCtx) || parentCtx == ParserRuleContext.RECORD_FIELD ||
                 parentCtx == ParserRuleContext.OBJECT_MEMBER || parentCtx == ParserRuleContext.LISTENER_DECL ||
@@ -2119,6 +2120,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.IF_KEYWORD;
             case WHILE_BLOCK:
                 return ParserRuleContext.WHILE_KEYWORD;
+            case DO_BLOCK:
+                return ParserRuleContext.DO_KEYWORD;
             case CALL_STMT:
                 return ParserRuleContext.CALL_STMT_START;
             case PANIC_STMT:
@@ -2767,6 +2770,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case DO_BLOCK:
             case PANIC_STMT:
             case CALL_STMT:
             case IMPORT_DECL:
@@ -3305,6 +3309,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     case LOCK_STMT:
                     case FOREACH_STMT:
                     case WHILE_BLOCK:
+                    case DO_BLOCK:
                     case RETRY_STMT:
                         endContext();
                         return ParserRuleContext.STATEMENT;
@@ -3937,6 +3942,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case IF_BLOCK:
             case BLOCK_STMT:
             case WHILE_BLOCK:
+            case DO_BLOCK:
             case CALL_STMT:
             case PANIC_STMT:
             case CONTINUE_STATEMENT:

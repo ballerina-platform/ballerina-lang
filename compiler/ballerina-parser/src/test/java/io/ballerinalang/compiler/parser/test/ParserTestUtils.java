@@ -901,6 +901,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ELSE_BLOCK;
             case "WHILE_STATEMENT":
                 return SyntaxKind.WHILE_STATEMENT;
+            case "DO_STATEMENT":
+                return SyntaxKind.DO_STATEMENT;
             case "CALL_STATEMENT":
                 return SyntaxKind.CALL_STATEMENT;
             case "PANIC_STATEMENT":

@@ -259,6 +259,7 @@ public enum ParserRuleContext {
     ELSE_BLOCK("else-block"),
     ELSE_BODY("else-body"),
     WHILE_BLOCK("while-block"),
+    DO_BLOCK("do-block"),
     CALL_STMT("call-statement"),
     CALL_STMT_START("call-statement-start"),
     CONTINUE_STATEMENT("continue-statement"),
