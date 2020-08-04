@@ -24,7 +24,7 @@ import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.commons.completion.spi.LSCompletionProvider;
+import org.ballerinalang.langserver.commons.completion.spi.CompletionProvider;
 import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.contextproviders.AnnotationAttachmentContextProvider;
@@ -64,7 +64,7 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
             return this.getProvider(BallerinaParser.ReturnParameterContext.class).getCompletions(ctx);
         }
 
-        Optional<LSCompletionProvider> contextProvider = this.getContextProvider(ctx);
+        Optional<CompletionProvider> contextProvider = this.getContextProvider(ctx);
         List<CommonToken> lhsDefaultTokens = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
         ParserRuleContext parserRuleContext = ctx.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         Boolean forcedRemoved = ctx.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
@@ -127,7 +127,7 @@ public class TopLevelScopeProvider extends AbstractCompletionProvider {
     }
 
     @Override
-    public Optional<LSCompletionProvider> getContextProvider(LSContext ctx) {
+    public Optional<CompletionProvider> getContextProvider(LSContext ctx) {
         List<Integer> lhsTokensTypes = ctx.get(SourcePruneKeys.LHS_DEFAULT_TOKEN_TYPES_KEY);
         Boolean forcedRemoved = ctx.get(SourcePruneKeys.FORCE_REMOVED_STATEMENT_WITH_PARENTHESIS_KEY);
         if (lhsTokensTypes == null || lhsTokensTypes.isEmpty() || (forcedRemoved != null && forcedRemoved)) {

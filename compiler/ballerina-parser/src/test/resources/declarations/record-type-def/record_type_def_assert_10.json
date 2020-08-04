@@ -76,8 +76,13 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "a"
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
+                      {
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "a"
+                      }
+                    ]
                   }
                 }
               ],
@@ -160,20 +165,28 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "CLOSE_BRACE_PIPE_TOKEN"
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
+              {
+                "kind": "CLOSE_BRACE_PIPE_TOKEN"
+              }
+            ]
           }
         },
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "SEMICOLON_TOKEN",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "SEMICOLON_TOKEN"
               }
             ]
           }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

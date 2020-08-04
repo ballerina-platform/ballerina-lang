@@ -29,7 +29,6 @@ import java.util.Collection;
  * @since 2.0.0
  */
 public class STMinutiae extends STNode {
-
     private final String text;
 
     STMinutiae(SyntaxKind kind, String text) {

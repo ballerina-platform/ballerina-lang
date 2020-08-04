@@ -23,9 +23,11 @@ import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EnumSet;
+import java.util.List;
 
 /**
  * {@code STNode} is the base class for all tree nodes in the internal syntax tree.
@@ -104,6 +106,20 @@ public abstract class STNode {
 
     public boolean isMissing() {
         return this instanceof STMissingToken;
+    }
+
+    public List<STToken> tokens() {
+        List<STToken> tokens = new ArrayList<>();
+        tokensInternal(tokens);
+        return Collections.unmodifiableList(tokens);
+    }
+
+    protected void tokensInternal(List<STToken> tokens) {
+        for (STNode child : childBuckets) {
+            if (SyntaxUtils.isSTNodePresent(child)) {
+                child.tokensInternal(tokens);
+            }
+        }
     }
 
     public STToken firstToken() {
