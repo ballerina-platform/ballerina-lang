@@ -145,20 +145,20 @@ type Qux record {|
     boolean...;
 |};
 
-function testInherentTypeViolationViaSpreadOp() {
-    var fn = function() {
-        Qux q = {i: 1, "t": false, "s": true};
-        Baz b = {s: "hello", ...q};
-    };
-
-    error? res = trap fn();
-    assertEquality(true, res is error);
-
-    error resError = <error> res;
-    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
-    assertEquality("invalid value for record field 's': expected value of type 'string', found 'boolean'",
-                   resError.detail()["message"].toString());
-}
+//function testInherentTypeViolationViaSpreadOp() {
+//    var fn = function() {
+//        Qux q = {i: 1, "t": false, "s": true};
+//        Baz b = {s: "hello", ...q};
+//    };
+//
+//    error? res = trap fn();
+//    assertEquality(true, res is error);
+//
+//    error resError = <error> res;
+//    assertEquality("{ballerina/lang.map}InherentTypeViolation", resError.message());
+//    assertEquality("invalid value for record field 's': expected value of type 'string', found 'boolean'",
+//                   resError.detail()["message"].toString());
+//}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
