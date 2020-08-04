@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.common.utils;
 import org.ballerinalang.langserver.command.testgen.TestGenerator;
 import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -167,9 +166,7 @@ public class FunctionGenerator {
      */
     public static List<String> getFuncArguments(BInvokableSymbol symbol, LSContext ctx) {
         List<String> list = new ArrayList<>();
-        int invocationType = (ctx == null || ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY) == null) ? -1
-                : ctx.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        boolean skipFirstParam = CommonUtil.skipFirstParam(symbol, invocationType);
+        boolean skipFirstParam = CommonUtil.skipFirstParam(ctx, symbol);
         BVarSymbol restParam = symbol.restParam;
         if (symbol.kind == null && SymbolKind.RECORD == symbol.owner.kind || SymbolKind.FUNCTION == symbol.owner.kind) {
             if (symbol.type instanceof BInvokableType) {

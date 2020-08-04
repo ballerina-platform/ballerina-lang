@@ -368,6 +368,7 @@ public class ParserTestUtils {
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
+            case INVALID_TOKEN:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
@@ -491,6 +492,8 @@ public class ParserTestUtils {
                 return SyntaxKind.CHECK_KEYWORD;
             case "CHECKPANIC_KEYWORD":
                 return SyntaxKind.CHECKPANIC_KEYWORD;
+            case "FAIL_KEYWORD":
+                return SyntaxKind.FAIL_KEYWORD;
             case "PANIC_KEYWORD":
                 return SyntaxKind.PANIC_KEYWORD;
             case "IMPORT_KEYWORD":
@@ -597,6 +600,14 @@ public class ParserTestUtils {
                 return SyntaxKind.WHERE_KEYWORD;
             case "SELECT_KEYWORD":
                 return SyntaxKind.SELECT_KEYWORD;
+            case "ORDER_KEYWORD":
+                return SyntaxKind.ORDER_KEYWORD;
+            case "BY_KEYWORD":
+                return SyntaxKind.BY_KEYWORD;
+            case "ASCENDING_KEYWORD":
+                return SyntaxKind.ASCENDING_KEYWORD;
+            case "DESCENDING_KEYWORD":
+                return SyntaxKind.DESCENDING_KEYWORD;
             case "NEW_KEYWORD":
                 return SyntaxKind.NEW_KEYWORD;
             case "START_KEYWORD":
@@ -797,6 +808,8 @@ public class ParserTestUtils {
                 return SyntaxKind.INDEXED_EXPRESSION;
             case "CHECK_EXPRESSION":
                 return SyntaxKind.CHECK_EXPRESSION;
+            case "FAIL_EXPRESSION":
+                return SyntaxKind.FAIL_EXPRESSION;
             case "MAPPING_CONSTRUCTOR":
                 return SyntaxKind.MAPPING_CONSTRUCTOR;
             case "TYPEOF_EXPRESSION":
@@ -863,6 +876,8 @@ public class ParserTestUtils {
                 return SyntaxKind.BRACED_ACTION;
             case "CHECK_ACTION":
                 return SyntaxKind.CHECK_ACTION;
+            case "FAIL_ACTION":
+                return SyntaxKind.FAIL_ACTION;
             case "START_ACTION":
                 return SyntaxKind.START_ACTION;
             case "TRAP_ACTION":
@@ -1065,6 +1080,8 @@ public class ParserTestUtils {
                 return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
+            case "ORDER_KEY":
+                return SyntaxKind.ORDER_KEY;
             case "STREAM_TYPE_PARAMS":
                 return SyntaxKind.STREAM_TYPE_PARAMS;
             case "FUNCTION_SIGNATURE":
@@ -1081,6 +1098,8 @@ public class ParserTestUtils {
                 return SyntaxKind.QUERY_PIPELINE;
             case "SELECT_CLAUSE":
                 return SyntaxKind.SELECT_CLAUSE;
+            case "ORDER_BY_CLAUSE":
+                return SyntaxKind.ORDER_BY_CLAUSE;
             case "PARENTHESIZED_ARG_LIST":
                 return SyntaxKind.PARENTHESIZED_ARG_LIST;
             case "EXPRESSION_FUNCTION_BODY":
@@ -1223,6 +1242,8 @@ public class ParserTestUtils {
             // Invalid Token
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
 
             // Unsupported
             default:

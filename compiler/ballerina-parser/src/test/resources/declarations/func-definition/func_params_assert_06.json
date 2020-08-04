@@ -236,8 +236,13 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "IDENTIFIER_TOKEN",
-                "value": "b"
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                  }
+                ]
               }
             }
           ],

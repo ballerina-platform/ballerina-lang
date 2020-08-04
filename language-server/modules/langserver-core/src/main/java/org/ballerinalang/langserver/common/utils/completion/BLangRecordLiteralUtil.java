@@ -125,7 +125,7 @@ public class BLangRecordLiteralUtil {
         return completionItems;
     }
 
-    private static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
+    public static List<LSCompletionItem> getSpreadCompletionItems(LSContext context, BType evalType) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<BType> typeList = getTypeListForMapAndRecords(evalType);
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
@@ -164,6 +164,7 @@ public class BLangRecordLiteralUtil {
             return Optional.empty();
         }
         // Modify the spread completion item to automatically determine the prefixed number of dots to complete ellipsis
+        // TODO: Fix
         modifySpreadCompletionItem(context, cItem);
 
         return Optional.of(new SymbolCompletionItem(context, bSymbol, cItem));
@@ -186,10 +187,11 @@ public class BLangRecordLiteralUtil {
     }
 
     private static void modifySpreadCompletionItem(LSContext context, CompletionItem cItem) {
-        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
-        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();
-        long dotCount = lastToken.codePoints().filter(charVal -> charVal == '.').count();
-        String prefix = String.join("", Collections.nCopies(ELLIPSIS.length() - Math.toIntExact(dotCount), "."));
+        // TODO: Fix 
+//        List<CommonToken> commonTokens = context.get(SourcePruneKeys.LHS_DEFAULT_TOKENS_KEY);
+//        String lastToken = (commonTokens.isEmpty()) ? "" : commonTokens.get(commonTokens.size() - 1).getText();
+//        long dotCount = lastToken.codePoints().filter(charVal -> charVal == '.').count();
+        String prefix = String.join("", Collections.nCopies(ELLIPSIS.length(), "."));
 
         cItem.setInsertText(prefix + cItem.getInsertText());
         cItem.setLabel(ELLIPSIS + cItem.getLabel());

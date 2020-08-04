@@ -98,7 +98,7 @@ public class SignatureTest {
         Assert.assertEquals(diag[0].getMessage(), "invalid resource parameter(s): cannot specify > 2 parameters " +
                 "without specifying path config and/or body config in the resource annotation");
         Assert.assertEquals(diag[1].getMessage(),
-                            "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
+                "Invalid data binding param in the signature : expected 'person', but found 'ballerina'");
     }
 
     @Test

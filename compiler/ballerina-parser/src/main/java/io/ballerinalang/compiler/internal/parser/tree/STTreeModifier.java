@@ -707,14 +707,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     @Override
     public STRecordTypeDescriptorNode transform(
             STRecordTypeDescriptorNode recordTypeDescriptorNode) {
-        STNode objectKeyword = modifyNode(recordTypeDescriptorNode.objectKeyword);
+        STNode recordKeyword = modifyNode(recordTypeDescriptorNode.recordKeyword);
         STNode bodyStartDelimiter = modifyNode(recordTypeDescriptorNode.bodyStartDelimiter);
         STNode fields = modifyNode(recordTypeDescriptorNode.fields);
+        STNode recordRestDescriptor = modifyNode(recordTypeDescriptorNode.recordRestDescriptor);
         STNode bodyEndDelimiter = modifyNode(recordTypeDescriptorNode.bodyEndDelimiter);
         return recordTypeDescriptorNode.modify(
-                objectKeyword,
+                recordKeyword,
                 bodyStartDelimiter,
                 fields,
+                recordRestDescriptor,
                 bodyEndDelimiter);
     }
 
@@ -2440,6 +2442,28 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
                 startBacktick,
                 backtickContent,
                 endBacktick);
+    }
+
+    @Override
+    public STOrderByClauseNode transform(
+            STOrderByClauseNode orderByClauseNode) {
+        STNode orderKeyword = modifyNode(orderByClauseNode.orderKeyword);
+        STNode byKeyword = modifyNode(orderByClauseNode.byKeyword);
+        STNode orderKey = modifyNode(orderByClauseNode.orderKey);
+        return orderByClauseNode.modify(
+                orderKeyword,
+                byKeyword,
+                orderKey);
+    }
+
+    @Override
+    public STOrderKeyNode transform(
+            STOrderKeyNode orderKeyNode) {
+        STNode expression = modifyNode(orderKeyNode.expression);
+        STNode orderDirection = modifyNode(orderKeyNode.orderDirection);
+        return orderKeyNode.modify(
+                expression,
+                orderDirection);
     }
 
     // Tokens

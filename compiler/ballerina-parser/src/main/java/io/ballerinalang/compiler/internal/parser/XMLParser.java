@@ -333,7 +333,11 @@ public class XMLParser extends AbstractParser {
                     DiagnosticErrorCode.ERROR_INTERPOLATION_IS_NOT_ALLOWED_FOR_XML_TAG_NAMES);
         } else {
             Solution sol = recover(token, ParserRuleContext.XML_NAME);
-            return sol.recoveredNode;
+            if (sol.action == Action.REMOVE) {
+                return sol.recoveredNode;
+            }
+
+            return STNodeFactory.createXMLSimpleNameNode(sol.recoveredNode);
         }
     }
 

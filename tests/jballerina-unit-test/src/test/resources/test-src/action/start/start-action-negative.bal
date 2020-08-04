@@ -91,3 +91,11 @@ function forI() {
 
     }
 }
+
+function testFunction1(int a) {
+    start
+}
+
+function testFunction2(int a) {
+    start a + b;
+}

@@ -525,7 +525,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionCallExpressionNode createFunctionCallExpressionNode(
-            Node functionName,
+            NameReferenceNode functionName,
             Token openParenToken,
             SeparatedNodeList<FunctionArgumentNode> arguments,
             Token closeParenToken) {
@@ -880,19 +880,21 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static RecordTypeDescriptorNode createRecordTypeDescriptorNode(
-            Token objectKeyword,
+            Token recordKeyword,
             Token bodyStartDelimiter,
             NodeList<Node> fields,
+            RecordRestDescriptorNode recordRestDescriptor,
             Token bodyEndDelimiter) {
-        Objects.requireNonNull(objectKeyword, "objectKeyword must not be null");
+        Objects.requireNonNull(recordKeyword, "recordKeyword must not be null");
         Objects.requireNonNull(bodyStartDelimiter, "bodyStartDelimiter must not be null");
         Objects.requireNonNull(fields, "fields must not be null");
         Objects.requireNonNull(bodyEndDelimiter, "bodyEndDelimiter must not be null");
 
         STNode stRecordTypeDescriptorNode = STNodeFactory.createRecordTypeDescriptorNode(
-                objectKeyword.internalNode(),
+                recordKeyword.internalNode(),
                 bodyStartDelimiter.internalNode(),
                 fields.underlyingListNode().internalNode(),
+                getOptionalSTNode(recordRestDescriptor),
                 bodyEndDelimiter.internalNode());
         return stRecordTypeDescriptorNode.createUnlinkedFacade();
     }
@@ -3014,7 +3016,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static DocumentationReferenceNode createDocumentationReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Token backtickContent,
+            Node backtickContent,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
         Objects.requireNonNull(backtickContent, "backtickContent must not be null");
@@ -3026,6 +3028,32 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 backtickContent.internalNode(),
                 endBacktick.internalNode());
         return stDocumentationReferenceNode.createUnlinkedFacade();
+    }
+
+    public static OrderByClauseNode createOrderByClauseNode(
+            Token orderKeyword,
+            Token byKeyword,
+            SeparatedNodeList<OrderKeyNode> orderKey) {
+        Objects.requireNonNull(orderKeyword, "orderKeyword must not be null");
+        Objects.requireNonNull(byKeyword, "byKeyword must not be null");
+        Objects.requireNonNull(orderKey, "orderKey must not be null");
+
+        STNode stOrderByClauseNode = STNodeFactory.createOrderByClauseNode(
+                orderKeyword.internalNode(),
+                byKeyword.internalNode(),
+                orderKey.underlyingListNode().internalNode());
+        return stOrderByClauseNode.createUnlinkedFacade();
+    }
+
+    public static OrderKeyNode createOrderKeyNode(
+            ExpressionNode expression,
+            Token orderDirection) {
+        Objects.requireNonNull(expression, "expression must not be null");
+
+        STNode stOrderKeyNode = STNodeFactory.createOrderKeyNode(
+                expression.internalNode(),
+                getOptionalSTNode(orderDirection));
+        return stOrderKeyNode.createUnlinkedFacade();
     }
 }
 
