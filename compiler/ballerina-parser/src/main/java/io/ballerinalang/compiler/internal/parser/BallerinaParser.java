@@ -618,6 +618,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseTupleTypeDescOrListConstructorMember((STNode) args[0]);
             case CONFLICT_KEYWORD:
                 return parseConflictKeyword();
+            case JOIN_KEYWORD:
+                return parseJoinKeyword();
             // case RECORD_BODY_END:
             // case OBJECT_MEMBER_WITHOUT_METADATA:
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
