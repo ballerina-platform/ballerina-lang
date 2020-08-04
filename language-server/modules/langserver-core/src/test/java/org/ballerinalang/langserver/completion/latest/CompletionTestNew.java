@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.completion;
+package org.ballerinalang.langserver.completion.latest;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -118,7 +119,13 @@ public abstract class CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     public abstract Object[][] dataProvider();
     
-    public abstract Object[][] testSubset();
+    public Object[][] testSubset(){
+        return new Object[0][];
+    }
+    
+    public List<String> skipList() {
+        return new ArrayList<>();
+    }
     
     public abstract String getTestResourceDir();
 
@@ -131,11 +138,13 @@ public abstract class CompletionTestNew {
         if (this.testSubset().length != 0) {
             return this.testSubset();
         }
+        List<String> skippedTests = this.skipList();
         try {
             return Files.walk(this.testRoot.resolve(this.getTestResourceDir()).resolve(this.configDir))
                     .filter(path -> { 
                         File file = path.toFile();
-                        return file.isFile() && file.getName().endsWith(".json");
+                        return file.isFile() && file.getName().endsWith(".json")
+                                && !skippedTests.contains(file.getName());
                     })
                     .map(path -> new Object[]{path.toFile().getName(), this.getTestResourceDir()})
                     .toArray(size -> new Object[size][2]);

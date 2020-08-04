@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion;
+package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
@@ -35,13 +35,9 @@ public class ListenerDeclarationTest extends CompletionTestNew {
     public Object[][] testSubset() {
         // Enable the following in order to test a subset of test cases
          return new Object[][] {
-//                  {"config1.json", this.getTestResourceDir()},
-//                  {"config2.json", this.getTestResourceDir()},
-//                  {"config3.json", this.getTestResourceDir()},
                   {"config4.json", this.getTestResourceDir()},
                   {"config5.json", this.getTestResourceDir()},
          };
-//        return new Object[0][];
     }
 
     @Override

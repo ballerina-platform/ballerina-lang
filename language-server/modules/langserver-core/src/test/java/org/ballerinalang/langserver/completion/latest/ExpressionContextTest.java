@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.langserver.completion;
+package org.ballerinalang.langserver.completion.latest;
 
 import org.testng.annotations.DataProvider;
 
