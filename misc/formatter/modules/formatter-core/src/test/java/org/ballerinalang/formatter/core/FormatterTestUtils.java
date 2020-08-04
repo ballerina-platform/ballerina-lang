@@ -59,5 +59,4 @@ public abstract class FormatterTestUtils {
             throw new RuntimeException(e);
         }
     }
-
 }
