@@ -137,8 +137,7 @@ public abstract class NonTerminalNode extends Node {
 
         if (textRangeWithMinutiae.endOffset() == position &&
                 this instanceof ModulePartNode) {
-            ModulePartNode modulePartNode = (ModulePartNode) this;
-            return modulePartNode;
+            return this;
         }
 
         if (!textRangeWithMinutiae.contains(position)) {

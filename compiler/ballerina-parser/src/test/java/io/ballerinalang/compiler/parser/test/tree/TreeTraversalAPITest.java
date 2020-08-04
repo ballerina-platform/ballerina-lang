@@ -66,7 +66,7 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testFindNodeFromPosition() {
         String sourceFilePath = "find_node_test_1.bal";
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
