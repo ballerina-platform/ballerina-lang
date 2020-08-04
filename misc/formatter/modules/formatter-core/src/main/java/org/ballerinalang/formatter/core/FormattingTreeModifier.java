@@ -219,7 +219,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         if (visibilityQualifier != null) {
             functionDefinitionNode = functionDefinitionNode.modify()
-                    .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 0, 0))
+                    .withVisibilityQualifier(formatToken(visibilityQualifier, startColumn, 1, 1, 0))
                     .apply();
         }
 
