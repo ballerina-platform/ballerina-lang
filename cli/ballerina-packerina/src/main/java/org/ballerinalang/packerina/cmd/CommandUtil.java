@@ -20,12 +20,19 @@ package org.ballerinalang.packerina.cmd;
 
 import org.ballerinalang.tool.util.BCompileUtil;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.Lists;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+
+import static org.ballerinalang.packerina.utils.DebugUtils.getDebugArgs;
+import static org.ballerinalang.packerina.utils.DebugUtils.isInDebugMode;
+import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 
 /**
  * Packerina command util.
@@ -122,4 +129,14 @@ public class CommandUtil {
 
     }
 
+    public static void checkGraalVmInstalled() {
+        try {
+            ProcessBuilder pb = new ProcessBuilder("native-image", "--version");
+            Process process = pb.start();
+            process.waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw createLauncherException("GraalVM native-image command not found. Please install and configure " +
+                                                  "GraalVM.");
+        }
+    }
 }

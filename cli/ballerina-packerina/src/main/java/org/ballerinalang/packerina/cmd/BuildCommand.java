@@ -35,6 +35,7 @@ import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
 import org.ballerinalang.packerina.task.CreateExecutableTask;
+import org.ballerinalang.packerina.task.CreateGraalVmNativeImageTask;
 import org.ballerinalang.packerina.task.CreateJarTask;
 import org.ballerinalang.packerina.task.CreateLockFileTask;
 import org.ballerinalang.packerina.task.CreateTargetDirTask;
@@ -147,6 +148,10 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--native"}, hidden = true,
                         description = "Compile a Ballerina program to a native binary.")
     private boolean nativeBinary;
+
+    @CommandLine.Option(names = {"--graalvm-native"}, hidden = true,
+            description = "Compile a Ballerina program to a graalvm native image.")
+    private boolean graalVmBinary;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -379,6 +384,9 @@ public class BuildCommand implements BLauncherCmd {
             return;
         }
 
+        if (graalVmBinary) {
+            CommandUtil.checkGraalVmInstalled();
+        }
         // normalize paths
         this.sourceRootPath = this.sourceRootPath.normalize();
         sourcePath = sourcePath == null ? null : sourcePath.normalize();
@@ -427,10 +435,12 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new RunTestsTask(testReport, coverage, args), this.skipTests || isSingleFileBuild) // run tests
                                                                                                 // (projects only)
                 .addTask(new CreateExecutableTask(), this.compile)  // create the executable.jar
-                                                                                        // file
-                .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild)    // copy executable
-                .addTask(new PrintExecutablePathTask(), this.compile)   // print the location of the executable
-                .addTask(new RunCompilerPluginTask(), this.compile) // run compiler plugins
+                                                                                            // file
+                .addTask(new CreateGraalVmNativeImageTask(), !this.graalVmBinary) // generate GraalVM native image
+                .addTask(new CopyExecutableTask(outputPath), !isSingleFileBuild || graalVmBinary)  // copy executable
+                .addTask(new PrintExecutablePathTask(this.graalVmBinary), this.compile) // print the location of the
+                                                                                         // executable
+                .addTask(new RunCompilerPluginTask(), this.compile || this.graalVmBinary) // run compiler plugins
                 .addTask(new CleanTargetDirTask(), !isSingleFileBuild)  // clean the target dir(single bals only)
                 .build();
 

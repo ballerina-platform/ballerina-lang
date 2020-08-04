@@ -533,6 +533,27 @@ public class BuildContext extends HashMap<BuildContextField, Object> {
         }
     }
 
+    public Path getGraalVMNativeImagePathFromTarget(PackageID moduleID) {
+        try {
+            Files.createDirectories(this.executableDir);
+            switch (this.getSourceType()) {
+                case SINGLE_BAL_FILE:
+                    SingleFileContext singleFileContext = this.get(BuildContextField.SOURCE_CONTEXT);
+                    String executableFileName = singleFileContext.getBalFileNameWithoutExtension();
+                    return Paths.get(executableFileName).toAbsolutePath();
+                case SINGLE_MODULE:
+                case ALL_MODULES:
+                    return this.executableDir.resolve(moduleID.name.value);
+
+                default:
+                    throw new BLangCompilerException("unable to resolve executable(s) location for build source");
+            }
+
+        } catch (IOException e) {
+            throw new BLangCompilerException("error creating bir_cache dir for module(s): " + this.executableDir);
+        }
+    }
+
     public Path getTestJsonPathTargetCache(PackageID moduleID) {
         try {
             Files.createDirectories(targetTestJsonCacheDir);

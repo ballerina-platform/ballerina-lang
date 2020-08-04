@@ -29,12 +29,27 @@ import java.nio.file.Path;
  * Task to print the location of the executable.
  */
 public class PrintExecutablePathTask implements Task {
+
+    private boolean graalVmBinary = false;
+
+    public PrintExecutablePathTask() {
+    }
+
+    public PrintExecutablePathTask(boolean graalVmBinary) {
+        this.graalVmBinary = graalVmBinary;
+    }
+
     @Override
     public void execute(BuildContext buildContext) {
         Path sourceRootPath = buildContext.get(BuildContextField.SOURCE_ROOT);
         for (BLangPackage module : buildContext.getModules()) {
             if (module.symbol.entryPointExists) {
-                Path executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+                Path executablePath;
+                if (graalVmBinary) {
+                    executablePath = buildContext.getGraalVMNativeImagePathFromTarget(module.packageID);
+                } else {
+                    executablePath = buildContext.getExecutablePathFromTarget(module.packageID);
+                }
                 Path relativePathToExecutable = sourceRootPath.relativize(executablePath);
                 if (relativePathToExecutable.toString().contains("..") ||
                     relativePathToExecutable.toString().contains("." + File.separator)) {
