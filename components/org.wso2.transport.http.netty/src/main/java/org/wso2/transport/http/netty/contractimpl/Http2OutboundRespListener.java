@@ -184,9 +184,9 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
     }
 
     /***
-     * This function is to determine one encoding scheme from the request's `accept-encoding` header. This function is
-     * similar to Netty's `determineWrapper()` function in the `HttpContentCompressor` class which is used to do the
-     * same when doing the HTTP1.1 compression.
+     * This function is to determine one encoding scheme from the request's `accept-encoding` header. The logic to
+     * determine the scheme is similar to the logic used in Netty's `determineWrapper()` function in the
+     * `HttpContentCompressor` class which is used to do the same, when doing the HTTP1.1 compression.
      *
      * @param acceptEncoding `accept-encoding` header value
      * @return the chosen encoding scheme
