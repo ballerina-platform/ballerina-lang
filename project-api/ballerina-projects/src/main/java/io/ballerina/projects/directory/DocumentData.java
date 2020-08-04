@@ -24,17 +24,17 @@ import java.nio.file.Path;
  *
  * @since 2.0.0
  */
-public class DocumentFileData {
+public class DocumentData {
     private final String name;
     private final Path filePath;
 
-    private DocumentFileData(String name, Path filePath) {
+    private DocumentData(String name, Path filePath) {
         this.name = name;
         this.filePath = filePath;
     }
 
-    public static DocumentFileData from(String name, Path filePath) {
-        return new DocumentFileData(name, filePath);
+    public static DocumentData from(String name, Path filePath) {
+        return new DocumentData(name, filePath);
     }
 
     public Path filePath() {

@@ -39,7 +39,7 @@ public class ProjectFiles {
     private ProjectFiles() {
     }
 
-    public static PackageFileData loadPackageData(String packageDir) {
+    public static PackageData loadPackageData(String packageDir) {
         if (packageDir == null) {
             throw new IllegalArgumentException("packageDir cannot be null");
         }
@@ -67,12 +67,12 @@ public class ProjectFiles {
         // Load Ballerina.toml
         // Load default module
         // load other modules
-        ModuleFileData defaultModule = loadModule(packageDirPath);
-        List<ModuleFileData> otherModules = loadOtherModules(packageDirPath);
-        return PackageFileData.from(packageDirPath, defaultModule, otherModules);
+        ModuleData defaultModule = loadModule(packageDirPath);
+        List<ModuleData> otherModules = loadOtherModules(packageDirPath);
+        return PackageData.from(packageDirPath, defaultModule, otherModules);
     }
 
-    private static List<ModuleFileData> loadOtherModules(Path packageDirPath) {
+    private static List<ModuleData> loadOtherModules(Path packageDirPath) {
         Path modulesDirPath = packageDirPath.resolve("modules");
         if (!Files.isDirectory(modulesDirPath)) {
             return Collections.emptyList();
@@ -89,9 +89,9 @@ public class ProjectFiles {
         }
     }
 
-    private static ModuleFileData loadModule(Path moduleDirPath) {
-        List<DocumentFileData> srcDocs = loadDocuments(moduleDirPath);
-        List<DocumentFileData> testSrcDocs;
+    private static ModuleData loadModule(Path moduleDirPath) {
+        List<DocumentData> srcDocs = loadDocuments(moduleDirPath);
+        List<DocumentData> testSrcDocs;
         Path testDirPath = moduleDirPath.resolve("tests");
         if (Files.isDirectory(testDirPath)) {
             testSrcDocs = loadDocuments(testDirPath);
@@ -99,10 +99,10 @@ public class ProjectFiles {
             testSrcDocs = Collections.emptyList();
         }
         // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleFileData.from(moduleDirPath, srcDocs, testSrcDocs);
+        return ModuleData.from(moduleDirPath, srcDocs, testSrcDocs);
     }
 
-    private static List<DocumentFileData> loadDocuments(Path dirPath) {
+    private static List<DocumentData> loadDocuments(Path dirPath) {
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(matcher::matches)
@@ -113,10 +113,10 @@ public class ProjectFiles {
         }
     }
 
-    private static DocumentFileData loadDocument(Path documentFilePath) {
+    private static DocumentData loadDocument(Path documentFilePath) {
         Path fileNamePath = documentFilePath.getFileName();
         // IMO, fileNamePath cannot be null in this case.
         String name = fileNamePath != null ? fileNamePath.toString() : "";
-        return DocumentFileData.from(name, documentFilePath);
+        return DocumentData.from(name, documentFilePath);
     }
 }

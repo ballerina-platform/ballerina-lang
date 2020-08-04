@@ -25,36 +25,36 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ModuleFileData {
+public class ModuleData {
     // Just the module name without the package name
     private final Path moduleDirPath;
-    private final List<DocumentFileData> srcDocs;
-    private final List<DocumentFileData> testSrcDocs;
+    private final List<DocumentData> srcDocs;
+    private final List<DocumentData> testSrcDocs;
     // TODO do we need to maintain resources and test resources
 
-    private ModuleFileData(Path moduleDirPath,
-                           List<DocumentFileData> srcDocs,
-                           List<DocumentFileData> testSrcDocs) {
+    private ModuleData(Path moduleDirPath,
+                       List<DocumentData> srcDocs,
+                       List<DocumentData> testSrcDocs) {
         this.moduleDirPath = moduleDirPath;
         this.srcDocs = srcDocs;
         this.testSrcDocs = testSrcDocs;
     }
 
-    public static ModuleFileData from(Path path,
-                                      List<DocumentFileData> srcDocuments,
-                                      List<DocumentFileData> testSrcDocuments) {
-        return new ModuleFileData(path, srcDocuments, testSrcDocuments);
+    public static ModuleData from(Path path,
+                                  List<DocumentData> srcDocuments,
+                                  List<DocumentData> testSrcDocuments) {
+        return new ModuleData(path, srcDocuments, testSrcDocuments);
     }
 
     public Path moduleDirectoryPath() {
         return moduleDirPath;
     }
 
-    public List<DocumentFileData> sourceDocs() {
+    public List<DocumentData> sourceDocs() {
         return srcDocs;
     }
 
-    public List<DocumentFileData> testSourceDocs() {
+    public List<DocumentData> testSourceDocs() {
         return testSrcDocs;
     }
 }

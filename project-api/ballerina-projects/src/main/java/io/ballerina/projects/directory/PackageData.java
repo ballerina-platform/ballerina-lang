@@ -25,35 +25,35 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class PackageFileData {
+public class PackageData {
     private final Path packagePath;
     // Ballerina toml file config
-    private final ModuleFileData defaultModule;
-    private final List<ModuleFileData> otherModules;
+    private final ModuleData defaultModule;
+    private final List<ModuleData> otherModules;
 
-    private PackageFileData(Path packagePath,
-                            ModuleFileData defaultModule,
-                            List<ModuleFileData> otherModules) {
+    private PackageData(Path packagePath,
+                        ModuleData defaultModule,
+                        List<ModuleData> otherModules) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
         this.otherModules = otherModules;
     }
 
-    public static PackageFileData from(Path packagePath,
-                                       ModuleFileData defaultModule,
-                                       List<ModuleFileData> otherModules) {
-        return new PackageFileData(packagePath, defaultModule, otherModules);
+    public static PackageData from(Path packagePath,
+                                   ModuleData defaultModule,
+                                   List<ModuleData> otherModules) {
+        return new PackageData(packagePath, defaultModule, otherModules);
     }
 
     public Path packagePath() {
         return packagePath;
     }
 
-    public ModuleFileData defaultModule() {
+    public ModuleData defaultModule() {
         return defaultModule;
     }
 
-    public List<ModuleFileData> otherModules() {
+    public List<ModuleData> otherModules() {
         return otherModules;
     }
 }

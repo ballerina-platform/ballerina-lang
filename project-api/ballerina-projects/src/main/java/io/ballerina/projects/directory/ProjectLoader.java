@@ -35,36 +35,36 @@ import java.util.stream.Collectors;
  */
 class ProjectLoader {
     public static PackageConfig loadPackage(String packageDir) {
-        final PackageFileData packageFileData = ProjectFiles.loadPackageData(packageDir);
-        return createPackageConfig(packageFileData);
+        final PackageData packageData = ProjectFiles.loadPackageData(packageDir);
+        return createPackageConfig(packageData);
     }
 
-    public static PackageConfig createPackageConfig(PackageFileData packageFileData) {
-        final Path packagePage = packageFileData.packagePath();
+    public static PackageConfig createPackageConfig(PackageData packageData) {
+        final Path packagePage = packageData.packagePath();
         final PackageId packageId = PackageId.create(packagePage.toString());
-        ModuleConfig defaultModuleConfig = createModuleData(packageFileData.defaultModule(), packageId);
-        List<ModuleConfig> otherModuleConfigs = packageFileData.otherModules()
+        ModuleConfig defaultModuleConfig = createModuleData(packageData.defaultModule(), packageId);
+        List<ModuleConfig> otherModuleConfigs = packageData.otherModules()
                 .stream()
-                .map(moduleFileData -> createModuleData(moduleFileData, packageId))
+                .map(moduleData -> createModuleData(moduleData, packageId))
                 .collect(Collectors.toList());
         return PackageConfig.from(packageId, packagePage, defaultModuleConfig, otherModuleConfigs);
     }
 
-    public static ModuleConfig createModuleData(ModuleFileData moduleFileData, PackageId packageId) {
-        final ModuleId moduleId = ModuleId.create(moduleFileData.moduleDirectoryPath().toString(), packageId);
-        List<DocumentConfig> srcDocs = moduleFileData.sourceDocs()
+    public static ModuleConfig createModuleData(ModuleData moduleData, PackageId packageId) {
+        final ModuleId moduleId = ModuleId.create(moduleData.moduleDirectoryPath().toString(), packageId);
+        List<DocumentConfig> srcDocs = moduleData.sourceDocs()
                 .stream()
                 .map(srcDoc -> createDocumentData(srcDoc, moduleId))
                 .collect(Collectors.toList());
-        List<DocumentConfig> testSrcDocs = moduleFileData.testSourceDocs()
+        List<DocumentConfig> testSrcDocs = moduleData.testSourceDocs()
                 .stream()
                 .map(testSrcDoc -> createDocumentData(testSrcDoc, moduleId))
                 .collect(Collectors.toList());
-        return ModuleConfig.from(moduleId, moduleFileData.moduleDirectoryPath(), srcDocs, testSrcDocs);
+        return ModuleConfig.from(moduleId, moduleData.moduleDirectoryPath(), srcDocs, testSrcDocs);
     }
 
-    public static DocumentConfig createDocumentData(DocumentFileData documentFileData, ModuleId moduleId) {
-        final DocumentId documentId = DocumentId.create(documentFileData.filePath().toString(), moduleId);
-        return DocumentConfig.from(documentId, documentFileData.filePath());
+    public static DocumentConfig createDocumentData(DocumentData documentData, ModuleId moduleId) {
+        final DocumentId documentId = DocumentId.create(documentData.filePath().toString(), moduleId);
+        return DocumentConfig.from(documentId, documentData.filePath());
     }
 }
