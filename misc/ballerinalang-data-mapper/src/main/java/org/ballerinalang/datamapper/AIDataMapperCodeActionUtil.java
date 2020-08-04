@@ -215,7 +215,7 @@ class AIDataMapperCodeActionUtil {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
             headers.put("Accept", "application/json");
-            String url = LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl() + "/uploader_v_1";
+            String url = LSClientConfigHolder.getInstance().getConfig().getDataMapper().getUrl() + "/uploader.v.1.1";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {

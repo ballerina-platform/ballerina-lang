@@ -150,7 +150,7 @@ public class CodeActionTest extends PowerMockTestCase {
                 codeActionFound = true;
             }
         }
-        Assert.assertFalse(codeActionFound,"Returned an invalid code action");
+        Assert.assertFalse(codeActionFound, "Returned an invalid code action");
     }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider-server-error")
