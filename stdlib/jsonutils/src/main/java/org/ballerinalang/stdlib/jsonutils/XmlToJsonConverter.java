@@ -101,16 +101,20 @@ public class XmlToJsonConverter {
         String keyValue = getElementKey(xmlItem, preserveNamespaces);
         Object children = convertXMLSequence(xmlItem.getChildrenSeq(), attributePrefix, preserveNamespaces);
 
-        if (attributeMap.isEmpty() && children == null) {
-            putAsBStrings(rootNode, keyValue, "");
+        if (children == null) {
+            if (attributeMap.isEmpty()) {
+                putAsBStrings(rootNode, keyValue, "");
+            } else {
+                MapValueImpl<BString, Object> attrMap = newJsonMap();
+                addAttributes(attrMap, attributePrefix, attributeMap);
+
+                putAsBStrings(rootNode, keyValue, attrMap);
+            }
             return rootNode;
         }
-        if (children != null) {
-            putAsBStrings(rootNode, keyValue, children);
-        }
-        if (!attributeMap.isEmpty()) {
-            addAttributes(rootNode, attributePrefix, attributeMap);
-        }
+
+        putAsBStrings(rootNode, keyValue, children);
+        addAttributes(rootNode, attributePrefix, attributeMap);
         return rootNode;
     }
 
@@ -257,6 +261,9 @@ public class XmlToJsonConverter {
             if (val.getNodeType() == XMLNodeType.ELEMENT) {
                 if (!((XMLItem) val).getElementName().equals(firstElementName)) {
                     sameElementName = false;
+                }
+                if (!val.getAttributesMap().isEmpty()) {
+                    return SequenceConvertibility.LIST;
                 }
             } else if (val.getNodeType() == XMLNodeType.TEXT) {
                 return SequenceConvertibility.LIST;

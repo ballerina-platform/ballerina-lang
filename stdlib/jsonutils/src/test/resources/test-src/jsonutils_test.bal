@@ -135,3 +135,40 @@ function testXMLWithEmptyChildren() returns string {
     json j = checkpanic jsonutils:fromXML(x);
     return j.toJsonString();
 }
+
+function testXMLToJosnArray() {
+    xml x = xml `<Root><A/><B/><C/></Root>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    json expected = {"Root": {"A":"", "B":"", "C":""}};
+    assertValueEquality(expected, j);
+}
+
+function testXMLSameKeyToJosnArray() {
+    xml x = xml `<Root><A>A</A><A>B</A><A>C</A></Root>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    json expected = {"Root": {"A":["A", "B", "C"]}};
+    assertValueEquality(expected, j);
+}
+
+function testXMLSameKeyWithAttrToJsonArray() {
+    xml x = xml `<Root><A attr="hello">A</A><A attr="name">B</A><A>C</A></Root>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    json expected = {"Root": [{"A":"A", "@attr":"hello"}, {"A":"B", "@attr":"name"}, {"A": "C"}]};
+    assertValueEquality(expected, j);
+}
+
+function testXMLElementWithMultipleAttributesAndNamespaces() {
+    xml x = xml `<Root xmlns:ns="ns.com" ns:x="y" x="z"/>`;
+    json j = checkpanic jsonutils:fromXML(x);
+    json expected = {"Root": {"@xmlns:ns":"ns.com", "@ns:x":"y", "@x":"z"}};
+    assertValueEquality(expected, j);
+}
+
+function assertValueEquality(json expected, json actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("Assertion error",
+                message = "expected '" + expected.toJsonString() + "', found '" + actual.toJsonString () + "'");
+}
