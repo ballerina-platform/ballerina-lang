@@ -12,15 +12,20 @@
       ]
     },
     {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
+      "kind": "LIST",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
-        },
-        {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ]
         }
       ]
     },

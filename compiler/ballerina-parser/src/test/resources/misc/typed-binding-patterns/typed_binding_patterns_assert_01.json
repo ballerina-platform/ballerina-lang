@@ -586,6 +586,10 @@
               ]
             },
             {
+              "kind": "LIST",
+              "children": []
+            },
+            {
               "kind": "FUNCTION_KEYWORD",
               "leadingMinutiae": [
                 {

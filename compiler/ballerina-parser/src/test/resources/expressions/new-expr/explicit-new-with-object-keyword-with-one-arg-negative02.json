@@ -12,6 +12,10 @@
       ]
     },
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -195,6 +199,10 @@
                                       "children": []
                                     }
                                   ]
+                                },
+                                {
+                                  "kind": "LIST",
+                                  "children": []
                                 },
                                 {
                                   "kind": "FUNCTION_KEYWORD",

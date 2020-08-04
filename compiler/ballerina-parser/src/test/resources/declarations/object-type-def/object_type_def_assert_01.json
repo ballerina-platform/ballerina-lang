@@ -393,25 +393,30 @@
                   ]
                 },
                 {
-                  "kind": "PUBLIC_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    },
-                    {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
-                    },
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "PUBLIC_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -533,6 +538,10 @@
                   ]
                 },
                 {
+                  "kind": "LIST",
+                  "children": []
+                },
+                {
                   "kind": "FUNCTION_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -624,30 +633,35 @@
                   ]
                 },
                 {
-                  "kind": "PRIVATE_KEYWORD",
-                  "leadingMinutiae": [
+                  "kind": "LIST",
+                  "children": [
                     {
-                      "kind": "END_OF_LINE_MINUTIAE",
-                      "value": "\n"
+                      "kind": "PRIVATE_KEYWORD",
+                      "leadingMinutiae": [
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
+                        },
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": "    "
+                        }
+                      ],
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": "    "
-                    }
-                  ],
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "REMOTE_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
+                      "kind": "REMOTE_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     }
                   ]
                 },
@@ -1106,21 +1120,26 @@
                               ]
                             },
                             {
-                              "kind": "PUBLIC_KEYWORD",
-                              "leadingMinutiae": [
+                              "kind": "LIST",
+                              "children": [
                                 {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                },
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": "        "
-                                }
-                              ],
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "kind": "PUBLIC_KEYWORD",
+                                  "leadingMinutiae": [
+                                    {
+                                      "kind": "END_OF_LINE_MINUTIAE",
+                                      "value": "\n"
+                                    },
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    }
+                                  ]
                                 }
                               ]
                             },
@@ -1240,6 +1259,10 @@
                                   "children": []
                                 }
                               ]
+                            },
+                            {
+                              "kind": "LIST",
+                              "children": []
                             },
                             {
                               "kind": "FUNCTION_KEYWORD",

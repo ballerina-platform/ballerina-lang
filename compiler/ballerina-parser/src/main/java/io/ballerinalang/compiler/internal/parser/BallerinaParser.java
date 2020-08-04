@@ -5799,7 +5799,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseObjectMethod(STNode metadata, List<STNode> qualifiers) {
-        return parseFuncDefOrFuncTypeDesc(ParserRuleContext.OBJECT_METHOD_START_WITHOUT_REMOTE, metadata, true, qualifiers);
+        return parseFuncDefOrFuncTypeDesc(ParserRuleContext.OBJECT_METHOD_START_WITHOUT_REMOTE, metadata,
+                true, qualifiers);
     }
 
     /**

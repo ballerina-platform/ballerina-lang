@@ -12,17 +12,22 @@
       ]
     },
     {
-      "kind": "PUBLIC_KEYWORD",
-      "leadingMinutiae": [
+      "kind": "LIST",
+      "children": [
         {
-          "kind": "END_OF_LINE_MINUTIAE",
-          "value": "\n"
-        }
-      ],
-      "trailingMinutiae": [
-        {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "leadingMinutiae": [
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
+            }
+          ],
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
