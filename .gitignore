@@ -10,7 +10,6 @@ Ballerina.lock
 
 # Package Files #
 *.jar
-!gradle/wrapper/*.jar
 *.war
 *.ear
 
