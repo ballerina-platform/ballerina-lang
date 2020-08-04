@@ -1242,6 +1242,9 @@ public class JvmCastGen {
             targetTypeClass = XML_VALUE;
         } else {
             switch (targetType.tag) {
+                case TypeTags.STRING:
+                    targetTypeClass = B_STRING_VALUE;
+                    break;
                 case TypeTags.ARRAY:
                 case TypeTags.TUPLE:
                     targetTypeClass = ARRAY_VALUE;

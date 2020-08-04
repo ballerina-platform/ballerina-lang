@@ -19,16 +19,11 @@
 package org.ballerinalang.packerina.task;
 
 import org.ballerinalang.packerina.buildcontext.BuildContext;
-import org.ballerinalang.packerina.buildcontext.BuildContextField;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleFileContext;
-import org.ballerinalang.packerina.buildcontext.sourcecontext.SingleModuleContext;
 import org.ballerinalang.packerina.buildcontext.sourcecontext.SourceType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
@@ -74,16 +69,11 @@ public class CreateGraalVmNativeImageTask implements Task {
 
     @Override
     public void execute(BuildContext buildContext) {
-        BLangPackage executableModule = null;
         for (BLangPackage module : buildContext.getModules()) {
             if (module.symbol.entryPointExists) {
-                executableModule = module;
-                break;
+                this.generateGraalVmNativeImage(module, buildContext);
             }
         }
-        // executableModule cannot be null since this task is depend on createExecutable task which will fail if
-        // executableModule is null.
-        this.generateGraalVmNativeImage(executableModule, buildContext);
     }
 
     /**
