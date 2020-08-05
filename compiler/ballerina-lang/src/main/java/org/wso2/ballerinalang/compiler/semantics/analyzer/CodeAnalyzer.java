@@ -2266,6 +2266,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         Set<Object> names = new HashSet<>();
+        Set<Object> neverTypedKeys = new HashSet<>();
         BType type = recordLiteral.type;
         boolean isRecord = type.tag == TypeTags.RECORD;
         boolean isOpenRecord = isRecord && !((BRecordType) type).sealed;
@@ -2286,14 +2287,29 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 BLangExpression spreadOpExpr = spreadOpField.expr;
 
                 analyzeExpr(spreadOpExpr);
+
+                BType spreadOpExprType = spreadOpExpr.type;
+
+                if (spreadOpExprType.tag == TypeTags.MAP) {
+
+                    if (noOfInclusiveTypes > 0) {
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES,
+                                recordLiteral.expectedType.getKind().typeName());
+                        break;
+                    } else {
+                        noOfInclusiveTypes = noOfInclusiveTypes + 1;
+                    }
+                }
+
                 if (spreadOpExpr.type.tag != TypeTags.RECORD) {
                     continue;
                 }
 
-                if (!((BRecordType) spreadOpExpr.type).sealed) {
+                BRecordType spreadExprRecordType = (BRecordType) spreadOpExprType;
+                if (!spreadExprRecordType.sealed) {
                     // More than one inclusive-type-descriptors with spread-fields are not allowed.
                     if (noOfInclusiveTypes > 0) {
-                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MORE_THAN_ONE_INCLUSIVE_TYPES,
+                        this.dlog.error(spreadOpExpr.pos, DiagnosticCode.MULTIPLE_INCLUSIVE_TYPES,
                                 recordLiteral.expectedType.getKind().typeName());
                     } else {
                         noOfInclusiveTypes = noOfInclusiveTypes + 1;
@@ -2301,6 +2317,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
 
                 LinkedHashMap<String, BField> fieldsInRecordLiteral = ((BRecordType) spreadOpExpr.type).fields;
+                boolean isSpreadExprRecordTypeSealed = spreadExprRecordType.sealed;
                 for (Object fieldName : names) {
                     if (fieldsInRecordLiteral.containsKey(fieldName)) {
                         if (fieldsInRecordLiteral.get(fieldName).type.tag != TypeTags.NEVER) {
@@ -2309,9 +2326,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                                     recordLiteral.expectedType.getKind().typeName(), fieldName, spreadOpField);
                         }
                     } else {
-                        if (!((BRecordType) spreadOpExpr.type).sealed) {
-                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.INCLUSIVE_RECORD_LITERAL_WITH_SPREAD_OP,
-                                    recordLiteral.expectedType.getKind().typeName(), spreadOpExpr);
+                        if (!isSpreadExprRecordTypeSealed) {
+                            // Log an error if the spread-field has a inclusive type
+                            this.dlog.error(spreadOpExpr.pos, DiagnosticCode.INCLUSIVE_RECORD_TYPE_IN_SPREAD_FIELD,
+                                    spreadOpExpr);
+                            break;
                         }
                     }
                 }
@@ -2319,7 +2338,20 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 for (BField bField : ((BRecordType) spreadOpExpr.type).fields.values()) {
                     String name = bField.name.value;
                     if (!names.contains(name)) {
-                        if (bField.type.tag != TypeTags.NEVER) {
+                        if (bField.type.tag == TypeTags.NEVER) {
+                            if (!neverTypedKeys.contains(name)) {
+                                neverTypedKeys.add(name);
+                            }
+                        } else {
+                            if (neverTypedKeys.contains(name)) {
+                                neverTypedKeys.remove(name);
+                            } else {
+                                if (noOfInclusiveTypes > 0 && spreadExprRecordType.sealed) {
+                                    this.dlog.error(spreadOpExpr.pos,
+                                            DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL_SPREAD_OP,
+                                            recordLiteral.expectedType.getKind().typeName(), name, spreadOpField);
+                                }
+                            }
                             names.add(name);
                         }
                     }
@@ -2343,6 +2375,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     if (names.contains(name)) {
                         this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         recordLiteral.expectedType.getKind().typeName(), name);
+                    } else if (noOfInclusiveTypes > 0 && !neverTypedKeys.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                recordLiteral.expectedType.getKind().typeName(), name);
                     }
 
                     if (!isInferredRecordForMapCET && isOpenRecord && !((BRecordType) type).fields.containsKey(name)) {
@@ -2356,6 +2391,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                         this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
                                         recordLiteral.parent.type.getKind().typeName(),
                                         name);
+                    } else if (noOfInclusiveTypes > 0 && !neverTypedKeys.contains(name)) {
+                        this.dlog.error(keyExpr.pos, DiagnosticCode.DUPLICATE_KEY_IN_RECORD_LITERAL,
+                                recordLiteral.expectedType.getKind().typeName(), name);
                     }
                     names.add(name);
                 }
