@@ -580,8 +580,7 @@ public class FunctionGenerator {
         } else if (bType instanceof BRecordType) {
             BRecordType recordType = (BRecordType) bType;
             StringJoiner sb = new StringJoiner(", ");
-            if (recordType.tsymbol != null && recordType.tsymbol.name != null &&
-                    (recordType.tsymbol.name.value.isEmpty() || recordType.tsymbol.name.value.startsWith("$"))) {
+            if (CommonUtil.isInvalidSymbol(recordType.tsymbol)) {
                 for (BField field : recordType.fields.values()) {
                     sb.add(field.name.value + ": " + generateReturnValue(field.type.tsymbol, "{%1}"));
                 }
