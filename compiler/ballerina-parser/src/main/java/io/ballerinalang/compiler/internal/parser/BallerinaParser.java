@@ -439,6 +439,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseStringKeyword();
             case TRANSACTIONAL_KEYWORD:
                 return parseTransactionalKeyword();
+            case PRIVATE_KEYWORD:
+                return parsePrivateKeyword();
             default:
                 return resumeSyntaxTokenParsing(context, args);
         }
@@ -5596,7 +5598,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
-                STNode visibilityQualifier = consume();
+                STNode visibilityQualifier = parseObjectMemberVisibility();
                 member = parseObjectMethodOrField(metadata, visibilityQualifier);
                 break;
             case REMOTE_KEYWORD:
@@ -5627,6 +5629,28 @@ public class BallerinaParser extends AbstractParser {
         return member;
     }
 
+    /**
+     * Parse object visibility. Visibility can be <code>public</code> or <code>private</code>.
+     *
+     * @return Parsed node
+     */
+    private STNode parseObjectMemberVisibility() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PUBLIC_KEYWORD) {
+            return parseQualifier();
+        }
+        return parsePrivateKeyword();
+    }
+
+    private STNode parsePrivateKeyword() {
+        STToken token = peek();
+        if (token.kind == SyntaxKind.PRIVATE_KEYWORD) {
+            return consume();
+        } else {
+            Solution sol = recover(token, ParserRuleContext.PRIVATE_KEYWORD);
+            return sol.recoveredNode;
+        }
+    }
     private STNode parseObjectMethodOrField(STNode metadata, STNode methodQualifiers) {
         STToken nextToken = peek(1);
         STToken nextNextToken = peek(2);
