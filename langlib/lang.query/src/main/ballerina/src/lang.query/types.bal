@@ -99,15 +99,15 @@ type _StreamPipeline object {
                 _StreamPipeline p = self.pipeline;
                 _Frame|error? f = p.next();
                 if (f is _Frame) {
-                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
-                        anydata[] v = <anydata[]>f["$orderKey$"];
-                        map<anydata> m = <map<anydata>> f["$value$"];
-                        v.push(m);
-                        orderFieldValsArr.push(v);
-                        boolean[] x = <boolean[]>f["$orderDirection$"];
-                        orderDirectionsArr = x;
-                    }
                     Type v = <Type>f["$value$"];
+                    // Add orderKey and orderDirection values to respective arrays.
+                    if ((!(f["$orderKey$"] is ())) && (!(f["$orderDirection$"] is ()))) {
+                        anydata[] orKey = <anydata[]>f["$orderKey$"];
+                        // Need to keep the stream value to sort the stream.
+                        orKey.push(<anydata>v);
+                        orderFieldValsArr.push(orKey);
+                        orderDirectionsArr = <boolean[]>f["$orderDirection$"];
+                    }
                     return internal:setNarrowType(self.outputType, {value: v});
                 } else {
                     return f;
@@ -487,7 +487,7 @@ type _OrderByFunction object {
     *_StreamFunction;
 
     # Desugared function to do;
-    # order by person.fname, person.age
+    # order by person.fname true, person.age false
     function(_Frame _frame) orderFunc;
 
     function init(function(_Frame _frame) orderFunc) {

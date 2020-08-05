@@ -596,8 +596,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     /**
      * Desugar orderByClause to below and return a reference to created orderBy _StreamFunction.
      * _StreamFunction orderByFunc = createOrderByFunction(function(_Frame frame) {
-     * _Frame frame = {"orderKey": frame["x2"] + frame["y2"]};
-     * }, boolean[] orderDirections);
+     * _Frame frame = {"orderKey": frame["x2"] + frame["y2"], $orderDirection$: true + false"};
+     * });
      *
      * @param blockStmt parent block to write to.
      * @param orderByClause  to be desugared.
@@ -627,12 +627,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     orderKey.getOrderDirection()));
         }
 
+        // order-key expressions and order-directions are evaluated for each frame.
         // $frame$["$orderKey$"] = sortFieldsArrExpr;
-        // order-key expressions are evaluated for each frame.
         BLangStatement orderKeyStmt = getAddToFrameStmt(pos, frame, "$orderKey$", sortFieldsArrayExpr);
+        body.stmts.add(orderKeyStmt);
         // $frame$["$orderDirection$"] = sortModesArrayExpr;
         BLangStatement orderDirectionStmt = getAddToFrameStmt(pos, frame, "$orderDirection$", sortModesArrayExpr);
-        body.stmts.add(orderKeyStmt);
         body.stmts.add(orderDirectionStmt);
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);

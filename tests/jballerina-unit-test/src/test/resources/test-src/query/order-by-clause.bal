@@ -364,6 +364,47 @@ function testQueryExprWithOrderByClauseHavingNaNNilValues() returns boolean {
     return testPassed;
 }
 
+function testQueryExprWithOrderByClauseReturnString() returns string {
+    Person p1 = {firstName: "Amy", lastName: "Melina", age: 34};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person p3 = {firstName: "Melina", lastName: "Kodel", age: 72};
+    Person p4 = {firstName: "Terrence", lastName: "Lewis", age: 19};
+    Person p5 = {firstName: "Meghan", lastName: "Markle", age: 55};
+
+    Person[] personList = [p1, p2, p3, p4, p5];
+
+    string outputNameString = from var person in personList
+         order by person.age descending
+         select person.firstName+" "+person.lastName+","
+         limit 3;
+
+    return outputNameString;
+}
+
+function testQueryExprWithOrderByClauseReturnXML() returns xml {
+    xml bookStore = xml `<bookStore>
+                     <book>
+                           <name>Sherlock Holmes</name>
+                           <author>Sir Arthur Conan Doyle</author>
+                     </book>
+                     <book>
+                           <name>The Da Vinci Code</name>
+                           <author>Dan Brown</author>
+                     </book>
+                     <book>
+                           <name>The Enchanted Wood</name>
+                           <author>Enid Blyton</author>
+                     </book>
+                  </bookStore>`;
+
+    xml authors = from var book in bookStore/<book>/<author>
+                  order by book.toString()
+                  select <xml> book
+                  limit 2;
+
+    return  authors;
+}
+
 function incrementCount(int i) returns int {
     int count = i + 2;
     return count;

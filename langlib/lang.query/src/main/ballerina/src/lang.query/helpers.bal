@@ -81,18 +81,11 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, er
 }
 
 function sortStreamFunction(stream<Type, error?> strm, @tainted Type[] arr, int lmt) returns stream<Type, error?> {
+    Type[] streamValArr = [];
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {
-        arr.push(v.value);
+        streamValArr.push(v.value);
         v = strm.next();
-    }
-
-    int n = arr.length();
-    Type[] clonedArr = [];
-    int index = 0;
-    while (index < n) {
-        clonedArr[index] = arr[index];
-        index += 1;
     }
 
     StreamOrderBy streamOrderByObj = new StreamOrderBy();
@@ -100,18 +93,18 @@ function sortStreamFunction(stream<Type, error?> strm, @tainted Type[] arr, int 
 
     int i = 0;
     int k = 0;
-    arr.removeAll();
+    // Add the sorted stream values to arr
     foreach var e in sortedArr {
         if (!(lmt == 0) && (k == lmt)) {
             break;
         }
         int j = 0;
-        while (j < clonedArr.length()) {
+        while (j < streamValArr.length()) {
             if (e is anydata[]) {
-                if (clonedArr[j] is map<anydata>) {
-                    if (e[e.length()-1] == <map<anydata>>clonedArr[j]) {
-                        arr[i] = clonedArr[j];
-                        var val = clonedArr.remove(j);
+                if (streamValArr[j] is map<anydata>|string|xml) {
+                    if (e[e.length()-1] == <map<anydata>|string|xml>streamValArr[j]) {
+                        arr[i] = streamValArr[j];
+                        var val = streamValArr.remove(j);
                         i += 1;
                     }
                 }

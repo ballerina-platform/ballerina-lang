@@ -179,6 +179,23 @@ public class OrderByClauseTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
+    @Test(description = "Test query expr with order by clause return string")
+    public void testQueryExprWithOrderByClauseReturnString() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnString");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(), "Melina Kodel,Meghan Markle,Amy Melina,");
+    }
+
+    @Test(description = "Test query expr with order by clause return XML")
+    public void testQueryExprWithOrderByClauseReturnXML() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOrderByClauseReturnXML");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "<author>Dan Brown</author><author>Enid Blyton</author>");
+    }
+
     @Test(description = "Test negative scenarios for query expr with order by clause")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 3);
