@@ -227,14 +227,7 @@ public type Cache object {
     #
     # + return - Array of all the keys from the cache
     public function keys() returns string[] {
-        handle[] keysArray = externKeys(self);
-        string[] keys = [];
-        int index = 0;
-        foreach var key in keysArray {
-            keys[index] = <string>java:toString(key);
-            index = index + 1;
-        }
-        return keys;
+        return externKeys(self);
     }
 
     # Returns the size of the cache.
@@ -271,9 +264,8 @@ function cleanup(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPo
     if (externSize(cache) == 0) {
         return;
     }
-    //foreach Node node in entries {
-    foreach var key in externKeys(cache) {
-        Node node = externGet(cache, key);
+    foreach string key in externKeys(cache) {
+        Node node = externGet(cache, java:fromString(key));
         CacheEntry entry = <CacheEntry>node.value;
         if (entry.expTime != -1 && entry.expTime < time:nanoTime()) {
             evictionPolicy.remove(list, node);
@@ -309,7 +301,7 @@ function externHasKey(Cache cache, handle key) returns boolean = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
-function externKeys(Cache cache) returns handle[] = @java:Method {
+function externKeys(Cache cache) returns string[] = @java:Method {
     class: "org.ballerinalang.stdlib.cache.nativeimpl.Cache"
 } external;
 
