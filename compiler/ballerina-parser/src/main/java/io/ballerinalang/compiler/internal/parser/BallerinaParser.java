@@ -394,6 +394,8 @@ public class BallerinaParser extends AbstractParser {
                 return parseOrderKeyword();
             case BY_KEYWORD:
                 return parseByKeyword();
+            case ORDER_KEY_LIST_END:
+                return parseOrderKeyListMemberEnd();
             case TABLE_CONSTRUCTOR_OR_QUERY_START:
                 return parseTableConstructorOrQuery((boolean) args[0]);
             case TABLE_CONSTRUCTOR_OR_QUERY_RHS:
@@ -10630,10 +10632,13 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining order keys
         nextToken = peek();
-        STNode leadingComma;
+        STNode orderKeyListMemberEnd;;
         while (!isEndOfOrderKeys(nextToken.kind)) {
-            leadingComma = parseComma();
-            orderKeys.add(leadingComma);
+            orderKeyListMemberEnd = parseOrderKeyListMemberEnd();
+            if (orderKeyListMemberEnd == null) {
+                break;
+            }
+            orderKeys.add(orderKeyListMemberEnd);
             orderKey = parseOrderKey(isRhsExpr);
             orderKeys.add(orderKey);
             nextToken = peek();
@@ -10649,8 +10654,57 @@ public class BallerinaParser extends AbstractParser {
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
                 return false;
+            case SEMICOLON_TOKEN:
+            case EOF_TOKEN:
+                return true;
             default:
-                return !isTypeStartingToken(tokenKind);
+                return isQueryClauseStartToken(tokenKind);
+        }
+    }
+
+    private boolean isQueryClauseStartToken(SyntaxKind tokenKind) {
+        switch (tokenKind) {
+            case SELECT_KEYWORD:
+            case LET_KEYWORD:
+            case WHERE_KEYWORD:
+            case OUTER_KEYWORD:
+            case JOIN_KEYWORD:
+            case ORDER_KEYWORD:
+            case DO_KEYWORD:
+            case FROM_KEYWORD:
+            case LIMIT_KEYWORD:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private STNode parseOrderKeyListMemberEnd() {
+        return parseOrderKeyListMemberEnd(peek().kind);
+    }
+
+    private STNode parseOrderKeyListMemberEnd(SyntaxKind nextTokenKind) {
+        switch (nextTokenKind) {
+            case COMMA_TOKEN:
+                return parseComma();
+            case EOF_TOKEN:
+                return null;
+            default:
+                if (isQueryClauseStartToken(nextTokenKind)) {
+                    // null marks the end of order keys
+                    return null;
+                }
+
+                Solution solution = recover(peek(), ParserRuleContext.ORDER_KEY_LIST_END);
+
+                // If the parser recovered by inserting a token, then try to re-parse the same
+                // rule with the inserted token. This is done to pick the correct branch
+                // to continue the parsing.
+                if (solution.action == Action.REMOVE) {
+                    return solution.recoveredNode;
+                }
+
+                return parseOrderKeyListMemberEnd(solution.tokenKind);
         }
     }
 
