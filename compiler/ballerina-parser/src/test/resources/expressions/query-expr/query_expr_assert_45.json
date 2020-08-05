@@ -4,6 +4,7 @@
   "children": [
     {
       "kind": "QUERY_PIPELINE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
@@ -79,20 +80,70 @@
         },
         {
           "kind": "LIST",
-          "children": []
+          "hasDiagnostics": true,
+          "children": [
+            {
+              "kind": "ORDER_BY_CLAUSE",
+              "hasDiagnostics": true,
+              "children": [
+                {
+                  "kind": "ORDER_KEYWORD",
+                  "isMissing": true,
+                  "hasDiagnostics": true,
+                  "diagnostics": [
+                    "ERROR_MISSING_ORDER_KEYWORD"
+                  ]
+                },
+                {
+                  "kind": "BY_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "ORDER_KEY",
+                      "children": [
+                        {
+                          "kind": "SIMPLE_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "c",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
     {
       "kind": "SELECT_CLAUSE",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_SELECT_KEYWORD"
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
           ]
         },
         {
@@ -100,7 +151,7 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "value": "d"
             }
           ]
         }

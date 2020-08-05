@@ -42,11 +42,21 @@ public class QueryActionTest extends AbstractActionTest {
     public void testComplexQueryAction() {
         testFile("query-action/query_action_source_04.bal", "query-action/query_action_assert_04.json");
     }
-    
+
+    @Test
+    public void testQueryActionWithLimit() {
+        testFile("query-action/query_action_source_05.bal", "query-action/query_action_assert_05.json");
+    }
+
     // Recovery tests
 
     @Test
     public void testQueryActionRecovery() {
         testFile("query-action/query_action_source_03.bal", "query-action/query_action_assert_03.json");
+    }
+
+    @Test
+    public void testInvalidQueryAction() {
+        testFile("query-action/query_action_source_06.bal", "query-action/query_action_assert_06.json");
     }
 }

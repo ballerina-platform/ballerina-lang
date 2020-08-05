@@ -1,6 +1,5 @@
 {
   "kind": "QUERY_EXPRESSION",
-  "hasDiagnostics": true,
   "children": [
     {
       "kind": "QUERY_PIPELINE",
@@ -85,14 +84,14 @@
     },
     {
       "kind": "SELECT_CLAUSE",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "isMissing": true,
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_SELECT_KEYWORD"
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
           ]
         },
         {
@@ -100,7 +99,36 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "c"
+              "value": "c",
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "kind": "LIMIT_CLAUSE",
+      "children": [
+        {
+          "kind": "LIMIT_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
+        },
+        {
+          "kind": "SIMPLE_NAME_REFERENCE",
+          "children": [
+            {
+              "kind": "IDENTIFIER_TOKEN",
+              "value": "d"
             }
           ]
         }

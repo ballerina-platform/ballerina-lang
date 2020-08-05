@@ -83,11 +83,11 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "ORDER_BY_CLAUSE",
+              "kind": "JOIN_CLAUSE",
               "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "ORDER_KEYWORD",
+                  "kind": "JOIN_KEYWORD",
                   "trailingMinutiae": [
                     {
                       "kind": "WHITESPACE_MINUTIAE",
@@ -96,38 +96,13 @@
                   ]
                 },
                 {
-                  "kind": "BY_KEYWORD",
-                  "trailingMinutiae": [
-                    {
-                      "kind": "WHITESPACE_MINUTIAE",
-                      "value": " "
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "hasDiagnostics": true,
+                  "kind": "TYPED_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "ORDER_KEY",
+                      "kind": "INT_TYPE_DESC",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "c",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "ASCENDING_KEYWORD",
+                          "kind": "INT_KEYWORD",
                           "trailingMinutiae": [
                             {
                               "kind": "WHITESPACE_MINUTIAE",
@@ -138,59 +113,41 @@
                       ]
                     },
                     {
-                      "kind": "COMMA_TOKEN",
-                      "isMissing": true,
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_COMMA_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "ORDER_KEY",
+                      "kind": "CAPTURE_BINDING_PATTERN",
                       "children": [
                         {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "c",
+                          "trailingMinutiae": [
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "d",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
                       ]
-                    },
+                    }
+                  ]
+                },
+                {
+                  "kind": "IN_KEYWORD",
+                  "trailingMinutiae": [
                     {
-                      "kind": "COMMA_TOKEN",
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "SIMPLE_NAME_REFERENCE",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_COMMA_TOKEN"
-                      ]
-                    },
-                    {
-                      "kind": "ORDER_KEY",
-                      "children": [
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "e",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
-                            }
-                          ]
-                        }
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
@@ -218,7 +175,7 @@
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "value": "f"
+              "value": "g"
             }
           ]
         }
