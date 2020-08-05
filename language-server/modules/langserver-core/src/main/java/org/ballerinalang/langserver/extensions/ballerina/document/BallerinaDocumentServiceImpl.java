@@ -56,6 +56,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentEdit;
 import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
@@ -326,7 +327,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         Path compilationPath = getUntitledFilePath(filePath.get().toString()).orElse(filePath.get());
         Optional<Lock> lock = documentManager.lockFile(compilationPath);
         try {
-            TextDocument doc = TextDocuments.from(documentManager.getFileContent(compilationPath));
+            TextDocument doc = documentManager.getTree(compilationPath).textDocument();
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator();
             SyntaxTree syntaxTree = SyntaxTree.from(doc, compilationPath.toString());
             ModulePartNode modulePartNode = syntaxTree.rootNode();
@@ -402,7 +403,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } finally {
             if (!reply.isParseSuccess()) {
                 try {
-                    documentManager.updateFile(compilationPath, oldContent);
+                    TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(oldContent);
+                    documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
                 } catch (WorkspaceDocumentException e) {
                     logError("Failed to revert file content.", e, request.getDocumentIdentifier(),
                             (Position) null);
@@ -442,7 +444,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } finally {
             if (!reply.isParseSuccess()) {
                 try {
-                    documentManager.updateFile(compilationPath, oldContent);
+                    TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(oldContent);
+                    documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
                 } catch (WorkspaceDocumentException e) {
                     logError("Failed to revert file content.", e, request.getDocumentIdentifier(),
                             (Position) null);
