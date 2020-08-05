@@ -167,4 +167,9 @@ public class AmbiguityResolutionTest extends AbstractMiscTest {
     public void testInvalidNodeInBracedList() {
         testFile("ambiguity/ambiguity_source_29.bal", "ambiguity/ambiguity_assert_29.json");
     }
+
+    @Test
+    public void testIncompleteSource() {
+        testFile("ambiguity/ambiguity_source_30.bal", "ambiguity/ambiguity_assert_30.json");
+    }
 }
