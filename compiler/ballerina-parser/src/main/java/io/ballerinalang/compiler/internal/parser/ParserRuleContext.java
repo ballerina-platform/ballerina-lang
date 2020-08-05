@@ -373,6 +373,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    PUBLIC_OR_PRIVATE_KEYWORD("public-or-private-keyword"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
