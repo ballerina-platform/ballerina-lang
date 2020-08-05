@@ -45,6 +45,7 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 38, 32);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 32);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 39, 37);
+        BAssertUtil.validateError(result, indx++, "variable assignment is required", 53, 9);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 53, 14);
         BAssertUtil.validateError(result, indx++, "invalid expression in start action", 53, 14);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 56, 37);
