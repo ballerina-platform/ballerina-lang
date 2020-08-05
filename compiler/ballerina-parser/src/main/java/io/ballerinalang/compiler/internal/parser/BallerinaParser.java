@@ -1601,12 +1601,21 @@ public class BallerinaParser extends AbstractParser {
                 if (isObjectMethod) {
                     STNode readonlyQualifier = STNodeFactory.createEmptyNode();
                     STNode fieldName = parseVariableName();
-                    return parseObjectFieldRhs(metadata, qualifiers.get(0), readonlyQualifier, typeDesc, fieldName);
+                    if (qualifiers.size() == 0) {
+                        return parseObjectFieldRhs(metadata, STNodeFactory.createEmptyNode(), readonlyQualifier,
+                                typeDesc, fieldName);
+                    } else {
+                        return parseObjectFieldRhs(metadata, qualifiers.get(0), readonlyQualifier, typeDesc, fieldName);
+                    }
                 }
 
                 startContext(ParserRuleContext.VAR_DECL_STMT);
                 STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
-                return parseVarDeclRhs(metadata, qualifiers.get(0), typedBindingPattern, true);
+                if (qualifiers.size() == 0) {
+                    return parseVarDeclRhs(metadata, STNodeFactory.createEmptyNode(), typedBindingPattern, true);
+                } else {
+                    return parseVarDeclRhs(metadata, qualifiers.get(0), typedBindingPattern, true);
+                }
             case OPEN_BRACE_TOKEN: // function body block
             case EQUAL_TOKEN: // external function
                 break;
