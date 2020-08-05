@@ -99,17 +99,19 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     @Override
     public void updateFile(Path filePath, List<TextDocumentContentChangeEvent> changeEvent)
             throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            if (changeEvent.size() == 1 && changeEvent.get(0).getRange() == null) {
-                // Full Sync
-                documentList.get(filePath).getDocument().ifPresent(
-                        document -> document.setContent(changeEvent.get(0).getText())
-                );
-            } else {
-                // Incremental Sync
-                documentList.get(filePath).getDocument().ifPresent(document -> {
-                    TextEdit[] edits = new TextEdit[changeEvent.size()];
-                    TextDocument textDocument = document.getTree().textDocument();
+        if (!isFileOpen(filePath)) {
+            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
+        }
+        if (changeEvent.size() == 1 && changeEvent.get(0).getRange() == null) {
+            // Full Sync
+            documentList.get(filePath).getDocument().ifPresent(
+                    document -> document.setContent(changeEvent.get(0).getText())
+            );
+        } else {
+            // Incremental Sync
+            documentList.get(filePath).getDocument().ifPresent(document -> {
+                TextEdit[] edits = new TextEdit[changeEvent.size()];
+                TextDocument textDocument = document.getTree().textDocument();
                     for (int i = 0; i < changeEvent.size(); i++) {
                         TextDocumentContentChangeEvent change = changeEvent.get(i);
                         edits[i] = TextEdit.from(getTextRange(textDocument, change), change.getText());
@@ -117,9 +119,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
                     document.setTree(SyntaxTree.from(document.getTree(), TextDocumentChange.from(edits)));
                 });
             }
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
     }
 
     private TextRange getTextRange(TextDocument textDocument, TextDocumentContentChangeEvent change) {
