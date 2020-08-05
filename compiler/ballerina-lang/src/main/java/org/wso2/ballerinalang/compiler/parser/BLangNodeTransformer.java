@@ -349,6 +349,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -3763,57 +3764,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             for (Node matchPattern : matchClauseNode.matchPatterns()) {
                 DiagnosticPos matchPatternPos = getPosition(matchPattern);
-                if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
-                        ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
-                    // wildcard match
-                    BLangWildCardMatchPattern bLangWildCardMatchPattern =
-                            (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
-                    bLangWildCardMatchPattern.matchExpr = matchStmtExpr;
-                    bLangWildCardMatchPattern.pos = matchPatternPos;
-
-                    bLangMatchClause.addMatchPattern(bLangWildCardMatchPattern);
-                } else if (matchPattern.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
-                        matchPattern.kind() == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL ||
-                        matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
-                        matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                        matchPattern.kind() == SyntaxKind.TRUE_KEYWORD ||
-                        matchPattern.kind() == SyntaxKind.FALSE_KEYWORD) {
-                    BLangConstPattern bLangConstMatchPattern =
-                            (BLangConstPattern) TreeBuilder.createConstMatchPattern();
-                    bLangConstMatchPattern.setExpression(createExpression(matchPattern));
-                    bLangConstMatchPattern.matchExpr = matchStmtExpr;
-                    bLangConstMatchPattern.pos = matchPatternPos;
-
-                    bLangMatchClause.addMatchPattern(bLangConstMatchPattern);
-                } else if (matchPattern.kind() == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
-                    TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
-                    BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
-                            (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
-                    bLangVarBindingPattern.matchExpr = matchStmtExpr;
-                    bLangVarBindingPattern.pos = matchPatternPos;
-                    bLangVarBindingPattern.matchGuardIsAvailable = matchGuardAvailable;
-
-                    SyntaxKind patternKind = typedBindingPatternNode.bindingPattern().kind();
-                    switch (patternKind) {
-                        case CAPTURE_BINDING_PATTERN:
-                            // TODO : check whether why cant we call the existing transform method
-                            CaptureBindingPatternNode captureBindingPattern =
-                                    (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
-                            BLangCaptureBindingPattern bLangCaptureBindingPattern =
-                                    createCaptureBindingPattern(captureBindingPattern);
-                            bLangVarBindingPattern.setBindingPattern(bLangCaptureBindingPattern);
-                            break;
-                        default:
-                            // TODO : Remove this after all binding patterns are implemented
-                            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
-                    }
-                    bLangMatchClause.addMatchPattern(bLangVarBindingPattern);
-                } else {
-                    // TODO : Remove this after all binding patterns are implemented
-                    dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+                BLangMatchPattern bLangMatchPattern = transformMatchPattern(matchPattern, matchPatternPos);
+                // TODO : Remove this check after all binding patterns are implemented
+                if (bLangMatchPattern != null) {
+                    bLangMatchPattern.matchExpr = matchStmtExpr;
+                    bLangMatchPattern.matchGuardIsAvailable = matchGuardAvailable;
+                    bLangMatchClause.addMatchPattern(bLangMatchPattern);
                 }
             }
-
+            
             bLangMatchClause.setBlockStatement((BLangBlockStmt) transform(matchClauseNode.blockStatement()));
             matchStatement.addMatchClause(bLangMatchClause);
         }
@@ -3824,7 +3783,54 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         });
 
         return matchStatement;
+    }
 
+    private BLangMatchPattern transformMatchPattern(Node matchPattern, DiagnosticPos matchPatternPos) {
+
+        if (matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE &&
+                ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
+            // wildcard match
+            BLangWildCardMatchPattern bLangWildCardMatchPattern =
+                    (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
+            bLangWildCardMatchPattern.pos = matchPatternPos;
+            return bLangWildCardMatchPattern;
+        } else if (matchPattern.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL ||
+                matchPattern.kind() == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL ||
+                matchPattern.kind() == SyntaxKind.STRING_LITERAL ||
+                matchPattern.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                matchPattern.kind() == SyntaxKind.TRUE_KEYWORD ||
+                matchPattern.kind() == SyntaxKind.FALSE_KEYWORD) {
+            BLangConstPattern bLangConstMatchPattern =
+                    (BLangConstPattern) TreeBuilder.createConstMatchPattern();
+            bLangConstMatchPattern.setExpression(createExpression(matchPattern));
+            bLangConstMatchPattern.pos = matchPatternPos;
+            return bLangConstMatchPattern;
+        } else if (matchPattern.kind() == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
+            TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
+            BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
+                    (BLangVarBindingPatternMatchPattern) TreeBuilder.createVarBindingPattern();
+            bLangVarBindingPattern.pos = matchPatternPos;
+
+            SyntaxKind patternKind = typedBindingPatternNode.bindingPattern().kind();
+            switch (patternKind) {
+                case CAPTURE_BINDING_PATTERN:
+                    // TODO : check whether why cant we call the existing transform method
+                    CaptureBindingPatternNode captureBindingPattern =
+                            (CaptureBindingPatternNode) typedBindingPatternNode.bindingPattern();
+                    BLangCaptureBindingPattern bLangCaptureBindingPattern =
+                            createCaptureBindingPattern(captureBindingPattern);
+                    bLangVarBindingPattern.setBindingPattern(bLangCaptureBindingPattern);
+                    break;
+                default:
+                    // TODO : Remove this after all binding patterns are implemented
+                    dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            }
+            return bLangVarBindingPattern;
+        } else {
+            // TODO : Remove this after all binding patterns are implemented
+            dlog.error(matchPatternPos, DiagnosticCode.MATCH_PATTERN_NOT_SUPPORTED);
+            return null;
+        }
     }
 
     private BLangCaptureBindingPattern createCaptureBindingPattern(CaptureBindingPatternNode
