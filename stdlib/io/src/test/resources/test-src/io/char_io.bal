@@ -130,6 +130,57 @@ function readXml() returns @tainted xml|error {
     return e;
 }
 
+function readAvailableProperty(string key) returns @tainted string?|error {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        var result = rCha.readProperty(key);
+        return result;
+    }
+    io:GenericError e = io:GenericError("Character channel not initialized properly");
+    return e;
+}
+
+function readAllProperties() returns boolean {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        var results = rCha.readAllProperties();
+        if (results is map<string>) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function readUnavailableProperty(string key) returns boolean {
+    var rCha = rch;
+    if(rCha is io:ReadableCharacterChannel) {
+        string defaultValue = "Default";
+        var results = rCha.readProperty(key, defaultValue);
+        if (results is string) {
+            if (results == defaultValue) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+function writePropertiesFromMap() returns boolean {
+    var wCha = wch;
+    if (wCha is io:WritableCharacterChannel) {
+        map<string> properties = {
+            name: "Anna Johnson",
+            age: "25",
+            occupation: "Banker"
+        };
+        var writeResults = wCha.writeProperties(properties, "Comment");
+        if !(writeResults is io:Error) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function writeJson(json content) {
     var wCha = wch;
     if(wCha is io:WritableCharacterChannel){
