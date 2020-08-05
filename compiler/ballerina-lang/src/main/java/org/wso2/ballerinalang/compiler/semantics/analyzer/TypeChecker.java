@@ -4345,7 +4345,7 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), queryEnvs.peek());
-            if (!types.checkBasicType(exprType)) {
+            if (!types.isBasicType(exprType)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticCode.ORDER_BY_NOT_SUPPORTED);
             }
         }

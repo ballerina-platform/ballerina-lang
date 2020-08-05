@@ -147,7 +147,7 @@ public class OrderByClauseTest {
         Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
     }
 
-    @Test(description = "Test query expression with inner query, join, order by and user defined order-key function")
+    @Test(description = "Test query expression with join, order by and user defined order-key function")
     public void testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() {
         BValue[] returnValues = BRunUtil.invoke(result,
                 "testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3");
@@ -168,6 +168,48 @@ public class OrderByClauseTest {
         Assert.assertEquals(((BInteger) customer3.get("noOfItems")).intValue(), 12);
         Assert.assertEquals(customer4.get("name").stringValue(), "Frank");
         Assert.assertEquals(((BInteger) customer4.get("noOfItems")).intValue(), 5);
+    }
+
+    @Test(description = "Test query expression with order by clause and inner query")
+    public void testQueryExprWithOrderByClauseAndInnerQueries() {
+        BValue[] returnValues = BRunUtil.invoke(result,
+                "testQueryExprWithOrderByClauseAndInnerQueries");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 3, "Expected events are not received");
+
+        BMap<String, BValue> customer1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> customer2 = (BMap<String, BValue>) returnValues[1];
+        BMap<String, BValue> customer3 = (BMap<String, BValue>) returnValues[2];
+
+        Assert.assertEquals(customer1.get("name").stringValue(), "Jennifer");
+        Assert.assertEquals(((BInteger) customer1.get("age")).intValue(), 23);
+        Assert.assertEquals(((BInteger) customer1.get("noOfItems")).intValue(), 62);
+        Assert.assertEquals(customer2.get("name").stringValue(), "Zeth");
+        Assert.assertEquals(((BInteger) customer2.get("age")).intValue(), 50);
+        Assert.assertEquals(((BInteger) customer2.get("noOfItems")).intValue(), 30);
+        Assert.assertEquals(customer3.get("name").stringValue(), "Zeth");
+        Assert.assertEquals(((BInteger) customer3.get("age")).intValue(), 50);
+        Assert.assertEquals(((BInteger) customer3.get("noOfItems")).intValue(), 25);
+    }
+
+    @Test(description = "Test query expression with order by clause and inner query")
+    public void testQueryExprWithOrderByClauseAndInnerQueries2() {
+        BValue[] returnValues = BRunUtil.invoke(result,
+                "testQueryExprWithOrderByClauseAndInnerQueries2");
+        Assert.assertNotNull(returnValues);
+
+        Assert.assertEquals(returnValues.length, 2, "Expected events are not received");
+
+        BMap<String, BValue> customer1 = (BMap<String, BValue>) returnValues[0];
+        BMap<String, BValue> customer2 = (BMap<String, BValue>) returnValues[1];
+
+        Assert.assertEquals(customer1.get("name").stringValue(), "Zeth");
+        Assert.assertEquals(((BInteger) customer1.get("age")).intValue(), 50);
+        Assert.assertEquals(((BInteger) customer1.get("noOfItems")).intValue(), 30);
+        Assert.assertEquals(customer2.get("name").stringValue(), "Jennifer");
+        Assert.assertEquals(((BInteger) customer2.get("age")).intValue(), 23);
+        Assert.assertEquals(((BInteger) customer2.get("noOfItems")).intValue(), 20);
     }
 
     @Test(description = "Test query expr with order by clause with NaN and Nil values in order-key")

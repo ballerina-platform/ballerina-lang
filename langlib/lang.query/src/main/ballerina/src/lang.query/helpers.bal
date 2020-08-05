@@ -80,7 +80,7 @@ function getStreamFromPipeline(_StreamPipeline pipeline) returns stream<Type, er
     return pipeline.getStream();
 }
 
-function sortStreamFunction(stream<Type, error?> strm, @tainted Type[] arr, int lmt) returns stream<Type, error?> {
+function sortStream(stream<Type, error?> strm, @tainted Type[] arr, int lmt) returns stream<Type, error?> {
     Type[] streamValArr = [];
     record {| Type value; |}|error? v = strm.next();
     while (v is record {| Type value; |}) {

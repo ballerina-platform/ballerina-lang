@@ -36,6 +36,11 @@ type Address record {|
     string street;
 |};
 
+type PaymentInfo record {|
+    int custId;
+    string modeOfPayment;
+|};
+
 type CustomerTable table<Customer> key(id, name);
 
 type CustomerValue record {|
@@ -316,7 +321,7 @@ function testQueryExprWithOrderByClauseHavingUserDefinedOrderKeyFunction3() retu
     Customer[] customerList = [c1, c2, c3, c4];
     Person[] personList = [p1, p2];
 
-    CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList select c)
+    CustomerProfile[] customerProfileList = from var customer in customerList
          join var person in personList
          on customer.name equals person.lastName
          order by incrementCount(0), customer.noOfItems descending
@@ -403,6 +408,78 @@ function testQueryExprWithOrderByClauseReturnXML() returns xml {
                   limit 2;
 
     return  authors;
+}
+
+function testQueryExprWithOrderByClauseAndInnerQueries() returns CustomerProfile[] {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 62};
+    Customer c2 = {id: 5, name: "James", noOfItems: 5};
+    Customer c3 = {id: 9, name: "James", noOfItems: 25};
+    Customer c4 = {id: 0, name: "James", noOfItems: 25};
+    Customer c5 = {id: 2, name: "James", noOfItems: 30};
+
+    Person p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person p3 = {firstName: "Zeth", lastName: "James", age: 50};
+
+    Customer[] customerList = [c1, c2, c3, c4, c5];
+    Person[] personList = [p1, p2, p3];
+
+    CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
+                                                                    order by c.id descending select c limit 4)
+         join var person in (from var p in personList order by p.firstName descending select p limit 2)
+         on customer.name equals person.lastName
+         order by incrementCount(0), customer.noOfItems descending
+         select {
+             name: person.firstName,
+             age : person.age,
+             noOfItems: customer.noOfItems
+         }
+         limit 3;
+
+    return customerProfileList;
+}
+
+function testQueryExprWithOrderByClauseAndInnerQueries2() returns CustomerProfile[] {
+    Customer c1 = {id: 1, name: "Melina", noOfItems: 62};
+    Customer c2 = {id: 5, name: "James", noOfItems: 5};
+    Customer c3 = {id: 9, name: "James", noOfItems: 25};
+    Customer c4 = {id: 0, name: "James", noOfItems: 25};
+    Customer c5 = {id: 2, name: "James", noOfItems: 30};
+    Customer c6 = {id: 3, name: "Melina", noOfItems: 20};
+
+    Person p1 = {firstName: "Jennifer", lastName: "Melina", age: 23};
+    Person p2 = {firstName: "Frank", lastName: "James", age: 30};
+    Person p3 = {firstName: "Zeth", lastName: "James", age: 50};
+
+    PaymentInfo i1 = {custId: 1, modeOfPayment: "cash"};
+    PaymentInfo i2 = {custId: 9, modeOfPayment: "debit card"};
+    PaymentInfo i3 = {custId: 1, modeOfPayment: "creadit card"};
+    PaymentInfo i4 = {custId: 5, modeOfPayment: "cash"};
+    PaymentInfo i5 = {custId: 9, modeOfPayment: "cash"};
+    PaymentInfo i6 = {custId: 0, modeOfPayment: "cash"};
+    PaymentInfo i7 = {custId: 2, modeOfPayment: "cash"};
+    PaymentInfo i8 = {custId: 3, modeOfPayment: "cash"};
+
+    Customer[] customerList = [c1, c2, c3, c4, c5, c6];
+    Person[] personList = [p1, p2, p3];
+    PaymentInfo[] paymentList = [i1, i2, i3, i4, i5, i6, i7, i8];
+
+    CustomerProfile[] customerProfileList = from var customer in (stream from var c in customerList
+                                                                    order by c.id descending select c limit 4)
+         join var person in (from var p in personList order by p.firstName descending select p limit 2)
+         on customer.name equals person.lastName
+         join var payment in (table key() from var paym in paymentList where paym.modeOfPayment == "cash"
+                                   order by paym.custId ascending select paym limit 5)
+         on customer.id equals payment.custId
+         order by customer.noOfItems descending
+         select {
+             name: person.firstName,
+             age : person.age,
+             noOfItems: customer.noOfItems
+         }
+         limit 2;
+
+    return customerProfileList;
 }
 
 function incrementCount(int i) returns int {

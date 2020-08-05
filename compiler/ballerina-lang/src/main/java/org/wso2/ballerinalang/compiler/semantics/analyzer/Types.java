@@ -3473,7 +3473,7 @@ public class Types {
      * @param type type of the order-key expression.
      * @return boolean whether the type is basic type or not.
      */
-    public boolean checkBasicType(BType type) {
+    public boolean isBasicType(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.BYTE:
