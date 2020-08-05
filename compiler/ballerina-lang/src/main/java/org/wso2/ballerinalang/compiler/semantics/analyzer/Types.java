@@ -3267,17 +3267,18 @@ public class Types {
     }
 
     public boolean isOptionalErrorType(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) type;
-            for (BType t : unionType.getMemberTypes()) {
-                if (t.tag != TypeTags.ERROR && t.tag != TypeTags.NIL) {
-                    return false;
-                }
-            }
-            return true;
+        if (type.tag != TypeTags.UNION) {
+            return false;
         }
 
-        return type.tag == TypeTags.ERROR;
+        BUnionType unionType = (BUnionType) type;
+        for (BType t : unionType.getMemberTypes()) {
+            if (t.tag != TypeTags.ERROR && t.tag != TypeTags.NIL) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private boolean checkFillerValue(BObjectType type) {

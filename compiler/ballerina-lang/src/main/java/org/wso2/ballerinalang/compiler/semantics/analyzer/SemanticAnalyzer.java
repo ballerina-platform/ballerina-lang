@@ -2184,8 +2184,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         boolean isChecked = exprKind == NodeKind.CHECK_EXPR || exprKind == NodeKind.CHECK_PANIC_EXPR;
         BType expExprType = getExpectedTypeOfExpr(exprStmtNode.expr, isChecked);
 
+        // use of check foo(); or checkpanic bar(); as statements is allowed provided that the static type of the
+        // expression is a subtype of error?
         boolean returnsNilOrNever = expExprType == symTable.nilType || expExprType == symTable.neverType
-                || (isChecked && types.isOptionalErrorType(expExprType));
+                || (isChecked && (expExprType.tag == TypeTags.ERROR || types.isOptionalErrorType(expExprType)));
 
         if (!returnsNilOrNever && exprStmtNode.expr.getKind() != NodeKind.FAIL) {
             dlog.error(exprStmtNode.pos, DiagnosticCode.ASSIGNMENT_REQUIRED);
