@@ -726,6 +726,7 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangVarBindingPatternMatchPattern clone = new BLangVarBindingPatternMatchPattern();
         source.cloneRef = clone;
         clone.matchExpr = source.matchExpr;
+        clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.setBindingPattern(source.getBindingPattern());
     }
 
