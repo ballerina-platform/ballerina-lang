@@ -42,7 +42,7 @@ under the License.
             <package name="org.ballerinalang.langserver.extensions.document.*"/>
             <package name="org.ballerinalang.langserver.extensions.connector.*"/>
             <package name="org.ballerinalang.langserver.codeaction.*"/>
-<!--            <package name="org.ballerinalang.langserver.command.*"/>-->
+            <package name="org.ballerinalang.langserver.command.*"/>
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.completion.definitions.FunctionDefinitionCompletionTest"/>
