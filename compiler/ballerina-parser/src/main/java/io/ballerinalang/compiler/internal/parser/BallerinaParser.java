@@ -1350,7 +1350,9 @@ public class BallerinaParser extends AbstractParser {
                 // ANything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
                 List<STNode> qualifiers = new ArrayList<>();
-                qualifiers.add(qualifier);
+                if (qualifier != null) {
+                    qualifiers.add(qualifier);
+                }
                 return parseFuncDefOrFuncTypeDesc(ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, metadata,
                         false, qualifiers);
             case TYPE_KEYWORD:
