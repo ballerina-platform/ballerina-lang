@@ -118,7 +118,7 @@
                 },
                 "ballerina.dataMapper.url": {
                     "type": "string",
-                    "default": "https://datamapper.dv.choreo.dev",
+                    "default": "https://datamapper.choreo.dev",
                     "description": "URL of the host for data mapper back end"
                 }
             }
