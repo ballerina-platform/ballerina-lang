@@ -7,9 +7,7 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
-import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.connector.Executor;
 
 import java.io.IOException;
@@ -37,15 +35,22 @@ public class FunctionMock {
         return null;
     }
 
-    public static Object mockHandler(ObjectValue mockFuncObj, ArrayValue args) {
+    public static Object mockHandler(ObjectValue mockFuncObj, Object... args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
+        String originalFunction =
+                mockFuncObj.getStringValue("functionToMock");
+        String originalFunctionPackage =
+                mockFuncObj.getStringValue("functionToMockPackage");
+        originalFunctionPackage = formatFunctionPackage(originalFunctionPackage);
+        String version =
+                mockFuncObj.getStringValue("packageVersion");
         Object returnVal = null;
+
         for (String caseId : caseIds) {
             if (MockRegistry.getInstance().hasCase(caseId)) {
                 returnVal = MockRegistry.getInstance().getReturnValue(caseId);
-                if ((returnVal instanceof StringValue)
-                        && returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
-                    return callFunction(returnVal.toString(), args);
+                if (returnVal.toString().contains(MockConstants.FUNCTION_CALL_PLACEHOLDER)) {
+                    return callFunction(originalFunction, originalFunctionPackage, returnVal.toString(), version, args);
                 }
                 break;
             }
@@ -57,8 +62,8 @@ public class FunctionMock {
         return returnVal;
     }
 
-    private static Object callFunction(String returnVal,
-                                       ArrayValue args) {
+    private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
+                                       String version, Object... args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -66,24 +71,22 @@ public class FunctionMock {
         String className;
         String orgName;
         String packageName;
-        String version;
 
         // Set project info
         try {
-            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+            String[] projectInfo =
+                    Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
             orgName = projectInfo[0];
             packageName = projectInfo[1];
-            version = projectInfo[2].replace("_", ".");
             className = "tests." +
-                    getClassName(methodName, orgName, packageName, version);
+                    getClassName(methodName, orgName, packageName, version, originalFunction, originalFunctionPackage);
         } catch (IOException | ClassNotFoundException e) {
             return BallerinaErrors.createError(MockConstants.FUNCTION_CALL_ERROR, e.getMessage());
         }
 
         List<Object> argsList = new ArrayList<>();
-        IteratorValue argIterator = args.getIterator();
-        while (argIterator.hasNext()) {
-            argsList.add(argIterator.next());
+        for (Object arg : args) {
+            argsList.add(arg);
         }
 
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
@@ -91,13 +94,15 @@ public class FunctionMock {
                                         packageName, className, methodName, argsList.toArray());
     }
 
-    private static String getClassName(String mockMethodName, String orgName, String packageName, String version)
+    private static String getClassName(String mockMethodName, String orgName, String packageName, String version,
+                                       String originalMethodName, String originalPackageName)
             throws IOException, ClassNotFoundException {
         String jarName = orgName + "-" + packageName + "-" + version + "-testable.jar";
         Path jarPath = Paths.get(System.getProperty("user.dir"), "target", "caches", "jar_cache", orgName,
                                  packageName, version, jarName);
 
         Method mockMethod = null;
+        Method originalMethod = null;
 
         // Get the mock method
         try (JarFile jar = new JarFile(jarPath.toString())) {
@@ -112,9 +117,59 @@ public class FunctionMock {
                 }
             }
 
+            originalMethod = getOriginalMethod(originalMethodName, originalPackageName);
+
         }
 
+        validateFunctionSignature(mockMethod, originalMethod, mockMethodName);
         return  mockMethod.getDeclaringClass().getSimpleName();
+    }
+
+    private static Method getOriginalMethod(String methodName, String packageName) throws ClassNotFoundException {
+        Method[] methodList = FunctionMock.class.getClassLoader().loadClass(packageName).getDeclaredMethods();
+
+        for (Method method : methodList) {
+            if (method.getName().equals(methodName)) {
+                return method;
+            }
+        }
+
+        return null;
+    }
+
+    private static void validateFunctionSignature(Method mockMethod, Method originalMethod, String mockMethodName) {
+        // Validation
+        if (mockMethod != null && originalMethod != null) {
+            // Methods type and parameters
+            Class<?> mockMethodType = mockMethod.getReturnType();
+            Class<?>[] mockMethodParameters = mockMethod.getParameterTypes();
+            Class<?> originalMethodType = originalMethod.getReturnType();
+            Class<?>[] originalMethodParameters = originalMethod.getParameterTypes();
+
+            // Validate Return types
+            if (mockMethodType != originalMethodType) {
+                throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                  "Return Types do not match");
+            }
+
+            // Validate if param number is the same
+            if (mockMethodParameters.length != originalMethodParameters.length) {
+                throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                  "Parameter types do not match");
+            }
+
+            // Validate each param
+            for (int i = 0; i < mockMethodParameters.length; i++) {
+                if (mockMethodParameters [i] != originalMethodParameters[i]) {
+                    throw BallerinaErrors.createError(MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR,
+                                                      "Parameter types do not match");
+                }
+            }
+
+        } else {
+            throw BallerinaErrors.createError(MockConstants.FUNCTION_NOT_FOUND_ERROR,
+                                              "Mock function \'" + mockMethodName + "\' cannot be found");
+        }
     }
 
     private static Method getClassDeclaredMethod(String file, String methodName) throws ClassNotFoundException {
@@ -130,7 +185,7 @@ public class FunctionMock {
         return null;
     }
 
-    private static List<String> getCaseIds(ObjectValue mockObj, ArrayValue args) {
+    private static List<String> getCaseIds(ObjectValue mockObj, Object... args) {
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
 
@@ -139,9 +194,7 @@ public class FunctionMock {
         caseIdList.add(caseId.toString());
 
         // add case for function with ANY specified for objects and records
-        IteratorValue it = args.getIterator();
-        while (it.hasNext()) {
-            Object arg = it.next();
+        for (Object arg : args) {
             caseId.append("-");
             if (arg instanceof AbstractObjectValue || arg instanceof BRecordType) {
                 caseId.append(MockRegistry.ANY);
@@ -149,6 +202,7 @@ public class FunctionMock {
                 caseId.append(arg);
             }
         }
+
         // skip if entry exists in list
         if (!caseIdList.contains(caseId.toString())) {
             caseIdList.add(caseId.toString());
@@ -157,6 +211,15 @@ public class FunctionMock {
         Collections.reverse(caseIdList);
 
         return caseIdList;
+    }
+
+    private static String formatFunctionPackage(String fnPackage) {
+
+        fnPackage = fnPackage.replace('.', '_');
+        fnPackage = fnPackage.replace('/', '.');
+        fnPackage = fnPackage.replace(':', '.');
+
+        return fnPackage;
     }
 
 }
