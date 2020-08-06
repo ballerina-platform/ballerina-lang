@@ -34,7 +34,7 @@ public class MavenResolverIntegrationTest {
     String commandDistVersion = "0.8.5";
     MavenResolver resolver = new MavenResolver(targetRepo);
 
-    @Test
+    @Test(description = "Test resolving a maven dependency without its transitive dependencies")
     public void testNonTransitiveDependency() {
         try {
             Dependency dependency = resolver.resolve("org.json", "json", "20190722", false);
@@ -45,7 +45,7 @@ public class MavenResolverIntegrationTest {
         }
     }
 
-    @Test
+    @Test(description = "Test resolving a maven dependency with its transitive dependencies")
     public void testTransitiveDependency() {
         try {
             Dependency dependency = resolver.resolve("org.apache.maven", "maven-artifact", mavenArtifactVersion,
@@ -57,7 +57,7 @@ public class MavenResolverIntegrationTest {
         }
     }
 
-    @Test
+    @Test(description = "Test adding a custom remote maven repository")
     public void testAddRemoteRepository() {
         try {
             resolver.addRepository("wso2-releases", "http://maven.wso2.org/nexus/content/repositories/releases/");
@@ -70,7 +70,7 @@ public class MavenResolverIntegrationTest {
         }
     }
 
-    @Test
+    @Test(description = "Test adding a custom remote maven repository with credentials")
     public void testAddRemoteRepositoryWithCredentials() {
         String username = System.getenv("MAVEN_RESOLVER_USERNAME");
         String password = System.getenv("MAVEN_RESOLVER_PASSWORD");

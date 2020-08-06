@@ -35,10 +35,10 @@ import static org.mockito.Mockito.when;
  *  @since 2.0.0
  */
 public class MavenResolverUnitTest {
-    MavenResolver resolver = mock(MavenResolver.class);
+    private MavenResolver resolver = mock(MavenResolver.class);
 
-    @Test
-    public void testNonTransitiveDependency() {
+    @Test(description = "Test resolving a maven dependency with its transitive dependencies")
+    public void testTransitiveDependency() {
         String groupId = "org.apache.maven";
         String artifactId = "maven-artifact";
         String version = "3.6.3";
@@ -60,8 +60,8 @@ public class MavenResolverUnitTest {
         }
     }
 
-    @Test
-    public void testTransitiveDependency() {
+    @Test(description = "Test resolving a maven dependency without its transitive dependencies")
+    public void testNonTransitiveDependency() {
         String groupId = "org.json";
         String artifactId = "json";
         String version = "20190722";
@@ -79,7 +79,7 @@ public class MavenResolverUnitTest {
         }
     }
 
-    @Test
+    @Test(description = "Test adding a custom remote maven repository")
     public void testAddRemoteRepository() {
         String id = "wso2-release";
         String url = "http://maven.wso2.org/nexus/content/repositories/releases/";
@@ -92,7 +92,7 @@ public class MavenResolverUnitTest {
         resolver.addRepository(id, url);
     }
 
-    @Test
+    @Test(description = "Test adding a custom remote maven repository with credentials")
     public void testAddRemoteRepositoryWithCredentials() {
         String id = "ballerina-github";
         String url = "https://maven.pkg.github.com/ballerina-platform/ballerina-update-tool";

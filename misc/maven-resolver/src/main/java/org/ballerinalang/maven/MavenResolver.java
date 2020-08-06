@@ -128,7 +128,7 @@ public class MavenResolver {
      * @param groupId                       group ID of the dependency
      * @param artifactId                    artifact ID of the dependency
      * @param version                       version of the dependency
-     * @param resolveTransitiveDependencies should resolve resolve transitive dependencies
+     * @param resolveTransitiveDependencies should resolve transitive dependencies
      * @return List of resolved dependencies
      * @throws MavenResolverException when specified dependency cannot be resolved
      */
