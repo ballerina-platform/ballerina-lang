@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.xml;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.values.FPValue;
 import org.ballerinalang.jvm.values.XMLValue;
@@ -53,9 +54,11 @@ public class ForEach {
             return;
         }
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration of the reduce
+        Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, x.size(),
-                                                       () -> new Object[]{Scheduler.getStrand(), x.getItem(index.incrementAndGet()),
+                                                       () -> new Object[]{parentStrand, x.getItem(index.incrementAndGet()),
                                                                true},
                                                        result -> {
                                                        }, () -> null);

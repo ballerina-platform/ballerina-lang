@@ -59,9 +59,11 @@ public class Map {
         TableValueImpl newTable = new TableValueImpl(newTableType);
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration of the reduce
+        Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{Scheduler.getStrand(),
+                        () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> newTable
                                 .put(tbl.getKeys()[index.get()], result),

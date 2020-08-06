@@ -49,9 +49,11 @@ public class Foreach {
     public static void forEach(TableValueImpl tbl, FPValue<Object, Object> func) {
         int size = tbl.size();
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration of the reduce
+        Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                        () -> new Object[]{Scheduler.getStrand(),
+                        () -> new Object[]{parentStrand,
                                 tbl.get(tbl.getKeys()[index.incrementAndGet()]), true},
                         result -> {
                         }, () -> null);

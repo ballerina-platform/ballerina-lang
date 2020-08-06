@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.array;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.values.ArrayValue;
@@ -53,9 +54,11 @@ public class Filter {
         int size = arr.size();
         AtomicInteger newArraySize = new AtomicInteger(-1);
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration of the reduce
+        Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{Scheduler.getStrand(), arr.get(index.incrementAndGet()),
+                                                       () -> new Object[]{parentStrand, arr.get(index.incrementAndGet()),
                                                                true},
                                                        result -> {
                                                            if ((Boolean) result) {

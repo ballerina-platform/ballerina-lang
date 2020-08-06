@@ -20,6 +20,7 @@ package org.ballerinalang.langlib.map;
 
 import org.ballerinalang.jvm.BRuntime;
 import org.ballerinalang.jvm.scheduling.Scheduler;
+import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.scheduling.StrandMetadata;
 import org.ballerinalang.jvm.types.BFunctionType;
 import org.ballerinalang.jvm.types.BMapType;
@@ -54,9 +55,11 @@ public class Map {
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
+        // accessing the parent strand here to use it with each iteration of the reduce
+        Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
-                                                       () -> new Object[]{Scheduler.getStrand(),
+                                                       () -> new Object[]{parentStrand,
                                                                m.get(m.getKeys()[index.incrementAndGet()]), true},
                                                        result -> newMap
                                                                .put(m.getKeys()[index.get()], result),
