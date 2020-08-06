@@ -49,7 +49,7 @@ public class ForEach {
     public static void forEach(MapValue<?, ?> m, FPValue<Object, Object> func) {
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration of the reduce
+        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,

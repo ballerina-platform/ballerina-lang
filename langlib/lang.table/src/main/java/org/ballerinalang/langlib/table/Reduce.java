@@ -53,7 +53,7 @@ public class Reduce {
         int size = tbl.values().size();
         AtomicReference<Object> accum = new AtomicReference<>(initial);
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration of the reduce
+        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,

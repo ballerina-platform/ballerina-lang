@@ -55,7 +55,7 @@ public class Map {
         MapValue<Object, Object> newMap = new MapValueImpl<>(newMapType);
         int size = m.size();
         AtomicInteger index = new AtomicInteger(-1);
-        // accessing the parent strand here to use it with each iteration of the reduce
+        // accessing the parent strand here to use it with each iteration
         Strand parentStrand = Scheduler.getStrand();
         BRuntime.getCurrentRuntime()
                 .invokeFunctionPointerAsyncIteratively(func, null, METADATA, size,
