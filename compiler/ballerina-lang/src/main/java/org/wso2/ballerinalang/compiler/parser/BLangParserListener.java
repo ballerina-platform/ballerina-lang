@@ -619,11 +619,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean transactionalFunc = ctx.TRANSACTIONAL() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, publicFunc,
-                                                     isPrivate, remoteFunc, resourceFunc, false, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+                isPrivate, remoteFunc, resourceFunc, transactionalFunc, false,
+                markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -642,11 +643,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean isPrivate = ctx.PRIVATE() != null;
         boolean remoteFunc = ctx.REMOTE() != null;
         boolean resourceFunc = ctx.RESOURCE() != null;
+        boolean transactionalFunc = ctx.TRANSACTIONAL() != null;
         boolean markdownDocExists = ctx.documentationString() != null;
 
         this.pkgBuilder.endObjectAttachedFunctionDef(getCurrentPos(ctx), getWS(ctx), funcName, funcNamePos, isPublic,
-                                                     isPrivate, remoteFunc, resourceFunc, true, markdownDocExists,
-                                                     ctx.annotationAttachment().size());
+                isPrivate, remoteFunc, resourceFunc, transactionalFunc,
+                true, markdownDocExists, ctx.annotationAttachment().size());
     }
 
     /**
@@ -2805,6 +2807,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitFailExpression(BallerinaParser.FailExpressionContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createFailExpr(getCurrentPos(ctx), getWS(ctx));
+    }
+
+    @Override
     public void exitCheckPanickedExpression(BallerinaParser.CheckPanickedExpressionContext ctx) {
         if (isInErrorState) {
             return;
@@ -2920,6 +2931,31 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitOrderKey(BallerinaParser.OrderKeyContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        boolean isAscending = true;
+        if (ctx.orderDirection() != null) {
+            if (ctx.orderDirection().DESCENDING() != null) {
+                isAscending = false;
+            }
+        }
+
+        this.pkgBuilder.createOrderByKey(getCurrentPos(ctx), getWS(ctx), isAscending);
+    }
+
+    @Override
+    public void exitOrderByClause(BallerinaParser.OrderByClauseContext ctx) {
+        if (isInErrorState) {
+            return;
+        }
+
+        this.pkgBuilder.createOrderByClause(getCurrentPos(ctx), getWS(ctx));
     }
 
     @Override

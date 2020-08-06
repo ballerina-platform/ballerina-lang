@@ -92,6 +92,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -105,6 +106,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -188,6 +190,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.Collector;
@@ -238,8 +241,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private ResolvedTypeBuilder typeBuilder;
     private boolean nonErrorLoggingCheck = false;
     private int letCount = 0;
-    private SymbolEnv narrowedQueryEnv;
-    private BLangSelectClause selectClause;
+    private Stack<SymbolEnv> queryEnvs, prevEnvs;
+    private Stack<BLangSelectClause> selectClauses;
     private BLangMissingNodesHelper missingNodesHelper;
 
     /**
@@ -318,6 +321,9 @@ public class TypeChecker extends BLangNodeVisitor {
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
         this.typeBuilder = new ResolvedTypeBuilder();
+        this.selectClauses = new Stack<>();
+        this.queryEnvs = new Stack<>();
+        this.prevEnvs = new Stack<>();
     }
 
     public BType checkExpr(BLangExpression expr, SymbolEnv env) {
@@ -1280,7 +1286,16 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
+
                 BType listCompatibleMemType = getListConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1306,8 +1321,11 @@ public class TypeChecker extends BLangNodeVisitor {
                     exprToLog = nodeCloner.clone(listConstructor);
                 }
 
-                dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType,
-                           getInferredTupleType(exprToLog, symTable.noType));
+                BType inferredTupleType = getInferredTupleType(exprToLog, symTable.noType);
+
+                if (!erroredExpType && inferredTupleType != symTable.semanticError) {
+                    dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, expType, inferredTupleType);
+                }
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
                 dlog.error(listConstructor.pos, DiagnosticCode.AMBIGUOUS_TYPES,
@@ -1362,8 +1380,15 @@ public class TypeChecker extends BLangNodeVisitor {
             listConstructor.cloneAttempt++;
             exprToLog = nodeCloner.clone(listConstructor);
         }
-        dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
-                   getInferredTupleType(exprToLog, symTable.noType));
+
+        if (bType == symTable.semanticError) {
+            // Ignore the return value, we only need to visit the expressions.
+            getInferredTupleType(exprToLog, symTable.semanticError);
+        } else {
+            dlog.error(listConstructor.pos, DiagnosticCode.INCOMPATIBLE_TYPES, bType,
+                       getInferredTupleType(exprToLog, symTable.noType));
+        }
+
         return symTable.semanticError;
     }
 
@@ -1696,7 +1721,15 @@ public class TypeChecker extends BLangNodeVisitor {
             this.dlog.setNonConsoleDLog();
 
             List<BType> compatibleTypes = new ArrayList<>();
+            boolean erroredExpType = false;
             for (BType memberType : ((BUnionType) bType).getMemberTypes()) {
+                if (memberType == symTable.semanticError) {
+                    if (!erroredExpType) {
+                        erroredExpType = true;
+                    }
+                    continue;
+                }
+
                 BType listCompatibleMemType = getMappingConstructorCompatibleNonUnionType(memberType);
 
                 if (listCompatibleMemType == symTable.semanticError) {
@@ -1717,7 +1750,9 @@ public class TypeChecker extends BLangNodeVisitor {
             this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
 
             if (compatibleTypes.isEmpty()) {
-                reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                if (!erroredExpType) {
+                    reportIncompatibleMappingConstructorError(mappingConstructor, bType);
+                }
                 validateSpecifiedFields(mappingConstructor, symTable.semanticError);
                 return symTable.semanticError;
             } else if (compatibleTypes.size() != 1) {
@@ -1813,6 +1848,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void reportIncompatibleMappingConstructorError(BLangRecordLiteral mappingConstructorExpr, BType expType) {
+        if (expType == symTable.semanticError) {
+            return;
+        }
+
         if (expType.tag != TypeTags.UNION) {
             dlog.error(mappingConstructorExpr.pos,
                        DiagnosticCode.MAPPING_CONSTRUCTOR_COMPATIBLE_TYPE_NOT_FOUND, expType);
@@ -3433,17 +3472,27 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkDecimalCompatibilityForBinaryArithmeticOverLiteralValues(binaryExpr);
 
-        SymbolEnv rhsExprEnv;
-        BType lhsType = checkExpr(binaryExpr.lhsExpr, env);
-        if (binaryExpr.opKind == OperatorKind.AND) {
-            rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
-        } else if (binaryExpr.opKind == OperatorKind.OR) {
-            rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+        SymbolEnv lhsExprEnv, rhsExprEnv;
+        BType lhsType, rhsType;
+        if (binaryExpr.opKind == OperatorKind.EQUALS) {
+            BLangNode joinNode = getLastInputNodeFromEnv(env);
+            // lhsExprEnv should only contain scope entries before join condition.
+            lhsExprEnv = getEnvBeforeInputNode(env, joinNode);
+            lhsType = checkExpr(binaryExpr.lhsExpr, lhsExprEnv);
+            // rhsExprEnv should only contain scope entries after join condition.
+            rhsExprEnv = getEnvAfterJoinNode(env, joinNode);
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         } else {
-            rhsExprEnv = env;
+            lhsType = checkExpr(binaryExpr.lhsExpr, env);
+            if (binaryExpr.opKind == OperatorKind.AND) {
+                rhsExprEnv = typeNarrower.evaluateTruth(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env, true);
+            } else if (binaryExpr.opKind == OperatorKind.OR) {
+                rhsExprEnv = typeNarrower.evaluateFalsity(binaryExpr.lhsExpr, binaryExpr.rhsExpr, env);
+            } else {
+                rhsExprEnv = env;
+            }
+            rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
         }
-
-        BType rhsType = checkExpr(binaryExpr.rhsExpr, rhsExprEnv);
 
         // Set error type as the actual type.
         BType actualType = symTable.semanticError;
@@ -3487,6 +3536,35 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
+        while (env != null && env.node != node) {
+            env = env.enclEnv;
+        }
+        return env != null && env.enclEnv != null
+                ? env.enclEnv.createClone()
+                : new SymbolEnv(node, null);
+    }
+
+    private SymbolEnv getEnvAfterJoinNode(SymbolEnv env, BLangNode node) {
+        SymbolEnv clone = env.createClone();
+        while (clone != null && clone.node != node) {
+            clone = clone.enclEnv;
+        }
+        if (clone != null) {
+            clone.enclEnv = getEnvBeforeInputNode(clone.enclEnv, getLastInputNodeFromEnv(clone.enclEnv));
+        } else {
+            clone = new SymbolEnv(node, null);
+        }
+        return clone;
+    }
+
+    private BLangNode getLastInputNodeFromEnv(SymbolEnv env) {
+        while (env != null && (env.node.getKind() != NodeKind.FROM && env.node.getKind() != NodeKind.JOIN)) {
+            env = env.enclEnv;
+        }
+        return env != null ? env.node : null;
     }
 
     public void visit(BLangTransactionalExpr transactionalExpr) {
@@ -4119,24 +4197,150 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFailExpr failExpr) {
+        BLangExpression errorExpression = failExpr.expr;
+        BType errorExpressionType = checkExpr(errorExpression, env);
+
+        if (errorExpressionType == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        if (!types.isSubTypeOfBaseType(errorExpressionType, symTable.errorType.tag)) {
+            dlog.error(errorExpression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED, errorExpression.toString());
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BType exprExpType;
+        if (expType == symTable.noType) {
+            exprExpType = symTable.noType;
+        } else if (types.isAssignable(errorExpressionType, expType)) {
+            exprExpType = errorExpressionType;
+        } else {
+            dlog.error(failExpr.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
+                    symTable.errorType, expType);
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        resultType = exprExpType;
+    }
+
+    @Override
     public void visit(BLangCheckPanickedExpr checkedExpr) {
         visitCheckAndCheckPanicExpr(checkedExpr);
     }
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        selectClause = queryExpr.getSelectClause();
-        narrowedQueryEnv = env;
+        if (prevEnvs.empty()) {
+            prevEnvs.push(env.createClone());
+        } else {
+            prevEnvs.push(prevEnvs.peek());
+        }
+        queryEnvs.push(prevEnvs.peek().createClone());
+        selectClauses.push(queryExpr.getSelectClause());
         List<BLangNode> clauses = queryExpr.getQueryClauses();
         BLangExpression collectionNode = (BLangExpression) ((BLangFromClause) clauses.get(0)).getCollection();
         clauses.forEach(clause -> clause.accept(this));
-        BType actualType = findAssignableType(narrowedQueryEnv, selectClause.expression, collectionNode.type,
-                expType, queryExpr);
-        if (actualType != symTable.semanticError) {
-            resultType = types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        BType actualType = findAssignableType(queryEnvs.peek(),
+                selectClauses.peek().expression, collectionNode.type, expType, queryExpr);
+        resultType = (actualType == symTable.semanticError) ? actualType :
+                types.checkType(queryExpr.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        selectClauses.pop();
+        queryEnvs.pop();
+        prevEnvs.pop();
+    }
+
+    @Override
+    public void visit(BLangQueryAction queryAction) {
+        if (prevEnvs.empty()) {
+            prevEnvs.push(env.createClone());
         } else {
-            resultType = actualType;
+            prevEnvs.push(prevEnvs.peek());
         }
+        queryEnvs.push(prevEnvs.peek().createClone());
+        selectClauses.push(null);
+        BLangDoClause doClause = queryAction.getDoClause();
+        List<BLangNode> clauses = queryAction.getQueryClauses();
+        clauses.forEach(clause -> clause.accept(this));
+        // Analyze foreach node's statements.
+        semanticAnalyzer.analyzeStmt(doClause.body, SymbolEnv.createBlockEnv(doClause.body, queryEnvs.peek()));
+        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
+        resultType = types.checkType(doClause.pos, actualType, expType, DiagnosticCode.INCOMPATIBLE_TYPES);
+        selectClauses.pop();
+        queryEnvs.pop();
+        prevEnvs.pop();
+    }
+
+    @Override
+    public void visit(BLangFromClause fromClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(fromClause, queryEnvs.pop()));
+        checkExpr(fromClause.collection, queryEnvs.peek());
+        // Set the type of the foreach node's type node.
+        types.setInputClauseTypedBindingPatternType(fromClause);
+        handleInputClauseVariables(fromClause, queryEnvs.peek());
+    }
+
+    @Override
+    public void visit(BLangJoinClause joinClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(joinClause, queryEnvs.pop()));
+        checkExpr(joinClause.collection, queryEnvs.peek());
+        // Set the type of the foreach node's type node.
+        types.setInputClauseTypedBindingPatternType(joinClause);
+        handleInputClauseVariables(joinClause, queryEnvs.peek());
+        if (joinClause.onClause != null) {
+            ((BLangOnClause) joinClause.onClause).accept(this);
+        }
+    }
+
+    @Override
+    public void visit(BLangLetClause letClause) {
+        queryEnvs.push(SymbolEnv.createTypeNarrowedEnv(letClause, queryEnvs.pop()));
+        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
+            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, queryEnvs.peek());
+        }
+    }
+
+    @Override
+    public void visit(BLangWhereClause whereClause) {
+        handleFilterClauses(whereClause.expression);
+    }
+
+    @Override
+    public void visit(BLangSelectClause selectClause) {
+    }
+
+    @Override
+    public void visit(BLangDoClause doClause) {
+    }
+
+    @Override
+    public void visit(BLangOnConflictClause onConflictClause) {
+        BType exprType = checkExpr(onConflictClause.expression, queryEnvs.peek(), symTable.errorType);
+        if (!types.isAssignable(exprType, symTable.errorType)) {
+            dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
+                    symTable.errorType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangLimitClause limitClause) {
+        BType exprType = checkExpr(limitClause.expression, queryEnvs.peek());
+        if (!types.isAssignable(exprType, symTable.intType)) {
+            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
+                    symTable.intType, exprType);
+        }
+    }
+
+    @Override
+    public void visit(BLangOnClause onClause) {
+        handleFilterClauses(onClause.expression);
+    }
+
+    @Override
+    public void visit(BLangOrderByClause orderByClause) {
     }
 
     private BType findAssignableType(SymbolEnv env, BLangExpression selectExp, BType collectionType, BType targetType,
@@ -4230,93 +4434,14 @@ public class TypeChecker extends BLangNodeVisitor {
         return actualType;
     }
 
-    @Override
-    public void visit(BLangQueryAction queryAction) {
-        narrowedQueryEnv = env;
-        BLangDoClause doClause = queryAction.getDoClause();
-        List<BLangNode> clauses = queryAction.getQueryClauses();
-        clauses.forEach(clause -> clause.accept(this));
-        SymbolEnv blockEnv = SymbolEnv.createBlockEnv(doClause.body, narrowedQueryEnv);
-        // Analyze foreach node's statements.
-        semanticAnalyzer.analyzeStmt(doClause.body, blockEnv);
-        BType actualType = BUnionType.create(null, symTable.errorType, symTable.nilType);
-        resultType = types.checkType(doClause.pos, actualType, expType,
-                DiagnosticCode.INCOMPATIBLE_TYPES);
-    }
-
-    @Override
-    public void visit(BLangFromClause fromClause) {
-        checkExpr(fromClause.collection, narrowedQueryEnv);
-        // Set the type of the foreach node's type node.
-        types.setInputClauseTypedBindingPatternType(fromClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(fromClause, narrowedQueryEnv);
-        handleInputClauseVariables(fromClause, narrowedQueryEnv);
-    }
-
-    @Override
-    public void visit(BLangJoinClause joinClause) {
-        checkExpr(joinClause.collection, narrowedQueryEnv);
-        // Set the type of the foreach node's type node.
-        types.setInputClauseTypedBindingPatternType(joinClause);
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(joinClause, narrowedQueryEnv);
-        handleInputClauseVariables(joinClause, narrowedQueryEnv);
-        if (joinClause.onClause != null) {
-            ((BLangOnClause) joinClause.onClause).accept(this);
-        }
-    }
-
-    @Override
-    public void visit(BLangLetClause letClause) {
-        narrowedQueryEnv = SymbolEnv.createTypeNarrowedEnv(letClause, narrowedQueryEnv);
-        for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            semanticAnalyzer.analyzeDef((BLangNode) letVariable.definitionNode, narrowedQueryEnv);
-        }
-    }
-
-    @Override
-    public void visit(BLangWhereClause whereClause) {
-        handleFilterClauses(whereClause.expression);
-    }
-
-    @Override
-    public void visit(BLangSelectClause selectClause) {
-    }
-
-    @Override
-    public void visit(BLangDoClause doClause) {
-    }
-
-    @Override
-    public void visit(BLangOnConflictClause onConflictClause) {
-        BType exprType = checkExpr(onConflictClause.expression, narrowedQueryEnv, symTable.errorType);
-        if (!types.isAssignable(exprType, symTable.errorType)) {
-            dlog.error(onConflictClause.expression.pos, DiagnosticCode.ERROR_TYPE_EXPECTED,
-                    symTable.errorType, exprType);
-        }
-    }
-
-    @Override
-    public void visit(BLangLimitClause limitClause) {
-        BType exprType = checkExpr(limitClause.expression, narrowedQueryEnv);
-        if (!types.isAssignable(exprType, symTable.intType)) {
-            dlog.error(limitClause.expression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
-                    symTable.intType, exprType);
-        }
-    }
-
-    @Override
-    public void visit(BLangOnClause onClause) {
-        handleFilterClauses(onClause.expression);
-    }
-
     private void handleFilterClauses (BLangExpression filterExpression) {
-        checkExpr(filterExpression, narrowedQueryEnv, symTable.booleanType);
+        checkExpr(filterExpression, queryEnvs.peek(), symTable.booleanType);
         BType actualType = filterExpression.type;
         if (TypeTags.TUPLE == actualType.tag) {
             dlog.error(filterExpression.pos, DiagnosticCode.INCOMPATIBLE_TYPES,
                     symTable.booleanType, actualType);
         }
-        narrowedQueryEnv = typeNarrower.evaluateTruth(filterExpression, selectClause, narrowedQueryEnv);
+        queryEnvs.push(typeNarrower.evaluateTruth(filterExpression, selectClauses.peek(), queryEnvs.pop()));
     }
 
     private void handleInputClauseVariables(BLangInputClause bLangInputClause, SymbolEnv blockEnv) {
@@ -4591,7 +4716,9 @@ public class TypeChecker extends BLangNodeVisitor {
             checkErrorConstructorInvocation(iExpr);
             return;
         } else if (funcSymbol == symTable.notFoundSymbol || isNotFunction(funcSymbol)) {
-            dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            if (!missingNodesHelper.isMissingNode(funcName)) {
+                dlog.error(iExpr.pos, DiagnosticCode.UNDEFINED_FUNCTION, funcName);
+            }
             iExpr.argExprs.forEach(arg -> checkExpr(arg, env));
             resultType = symTable.semanticError;
             return;

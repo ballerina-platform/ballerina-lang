@@ -639,6 +639,20 @@
             ]
         },
         {
+            "name": "FailExpressionNode",
+            "base": "ExpressionNode",
+            "attributes": [
+                {
+                    "name": "failKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                }
+            ]
+        },
+        {
             "name": "FieldAccessExpressionNode",
             "base": "ExpressionNode",
             "kind": "FIELD_ACCESS",
@@ -664,7 +678,7 @@
             "attributes": [
                 {
                     "name": "functionName",
-                    "type": "Node"
+                    "type": "NameReferenceNode"
                 },
                 {
                     "name": "openParenToken",
@@ -1165,7 +1179,7 @@
             "kind": "RECORD_TYPE_DESC",
             "attributes": [
                 {
-                    "name": "objectKeyword",
+                    "name": "recordKeyword",
                     "type": "Token"
                 },
                 {
@@ -1176,6 +1190,11 @@
                     "name": "fields",
                     "type": "Node",
                     "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "recordRestDescriptor",
+                    "type": "RecordRestDescriptorNode",
+                    "isOptional": true
                 },
                 {
                     "name": "bodyEndDelimiter",
@@ -4072,11 +4091,47 @@
                 },
                 {
                     "name": "backtickContent",
-                    "type": "Token"
+                    "type": "Node"
                 },
                 {
                     "name": "endBacktick",
                     "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "OrderByClauseNode",
+            "base": "ClauseNode",
+            "kind": "ORDER_BY_CLAUSE",
+            "attributes": [
+                {
+                    "name": "orderKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "byKeyword",
+                    "type": "Token"
+                },
+                {
+                    "name": "orderKey",
+                    "type": "OrderKeyNode",
+                    "occurrences": "MULTIPLE_SEPARATED"
+                }
+            ]
+        },
+        {
+            "name": "OrderKeyNode",
+            "base": "Node",
+            "kind": "ORDER_KEY",
+            "attributes": [
+                {
+                    "name": "expression",
+                    "type": "ExpressionNode"
+                },
+                {
+                    "name": "orderDirection",
+                    "type": "Token",
+                    "isOptional": true
                 }
             ]
         }

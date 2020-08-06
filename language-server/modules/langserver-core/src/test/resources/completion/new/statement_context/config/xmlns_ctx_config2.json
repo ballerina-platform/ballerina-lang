@@ -1,0 +1,17 @@
+{
+  "position": {
+    "line": 2,
+    "character": 35
+  },
+  "source": "statement_context/source/xmlns_ctx_source2.bal",
+  "items": [
+    {
+      "label": "as",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "120",
+      "insertText": "as ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

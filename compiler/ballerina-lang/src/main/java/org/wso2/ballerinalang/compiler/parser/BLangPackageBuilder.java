@@ -94,6 +94,8 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -107,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -258,6 +261,8 @@ public class BLangPackageBuilder {
     private Stack<List<BLangVariable>> varListStack = new Stack<>();
 
     private Stack<List<BLangLetVariable>> letVarListStack = new Stack<>();
+
+    private Stack<BLangOrderKey> orderKeyListStack = new Stack<>();
 
     private Stack<List<BLangRecordVariableKeyValue>> recordVarListStack = new Stack<>();
 
@@ -1961,6 +1966,14 @@ public class BLangPackageBuilder {
         addExpressionNode(checkPanicExpr);
     }
 
+    void createFailExpr(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangFailExpr failExpr = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+        failExpr.pos = pos;
+        failExpr.addWS(ws);
+        failExpr.expr = (BLangExpression) exprNodeStack.pop();
+        addExpressionNode(failExpr);
+    }
+
     void createTrapExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTrapExpr trapExpr = (BLangTrapExpr) TreeBuilder.createTrapExpressionNode();
         trapExpr.pos = pos;
@@ -2080,6 +2093,25 @@ public class BLangPackageBuilder {
         onClause.expression = (BLangExpression) this.exprNodeStack.pop();
         BLangJoinClause joinClause = (BLangJoinClause) inputClauseStack.peek();
         joinClause.onClause = onClause;
+    }
+
+    void createOrderByKey(DiagnosticPos pos, Set<Whitespace> ws, boolean isAscending) {
+        BLangOrderKey orderKey = (BLangOrderKey) TreeBuilder.createOrderKeyNode();
+        orderKey.pos = pos;
+        orderKey.setOrderKey(this.exprNodeStack.pop());
+        orderKey.setOrderDirection(isAscending);
+        orderKeyListStack.push(orderKey);
+    }
+
+    void createOrderByClause(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangOrderByClause orderByClause = (BLangOrderByClause) TreeBuilder.createOrderByClauseNode();
+        orderByClause.addWS(ws);
+        orderByClause.pos = pos;
+        Collections.reverse(orderKeyListStack);
+        while (orderKeyListStack.size() > 0) {
+            orderByClause.addOrderKey(orderKeyListStack.pop());
+        }
+        queryClauseStack.push(orderByClause);
     }
 
     void createSelectClause(DiagnosticPos pos, Set<Whitespace> ws) {
@@ -2712,7 +2744,8 @@ public class BLangPackageBuilder {
 
     void endObjectAttachedFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, String funcName, DiagnosticPos funcNamePos,
                                       boolean publicFunc, boolean privateFunc, boolean remoteFunc, boolean resourceFunc,
-                                      boolean isDeclaration, boolean markdownDocPresent, int annCount) {
+                                      boolean transactionalFunc, boolean isDeclaration, boolean markdownDocPresent,
+                                      int annCount) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         function.name = this.createIdentifier(funcNamePos, funcName);
         function.pos = pos;
@@ -2731,6 +2764,9 @@ public class BLangPackageBuilder {
         }
         if (resourceFunc) {
             function.flagSet.add(Flag.RESOURCE);
+        }
+        if (transactionalFunc) {
+            function.flagSet.add(Flag.TRANSACTIONAL);
         }
 
         if (isDeclaration) {
@@ -3226,8 +3262,9 @@ public class BLangPackageBuilder {
         retryNode.pos = pos;
         retryNode.addWS(ws);
         retryNode.setRetrySpec((BLangRetrySpec) this.retrySpecNodeStack.pop());
-        BLangBlockFunctionBody blockFunctionBody = (BLangBlockFunctionBody) this.blockNodeStack.peek();
-        retryNode.setTransaction((BLangTransaction) blockFunctionBody.stmts.remove(blockFunctionBody.stmts.size() - 1));
+        BlockNode blockNode = this.blockNodeStack.peek();
+        retryNode.setTransaction((BLangTransaction) blockNode.getStatements()
+                .remove(blockNode.getStatements().size() - 1));
         addStmtToCurrentBlock(retryNode);
     }
 

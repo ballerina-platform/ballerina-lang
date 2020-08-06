@@ -147,11 +147,17 @@
                               "kind": "XML_PI_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
+                              "kind": "XML_SIMPLE_NAME",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
                               ]
                             },
                             {
@@ -266,11 +272,17 @@
                               "kind": "XML_PI_START_TOKEN"
                             },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
+                              "kind": "XML_SIMPLE_NAME",
                               "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
                               ]
                             },
                             {
@@ -478,11 +490,17 @@
                                   ]
                                 },
                                 {
-                                  "kind": "IDENTIFIER_TOKEN",
-                                  "isMissing": true,
+                                  "kind": "XML_SIMPLE_NAME",
                                   "hasDiagnostics": true,
-                                  "diagnostics": [
-                                    "ERROR_MISSING_IDENTIFIER"
+                                  "children": [
+                                    {
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "isMissing": true,
+                                      "hasDiagnostics": true,
+                                      "diagnostics": [
+                                        "ERROR_MISSING_IDENTIFIER"
+                                      ]
+                                    }
                                   ]
                                 },
                                 {

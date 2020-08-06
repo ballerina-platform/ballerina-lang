@@ -42,22 +42,22 @@ public class ReturnStmtNegativeTest {
         BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string]', found 'string'", 2, 12);
     }
 
-    @Test(description = "Test not enough arguments to return", groups = { "brokenOnNewParser" })
+    @Test(description = "Test not enough arguments to return", groups = { "disableOnOldParser" })
     public void testNotEnoughArgsToReturn3() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/not-enough-args-to-return-3.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "mismatched input ','. expecting {'is', 'equals', ';', '.', '[', '?', '?" +
-                ".', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', " +
-                "'@', '...', '|', '?:', '->>', '..<', '.@'}", 2, 20);
+        Assert.assertEquals(result.getErrorCount(), 3);
+        BAssertUtil.validateError(result, 0, "incompatible types: expected '[string,string,int]', found 'string'", 2,
+                12);
+        BAssertUtil.validateError(result, 1, "invalid token '\"sameera\"'", 2, 31);
+        BAssertUtil.validateError(result, 2, "invalid token ','", 2, 31);
     }
 
-    @Test(description = "Test too many arguments to return", groups = { "brokenOnNewParser" })
+    @Test(description = "Test too many arguments to return", groups = { "disableOnOldParser" })
     public void testTooManyArgsToReturn1() {
         CompileResult result = BCompileUtil.compile("test-src/statements/returnstmt/too-many-args-to-return-1.bal");
-        Assert.assertEquals(result.getErrorCount(), 1);
-        BAssertUtil.validateError(result, 0, "mismatched input ','. expecting {'is', 'equals', ';', '.', '[', '?', '?" +
-                ".', '+', '-', '*', '/', '%', '==', '!=', '>', '<', '>=', '<=', '&&', '||', '===', '!==', '&', '^', " +
-                "'@', '...', '|', '?:', '->>', '..<', '.@'}", 2, 20);
+        Assert.assertEquals(result.getErrorCount(), 2);
+        BAssertUtil.validateError(result, 0, "invalid token '\"sameera\"'", 2, 31);
+        BAssertUtil.validateError(result, 1, "invalid token ','", 2, 31);
     }
 
     @Test(description = "Test too many arguments to return")

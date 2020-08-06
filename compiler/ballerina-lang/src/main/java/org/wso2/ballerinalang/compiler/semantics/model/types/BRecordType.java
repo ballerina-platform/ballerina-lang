@@ -39,7 +39,6 @@ public class BRecordType extends BStructureType implements RecordType {
     private static final String CLOSE_LEFT = "{|";
     private static final String SEMI = ";";
     private static final String CLOSE_RIGHT = "|}";
-    private static final String DOLLAR = "$";
     private static final String REST = "...";
     public static final String OPTIONAL = "?";
     public static final String EMPTY = "";
@@ -78,7 +77,7 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public String toString() {
 
-        if (tsymbol.name != null && (tsymbol.name.value.isEmpty() || tsymbol.name.value.startsWith(DOLLAR))) {
+        if (shouldPrintShape(tsymbol.name)) {
             // Try to print possible shape. But this may fail with self reference hence avoid .
             StringBuilder sb = new StringBuilder();
             sb.append(RECORD).append(SPACE).append(CLOSE_LEFT);
