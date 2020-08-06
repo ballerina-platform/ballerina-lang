@@ -290,9 +290,13 @@ public class Types {
         BType constMatchPatternExprType = constPatternExpr.type;
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            BType varRefSymbolType = ((BLangSimpleVarRef) constPatternExpr).symbol.type;
-            if (isAssignable(varRefSymbolType, matchExprType)) {
-                return varRefSymbolType;
+            BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
+            if (constVarRef.symbol == null) {
+                return symTable.noType;
+            }
+            BType constVarRefSymbolType = constVarRef.symbol.type;
+            if (isAssignable(constVarRefSymbolType, matchExprType)) {
+                return constVarRefSymbolType;
             }
             return symTable.noType;
         }
