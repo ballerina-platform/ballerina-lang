@@ -982,7 +982,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.ASCENDING_KEYWORD ||
                             nextToken.kind == SyntaxKind.DESCENDING_KEYWORD;
                     break;
-
+                case PUBLIC_OR_PRIVATE_KEYWORD:
+                    hasMatch = nextToken.kind == SyntaxKind.PRIVATE_KEYWORD ||
+                            nextToken.kind == SyntaxKind.PUBLIC_KEYWORD;
+                    break;
                 // start a context, so that we know where to fall back, and continue
                 // having the qualified-identifier as the next rule.
                 case VARIABLE_REF:
@@ -1294,7 +1297,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case INTERMEDIATE_CLAUSE_START:
             case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
             case TYPE_DESC_OR_EXPR_RHS:
-            case PUBLIC_OR_PRIVATE_KEYWORD:
                 return true;
             default:
                 return false;
@@ -1392,9 +1394,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case OBJECT_FUNC_OR_FIELD:
                 alternativeRules = OBJECT_FUNC_OR_FIELD;
-                break;
-            case PUBLIC_OR_PRIVATE_KEYWORD:
-                alternativeRules = PUBLIC_OR_PRIVATE_KEYWORD;
                 break;
             case OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY:
                 alternativeRules = OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
@@ -2650,6 +2649,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTIONAL_MATCH_PATTERN_START;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
+            case PUBLIC_OR_PRIVATE_KEYWORD:
+                return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
         }

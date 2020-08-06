@@ -14041,7 +14041,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTypeDescOrExprRhs(SyntaxKind nextTokenKind, STNode typeOrExpr) {
         STNode typeDesc;
-        switch (nextTokenKind) { // ( a
+        switch (nextTokenKind) {
             case PIPE_TOKEN:
                 STToken nextNextToken = peek(2);
                 if (nextNextToken.kind == SyntaxKind.EQUAL_TOKEN) {
