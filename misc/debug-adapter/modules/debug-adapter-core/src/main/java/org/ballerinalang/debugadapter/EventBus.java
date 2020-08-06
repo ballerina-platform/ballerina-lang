@@ -100,13 +100,8 @@ public class EventBus {
             return;
         }
         context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-        breakpointsList.forEach((filePath, breakpoints) -> {
-            Arrays.stream(breakpoints).forEach(breakpoint -> {
-                this.context.getDebuggee().allClasses().forEach(referenceType -> {
-                    this.addBreakpoint(referenceType, breakpoint);
-                });
-            });
-        });
+        breakpointsList.forEach((filePath, breakpoints) -> Arrays.stream(breakpoints).forEach(breakpoint ->
+                context.getDebuggee().allClasses().forEach(referenceType -> addBreakpoint(referenceType, breakpoint))));
     }
 
     public Map<Long, ThreadReference> getThreadsMap() {

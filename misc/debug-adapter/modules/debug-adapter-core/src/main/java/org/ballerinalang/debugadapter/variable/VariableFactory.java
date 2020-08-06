@@ -48,6 +48,7 @@ import org.ballerinalang.debugadapter.variable.types.BXmlPi;
 import org.ballerinalang.debugadapter.variable.types.BXmlSequence;
 import org.ballerinalang.debugadapter.variable.types.BXmlText;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.getBType;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isObject;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.isRecord;
@@ -109,7 +110,7 @@ public class VariableFactory {
      */
     public static BVariable getVariable(SuspendedContext context, Value value, String parentTypeName, String varName) {
 
-        if (varName == null || varName.isEmpty() || varName.startsWith("$")) {
+        if (varName == null || varName.isEmpty() || varName.startsWith("$") || varName.equals(STRAND_VAR_NAME)) {
             return null;
         } else if (value == null) {
             return new BNil(context, varName, null);

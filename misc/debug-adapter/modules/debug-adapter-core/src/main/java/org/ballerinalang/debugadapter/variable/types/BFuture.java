@@ -62,8 +62,9 @@ public class BFuture extends BCompoundVariable {
                 // Invokes "getLocalizedMessage()" method of the panic object.
                 Optional<Method> method = VariableUtils.getMethod(panic.get(), METHOD_LOCALIZEDMESSAGE);
                 if (method.isPresent()) {
-                    Value stringValue = ((ObjectReference) panic.get()).invokeMethod(getContext().getOwningThread(),
-                            method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                    Value stringValue = ((ObjectReference) panic.get()).invokeMethod(getContext().getOwningThread()
+                                    .getThreadReference(), method.get(), new ArrayList<>(),
+                            ObjectReference.INVOKE_SINGLE_THREADED);
                     childVarMap.put(FIELD_PANIC, stringValue);
                 }
             }

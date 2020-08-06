@@ -32,9 +32,9 @@ import java.util.List;
 
 public class EvaluationUtils {
 
-    public static final String STRAND_VAR_NAME = "__strand";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
     private static final String FOR_NAME_METHOD = "forName";
+    public static final String STRAND_VAR_NAME = "__strand";
 
     public static ReferenceType loadClass(SuspendedContext evaluationContext, Node syntaxNode, String qName,
                                           ClassLoaderReference classLoader) throws EvaluationException {
@@ -61,8 +61,8 @@ public class EvaluationUtils {
             args.add(evaluationContext.getAttachedVm().mirrorOf(qName));
             args.add(evaluationContext.getAttachedVm().mirrorOf(true));
             args.add(classLoader);
-            Value classReference = classType.invokeMethod(evaluationContext.getOwningThread(), forNameMethod, args,
-                    ObjectReference.INVOKE_SINGLE_THREADED);
+            Value classReference = classType.invokeMethod(evaluationContext.getOwningThread().getThreadReference(),
+                    forNameMethod, args, ObjectReference.INVOKE_SINGLE_THREADED);
             return ((ClassObjectReference) classReference).reflectedType();
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +

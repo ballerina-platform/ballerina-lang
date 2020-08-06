@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassNotPreparedException;
@@ -33,6 +32,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.EvaluationUtils;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.io.File;
@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static org.ballerinalang.debugadapter.evaluation.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 
 /**
@@ -52,7 +53,6 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
 
     private final FunctionCallExpressionNode syntaxNode;
     private final List<Evaluator> argEvaluators;
-    private static final String STRAND_VAR_NAME = "__strand";
 
     public FunctionInvocationExpressionEvaluator(SuspendedContext context, FunctionCallExpressionNode node,
                                                  List<Evaluator> argEvaluators) {
@@ -85,8 +85,8 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             }
             Method methodRef = jvmMethod.get().methodRef;
             List<Value> argValueList = generateJvmArgs(jvmMethod.get());
-            Value result = ((ClassType) classRef).invokeMethod(context.getOwningThread(), methodRef, argValueList,
-                    ObjectReference.INVOKE_SINGLE_THREADED);
+            Value result = ((ClassType) classRef).invokeMethod(context.getOwningThread().getThreadReference(),
+                    methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
             return new BExpressionValue(context, result);
         } catch (ClassNotLoadedException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
@@ -213,7 +213,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
                         syntaxNode.functionName().toString()));
             }
             return strand;
-        } catch (AbsentInformationException e) {
+        } catch (JdiProxyException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.STRAND_NOT_FOUND.getString(),
                     syntaxNode.functionName().toString()));
         }

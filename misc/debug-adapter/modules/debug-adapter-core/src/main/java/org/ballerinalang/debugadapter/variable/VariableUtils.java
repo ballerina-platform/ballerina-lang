@@ -97,8 +97,8 @@ public class VariableUtils {
         try {
             Optional<Method> method = VariableUtils.getMethod(jvmObject, METHOD_STRINGVALUE);
             if (method.isPresent()) {
-                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread(),
-                        method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
+                Value stringValue = ((ObjectReference) jvmObject).invokeMethod(context.getOwningThread()
+                        .getThreadReference(), method.get(), new ArrayList<>(), ObjectReference.INVOKE_SINGLE_THREADED);
                 return VariableUtils.getStringFrom(stringValue);
             }
             return UNKNOWN_VALUE;

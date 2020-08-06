@@ -16,13 +16,13 @@
 
 package org.ballerinalang.debugadapter.evaluation.engine;
 
-import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.LocalVariable;
 import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 /**
  * Simple name reference evaluator implementation.
@@ -43,13 +43,13 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
     @Override
     public BExpressionValue evaluate() throws EvaluationException {
         try {
-            LocalVariable jvmVar = context.getFrame().visibleVariableByName(nameRef);
+            LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameRef);
             if (jvmVar == null) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
                         syntaxNode.toString()));
             }
             return new BExpressionValue(context, context.getFrame().getValue(jvmVar));
-        } catch (AbsentInformationException e) {
+        } catch (JdiProxyException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
                     nameRef));
         } catch (Exception e) {
