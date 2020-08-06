@@ -119,7 +119,7 @@ public abstract class CompletionTestNew {
     @DataProvider(name = "completion-data-provider")
     public abstract Object[][] dataProvider();
     
-    public Object[][] testSubset(){
+    public Object[][] testSubset() {
         return new Object[0][];
     }
     

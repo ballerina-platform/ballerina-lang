@@ -21,7 +21,6 @@ import io.ballerinalang.compiler.diagnostics.Diagnostic;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 import io.ballerinalang.compiler.internal.syntax.SyntaxUtils;
 import io.ballerinalang.compiler.internal.syntax.TreeModifiers;
-import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextRange;
 
 import java.util.ArrayList;
@@ -125,39 +124,29 @@ public abstract class NonTerminalNode extends Node {
     }
 
     /**
-     * Find the inner most node encapsulating the given position.
+     * Find the inner most node encapsulating the a text range.
      * Note: When evaluating the position of a node to check the range this will include the start offset while
      * excluding the end offset
      *
-     * @param position to evaluate and find the node
+     * @param textRange to evaluate and find the node
      * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
      */
-    public NonTerminalNode findNode(int position) {
+    public NonTerminalNode findNode(TextRange textRange) {
         TextRange textRangeWithMinutiae = textRangeWithMinutiae();
-
-        if (textRangeWithMinutiae.endOffset() == position &&
-                this instanceof ModulePartNode) {
+        if (textRangeWithMinutiae.endOffset() == textRange.startOffset() && this instanceof ModulePartNode) {
             return this;
         }
 
-        if (!textRangeWithMinutiae.contains(position)) {
-            throw new IndexOutOfBoundsException("Index: '" + position +
-                    "', Size: '" + textRangeWithMinutiae.endOffset() + "'");
+        if (!textRangeWithMinutiae.contains(textRange.startOffset())
+                || !textRangeWithMinutiae.contains(textRange.endOffset())) {
+            throw new IllegalStateException("Invalid Text Range for: " + textRange.toString());
         }
 
-        NonTerminalNode foundNode = this;
-        Node temp = foundNode;
-        while (SyntaxUtils.isNonTerminalNode(temp)) {
-            temp = ((NonTerminalNode) temp).findChildNode(position);
-            int nodeStart = temp.syntaxTree().textDocument().textPositionFrom(
-                    LinePosition.from(temp.lineRange().startLine().line(), temp.lineRange().startLine().offset())
-            );
-            if (nodeStart >= position) {
-                break;
-            }
-            if (SyntaxUtils.isNonTerminalNode(temp)) {
-                foundNode = (NonTerminalNode) temp;
-            }
+        NonTerminalNode foundNode = null;
+        Optional<Node> temp = Optional.of(this);
+        while (temp.isPresent() && SyntaxUtils.isNonTerminalNode(temp.get())) {
+            foundNode = (NonTerminalNode) temp.get();
+            temp = ((NonTerminalNode) temp.get()).findChildNode(textRange);
         }
 
         return foundNode;
@@ -254,6 +243,31 @@ public abstract class NonTerminalNode extends Node {
         // TODO It is impossible to reach this line
         // TODO Can we rewrite this logic
         throw new IllegalStateException();
+    }
+
+    /**
+     * Find a child node enclosing the given text range.
+     * If there is no child node which can wrap the given range, this method will return empty
+     *
+     * @param textRange text range to evaluate
+     * @return {@link Optional} node found, which is enclosing the given range
+     */
+    private Optional<Node> findChildNode(TextRange textRange) {
+        int offset = textRangeWithMinutiae().startOffset();
+        for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
+            STNode internalChildNode = internalNode.childInBucket(bucket);
+            if (!isSTNodePresent(internalChildNode)) {
+                continue;
+            }
+            int offsetWithMinutiae = offset + internalChildNode.widthWithMinutiae();
+            if (textRange.startOffset() > offset && textRange.endOffset() < offsetWithMinutiae) {
+                // Populate the external node.
+                return Optional.ofNullable(this.childInBucket(bucket));
+            }
+            offset += internalChildNode.widthWithMinutiae();
+        }
+
+        return Optional.empty();
     }
 
     private List<Diagnostic> collectDiagnostics() {

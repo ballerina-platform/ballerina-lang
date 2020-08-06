@@ -21,6 +21,7 @@ import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.TextDocument;
+import io.ballerinalang.compiler.text.TextRange;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
@@ -175,7 +176,25 @@ public class CompletionUtil {
 
         Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
+        TextRange range = TextRange.from(txtPos, 0);
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
         
-        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, ((ModulePartNode) syntaxTree.rootNode()).findNode(txtPos));
+        while (true) {
+            if (!withinTextRange(txtPos, nonTerminalNode)) {
+                nonTerminalNode = nonTerminalNode.parent();
+                continue;
+            }
+            break;
+        }
+
+        context.put(CompletionKeys.NODE_AT_CURSOR_KEY, nonTerminalNode);
+    }
+    
+    private static boolean withinTextRange(int position, NonTerminalNode node) {
+        TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
+        TextRange textRange = node.textRange();
+        TextRange leadingMinutiaeRange = TextRange.from(rangeWithMinutiae.startOffset(),
+                textRange.startOffset() - rangeWithMinutiae.startOffset());
+        return leadingMinutiaeRange.endOffset() <= position;
     }
 }

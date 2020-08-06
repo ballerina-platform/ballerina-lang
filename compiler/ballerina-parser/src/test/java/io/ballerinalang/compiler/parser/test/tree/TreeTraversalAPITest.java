@@ -30,6 +30,7 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.text.TextDocument;
 import io.ballerinalang.compiler.text.TextDocuments;
 import io.ballerinalang.compiler.text.TextLine;
+import io.ballerinalang.compiler.text.TextRange;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -66,20 +67,17 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
         Assert.assertEquals(actualToken.toString(), expectedLexeme);
     }
 
-    @Test(enabled = false)
     public void testFindNodeFromPosition() {
         String sourceFilePath = "find_node_test_1.bal";
         SyntaxTree syntaxTree = parseFile(sourceFilePath);
         ModulePartNode modulePart = syntaxTree.rootNode();
-        
-        NonTerminalNode nodeListInFunction = modulePart.findNode(55);
-        NonTerminalNode blockStmtNode = modulePart.findNode(158);
-        NonTerminalNode bracedExprNode = modulePart.findNode(146);
-        Assert.assertSame(nodeListInFunction.kind(), SyntaxKind.FUNCTION_BODY_BLOCK);
+        String sourceCode = modulePart.toSourceCode();
+        NonTerminalNode varDecl = modulePart.findNode(TextRange.from(sourceCode.indexOf("123;") + "123;".length(), 0));
+        NonTerminalNode blockStmtNode = modulePart.findNode(TextRange.from(sourceCode.indexOf("modName:TestType) {")
+                + "modName:TestType) {".length(), 0));
+        Assert.assertSame(varDecl.kind(), SyntaxKind.LOCAL_VAR_DECL);
         Assert.assertTrue(blockStmtNode.kind() == SyntaxKind.BLOCK_STATEMENT
                 && blockStmtNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT);
-        Assert.assertTrue(bracedExprNode.kind() == SyntaxKind.BRACED_EXPRESSION
-                && bracedExprNode.parent().kind() == SyntaxKind.IF_ELSE_STATEMENT);
     }
 
     @Test(enabled = false) //disabled since it fails in windows due to token position
