@@ -146,7 +146,8 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(description = "Test building and pushing a package without Ballerina.toml in the project directory")
+    @Test(description = "Test building and pushing a package without Ballerina.toml in the project directory"
+            , enabled = false)
     public void testPushWithoutBallerinaToml() throws Exception {
         Path projectPath = Files.createDirectories(tempProjectDirectory).resolve("projectWithoutToml");
         createProjectStructureAndGetProjectPath(projectPath, moduleName);
@@ -233,7 +234,7 @@ public class PackagingNegativeTestCase extends BaseTest {
         leecher.waitForText(5000);
     }
 
-    @Test(description = "Test build without any modules in the project")
+    @Test(description = "Test build without any modules in the project", enabled = false)
     public void testBuildAllWithoutPackages() throws Exception {
         Path projectPath = tempProjectDirectory.resolve("projectWithoutPackages");
         initProject(tempProjectDirectory, "projectWithoutPackages");
