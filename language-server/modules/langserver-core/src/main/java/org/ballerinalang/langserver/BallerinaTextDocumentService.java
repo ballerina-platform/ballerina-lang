@@ -89,7 +89,6 @@ import org.eclipse.lsp4j.RenameParams;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SymbolInformation;
-import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.eclipse.lsp4j.TextDocumentIdentifier;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.eclipse.lsp4j.TextEdit;
@@ -741,10 +740,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
         Optional<Lock> lock = docManager.lockFile(compilationPath);
         try {
             // Update content
-            List<TextDocumentContentChangeEvent> changes = params.getContentChanges();
-            for (TextDocumentContentChangeEvent changeEvent : changes) {
-                docManager.updateFile(compilationPath, changeEvent.getText());
-            }
+            docManager.updateFile(compilationPath, params.getContentChanges());
             LSClientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() + "' {fileUri: '" +
                     compilationPath + "'} updated}");
 
