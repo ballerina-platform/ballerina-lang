@@ -33,8 +33,8 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> finalKeyword() {
@@ -124,7 +124,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         public ModuleVariableDeclarationNodeModifier(ModuleVariableDeclarationNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.finalKeyword = oldNode.finalKeyword().orElse(null);
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken();
