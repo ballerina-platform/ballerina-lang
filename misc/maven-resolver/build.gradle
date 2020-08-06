@@ -38,6 +38,7 @@ dependencies {
     implementation 'org.apache.maven.resolver:maven-resolver-connector-basic:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-transport-file:1.4.2'
     implementation 'org.apache.maven.resolver:maven-resolver-transport-http:1.4.2'
+    implementation 'org.mockito:mockito-all:1.10.19'
     implementation 'me.tongfei:progressbar'
     testCompile 'org.testng:testng'
 }

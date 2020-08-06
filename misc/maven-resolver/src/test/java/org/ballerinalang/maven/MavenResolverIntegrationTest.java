@@ -25,9 +25,9 @@ import java.io.File;
 import java.nio.file.Paths;
 
 /**
- * Tests for {@link MavenResolver}.
+ * Integration Tests for {@link MavenResolver}.
  */
-public class MavenResolverTest {
+public class MavenResolverIntegrationTest {
     String targetRepo = Paths.get("build").toAbsolutePath().toString() + File.separator + "platform-libs";
     String mavenArtifactVersion = "3.6.3";
     String cassandraVersion = "0.8.3";
