@@ -33,10 +33,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.completions.ProviderFactory;
 import org.ballerinalang.langserver.completions.TreeVisitor;
-import org.ballerinalang.langserver.completions.sourceprune.CompletionsTokenTraverserFactory;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
-import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
@@ -44,9 +41,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
-import java.net.URI;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -137,30 +132,6 @@ public class CompletionUtil {
     }
 
     /**
-     * Prune source if syntax errors exists.
-     *
-     * @param lsContext {@link LSContext}
-     * @throws SourcePruneException       when file uri is invalid
-     * @throws WorkspaceDocumentException when document read error occurs
-     */
-    @Deprecated
-    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (uri == null) {
-            throw new SourcePruneException("fileUri cannot be null!");
-        }
-
-        Path filePath = Paths.get(URI.create(uri));
-        TokenTraverserFactory tokenTraverserFactory = new CompletionsTokenTraverserFactory(filePath, documentManager,
-                SourcePruner.newContext());
-        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
-
-        // Update document manager
-        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
-    }
-
-    /**
      * Find the token at cursor.
      *
      * @throws WorkspaceDocumentException while retrieving the syntax tree from the document manager
@@ -178,7 +149,7 @@ public class CompletionUtil {
         int txtPos = textDocument.textPositionFrom(LinePosition.from(position.getLine(), position.getCharacter()));
         TextRange range = TextRange.from(txtPos, 0);
         NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(range);
-        
+
         while (true) {
             if (!withinTextRange(txtPos, nonTerminalNode)) {
                 nonTerminalNode = nonTerminalNode.parent();
@@ -189,7 +160,7 @@ public class CompletionUtil {
 
         context.put(CompletionKeys.NODE_AT_CURSOR_KEY, nonTerminalNode);
     }
-    
+
     private static boolean withinTextRange(int position, NonTerminalNode node) {
         TextRange rangeWithMinutiae = node.textRangeWithMinutiae();
         TextRange textRange = node.textRange();

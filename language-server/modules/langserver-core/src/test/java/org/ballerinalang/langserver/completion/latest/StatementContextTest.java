@@ -97,6 +97,7 @@ public class StatementContextTest extends CompletionTestNew {
                   {"continue_break_stmt_ctx_config1.json", this.getTestResourceDir()},
                   {"continue_break_stmt_ctx_config2.json", this.getTestResourceDir()},
                   {"lock_stmt_ctx_config1.json", this.getTestResourceDir()},
+                  {"match_stmt_ctx_config1.json", this.getTestResourceDir()},
           };
 //        return new Object[0][];
     }
