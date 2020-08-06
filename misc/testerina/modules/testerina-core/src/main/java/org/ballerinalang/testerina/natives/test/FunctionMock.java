@@ -27,6 +27,11 @@ import java.util.regex.Pattern;
  */
 public class FunctionMock {
 
+    /**
+     * Registers a case in the Mock Registry.
+     * @param caseObj Case Object reference with the MockFunction object reference, arguements and return value
+     * @return null
+     */
     public static ErrorValue thenReturn(ObjectValue caseObj) {
         ObjectValue mockFunctionObj = caseObj.getObjectValue("mockFuncObj");
         ArrayValue args = caseObj.getArrayValue("args");
@@ -35,6 +40,13 @@ public class FunctionMock {
         return null;
     }
 
+    /**
+     * Function that executes the mock function and returns the result.
+     *
+     * @param mockFuncObj Mock Function object reference
+     * @param args Arguments passed to the mock function
+     * @return  Result of calling the Mock function
+     */
     public static Object mockHandler(ObjectValue mockFuncObj, Object... args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
         String originalFunction =

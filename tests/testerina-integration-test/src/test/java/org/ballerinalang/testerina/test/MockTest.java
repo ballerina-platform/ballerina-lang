@@ -53,7 +53,7 @@ public class MockTest extends BaseTestCase {
     }
 
     @Test
-    public void testFunctionMocking2() throws BallerinaTestException {
+    public void testFunctionMockingWithServices() throws BallerinaTestException {
         String msg1 = "2 passing";
         LogLeecher clientLeecher1 = new LogLeecher(msg1);
         balClient.runMain("test", new String[] {"Mock2"}, null,

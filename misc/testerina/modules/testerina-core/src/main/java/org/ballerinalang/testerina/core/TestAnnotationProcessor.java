@@ -173,8 +173,7 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
                         }
 
                         // Check if enable property is present in the annotation
-                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(valueExpr
-                                                                                               .toString())) {
+                        if (TEST_ENABLE_ANNOTATION_NAME.equals(name) && "false".equals(valueExpr.toString())) {
                             // If enable is false, disable the test, no further processing is needed
                             shouldSkip.set(true);
                             return;

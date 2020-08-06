@@ -32,11 +32,6 @@ int counter = 0;
 test:MockFunction mock_intAdd = new();
 
 @test:Mock {
-    functionName : "stringAdd"
-}
-test:MockFunction mock_stringAdd = new();
-
-@test:Mock {
     functionName: "floatAdd"
 }
 test:MockFunction mock_floatAdd = new();
@@ -96,10 +91,6 @@ public function mockIntAdd5((any|error)... args) returns (int) {
     return  sum;
 }
 
-//public function mockStringAdd(string str1) returns (string) {
-//    return "Hello " + str1;
-//}
-
 public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
 }
@@ -126,10 +117,6 @@ public function call_Test1() {
     test:when(mock_intAdd).call("mockIntAdd1");
     test:assertEquals(intAdd(10, 6), 4);
     test:assertEquals(callIntAdd(10, 6), 4);
-
-    //// StringAdd
-    //test:when(mock_stringAdd).call("mockStringAdd");
-    //test:assertEquals(stringAdd("Ibaqu"), "Hello Ibaqu");
 
      // FloatAdd
      test:when(mock_floatAdd).call("mockFloatAdd");
@@ -215,9 +202,6 @@ public function thenReturn_Test1() {
     test:when(mock_intAdd).thenReturn(5);
     test:assertEquals(intAdd(10, 4), 5);
 
-    //test:when(mock_stringAdd).thenReturn("testing");
-    //test:assertEquals(stringAdd("string"), "testing");
-
     test:when(mock_floatAdd).thenReturn(10.5);
     test:assertEquals(floatAdd(10, 5), 10.5);
 }
@@ -229,8 +213,5 @@ public function withArguments_Test1() {
 
     test:when(mock_intAdd).withArguments(20, 14).thenReturn(100);
     test:assertEquals(intAdd(20, 14), 100);
-
-    //test:when(mock_stringAdd).withArguments("string1").thenReturn("test");
-    //test:assertEquals(stringAdd("string1"), "test");
 
 }

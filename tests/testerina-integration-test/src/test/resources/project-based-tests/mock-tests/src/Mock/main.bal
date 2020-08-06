@@ -29,11 +29,6 @@ public function intAdd(int a, int b) returns (int) {
     return a + b;
 }
 
-// Returns (string)
-public function stringAdd(string str) returns (string) {
-    return "test_" + str;
-}
-
 // Returns (float)
 public function floatAdd(float c, float d) returns (float) {
     return c + d;

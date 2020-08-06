@@ -55,13 +55,15 @@ import java.util.Set;
 /**
  * Class to generate Mock Functions.
  *
- * @since 2.0.0
+ * @since 1.2.7
  */
 public class MockDesugar {
 
     private static final CompilerContext.Key<MockDesugar> MOCK_DESUGAR_KEY = new CompilerContext.Key<>();
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
+    private static final String MOCK_FN_ANNOTATION_DELIMITER = "~";
     private static final String MOCK_PREFIX = "$MOCK_";
+    private static final String ORG_SEPARATOR = "/";
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
     private BLangPackage bLangPackage;
@@ -107,7 +109,7 @@ public class MockDesugar {
         Set<String> mockFunctionSet = mockFunctionMap.keySet();
 
         for (String function : mockFunctionSet) {
-            if (!function.contains("~")) {
+            if (!function.contains(MOCK_FN_ANNOTATION_DELIMITER)) {
                 pkgNode.getTestablePkg().functions.add(generateMockFunction(function));
             }
         }
@@ -305,11 +307,11 @@ public class MockDesugar {
         // <MockFunctionObj>.functionToMockPackage = (functionToMockPackage);  // ballerina/math/natives
         String functionToMockPackageVal = (this.originalFunction == null) ?
                 this.importFunction.pkgID.orgName.toString()
-                        + "/" + this.importFunction.pkgID.name.toString()
-                        + "/" + getFunctionSource(this.importFunction.source) :
+                        + ORG_SEPARATOR + this.importFunction.pkgID.name.toString()
+                        + ORG_SEPARATOR + getFunctionSource(this.importFunction.source) :
                 this.originalFunction.symbol.pkgID.orgName.toString()
-                        + "/" + this.originalFunction.symbol.pkgID.name.toString()
-                        + "/" + getFunctionSource(this.originalFunction.symbol.source);
+                        + ORG_SEPARATOR + this.originalFunction.symbol.pkgID.name.toString()
+                        + ORG_SEPARATOR + getFunctionSource(this.originalFunction.symbol.source);
         BLangAssignment bLangAssignment2 = ASTBuilderUtil.createAssignmentStmt(
                 bLangPackage.pos,
                 generateFieldBasedAccess("functionToMockPackage"),
