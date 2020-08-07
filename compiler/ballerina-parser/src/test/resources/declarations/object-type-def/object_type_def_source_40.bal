@@ -5,10 +5,11 @@ type foo object {
      remote transactional invalidtok function foo0(){
 
      }
-     transactional remote function foo1() {
+     remote invalidtok 6 function foo2() {
 
      }
-     remote invalidtok 6 function foo2() {
+
+     resource invalidtok 6 function foo3() {
 
      }
 };
