@@ -311,8 +311,7 @@ public class SignatureHelpUtil {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
                 } else {
-                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
-                            .values());
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
                 }
             }
             index++;

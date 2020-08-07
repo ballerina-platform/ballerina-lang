@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -531,15 +522,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -607,15 +589,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -671,15 +644,6 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "SIMPLE_NAME_REFERENCE",
                           "hasDiagnostics": true,
                           "children": [
@@ -733,15 +697,6 @@
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "UNION_TYPE_DESC",
                           "hasDiagnostics": true,

@@ -33,8 +33,8 @@ public class MethodDeclarationNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> visibilityQualifier() {
@@ -124,7 +124,7 @@ public class MethodDeclarationNode extends NonTerminalNode {
 
         public MethodDeclarationNodeModifier(MethodDeclarationNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();
             this.methodName = oldNode.methodName();
