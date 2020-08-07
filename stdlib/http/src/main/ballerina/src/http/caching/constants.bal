@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/runtime;
+import ballerina/java;
 
 // Cache-control directives
 # Forces the cache to validate a cached response with the origin server before serving.
@@ -78,6 +78,11 @@ const string WEAK_VALIDATOR_TAG = "W/";
 const int STALE = 0;
 
 function getWarningAgent() returns string {
-    string ballerinaVersion = runtime:getProperty("ballerina.version");
+    string ballerinaVersion = getProperty("ballerina.version");
     return "ballerina-http-caching-client/" + ballerinaVersion;
 }
+
+function getProperty(@untainted string name) returns string = @java:Method {
+    name: "getProperty",
+    class: "org.ballerinalang.net.http.util.CacheUtils"
+} external;
