@@ -7086,7 +7086,6 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseConstDeclFromType(SyntaxKind nextTokenKind, STNode metadata, STNode qualifier, STNode keyword) {
         switch (nextTokenKind) {
             case ANNOTATION_KEYWORD:
-                switchContext(ParserRuleContext.ANNOTATION_DECL);
                 return parseAnnotationDeclaration(metadata, qualifier, keyword);
             case IDENTIFIER_TOKEN:
                 return parseConstantOrListenerDeclWithOptionalType(metadata, qualifier, keyword, false);
