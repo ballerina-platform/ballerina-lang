@@ -287,6 +287,18 @@ function testConstPattern7() {
     assertEquals("no-match", result);
 }
 
+function testConstPattern8() {
+    json j = null;
+    string result = "";
+
+    match j {
+        0 => {result = "0";}
+        null => {result = "null";}
+    }
+
+    assertEquals("null", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
