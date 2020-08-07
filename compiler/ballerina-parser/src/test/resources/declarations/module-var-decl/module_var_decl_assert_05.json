@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -89,15 +80,6 @@
         {
           "kind": "CONST_DECLARATION",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "CONST_KEYWORD",
               "leadingMinutiae": [

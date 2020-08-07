@@ -248,7 +248,6 @@ public class TreeTraversalAPITest extends AbstractSyntaxTreeAPITest {
 
         List<SyntaxKind> actualChildNodeKindList = new ArrayList<>();
         List<SyntaxKind> expectedChildNodeKindList = Arrays.asList(
-                SyntaxKind.METADATA,
                 SyntaxKind.PUBLIC_KEYWORD,
                 SyntaxKind.FUNCTION_KEYWORD,
                 SyntaxKind.IDENTIFIER_TOKEN,
