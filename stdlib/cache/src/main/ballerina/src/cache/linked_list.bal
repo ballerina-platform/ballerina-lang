@@ -70,26 +70,32 @@ public function addFirst(LinkedList list, Node node) {
     list.head = node;
 }
 
+boolean removeInProgress = false;
+
 # Removes a node from the provided linked list.
 #
 # + list - Linked list from which the provided node should be removed
 # + node - The node, which should be removed from the provided linked list
 public function remove(LinkedList list, Node node) {
-    if (node.prev is ()) {
-        list.head = node.next;
-    } else {
-        Node prev = <Node>node.prev;
-        prev.next = node.next;
-    }
+    if (!removeInProgress) {
+        removeInProgress = true;
+        if (node.prev is ()) {
+            list.head = node.next;
+        } else {
+            Node prev = <Node>node.prev;
+            prev.next = node.next;
+        }
 
-    if (node.next is ()) {
-        list.tail = node.prev;
-    } else {
-        Node next = <Node>node.next;
-        next.prev = node.prev;
+        if (node.next is ()) {
+            list.tail = node.prev;
+        } else {
+            Node next = <Node>node.next;
+            next.prev = node.prev;
+        }
+        node.next = ();
+        node.prev = ();
+        removeInProgress = false;
     }
-    node.next = ();
-    node.prev = ();
 }
 
 # Removes the last node from the provided linked list.
