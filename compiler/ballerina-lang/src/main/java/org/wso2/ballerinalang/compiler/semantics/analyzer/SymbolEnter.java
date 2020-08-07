@@ -1543,8 +1543,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
             BLangType typeNode = typeDef.typeNode;
-            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
             if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
 
                 BType detailType = Optional.ofNullable(errorTypeNode.detailType)
@@ -1553,6 +1553,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
                 ((BErrorType) typeDef.symbol.type).detailType = detailType;
             } else if (typeNode.type != null && typeNode.type.tag == TypeTags.ERROR) {
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
                 BType detailType = ((BErrorType) typeNode.type).detailType;
                 if (detailType == symTable.noType) {
                     BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeNode, typeDefEnv);
