@@ -35,7 +35,7 @@ public enum EvaluationExceptionKind {
     EMPTY("Empty expressions cannot be evaluated."),
     INVALID("Invalid expression: '%s'"),
     SYNTAX_ERROR("Syntax errors found: " + System.lineSeparator() + "%s"),
-    UNSUPPORTED_EXPRESSION("Unsupported expressions/sub-expressions found: %s"),
+    UNSUPPORTED_EXPRESSION("Unsupported expressions/sub-expressions found: %s" + System.lineSeparator()),
     UNSUPPORTED_OPERATION("'%s' operation is not supported for types: '%s' and '%s'"),
     CUSTOM_ERROR("%s");
 
@@ -48,5 +48,9 @@ public enum EvaluationExceptionKind {
 
     public String getString() {
         return PREFIX + this.value;
+    }
+
+    public String getReason() {
+        return this.value;
     }
 }

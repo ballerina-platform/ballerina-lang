@@ -54,16 +54,15 @@ import java.util.StringJoiner;
  * <li>x - y
  * <li>x * y
  * <li>x / y
- * </ul><ul>
- * <li>x < y
- * <li> x > y
- * <li>x <= y
- * <li>x >= y
+ * <li>x % y
  * </ul>
  * <br>
  * To be Implemented.
  * <ul>
- * <li>x % y
+ * <li>x < y
+ * <li> x > y
+ * <li>x <= y
+ * <li>x >= y
  * </ul><ul>
  * <li>x.k
  * <li>x.@a

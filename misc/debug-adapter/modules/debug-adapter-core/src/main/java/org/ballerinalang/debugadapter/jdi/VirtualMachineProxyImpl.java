@@ -147,8 +147,7 @@ public class VirtualMachineProxyImpl implements JdiTimer, VirtualMachineProxy {
                 getThreadReferenceProxy(threadReference); // add a proxy
             }
         }
-
-        return new ArrayList<ThreadReferenceProxyImpl>(myAllThreads.values());
+        return new ArrayList<>(myAllThreads.values());
     }
 
     public void threadStarted(ThreadReference thread) {
