@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.compiler.sourcegen.FormattingSourceGen;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.DeleteRange;
 import org.ballerinalang.langserver.extensions.ballerina.document.visitor.UnusedNodeVisitor;
 import org.ballerinalang.util.diagnostic.Diagnostic;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
@@ -47,6 +48,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -230,7 +232,8 @@ public class BallerinaTreeModifyUtil {
         TextDocumentChange textDocumentChange = TextDocumentChange.from(edits.toArray(
                 new TextEdit[0]));
         TextDocument newTextDocument = oldTextDocument.apply(textDocumentChange);
-        documentManager.updateFile(compilationPath, newTextDocument.toString());
+        documentManager.updateFile(compilationPath, Collections
+                .singletonList(new TextDocumentContentChangeEvent(newTextDocument.toString())));
 
         //Format bal file code
         JsonObject jsonAST = TextDocumentFormatUtil.getAST(compilationPath, documentManager, astContext);
@@ -240,7 +243,8 @@ public class BallerinaTreeModifyUtil {
         formattingUtil.accept(model);
 
         String formattedSource = FormattingSourceGen.getSourceOf(model);
-        documentManager.updateFile(compilationPath, formattedSource);
+        TextDocumentContentChangeEvent changeEvent = new TextDocumentContentChangeEvent(formattedSource);
+        documentManager.updateFile(compilationPath, Collections.singletonList(changeEvent));
         astContext.put(BallerinaDocumentServiceImpl.UPDATED_SOURCE, formattedSource);
         return astContext;
     }

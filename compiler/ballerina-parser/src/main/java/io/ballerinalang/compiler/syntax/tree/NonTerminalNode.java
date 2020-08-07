@@ -123,6 +123,35 @@ public abstract class NonTerminalNode extends Node {
         return tokenInsideMinutiae.orElse(token);
     }
 
+    /**
+     * Find the inner most node encapsulating the a text range.
+     * Note: When evaluating the position of a node to check the range this will include the start offset while
+     * excluding the end offset
+     *
+     * @param textRange to evaluate and find the node
+     * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
+     */
+    public NonTerminalNode findNode(TextRange textRange) {
+        TextRange textRangeWithMinutiae = textRangeWithMinutiae();
+        if (textRangeWithMinutiae.endOffset() == textRange.startOffset() && this instanceof ModulePartNode) {
+            return this;
+        }
+
+        if (!textRangeWithMinutiae.contains(textRange.startOffset())
+                || !textRangeWithMinutiae.contains(textRange.endOffset())) {
+            throw new IllegalStateException("Invalid Text Range for: " + textRange.toString());
+        }
+
+        NonTerminalNode foundNode = null;
+        Optional<Node> temp = Optional.of(this);
+        while (temp.isPresent() && SyntaxUtils.isNonTerminalNode(temp.get())) {
+            foundNode = (NonTerminalNode) temp.get();
+            temp = ((NonTerminalNode) temp.get()).findChildNode(textRange);
+        }
+
+        return foundNode;
+    }
+
     // Node modification operations
 
     /**
@@ -214,6 +243,31 @@ public abstract class NonTerminalNode extends Node {
         // TODO It is impossible to reach this line
         // TODO Can we rewrite this logic
         throw new IllegalStateException();
+    }
+
+    /**
+     * Find a child node enclosing the given text range.
+     * If there is no child node which can wrap the given range, this method will return empty
+     *
+     * @param textRange text range to evaluate
+     * @return {@link Optional} node found, which is enclosing the given range
+     */
+    private Optional<Node> findChildNode(TextRange textRange) {
+        int offset = textRangeWithMinutiae().startOffset();
+        for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
+            STNode internalChildNode = internalNode.childInBucket(bucket);
+            if (!isSTNodePresent(internalChildNode)) {
+                continue;
+            }
+            int offsetWithMinutiae = offset + internalChildNode.widthWithMinutiae();
+            if (textRange.startOffset() > offset && textRange.endOffset() < offsetWithMinutiae) {
+                // Populate the external node.
+                return Optional.ofNullable(this.childInBucket(bucket));
+            }
+            offset += internalChildNode.widthWithMinutiae();
+        }
+
+        return Optional.empty();
     }
 
     private List<Diagnostic> collectDiagnostics() {
