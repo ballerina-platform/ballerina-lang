@@ -1428,7 +1428,7 @@ public class JvmInstructionGen {
             this.mv.visitMethodInsn(INVOKESPECIAL,
                                     getTypeValueClassName(objectType.tsymbol.pkgID, toNameString(objectType)),
                                     "setOnInitialization",
-                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), true);
+                                    String.format("(L%s;L%s;)V", JvmConstants.B_STRING_VALUE, OBJECT), false);
             return;
         }
 
