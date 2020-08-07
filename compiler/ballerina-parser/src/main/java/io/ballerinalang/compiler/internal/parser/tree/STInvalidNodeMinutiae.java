@@ -27,7 +27,7 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 public class STInvalidNodeMinutiae extends STMinutiae {
     private final STNode invalidNode;
 
-    STInvalidNodeMinutiae(STNode invalidNode) {
+    STInvalidNodeMinutiae(STInvalidTokenMinutiaeNode invalidNode) {
         super(SyntaxKind.INVALID_NODE_MINUTIAE, invalidNode.toSourceCode());
         this.invalidNode = invalidNode;
     }

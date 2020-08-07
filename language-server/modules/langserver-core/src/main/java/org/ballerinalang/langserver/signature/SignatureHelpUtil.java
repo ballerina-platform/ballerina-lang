@@ -15,23 +15,15 @@
  */
 package org.ballerinalang.langserver.signature;
 
-import org.antlr.v4.runtime.CommonToken;
-import org.antlr.v4.runtime.Token;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.apache.commons.lang3.tuple.Pair;
+import io.ballerinalang.compiler.syntax.tree.FunctionCallExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
+import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
-import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
-import org.ballerinalang.langserver.completions.util.SourcePruneException;
-import org.ballerinalang.langserver.signature.sourceprune.SignatureTokenTraverserFactory;
-import org.ballerinalang.langserver.sourceprune.SourcePruneKeys;
-import org.ballerinalang.langserver.sourceprune.SourcePruner;
-import org.ballerinalang.langserver.sourceprune.TokenTraverserFactory;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
@@ -41,7 +33,6 @@ import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.eclipse.lsp4j.SignatureInformationCapabilities;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -74,11 +65,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.lang.reflect.Field;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -86,7 +73,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.StringJoiner;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.langserver.common.utils.CommonUtil.getLastItem;
@@ -107,16 +93,25 @@ public class SignatureHelpUtil {
     /**
      * Capture the callable item information such as name, package of the item, delimiter (. or :), and etc.
      *
-     * @param serviceContext    Text Document service context instance for the signature help operation
-     * @return A {@link Pair} of function path and parameter count
+     * @param signatureNode  signature node
+     * @param serviceContext Text Document service context instance for the signature help operation
+     * @return invocation symbol path
      * @throws CompilationFailedException when compilation fails
      */
-    public static Pair<Optional<String>, Integer> getFunctionInvocationDetails(LSContext serviceContext)
+    public static Optional<String> getInvocationSymbolPath(NonTerminalNode signatureNode, LSContext serviceContext)
             throws CompilationFailedException {
-        // Generate function invocation from the source pruned text
-        Pair<String, Integer> functionInvocationAndParamOffset = extractSourcePrunedInvocationDetails(serviceContext);
-        String funcInvocation = functionInvocationAndParamOffset.getLeft();
-        int paramIndex = functionInvocationAndParamOffset.getRight();
+        boolean isImplicitNew = signatureNode.kind() == SyntaxKind.IMPLICIT_NEW_EXPRESSION;
+        boolean isErrorConstructor = signatureNode.kind() == SyntaxKind.FUNCTION_CALL &&
+                "error".equals(((FunctionCallExpressionNode) signatureNode).functionName().toString());
+
+        String funcInvocation = (isImplicitNew || isErrorConstructor) ?
+                signatureNode.parent().toSourceCode() :
+                signatureNode.toSourceCode();
+
+        // Remove last ;\n
+        if (funcInvocation.endsWith(";" + CommonUtil.LINE_SEPARATOR)) {
+            funcInvocation = funcInvocation.substring(0, funcInvocation.lastIndexOf(";" + CommonUtil.LINE_SEPARATOR));
+        }
 
         // Get right hand side of the assignment
         int equalSymbolIndex = funcInvocation.lastIndexOf(EQUAL);
@@ -126,101 +121,11 @@ public class SignatureHelpUtil {
         }
 
         // Get function name using Subrule parser
-        String subRuleFormat = "function rightHandExpr() {\n\t%s;\n}".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
-        subRuleFormat += "function wholeStatement() {\n\t%s;\n}".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
+        String subRuleFormat = "function rightHandExpr() {\n\t%s;\n}\n".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
+        subRuleFormat += "function wholeStatement() {\n\t%s;\n}\n".replaceAll("\\n", CommonUtil.LINE_SEPARATOR);
         String subRule = String.format(subRuleFormat, funcInvocation, funcInvocationStatement);
 
-        return new ImmutablePair<>(parseAndGetFunctionInvocationPath(subRule, serviceContext), paramIndex);
-    }
-
-    private static Pair<String, Integer> extractSourcePrunedInvocationDetails(LSContext context) {
-        int parameterOffset = 0;
-        // Collect source-pruned tokens
-        List<String> tokenTexts = new ArrayList<>();
-
-        final int[] pendingRParenthesisCount = new int[]{0};
-        Consumer<Integer> tokenAcceptor = type -> {
-            if (type == BallerinaParser.LEFT_PARENTHESIS) {
-                pendingRParenthesisCount[0]--;
-            } else if (type == BallerinaParser.RIGHT_PARENTHESIS) {
-                pendingRParenthesisCount[0]++;
-            }
-        };
-
-        // Visit Left-Hand side tokens before cursor
-        List<CommonToken> lhsTokens = context.get(SourcePruneKeys.LHS_TOKENS_KEY);
-        if (lhsTokens != null) {
-            while (lhsTokens.get(0).getType() == BallerinaParser.COMMA) {
-                lhsTokens.remove(0);
-            }
-            boolean isLastLeftParenthesisProcessed = false;
-            for (int i = lhsTokens.size() - 1; i >= 0; i--) {
-                Token commonToken = lhsTokens.get(i);
-                int tokenType = commonToken.getType();
-                if (tokenType == BallerinaParser.LEFT_PARENTHESIS) {
-                    // Since we are traversing reverse order, we'll get the last LParenthesis first
-                    isLastLeftParenthesisProcessed = true;
-                }
-                if (tokenType == BallerinaParser.COMMA) {
-                    if (i - 1 >= 0 && lhsTokens.get(i - 1).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
-                        // eg. func1(func2(10, 10, 5),[cursor]);
-                        parameterOffset = 1;
-                    } else {
-                        tokenTexts.add(commonToken.getText());
-                        if (pendingRParenthesisCount[0] == 0 && !isLastLeftParenthesisProcessed) {
-                            parameterOffset++;
-                        }
-                    }
-                } else {
-                    tokenAcceptor.accept(tokenType);
-                    tokenTexts.add(commonToken.getText());
-                }
-            }
-        }
-
-        // Reverse the order of tokens
-        Collections.reverse(tokenTexts);
-
-        // Visit Right-Hand side tokens after cursor
-        List<CommonToken> rhsTokens = context.get(SourcePruneKeys.RHS_TOKENS_KEY);
-        if (rhsTokens != null && !rhsTokens.isEmpty()) {
-            // Remove if any comma[,] when RHS next immediate token is right parenthesis
-            int lastIndex = tokenTexts.size() - 1;
-            while (lastIndex >= 0 && COMMA.equals(tokenTexts.get(lastIndex))
-                    && rhsTokens.get(0).getType() == BallerinaParser.RIGHT_PARENTHESIS) {
-                tokenTexts.remove(lastIndex);
-                lastIndex--;
-            }
-            // Collect tokens until we find a Whitespace or Newline
-            for (Token commonToken : rhsTokens) {
-                int tokenType = commonToken.getType();
-                if (tokenType == BallerinaParser.WS || tokenType == BallerinaParser.NEW_LINE) {
-                    // Break on Whitespaces or New Lines
-                    break;
-                }
-                tokenAcceptor.accept(commonToken.getType());
-                tokenTexts.add(commonToken.getText());
-            }
-        }
-
-        // Remove if any comma[,] when pendingRParenthesis is less than zero
-        int lastIndex = tokenTexts.size() - 1;
-        if (COMMA.equals(tokenTexts.get(lastIndex)) && pendingRParenthesisCount[0] <= 0) {
-            tokenTexts.remove(lastIndex);
-        }
-
-        //  Remove if any semi-colon[;]
-        lastIndex = tokenTexts.size() - 1;
-        if (SEMI_COLON.equals(tokenTexts.get(lastIndex))) {
-            tokenTexts.remove(lastIndex);
-        }
-
-        // Add Missing Parenthesis
-        while (pendingRParenthesisCount[0] < 0) {
-            tokenTexts.add(")");
-            pendingRParenthesisCount[0]++;
-        }
-        return Pair.of(String.join("", tokenTexts), parameterOffset);
+        return parseAndGetFunctionInvocationPath(subRule, serviceContext);
     }
 
     private static Optional<String> parseAndGetFunctionInvocationPath(String subRule, LSContext context)
@@ -406,8 +311,7 @@ public class SignatureHelpUtil {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
                 } else {
-                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
-                            .values());
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
                 }
             }
             index++;
@@ -550,30 +454,6 @@ public class SignatureHelpUtil {
         markupContent += parameterInfoModel.paramValue + "**: ";
         paramDocumentation.setValue(markupContent + parameterInfoModel.description);
         return new ParameterInformation(parameterInfoModel.toString(), paramDocumentation);
-    }
-
-    /**
-     * Prune source if syntax errors exists.
-     *
-     * @param lsContext {@link LSContext}
-     * @throws SourcePruneException when file uri is invalid
-     * @throws WorkspaceDocumentException when document read error occurs
-     */
-    public static void pruneSource(LSContext lsContext) throws SourcePruneException, WorkspaceDocumentException {
-        WorkspaceDocumentManager documentManager = lsContext.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-        String uri = lsContext.get(DocumentServiceKeys.FILE_URI_KEY);
-        if (uri == null) {
-            throw new SourcePruneException("fileUri cannot be null!");
-        }
-
-        Path filePath = Paths.get(URI.create(uri));
-
-        TokenTraverserFactory tokenTraverserFactory = new SignatureTokenTraverserFactory(filePath, documentManager,
-                                                                                         SourcePruner.newContext());
-        SourcePruner.pruneSource(lsContext, tokenTraverserFactory);
-
-        // Update document manager
-        documentManager.setPrunedContent(filePath, tokenTraverserFactory.getTokenStream().getText());
     }
 
     /**

@@ -129,6 +129,14 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_IMPORT_KEYWORD("BCE02064", "error.missing.import.keyword"),
     ERROR_MISSING_CONST_KEYWORD("BCE02065", "error.missing.const.keyword"),
     ERROR_MISSING_EXTERNAL_KEYWORD("BCE02066", "error.missing.external.keyword"),
+    ERROR_MISSING_ORDER_KEYWORD("BCE02067", "error.missing.order.keyword"),
+    ERROR_MISSING_BY_KEYWORD("BCE02068", "error.missing.by.keyword"),
+    ERROR_MISSING_CONFLICT_KEYWORD("BCE02069", "error.missing.conflict.keyword"),
+    ERROR_MISSING_LIMIT_KEYWORD("BCE02070", "error.missing.limit.keyword"),
+    ERROR_MISSING_ASCENDING_KEYWORD("BCE02071", "error.missing.ascending.keyword"),
+    ERROR_MISSING_DESCENDING_KEYWORD("BCE02072", "error.missing.descending.keyword"),
+    ERROR_MISSING_JOIN_KEYWORD("BCE02073", "error.missing.join.keyword"),
+    ERROR_MISSING_OUTER_KEYWORD("BCE02074", "error.missing.outer.keyword"),
 
     // Type keywords
     ERROR_MISSING_INT_KEYWORD("BCE02101", "error.missing.int.keyword"),
@@ -198,6 +206,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_HEX_FLOATING_POINT_LITERAL("BCE02505", "error.missing.hex.floating.point.literal"),
     ERROR_MISSING_XML_TEXT_CONTENT("BCE02506", "error.missing.xml.text.content"),
     ERROR_MISSING_TEMPLATE_STRING("BCE02507", "error.missing.template.string"),
+    ERROR_MISSING_BYTE_ARRAY_CONTENT("BCE02508", "error.missing.byte.array.content"),
 
     //miscellaneous
     ERROR_MISSING_FUNCTION_NAME("BCE0060", "error.missing.function.name"),
@@ -213,6 +222,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_TUPLE_MEMBER("BCE108", "error.missing.tuple.member"),
     ERROR_EXPRESSION_EXPECTED_ACTION_FOUND("BCE109", "error.expression.expected.action.found"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE109", "error.missing.key.expr.in.member.access.expr"),
+    ONLY_TYPE_REFERENCE_ALLOWED_HERE_AS_TYPE_INCLUSIONS("BCE110",
+            "error.only.type.reference.allowed.here.as.type.inclusions"),
+    ERROR_MISSING_ORDER_KEY("BCE110", "error.missing.order.key"),
 
     ERROR_MISSING_ANNOTATION_ATTACH_POINT("BCE200", "error.missing.annotation.attach.point"),
     ERROR_MISSING_LET_VARIABLE_DECLARATION("BCE201", "error.missing.let.variable.declaration"),
@@ -254,6 +266,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE221",
             "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE222", "error.action.as.a.wait.expr"),
+    ERROR_INVALID_USAGE_OF_VAR("BCE223", "error.invalid.usage.of.var"),
+    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE224",
+            "error.more.match.patterns.after.rest.match.pattern"),
 
     ERROR_PARAMETER_AFTER_THE_REST_PARAMETER("BCE300", "error.parameter.after.the.rest.parameter"),
     ERROR_REQUIRED_PARAMETER_AFTER_THE_DEFAULTABLE_PARAMETER("BCE301",
@@ -272,10 +287,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_ARRAY_LENGTH("BCE501", "error.invalid.array.length"),
     ERROR_SELECT_CLAUSE_IN_QUERY_ACTION("BCE502", "error.select.clause.in.query.action"),
     ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE("BCE503", "error.more.clauses.after.select.clause"),
+    ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION("BCE504", "error.query.construct.type.in.query.action"),
 
     ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP("BCE601", "error.no.whitespaces.allowed.in.right.shift.op"),
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",
             "error.no.whitespaces.allowed.in.unsigned.right.shift.op"),
+    ERROR_INVALID_WHITESPACE_IN_SLASH_LT_TOKEN("BCE603", "error.invalid.whitespace.in.slash.lt.token"),
 
     // Lexer errors
     ERROR_LEADING_ZEROS_IN_NUMERIC_LITERALS("BCE1000", "error.leading.zeros.in.numeric.literals"),

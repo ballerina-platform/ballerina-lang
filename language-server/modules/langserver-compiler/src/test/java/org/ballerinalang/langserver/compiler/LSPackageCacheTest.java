@@ -10,6 +10,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerI
 import org.ballerinalang.langserver.compiler.workspace.repository.WorkspacePackageRepository;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -51,7 +53,7 @@ public class LSPackageCacheTest {
         PackageID packageID = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
         CompilerContext context = LSCompilerUtil.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                         documentManager, false, true);
-        documentManager.updateFile(filePath, content);
+        documentManager.updateFile(filePath, Collections.singletonList(new TextDocumentContentChangeEvent(content)));
         // Compile test bal file
 //        LSModuleCompiler lsCompiler = new LSModuleCompiler(documentManager);
         ExtendedLSCompiler.compileFile(filePath, CompilerPhase.TAINT_ANALYZE);

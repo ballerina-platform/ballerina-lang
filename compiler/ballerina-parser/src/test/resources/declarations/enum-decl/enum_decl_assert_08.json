@@ -127,14 +127,17 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "PERCENT_TOKEN",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "END_OF_LINE_MINUTIAE",
-                                "value": "\n"
+                                "kind": "PERCENT_TOKEN"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -382,20 +385,28 @@
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "OPEN_BRACE_TOKEN"
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
+                              {
+                                "kind": "OPEN_BRACE_TOKEN"
+                              }
+                            ]
                           }
                         },
                         {
                           "kind": "INVALID_NODE_MINUTIAE",
                           "invalidNode": {
-                            "kind": "CLOSE_BRACE_TOKEN",
-                            "trailingMinutiae": [
+                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                            "children": [
                               {
-                                "kind": "END_OF_LINE_MINUTIAE",
-                                "value": "\n"
+                                "kind": "CLOSE_BRACE_TOKEN"
                               }
                             ]
                           }
+                        },
+                        {
+                          "kind": "END_OF_LINE_MINUTIAE",
+                          "value": "\n"
                         },
                         {
                           "kind": "WHITESPACE_MINUTIAE",
@@ -475,24 +486,30 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "EQUAL_TOKEN",
-                                "trailingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "END_OF_LINE_MINUTIAE",
-                                    "value": "\n"
+                                    "kind": "EQUAL_TOKEN"
                                   }
                                 ]
                               }
                             },
                             {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "  "
+                            },
+                            {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "DOCUMENTATION_STRING",
-                                "value": "#doc\n",
-                                "leadingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": "  "
+                                    "kind": "DOCUMENTATION_STRING",
+                                    "value": "#doc\n"
                                   }
                                 ]
                               }
@@ -614,15 +631,18 @@
                 {
                   "kind": "INVALID_NODE_MINUTIAE",
                   "invalidNode": {
-                    "kind": "IDENTIFIER_TOKEN",
-                    "value": "ExtraEnumName",
-                    "trailingMinutiae": [
+                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                    "children": [
                       {
-                        "kind": "WHITESPACE_MINUTIAE",
-                        "value": " "
+                        "kind": "IDENTIFIER_TOKEN",
+                        "value": "ExtraEnumName"
                       }
                     ]
                   }
+                },
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
                 }
               ],
               "trailingMinutiae": [
@@ -1075,14 +1095,17 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "CLOSE_BRACE_TOKEN",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "CLOSE_BRACE_TOKEN"
               }
             ]
           }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

@@ -21,6 +21,7 @@ import org.ballerinalang.jvm.types.BArrayType;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Executable;
@@ -30,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.util.diagnostic.DiagnosticCode.CLASS_NOT_FOUND;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 
 /**
  * Represents a java method in this implementation.
@@ -42,6 +44,7 @@ class JMethod {
 
     JMethodKind kind;
     private Executable method;
+    private BType receiverType;
 
     private JMethod(JMethodKind kind, Executable executable) {
 
@@ -77,7 +80,7 @@ class JMethod {
     String getName() {
 
         if (kind == JMethodKind.CONSTRUCTOR) {
-            return "<init>";
+            return JVM_INIT_METHOD;
         } else {
             return method.getName();
         }
@@ -114,6 +117,14 @@ class JMethod {
         } else {
             return ((Method) method).getReturnType();
         }
+    }
+
+    public BType getReceiverType() {
+        return receiverType;
+    }
+
+    public void setReceiverType(BType receiverType) {
+        this.receiverType = receiverType;
     }
 
     ArrayValue getExceptionTypes(ClassLoader classLoader) {

@@ -104,8 +104,10 @@ public class CodeGenerator {
         Path implPath = CodegenUtils.getImplPath(srcPackage, srcPath);
 
         if (type.equals(GEN_CLIENT)) {
-            srcPath = srcPath.resolve("client");
-            implPath = implPath.resolve("client");
+            if (srcPackage.equals("")) {
+                srcPath = srcPath.resolve("client");
+                implPath = implPath.resolve("client");
+            }
 
             if (Files.notExists(srcPath)) {
                 Files.createDirectory(srcPath);
@@ -129,14 +131,15 @@ public class CodeGenerator {
      *
      * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
+     * @param serviceName    Name of the service
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
      * @throws IOException               when file operations fail
      * @throws BallerinaOpenApiException when code generator fails
      */
-    public void generateClient(String executionPath, String definitionPath, String outPath)
+    public void generateClient(String executionPath, String definitionPath, String serviceName, String outPath)
             throws IOException, BallerinaOpenApiException {
-        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, null, outPath);
+        generate(GenType.GEN_CLIENT, executionPath, definitionPath, null, serviceName, outPath);
     }
 
     /**

@@ -36,13 +36,14 @@ import static org.ballerinalang.util.BLangCompilerConstants.VALUE_VERSION;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "lang.value", version = VALUE_VERSION,
         functionName = "toJsonString",
-        args = {@Argument(name = "v", type = TypeKind.JSON)},
+        args = {@Argument(name = "v", type = TypeKind.ANYDATA)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class ToJsonString {
 
     public static BString toJsonString(Strand strand, Object value) {
-        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getJsonString(value));
+        Object jsonValue = ToJson.toJson(strand, value);
+        return org.ballerinalang.jvm.StringUtils.fromString(StringUtils.getJsonString(jsonValue));
     }
 }

@@ -93,7 +93,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
 
         public BLangRecordKey key;
         public BLangExpression valueExpr;
-        public boolean isReadonly;
+        public boolean readonly;
 
         public BLangRecordKeyValueField() {
         }
@@ -142,7 +142,7 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      */
     public static class BLangRecordVarNameField extends BLangSimpleVarRef implements RecordVarNameFieldNode {
 
-        public boolean isReadonly;
+        public boolean readonly;
 
         @Override
         public boolean isKeyValueField() {

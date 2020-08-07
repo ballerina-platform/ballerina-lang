@@ -27,8 +27,6 @@ import org.ballerinalang.packerina.buildcontext.BuildContext;
 import org.ballerinalang.packerina.buildcontext.BuildContextField;
 import org.ballerinalang.packerina.task.CleanTargetDirTask;
 import org.ballerinalang.packerina.task.CompileTask;
-import org.ballerinalang.packerina.task.CopyModuleJarTask;
-import org.ballerinalang.packerina.task.CopyNativeLibTask;
 import org.ballerinalang.packerina.task.CopyResourcesTask;
 import org.ballerinalang.packerina.task.CreateBaloTask;
 import org.ballerinalang.packerina.task.CreateBirTask;
@@ -58,6 +56,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.EXPERIMENTAL_FEATURES_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
+import static org.ballerinalang.compiler.CompilerOptionName.NEW_PARSER_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
@@ -154,6 +153,12 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private boolean observabilityIncluded;
 
+    @CommandLine.Option(names = "--tests", split = ",", description = "Test functions to be executed")
+    private List<String> testList;
+
+    @CommandLine.Option(names = "--old-parser", description = "Enable old parser.", hidden = true)
+    private boolean useOldParser;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
@@ -212,11 +217,21 @@ public class TestCommand implements BLauncherCmd {
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
             return;
+        } else if ((groupList != null || disableGroupList != null) && testList != null) {
+            CommandUtil.printError(this.errStream,
+                    "Cannot specify --tests flag along with --groups/--disable-groups flags at the same time",
+                    "ballerina test --tests <testFunction1, ...> <module-name> | -a | --all",
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
         }
 
-        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null)) {
+        if ((listGroups && disableGroupList != null) || (listGroups && groupList != null) ||
+                (listGroups && testList != null)) {
+
             CommandUtil.printError(this.errStream,
-                    "Cannot specify both --list-groups and --disable-groups/--groups flags at the same time",
+                    "Cannot specify both --list-groups and --disable-groups/--groups/--tests flags at the " +
+                            "same time",
                     "ballerina test --list-groups <module-name> | -a | --all",
                     true);
             CommandUtil.exitError(this.exitWhenFinish);
@@ -362,6 +377,7 @@ public class TestCommand implements BLauncherCmd {
         options.put(TEST_ENABLED, "true");
         options.put(SKIP_TESTS, "false");
         options.put(EXPERIMENTAL_FEATURES_ENABLED, Boolean.toString(this.experimentalFlag));
+        options.put(NEW_PARSER_ENABLED, Boolean.toString(!this.useOldParser));
 
         // create builder context
         BuildContext buildContext = new BuildContext(this.sourceRootPath, targetPath, sourcePath, compilerContext);
@@ -382,15 +398,14 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CreateBirTask(), listGroups)   // create the bir
                 .addTask(new CreateBaloTask(), isSingleFileBuild || listGroups) // create the balos for modules
                 // (projects only)
-                .addTask(new CopyNativeLibTask(), listGroups) // copy the native libs(projects only)
-                .addTask(new CreateJarTask(this.skipCopyLibsFromDist), listGroups)  // create the jar
+                .addTask(new CreateJarTask(), listGroups)  // create the jar
                 .addTask(new CopyResourcesTask(), isSingleFileBuild || listGroups)
-                .addTask(new CopyModuleJarTask(skipCopyLibsFromDist, false), listGroups)
                 // tasks to list groups or execute tests. the 'listGroups' boolean is used to decide whether to
                 // skip the task or to execute
                 .addTask(new ListTestGroupsTask(), !listGroups) // list the available test groups
                 // run tests
-                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList), listGroups)
+                .addTask(new RunTestsTask(testReport, coverage, args, groupList, disableGroupList, testList),
+                        listGroups)
                 .build();
 
         taskExecutor.executeTasks(buildContext);

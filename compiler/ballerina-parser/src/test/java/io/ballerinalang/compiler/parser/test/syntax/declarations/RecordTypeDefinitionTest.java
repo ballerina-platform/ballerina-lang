@@ -44,6 +44,7 @@ public class RecordTypeDefinitionTest extends AbstractDeclarationTest {
     @Test
     public void testClosedRecordRestField() {
         test("record-type-def/record_type_def_source_04.bal", "record-type-def/record_type_def_assert_04.json");
+        test("record-type-def/record_type_def_source_25.bal", "record-type-def/record_type_def_assert_25.json");
     }
 
     @Test

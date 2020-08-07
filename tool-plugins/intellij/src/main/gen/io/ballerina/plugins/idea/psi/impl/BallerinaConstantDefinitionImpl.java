@@ -44,20 +44,8 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
 
   @Override
   @Nullable
-  public BallerinaConstantExpression getConstantExpression() {
-    return findChildByClass(BallerinaConstantExpression.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaTypeName getTypeName() {
-    return findChildByClass(BallerinaTypeName.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getAssign() {
-    return findChildByType(ASSIGN);
+  public BallerinaRecoverableConstantContent getRecoverableConstantContent() {
+    return findChildByClass(BallerinaRecoverableConstantContent.class);
   }
 
   @Override
@@ -70,12 +58,6 @@ public class BallerinaConstantDefinitionImpl extends ASTWrapperPsiElement implem
   @NotNull
   public PsiElement getConst() {
     return findNotNullChildByType(CONST);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getIdentifier() {
-    return findChildByType(IDENTIFIER);
   }
 
   @Override

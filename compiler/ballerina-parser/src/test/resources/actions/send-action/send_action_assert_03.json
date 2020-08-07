@@ -101,11 +101,17 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULT_KEYWORD",
-                      "isMissing": true,
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_DEFAULT_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "DEFAULT_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DEFAULT_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -184,11 +190,17 @@
                       ]
                     },
                     {
-                      "kind": "DEFAULT_KEYWORD",
-                      "isMissing": true,
+                      "kind": "SIMPLE_NAME_REFERENCE",
                       "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_MISSING_DEFAULT_KEYWORD"
+                      "children": [
+                        {
+                          "kind": "DEFAULT_KEYWORD",
+                          "isMissing": true,
+                          "hasDiagnostics": true,
+                          "diagnostics": [
+                            "ERROR_MISSING_DEFAULT_KEYWORD"
+                          ]
+                        }
                       ]
                     }
                   ]
@@ -444,14 +456,17 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "PLUS_TOKEN",
-                                "trailingMinutiae": [
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
                                   {
-                                    "kind": "WHITESPACE_MINUTIAE",
-                                    "value": " "
+                                    "kind": "PLUS_TOKEN"
                                   }
                                 ]
                               }
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
                             }
                           ]
                         }
