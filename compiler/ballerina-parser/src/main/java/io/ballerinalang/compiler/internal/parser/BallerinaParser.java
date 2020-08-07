@@ -136,6 +136,7 @@ public class BallerinaParser extends AbstractParser {
      * @param args Arguments that requires to continue parsing from the given parser context
      * @return Parsed node
      */
+    @Override
     public STNode resumeParsing(ParserRuleContext context, Object... args) {
         switch (context) {
             case TOP_LEVEL_NODE:
@@ -470,7 +471,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseReadonlyKeyword();
             case PUBLIC_KEYWORD:
                 return parseQualifier();
-            case PUBLIC_OR_PRIVATE_KEYWORD:
+            case OBJECT_MEMBER_QUALIFIER:
                 return parseObjectMemberVisibility();
             case TYPE_KEYWORD:
                 return parseTypeKeyword();
@@ -5630,7 +5631,7 @@ public class BallerinaParser extends AbstractParser {
         if (token.kind == SyntaxKind.PUBLIC_KEYWORD || token.kind == SyntaxKind.PRIVATE_KEYWORD) {
             return consume();
         } else {
-            Solution sol = recover(token, ParserRuleContext.PUBLIC_OR_PRIVATE_KEYWORD);
+            Solution sol = recover(token, ParserRuleContext.OBJECT_MEMBER_QUALIFIER);
             return sol.recoveredNode;
         }
     }

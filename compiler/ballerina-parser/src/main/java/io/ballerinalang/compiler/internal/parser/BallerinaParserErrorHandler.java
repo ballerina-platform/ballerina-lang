@@ -184,11 +184,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] OBJECT_MEMBER_WITHOUT_METADATA =
             { ParserRuleContext.ASTERISK, ParserRuleContext.OBJECT_FUNC_OR_FIELD, ParserRuleContext.CLOSE_BRACE };
 
-    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD = { ParserRuleContext.PUBLIC_OR_PRIVATE_KEYWORD,
+    private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD = { ParserRuleContext.OBJECT_MEMBER_QUALIFIER,
             ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY };
-
-    private static final ParserRuleContext[] PUBLIC_OR_PRIVATE_KEYWORD = {ParserRuleContext.PUBLIC_KEYWORD,
-            ParserRuleContext.PRIVATE_KEYWORD};
 
     private static final ParserRuleContext[] OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY =
             { ParserRuleContext.TYPE_DESC_BEFORE_IDENTIFIER, ParserRuleContext.OBJECT_METHOD_START };
@@ -578,7 +575,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.JOIN_KEYWORD, ParserRuleContext.OUTER_KEYWORD };
 
     private static final ParserRuleContext[] MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER =
-            { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD};
+            { ParserRuleContext.MAPPING_BINDING_PATTERN_MEMBER, ParserRuleContext.MAPPING_FIELD };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -982,7 +979,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     hasMatch = nextToken.kind == SyntaxKind.ASCENDING_KEYWORD ||
                             nextToken.kind == SyntaxKind.DESCENDING_KEYWORD;
                     break;
-                case PUBLIC_OR_PRIVATE_KEYWORD:
+                case OBJECT_MEMBER_QUALIFIER:
                     hasMatch = nextToken.kind == SyntaxKind.PRIVATE_KEYWORD ||
                             nextToken.kind == SyntaxKind.PUBLIC_KEYWORD;
                     break;
@@ -2649,7 +2646,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.FUNCTIONAL_MATCH_PATTERN_START;
             case NAMED_ARG_MATCH_PATTERN:
                 return ParserRuleContext.IDENTIFIER;
-            case PUBLIC_OR_PRIVATE_KEYWORD:
+            case OBJECT_MEMBER_QUALIFIER:
                 return ParserRuleContext.OBJECT_FUNC_OR_FIELD_WITHOUT_VISIBILITY;
             default:
                 return getNextRuleForKeywords(currentCtx, nextLookahead);
