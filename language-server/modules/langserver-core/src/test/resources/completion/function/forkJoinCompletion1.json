@@ -182,6 +182,29 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ls_org1/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "140",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ls_org1/module1;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.object",
       "kind": "Module",
       "detail": "Module",

@@ -51,9 +51,9 @@ public class DelimiterBasedContentFilter extends AbstractSymbolFilter {
 
         if (BallerinaParser.DOT == delimiter || BallerinaParser.NOT == delimiter || BallerinaParser.COLON == delimiter
                 || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter || isActionInvocation) {
-            List<Scope.ScopeEntry> symbolCompletionItems = FilterUtils.filterVariableEntriesOnDelimiter(ctx,
-                    symbolToken, delimiter, defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
-            return Either.forRight(new ArrayList<>(symbolCompletionItems));
+//            List<Scope.ScopeEntry> symbolCompletionItems = FilterUtils.filterVariableEntriesOnDelimiter(ctx,
+//                    symbolToken, delimiter, defaultTokens, defaultTokenTypes.lastIndexOf(delimiter));
+            return Either.forRight(new ArrayList<>());
         }
         if (isWorkerSend) {
             List<Scope.ScopeEntry> workerSymbols = new ArrayList<>(CommonUtil.getWorkerSymbols(ctx));
