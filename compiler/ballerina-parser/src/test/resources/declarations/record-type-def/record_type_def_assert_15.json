@@ -2,15 +2,6 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": []
     },
@@ -90,15 +81,6 @@
                       "kind": "RECORD_FIELD",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "STRING_TYPE_DESC",
                           "children": [
                             {
@@ -136,15 +118,6 @@
                     {
                       "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "FLOAT_TYPE_DESC",
                           "children": [
@@ -208,15 +181,6 @@
                       "kind": "RECORD_FIELD",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "INT_TYPE_DESC",
                           "children": [
                             {
@@ -255,15 +219,6 @@
                       "kind": "RECORD_FIELD",
                       "children": [
                         {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
-                        {
                           "kind": "RECORD_TYPE_DESC",
                           "children": [
                             {
@@ -300,15 +255,6 @@
                                 {
                                   "kind": "RECORD_FIELD",
                                   "children": [
-                                    {
-                                      "kind": "METADATA",
-                                      "children": [
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        }
-                                      ]
-                                    },
                                     {
                                       "kind": "STRING_TYPE_DESC",
                                       "children": [
@@ -347,15 +293,6 @@
                                 {
                                   "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                                   "children": [
-                                    {
-                                      "kind": "METADATA",
-                                      "children": [
-                                        {
-                                          "kind": "LIST",
-                                          "children": []
-                                        }
-                                      ]
-                                    },
                                     {
                                       "kind": "INT_TYPE_DESC",
                                       "children": [

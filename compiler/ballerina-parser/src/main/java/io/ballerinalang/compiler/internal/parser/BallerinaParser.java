@@ -717,19 +717,19 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
             case ENUM_KEYWORD:
             case TRANSACTIONAL_KEYWORD:
-                metadata = createEmptyMetadata();
+                metadata = STNodeFactory.createEmptyNode();
                 break;
             case IDENTIFIER_TOKEN:
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
                 if (isModuleVarDeclStart(1)) {
                     // This is an early exit, so that we don't have to do the same check again.
-                    return parseModuleVarDecl(createEmptyMetadata(), null);
+                    return parseModuleVarDecl(STNodeFactory.createEmptyNode(), null);
                 }
                 // Else fall through
             default:
                 if (isTypeStartingToken(tokenKind) && tokenKind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    metadata = createEmptyMetadata();
+                    metadata = STNodeFactory.createEmptyNode();
                     break;
                 }
 
@@ -3350,7 +3350,7 @@ public class BallerinaParser extends AbstractParser {
                 if (isTypeStartingToken(nextTokenKind)) {
                     // individual-field-descriptor
                     startContext(ParserRuleContext.RECORD_FIELD);
-                    metadata = createEmptyMetadata();
+                    metadata = STNodeFactory.createEmptyNode();
                     return parseRecordField(nextTokenKind, isInclusive, metadata);
                 }
 
@@ -5522,7 +5522,8 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTIONAL_KEYWORD:
             case RESOURCE_KEYWORD:// resource qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
-                metadata = createEmptyMetadata();
+                metadata = STNodeFactory.createEmptyNode();
+
                 break;
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
@@ -5530,7 +5531,7 @@ public class BallerinaParser extends AbstractParser {
                 break;
             default:
                 if (isTypeStartingToken(nextTokenKind)) {
-                    metadata = createEmptyMetadata();
+                    metadata = STNodeFactory.createEmptyNode();
                     break;
                 }
 
@@ -6389,7 +6390,6 @@ public class BallerinaParser extends AbstractParser {
      * <code>field := specific-field | computed-name-field | spread-field</code>
      *
      * @param fieldContext Context of the mapping field
-     * @param leadingComma Leading comma
      * @return Parsed node
      */
     private STNode parseMappingField(ParserRuleContext fieldContext) {
@@ -6570,7 +6570,6 @@ public class BallerinaParser extends AbstractParser {
      * <p>
      * <code>computed-name-field := [ field-name-expr ] : value-expr</code>
      *
-     * @param leadingComma Leading comma
      * @return Parsed node
      */
     private STNode parseComputedField() {
@@ -6923,7 +6922,7 @@ public class BallerinaParser extends AbstractParser {
             case FUNCTION_KEYWORD:
             case REMOTE_KEYWORD:   // remote qualifier is not allowed but let it pass here and validate in
                 // parseFunctionQualifiers method
-                metadata = createEmptyMetadata();
+                metadata = STNodeFactory.createEmptyNode();
                 break;
             case DOCUMENTATION_STRING:
             case AT_TOKEN:
@@ -7499,19 +7498,23 @@ public class BallerinaParser extends AbstractParser {
                 annotations = parseOptionalAnnotations(nextTokenKind);
                 break;
             default:
-                return createEmptyMetadata();
+                return STNodeFactory.createEmptyNode();
         }
 
-        return STNodeFactory.createMetadataNode(docString, annotations);
+        return createMetadata(docString, annotations);
     }
 
     /**
-     * Create empty metadata node.
+     * Create metadata node.
      *
-     * @return A metadata node with no doc string and no annotations
+     * @return A metadata node
      */
-    private STNode createEmptyMetadata() {
-        return STNodeFactory.createMetadataNode(STNodeFactory.createEmptyNode(), STNodeFactory.createEmptyNodeList());
+    private STNode createMetadata(STNode docString, STNode annotations) {
+        if (annotations == null && docString == null) {
+            return STNodeFactory.createEmptyNode();
+        } else {
+            return STNodeFactory.createMetadataNode(docString, annotations);
+        }
     }
 
     /**

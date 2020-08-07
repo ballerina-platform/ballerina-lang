@@ -2,15 +2,6 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": [
         {
@@ -137,15 +128,6 @@
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "LIST",
                               "children": [
                                 {
@@ -238,15 +220,6 @@
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "LIST",
                               "children": []
                             },
@@ -332,15 +305,6 @@
                         {
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "LIST",
                               "children": [

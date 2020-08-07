@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -96,15 +87,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,
               "children": [
@@ -141,15 +123,6 @@
                           "kind": "OBJECT_FIELD",
                           "hasDiagnostics": true,
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "PUBLIC_KEYWORD",
                               "leadingMinutiae": [
@@ -324,15 +297,6 @@
                           "kind": "OBJECT_FIELD",
                           "hasDiagnostics": true,
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "SIMPLE_NAME_REFERENCE",
                               "hasDiagnostics": true,

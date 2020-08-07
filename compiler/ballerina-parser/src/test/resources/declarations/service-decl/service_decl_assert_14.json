@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "SERVICE_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -97,15 +88,6 @@
                       "kind": "FUNCTION_DEFINITION",
                       "hasDiagnostics": true,
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [
@@ -203,15 +185,6 @@
                       "kind": "FUNCTION_DEFINITION",
                       "hasDiagnostics": true,
                       "children": [
-                        {
-                          "kind": "METADATA",
-                          "children": [
-                            {
-                              "kind": "LIST",
-                              "children": []
-                            }
-                          ]
-                        },
                         {
                           "kind": "LIST",
                           "children": [

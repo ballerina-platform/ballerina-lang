@@ -50,7 +50,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public FunctionDefinitionNode transform(
             FunctionDefinitionNode functionDefinitionNode) {
         MetadataNode metadata =
-                modifyNode(functionDefinitionNode.metadata());
+                modifyNode(functionDefinitionNode.metadata().orElse(null));
         NodeList<Token> qualifierList =
                 modifyNodeList(functionDefinitionNode.qualifierList());
         Token functionKeyword =
@@ -98,7 +98,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ListenerDeclarationNode transform(
             ListenerDeclarationNode listenerDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(listenerDeclarationNode.metadata());
+                modifyNode(listenerDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(listenerDeclarationNode.visibilityQualifier().orElse(null));
         Token listenerKeyword =
@@ -128,7 +128,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public TypeDefinitionNode transform(
             TypeDefinitionNode typeDefinitionNode) {
         MetadataNode metadata =
-                modifyNode(typeDefinitionNode.metadata());
+                modifyNode(typeDefinitionNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(typeDefinitionNode.visibilityQualifier().orElse(null));
         Token typeKeyword =
@@ -152,7 +152,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ServiceDeclarationNode transform(
             ServiceDeclarationNode serviceDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(serviceDeclarationNode.metadata());
+                modifyNode(serviceDeclarationNode.metadata().orElse(null));
         Token serviceKeyword =
                 modifyToken(serviceDeclarationNode.serviceKeyword());
         IdentifierToken serviceName =
@@ -649,7 +649,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ConstantDeclarationNode transform(
             ConstantDeclarationNode constantDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(constantDeclarationNode.metadata());
+                modifyNode(constantDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(constantDeclarationNode.visibilityQualifier());
         Token constKeyword =
@@ -955,7 +955,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ObjectFieldNode transform(
             ObjectFieldNode objectFieldNode) {
         MetadataNode metadata =
-                modifyNode(objectFieldNode.metadata());
+                modifyNode(objectFieldNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(objectFieldNode.visibilityQualifier().orElse(null));
         Token readonlyKeyword =
@@ -985,7 +985,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public RecordFieldNode transform(
             RecordFieldNode recordFieldNode) {
         MetadataNode metadata =
-                modifyNode(recordFieldNode.metadata());
+                modifyNode(recordFieldNode.metadata().orElse(null));
         Token readonlyKeyword =
                 modifyToken(recordFieldNode.readonlyKeyword().orElse(null));
         Node typeName =
@@ -1009,7 +1009,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public RecordFieldWithDefaultValueNode transform(
             RecordFieldWithDefaultValueNode recordFieldWithDefaultValueNode) {
         MetadataNode metadata =
-                modifyNode(recordFieldWithDefaultValueNode.metadata());
+                modifyNode(recordFieldWithDefaultValueNode.metadata().orElse(null));
         Token readonlyKeyword =
                 modifyToken(recordFieldWithDefaultValueNode.readonlyKeyword().orElse(null));
         Node typeName =
@@ -1108,7 +1108,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ModuleVariableDeclarationNode transform(
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(moduleVariableDeclarationNode.metadata());
+                modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
         Token finalKeyword =
                 modifyToken(moduleVariableDeclarationNode.finalKeyword().orElse(null));
         TypedBindingPatternNode typedBindingPattern =
@@ -1201,7 +1201,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public AnnotationDeclarationNode transform(
             AnnotationDeclarationNode annotationDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(annotationDeclarationNode.metadata());
+                modifyNode(annotationDeclarationNode.metadata().orElse(null));
         Token visibilityQualifier =
                 modifyToken(annotationDeclarationNode.visibilityQualifier());
         Token constKeyword =
@@ -2177,7 +2177,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public MethodDeclarationNode transform(
             MethodDeclarationNode methodDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(methodDeclarationNode.metadata());
+                modifyNode(methodDeclarationNode.metadata().orElse(null));
         NodeList<Token> qualifierList =
                 modifyNodeList(methodDeclarationNode.qualifierList());
         Token functionKeyword =
@@ -2543,7 +2543,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public EnumDeclarationNode transform(
             EnumDeclarationNode enumDeclarationNode) {
         MetadataNode metadata =
-                modifyNode(enumDeclarationNode.metadata());
+                modifyNode(enumDeclarationNode.metadata().orElse(null));
         Token qualifier =
                 modifyToken(enumDeclarationNode.qualifier());
         Token enumKeywordToken =
@@ -2570,7 +2570,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public EnumMemberNode transform(
             EnumMemberNode enumMemberNode) {
         MetadataNode metadata =
-                modifyNode(enumMemberNode.metadata());
+                modifyNode(enumMemberNode.metadata().orElse(null));
         IdentifierToken identifier =
                 modifyNode(enumMemberNode.identifier());
         Token equalToken =
@@ -2816,7 +2816,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     public ObjectMethodDefinitionNode transform(
             ObjectMethodDefinitionNode objectMethodDefinitionNode) {
         MetadataNode metadata =
-                modifyNode(objectMethodDefinitionNode.metadata());
+                modifyNode(objectMethodDefinitionNode.metadata().orElse(null));
         NodeList<Token> qualifierList =
                 modifyNodeList(objectMethodDefinitionNode.qualifierList());
         Token functionKeyword =

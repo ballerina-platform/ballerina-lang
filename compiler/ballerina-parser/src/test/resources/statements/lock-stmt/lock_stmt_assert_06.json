@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "LIST",
       "children": [
         {
@@ -225,15 +216,6 @@
                                           "hasDiagnostics": true,
                                           "children": [
                                             {
-                                              "kind": "METADATA",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                }
-                                              ]
-                                            },
-                                            {
                                               "kind": "INT_TYPE_DESC",
                                               "children": [
                                                 {
@@ -277,15 +259,6 @@
                                           "kind": "METHOD_DECLARATION",
                                           "hasDiagnostics": true,
                                           "children": [
-                                            {
-                                              "kind": "METADATA",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "LIST",
                                               "children": []

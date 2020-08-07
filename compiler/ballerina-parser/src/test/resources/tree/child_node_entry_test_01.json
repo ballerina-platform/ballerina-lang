@@ -5,13 +5,6 @@
         {
             "kind": "FUNCTION_DEFINITION",
             "value": {
-                "metadata": {
-                    "kind": "METADATA",
-                    "value": {
-                        "annotations": [
-                        ]
-                    }
-                },
                 "qualifierList" : [
                 ],
                 "functionKeyword": {
