@@ -16,12 +16,12 @@
 
 import ballerina/http;
 
-http:Client cachingEP4 = new("http://localhost:9260", { cache: { isShared: true } });
+http:Client cachingEP4 = new("http://localhost:9243", { cache: { isShared: true } });
 
 @http:ServiceConfig {
     basePath: "/validation-request"
 }
-service cachingProxy2 on new http:Listener(9259) {
+service cachingProxy2 on cachingProxyListener {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/"
@@ -42,7 +42,7 @@ service cachingProxy2 on new http:Listener(9259) {
 @http:ServiceConfig {
     basePath: "/validation-req-be"
 }
-service cachingBackEnd2 on new http:Listener(9260) {
+service cachingBackEnd2 on cachingBackendListener {
 
     @http:ResourceConfig { path: "/" }
     resource function mustRevalidate(http:Caller caller, http:Request req) {
