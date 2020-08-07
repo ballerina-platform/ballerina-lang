@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
@@ -38,7 +37,7 @@ import static org.ballerinalang.langserver.command.docs.DocumentationGenerator.g
 
 /**
  * Command executor for adding single documentation.
- * 
+ *
  * @since 0.983.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor")
@@ -76,8 +75,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         BLangPackage bLangPackage;
         try {
             WorkspaceDocumentManager documentManager = ctx.get(DocumentServiceKeys.DOC_MANAGER_KEY);
-            bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, LSCustomErrorStrategy.class, false,
-                    false, true);
+            bLangPackage = LSModuleCompiler.getBLangPackage(ctx, documentManager, null, false, false, true);
         } catch (CompilationFailedException e) {
             throw new LSCommandExecutorException("Couldn't compile the source", e);
         }
@@ -94,7 +92,7 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
         Range range = new Range(docAttachmentInfo.getDocStartPos(), docAttachmentInfo.getDocStartPos());
 
         return applySingleTextEdit(docAttachmentInfo.getDocAttachment(), range, textDocumentIdentifier,
-                                   ctx.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY));
+                ctx.get(ExecuteCommandKeys.LANGUAGE_CLIENT_KEY));
     }
 
     /**

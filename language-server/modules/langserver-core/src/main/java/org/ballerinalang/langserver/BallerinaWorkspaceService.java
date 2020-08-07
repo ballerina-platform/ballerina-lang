@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompilerUtil;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.config.LSClientConfig;
 import org.ballerinalang.langserver.compiler.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.exception.UserErrorException;
@@ -88,9 +87,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                     symbolsContext.put(DocumentServiceKeys.SYMBOL_LIST_KEY, symbols);
                     symbolsContext.put(DocumentServiceKeys.FILE_URI_KEY, path.toUri().toString());
                     List<BLangPackage> bLangPackage = LSModuleCompiler.getBLangPackages(symbolsContext,
-                                                                                        workspaceDocumentManager,
-                                                                                        LSCustomErrorStrategy.class,
-                                                                                        true, false, false, true);
+                            workspaceDocumentManager, null, true, false, false, true);
                     bLangPackage.forEach(aPackage -> aPackage.compUnits.forEach(compUnit -> {
                         String unitName = compUnit.getName();
                         String sourceRoot = LSCompilerUtil.getProjectRoot(path);
@@ -151,7 +148,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
             LSContext executeCmdContext = new WorkspaceServiceOperationContext
                     .ServiceOperationContextBuilder(LSContextOperation.WS_EXEC_CMD)
                     .withExecuteCommandParams(params.getArguments(), workspaceDocumentManager, languageServer,
-                                              clientCapabilities)
+                            clientCapabilities)
                     .build();
 
             try {
@@ -167,8 +164,8 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 logError(msg, e, null, (Position) null);
             }
             logError("Operation 'workspace/executeCommand' failed!",
-                     new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
-                     null, (Position) null);
+                    new LSCommandExecutorException("No command executor found for '" + params.getCommand() + "'"),
+                    null, (Position) null);
             return false;
         });
     }

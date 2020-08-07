@@ -38,7 +38,6 @@ import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.ExtendedLSCompiler;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.common.modal.SymbolMetaInfo;
 import org.ballerinalang.langserver.compiler.format.JSONGenerationException;
@@ -97,7 +96,6 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     private final BallerinaLanguageServer ballerinaLanguageServer;
     private final WorkspaceDocumentManager documentManager;
     public static final LSContext.Key<String> UPDATED_SOURCE = new LSContext.Key<>();
-//    private static final Logger logger = LoggerFactory.getLogger(BallerinaDocumentServiceImpl.class);
 
     public BallerinaDocumentServiceImpl(LSGlobalContext globalContext) {
         this.ballerinaLanguageServer = globalContext.get(LSGlobalContextKeys.LANGUAGE_SERVER_KEY);
@@ -280,8 +278,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     .DocumentOperationContextBuilder(LSContextOperation.DOC_SERVICE_AST)
                     .withCommonParams(null, fileUri, documentManager)
                     .build();
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, LSCustomErrorStrategy.class,
-                    false, false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
         } catch (Throwable e) {
@@ -301,7 +298,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             CompilerContext compilerContext = astContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
             if (compilerContext.get(DiagnosticListener.class) instanceof CollectDiagnosticListener) {
                 diagnostics = ((CollectDiagnosticListener) compilerContext
-                            .get(DiagnosticListener.class)).getDiagnostics();
+                        .get(DiagnosticListener.class)).getDiagnostics();
             }
             return !diagnostics.stream().anyMatch(diagnostic -> {
                 DiagnosticCode code = diagnostic.getCode();
@@ -390,9 +387,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTreeModifyUtil.modifyTree(request.getAstModifications(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false, false,
-                    true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
@@ -431,9 +426,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             oldContent = documentManager.getFileContent(compilationPath);
             LSContext astContext = BallerinaTriggerModifyUtil.modifyTrigger(request.getType(), request.getConfig(),
                     fileUri, compilationPath, documentManager);
-            LSModuleCompiler.getBLangPackage(astContext, this.documentManager,
-                    LSCustomErrorStrategy.class, false,
-                    false, true);
+            LSModuleCompiler.getBLangPackage(astContext, this.documentManager, null, false, false, true);
             reply.setSource(astContext.get(UPDATED_SOURCE));
             reply.setAst(getTreeForContent(astContext));
             reply.setParseSuccess(isParseSuccess(astContext));
