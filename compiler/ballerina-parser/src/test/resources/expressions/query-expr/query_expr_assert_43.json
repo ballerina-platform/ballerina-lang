@@ -100,7 +100,7 @@
                   "isMissing": true,
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_SYNTAX_ERROR"
+                    "ERROR_MISSING_BY_KEYWORD"
                   ]
                 },
                 {

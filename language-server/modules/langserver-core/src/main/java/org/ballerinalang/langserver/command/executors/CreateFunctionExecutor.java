@@ -33,6 +33,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.references.ReferencesKeys;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
 import org.ballerinalang.langserver.util.references.SymbolReferencesModel;
@@ -56,15 +57,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.io.File;
-import java.net.URI;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.ballerinalang.langserver.command.CommandUtil.applyWorkspaceEdit;
-import static org.ballerinalang.langserver.compiler.LSCompilerUtil.getUntitledFilePath;
 
 /**
  * Represents the command executor for creating a function.
@@ -134,21 +132,18 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         }
         String functionName = functionNode.name.getValue();
 
-        Path filePath = Paths.get(URI.create(documentUri));
-        Path compilationPath = getUntitledFilePath(filePath.toString()).orElse(filePath);
-        String fileContent;
-        try {
-            fileContent = docManager.getFileContent(compilationPath);
-        } catch (WorkspaceDocumentException e) {
-            throw new LSCommandExecutorException("Error occurred while reading the file:" + filePath.toString(), e);
-        }
         BLangNode parent = functionNode.parent;
         BLangPackage packageNode = CommonUtil.getPackageNode(functionNode);
 
-        String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
-        int eLine = contentComponents.length;
-        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf('\n'), fileContent.lastIndexOf('\r'));
-        int eCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+        int eLine = 0;
+        int eCol = 0;
+
+        BLangCompilationUnit cUnit = getCurrentCUnit(context, packageNode);
+        for (TopLevelNode topLevelNode : cUnit.topLevelNodes) {
+            if (topLevelNode.getPosition().getEndLine() > eLine) {
+                eLine = topLevelNode.getPosition().getEndLine();
+            }
+        }
 
         List<TextEdit> edits = new ArrayList<>();
         if (parent != null && packageNode != null) {
@@ -179,7 +174,6 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
                 prependLineFeed = false;
             }
             eLine = nodeLocation.getLeft().eLine - 1;
-            eCol = 0;
             String cUnitName = nodeLocation.getLeft().src.cUnitName;
             String sourceRoot = context.get(DocumentServiceKeys.SOURCE_ROOT_KEY);
             String pkgName = nodeLocation.getLeft().src.pkgID.name.toString();
@@ -196,6 +190,24 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
         edits.add(new TextEdit(range, editText));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(textDocumentIdentifier, edits);
         return applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
+    }
+
+    private BLangCompilationUnit getCurrentCUnit(LSContext context, BLangPackage packageNode) {
+    /*
+    In windows platform, relative file path key components are separated with "\" while antlr always uses "/"
+     */
+        String relativePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
+        String currentCUnitName = relativePath.replace("\\", "/");
+        BLangPackage sourceOwnerPkg = CommonUtil.getSourceOwnerBLangPackage(relativePath, packageNode);
+
+        Optional<BLangCompilationUnit> currentCUnit = sourceOwnerPkg.getCompilationUnits().stream()
+                .filter(cUnit -> cUnit.name.equals(currentCUnitName))
+                .findAny();
+
+        if (!currentCUnit.isPresent()) {
+            throw new UserErrorException("Not supported due to compilation failures!");
+        }
+        return currentCUnit.get();
     }
 
     private Pair<DiagnosticPos, Boolean> getNodeLocationAndHasFunctions(String name, LSContext context) {

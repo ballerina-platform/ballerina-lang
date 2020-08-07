@@ -129,6 +129,14 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_IMPORT_KEYWORD("BCE02064", "error.missing.import.keyword"),
     ERROR_MISSING_CONST_KEYWORD("BCE02065", "error.missing.const.keyword"),
     ERROR_MISSING_EXTERNAL_KEYWORD("BCE02066", "error.missing.external.keyword"),
+    ERROR_MISSING_ORDER_KEYWORD("BCE02067", "error.missing.order.keyword"),
+    ERROR_MISSING_BY_KEYWORD("BCE02068", "error.missing.by.keyword"),
+    ERROR_MISSING_CONFLICT_KEYWORD("BCE02069", "error.missing.conflict.keyword"),
+    ERROR_MISSING_LIMIT_KEYWORD("BCE02070", "error.missing.limit.keyword"),
+    ERROR_MISSING_ASCENDING_KEYWORD("BCE02071", "error.missing.ascending.keyword"),
+    ERROR_MISSING_DESCENDING_KEYWORD("BCE02072", "error.missing.descending.keyword"),
+    ERROR_MISSING_JOIN_KEYWORD("BCE02073", "error.missing.join.keyword"),
+    ERROR_MISSING_OUTER_KEYWORD("BCE02074", "error.missing.outer.keyword"),
 
     // Type keywords
     ERROR_MISSING_INT_KEYWORD("BCE02101", "error.missing.int.keyword"),
@@ -281,6 +289,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_ARRAY_LENGTH("BCE501", "error.invalid.array.length"),
     ERROR_SELECT_CLAUSE_IN_QUERY_ACTION("BCE502", "error.select.clause.in.query.action"),
     ERROR_MORE_CLAUSES_AFTER_SELECT_CLAUSE("BCE503", "error.more.clauses.after.select.clause"),
+    ERROR_QUERY_CONSTRUCT_TYPE_IN_QUERY_ACTION("BCE504", "error.query.construct.type.in.query.action"),
 
     ERROR_NO_WHITESPACES_ALLOWED_IN_RIGHT_SHIFT_OP("BCE601", "error.no.whitespaces.allowed.in.right.shift.op"),
     ERROR_NO_WHITESPACES_ALLOWED_IN_UNSIGNED_RIGHT_SHIFT_OP("BCE602",

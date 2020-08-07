@@ -19,6 +19,7 @@ import io.ballerinalang.compiler.syntax.tree.Token;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LSContext;
+import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.workspace.LSDocumentIdentifier;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
@@ -132,14 +133,15 @@ public class ReferencesUtil {
      * Get the hover content.
      *
      * @param context Hover operation context
-     * @param position Cursor position
+     * @param cursorPosition Cursor position
      * @return {@link Hover} Hover content
      * @throws WorkspaceDocumentException when couldn't find file for uri
      * @throws CompilationFailedException when compilation failed
      */
-    public static Hover getHover(LSContext context, Position position)
+    public static Hover getHover(LSContext context, Position cursorPosition)
             throws WorkspaceDocumentException, CompilationFailedException, TokenOrSymbolNotFoundException {
-        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
+        Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, cursorPosition);
+        context.put(CompletionKeys.TOKEN_AT_CURSOR_KEY, tokenAtCursor);
         List<BLangPackage> modules = compileModules(context);
         Reference symbolAtCursor = findReferencesForCurrentCUnit(tokenAtCursor, modules, context)
                 .getReferenceAtCursor();

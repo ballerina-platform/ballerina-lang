@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.common.utils;
 import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.CommonToken;
 import org.apache.commons.lang3.tuple.Pair;
-import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
@@ -33,13 +32,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
@@ -47,7 +44,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -56,7 +52,6 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -75,66 +70,6 @@ import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_EN
 public class FilterUtils {
 
     /**
-     * Get the invocations and fields against an identifier (functions, actions and fields).
-     *
-     * @param context       Text Document Service context (Completion Context)
-     * @param varName       Variable name to evaluate against (Can be package alias or defined variable)
-     * @param delimiter     delimiter type either dot or action invocation symbol
-     * @param defaultTokens List of Default tokens
-     * @param delimIndex    Delimiter index
-     * @return {@link ArrayList}    List of filtered symbol info
-     */
-    public static List<Scope.ScopeEntry> filterVariableEntriesOnDelimiter(LSContext context, String varName,
-                                                                          int delimiter,
-                                                                          List<CommonToken> defaultTokens,
-                                                                          int delimIndex) {
-        List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        visibleSymbols.removeIf(CommonUtil.invalidSymbolsPredicate());
-        if (BallerinaParser.RARROW == delimiter) {
-            Scope.ScopeEntry variable = getVariableByName(varName, visibleSymbols);
-            if (variable != null && CommonUtil.isClientObject(variable.symbol)) {
-                // Handling action invocations ep -> ...
-                return getClientActions((BObjectTypeSymbol) variable.symbol.type.tsymbol);
-            }
-            // Handling worker-interactions eg. msg -> ...
-            visibleSymbols.removeIf(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol);
-            return visibleSymbols;
-        }
-        if (BallerinaParser.LARROW == delimiter) {
-            // Handling worker-interaction msg <- ...
-            visibleSymbols.removeIf(scopeEntry -> scopeEntry.symbol instanceof BTypeSymbol);
-            return visibleSymbols;
-        }
-        if (BallerinaParser.DOT == delimiter || BallerinaParser.OPTIONAL_FIELD_ACCESS == delimiter
-                || BallerinaParser.NOT == delimiter) {
-            return getInvocationsAndFields(context, defaultTokens, delimIndex);
-        }
-        if (BallerinaParser.COLON == delimiter) {
-            String moduleName = varName;
-            for (BLangImportPackage importModule : context.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY)) {
-                if (importModule.alias.getValue().equals(varName)) {
-                    moduleName = CommonUtil.getSymbolName(importModule.symbol);
-                    break;
-                }
-            }
-            String finalModuleName = moduleName;
-            Optional<Scope.ScopeEntry> pkgSymbol = visibleSymbols.stream()
-                    .filter(item -> CommonUtil.getSymbolName(item.symbol).equals(finalModuleName)
-                            && item.symbol instanceof BPackageSymbol)
-                    .findFirst();
-
-            if (!pkgSymbol.isPresent()) {
-                return new ArrayList<>();
-            }
-
-            Map<Name, Scope.ScopeEntry> scopeEntryMap = pkgSymbol.get().symbol.scope.entries;
-            return loadActionsFunctionsAndTypesFromScope(scopeEntryMap);
-        }
-
-        return new ArrayList<>();
-    }
-
-    /**
      * Get the actions defined over and endpoint.
      *
      * @param objectTypeSymbol Endpoint variable symbol to evaluate
@@ -144,66 +79,6 @@ public class FilterUtils {
         return objectTypeSymbol.methodScope.entries.values().stream()
                 .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.REMOTE) == Flags.REMOTE)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * Get invocations and fields.
-     * Get the invocations and fields for a dot separated chained statement
-     * Eg: int x = var1.field1.testFunction()
-     *
-     * @param ctx           Language server operation context
-     * @param defaultTokens List of default tokens removed (LHS Tokens)
-     * @param delimIndex    Delimiter index
-     * @return {@link List} List of extracted symbols
-     */
-    private static List<Scope.ScopeEntry> getInvocationsAndFields(LSContext ctx, List<CommonToken> defaultTokens,
-                                                                  int delimIndex) {
-        List<Scope.ScopeEntry> resultList = new ArrayList<>();
-        List<ChainedFieldModel> invocationFieldList = getInvocationFieldList(defaultTokens, delimIndex, false);
-        SymbolTable symbolTable = SymbolTable.getInstance(ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY));
-
-        ChainedFieldModel startField = invocationFieldList.get(0);
-        List<Scope.ScopeEntry> symbolList = new ArrayList<>(ctx.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
-        BSymbol bSymbol = getVariableByName(startField.name.getText(), symbolList).symbol;
-        if (bSymbol instanceof BPackageSymbol) {
-            /*
-            Above common filter extract package symbols as well. Hence we skip since dot delimiter is not valid over a 
-            module 
-             */
-            return resultList;
-        }
-        BType modifiedBType = getModifiedBType(bSymbol, ctx, startField.fieldType);
-        Map<Name, Scope.ScopeEntry> scopeEntries = getInvocationsAndFieldsForSymbol(startField.name.getText(),
-                modifiedBType, ctx);
-
-        for (int itr = 1; itr < invocationFieldList.size(); itr++) {
-            ChainedFieldModel fieldModel = invocationFieldList.get(itr);
-            if (modifiedBType instanceof BJSONType) {
-                /*
-                Specially handle the json type to support json field access
-                Eg: myJson.test_field.toString()
-                 */
-                modifiedBType = BUnionType.create(null, modifiedBType, symbolTable.errorType);
-                scopeEntries = getInvocationsAndFieldsForSymbol(fieldModel.name.getText(), modifiedBType, ctx);
-                continue;
-            }
-            if (scopeEntries == null) {
-                break;
-            }
-            Optional<Scope.ScopeEntry> entry = getScopeEntryWithName(scopeEntries, fieldModel);
-            if (!entry.isPresent()) {
-                break;
-            }
-            bSymbol = entry.get().symbol;
-            modifiedBType = getModifiedBType(bSymbol, ctx, fieldModel.fieldType);
-            scopeEntries = getInvocationsAndFieldsForSymbol(fieldModel.name.getText(), modifiedBType, ctx);
-        }
-        if (scopeEntries == null) {
-            return new ArrayList<>();
-        }
-        scopeEntries.forEach((entryName, fieldEntry) -> resultList.add(fieldEntry));
-
-        return resultList;
     }
 
     /**
@@ -396,58 +271,9 @@ public class FilterUtils {
         }
     }
 
-    /**
-     * Analyze the given symbol type and extracts the invocations and fields from the scope entries.
-     * When extracting the invocations, extract the type attached functions
-     *
-     * @param symbolName symbol name to evaluate
-     * @param symbolType BType to evaluate
-     * @param context    Language Server Operation Context
-     * @return {@link Map} Scope Entry Map
-     */
-    @Deprecated
-    public static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForSymbol(String symbolName, BType symbolType,
-                                                                                LSContext context) {
-        Integer invocationToken = context.get(CompletionKeys.INVOCATION_TOKEN_TYPE_KEY);
-        CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
-        Types types = Types.getInstance(compilerContext);
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-
-        /*
-        LangLib checks also contains a check for the object type tag. But we skip and instead extract the entries
-        from the object symbol itself
-         */
-        if (symbolType.tsymbol instanceof BObjectTypeSymbol) {
-            BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolType.tsymbol;
-            entries.putAll(getObjectMethodsAndFields(context, objectTypeSymbol, symbolName));
-            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-            return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BInvokableSymbol))
-                    || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-        } else if (symbolType instanceof BUnionType) {
-            entries.putAll(getInvocationsAndFieldsForUnionType((BUnionType) symbolType, context));
-        } else if (symbolType.tsymbol != null && symbolType.tsymbol.scope != null) {
-            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-            Map<Name, Scope.ScopeEntry> filteredEntries = symbolType.tsymbol.scope.entries.entrySet().stream()
-                    .filter(optionalFieldFilter(symbolType, invocationToken, context))
-                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-            entries.putAll(filteredEntries);
-        } else {
-            entries.putAll(getLangLibScopeEntries(symbolType, symbolTable, types));
-        }
-        /*
-        Here we add the BTypeSymbol check to skip the anyData and similar types suggested from lang lib scope entries
-         */
-        return entries.entrySet().stream().filter(entry -> (!(entry.getValue().symbol instanceof BTypeSymbol))
-                && ((!(entry.getValue().symbol instanceof BInvokableSymbol))
-                || ((entry.getValue().symbol.flags & Flags.REMOTE) != Flags.REMOTE)))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
-    }
-
-    public static Map<Name, Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
-                                                                         BObjectTypeSymbol objectSymbol,
-                                                                         String symbolName) {
+    public static List<Scope.ScopeEntry> getObjectMethodsAndFields(LSContext context,
+                                                                   BObjectTypeSymbol objectSymbol,
+                                                                   String symbolName) {
         String currentModule = context.get(DocumentServiceKeys.CURRENT_PKG_NAME_KEY);
         String objectOwnerModule = objectSymbol.pkgID.getName().getValue();
         boolean symbolInCurrentModule = currentModule.equals(objectOwnerModule);
@@ -478,7 +304,7 @@ public class FilterUtils {
 
         entries.putAll(fieldEntries);
 
-        return entries;
+        return new ArrayList<>(entries.values());
     }
 
     /**
@@ -489,10 +315,10 @@ public class FilterUtils {
      * @param context   Language server operation context
      * @return {@link Map} map of scope entries
      */
-    public static Map<Name, Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
-                                                                                   LSContext context) {
+    public static List<Scope.ScopeEntry> getInvocationsAndFieldsForUnionType(BUnionType unionType,
+                                                                             LSContext context) {
         ArrayList<BType> memberTypes = new ArrayList<>(unionType.getMemberTypes());
-        Map<Name, Scope.ScopeEntry> resultEntries = new HashMap<>();
+        List<Scope.ScopeEntry> resultEntries = new ArrayList<>();
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
@@ -502,11 +328,11 @@ public class FilterUtils {
         boolean allMatch = memberTypes.stream().allMatch(bType -> bType.tag == firstMemberType.tag);
         // If all the members are not same types we stop proceeding
         if (!allMatch) {
-            resultEntries.putAll(getLangLibScopeEntries(unionType, symbolTable, types));
+            resultEntries.addAll(getLangLibScopeEntries(unionType, symbolTable, types));
             return resultEntries;
         }
 
-        resultEntries.putAll(getLangLibScopeEntries(firstMemberType, symbolTable, types));
+        resultEntries.addAll(getLangLibScopeEntries(firstMemberType, symbolTable, types));
         if (firstMemberType.tag == TypeTags.RECORD) {
             // Keep track of the occurrences of each of the field names
             LinkedHashMap<String, Integer> memberOccurrenceCounts = new LinkedHashMap<>();
@@ -543,7 +369,7 @@ public class FilterUtils {
                         && (org.ballerinalang.jvm.util.Flags.isFlagOn(symbol.flags, Flags.OPTIONAL))) {
                     continue;
                 }
-                resultEntries.put(name, firstMemberEntries.get(name));
+                resultEntries.add(firstMemberEntries.get(name));
             }
         }
 
@@ -573,68 +399,68 @@ public class FilterUtils {
      * @param types    {@link Types} analyzer
      * @return map of scope entries
      */
-    public static Map<Name, Scope.ScopeEntry> getLangLibScopeEntries(BType bType, SymbolTable symTable, Types types) {
-        Map<Name, Scope.ScopeEntry> entries = new HashMap<>();
-        entries.putAll(symTable.langValueModuleSymbol.scope.entries);
-        entries.putAll(symTable.langQueryModuleSymbol.scope.entries);
+    public static List<Scope.ScopeEntry> getLangLibScopeEntries(BType bType, SymbolTable symTable, Types types) {
+        List<Scope.ScopeEntry> entries = new ArrayList<>();
+        entries.addAll(symTable.langValueModuleSymbol.scope.entries.values());
+        entries.addAll(symTable.langQueryModuleSymbol.scope.entries.values());
         switch (bType.tag) {
             case TypeTags.ARRAY:
             case TypeTags.TUPLE:
-                entries.putAll(symTable.langArrayModuleSymbol.scope.entries);
+                entries.addAll(symTable.langArrayModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.DECIMAL:
-                entries.putAll(symTable.langDecimalModuleSymbol.scope.entries);
+                entries.addAll(symTable.langDecimalModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.ERROR:
-                entries.putAll(symTable.langErrorModuleSymbol.scope.entries);
+                entries.addAll(symTable.langErrorModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.FLOAT:
-                entries.putAll(symTable.langFloatModuleSymbol.scope.entries);
+                entries.addAll(symTable.langFloatModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.FUTURE:
-                entries.putAll(symTable.langFutureModuleSymbol.scope.entries);
+                entries.addAll(symTable.langFutureModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.INT:
-                entries.putAll(symTable.langIntModuleSymbol.scope.entries);
+                entries.addAll(symTable.langIntModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.MAP:
             case TypeTags.RECORD:
-                entries.putAll(symTable.langMapModuleSymbol.scope.entries);
+                entries.addAll(symTable.langMapModuleSymbol.scope.entries.values());
                 return entries;
             case TypeTags.OBJECT:
-                entries.putAll(symTable.langObjectModuleSymbol.scope.entries);
+                entries.addAll(symTable.langObjectModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.STREAM:
-                entries.putAll(symTable.langStreamModuleSymbol.scope.entries);
+                entries.addAll(symTable.langStreamModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.TABLE:
-                entries.putAll(symTable.langTableModuleSymbol.scope.entries);
+                entries.addAll(symTable.langTableModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.STRING:
-                entries.putAll(symTable.langStringModuleSymbol.scope.entries);
+                entries.addAll(symTable.langStringModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.TYPEDESC:
-                entries.putAll(symTable.langTypedescModuleSymbol.scope.entries);
+                entries.addAll(symTable.langTypedescModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.XML:
-                entries.putAll(symTable.langXmlModuleSymbol.scope.entries);
+                entries.addAll(symTable.langXmlModuleSymbol.scope.entries.values());
                 break;
             case TypeTags.BOOLEAN:
-                entries.putAll(symTable.langBooleanModuleSymbol.scope.entries);
+                entries.addAll(symTable.langBooleanModuleSymbol.scope.entries.values());
                 break;
             default:
                 break;
         }
 
-        return entries.entrySet().stream().filter(entry -> {
-            BSymbol symbol = entry.getValue().symbol;
+        return entries.stream().filter(entry -> {
+            BSymbol symbol = entry.symbol;
             if (symbol instanceof BInvokableSymbol) {
                 List<BVarSymbol> params = ((BInvokableSymbol) symbol).params;
                 return params.isEmpty() || params.get(0).type.tag == bType.tag ||
                         (types.isAssignable(bType, params.get(0).type));
             }
             return symbol.kind != null && symbol.kind != SymbolKind.OBJECT;
-        }).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+        }).collect(Collectors.toList());
     }
 
     private static Predicate<Map.Entry<Name, Scope.ScopeEntry>> optionalFieldFilter(BType symbolType,
