@@ -46,6 +46,7 @@ dependencies {
     implementation project(':openapi-ballerina:ballerina-to-openapi-generator')
 
     // Standard libs
+    implementation project(':language-server:language-server-stdlib')
     implementation project(':ballerina-auth')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-cache')
@@ -99,6 +100,7 @@ dependencies {
     implementation 'com.github.jknack:handlebars:4.0.6'
     implementation 'com.moandjiezana.toml:toml4j'
 
+    baloImplementation project(path: ':language-server:language-server-stdlib', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-auth', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
     baloImplementation project(path: ':ballerina-cache', configuration: 'baloImplementation')

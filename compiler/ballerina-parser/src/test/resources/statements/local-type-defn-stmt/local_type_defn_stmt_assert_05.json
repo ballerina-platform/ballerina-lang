@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "PUBLIC_KEYWORD",
       "trailingMinutiae": [
         {
@@ -187,15 +178,6 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
-                            {
                               "kind": "INT_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
@@ -250,15 +232,6 @@
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "hasDiagnostics": true,
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "PUBLIC_KEYWORD",
                               "leadingMinutiae": [
@@ -439,15 +412,6 @@
                         {
                           "kind": "OBJECT_FIELD",
                           "children": [
-                            {
-                              "kind": "METADATA",
-                              "children": [
-                                {
-                                  "kind": "LIST",
-                                  "children": []
-                                }
-                              ]
-                            },
                             {
                               "kind": "INT_TYPE_DESC",
                               "children": [
