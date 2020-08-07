@@ -15,9 +15,24 @@ public type GraphAPIErrorDetails record {|
     map<anydata> details;
 |};
 
-public function testFunctionCallInDetailArgExpr() returns error {
+public function testFunctionCallInDetailArgExpr() {
     json codeJson = "1234";
     map<anydata> details = {};
     var x = GraphAPIError("Concurrent graph modification", code = codeJson.toString(), details = details);
-    return x;
+    assertEquality(x.toString(), "error Concurrent graph modification code=1234 details=");
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error actual, any|error expected) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }

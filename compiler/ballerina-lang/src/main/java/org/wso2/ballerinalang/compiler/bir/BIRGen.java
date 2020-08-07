@@ -437,9 +437,8 @@ public class BIRGen extends BLangNodeVisitor {
         // For distinct types, the type defined by typeDefStmt (DE) is different from type used to define it (E).
         if (nodeType.tag == TypeTags.ERROR) {
             return astTypeDefinition.symbol.type;
-        } else {
-            return nodeType;
         }
+        return nodeType;
     }
 
     @Override

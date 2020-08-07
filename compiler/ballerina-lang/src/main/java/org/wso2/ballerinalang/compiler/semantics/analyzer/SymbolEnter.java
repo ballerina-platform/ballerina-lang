@@ -1525,19 +1525,20 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineErrorDetails(List<BLangTypeDefinition> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangTypeDefinition typeDef : typeDefNodes) {
-            if (typeDef.typeNode.getKind() == NodeKind.ERROR_TYPE) {
-                BLangErrorType errorTypeNode = (BLangErrorType) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(errorTypeNode, typeDef.symbol.scope, pkgEnv);
+            BLangType typeNode = typeDef.typeNode;
+            SymbolEnv typeDefEnv = SymbolEnv.createTypeEnv(typeNode, typeDef.symbol.scope, pkgEnv);
+            if (typeNode.getKind() == NodeKind.ERROR_TYPE) {
+                BLangErrorType errorTypeNode = (BLangErrorType) typeNode;
 
                 BType detailType = Optional.ofNullable(errorTypeNode.detailType)
                         .map(bLangType -> symResolver.resolveTypeNode(bLangType, typeDefEnv))
                         .orElse(symTable.detailType);
 
                 ((BErrorType) typeDef.symbol.type).detailType = detailType;
-            } else if (typeDef.typeNode.type != null && typeDef.typeNode.type.tag == TypeTags.ERROR) {
-                BType detailType = ((BErrorType) typeDef.typeNode.type).detailType;
+            } else if (typeNode.type != null && typeNode.type.tag == TypeTags.ERROR) {
+                BType detailType = ((BErrorType) typeNode.type).detailType;
                 if (detailType == symTable.noType) {
-                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeDef.typeNode, pkgEnv);
+                    BErrorType type = (BErrorType) symResolver.resolveTypeNode(typeNode, typeDefEnv);
                     ((BErrorType) typeDef.symbol.type).detailType = type.detailType;
                 }
             }
