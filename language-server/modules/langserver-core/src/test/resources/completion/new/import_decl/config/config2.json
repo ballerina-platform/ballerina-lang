@@ -270,14 +270,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/nats",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "130",
-      "insertText": "ballerina/nats",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.decimal",
       "kind": "Module",
       "detail": "Module",
