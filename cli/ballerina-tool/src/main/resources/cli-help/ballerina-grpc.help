@@ -22,7 +22,7 @@ OPTIONS
            to a 'temp' directory in the current location.
 
        --mode client | service
-           Set mode (client or server) to generate sample code.
+           Set mode (client or service) to generate sample code.
            If not specified, only the stub file is generated.
 
 EXAMPLES
