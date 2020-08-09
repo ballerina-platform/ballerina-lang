@@ -16,14 +16,12 @@
  *  under the License.
  */
 
-package org.ballerinalang.mime.nativeimpl;
+package org.ballerinalang.net.http.nativeimpl;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.StringUtils;
-import org.ballerinalang.jvm.types.BArrayType;
-import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -34,34 +32,32 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_TRAILER_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.HEADER_NOT_FOUND_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_OPERATION_ERROR;
-import static org.ballerinalang.mime.util.MimeConstants.LEADING_HEADER;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_HEADERS;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_TRAILER_HEADERS;
+import static org.ballerinalang.net.http.HttpConstants.LEADING_HEADER;
 
 /**
- * Utilities related to entity headers.
+ * Utilities related to HTTP request/response headers.
  *
  * @since 1.1.0
  */
-public class EntityHeaders {
+public class ExternHeaders {
 
-    private static final BArrayType bArrayType = new BArrayType(BTypes.typeHandle);
-
-    public static void addHeader(ObjectValue entityObj, BString headerName, BString headerValue, Object position) {
+    public static void addHeader(ObjectValue messageObj, BString headerName, BString headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
         try {
-            getOrCreateHeadersBasedOnPosition(entityObj, position).add(headerName.getValue(), headerValue.getValue());
+            getOrCreateHeadersBasedOnPosition(messageObj, position).add(headerName.getValue(), headerValue.getValue());
         } catch (IllegalArgumentException ex) {
             throw MimeUtil.createError(INVALID_HEADER_OPERATION_ERROR, ex.getMessage());
         }
     }
 
-    public static BString getHeader(ObjectValue entityObj, BString headerName, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static BString getHeader(ObjectValue messageObj, BString headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
@@ -72,8 +68,8 @@ public class EntityHeaders {
         }
     }
 
-    public static ArrayValue getHeaderNames(ObjectValue entityObj, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static ArrayValue getHeaderNames(ObjectValue messageObj, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders == null || httpHeaders.isEmpty()) {
             return new ArrayValueImpl(new BString[0]);
         }
@@ -82,8 +78,8 @@ public class EntityHeaders {
         return new ArrayValueImpl(StringUtils.fromStringArray(distinctNames.toArray(new String[0])));
     }
 
-    public static ArrayValue getHeaders(ObjectValue entityObj, BString headerName, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static ArrayValue getHeaders(ObjectValue messageObj, BString headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders == null) {
             throw MimeUtil.createError(HEADER_NOT_FOUND_ERROR, "Http header does not exist");
         }
@@ -94,8 +90,8 @@ public class EntityHeaders {
         return new ArrayValueImpl(StringUtils.fromStringArray(headerValueList.toArray(new String[0])));
     }
 
-    public static boolean hasHeader(ObjectValue entityObj, BString headerName, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static boolean hasHeader(ObjectValue messageObj, BString headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders == null) {
             return false;
         }
@@ -103,60 +99,60 @@ public class EntityHeaders {
         return headerValueList != null && !headerValueList.isEmpty();
     }
 
-    public static void removeAllHeaders(ObjectValue entityObj, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static void removeAllHeaders(ObjectValue messageObj, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders != null) {
             httpHeaders.clear();
         }
     }
 
-    public static void removeHeader(ObjectValue entityObj, BString headerName, Object position) {
-        HttpHeaders httpHeaders = getHeadersBasedOnPosition(entityObj, position);
+    public static void removeHeader(ObjectValue messageObj, BString headerName, Object position) {
+        HttpHeaders httpHeaders = getHeadersBasedOnPosition(messageObj, position);
         if (httpHeaders != null) {
             httpHeaders.remove(headerName.getValue());
         }
     }
 
-    public static void setHeader(ObjectValue entityObj, BString headerName, BString headerValue, Object position) {
+    public static void setHeader(ObjectValue messageObj, BString headerName, BString headerValue, Object position) {
         if (headerName == null || headerValue == null) {
             return;
         }
         try {
-            getOrCreateHeadersBasedOnPosition(entityObj, position).set(headerName.getValue(), headerValue.getValue());
+            getOrCreateHeadersBasedOnPosition(messageObj, position).set(headerName.getValue(), headerValue.getValue());
         } catch (IllegalArgumentException ex) {
             throw MimeUtil.createError(INVALID_HEADER_OPERATION_ERROR, ex.getMessage());
         }
     }
 
-    private static HttpHeaders getHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
+    private static HttpHeaders getHeadersBasedOnPosition(ObjectValue messageObj, Object position) {
         return position.equals(StringUtils.fromString(LEADING_HEADER)) ?
-                (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS) :
-                (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+                (HttpHeaders) messageObj.getNativeData(HTTP_HEADERS) :
+                (HttpHeaders) messageObj.getNativeData(HTTP_TRAILER_HEADERS);
     }
 
-    private static HttpHeaders getOrCreateHeadersBasedOnPosition(ObjectValue entityObj, Object position) {
+    private static HttpHeaders getOrCreateHeadersBasedOnPosition(ObjectValue messageObj, Object position) {
         return position.equals(StringUtils.fromString(LEADING_HEADER)) ?
-                getHeaders(entityObj) : getTrailerHeaders(entityObj);
+                getHeaders(messageObj) : getTrailerHeaders(messageObj);
     }
 
-    private static HttpHeaders getHeaders(ObjectValue entityObj) {
+    private static HttpHeaders getHeaders(ObjectValue messageObj) {
         HttpHeaders httpHeaders;
-        if (entityObj.getNativeData(ENTITY_HEADERS) != null) {
-            httpHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_HEADERS);
+        if (messageObj.getNativeData(HTTP_HEADERS) != null) {
+            httpHeaders = (HttpHeaders) messageObj.getNativeData(HTTP_HEADERS);
         } else {
             httpHeaders = new DefaultHttpHeaders();
-            entityObj.addNativeData(ENTITY_HEADERS, httpHeaders);
+            messageObj.addNativeData(HTTP_HEADERS, httpHeaders);
         }
         return httpHeaders;
     }
 
-    private static HttpHeaders getTrailerHeaders(ObjectValue entityObj) {
+    private static HttpHeaders getTrailerHeaders(ObjectValue messageObj) {
         HttpHeaders httpTrailerHeaders;
-        if (entityObj.getNativeData(ENTITY_TRAILER_HEADERS) != null) {
-            httpTrailerHeaders = (HttpHeaders) entityObj.getNativeData(ENTITY_TRAILER_HEADERS);
+        if (messageObj.getNativeData(HTTP_TRAILER_HEADERS) != null) {
+            httpTrailerHeaders = (HttpHeaders) messageObj.getNativeData(HTTP_TRAILER_HEADERS);
         } else {
             httpTrailerHeaders = new DefaultLastHttpContent().trailingHeaders();
-            entityObj.addNativeData(ENTITY_TRAILER_HEADERS, httpTrailerHeaders);
+            messageObj.addNativeData(HTTP_TRAILER_HEADERS, httpTrailerHeaders);
         }
         return httpTrailerHeaders;
     }

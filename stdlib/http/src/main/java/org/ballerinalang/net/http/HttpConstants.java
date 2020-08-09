@@ -205,6 +205,9 @@ public class HttpConstants {
 
     public static final int NO_CONTENT_LENGTH_FOUND = -1;
     public static final short ONE_BYTE = 1;
+    public static final String HTTP_HEADERS = "http_headers";
+    public static final String HTTP_TRAILER_HEADERS = "http_trailer_headers";
+    public static final String LEADING_HEADER = "leading";
 
     public static final String HTTP_TRANSPORT_CONF = "transports.netty.conf";
     public static final String CIPHERS = "ciphers";

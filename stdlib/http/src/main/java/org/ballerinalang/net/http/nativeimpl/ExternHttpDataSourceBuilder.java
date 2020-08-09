@@ -73,8 +73,8 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
             }
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.BLOB);
-        } catch (Exception ex) {
-            notifyError(callback, ex, "blob");
+        } catch (Exception exception) {
+            notifyError(callback, exception, "blob");
         }
         return null;
     }
@@ -93,8 +93,8 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
             }
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.JSON);
-        } catch (Exception ex) {
-            notifyError(callback, ex, "json");
+        } catch (Exception exception) {
+            notifyError(callback, exception, "json");
         }
         return null;
     }
@@ -113,8 +113,8 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
             }
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.TEXT);
-        } catch (Exception ex) {
-            notifyError(callback, ex, "text");
+        } catch (Exception exception) {
+            notifyError(callback, exception, "text");
         }
         return null;
     }
@@ -134,8 +134,8 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
 
             callback = new NonBlockingCallback(Scheduler.getStrand());
             constructNonBlockingDataSource(callback, entityObj, SourceType.XML);
-        } catch (Exception ex) {
-            notifyError(callback, ex, "xml");
+        } catch (Exception exception) {
+            notifyError(callback, exception, "xml");
         }
         return null;
     }
@@ -181,28 +181,27 @@ public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
                     }
                     updateDataSourceAndNotify(callback, entity, dataSource);
                 } catch (Exception e) {
-                    createErrorAndNotify(callback,
-                                         "Error occurred while extracting " + sourceType.toString().toLowerCase(Locale.ENGLISH)
-                                                 + " data from entity: " + getErrorMsg(e));
+                    createErrorAndNotify(callback, "Error occurred while extracting " +
+                            sourceType.toString().toLowerCase(Locale.ENGLISH) + " data from entity: " + getErrorMsg(e));
                 } finally {
                     try {
                         inputStream.close();
-                    } catch (IOException ex) {
-                        log.error("Error occurred while closing the inbound data stream", ex);
+                    } catch (IOException exception) {
+                        log.error("Error occurred while closing the inbound data stream", exception);
                     }
                 }
             }
 
             @Override
             public void onError(Exception ex) {
-                createErrorAndNotify(callback,
-                                     "Error occurred while extracting content from message : " + ex.getMessage());
+                createErrorAndNotify(callback, "Error occurred while extracting content from message : " +
+                        ex.getMessage());
             }
         });
     }
 
-    private static void notifyError(NonBlockingCallback callback, Exception ex, String type) {
-        ErrorValue error = (ErrorValue) createError(ex, type);
+    private static void notifyError(NonBlockingCallback callback, Exception exception, String type) {
+        ErrorValue error = (ErrorValue) createError(exception, type);
         setReturnValuesAndNotify(callback, error);
     }
 
