@@ -137,12 +137,17 @@ public type MediaType object {
 # + cId - Helps one body of an entity to make a reference to another
 # + cLength - Represents the size of the entity
 # + cDisposition - Represents values related to `Content-Disposition` header
+# + headerMap - Represents the headers of the entity. Since ballerina map is case sensitive, lower case the header names
+#             before adding to the map.
+# + headerNames - Represents all the header names of headers according to the given case.
 public type Entity object {
 
     private MediaType? cType = ();
     private string cId = "";
     private int cLength = 0;
     private ContentDisposition? cDisposition = ();
+    private map<string[]> headerMap = {};
+    private string[] headerNames = [];
 
     # Sets the content-type to the entity.
     # ```ballerina
@@ -422,25 +427,26 @@ public type Entity object {
     # ```
     #
     # + headerName - Header name
-    # + position - Position of the header as an optional parameter
     # + return - Header value associated with the given header name as a `string`. If multiple header values are
     #            present, then the first value is returned. An exception is thrown if no header is found. Use
     #            `Entity.hasHeader()` beforehand to check the existence of a header
-    public function getHeader(@untainted string headerName, public HeaderPosition position = LEADING)
-                              returns @tainted string {
-        return externGetHeader(self, headerName, position);
+    public function getHeader(@untainted string headerName) returns @tainted string {
+        return self.getHeaders(headerName.toLowerAscii())[0];
     }
 
     # Gets all the header values associated with the given header name.
     #
     # + headerName - Header name
-    # + position - Position of the header as an optional parameter. If the position is `mime:TRAILING`,
-    #              the body of the `Entity` must be accessed initially
     # + return - All the header values associated with the given header name as a `string[]`. Panics if no header is
     #            found. Use the `Entity.hasHeader()` beforehand to check the existence of a header
-    public function getHeaders(@untainted string headerName, public HeaderPosition position = LEADING)
-                               returns @tainted string[] {
-        return externGetHeaders(self, headerName, position);
+    public function getHeaders(@untainted string headerName) returns @tainted string[] {
+        string lowerCaseHeaderName = headerName.toLowerAscii();
+        string[]? value = self.headerMap[lowerCaseHeaderName];
+        if (value is ()) {
+            panic HeaderNotFoundError("Http header does not exist");
+        } else {
+            return value;
+        }
     }
 
     # Gets all the header names.
@@ -448,10 +454,9 @@ public type Entity object {
     # string[] headerNames = mimeEntity.getHeaderNames();
     # ```
     #
-    # + position - Position of the header as an optional parameter
     # + return - All header names as a `string[]`
-    public function getHeaderNames(public HeaderPosition position = LEADING) returns @tainted string[] {
-        return externGetHeaderNames(self, position);
+    public function getHeaderNames() returns @tainted string[] {
+        return self.headerNames.clone();
     }
 
     # Adds the given header value against the given header. Panic if an illegal header is passed.
@@ -461,9 +466,14 @@ public type Entity object {
     #
     # + headerName - Header name
     # + headerValue - The header value to be added
-    # + position - Position of the header as an optional parameter
-    public function addHeader(@untainted string headerName, string headerValue, public HeaderPosition position = LEADING) {
-        return externAddHeader(self, headerName, headerValue, position);
+    public function addHeader(@untainted string headerName, string headerValue) {
+        string lowerCaseHeaderName = headerName.toLowerAscii();
+        if (self.hasHeader(lowerCaseHeaderName)) {
+            string[] headerList = self.getHeaders(lowerCaseHeaderName);
+            headerList.push(headerValue);
+        } else {
+            self.setHeader(headerName, headerValue);
+        }
     }
 
     # Sets the given header value against the existing header. If a header already exists, its value is replaced
@@ -474,37 +484,49 @@ public type Entity object {
     #
     # + headerName - Header name
     # + headerValue - Header value
-    # + position - Position of the header as an optional parameter
-    public function setHeader(@untainted string headerName, string headerValue,
-                              public HeaderPosition position = LEADING) {
-        return externSetHeader(self, headerName, headerValue, position);
+    public function setHeader(@untainted string headerName, string headerValue) {
+        string[] value = [headerValue];
+        self.headerMap[headerName.toLowerAscii()] = value;
+
+        // add header name to the array
+        string? caseSensitiveValue = getCaseSensitiveHeaderName(self.headerNames, headerName);
+        if caseSensitiveValue is () {
+            self.headerNames.push(headerName);
+        }
     }
 
     # Removes the given header from the entity.
     #
     # + headerName - Header name
-    # + position - Position of the header as an optional parameter. If the position is `mime:TRAILING`,
-    #              the body of the `Entity` must be accessed initially.
-    public function removeHeader(@untainted string headerName, public HeaderPosition position = LEADING) {
-        return externRemoveHeader(self, headerName, position);
+    public function removeHeader(@untainted string headerName) {
+        if !(self.hasHeader(headerName)) {
+            return;
+        }
+        _ = self.headerMap.remove(headerName.toLowerAscii());
+
+        // remove header name from the array
+        string? caseSensitiveValue = getCaseSensitiveHeaderName(self.headerNames, headerName);
+        if caseSensitiveValue is () {
+            return;
+        }
+        int? removeIndex = self.headerNames.indexOf(<string>caseSensitiveValue);
+        if removeIndex is int {
+            _ = self.headerNames.remove(removeIndex);
+        }
     }
 
     # Removes all headers associated with the entity.
-    #
-    # + position - Position of the header as an optional parameter. If the position is `mime:TRAILING`,
-    #              the body of the `Entity` must be accessed initially.
-    public function removeAllHeaders(public HeaderPosition position = LEADING) {
-        return externRemoveAllHeaders(self, position);
+    public function removeAllHeaders() {
+        self.headerMap = {};
+        self.headerNames.removeAll();
     }
 
     # Checks whether the requested header key exists in the header map.
     #
     # + headerName - Header name
-    # + position - Position of the header as an optional parameter. If the position is `mime:TRAILING`,
-    #              the body of the `Entity` must be accessed initially.
     # + return - `true` if the specified header key exists
-    public function hasHeader(@untainted string headerName, public HeaderPosition position = LEADING) returns boolean {
-        return externHasHeader(self, headerName, position);
+    public function hasHeader(@untainted string headerName) returns boolean {
+        return self.headerMap.hasKey(headerName.toLowerAscii());
     }
 };
 
@@ -573,48 +595,6 @@ function externGetBodyPartsAsChannel(Entity entity) returns @tainted io:Readable
     name: "getBodyPartsAsChannel"
 } external;
 
-function externGetHeader(Entity entity, string headerName, HeaderPosition position)
-                         returns @tainted string = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "getHeader"
-} external;
-
-function externGetHeaders(Entity entity, string headerName, HeaderPosition position)
-                          returns @tainted string[] = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "getHeaders"
-} external;
-
-function externGetHeaderNames(Entity entity, HeaderPosition position) returns @tainted string[] = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "getHeaderNames"
-} external;
-
-function externAddHeader(Entity entity, string headerName, string headerValue, HeaderPosition position) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "addHeader"
-} external;
-
-function externSetHeader(Entity entity, string headerName, string headerValue, HeaderPosition position) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "setHeader"
-} external;
-
-function externRemoveHeader(Entity entity, string headerName, HeaderPosition position) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "removeHeader"
-} external;
-
-function externRemoveAllHeaders(Entity entity, HeaderPosition position) = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "removeAllHeaders"
-} external;
-
-function externHasHeader(Entity entity, string headerName, HeaderPosition position) returns boolean = @java:Method {
-    class: "org.ballerinalang.mime.nativeimpl.EntityHeaders",
-    name: "hasHeader"
-} external;
-
 # **Deprecated API**. Encodes a given input with MIME specific Base64 encoding scheme.
 #
 # + contentToBeEncoded - Content that needs to be encoded can be of type `string`, `byte[]` or `io:ReadableByteChannel`
@@ -673,6 +653,15 @@ public function base64DecodeBlob(byte[] valueToBeDecoded) returns byte[]|DecodeE
 # + return - The encoding value as a `string`
 function getEncoding(MediaType contentType) returns string? {
     return contentType.parameters[CHARSET];
+}
+
+function getCaseSensitiveHeaderName(string[] headerNames, string headerName) returns string? {
+    foreach string name in headerNames {
+        if (name.toLowerAscii() == headerName.toLowerAscii()) {
+            return name;
+        }
+    }
+    return;
 }
 
 # Gets the `MediaType` object populated with it when the `Content-Type` is in string.
