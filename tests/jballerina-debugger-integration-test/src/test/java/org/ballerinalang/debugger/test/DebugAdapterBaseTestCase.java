@@ -28,6 +28,8 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
 import org.eclipse.lsp4j.debug.ContinueArguments;
+import org.eclipse.lsp4j.debug.EvaluateArguments;
+import org.eclipse.lsp4j.debug.EvaluateResponse;
 import org.eclipse.lsp4j.debug.NextArguments;
 import org.eclipse.lsp4j.debug.ScopesArguments;
 import org.eclipse.lsp4j.debug.ScopesResponse;
@@ -401,6 +403,65 @@ public class DebugAdapterBaseTestCase extends BaseTestCase {
         Assert.assertEquals(variable.getName(), variableName);
         Assert.assertEquals(variable.getValue(), variableValue);
         Assert.assertEquals(variable.getType(), variableType);
+    }
+
+    /**
+     * Can be used to evaluate any given expression, when a debug hit is occurred.
+     *
+     * @param context       suspended context.
+     * @param expression    expression.
+     * @param variableValue variable value
+     * @param variableType  variable type.
+     * @throws BallerinaTestException if an error occurs when evaluating the expression.
+     */
+    protected void assertExpression(StoppedEventArguments context, String expression, String variableValue,
+                                    String variableType) throws BallerinaTestException {
+        Variable result = evaluateExpression(context, expression);
+        Assert.assertEquals(result.getValue(), variableValue);
+        Assert.assertEquals(result.getType(), variableType);
+    }
+
+    /**
+     * Can be used to evaluate any given expression, when a debug hit is occurred.
+     *
+     * @param args debug stopped event arguments.
+     * @return the evaluation result as a variable.
+     * @throws BallerinaTestException if an error occurs when evaluating the expression.
+     */
+    private Variable evaluateExpression(StoppedEventArguments args, String expr) throws BallerinaTestException {
+        if (!DebugHitListener.connector.isConnected()) {
+            throw new BallerinaTestException("Connection error is occurred when trying to fet information from the " +
+                    "debug server");
+        }
+        try {
+            StackTraceArguments stackTraceArgs = new StackTraceArguments();
+            stackTraceArgs.setThreadId(args.getThreadId());
+            StackTraceResponse stackTraceResp = DebugHitListener.connector.getRequestManager()
+                    .stackTrace(stackTraceArgs);
+            StackFrame[] stackFrames = stackTraceResp.getStackFrames();
+            if (stackFrames.length == 0) {
+                throw new BallerinaTestException("Error occurred when trying to fetch stack frames from the suspended" +
+                        " thread.");
+            }
+
+            EvaluateArguments evaluateArguments = new EvaluateArguments();
+            evaluateArguments.setFrameId(stackFrames[0].getId());
+            evaluateArguments.setExpression(expr);
+            EvaluateResponse evaluateResp = DebugHitListener.connector.getRequestManager().evaluate(evaluateArguments);
+
+            Variable result = new Variable();
+            result.setName("Result");
+            result.setType(evaluateResp.getType());
+            result.setValue(evaluateResp.getResult());
+            result.setNamedVariables(result.getNamedVariables());
+            result.setIndexedVariables(result.getIndexedVariables());
+            result.setVariablesReference(result.getVariablesReference());
+            return result;
+
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching debug hit variables", e);
+            throw new BallerinaTestException("Error occurred when fetching debug hit variables", e);
+        }
     }
 
     /**
