@@ -18,12 +18,10 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BTypes;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -43,9 +41,7 @@ import java.util.Map;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
-import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_ID_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.MEDIA_TYPE_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.PARAMETER_MAP_FIELD;
 
@@ -156,32 +152,28 @@ public class MultipartDataSource implements RefValue {
      * @param bodyPart Represent ballerina body part
      * @throws IOException When an error occurs while writing body part headers
      */
+    @SuppressWarnings("unchecked")
     private void writeBodyPartHeaders(Writer writer, ObjectValue bodyPart) throws IOException {
-        HttpHeaders httpHeaders;
-        if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
-            httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
-        } else {
-            httpHeaders = new DefaultHttpHeaders();
-            bodyPart.addNativeData(ENTITY_HEADERS, httpHeaders);
-        }
+        MapValue<BString, Object> httpHeaders = EntityHeaderHandler.getEntityHeaderMap(bodyPart);
         String contentType = MimeUtil.getContentTypeWithParameters(bodyPart);
-        httpHeaders.set(HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        EntityHeaderHandler.addHeader(bodyPart, httpHeaders, MimeConstants.CONTENT_TYPE, contentType);
         String contentDisposition = MimeUtil.getContentDisposition(bodyPart);
         if (!contentDisposition.isEmpty()) {
-            httpHeaders.set(HttpHeaderNames.CONTENT_DISPOSITION.toString(), contentDisposition);
+            EntityHeaderHandler.addHeader(bodyPart, httpHeaders, MimeConstants.CONTENT_DISPOSITION, contentDisposition);
         }
         
         Object contentId = bodyPart.get(CONTENT_ID_FIELD);
         if (contentId != null && !contentId.toString().isEmpty()) {
-            httpHeaders.set(CONTENT_ID, contentId.toString());
+            EntityHeaderHandler.addHeader(bodyPart, httpHeaders, MimeConstants.CONTENT_ID, contentId.toString());
         }
-        Iterator<Map.Entry<String, String>> iterator = httpHeaders.iteratorAsString();
+        Iterator<Map.Entry<BString, Object>> iterator = httpHeaders.entrySet().iterator();
         while (iterator.hasNext()) {
-            Map.Entry<String, String> entry = iterator.next();
-            writer.write(entry.getKey());
+            Map.Entry<BString, Object> entry = iterator.next();
+            writer.write(String.valueOf(entry.getKey()));
             writer.write(COLON);
             writer.write(SPACE);
-            writer.write(entry.getValue());
+            ArrayValueImpl value = (ArrayValueImpl) entry.getValue();
+            writer.write(String.valueOf(value.getBString(0)));
             writer.write(CRLF);
         }
         // Mark the end of the headers for this body part

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.nativeimpl;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.JSONParser;
 import org.ballerinalang.jvm.TypeChecker;
 import org.ballerinalang.jvm.XMLFactory;
@@ -33,6 +32,7 @@ import org.ballerinalang.jvm.values.api.BString;
 import org.ballerinalang.jvm.values.utils.StringUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
+import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -70,7 +70,7 @@ public abstract class MimeDataSourceBuilder {
         if (messageDataSource instanceof ArrayValue) {
             return messageDataSource;
         }
-        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, HttpHeaderNames.CONTENT_TYPE.toString());
+        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, MimeConstants.CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {

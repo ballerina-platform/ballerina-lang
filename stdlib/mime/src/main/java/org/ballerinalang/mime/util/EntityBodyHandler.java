@@ -18,7 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.JSONParser;
@@ -58,6 +57,7 @@ import java.util.Set;
 
 import static org.ballerinalang.mime.util.MimeConstants.BODY_PARTS;
 import static org.ballerinalang.mime.util.MimeConstants.CHARSET;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY;
 import static org.ballerinalang.mime.util.MimeConstants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_BODY_PART_INDEX;
@@ -211,7 +211,7 @@ public class EntityBodyHandler {
      */
     public static Object constructJsonDataSource(ObjectValue entity, InputStream inputStream) {
         Object jsonData;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        String contentTypeValue = HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
@@ -254,7 +254,7 @@ public class EntityBodyHandler {
      */
     public static XMLValue constructXmlDataSource(ObjectValue entityObj, InputStream inputStream) {
         XMLValue xmlContent;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, HttpHeaderNames.CONTENT_TYPE.toString());
+        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
@@ -297,7 +297,7 @@ public class EntityBodyHandler {
      */
     public static BString constructStringDataSource(ObjectValue entity, InputStream inputStream) {
         BString textContent;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+        String contentTypeValue = HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {

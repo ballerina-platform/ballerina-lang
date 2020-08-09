@@ -18,8 +18,6 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.jvm.BallerinaErrors;
 import org.ballerinalang.jvm.BallerinaValues;
 import org.ballerinalang.jvm.TypeChecker;
@@ -42,6 +40,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
+import java.util.Random;
 
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
@@ -55,6 +54,7 @@ import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_FILE
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_NAME_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.CONTENT_DISPOSITION_PARA_MAP_FIELD;
+import static org.ballerinalang.mime.util.MimeConstants.CONTENT_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DEFAULT_SUB_TYPE;
 import static org.ballerinalang.mime.util.MimeConstants.DISPOSITION_FIELD;
@@ -108,7 +108,7 @@ public class MimeUtil {
      */
     public static String getContentTypeWithParameters(ObjectValue entity) {
         if (entity.get(MEDIA_TYPE_FIELD) == null) {
-            return HeaderUtil.getHeaderValue(entity, HttpHeaderNames.CONTENT_TYPE.toString());
+            return HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
         }
         ObjectValue mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
         String primaryType = String.valueOf(mediaType.get(PRIMARY_TYPE_FIELD));
@@ -230,7 +230,7 @@ public class MimeUtil {
     public static void setMediaTypeToEntity(ObjectValue entityStruct, String contentType) {
         ObjectValue mediaType = BallerinaValues.createObjectValue(PROTOCOL_MIME_PKG_ID, MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
-        HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
+        HeaderUtil.setHeaderToEntity(entityStruct, CONTENT_TYPE, contentType);
     }
 
     /**
@@ -430,7 +430,8 @@ public class MimeUtil {
      * @return a boundary string
      */
     public static String getNewMultipartDelimiter() {
-        return Long.toHexString(PlatformDependent.threadLocalRandom().nextLong());
+        Random random = new Random();
+        return Long.toHexString(random.nextLong());
     }
 
     /**
