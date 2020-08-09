@@ -46,7 +46,6 @@ boolean cleanupInProgress = false;
 
 // Cleanup service which cleans the cache entries periodically.
 service cleanupService = service {
-    //resource function onTrigger(map<Node> entries, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
     resource function onTrigger(Cache cache, LinkedList list, AbstractEvictionPolicy evictionPolicy) {
         // This check will skip the processes triggered while the clean up in progress.
         if (!cleanupInProgress) {
