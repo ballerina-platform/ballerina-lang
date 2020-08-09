@@ -195,21 +195,21 @@ public class MultipartDecoderTest {
         String path = "/test/multipleparts";
         HttpHeaders headers = new DefaultHttpHeaders();
         String multipartDataBoundary = "\"------=_Part_19_966827328.1524324134617--\"";
-        String boudaryWithoutQuotes = "------=_Part_19_966827328.1524324134617--";
+        String boundaryWithoutQuotes = "------=_Part_19_966827328.1524324134617--";
         headers.add(HttpHeaderNames.CONTENT_TYPE.toString(),
                 "multipart/mixed; boundary=" + multipartDataBoundary);
-        String multipartBody = "--" + boudaryWithoutQuotes + "\r\n" +
+        String multipartBody = "--" + boundaryWithoutQuotes + "\r\n" +
                 "Content-Type: text/plain; charset=UTF-8" + "\r\n" +
                 "\r\n" +
                 "Part1" +
                 "\r\n" +
-                "--" + boudaryWithoutQuotes + "\r\n" +
+                "--" + boundaryWithoutQuotes + "\r\n" +
                 "Content-Type: text/plain" + "\r\n" +
                 "Content-Transfer-Encoding: binary" + "\r\n" +
                 "\r\n" +
                 "Part2" + StringUtil.NEWLINE +
                 "\r\n" +
-                "--" + boudaryWithoutQuotes + "--" + "\r\n";
+                "--" + boundaryWithoutQuotes + "--" + "\r\n";
 
         HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_POST, headers,
                 multipartBody);

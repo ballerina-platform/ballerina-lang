@@ -39,10 +39,10 @@ import org.wso2.transport.http.netty.message.HttpCarbonMessage;
 
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_JSON;
 import static org.ballerinalang.mime.util.MimeConstants.APPLICATION_XML;
-import static org.ballerinalang.mime.util.MimeConstants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.MimeConstants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.MimeConstants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.TEXT_PLAIN;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_HEADERS;
 import static org.ballerinalang.net.http.ValueCreatorUtils.createEntityObject;
 import static org.ballerinalang.net.http.ValueCreatorUtils.createRequestObject;
 
@@ -80,7 +80,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithoutPayload() {
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
-        TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_JSON);
+        TestEntityUtils.enrichTestMessageHeaders(entity, APPLICATION_JSON);
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetJsonPayload", new Object[]{ inRequest });
         Assert.assertNotNull(returnVals[0]);
@@ -120,7 +120,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetTextPayloadNegative() {
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
-        TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
+        TestEntityUtils.enrichTestMessageHeaders(entity, TEXT_PLAIN);
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetTextPayload", new Object[]{ inRequest });
         BError err = (BError) (returnVals[0]);
@@ -133,7 +133,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetXmlPayloadNegative() {
         ObjectValue inRequest = createRequestObject();
         ObjectValue entity = createEntityObject();
-        TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
+        TestEntityUtils.enrichTestMessageHeaders(entity, APPLICATION_XML);
         inRequest.set(REQUEST_ENTITY_FIELD, entity);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testGetXmlPayload", new Object[]{ inRequest });
         BError err = (BError) (returnVals[0]);
@@ -184,20 +184,16 @@ public class RequestNativeFunctionNegativeTest {
     @SuppressWarnings("unchecked")
     public void testRemoveHeaderNegative() {
         ObjectValue outRequest = createRequestObject();
-        ObjectValue entity = createEntityObject();
         String range = "Range";
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Expect", "100-continue");
-        entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-        outRequest.set(REQUEST_ENTITY_FIELD, entity);
+        outRequest.addNativeData(HTTP_HEADERS, httpHeaders);
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testRemoveHeader",
                                               new Object[]{outRequest, StringUtils.fromString(range)});
 
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
-        BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
         Assert.assertNull(returnHeaders.get(range));
     }
 
@@ -208,9 +204,7 @@ public class RequestNativeFunctionNegativeTest {
         BValue[] returnVals = BRunUtil.invoke(compileResult, "testRemoveAllHeaders", new Object[]{ outRequest });
         Assert.assertFalse(returnVals.length == 0 || returnVals[0] == null, "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BMap);
-        BMap<String, BValue> entityStruct =
-                (BMap<String, BValue>) ((BMap<String, BValue>) returnVals[0]).get(REQUEST_ENTITY_FIELD.getValue());
-        HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+        HttpHeaders returnHeaders = (HttpHeaders) ((BMap) returnVals[0]).getNativeData(HTTP_HEADERS);
         Assert.assertEquals(returnHeaders.size(), 0);
     }
 

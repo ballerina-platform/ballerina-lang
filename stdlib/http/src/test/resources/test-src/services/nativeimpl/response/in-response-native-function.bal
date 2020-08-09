@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 
 function testContentType(http:Response res, string contentTypeValue) returns @tainted string? {
-    res.setContentType(contentTypeValue);
+    checkpanic res.setContentType(contentTypeValue);
     return res.getContentType();
 }
 
@@ -301,3 +301,68 @@ service hello on mockEP {
         checkpanic caller->respond(res);
     }
 }
+
+function testTrailingAddHeader(string headerName, string headerValue, string retrieval) returns @tainted string {
+    http:Response res = new;
+    res.addHeader(headerName, headerValue, position = "trailing");
+    return res.getHeader(retrieval, position = "trailing");
+}
+
+function testAddingMultipleValuesToSameTrailingHeader() returns @tainted [string[], string ] {
+    http:Response res = new;
+    res.addHeader("heAder1", "value1", position = "trailing");
+    res.addHeader("header1", "value2", position = "trailing");
+    return [res.getHeaders("header1", position = "trailing"), res.getHeader("header1", position = "trailing")];
+}
+
+function testSetTrailingHeaderAfterAddHeader() returns @tainted [string[], string] {
+    http:Response res = new;
+    res.addHeader("heAder1", "value1", position = "trailing");
+    res.addHeader("header1", "value2", position = "trailing");
+    res.addHeader("hEader2", "value3", position = "trailing");
+    res.setHeader("HeADEr2", "totally different value", position = "trailing");
+    return [res.getHeaders("header1", position = "trailing"), res.getHeader("header2", position = "trailing")];
+}
+
+    function testRemoveTrailingHeader() returns @tainted [string[], string] {
+    http:Response res = new;
+    res.addHeader("heAder1", "value1", position = "trailing");
+    res.addHeader("header1", "value2", position = "trailing");
+    res.addHeader("header1", "value3", position = "trailing");
+    res.addHeader("hEader2", "value3", position = "trailing");
+    res.addHeader("headeR2", "value4", position = "trailing");
+    res.setHeader("HeADEr2", "totally different value", position = "trailing");
+    res.removeHeader("HEADER1", position = "trailing");
+    res.removeHeader("NONE_EXISTENCE_HEADER", position = "trailing");
+    return [res.getHeaders("header1", position = "trailing"), res.getHeader("header2", position = "trailing")];
+}
+
+function testNonExistenceTrailingHeader(string headerName, string headerValue) returns @tainted string {
+    http:Response res = new;
+    res.addHeader(headerName, headerValue, position = http:TRAILING);
+    return res.getHeader("header", position = http:TRAILING);
+}
+
+function testGetTrailingHeaderNames() returns @tainted string[] {
+    http:Response res = new;
+    res.addHeader("heAder1", "value1", position = http:TRAILING);
+    res.addHeader("header1", "value2", position = http:TRAILING);
+    res.addHeader("header1", "value3", position = http:TRAILING);
+    res.addHeader("hEader2", "value3", position = http:TRAILING);
+    res.addHeader("headeR2", "value4", position = http:TRAILING);
+    res.addHeader("HeADEr2", "totally different value", position = http:TRAILING);
+    res.addHeader("HEADER3", "testVal", position = http:TRAILING);
+    return res.getHeaderNames(position = http:TRAILING);
+}
+
+function testTrailingHasHeader(string headerName, string headerValue) returns boolean{
+    http:Response res = new;
+    res.setHeader(headerName, headerValue, position = http:TRAILING);
+    return res.hasHeader("header1", position = http:TRAILING);
+}
+
+function testTrailingHeaderWithNewEntity() returns @tainted [boolean, string[]] {
+    http:Response res = new;
+    return [res.hasHeader("header2", position = http:TRAILING), res.getHeaderNames(position = http:TRAILING)];
+}
+
