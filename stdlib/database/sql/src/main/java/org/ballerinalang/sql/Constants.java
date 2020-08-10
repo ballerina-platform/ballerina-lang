@@ -49,6 +49,7 @@ public final class Constants {
     public static final String STATEMENT_NATIVE_DATA_FIELD = "Statement";
     public static final String COLUMN_DEFINITIONS_DATA_FIELD = "ColumnDefinition";
     public static final String RECORD_TYPE_DATA_FIELD = "recordType";
+    public static final String PROCEDURE_CALL_PARAM_CACHE = "procedureCallMetaData";
 
     public static final String PROCEDURE_CALL_RESULT = "ProcedureCallResult";
     public static final String TYPE_DESCRIPTIONS_NATIVE_DATA_FIELD = "TypeDescription";
@@ -159,4 +160,17 @@ public final class Constants {
         public static final BString CONNECTION_POOL = fromString("connectionPool");
         public static final BString CONNECTION_POOL_OPTIONS = fromString("connectionPoolOptions");
     }
+
+    /**
+     * Constants for Procedure call parameter objects.
+     */
+    public static final class ParameterObject {
+        public static final String INOUT_PARAMETER = "InOutParameter";
+        public static final String OUT_PARAMETER = "OutParameter";
+        public static final String SQL_TYPE_NATIVE_DATA = "sqlType";
+        public static final String VALUE_NATIVE_DATA = "value";
+
+        public static final BString IN_VALUE_FIELD = fromString("in");
+    }
+
 }

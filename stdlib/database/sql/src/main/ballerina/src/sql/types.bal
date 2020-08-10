@@ -394,7 +394,7 @@ type ResultIterator object {
 
 public type OutParameter object {
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
-        class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+        class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 
@@ -406,7 +406,7 @@ public type InOutParameter object {
     }
 
     public function get(typedesc<anydata> td) returns td|Error = @java:Method {
-        class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+        class: "org.ballerinalang.sql.utils.OutParameterUtils"
     } external;
 };
 
