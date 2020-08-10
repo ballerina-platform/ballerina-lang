@@ -181,8 +181,14 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createArrowFunctionSymbolEnv(BLangArrowFunction node, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
-        symbolEnv.enclEnv = env;
+        Scope scope = new Scope(env.scope.owner);
+        env.scope.entries.entrySet().stream()
+                // skip the type narrowed symbols when taking the snapshot for closures.
+                .filter(entry -> (entry.getValue().symbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE ||
+                        ((BVarSymbol) entry.getValue().symbol).originalSymbol == null)
+                .forEach(entry -> scope.entries.put(entry.getKey(), entry.getValue()));
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
+        symbolEnv.enclEnv = env.enclEnv != null ? env.enclEnv.createClone() : null;
         symbolEnv.enclPkg = env.enclPkg;
         return symbolEnv;
     }
