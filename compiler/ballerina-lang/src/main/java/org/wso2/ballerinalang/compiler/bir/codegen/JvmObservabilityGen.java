@@ -377,7 +377,7 @@ class JvmObservabilityGen {
 
                 // If a panic is captured, it does not need to be reported
                 Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, currentBB))
+                        .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, currentBB))
                         .findAny();
                 if (!existingEE.isPresent()) {
                     BIRBasicBlock errorCheckBB = insertBasicBlock(func, i + 1);
@@ -493,7 +493,7 @@ class JvmObservabilityGen {
                      * the invocation.
                      */
                     Optional<BIRErrorEntry> existingEE = func.errorTable.stream()
-                            .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, newCurrentBB))
+                            .filter(errorEntry -> isBBCoveredInErrorEntry(errorEntry, func.basicBlocks, newCurrentBB))
                             .findAny();
                     DiagnosticPos desugaredInsPos = callIns.pos;
                     if (existingEE.isPresent()) {
@@ -809,20 +809,35 @@ class JvmObservabilityGen {
      * Check if a basic block is covered in a error entry.
      *
      * @param errorEntry The error entry from the error table
+     * @param basicBlocksList The basic blocks list which contains the basic block to be checked for
      * @param basicBlock The basic block which should be checked for
      * @return True if the basic block is covered in the error entry
      */
-    private boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, BIRBasicBlock basicBlock) {
+    private boolean isBBCoveredInErrorEntry(BIRErrorEntry errorEntry, List<BIRBasicBlock> basicBlocksList,
+                                            BIRBasicBlock basicBlock) {
         boolean isCovered = Objects.equals(basicBlock, errorEntry.trapBB)
                 || Objects.equals(basicBlock, errorEntry.endBB);
         if (!isCovered) {
-            BIRBasicBlock currentBB = errorEntry.trapBB.terminator.thenBB;
-            while (currentBB != null && currentBB != errorEntry.endBB) {
-                if (Objects.equals(currentBB, basicBlock)) {
+            /*
+             * Traverse in the same way JvmMethodGen.generateBasicBlocks traverses through basic blocks to generate
+             * method body to check if the basic block is covered in the error entry.
+             */
+            int i = 0;
+            for (; i < basicBlocksList.size(); i++) {
+                BIRBasicBlock currentBB = basicBlocksList.get(i);
+                if (currentBB == errorEntry.trapBB) {
+                    break;
+                }
+            }
+            for (; i < basicBlocksList.size(); i++) {
+                BIRBasicBlock currentBB = basicBlocksList.get(i);
+                if (currentBB == basicBlock) {
                     isCovered = true;
                     break;
                 }
-                currentBB = currentBB.terminator.thenBB;
+                if (currentBB == errorEntry.endBB) {
+                    break;
+                }
             }
         }
         return isCovered;

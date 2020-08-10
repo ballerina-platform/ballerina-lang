@@ -127,6 +127,9 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         BSymbol funcSymbol = funcNode.symbol;
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
         blockPositionStack.push(funcNode.pos);
+        for (BLangAnnotationAttachment annAttachments : funcNode.annAttachments) {
+            this.acceptNode(annAttachments, funcEnv);
+        }
         this.acceptNode(funcNode.body, funcEnv);
         blockPositionStack.pop();
         // Process workers

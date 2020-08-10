@@ -2,15 +2,6 @@
   "kind": "TYPE_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "TYPE_KEYWORD",
       "trailingMinutiae": [
         {
@@ -60,15 +51,6 @@
             {
               "kind": "OBJECT_METHOD_DEFINITION",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "PUBLIC_KEYWORD",
                   "leadingMinutiae": [
@@ -157,15 +139,6 @@
               "kind": "OBJECT_METHOD_DEFINITION",
               "children": [
                 {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
-                {
                   "kind": "FUNCTION_KEYWORD",
                   "leadingMinutiae": [
                     {
@@ -247,15 +220,6 @@
             {
               "kind": "OBJECT_METHOD_DEFINITION",
               "children": [
-                {
-                  "kind": "METADATA",
-                  "children": [
-                    {
-                      "kind": "LIST",
-                      "children": []
-                    }
-                  ]
-                },
                 {
                   "kind": "PRIVATE_KEYWORD",
                   "leadingMinutiae": [
