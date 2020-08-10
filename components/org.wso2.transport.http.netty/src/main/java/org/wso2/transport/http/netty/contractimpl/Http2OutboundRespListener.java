@@ -51,6 +51,8 @@ import org.wso2.transport.http.netty.message.ServerRemoteFlowControlListener;
 import java.util.Calendar;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_DEFLATE;
+import static org.wso2.transport.http.netty.contract.Constants.ENCODING_GZIP;
 import static org.wso2.transport.http.netty.contract.Constants.PROMISED_STREAM_REJECTED_ERROR;
 import static org.wso2.transport.http.netty.contractimpl.common.states.Http2StateUtil.isValidStreamId;
 
@@ -171,9 +173,63 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         if (contentEncoding == null) {
             String acceptEncoding = inboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
             if (acceptEncoding != null) {
-                outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), acceptEncoding);
+                String targetContentEncoding = determineScheme(acceptEncoding);
+                if (targetContentEncoding != null) {
+                    outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), targetContentEncoding);
+                }
             }
         }
+    }
+
+    /***
+     * This function is to determine one encoding scheme from the request's `accept-encoding` header. The logic to
+     * determine the scheme is similar to the logic used in Netty's `determineWrapper()` function in the
+     * `HttpContentCompressor` class which is used to do the same, when doing the HTTP1.1 compression.
+     *
+     * @param acceptEncoding `accept-encoding` header value
+     * @return the chosen encoding scheme
+     */
+    private String determineScheme(String acceptEncoding) {
+        float starQ = -1.0f;
+        float gzipQ = -1.0f;
+        float deflateQ = -1.0f;
+        for (String encoding : acceptEncoding.split(",")) {
+            float qValue = 1.0f;
+            int equalsPos = encoding.indexOf('=');
+            if (equalsPos != -1) {
+                try {
+                    qValue = Float.parseFloat(encoding.substring(equalsPos + 1));
+                } catch (NumberFormatException e) {
+                    // Ignore encoding
+                    qValue = 0.0f;
+                }
+            }
+            if (encoding.contains("*")) {
+                starQ = qValue;
+            } else if (encoding.contains(ENCODING_GZIP) && qValue > gzipQ) {
+                gzipQ = qValue;
+            } else if (encoding.contains(ENCODING_DEFLATE) && qValue > deflateQ) {
+                deflateQ = qValue;
+            } else {
+                LOG.debug("Server does not support the requested encoding scheme/s");
+            }
+        }
+        if (gzipQ > 0.0f || deflateQ > 0.0f) {
+            if (gzipQ >= deflateQ) {
+                return ENCODING_GZIP;
+            } else {
+                return ENCODING_DEFLATE;
+            }
+        }
+        if (starQ > 0.0f) {
+            if (gzipQ == -1.0f) {
+                return ENCODING_GZIP;
+            }
+            if (deflateQ == -1.0f) {
+                return ENCODING_DEFLATE;
+            }
+        }
+        return null;
     }
 
     /**
