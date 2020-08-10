@@ -16,6 +16,7 @@
 
 import ballerina/io;
 import ballerina/time;
+import ballerina/java;
 
 # Represents a parameter for the SQL Client remote functions when a variable needs to be passed
 # to the remote function.
@@ -391,14 +392,23 @@ type ResultIterator object {
     }
 };
 
-public type OutParameter record {|
-    Value? out = ();
-|};
+public type OutParameter object {
+    public function get(typedesc<anydata> td) returns td|Error = @java:Method {
+        class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+    } external;
+};
 
-public type InOutParameter record {|
+public type InOutParameter object {
     Value 'in;
-    Value? out = ();
-|};
+
+    public function init(Value 'in) {
+        self.'in = 'in;
+    }
+
+    public function get(typedesc<anydata> td) returns td|Error = @java:Method {
+        class: "org.ballerinalang.sql.utils.ProcedureCallResultUtils"
+    } external;
+};
 
 public type Parameter Value|OutParameter|InOutParameter;
 

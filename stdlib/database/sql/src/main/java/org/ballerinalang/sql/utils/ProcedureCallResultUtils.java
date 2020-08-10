@@ -29,6 +29,7 @@ import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StreamValue;
 import org.ballerinalang.jvm.values.TypedescValue;
 import org.ballerinalang.jvm.values.api.BString;
+import org.ballerinalang.jvm.values.api.BTypedesc;
 import org.ballerinalang.sql.Constants;
 import org.ballerinalang.sql.exception.ApplicationError;
 
@@ -61,6 +62,10 @@ import static org.ballerinalang.sql.utils.Utils.getGeneratedKeys;
  * This class provides functionality for the `ProcedureCallResult` to iterate through the sql result sets.
  */
 public class ProcedureCallResultUtils {
+
+    public static Object get(ObjectValue result, BTypedesc typedesc) {
+        return "boo";
+    }
 
     public static Object getNextQueryResult(ObjectValue procedureCallResult) {
         CallableStatement statement = (CallableStatement) procedureCallResult
