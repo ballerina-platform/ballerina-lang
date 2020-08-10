@@ -3261,7 +3261,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangSimpleVariable var = (BLangSimpleVariable) TreeBuilder.createSimpleVariableNode();
         boolean isDeclaredWithVar = onFailClauseNode.typeDescriptor().kind() == SyntaxKind.VAR_TYPE_DESC;
         var.isDeclaredWithVar = isDeclaredWithVar;
-        if(!isDeclaredWithVar) {
+        if (!isDeclaredWithVar) {
             var.setTypeNode(createTypeNode(onFailClauseNode.typeDescriptor()));
         }
         var.pos = getPosition(onFailClauseNode);

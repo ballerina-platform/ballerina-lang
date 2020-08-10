@@ -44,6 +44,12 @@ public class LockStatementTest extends AbstractStatementTest {
         "lock-stmt/lock_stmt_assert_03.json");
     }
 
+    @Test
+    public void testLockStmtWithOnFailClause() {
+        testFile("lock-stmt/lock_stmt_source_08.bal",
+                "lock-stmt/lock_stmt_assert_08.json");
+    }
+
     // Recovery tests
 
     @Test
