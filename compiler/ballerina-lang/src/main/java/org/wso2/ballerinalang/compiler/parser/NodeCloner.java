@@ -27,6 +27,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
@@ -1995,5 +1996,23 @@ public class NodeCloner extends BLangNodeVisitor {
                 source.navAccessType,
                 clone(source.childIndex));
         source.cloneRef = clone;
+    }
+
+    @Override
+    public void visit(BLangClassDefinition source) {
+        BLangClassDefinition clone = new BLangClassDefinition();
+        source.cloneRef = clone;
+        clone.pos = source.pos;
+        clone.addWS(source.getWS());
+        clone.annAttachments = cloneList(source.annAttachments);
+        clone.markdownDocumentationAttachment = clone(source.markdownDocumentationAttachment);
+        clone.flagSet = cloneSet(source.flagSet, Flag.class);
+        clone.name = clone(source.name);
+        clone.functions = cloneList(source.functions);
+        clone.fields = cloneList(source.fields);
+        clone.typeRefs = cloneList(source.typeRefs);
+        clone.initFunction = clone(source.initFunction);
+        clone.generatedInitFunction = clone(source.generatedInitFunction);
+        clone.receiver = clone(source.receiver);
     }
 }

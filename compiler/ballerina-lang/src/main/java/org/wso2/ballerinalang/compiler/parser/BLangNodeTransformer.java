@@ -35,6 +35,7 @@ import io.ballerinalang.compiler.syntax.tree.ByteArrayLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.ChildNodeList;
+import io.ballerinalang.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.CommitActionNode;
 import io.ballerinalang.compiler.syntax.tree.CompoundAssignmentStatementNode;
 import io.ballerinalang.compiler.syntax.tree.ComputedNameFieldNode;
@@ -235,6 +236,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -3334,6 +3336,82 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     protected BLangNode transformSyntaxNode(Node node) {
         // TODO: Remove this RuntimeException once all nodes covered
         throw new RuntimeException("Node not supported: " + node.getClass().getSimpleName());
+    }
+
+    @Override
+    public BLangNode transform(ClassDefinitionNode classDefinitionNode) {
+        BLangClassDefinition blangClass = (BLangClassDefinition) TreeBuilder.createClassDefNode();
+        blangClass.pos = getPositionWithoutMetadata(classDefinitionNode);
+        blangClass.annAttachments = applyAll(classDefinitionNode.metadata().annotations());
+
+        BLangIdentifier identifierNode = createIdentifier(classDefinitionNode.className());
+        blangClass.setName(identifierNode);
+        blangClass.markdownDocumentationAttachment =
+                createMarkdownDocumentationAttachment(classDefinitionNode.metadata().documentationString());
+
+        classDefinitionNode.visibilityQualifier().ifPresent(visibilityQual -> {
+            if (visibilityQual.kind() == SyntaxKind.PUBLIC_KEYWORD) {
+                blangClass.flagSet.add(Flag.PUBLIC);
+            }
+        });
+
+        for (Token qualifier : classDefinitionNode.classTypeQualifiers()) {
+            if (qualifier.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+                blangClass.flagSet.add(Flag.DISTINCT);
+            }
+
+            if (qualifier.kind() == SyntaxKind.CLIENT_KEYWORD) {
+                blangClass.flagSet.add(Flag.CLIENT);
+            }
+
+            if (qualifier.kind() == SyntaxKind.READONLY_KEYWORD) {
+                blangClass.flagSet.add(Flag.READONLY);
+            }
+
+            if (qualifier.kind() == SyntaxKind.SERVICE_KEYWORD) {
+                blangClass.flagSet.add(SERVICE);
+            }
+        }
+
+        NodeList<Node> members = classDefinitionNode.members();
+        for (Node node : members) {
+            // TODO: Check for fields other than SimpleVariableNode
+            BLangNode bLangNode = node.apply(this);
+            if (bLangNode.getKind() == NodeKind.FUNCTION) {
+                BLangFunction bLangFunction = (BLangFunction) bLangNode;
+                bLangFunction.attachedFunction = true;
+                bLangFunction.flagSet.add(Flag.ATTACHED);
+                if (Names.USER_DEFINED_INIT_SUFFIX.value.equals(bLangFunction.name.value)) {
+                    if (blangClass.initFunction == null) {
+                        bLangFunction.objInitFunction = true;
+                        // TODO: verify removing NULL check for blangClass.initFunction has no side-effects
+                        blangClass.initFunction = bLangFunction;
+                    } else {
+                        blangClass.addFunction(bLangFunction);
+                    }
+                } else {
+                    blangClass.addFunction(bLangFunction);
+                }
+            } else if (bLangNode.getKind() == NodeKind.VARIABLE) {
+                blangClass.addField((BLangSimpleVariable) bLangNode);
+            } else if (bLangNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                blangClass.addTypeReference((BLangType) bLangNode);
+            }
+        }
+
+        blangClass.pos = getPosition(classDefinitionNode);
+
+        if (members.size() > 0) {
+            trimLeft(blangClass.pos, getPosition(members.get(0)));
+            trimRight(blangClass.pos, getPosition(members.get(members.size() - 1)));
+        } else {
+            trimLeft(blangClass.pos, getPosition(classDefinitionNode.closeBrace()));
+            trimRight(blangClass.pos, getPosition(classDefinitionNode.openBrace()));
+        }
+
+        addToTop(blangClass);
+
+        return blangClass;
     }
 
     @Override
