@@ -1214,8 +1214,31 @@ public class FormattingTreeModifier extends TreeModifier {
         if (node == null) {
             return node;
         }
-        return node.modify(AbstractNodeFactory.createEmptyMinutiaeList(),
-                AbstractNodeFactory.createEmptyMinutiaeList());
+        MinutiaeList leadingMinutiaeList = AbstractNodeFactory.createEmptyMinutiaeList();
+        MinutiaeList trailingMinutiaeList = AbstractNodeFactory.createEmptyMinutiaeList();
+        if (node.containsLeadingMinutiae()) {
+            leadingMinutiaeList = getCommentMinutiae(node.leadingMinutiae(), true);
+        }
+        if (node.containsTrailingMinutiae()) {
+            trailingMinutiaeList = getCommentMinutiae(node.trailingMinutiae(), false);
+        }
+        return node.modify(leadingMinutiaeList, trailingMinutiaeList);
+    }
+
+    private MinutiaeList getCommentMinutiae(MinutiaeList minutiaeList, boolean isLeading) {
+        MinutiaeList minutiaes = AbstractNodeFactory.createEmptyMinutiaeList();
+        for (int i = 0; i < minutiaeList.size(); i++) {
+            if (minutiaeList.get(i).kind().equals(SyntaxKind.COMMENT_MINUTIAE)) {
+                if (i > 0) {
+                    minutiaes = minutiaes.add(minutiaeList.get(i - 1));
+                }
+                minutiaes = minutiaes.add(minutiaeList.get(i));
+                if ((i + 1) < minutiaeList.size() && isLeading) {
+                    minutiaes = minutiaes.add(minutiaeList.get(i + 1));
+                }
+            }
+        }
+        return minutiaes;
     }
 
     // TODO: Use a generic way to get the parent node using querying.
