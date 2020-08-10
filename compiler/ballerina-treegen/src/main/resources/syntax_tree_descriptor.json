@@ -45,7 +45,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -117,7 +118,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -157,7 +159,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -189,7 +192,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "serviceKeyword",
@@ -835,7 +839,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1259,7 +1264,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -1300,7 +1306,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1333,7 +1340,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "readonlyKeyword",
@@ -1464,7 +1472,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "finalKeyword",
@@ -1590,7 +1599,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -2909,7 +2919,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",
@@ -3391,7 +3402,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "qualifier",
@@ -3427,7 +3439,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "identifier",
@@ -3753,7 +3766,8 @@
             "attributes": [
                 {
                     "name": "metadata",
-                    "type": "MetadataNode"
+                    "type": "MetadataNode",
+                    "isOptional": true
                 },
                 {
                     "name": "visibilityQualifier",

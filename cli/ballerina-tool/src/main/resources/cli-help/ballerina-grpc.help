@@ -4,7 +4,7 @@ NAME
 
 SYNOPSIS
        ballerina grpc --input <proto-file-path> [--output <path>]
-                        [--mode client | server | proxy]
+                        [--mode client | service | proxy]
 
 DESCRIPTION
        GRPC generates the Ballerina gRPC client/service sources for a given
@@ -21,8 +21,8 @@ OPTIONS
            definition. If package is not specified, output will be written
            to a 'temp' directory in the current location.
 
-       --mode client | server | proxy
-           Set client or server mode to generate sample code.
+       --mode client | service | proxy
+           Set client or service mode to generate sample code.
            Set proxy mode to generate a gateway proxy.
            If not specified, only the stub file is generated.
 

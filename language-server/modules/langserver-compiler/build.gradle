@@ -40,7 +40,6 @@ dependencies {
     implementation project(':ballerina-transactions')
     // implementation project(':ballerina-grpc')
     implementation project(':ballerina-filepath')
-    implementation project(':ballerina-nats')
     testCompile 'org.testng:testng'
 }
 
