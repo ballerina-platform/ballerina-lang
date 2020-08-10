@@ -77,7 +77,7 @@ public class Generator {
      *
      * @param module  module model to fill.
      * @param balPackage module tree.
-     * @return weather the module has any public constructs.
+     * @return whether the module has any public constructs.
      */
     public static boolean generateModuleConstructs(Module module, BLangPackage balPackage) {
 
