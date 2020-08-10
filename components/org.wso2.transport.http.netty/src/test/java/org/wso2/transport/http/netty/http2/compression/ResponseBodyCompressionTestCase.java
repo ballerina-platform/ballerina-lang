@@ -94,6 +94,21 @@ public class ResponseBodyCompressionTestCase {
         assertPlainResults(responseHandler.getFullResponse(streamId),
                            responseHandler.getResponsePayload(streamId));
 
+        streamId = streamId + 2;
+        responseHandler = h2ClientWithoutDecompressor
+                .sendPostRequest(PAYLOAD, streamId, HttpHeaderValues.IDENTITY.toString());
+        assertPlainResults(responseHandler.getFullResponse(streamId),
+                responseHandler.getResponsePayload(streamId));
+
+        streamId = streamId + 2;
+        responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, "sdch, br");
+        assertPlainResults(responseHandler.getFullResponse(streamId),
+                responseHandler.getResponsePayload(streamId));
+
+        streamId = streamId + 2;
+        responseHandler = h2ClientWithoutDecompressor.sendPostRequest(PAYLOAD, streamId, "sdch, br, deflate");
+        assertCompressedResults("deflate", responseHandler.getFullResponse(streamId),
+                responseHandler.getResponsePayload(streamId));
     }
 
     private void assertCompressedResults(String expectedEncoding, FullHttpResponse response, String responsePayload) {

@@ -173,8 +173,6 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
         if (contentEncoding == null) {
             String acceptEncoding = inboundRequestMsg.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
             if (acceptEncoding != null) {
-                // To set the `content-encoding` header, first we need to select a scheme based on the `q` value and
-                // server supporting encoding schemes when we have multiple values in the `accept-encoding` header.
                 String targetContentEncoding = determineScheme(acceptEncoding);
                 if (targetContentEncoding != null) {
                     outboundResponseMsg.setHeader(HttpHeaderNames.CONTENT_ENCODING.toString(), targetContentEncoding);
@@ -212,6 +210,8 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
                 gzipQ = qValue;
             } else if (encoding.contains(ENCODING_DEFLATE) && qValue > deflateQ) {
                 deflateQ = qValue;
+            } else {
+                LOG.debug("Server does not support the requested encoding scheme/s");
             }
         }
         if (gzipQ > 0.0f || deflateQ > 0.0f) {
