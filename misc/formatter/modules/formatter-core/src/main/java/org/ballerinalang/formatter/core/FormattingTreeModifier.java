@@ -90,6 +90,7 @@ import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
+import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
 import io.ballerinalang.compiler.text.LinePosition;
@@ -1162,6 +1163,19 @@ public class FormattingTreeModifier extends TreeModifier {
         return nilTypeDescriptorNode.modify()
                 .withOpenParenToken(formatToken(openParenToken, startCol, 0, 0, 0))
                 .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public UnionTypeDescriptorNode transform(UnionTypeDescriptorNode unionTypeDescriptorNode) {
+        TypeDescriptorNode leftTypeDesc = this.modifyNode(unionTypeDescriptorNode.leftTypeDesc());
+        Token pipeToken = getToken(unionTypeDescriptorNode.pipeToken());
+        TypeDescriptorNode rightTypeDesc = this.modifyNode(unionTypeDescriptorNode.rightTypeDesc());
+
+        return unionTypeDescriptorNode.modify()
+                .withLeftTypeDesc(leftTypeDesc)
+                .withPipeToken(pipeToken)
+                .withRightTypeDesc(rightTypeDesc)
                 .apply();
     }
 
