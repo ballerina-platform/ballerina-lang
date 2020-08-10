@@ -39,7 +39,6 @@ dependencies {
     implementation project(':ballerina-mime')
     implementation 'org.jvnet.mimepull:mimepull'
     implementation 'com.sun.mail:javax.mail:1.6.2'
-    implementation 'org.wso2.transport.http:org.wso2.transport.http.netty'
     implementation 'org.apache.ws.commons.axiom:axiom-dom'
 
     baloImplementation project(path: ':ballerina-lang:annotations', configuration: 'baloImplementation')
@@ -60,7 +59,6 @@ dependencies {
     interopImports project(':ballerina-system')
     interopImports project(':ballerina-mime')
     interopImports 'com.sun.mail:javax.mail:1.6.2'
-    interopImports 'org.wso2.transport.http:org.wso2.transport.http.netty:6.3.9'
 
     testCompile project(':ballerina-test-utils')
     testCompile project(':ballerina-reflect')

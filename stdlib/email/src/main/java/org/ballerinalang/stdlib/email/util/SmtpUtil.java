@@ -19,15 +19,15 @@
 package org.ballerinalang.stdlib.email.util;
 
 import org.ballerinalang.jvm.BallerinaErrors;
-import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.values.ArrayValue;
+import org.ballerinalang.jvm.values.ArrayValueImpl;
 import org.ballerinalang.jvm.values.ErrorValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.api.BString;
-//import org.ballerinalang.mime.nativeimpl.EntityHeaders;
 import org.ballerinalang.mime.nativeimpl.MimeDataSourceBuilder;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityHeaderHandler;
 import org.ballerinalang.mime.util.MimeConstants;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.slf4j.Logger;
@@ -52,10 +52,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 
-import static com.oracle.jrockit.jfr.ContentType.Address;
 import static org.ballerinalang.mime.util.MimeUtil.getContentTypeWithParameters;
-import static org.ballerinalang.mime.util.MimeConstants.HEADERS_MAP_FIELD;
-import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD;
 
 /**
  * Contains the utility functions related to the SMTP protocol.
@@ -218,32 +215,19 @@ public class SmtpUtil {
     private static void addHeadersToJavaMailBodyPart(ObjectValue mimeEntity, MimeBodyPart attachmentBodyPart)
             throws MessagingException {
 
-//        Object headerNames = mimeEntity.get(HEADER_NAMES_ARRAY_FIELD);
-//        ArrayValue headerNamesArrayValue = headerNames != null ? (ArrayValue) headerNames :
-//                new ArrayValueImpl(new byte[0]);
-//
-////        MapValue<BString, BString> map =  != null ?
-////                        (MapValue<BString, BString>) mediaType.get(PARAMETER_MAP_FIELD) : null;
-//
-////        EntityHeaders.getHeaderNames(mimeEntity,
-////                StringUtils.fromString(MimeConstants.LEADING_HEADER));
-//        if (headerNamesArrayValue.size() > 0) {
-//            for (int i = 0; i < headerNamesArrayValue.size(); i++) {
-//                String headerName = headerNamesArrayValue.get(i).stringValue();
-//                Object headerMap = mimeEntity.get(HEADERS_MAP_FIELD);
-//                MapValue<BString, BString> map = headerMap != null ?
-//                        (MapValue<BString, BString>) headerMap : null;
-//
-//
-//                String headerValue = map.get(headerName).getValue();
-////                BString headerValue = EntityHeaders.getHeader(mimeEntity, headerName,
-////                        StringUtils.fromString(MimeConstants.LEADING_HEADER));
-//                if (isNotEmpty(headerName.getValue())) {
-//                    log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
-//                    attachmentBodyPart.setHeader(headerName.getValue(), headerValue);
-//                }
-//            }
-//        }
+        MapValue<BString, Object> entityHeaders = EntityHeaderHandler.getEntityHeaderMap(mimeEntity);
+
+        for (BString entryKey : entityHeaders.getKeys()) {
+            ArrayValueImpl entryValues = (ArrayValueImpl) entityHeaders.get(entryKey);
+            if (entryValues.size() > 0) {
+                String headerName = entryKey.getValue();
+                String headerValue = entryValues.getBString(0).getValue();
+                if (isNotEmpty(headerName)) {
+                    log.debug("Added a MIME body part header " + headerName + " with value " + headerValue);
+                    attachmentBodyPart.setHeader(headerName, headerValue);
+                }
+            }
+        }
     }
 
     private static Address[] extractAddressLists(MapValue<BString, Object> message, BString addressType)

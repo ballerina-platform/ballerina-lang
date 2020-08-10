@@ -885,9 +885,9 @@ public class HttpUtil {
             if (entryValues.size() > 1) {
                 Iterator<String> valueIterator = Arrays.stream(entryValues.getStringArray()).map(String::valueOf)
                         .iterator();
-                httpHeaders.add(String.valueOf(entryKey), valueIterator);
+                httpHeaders.add(entryKey.getValue(), valueIterator);
             } else if (entryValues.size() == 1) {
-                httpHeaders.set(String.valueOf(entryKey), String.valueOf(entryValues.getBString(0)));
+                httpHeaders.set(entryKey.getValue(), entryValues.getBString(0).getValue());
             }
         }
     }
