@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "PUBLIC_KEYWORD",
       "trailingMinutiae": [
         {
@@ -172,13 +163,16 @@
                                   ],
                                   "leadingMinutiae": [
                                     {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
+                                    },
+                                    {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "PLUS_TOKEN",
-                                        "leadingMinutiae": [
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
                                           {
-                                            "kind": "WHITESPACE_MINUTIAE",
-                                            "value": "        "
+                                            "kind": "PLUS_TOKEN"
                                           }
                                         ]
                                       }

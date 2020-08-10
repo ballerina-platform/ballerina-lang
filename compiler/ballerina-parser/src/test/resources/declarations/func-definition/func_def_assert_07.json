@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "PUBLIC_KEYWORD",
       "trailingMinutiae": [
         {
@@ -40,15 +31,18 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "DECIMAL_INTEGER_LITERAL",
-            "value": "111",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "WHITESPACE_MINUTIAE",
-                "value": " "
+                "kind": "DECIMAL_INTEGER_LITERAL",
+                "value": "111"
               }
             ]
           }
+        },
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     },
@@ -120,28 +114,34 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "DECIMAL_INTEGER_LITERAL",
-                "value": "222",
-                "trailingMinutiae": [
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
                   {
-                    "kind": "WHITESPACE_MINUTIAE",
-                    "value": " "
+                    "kind": "DECIMAL_INTEGER_LITERAL",
+                    "value": "222"
                   }
                 ]
               }
             },
             {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            },
+            {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "DECIMAL_INTEGER_LITERAL",
-                "value": "333",
-                "trailingMinutiae": [
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
                   {
-                    "kind": "WHITESPACE_MINUTIAE",
-                    "value": " "
+                    "kind": "DECIMAL_INTEGER_LITERAL",
+                    "value": "333"
                   }
                 ]
               }
+            },
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
             }
           ],
           "trailingMinutiae": [

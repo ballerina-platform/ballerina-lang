@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -71,11 +62,16 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "ERROR_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -317,7 +313,12 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "ERROR_KEYWORD"
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -551,15 +552,20 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "ERROR_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -675,7 +681,12 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "ERROR_KEYWORD"
+                                          "kind": "ERROR_TYPE_DESC",
+                                          "children": [
+                                            {
+                                              "kind": "ERROR_KEYWORD"
+                                            }
+                                          ]
                                         },
                                         {
                                           "kind": "OPEN_PAREN_TOKEN"
@@ -827,7 +838,12 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "ERROR_KEYWORD"
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -862,8 +878,13 @@
                                 {
                                   "kind": "INVALID_NODE_MINUTIAE",
                                   "invalidNode": {
-                                    "kind": "IDENTIFIER_TOKEN",
-                                    "value": "c"
+                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                    "children": [
+                                      {
+                                        "kind": "IDENTIFIER_TOKEN",
+                                        "value": "c"
+                                      }
+                                    ]
                                   }
                                 }
                               ]
@@ -1042,7 +1063,12 @@
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "ERROR_KEYWORD"
+                                  "kind": "ERROR_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ERROR_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"

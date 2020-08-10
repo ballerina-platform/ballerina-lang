@@ -2,15 +2,6 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -103,15 +94,6 @@
                               "kind": "RECORD_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "STRING_TYPE_DESC",
                                   "children": [
                                     {
@@ -149,15 +131,6 @@
                             {
                               "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                               "children": [
-                                {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "FLOAT_TYPE_DESC",
                                   "children": [
@@ -221,15 +194,6 @@
                               "kind": "RECORD_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -268,15 +232,6 @@
                               "kind": "RECORD_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "RECORD_TYPE_DESC",
                                   "children": [
                                     {
@@ -313,15 +268,6 @@
                                         {
                                           "kind": "RECORD_FIELD",
                                           "children": [
-                                            {
-                                              "kind": "METADATA",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "STRING_TYPE_DESC",
                                               "children": [
@@ -360,15 +306,6 @@
                                         {
                                           "kind": "RECORD_FIELD_WITH_DEFAULT_VALUE",
                                           "children": [
-                                            {
-                                              "kind": "METADATA",
-                                              "children": [
-                                                {
-                                                  "kind": "LIST",
-                                                  "children": []
-                                                }
-                                              ]
-                                            },
                                             {
                                               "kind": "INT_TYPE_DESC",
                                               "children": [
@@ -529,35 +466,35 @@
                                   ]
                                 }
                               ]
-                            },
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "RECORD_REST_TYPE",
+                          "children": [
                             {
-                              "kind": "RECORD_REST_TYPE",
+                              "kind": "STRING_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "STRING_TYPE_DESC",
-                                  "children": [
+                                  "kind": "STRING_KEYWORD",
+                                  "leadingMinutiae": [
                                     {
-                                      "kind": "STRING_KEYWORD",
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "        "
-                                        }
-                                      ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "        "
                                     }
                                   ]
-                                },
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "ELLIPSIS_TOKEN"
+                            },
+                            {
+                              "kind": "SEMICOLON_TOKEN",
+                              "trailingMinutiae": [
                                 {
-                                  "kind": "ELLIPSIS_TOKEN"
-                                },
-                                {
-                                  "kind": "SEMICOLON_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "END_OF_LINE_MINUTIAE",
-                                      "value": "\n"
-                                    }
-                                  ]
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
                                 }
                               ]
                             }

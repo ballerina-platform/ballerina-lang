@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.commons.workspace;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
 import org.eclipse.lsp4j.CodeLens;
+import org.eclipse.lsp4j.TextDocumentContentChangeEvent;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -74,7 +75,8 @@ public interface WorkspaceDocumentManager {
      * @param updatedContent New content of the file
      * @throws WorkspaceDocumentException when file cannot be updated.
      */
-    void updateFile(Path filePath, String updatedContent) throws WorkspaceDocumentException;
+    void updateFile(Path filePath, List<TextDocumentContentChangeEvent> updatedContent)
+            throws WorkspaceDocumentException;
 
     /**
      * Updates code lenses of a given file in document manager with new code lenses sent to client.
@@ -94,27 +96,6 @@ public interface WorkspaceDocumentManager {
      * @throws WorkspaceDocumentException when file cannot be updated.
      */
     void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException;
-
-    /**
-     * Set the pruned source content of a given file.
-     *
-     * Usage example:
-     * <pre>
-     * Optional&lt;Lock&gt; lock = documentManager.lockFile(filePath);
-     * try {
-     *     documentManager.setPrunedContent(filePath, prunedSource);
-     * } finally {
-     *     lock.ifPresent(Lock:unlock);
-     * }
-     * </pre>
-     *
-     * @param filePath Path of the file
-     * @param prunedSource Pruned source of the file
-     * @throws WorkspaceDocumentException when file cannot be updated.
-     */
-    void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException;
-
-    void resetPrunedContent(Path filePath) throws WorkspaceDocumentException;
 
     /**
      * Returns the code lenses of the file.
@@ -147,7 +128,9 @@ public interface WorkspaceDocumentManager {
      * @param filePath Path of the file
      * @return Content of the file
      * @throws WorkspaceDocumentException when file cannot be read.
+     * @deprecated Use #getTree(Path filePath) instead
      */
+    @Deprecated
     String getFileContent(Path filePath) throws WorkspaceDocumentException;
 
     /**

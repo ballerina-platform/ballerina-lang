@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -122,8 +113,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bar"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar"
+                                  }
+                                ]
                               }
                             }
                           ],
@@ -218,22 +214,23 @@
                                           "value": "baz",
                                           "leadingMinutiae": [
                                             {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "                                "
+                                            },
+                                            {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "RETURNS_KEYWORD",
-                                                "leadingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "                                "
-                                                  }
-                                                ],
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "RETURNS_KEYWORD"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }
@@ -750,8 +747,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bar"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "IDENTIFIER_TOKEN",
+                                    "value": "bar"
+                                  }
+                                ]
                               }
                             }
                           ]
@@ -1041,22 +1043,23 @@
                                           "value": "baz",
                                           "leadingMinutiae": [
                                             {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "            "
+                                            },
+                                            {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "RETURNS_KEYWORD",
-                                                "leadingMinutiae": [
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
                                                   {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": "            "
-                                                  }
-                                                ],
-                                                "trailingMinutiae": [
-                                                  {
-                                                    "kind": "WHITESPACE_MINUTIAE",
-                                                    "value": " "
+                                                    "kind": "RETURNS_KEYWORD"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }

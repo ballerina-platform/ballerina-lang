@@ -2,15 +2,6 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -136,15 +127,6 @@
                               "kind": "OBJECT_FIELD",
                               "children": [
                                 {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
-                                {
                                   "kind": "INT_TYPE_DESC",
                                   "children": [
                                     {
@@ -182,15 +164,6 @@
                             {
                               "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
-                                {
-                                  "kind": "METADATA",
-                                  "children": [
-                                    {
-                                      "kind": "LIST",
-                                      "children": []
-                                    }
-                                  ]
-                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [

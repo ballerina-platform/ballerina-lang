@@ -63,26 +63,27 @@
       ],
       "leadingMinutiae": [
         {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        },
+        {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "PUBLIC_KEYWORD",
-            "leadingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
-              }
-            ],
-            "trailingMinutiae": [
-              {
-                "kind": "WHITESPACE_MINUTIAE",
-                "value": " "
-              },
-              {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "PUBLIC_KEYWORD"
               }
             ]
           }
+        },
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

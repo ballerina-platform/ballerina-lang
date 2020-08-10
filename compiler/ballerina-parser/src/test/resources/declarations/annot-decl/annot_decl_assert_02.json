@@ -12,15 +12,6 @@
           "kind": "ANNOTATION_DECLARATION",
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "ANNOTATION_KEYWORD",
               "trailingMinutiae": [
                 {

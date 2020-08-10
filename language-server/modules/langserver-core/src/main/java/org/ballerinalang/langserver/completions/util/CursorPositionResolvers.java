@@ -22,6 +22,7 @@ import org.ballerinalang.langserver.completions.util.positioning.resolvers.Curso
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ForkJoinStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.FunctionNodeScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
+import org.ballerinalang.langserver.completions.util.positioning.resolvers.ListConstructorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchStatementScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.ObjectTypeScopeResolver;
@@ -64,6 +65,8 @@ public enum CursorPositionResolvers {
     RECORD_LITERAL_SCOPE(RecordLiteralScopeResolver.class, new RecordLiteralScopeResolver()),
 
     FORK_JOIN_SCOPE(ForkJoinStatementScopeResolver.class, new ForkJoinStatementScopeResolver()),
+
+    LIST_CONSTRUCTOR_SCOPE(ListConstructorScopeResolver.class, new ListConstructorScopeResolver()),
 
     FUNCTION_SCOPE_RESOLVER(FunctionNodeScopeResolver.class, new FunctionNodeScopeResolver());
 

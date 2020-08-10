@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WRAPPER_GEN_BB_ID_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.addDefaultableBooleanVarsToSignature;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.enrichWithDefaultableParamInits;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmDesugarPhase.insertAndGetNextBasicBlock;
@@ -120,13 +121,12 @@ public class ExternalMethodGen {
             BIRVariableDcl localVar = getVariableDcl(birFunc.localVars.get(0));
             BIRVariableDcl variableDcl = new BIRVariableDcl(retType, localVar.name, localVar.scope, localVar.kind);
             retRef = new BIROperand(variableDcl);
-            //retRef = new (variableDcl:getVariableDcl(birFunc.localVars.get(0)), type:retType);
         }
 
         jvmMethodGen.resetIds();
 
-        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, "wrapperGen", jvmMethodGen);
-        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, "wrapperGen", jvmMethodGen);
+        BIRBasicBlock beginBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
+        BIRBasicBlock retBB = insertAndGetNextBasicBlock(birFunc.basicBlocks, WRAPPER_GEN_BB_ID_NAME, jvmMethodGen);
 
         List<BIROperand> args = new ArrayList<>();
 
@@ -199,7 +199,6 @@ public class ExternalMethodGen {
                                                                                         SymbolTable symbolTable) {
 
         List<BType> jMethodPramTypes = new ArrayList<>(birFunc.type.paramTypes);
-        /*birFunc.type.paramTypes.clone();*/
         if (isEntryModule) {
             addDefaultableBooleanVarsToSignature(birFunc, symbolTable.booleanType);
         }
@@ -230,6 +229,7 @@ public class ExternalMethodGen {
                                                                    BIRFunction birFunc, String orgName,
                                                                    String moduleName, String version,
                                                                    String birModuleClassName,
+                                                                   String lookupKey,
                                                                    JvmPackageGen jvmPackageGen) {
 
         BIRFunctionWrapper birFuncWrapper;
@@ -237,7 +237,7 @@ public class ExternalMethodGen {
         if (jInteropValidationReq == null) {
             // This is a old-style external Java interop function
             String pkgName = getPackageName(orgName, moduleName, version);
-            String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
+            String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
             if (jClassName != null) {
                 if (isBallerinaBuiltinModule(orgName, moduleName)) {
                     birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, version, jClassName);

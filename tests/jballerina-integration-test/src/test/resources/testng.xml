@@ -193,6 +193,7 @@
             <class name="org.ballerinalang.test.service.websocket.CookieTest"/>
             <class name="org.ballerinalang.test.service.websocket.AttachDetachTest"/>
             <class name="org.ballerinalang.test.service.websocket.RetryClientTest"/>
+            <class name="org.ballerinalang.test.service.websocket.AuthenticationTest"/>
             <class name="org.ballerinalang.test.service.websocket.FailoverClientTest"/>
         </classes>
     </test>
@@ -266,7 +267,10 @@
             </run>
         </groups>
         <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.TracingBaseTest"/>
+            <class name="org.ballerinalang.test.observability.tracing.OOTBTracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.ErrorsTracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.tracing.CustomTracingTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.WebSocketMetricsTestCase"/>
             <class name="org.ballerinalang.test.observability.metrics.KafkaMetricsTestCase"/>

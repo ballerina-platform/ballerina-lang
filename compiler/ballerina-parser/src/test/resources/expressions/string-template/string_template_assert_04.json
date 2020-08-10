@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -188,8 +179,13 @@
                     {
                       "kind": "INVALID_NODE_MINUTIAE",
                       "invalidNode": {
-                        "kind": "INVALID_TOKEN",
-                        "value": "INVALID_TOKEN"
+                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                        "children": [
+                          {
+                            "kind": "INVALID_TOKEN",
+                            "value": "$"
+                          }
+                        ]
                       }
                     }
                   ]
@@ -264,14 +260,17 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "SEMICOLON_TOKEN",
-                "trailingMinutiae": [
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
                   {
-                    "kind": "END_OF_LINE_MINUTIAE",
-                    "value": "\n"
+                    "kind": "SEMICOLON_TOKEN"
                   }
                 ]
               }
+            },
+            {
+              "kind": "END_OF_LINE_MINUTIAE",
+              "value": "\n"
             }
           ],
           "trailingMinutiae": [
