@@ -1542,12 +1542,12 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isObjectMethod) {
-            return STNodeFactory.createObjectMethodDefinitionNode(metadata, qualifierList,
-                    functionKeyword, name, funcSignature, body);
+            return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.OBJECT_METHOD_DEFINITION, metadata,
+                    qualifierList, functionKeyword, name, funcSignature, body);
         }
 
-        return STNodeFactory.createFunctionDefinitionNode(metadata, qualifierList, functionKeyword, name,
-                funcSignature, body);
+        return STNodeFactory.createFunctionDefinitionNode(SyntaxKind.FUNCTION_DEFINITION, metadata, qualifierList,
+                functionKeyword, name, funcSignature, body);
     }
 
     /**

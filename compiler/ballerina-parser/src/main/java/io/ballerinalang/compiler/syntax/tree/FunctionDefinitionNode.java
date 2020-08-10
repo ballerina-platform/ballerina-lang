@@ -79,6 +79,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
     }
 
     public FunctionDefinitionNode modify(
+            SyntaxKind kind,
             MetadataNode metadata,
             NodeList<Token> qualifierList,
             Token functionKeyword,
@@ -96,6 +97,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         }
 
         return NodeFactory.createFunctionDefinitionNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
@@ -176,6 +178,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
 
         public FunctionDefinitionNode apply() {
             return oldNode.modify(
+                    oldNode.kind(),
                     metadata,
                     qualifierList,
                     functionKeyword,

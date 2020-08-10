@@ -50,6 +50,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     }
 
     public static FunctionDefinitionNode createFunctionDefinitionNode(
+            SyntaxKind kind,
             MetadataNode metadata,
             NodeList<Token> qualifierList,
             Token functionKeyword,
@@ -63,6 +64,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         Objects.requireNonNull(functionBody, "functionBody must not be null");
 
         STNode stFunctionDefinitionNode = STNodeFactory.createFunctionDefinitionNode(
+                kind,
                 getOptionalSTNode(metadata),
                 qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
@@ -2755,29 +2757,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
                 ifKeyword.internalNode(),
                 expression.internalNode());
         return stMatchGuardNode.createUnlinkedFacade();
-    }
-
-    public static ObjectMethodDefinitionNode createObjectMethodDefinitionNode(
-            MetadataNode metadata,
-            NodeList<Token> qualifierList,
-            Token functionKeyword,
-            IdentifierToken methodName,
-            FunctionSignatureNode methodSignature,
-            FunctionBodyNode functionBody) {
-        Objects.requireNonNull(qualifierList, "qualifierList must not be null");
-        Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(methodName, "methodName must not be null");
-        Objects.requireNonNull(methodSignature, "methodSignature must not be null");
-        Objects.requireNonNull(functionBody, "functionBody must not be null");
-
-        STNode stObjectMethodDefinitionNode = STNodeFactory.createObjectMethodDefinitionNode(
-                getOptionalSTNode(metadata),
-                qualifierList.underlyingListNode().internalNode(),
-                functionKeyword.internalNode(),
-                methodName.internalNode(),
-                methodSignature.internalNode(),
-                functionBody.internalNode());
-        return stObjectMethodDefinitionNode.createUnlinkedFacade();
     }
 
     public static DistinctTypeDescriptorNode createDistinctTypeDescriptorNode(

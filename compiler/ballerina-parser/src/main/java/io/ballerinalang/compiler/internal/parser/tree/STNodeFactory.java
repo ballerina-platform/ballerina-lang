@@ -48,6 +48,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
     }
 
     public static STNode createFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
@@ -56,6 +57,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode functionBody) {
 
         return new STFunctionDefinitionNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
@@ -2074,23 +2076,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STMatchGuardNode(
                 ifKeyword,
                 expression);
-    }
-
-    public static STNode createObjectMethodDefinitionNode(
-            STNode metadata,
-            STNode qualifierList,
-            STNode functionKeyword,
-            STNode methodName,
-            STNode methodSignature,
-            STNode functionBody) {
-
-        return new STObjectMethodDefinitionNode(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
     }
 
     public static STNode createDistinctTypeDescriptorNode(

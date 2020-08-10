@@ -39,6 +39,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     public final STNode functionBody;
 
     STFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
@@ -46,6 +47,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode functionSignature,
             STNode functionBody) {
         this(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
@@ -56,6 +58,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     }
 
     STFunctionDefinitionNode(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
@@ -63,7 +66,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
             STNode functionSignature,
             STNode functionBody,
             Collection<STNodeDiagnostic> diagnostics) {
-        super(SyntaxKind.FUNCTION_DEFINITION, diagnostics);
+        super(kind, diagnostics);
         this.metadata = metadata;
         this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
@@ -82,6 +85,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STFunctionDefinitionNode(
+                this.kind,
                 this.metadata,
                 this.qualifierList,
                 this.functionKeyword,
@@ -92,6 +96,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
     }
 
     public STFunctionDefinitionNode modify(
+            SyntaxKind kind,
             STNode metadata,
             STNode qualifierList,
             STNode functionKeyword,
@@ -109,6 +114,7 @@ public class STFunctionDefinitionNode extends STModuleMemberDeclarationNode {
         }
 
         return new STFunctionDefinitionNode(
+                kind,
                 metadata,
                 qualifierList,
                 functionKeyword,

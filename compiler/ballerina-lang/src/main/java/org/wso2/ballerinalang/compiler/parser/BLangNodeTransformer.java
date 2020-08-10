@@ -119,7 +119,6 @@ import io.ballerinalang.compiler.syntax.tree.NodeList;
 import io.ballerinalang.compiler.syntax.tree.NodeTransformer;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectFieldNode;
-import io.ballerinalang.compiler.syntax.tree.ObjectMethodDefinitionNode;
 import io.ballerinalang.compiler.syntax.tree.ObjectTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.OnClauseNode;
 import io.ballerinalang.compiler.syntax.tree.OnConflictClauseNode;
@@ -1202,19 +1201,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLFunction.flagSet.add(Flag.NATIVE);
             }
         }
-        return bLFunction;
-    }
-
-    @Override
-    public BLangNode transform(ObjectMethodDefinitionNode methodDefNode) {
-        BLangFunction bLFunction =
-                createFunctionNode(methodDefNode.methodName(), methodDefNode.qualifierList(),
-                        methodDefNode.methodSignature(), methodDefNode.functionBody());
-
-        bLFunction.annAttachments = applyAll(getAnnotations(methodDefNode.metadata()));
-        bLFunction.pos = getPositionWithoutMetadata(methodDefNode);
-        bLFunction.markdownDocumentationAttachment =
-                createMarkdownDocumentationAttachment(getDocumentationString(methodDefNode.metadata()));
         return bLFunction;
     }
 

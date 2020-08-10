@@ -49,6 +49,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode functionSignature = modifyNode(functionDefinitionNode.functionSignature);
         STNode functionBody = modifyNode(functionDefinitionNode.functionBody);
         return functionDefinitionNode.modify(
+                functionDefinitionNode.kind,
                 metadata,
                 qualifierList,
                 functionKeyword,
@@ -2230,24 +2231,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return matchGuardNode.modify(
                 ifKeyword,
                 expression);
-    }
-
-    @Override
-    public STObjectMethodDefinitionNode transform(
-            STObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        STNode metadata = modifyNode(objectMethodDefinitionNode.metadata);
-        STNode qualifierList = modifyNode(objectMethodDefinitionNode.qualifierList);
-        STNode functionKeyword = modifyNode(objectMethodDefinitionNode.functionKeyword);
-        STNode methodName = modifyNode(objectMethodDefinitionNode.methodName);
-        STNode methodSignature = modifyNode(objectMethodDefinitionNode.methodSignature);
-        STNode functionBody = modifyNode(objectMethodDefinitionNode.functionBody);
-        return objectMethodDefinitionNode.modify(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
     }
 
     @Override

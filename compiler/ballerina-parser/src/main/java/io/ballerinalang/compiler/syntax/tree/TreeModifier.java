@@ -62,6 +62,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         FunctionBodyNode functionBody =
                 modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
+                functionDefinitionNode.kind(),
                 metadata,
                 qualifierList,
                 functionKeyword,
@@ -2810,30 +2811,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return matchGuardNode.modify(
                 ifKeyword,
                 expression);
-    }
-
-    @Override
-    public ObjectMethodDefinitionNode transform(
-            ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        MetadataNode metadata =
-                modifyNode(objectMethodDefinitionNode.metadata().orElse(null));
-        NodeList<Token> qualifierList =
-                modifyNodeList(objectMethodDefinitionNode.qualifierList());
-        Token functionKeyword =
-                modifyToken(objectMethodDefinitionNode.functionKeyword());
-        IdentifierToken methodName =
-                modifyNode(objectMethodDefinitionNode.methodName());
-        FunctionSignatureNode methodSignature =
-                modifyNode(objectMethodDefinitionNode.methodSignature());
-        FunctionBodyNode functionBody =
-                modifyNode(objectMethodDefinitionNode.functionBody());
-        return objectMethodDefinitionNode.modify(
-                metadata,
-                qualifierList,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
     }
 
     @Override

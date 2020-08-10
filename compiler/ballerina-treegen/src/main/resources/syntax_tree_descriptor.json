@@ -41,7 +41,6 @@
         {
             "name": "FunctionDefinitionNode",
             "base": "ModuleMemberDeclarationNode",
-            "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -3751,39 +3750,6 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "ObjectMethodDefinitionNode",
-            "base": "Node",
-            "kind": "OBJECT_METHOD_DEFINITION",
-            "attributes": [
-                {
-                    "name": "metadata",
-                    "type": "MetadataNode",
-                    "isOptional": true
-                },
-                {
-                    "name": "qualifierList",
-                    "type": "Token",
-                    "occurrences": "MULTIPLE"
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "IdentifierToken"
-                },
-                {
-                    "name": "methodSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "FunctionBodyNode"
                 }
             ]
         },
