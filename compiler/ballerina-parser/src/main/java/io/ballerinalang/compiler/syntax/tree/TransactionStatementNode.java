@@ -20,6 +20,7 @@ package io.ballerinalang.compiler.syntax.tree;
 import io.ballerinalang.compiler.internal.parser.tree.STNode;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This is a generated syntax tree node.
@@ -40,6 +41,10 @@ public class TransactionStatementNode extends StatementNode {
         return childInBucket(1);
     }
 
+    public Optional<OnFailClauseNode> onFailClause() {
+        return optionalChildInBucket(2);
+    }
+
     @Override
     public void accept(NodeVisitor visitor) {
         visitor.visit(this);
@@ -54,21 +59,25 @@ public class TransactionStatementNode extends StatementNode {
     protected String[] childNames() {
         return new String[]{
                 "transactionKeyword",
-                "blockStatement"};
+                "blockStatement",
+                "onFailClause"};
     }
 
     public TransactionStatementNode modify(
             Token transactionKeyword,
-            BlockStatementNode blockStatement) {
+            BlockStatementNode blockStatement,
+            OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 transactionKeyword,
-                blockStatement)) {
+                blockStatement,
+                onFailClause)) {
             return this;
         }
 
         return NodeFactory.createTransactionStatementNode(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public TransactionStatementNodeModifier modify() {
@@ -84,11 +93,13 @@ public class TransactionStatementNode extends StatementNode {
         private final TransactionStatementNode oldNode;
         private Token transactionKeyword;
         private BlockStatementNode blockStatement;
+        private OnFailClauseNode onFailClause;
 
         public TransactionStatementNodeModifier(TransactionStatementNode oldNode) {
             this.oldNode = oldNode;
             this.transactionKeyword = oldNode.transactionKeyword();
             this.blockStatement = oldNode.blockStatement();
+            this.onFailClause = oldNode.onFailClause().orElse(null);
         }
 
         public TransactionStatementNodeModifier withTransactionKeyword(
@@ -105,10 +116,18 @@ public class TransactionStatementNode extends StatementNode {
             return this;
         }
 
+        public TransactionStatementNodeModifier withOnFailClause(
+                OnFailClauseNode onFailClause) {
+            Objects.requireNonNull(onFailClause, "onFailClause must not be null");
+            this.onFailClause = onFailClause;
+            return this;
+        }
+
         public TransactionStatementNode apply() {
             return oldNode.modify(
                     transactionKeyword,
-                    blockStatement);
+                    blockStatement,
+                    onFailClause);
         }
     }
 }

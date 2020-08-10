@@ -414,9 +414,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(lockStatementNode.lockKeyword());
         StatementNode blockStatement =
                 modifyNode(lockStatementNode.blockStatement());
+        OnFailClauseNode onFailClause =
+                modifyNode(lockStatementNode.onFailClause().orElse(null));
         return lockStatementNode.modify(
                 lockKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -450,12 +453,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(forEachStatementNode.actionOrExpressionNode());
         StatementNode blockStatement =
                 modifyNode(forEachStatementNode.blockStatement());
+        OnFailClauseNode onFailClause =
+                modifyNode(forEachStatementNode.onFailClause().orElse(null));
         return forEachStatementNode.modify(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -2612,9 +2618,12 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(transactionStatementNode.transactionKeyword());
         BlockStatementNode blockStatement =
                 modifyNode(transactionStatementNode.blockStatement());
+        OnFailClauseNode onFailClause =
+                modifyNode(transactionStatementNode.onFailClause().orElse(null));
         return transactionStatementNode.modify(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -2643,11 +2652,14 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNode(retryStatementNode.arguments().orElse(null));
         StatementNode retryBody =
                 modifyNode(retryStatementNode.retryBody());
+        OnFailClauseNode onFailClause =
+                modifyNode(retryStatementNode.onFailClause().orElse(null));
         return retryStatementNode.modify(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody);
+                retryBody,
+                onFailClause);
     }
 
     @Override
@@ -2777,12 +2789,15 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyNodeList(matchStatementNode.matchClauses());
         Token closeBrace =
                 modifyToken(matchStatementNode.closeBrace());
+        OnFailClauseNode onFailClause =
+                modifyNode(matchStatementNode.onFailClause().orElse(null));
         return matchStatementNode.modify(
                 matchKeyword,
                 condition,
                 openBrace,
                 matchClauses,
-                closeBrace);
+                closeBrace,
+                onFailClause);
     }
 
     @Override

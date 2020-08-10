@@ -1341,6 +1341,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         foreachBlock.pos = getPosition(forEachStatementNode.blockStatement());
         foreach.setBody(foreachBlock);
         foreach.setCollection(createExpression(forEachStatementNode.actionOrExpressionNode()));
+
+        forEachStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            foreach.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return foreach;
     }
 
@@ -2401,6 +2407,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangBlockStmt lockBlock = (BLangBlockStmt) lockStatementNode.blockStatement().apply(this);
         lockBlock.pos = getPosition(lockStatementNode.blockStatement());
         lockNode.setBody(lockBlock);
+
+        lockStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            lockNode.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return lockNode;
     }
 
@@ -2634,6 +2646,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         transactionBlock.pos = getPosition(transactionStatementNode.blockStatement());
         transaction.setTransactionBody(transactionBlock);
         transaction.pos = getPosition(transactionStatementNode);
+
+        transactionStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            transaction.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return transaction;
     }
 
@@ -3400,6 +3418,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         retryNode.setRetrySpec(retrySpec);
         BLangBlockStmt retryBlock = (BLangBlockStmt) retryBody.apply(this);
         retryNode.setRetryBody(retryBlock);
+
+        retryStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            retryNode.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
+
         return retryNode;
     }
 
@@ -3513,6 +3537,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
             patternClause.body = (BLangBlockStmt) transform(((MatchClauseNode) matchClause).blockStatement());
         }
+
+        matchStatementNode.onFailClause().ifPresent(onFailClauseNode -> {
+            bLangMatch.setOnFailClause(
+                    (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
+        });
 
         return bLangMatch;
     }

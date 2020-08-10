@@ -323,9 +323,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STLockStatementNode lockStatementNode) {
         STNode lockKeyword = modifyNode(lockStatementNode.lockKeyword);
         STNode blockStatement = modifyNode(lockStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(lockStatementNode.onFailClause);
         return lockStatementNode.modify(
                 lockKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -350,12 +352,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode inKeyword = modifyNode(forEachStatementNode.inKeyword);
         STNode actionOrExpressionNode = modifyNode(forEachStatementNode.actionOrExpressionNode);
         STNode blockStatement = modifyNode(forEachStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(forEachStatementNode.onFailClause);
         return forEachStatementNode.modify(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -2069,9 +2073,11 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
             STTransactionStatementNode transactionStatementNode) {
         STNode transactionKeyword = modifyNode(transactionStatementNode.transactionKeyword);
         STNode blockStatement = modifyNode(transactionStatementNode.blockStatement);
+        STNode onFailClause = modifyNode(transactionStatementNode.onFailClause);
         return transactionStatementNode.modify(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     @Override
@@ -2093,11 +2099,13 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode typeParameter = modifyNode(retryStatementNode.typeParameter);
         STNode arguments = modifyNode(retryStatementNode.arguments);
         STNode retryBody = modifyNode(retryStatementNode.retryBody);
+        STNode onFailClause = modifyNode(retryStatementNode.onFailClause);
         return retryStatementNode.modify(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody);
+                retryBody,
+                onFailClause);
     }
 
     @Override
@@ -2202,12 +2210,14 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode openBrace = modifyNode(matchStatementNode.openBrace);
         STNode matchClauses = modifyNode(matchStatementNode.matchClauses);
         STNode closeBrace = modifyNode(matchStatementNode.closeBrace);
+        STNode onFailClause = modifyNode(matchStatementNode.onFailClause);
         return matchStatementNode.modify(
                 matchKeyword,
                 condition,
                 openBrace,
                 matchClauses,
-                closeBrace);
+                closeBrace,
+                onFailClause);
     }
 
     @Override

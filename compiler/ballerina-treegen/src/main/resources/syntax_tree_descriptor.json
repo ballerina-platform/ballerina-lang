@@ -534,6 +534,11 @@
                 {
                     "name": "blockStatement",
                     "type": "StatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -585,6 +590,11 @@
                 {
                     "name": "blockStatement",
                     "type": "StatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3479,6 +3489,11 @@
                 {
                     "name": "blockStatement",
                     "type": "BlockStatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3524,6 +3539,11 @@
                 {
                     "name": "retryBody",
                     "type": "StatementNode"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -3703,6 +3723,11 @@
                 {
                     "name": "closeBrace",
                     "type": "Token"
+                },
+                {
+                    "name": "onFailClause",
+                    "type": "OnFailClauseNode",
+                    "isOptional": true
                 }
             ]
         },

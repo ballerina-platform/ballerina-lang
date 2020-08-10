@@ -8453,7 +8453,13 @@ public class BallerinaParser extends AbstractParser {
         STNode lockKeyword = parseLockKeyword();
         STNode blockStatement = parseBlockNode();
         endContext();
-        return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement);
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createLockStatementNode(lockKeyword, blockStatement, onFailClause);
     }
 
     /**
@@ -8802,8 +8808,14 @@ public class BallerinaParser extends AbstractParser {
         STNode actionOrExpr = parseActionOrExpression();
         STNode blockStatement = parseBlockNode();
         endContext();
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
         return STNodeFactory.createForEachStatementNode(forEachKeyword, typedBindingPattern, inKeyword, actionOrExpr,
-                blockStatement);
+                blockStatement, onFailClause);
     }
 
     /**
@@ -11729,7 +11741,13 @@ public class BallerinaParser extends AbstractParser {
         STNode transactionKeyword = parseTransactionKeyword();
         STNode blockStmt = parseBlockNode();
         endContext();
-        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt);
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createTransactionStatementNode(transactionKeyword, blockStmt, onFailClause);
     }
 
     /**
@@ -11841,7 +11859,13 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode blockStmt = parseRetryBody();
-        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt);
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createRetryStatementNode(retryKeyword, typeParam, args, blockStmt, onFailClause);
     }
 
     private STNode parseRetryBody() {
@@ -12533,7 +12557,14 @@ public class BallerinaParser extends AbstractParser {
         STNode closeBrace = parseCloseBrace();
         endContext();
         endContext();
-        return STNodeFactory.createMatchStatementNode(matchKeyword, actionOrExpr, openBrace, matchClauses, closeBrace);
+        STNode onFailClause;
+        if (peek().kind == SyntaxKind.ON_KEYWORD) {
+            onFailClause = parseOnFailClause();
+        } else {
+            onFailClause = STNodeFactory.createEmptyNode();
+        }
+        return STNodeFactory.createMatchStatementNode(matchKeyword, actionOrExpr, openBrace, matchClauses, closeBrace,
+                onFailClause);
     }
 
     /**

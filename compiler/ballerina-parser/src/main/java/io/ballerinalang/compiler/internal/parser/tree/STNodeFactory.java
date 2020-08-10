@@ -310,11 +310,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createLockStatementNode(
             STNode lockKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
 
         return new STLockStatementNode(
                 lockKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public static STNode createForkStatementNode(
@@ -335,14 +337,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode typedBindingPattern,
             STNode inKeyword,
             STNode actionOrExpressionNode,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
 
         return new STForEachStatementNode(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public static STNode createBinaryExpressionNode(
@@ -1925,11 +1929,13 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createTransactionStatementNode(
             STNode transactionKeyword,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
 
         return new STTransactionStatementNode(
                 transactionKeyword,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public static STNode createRollbackStatementNode(
@@ -1947,13 +1953,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode retryKeyword,
             STNode typeParameter,
             STNode arguments,
-            STNode retryBody) {
+            STNode retryBody,
+            STNode onFailClause) {
 
         return new STRetryStatementNode(
                 retryKeyword,
                 typeParameter,
                 arguments,
-                retryBody);
+                retryBody,
+                onFailClause);
     }
 
     public static STNode createCommitActionNode(
@@ -2046,14 +2054,16 @@ public class STNodeFactory extends STAbstractNodeFactory {
             STNode condition,
             STNode openBrace,
             STNode matchClauses,
-            STNode closeBrace) {
+            STNode closeBrace,
+            STNode onFailClause) {
 
         return new STMatchStatementNode(
                 matchKeyword,
                 condition,
                 openBrace,
                 matchClauses,
-                closeBrace);
+                closeBrace,
+                onFailClause);
     }
 
     public static STNode createMatchClauseNode(

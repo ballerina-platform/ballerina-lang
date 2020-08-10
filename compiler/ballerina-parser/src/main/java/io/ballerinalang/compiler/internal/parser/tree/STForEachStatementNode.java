@@ -36,19 +36,22 @@ public class STForEachStatementNode extends STStatementNode {
     public final STNode inKeyword;
     public final STNode actionOrExpressionNode;
     public final STNode blockStatement;
+    public final STNode onFailClause;
 
     STForEachStatementNode(
             STNode forEachKeyword,
             STNode typedBindingPattern,
             STNode inKeyword,
             STNode actionOrExpressionNode,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
         this(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement,
+                onFailClause,
                 Collections.emptyList());
     }
 
@@ -58,6 +61,7 @@ public class STForEachStatementNode extends STStatementNode {
             STNode inKeyword,
             STNode actionOrExpressionNode,
             STNode blockStatement,
+            STNode onFailClause,
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.FOREACH_STATEMENT, diagnostics);
         this.forEachKeyword = forEachKeyword;
@@ -65,13 +69,15 @@ public class STForEachStatementNode extends STStatementNode {
         this.inKeyword = inKeyword;
         this.actionOrExpressionNode = actionOrExpressionNode;
         this.blockStatement = blockStatement;
+        this.onFailClause = onFailClause;
 
         addChildren(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement);
+                blockStatement,
+                onFailClause);
     }
 
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
@@ -81,6 +87,7 @@ public class STForEachStatementNode extends STStatementNode {
                 this.inKeyword,
                 this.actionOrExpressionNode,
                 this.blockStatement,
+                this.onFailClause,
                 diagnostics);
     }
 
@@ -89,13 +96,15 @@ public class STForEachStatementNode extends STStatementNode {
             STNode typedBindingPattern,
             STNode inKeyword,
             STNode actionOrExpressionNode,
-            STNode blockStatement) {
+            STNode blockStatement,
+            STNode onFailClause) {
         if (checkForReferenceEquality(
                 forEachKeyword,
                 typedBindingPattern,
                 inKeyword,
                 actionOrExpressionNode,
-                blockStatement)) {
+                blockStatement,
+                onFailClause)) {
             return this;
         }
 
@@ -105,6 +114,7 @@ public class STForEachStatementNode extends STStatementNode {
                 inKeyword,
                 actionOrExpressionNode,
                 blockStatement,
+                onFailClause,
                 diagnostics);
     }
 
