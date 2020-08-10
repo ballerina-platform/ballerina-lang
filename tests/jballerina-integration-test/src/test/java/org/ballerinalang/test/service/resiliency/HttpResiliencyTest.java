@@ -116,13 +116,16 @@ public class HttpResiliencyTest extends BaseTest {
                 , multipartBody, headers);
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertTrue(response.getHeaders().get(HttpHeaderNames.CONTENT_TYPE.toString())
-                        .contains("multipart/form-data;boundary=" + multipartDataBoundary),
-                "Response is not form of multipart");
-        Assert.assertTrue(response.getData().contains("form-data;name=\"foo\"content-id: 0Part1")
-                , "Message content mismatched");
-        Assert.assertTrue(response.getData().
-                        contains("form-data;name=\"filepart\";filename=\"file-01.txt\"content-id: 1Part2")
-                , "Message content mismatched");
+                                  .contains("multipart/form-data;boundary=" + multipartDataBoundary),
+                          "Response is not form of multipart");
+        Assert.assertTrue(response.getData().contains("content-disposition: form-data;name=\"foo\"content-type: " +
+                                                              "text/plain;charset=UTF-8content-id: 0Part1"),
+                          "Message content mismatched");
+        Assert.assertTrue(response.getData().contains("content-disposition: form-data;name=\"filepart\";" +
+                                                              "filename=\"file-01.txt\"content-type: " +
+                                                              "text/plaincontent-transfer-encoding: binarycontent-id:" +
+                                                              " 1Part2"),
+                          "Message content mismatched");
     }
 
     @Test(description = "Test failover functionality when request has nested body parts")
@@ -154,14 +157,17 @@ public class HttpResiliencyTest extends BaseTest {
                 "\r\n" +
                 "--" + multipartMixedBoundary + "--" + "\r\n" +
                 "--" + multipartDataBoundary + "--" + "\r\n";
-        String expectedChildPart1 =
-                "Content-Transfer-Encoding: binary" +
-                        "content-type: text/plain" +
-                        "content-disposition: attachment;filename=\"file-02.txt\"content-id: 0" +
-                        "Child Part 1";
-        String expectedChildPart2 = "Content-Transfer-Encoding: binary" +
+        String expectedChildPart1 = "content-disposition: attachment;" +
+                "filename=\"file-02.txt\"" +
                 "content-type: text/plain" +
-                "content-disposition: attachment;filename=\"file-02.txt\"content-id: 1" +
+                "content-transfer-encoding: binary" +
+                "content-id: 0" +
+                "Child Part 1";
+        String expectedChildPart2 = "content-disposition: attachment;" +
+                "filename=\"file-02.txt\"" +
+                "content-type: text/plain" +
+                "content-transfer-encoding: binary" +
+                "content-id: 1" +
                 "Child Part 2";
         Map<String, String> headers = new HashMap<>();
         headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), "multipart/form-data; boundary=" +
