@@ -628,7 +628,7 @@ public class BallerinaParser extends AbstractParser {
                 return parseJoinKeyword();
             // case RECORD_BODY_END:
              case OBJECT_MEMBER_WITHOUT_METADATA:
-                 return parseObjectMember((STNode) args[0]);
+                 return parseObjectMemberWithoutMeta((STNode) args[0]);
             // case REMOTE_CALL_OR_ASYNC_SEND_END:
             // case RECEIVE_FIELD_END:
             // case MAPPING_BP_OR_MAPPING_CONSTRUCTOR_MEMBER:
@@ -5547,14 +5547,14 @@ public class BallerinaParser extends AbstractParser {
                 return parseObjectMember(solution.tokenKind);
         }
 
-        return parseObjectMember(metadata);
+        return parseObjectMemberWithoutMeta(metadata);
     }
 
-    private STNode parseObjectMember(STNode metadata) {
-        return parseObjectMember(peek().kind, metadata);
+    private STNode parseObjectMemberWithoutMeta(STNode metadata) {
+        return parseObjectMemberWithoutMeta(peek().kind, metadata);
     }
 
-    private STNode parseObjectMember(SyntaxKind nextTokenKind, STNode metadata) {
+    private STNode parseObjectMemberWithoutMeta(SyntaxKind nextTokenKind, STNode metadata) {
         STNode member;
         switch (nextTokenKind) {
             case EOF_TOKEN:
@@ -5594,7 +5594,7 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                return parseObjectMember(solution.tokenKind);
+                return parseObjectMemberWithoutMeta(solution.tokenKind, metadata);
         }
 
         return member;
