@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.CollectDiagnosticListener;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSModuleCompiler;
-import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.langserver.compiler.exception.CompilationFailedException;
 import org.ballerinalang.langserver.exception.UserErrorException;
 import org.ballerinalang.langserver.util.TokensUtil;
@@ -89,7 +88,7 @@ public class CodeActionUtil {
 
         try {
             BLangPackage bLangPackage = LSModuleCompiler.getBLangPackage(context, docManager,
-                    LSCustomErrorStrategy.class, false, false, true);
+                    null, false, false, true);
             String relativeSourcePath = context.get(DocumentServiceKeys.RELATIVE_FILE_PATH_KEY);
             BLangPackage evalPkg = CommonUtil.getSourceOwnerBLangPackage(relativeSourcePath, bLangPackage);
 
@@ -218,7 +217,7 @@ public class CodeActionUtil {
     public static SymbolReferencesModel.Reference getSymbolAtCursor(LSContext context, LSDocumentIdentifier document,
                                                                     Position position)
             throws WorkspaceDocumentException, CompilationFailedException,
-                   TokenOrSymbolNotFoundException {
+            TokenOrSymbolNotFoundException {
         TextDocumentIdentifier textDocIdentifier = new TextDocumentIdentifier(document.getURIString());
         TextDocumentPositionParams pos = new TextDocumentPositionParams(textDocIdentifier, position);
         context.put(DocumentServiceKeys.POSITION_KEY, pos);
@@ -261,7 +260,7 @@ public class CodeActionUtil {
         Token tokenAtCursor = TokensUtil.findTokenAtPosition(context, position);
 
         CursorSymbolFindingVisitor refVisitor = new CursorSymbolFindingVisitor(tokenAtCursor, context,
-                                                                               currentPkgName, true);
+                currentPkgName, true);
         SymbolReferencesModel symbolReferencesModel = refVisitor.accept(currentCUnit.get());
         return symbolReferencesModel.getReferenceAtCursor();
     }

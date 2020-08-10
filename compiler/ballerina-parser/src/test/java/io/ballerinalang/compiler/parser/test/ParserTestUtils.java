@@ -368,6 +368,7 @@ public class ParserTestUtils {
             case PARAMETER_NAME:
             case BACKTICK_CONTENT:
             case DEPRECATION_LITERAL:
+            case INVALID_TOKEN:
                 return token.text();
             case XML_TEXT:
             case XML_TEXT_CONTENT:
@@ -637,6 +638,16 @@ public class ParserTestUtils {
                 return SyntaxKind.BASE64_KEYWORD;
             case "MATCH_KEYWORD":
                 return SyntaxKind.MATCH_KEYWORD;
+            case "CONFLICT_KEYWORD":
+                return SyntaxKind.CONFLICT_KEYWORD;
+            case "LIMIT_KEYWORD":
+                return SyntaxKind.LIMIT_KEYWORD;
+            case "JOIN_KEYWORD":
+                return SyntaxKind.JOIN_KEYWORD;
+            case "EQUALS_KEYWORD":
+                return SyntaxKind.EQUALS_KEYWORD;
+            case "OUTER_KEYWORD":
+                return SyntaxKind.OUTER_KEYWORD;
 
             // Documentation reference
             case "TYPE_DOC_REFERENCE_TOKEN":
@@ -1159,6 +1170,14 @@ public class ParserTestUtils {
                 return SyntaxKind.FUNCTIONAL_MATCH_PATTERN;
             case "NAMED_ARG_MATCH_PATTERN":
                 return SyntaxKind.NAMED_ARG_MATCH_PATTERN;
+            case "ON_CONFLICT_CLAUSE":
+                return SyntaxKind.ON_CONFLICT_CLAUSE;
+            case "LIMIT_CLAUSE":
+                return SyntaxKind.LIMIT_CLAUSE;
+            case "JOIN_CLAUSE":
+                return SyntaxKind.JOIN_CLAUSE;
+            case "ON_CLAUSE":
+                return SyntaxKind.ON_CLAUSE;
 
             // XML template
             case "XML_ELEMENT":
@@ -1241,6 +1260,8 @@ public class ParserTestUtils {
             // Invalid Token
             case "INVALID_TOKEN":
                 return SyntaxKind.INVALID_TOKEN;
+            case "INVALID_TOKEN_MINUTIAE_NODE":
+                return SyntaxKind.INVALID_TOKEN_MINUTIAE_NODE;
 
             // Unsupported
             default:

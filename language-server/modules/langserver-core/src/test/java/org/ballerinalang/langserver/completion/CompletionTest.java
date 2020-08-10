@@ -22,7 +22,9 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -50,6 +52,8 @@ public abstract class CompletionTest {
 
     private Endpoint serviceEndpoint;
 
+    protected WorkspaceDocumentManager documentManager;
+
     private Path sourcesPath = RES_DIR.resolve("completion");
 
     private JsonParser parser = new JsonParser();
@@ -58,7 +62,9 @@ public abstract class CompletionTest {
 
     @BeforeClass
     public void init() {
-        this.serviceEndpoint = TestUtil.initializeLanguageSever();
+        Pair<Endpoint, WorkspaceDocumentManager> pair = TestUtil.initializeLanguageSeverAndGetDocManager();
+        this.serviceEndpoint = pair.getLeft();
+        this.documentManager = pair.getRight();
     }
 
     @Test(dataProvider = "completion-data-provider")

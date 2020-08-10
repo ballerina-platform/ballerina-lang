@@ -21,15 +21,18 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "IDENTIFIER_TOKEN",
-            "value": "foo",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "WHITESPACE_MINUTIAE",
-                "value": " "
+                "kind": "IDENTIFIER_TOKEN",
+                "value": "foo"
               }
             ]
           }
+        },
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
         }
       ]
     },

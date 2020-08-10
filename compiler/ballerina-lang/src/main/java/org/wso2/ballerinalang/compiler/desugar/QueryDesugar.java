@@ -176,6 +176,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Class responsible for desugar query pipeline into actual Ballerina code.
@@ -194,6 +195,7 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final Name QUERY_CREATE_SELECT_FUNCTION = new Name("createSelectFunction");
     private static final Name QUERY_CREATE_DO_FUNCTION = new Name("createDoFunction");
     private static final Name QUERY_CREATE_LIMIT_FUNCTION = new Name("createLimitFunction");
+    private static final Name QUERY_SORT_STREAM_FUNCTION = new Name("sortStream");
     private static final Name QUERY_ADD_STREAM_FUNCTION = new Name("addStreamFunction");
     private static final Name QUERY_CONSUME_STREAM_FUNCTION = new Name("consumeStream");
     private static final Name QUERY_TO_ARRAY_FUNCTION = new Name("toArray");
@@ -204,7 +206,8 @@ public class QueryDesugar extends BLangNodeVisitor {
     private static final String FRAME_PARAMETER_NAME = "$frame$";
     private static final CompilerContext.Key<QueryDesugar> QUERY_DESUGAR_KEY = new CompilerContext.Key<>();
     private BLangExpression onConflictExpr;
-    private BLangOrderByClause orderByClause;
+    private Stack<BLangOrderByClause> orderByClauses;
+    private Stack<BLangLimitClause> limitClauses;
     private BVarSymbol currentFrameSymbol;
     private BLangBlockFunctionBody currentLambdaBody;
     private Map<String, BSymbol> identifiers;
@@ -246,12 +249,21 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangBlockStmt queryBlock = ASTBuilderUtil.createBlockStmt(pos);
         BLangVariableReference streamRef = buildStream(clauses, queryExpr.type, env, queryBlock);
         BLangStatementExpression streamStmtExpr;
-        if (orderByClause != null) {
-            // Type[] arr passed to order by helper
+        if (!orderByClauses.empty()) {
+            // Type[] arr passed to stream ordering helper.
             BLangArrayLiteral orderArr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
             orderArr.exprs = new ArrayList<>();
             orderArr.type = new BArrayType(types.resolveExprType(queryExpr.type));
-            streamRef = sortStream(queryBlock, orderByClause, streamRef, orderArr);
+            if (!limitClauses.empty()) {
+                // should limit after ordering the stream
+                streamRef = getStreamFunctionVariableRef(queryBlock, QUERY_SORT_STREAM_FUNCTION,
+                        Lists.of(streamRef, orderArr, limitClauses.pop().expression), orderByClauses.peek().pos);
+            } else {
+                // if no limit given order the entire stream
+                streamRef = getStreamFunctionVariableRef(queryBlock, QUERY_SORT_STREAM_FUNCTION,
+                        Lists.of(streamRef, orderArr, ASTBuilderUtil.createLiteral(orderByClauses.peek().pos,
+                                symTable.intType, (long) 0)), orderByClauses.peek().pos);
+            }
         }
         if (queryExpr.isStream) {
             streamStmtExpr = ASTBuilderUtil.createStatementExpression(queryBlock, streamRef);
@@ -326,6 +338,8 @@ public class QueryDesugar extends BLangNodeVisitor {
                 initFromClause.collection, resultType);
         BLangVariableReference initFrom = addInputFunction(block, initFromClause);
         addStreamFunction(block, initPipeline, initFrom);
+        this.limitClauses = new Stack<>();
+        this.orderByClauses = new Stack<>();
         for (BLangNode clause : clauses.subList(1, clauses.size())) {
             switch (clause.getKind()) {
                 case FROM:
@@ -353,7 +367,9 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, whereFunc);
                     break;
                 case ORDER_BY:
-                    orderByClause = (BLangOrderByClause) clause;
+                    orderByClauses.push((BLangOrderByClause) clause);
+                    BLangVariableReference orderFunc = addOrderByFunction(block, orderByClauses.peek());
+                    addStreamFunction(block, initPipeline, orderFunc);
                     break;
                 case SELECT:
                     BLangVariableReference selectFunc = addSelectFunction(block, (BLangSelectClause) clause);
@@ -364,8 +380,12 @@ public class QueryDesugar extends BLangNodeVisitor {
                     addStreamFunction(block, initPipeline, doFunc);
                     break;
                 case LIMIT:
-                    BLangVariableReference limitFunc = addLimitFunction(block, (BLangLimitClause) clause);
-                    addStreamFunction(block, initPipeline, limitFunc);
+                    limitClauses.push((BLangLimitClause) clause);
+                    // limit the frames if order by clause is not given
+                    if (orderByClauses.empty()) {
+                        BLangVariableReference limitFunc = addLimitFunction(block, limitClauses.pop());
+                        addStreamFunction(block, initPipeline, limitFunc);
+                    }
                     break;
                 case ON_CONFLICT:
                     final BLangOnConflictClause onConflict = (BLangOnConflictClause) clause;
@@ -393,7 +413,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         BVarSymbol dataSymbol = new BVarSymbol(0, names.fromString(name), env.scope.owner.pkgID,
                 collection.type, this.env.scope.owner);
         BLangSimpleVariable dataVariable = ASTBuilderUtil.createVariable(pos, name,
-                collection.type, collection, dataSymbol);
+                collection.type, addTypeConversionExpr(collection, collection.type), dataSymbol);
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
@@ -575,42 +595,48 @@ public class QueryDesugar extends BLangNodeVisitor {
     }
 
     /**
-     * Desugar order by clause and return a reference to created order by function.
+     * Desugar orderByClause to below and return a reference to created orderBy _StreamFunction.
+     * _StreamFunction orderByFunc = createOrderByFunction(function(_Frame frame) {
+     * _Frame frame = {"orderKey": frame["x2"] + frame["y2"], $orderDirection$: true + false"};
+     * });
      *
      * @param blockStmt parent block to write to.
      * @param orderByClause  to be desugared.
-     * @param streamRef reference to the stream output.
-     * @return variableReference to created order by function.
+     * @return variableReference to created orderBy _StreamFunction.
      */
-    BLangVariableReference sortStream(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause,
-                                                      BLangVariableReference streamRef, BLangArrayLiteral arr) {
-
+    BLangVariableReference addOrderByFunction(BLangBlockStmt blockStmt, BLangOrderByClause orderByClause) {
         DiagnosticPos pos = orderByClause.pos;
-
-        // order by name descending, age ascending
-        // sortFieldsArrayExpr keeps the ordering fields --> name, age
-        // sortModesArrayExpr keeps the order direction --> false, true
+        BLangLambdaFunction lambda = createActionLambda(pos);
+        BLangBlockFunctionBody body = (BLangBlockFunctionBody) lambda.function.body;
+        BVarSymbol frameSymbol = lambda.function.requiredParams.get(0).symbol;
+        BLangSimpleVarRef frame = ASTBuilderUtil.createVariableRef(pos, frameSymbol);
 
         BLangArrayLiteral sortFieldsArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortFieldsArrayExpr.exprs = new ArrayList<>();
-        sortFieldsArrayExpr.type = new BArrayType(symTable.stringType);
+        sortFieldsArrayExpr.type = new BArrayType(symTable.anydataType);
 
         BLangArrayLiteral sortModesArrayExpr = (BLangArrayLiteral) TreeBuilder.createArrayLiteralExpressionNode();
         sortModesArrayExpr.exprs = new ArrayList<>();
         sortModesArrayExpr.type = new BArrayType(symTable.booleanType);
 
+        // Each order-key expression is added to sortFieldsArrayExpr.
+        // Corresponding order-direction is added to sortModesArrayExpr.
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BLangOrderKey orderKey = (BLangOrderKey) orderKeyNode;
-            String fieldName = orderKey.expression.toString();
-            sortFieldsArrayExpr.exprs.add(ASTBuilderUtil.createLiteral(orderKey.pos, symTable.stringType,
-                    fieldName));
-            boolean fieldOrderType = orderKey.getOrderDirection();
+            sortFieldsArrayExpr.exprs.add(orderKey.expression);
             sortModesArrayExpr.exprs.add(ASTBuilderUtil.createLiteral(orderKey.pos, symTable.booleanType,
-                    fieldOrderType));
+                    orderKey.getOrderDirection()));
         }
 
-        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION,
-                Lists.of(sortFieldsArrayExpr, sortModesArrayExpr, streamRef, arr), pos);
+        // order-key expressions and order-directions are evaluated for each frame.
+        // $frame$["$orderKey$"] = sortFieldsArrExpr;
+        BLangStatement orderKeyStmt = getAddToFrameStmt(pos, frame, "$orderKey$", sortFieldsArrayExpr);
+        body.stmts.add(orderKeyStmt);
+        // $frame$["$orderDirection$"] = sortModesArrayExpr;
+        BLangStatement orderDirectionStmt = getAddToFrameStmt(pos, frame, "$orderDirection$", sortModesArrayExpr);
+        body.stmts.add(orderDirectionStmt);
+        lambda.accept(this);
+        return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_ORDER_BY_FUNCTION, Lists.of(lambda), pos);
     }
 
 
@@ -744,6 +770,23 @@ public class QueryDesugar extends BLangNodeVisitor {
                 name, tableType, tableConstructorExpr, tableSymbol);
         queryBlock.addStatement(ASTBuilderUtil.createVariableDef(pos, tableVariable));
         return ASTBuilderUtil.createVariableRef(pos, tableSymbol);
+    }
+
+    /**
+     * Adds a type cast expression to given expression.
+     * @param expr to be casted.
+     * @param type to be casted into.
+     * @return expression with the type cast.
+     */
+    private BLangExpression addTypeConversionExpr(BLangExpression expr, BType type) {
+        BLangTypeConversionExpr conversionExpr = (BLangTypeConversionExpr)
+                TreeBuilder.createTypeConversionNode();
+        conversionExpr.expr = expr;
+        conversionExpr.targetType = type;
+        conversionExpr.type = type;
+        conversionExpr.pos = expr.pos;
+        conversionExpr.checkTypes = false;
+        return conversionExpr;
     }
 
     /**

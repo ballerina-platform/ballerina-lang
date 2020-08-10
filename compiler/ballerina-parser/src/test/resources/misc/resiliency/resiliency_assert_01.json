@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -174,62 +165,73 @@
                                           ],
                                           "leadingMinutiae": [
                                             {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": "        "
+                                            },
+                                            {
                                               "kind": "INVALID_NODE_MINUTIAE",
                                               "invalidNode": {
-                                                "kind": "MAPPING_CONSTRUCTOR",
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
                                                 "children": [
                                                   {
-                                                    "kind": "OPEN_BRACE_TOKEN",
-                                                    "leadingMinutiae": [
-                                                      {
-                                                        "kind": "WHITESPACE_MINUTIAE",
-                                                        "value": "        "
-                                                      }
-                                                    ]
-                                                  },
-                                                  {
-                                                    "kind": "LIST",
-                                                    "children": [
-                                                      {
-                                                        "kind": "SPECIFIC_FIELD",
-                                                        "children": [
-                                                          {
-                                                            "kind": "IDENTIFIER_TOKEN",
-                                                            "value": "a"
-                                                          },
-                                                          {
-                                                            "kind": "COLON_TOKEN",
-                                                            "trailingMinutiae": [
-                                                              {
-                                                                "kind": "WHITESPACE_MINUTIAE",
-                                                                "value": " "
-                                                              }
-                                                            ]
-                                                          },
-                                                          {
-                                                            "kind": "STRING_LITERAL",
-                                                            "children": [
-                                                              {
-                                                                "kind": "STRING_LITERAL",
-                                                                "value": "b"
-                                                              }
-                                                            ]
-                                                          }
-                                                        ]
-                                                      }
-                                                    ]
-                                                  },
-                                                  {
-                                                    "kind": "CLOSE_BRACE_TOKEN",
-                                                    "trailingMinutiae": [
-                                                      {
-                                                        "kind": "WHITESPACE_MINUTIAE",
-                                                        "value": " "
-                                                      }
-                                                    ]
+                                                    "kind": "OPEN_BRACE_TOKEN"
                                                   }
                                                 ]
                                               }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "IDENTIFIER_TOKEN",
+                                                    "value": "a"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "COLON_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "STRING_LITERAL",
+                                                    "value": "b"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "INVALID_NODE_MINUTIAE",
+                                              "invalidNode": {
+                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                "children": [
+                                                  {
+                                                    "kind": "CLOSE_BRACE_TOKEN"
+                                                  }
+                                                ]
+                                              }
+                                            },
+                                            {
+                                              "kind": "WHITESPACE_MINUTIAE",
+                                              "value": " "
                                             }
                                           ]
                                         }
@@ -349,14 +351,17 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "CLOSE_BRACE_TOKEN",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "CLOSE_BRACE_TOKEN"
               }
             ]
           }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

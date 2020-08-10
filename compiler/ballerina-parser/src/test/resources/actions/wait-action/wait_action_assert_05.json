@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -148,7 +139,7 @@
         },
         {
           "kind": "CLOSE_BRACE_TOKEN",
-	  "trailingMinutiae": [
+          "trailingMinutiae": [
             {
               "kind": "END_OF_LINE_MINUTIAE",
               "value": "\n"

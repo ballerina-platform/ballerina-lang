@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -116,7 +107,12 @@
                   "kind": "FUNCTION_CALL",
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD"
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "ERROR_KEYWORD"
+                        }
+                      ]
                     },
                     {
                       "kind": "OPEN_PAREN_TOKEN"

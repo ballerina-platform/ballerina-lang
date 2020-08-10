@@ -4,14 +4,9 @@
   "children": [
     {
       "kind": "QUERY_PIPELINE",
-      "hasDiagnostics": true,
       "children": [
         {
           "kind": "FROM_CLAUSE",
-          "hasDiagnostics": true,
-          "diagnostics": [
-            "ERROR_MISSING_SELECT_CLAUSE"
-          ],
           "children": [
             {
               "kind": "FROM_KEYWORD",
@@ -66,38 +61,15 @@
               ]
             },
             {
-              "kind": "BINARY_EXPRESSION",
-              "hasDiagnostics": true,
+              "kind": "SIMPLE_NAME_REFERENCE",
               "children": [
                 {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
+                  "kind": "IDENTIFIER_TOKEN",
+                  "value": "b",
+                  "trailingMinutiae": [
                     {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "b",
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "kind": "PLUS_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_PLUS_TOKEN"
-                  ]
-                },
-                {
-                  "kind": "SIMPLE_NAME_REFERENCE",
-                  "children": [
-                    {
-                      "kind": "IDENTIFIER_TOKEN",
-                      "value": "c"
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
                     }
                   ]
                 }
@@ -113,17 +85,22 @@
     },
     {
       "kind": "SELECT_CLAUSE",
+      "hasDiagnostics": true,
       "children": [
         {
           "kind": "SELECT_KEYWORD",
-          "isMissing": true
+          "isMissing": true,
+          "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_MISSING_SELECT_KEYWORD"
+          ]
         },
         {
           "kind": "SIMPLE_NAME_REFERENCE",
           "children": [
             {
               "kind": "IDENTIFIER_TOKEN",
-              "isMissing": true
+              "value": "c"
             }
           ]
         }

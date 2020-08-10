@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "FUNCTION_KEYWORD",
               "trailingMinutiae": [
                 {
@@ -137,14 +128,17 @@
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
-                                                    "kind": "EQUAL_TOKEN",
-                                                    "trailingMinutiae": [
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
                                                       {
-                                                        "kind": "WHITESPACE_MINUTIAE",
-                                                        "value": " "
+                                                        "kind": "EQUAL_TOKEN"
                                                       }
                                                     ]
                                                   }
+                                                },
+                                                {
+                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                  "value": " "
                                                 }
                                               ]
                                             }
@@ -198,14 +192,17 @@
         {
           "kind": "INVALID_NODE_MINUTIAE",
           "invalidNode": {
-            "kind": "CLOSE_BRACE_TOKEN",
-            "trailingMinutiae": [
+            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+            "children": [
               {
-                "kind": "END_OF_LINE_MINUTIAE",
-                "value": "\n"
+                "kind": "CLOSE_BRACE_TOKEN"
               }
             ]
           }
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
         }
       ]
     }

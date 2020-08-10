@@ -2,15 +2,6 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -99,7 +90,12 @@
                           "kind": "FUNCTIONAL_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "ERROR_KEYWORD"
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"
@@ -360,7 +356,12 @@
                               "kind": "FUNCTIONAL_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "ERROR_KEYWORD"
+                                  "kind": "ERROR_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ERROR_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
@@ -588,15 +589,20 @@
                   "kind": "FUNCTIONAL_BINDING_PATTERN",
                   "children": [
                     {
-                      "kind": "ERROR_KEYWORD",
-                      "leadingMinutiae": [
+                      "kind": "ERROR_TYPE_DESC",
+                      "children": [
                         {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
+                          "kind": "ERROR_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            },
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ]
                         }
                       ]
                     },
@@ -704,7 +710,12 @@
                               "kind": "FUNCTIONAL_BINDING_PATTERN",
                               "children": [
                                 {
-                                  "kind": "ERROR_KEYWORD"
+                                  "kind": "ERROR_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "ERROR_KEYWORD"
+                                    }
+                                  ]
                                 },
                                 {
                                   "kind": "OPEN_PAREN_TOKEN"
@@ -839,7 +850,12 @@
                           "kind": "FUNCTIONAL_BINDING_PATTERN",
                           "children": [
                             {
-                              "kind": "ERROR_KEYWORD"
+                              "kind": "ERROR_TYPE_DESC",
+                              "children": [
+                                {
+                                  "kind": "ERROR_KEYWORD"
+                                }
+                              ]
                             },
                             {
                               "kind": "OPEN_PAREN_TOKEN"

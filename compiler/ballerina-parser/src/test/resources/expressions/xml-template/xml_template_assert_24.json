@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -162,14 +153,11 @@
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "OPEN_BRACE_TOKEN",
-                                        "leadingMinutiae": [
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
                                           {
-                                            "kind": "INVALID_NODE_MINUTIAE",
-                                            "invalidNode": {
-                                              "kind": "INVALID_TOKEN",
-                                              "value": "INVALID_TOKEN"
-                                            }
+                                            "kind": "INVALID_TOKEN",
+                                            "value": "$"
                                           }
                                         ]
                                       }
@@ -177,8 +165,24 @@
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "b"
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "b"
+                                          }
+                                        ]
                                       }
                                     }
                                   ]
@@ -353,14 +357,11 @@
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "OPEN_BRACE_TOKEN",
-                                        "leadingMinutiae": [
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
                                           {
-                                            "kind": "INVALID_NODE_MINUTIAE",
-                                            "invalidNode": {
-                                              "kind": "INVALID_TOKEN",
-                                              "value": "INVALID_TOKEN"
-                                            }
+                                            "kind": "INVALID_TOKEN",
+                                            "value": "$"
                                           }
                                         ]
                                       }
@@ -368,8 +369,24 @@
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
-                                        "kind": "IDENTIFIER_TOKEN",
-                                        "value": "v2"
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "OPEN_BRACE_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "IDENTIFIER_TOKEN",
+                                            "value": "v2"
+                                          }
+                                        ]
                                       }
                                     }
                                   ]
@@ -391,8 +408,13 @@
                             {
                               "kind": "INVALID_NODE_MINUTIAE",
                               "invalidNode": {
-                                "kind": "INVALID_TOKEN",
-                                "value": "INVALID_TOKEN"
+                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                "children": [
+                                  {
+                                    "kind": "INVALID_TOKEN",
+                                    "value": "\\"
+                                  }
+                                ]
                               }
                             }
                           ]
@@ -655,14 +677,11 @@
                                                             {
                                                               "kind": "INVALID_NODE_MINUTIAE",
                                                               "invalidNode": {
-                                                                "kind": "OPEN_BRACE_TOKEN",
-                                                                "leadingMinutiae": [
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
                                                                   {
-                                                                    "kind": "INVALID_NODE_MINUTIAE",
-                                                                    "invalidNode": {
-                                                                      "kind": "INVALID_TOKEN",
-                                                                      "value": "INVALID_TOKEN"
-                                                                    }
+                                                                    "kind": "INVALID_TOKEN",
+                                                                    "value": "$"
                                                                   }
                                                                 ]
                                                               }
@@ -670,8 +689,24 @@
                                                             {
                                                               "kind": "INVALID_NODE_MINUTIAE",
                                                               "invalidNode": {
-                                                                "kind": "IDENTIFIER_TOKEN",
-                                                                "value": "v2"
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "OPEN_BRACE_TOKEN"
+                                                                  }
+                                                                ]
+                                                              }
+                                                            },
+                                                            {
+                                                              "kind": "INVALID_NODE_MINUTIAE",
+                                                              "invalidNode": {
+                                                                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                                "children": [
+                                                                  {
+                                                                    "kind": "IDENTIFIER_TOKEN",
+                                                                    "value": "v2"
+                                                                  }
+                                                                ]
                                                               }
                                                             }
                                                           ]
@@ -695,8 +730,13 @@
                                                 {
                                                   "kind": "INVALID_NODE_MINUTIAE",
                                                   "invalidNode": {
-                                                    "kind": "INVALID_TOKEN",
-                                                    "value": "INVALID_TOKEN"
+                                                    "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                    "children": [
+                                                      {
+                                                        "kind": "INVALID_TOKEN",
+                                                        "value": "\\"
+                                                      }
+                                                    ]
                                                   }
                                                 }
                                               ]

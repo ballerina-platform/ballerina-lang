@@ -3,15 +3,6 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "METADATA",
-      "children": [
-        {
-          "kind": "LIST",
-          "children": []
-        }
-      ]
-    },
-    {
       "kind": "FUNCTION_KEYWORD",
       "leadingMinutiae": [
         {
@@ -236,8 +227,13 @@
             {
               "kind": "INVALID_NODE_MINUTIAE",
               "invalidNode": {
-                "kind": "IDENTIFIER_TOKEN",
-                "value": "b"
+                "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                "children": [
+                  {
+                    "kind": "IDENTIFIER_TOKEN",
+                    "value": "b"
+                  }
+                ]
               }
             }
           ],
