@@ -15,15 +15,6 @@
           "hasDiagnostics": true,
           "children": [
             {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [
                 {
@@ -119,15 +110,6 @@
         {
           "kind": "SERVICE_DECLARATION",
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "SERVICE_KEYWORD",
               "leadingMinutiae": [

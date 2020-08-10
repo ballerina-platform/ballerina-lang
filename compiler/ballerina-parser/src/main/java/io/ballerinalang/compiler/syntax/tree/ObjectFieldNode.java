@@ -33,8 +33,8 @@ public class ObjectFieldNode extends NonTerminalNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> visibilityQualifier() {
@@ -142,7 +142,7 @@ public class ObjectFieldNode extends NonTerminalNode {
 
         public ObjectFieldNodeModifier(ObjectFieldNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.readonlyKeyword = oldNode.readonlyKeyword().orElse(null);
             this.typeName = oldNode.typeName();
