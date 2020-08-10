@@ -808,7 +808,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangMatchClause matchClause) {
         for (BLangMatchPattern matchPattern : matchClause.matchPatterns) {
             if (hasLastPattern && matchClause.matchGuard == null) {
-                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_UNREACHABLE_PATTERN_AVAILABLE);
+                dlog.error(matchPattern.pos, DiagnosticCode.MATCH_STMT_PATTERN_UNREACHABLE);
             }
             if (matchPattern.type == symTable.noType) {
                 dlog.error(matchClause.pos, DiagnosticCode.MATCH_STMT_UNMATCHED_PATTERN);
