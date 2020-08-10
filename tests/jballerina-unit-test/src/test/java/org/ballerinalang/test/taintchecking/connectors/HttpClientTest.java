@@ -39,9 +39,8 @@ public class HttpClientTest {
     @Test
     public void testHttpClientNegative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/connectors/httpclient-negative.bal");
-        Assert.assertEquals(result.getDiagnostics().length, 3);
-        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'headerName'", 10, 19);
-        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'path'", 12, 42);
-        BAssertUtil.validateError(result, 2, "tainted value passed to untainted parameter 'secureIn'", 16, 28);
+        Assert.assertEquals(result.getDiagnostics().length, 2);
+        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'path'", 12, 42);
+        BAssertUtil.validateError(result, 1, "tainted value passed to untainted parameter 'secureIn'", 16, 28);
     }
 }
