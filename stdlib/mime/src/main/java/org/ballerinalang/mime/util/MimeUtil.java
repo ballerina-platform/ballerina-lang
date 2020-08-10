@@ -108,7 +108,7 @@ public class MimeUtil {
      */
     public static String getContentTypeWithParameters(ObjectValue entity) {
         if (entity.get(MEDIA_TYPE_FIELD) == null) {
-            return HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
+            return EntityHeaderHandler.getHeaderValue(entity, CONTENT_TYPE);
         }
         ObjectValue mediaType = (ObjectValue) entity.get(MEDIA_TYPE_FIELD);
         String primaryType = String.valueOf(mediaType.get(PRIMARY_TYPE_FIELD));

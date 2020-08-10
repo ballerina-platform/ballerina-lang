@@ -21,7 +21,6 @@ package org.ballerinalang.mime.util;
 import org.ballerinalang.jvm.StringUtils;
 import org.ballerinalang.jvm.types.BMapType;
 import org.ballerinalang.jvm.types.BTypes;
-import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.MapValue;
 import org.ballerinalang.jvm.values.MapValueImpl;
 import org.ballerinalang.jvm.values.ObjectValue;
@@ -37,7 +36,6 @@ import javax.activation.MimeTypeParseException;
 import static org.ballerinalang.mime.util.MimeConstants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.MimeConstants.BOUNDARY;
 import static org.ballerinalang.mime.util.MimeConstants.FIRST_ELEMENT;
-import static org.ballerinalang.mime.util.MimeConstants.HEADERS_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_PARAM_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.INVALID_HEADER_VALUE_ERROR;
 import static org.ballerinalang.mime.util.MimeConstants.MULTIPART_AS_PRIMARY_TYPE;
@@ -128,52 +126,6 @@ public class HeaderUtil {
         return headers != null && headers.get(FIRST_ELEMENT) != null && !headers.get(FIRST_ELEMENT).isEmpty();
     }
 
-//    /**
-//     * Set body part headers.
-//     *
-//     * @param bodyPartHeaders Represent decoded mime part headers
-//     * @param httpHeaders     Represent headers
-//     * @return a populated ballerina map with body part headers
-//     */
-//    static MapValue<BString, BString[]> setBodyPartHeaders(List<? extends Header> bodyPartHeaders,
-//                                                    MapValue<BString, BString[]> httpHeaders) {
-//        for (final Header header : bodyPartHeaders) {
-//            httpHeaders.put(StringUtils.fromString(header.getName()),
-//                            new BString[]{StringUtils.fromString(header.getValue())});
-//        }
-//        return httpHeaders;
-//    }
-//
-//    static ArrayValue setBodyPartHeaderNames(List<? extends Header> bodyPartHeaders,
-//                                                               ArrayValue httpHeaderNames) {
-//        int index = 0;
-//        for (final Header header : bodyPartHeaders) {
-//            httpHeaderNames.add(index++, StringUtils.fromString(header.getName()));
-//        }
-//        return httpHeaderNames;
-//    }
-
-    /**
-     * Extract the header value from a body part for a given header name.
-     *
-     * @param bodyPart   Represent a ballerina body part
-     * @param headerName Represent an http header name
-     * @return a header value for the given header name
-     */
-    @SuppressWarnings("unchecked")
-    public static String getHeaderValue(ObjectValue bodyPart, String headerName) {
-        if (bodyPart.get(HEADERS_MAP_FIELD) == null) {
-            return null;
-        }
-        MapValue<BString, Object> httpHeaders = (MapValue<BString, Object>) bodyPart.get(HEADERS_MAP_FIELD);
-        ArrayValue headerValues = (ArrayValue) httpHeaders.get(StringUtils.fromString(headerName));
-
-        if (headerValues == null || headerValues.size() < 1) {
-            return null;
-        }
-        return String.valueOf(headerValues.getBString(0));
-    }
-
     /**
      * Get the header value intact with parameters.
      *
@@ -222,7 +174,7 @@ public class HeaderUtil {
     }
 
     public static String getBaseType(ObjectValue entityStruct) throws MimeTypeParseException {
-        String contentType = HeaderUtil.getHeaderValue(entityStruct, MimeConstants.CONTENT_TYPE);
+        String contentType = EntityHeaderHandler.getHeaderValue(entityStruct, MimeConstants.CONTENT_TYPE);
         if (contentType != null) {
             return new MimeType(contentType).getBaseType();
         }

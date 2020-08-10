@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -37,14 +37,20 @@ import static org.ballerinalang.mime.util.MimeConstants.HEADERS_MAP_FIELD;
 import static org.ballerinalang.mime.util.MimeConstants.HEADER_NAMES_ARRAY_FIELD;
 
 /**
- * Utilities related to entity headers.
+ * Handler to communicate with Entity Header map and Header name array.
  *
- * @since slp4
+ * @since slp3
  */
 public class EntityHeaderHandler {
 
     private static BMapType mapType = new BMapType(new BArrayType(BTypes.typeString));
 
+    /**
+     * Get the entity header map. If not exist, creates new one.
+     *
+     * @param entity Represent a ballerina entity
+     * @return the header map
+     */
     @SuppressWarnings("unchecked")
     public static MapValue<BString, Object> getEntityHeaderMap(ObjectValue entity) {
         MapValue<BString, Object> httpHeaders = (MapValue<BString, Object>) entity.get(HEADERS_MAP_FIELD);
@@ -78,16 +84,49 @@ public class EntityHeaderHandler {
         partStruct.set(MimeConstants.HEADER_NAMES_ARRAY_FIELD, headerNames);
     }
 
-    public static void addHeader(ObjectValue entity, MapValue<BString, Object> httpHeaders, String key,
+    /**
+     * Extract the header value from a body part for a given header name.
+     *
+     * @param entity     Represent a ballerina entity
+     * @param headerName Represent an http header name
+     * @return a header value for the given header name. If header map or the value does not exist, returns null
+     */
+    @SuppressWarnings("unchecked")
+    public static String getHeaderValue(ObjectValue entity, String headerName) {
+        MapValue<BString, Object> headerMap = (MapValue<BString, Object>) entity.get(HEADERS_MAP_FIELD);
+        if (headerMap == null) {
+            return null;
+        }
+        ArrayValue headerValues = (ArrayValue) headerMap.get(StringUtils.fromString(headerName));
+        if (headerValues == null || headerValues.size() < 1) {
+            return null;
+        }
+        return headerValues.getBString(0).getValue();
+    }
+
+    /**
+     * Adds header to the given header map and add header name to the entity header names array.
+     *
+     * @param entity  Represent a ballerina entity
+     * @param headers Represent a ballerina entity header map
+     * @param key     Represent header name
+     * @param value   Represent header value
+     */
+    public static void addHeader(ObjectValue entity, MapValue<BString, Object> headers, String key,
                                  String value) {
-        httpHeaders.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
-                        new ArrayValueImpl(new BString[]{StringUtils.fromString(value)}));
+        headers.put(StringUtils.fromString(key.toLowerCase(Locale.getDefault())),
+                    new ArrayValueImpl(new BString[]{StringUtils.fromString(value)}));
 
         // update header name array
         ArrayValue headerNames = getEntityHeaderNameArray(entity);
         headerNames.add(headerNames.size(), StringUtils.fromString(key));
     }
 
+    /**
+     * Creates new entity header map representing Entity header map.
+     *
+     * @return a header header map
+     */
     public static MapValue<BString, Object> getNewHeaderMap() {
         return new MapValueImpl<>(mapType);
     }
@@ -95,5 +134,4 @@ public class EntityHeaderHandler {
     private static ArrayValue getNewHeaderNamesArray() {
         return new ArrayValueImpl(new BString[0]);
     }
-
 }

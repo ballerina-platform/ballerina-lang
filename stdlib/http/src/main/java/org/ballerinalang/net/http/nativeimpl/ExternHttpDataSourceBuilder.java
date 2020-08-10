@@ -52,7 +52,7 @@ import static org.ballerinalang.mime.util.MimeConstants.TRANSPORT_MESSAGE;
 /**
  * A wrapper class to handle http protocol related functionality before the data source build.
  *
- * @since slp4
+ * @since slp3
  */
 public class ExternHttpDataSourceBuilder extends MimeDataSourceBuilder {
 

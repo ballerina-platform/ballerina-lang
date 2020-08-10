@@ -211,7 +211,7 @@ public class EntityBodyHandler {
      */
     public static Object constructJsonDataSource(ObjectValue entity, InputStream inputStream) {
         Object jsonData;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
+        String contentTypeValue = EntityHeaderHandler.getHeaderValue(entity, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
@@ -254,7 +254,7 @@ public class EntityBodyHandler {
      */
     public static XMLValue constructXmlDataSource(ObjectValue entityObj, InputStream inputStream) {
         XMLValue xmlContent;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entityObj, CONTENT_TYPE);
+        String contentTypeValue = EntityHeaderHandler.getHeaderValue(entityObj, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
@@ -297,7 +297,7 @@ public class EntityBodyHandler {
      */
     public static BString constructStringDataSource(ObjectValue entity, InputStream inputStream) {
         BString textContent;
-        String contentTypeValue = HeaderUtil.getHeaderValue(entity, CONTENT_TYPE);
+        String contentTypeValue = EntityHeaderHandler.getHeaderValue(entity, CONTENT_TYPE);
         if (isNotNullAndEmpty(contentTypeValue)) {
             String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
             if (isNotNullAndEmpty(charsetValue)) {
