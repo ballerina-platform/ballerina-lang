@@ -205,6 +205,7 @@ public enum ParserRuleContext {
     STMT_START_BRACKETED_LIST_RHS("stmt-start-bracketed-list-rhs"),
     BRACKETED_LIST("bracketed-list"),
     BRACKETED_LIST_RHS("bracketed-list-rhs"),
+    BRACED_LIST_RHS("braced-list-rhs"),
     BRACKETED_LIST_MEMBER("bracketed-list-member"),
     BRACKETED_LIST_MEMBER_END("bracketed-list-member-end"),
     LIST_BINDING_MEMBER_OR_ARRAY_LENGTH("list-binding-member-or-array-length"),
@@ -278,6 +279,7 @@ public enum ParserRuleContext {
     COMPOUND_ASSIGNMENT_STMT("compound-assignment-statement"),
     LOCAL_TYPE_DEFINITION_STMT("local-type-definition-statement"),
     BINDING_PATTERN_OR_EXPR_RHS("binding-pattern-or-expr-rhs"),
+    TYPE_DESC_OR_EXPR_RHS("type-desc-or-expr-rhs"),
     STMT_START_WITH_EXPR_RHS("stmt-start-with-expr-rhs"),
     EXPR_STMT_RHS("expr-stmt-rhs"),
     EXPRESSION_STATEMENT("expression-statement"),
@@ -371,6 +373,7 @@ public enum ParserRuleContext {
     ORDER_KEYWORD("order"),
     BY_KEYWORD("by"),
     EQUALS_KEYWORD("equals"),
+    OBJECT_MEMBER_QUALIFIER("object-member-qualifier"),
 
     // Syntax tokens
     OPEN_PARENTHESIS("("),
