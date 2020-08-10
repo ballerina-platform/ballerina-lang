@@ -104,6 +104,36 @@ public function assertNotEquals(any|error actual, any|error expected, public str
     }
 }
 
+# Asserts whether the given values are exactly equal. If it is not, an AssertError is thrown with the given errorMessage.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+public function assertExactEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual === expected);
+    if (!isEqual) {
+        string expectedStr = io:sprintf("%s", expected);
+        string actualStr = io:sprintf("%s", actual);
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
+    }
+}
+
+# Asserts whether the given values are not exactly equal. If it is equal, an AssertError is thrown with the given errorMessage.
+#
+# + actual - Actual value
+# + expected - Expected value
+# + msg - Assertion error message
+public function assertExactNotEquals(any|error actual, any|error expected, public string msg = "Assertion Failed!") {
+    boolean isEqual = (actual === expected);
+    if (isEqual) {
+        string expectedStr = io:sprintf("%s", expected);
+        string actualStr = io:sprintf("%s", actual);
+        string errorMsg = string `${msg}: expected '${expectedStr}' but found '${actualStr}'`;
+        panic createBallerinaError(errorMsg, assertFailureErrorCategory);
+    }
+}
+
 # Assert failure is triggered based on user discretion. AssertError is thrown with the given errorMessage.
 #
 # + msg - Assertion error message
