@@ -33,8 +33,8 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
         super(internalNode, position, parent);
     }
 
-    public MetadataNode metadata() {
-        return childInBucket(0);
+    public Optional<MetadataNode> metadata() {
+        return optionalChildInBucket(0);
     }
 
     public Optional<Token> visibilityQualifier() {
@@ -133,7 +133,7 @@ public class FunctionDefinitionNode extends ModuleMemberDeclarationNode {
 
         public FunctionDefinitionNodeModifier(FunctionDefinitionNode oldNode) {
             this.oldNode = oldNode;
-            this.metadata = oldNode.metadata();
+            this.metadata = oldNode.metadata().orElse(null);
             this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.transactionalKeyword = oldNode.transactionalKeyword().orElse(null);
             this.functionKeyword = oldNode.functionKeyword();

@@ -98,52 +98,6 @@
       ]
     },
     {
-      "label": "nats:SubscriptionConfig",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "110",
-      "insertText": "nats:SubscriptionConfig {\n\tsubject: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
-        }
-      ]
-    },
-    {
-      "label": "nats:StreamingSubscriptionConfig",
-      "kind": "Property",
-      "detail": "Annotation",
-      "sortText": "110",
-      "insertText": "nats:StreamingSubscriptionConfig {\n\tsubject: \"${1}\"\n}",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 1,
-              "character": 0
-            },
-            "end": {
-              "line": 1,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/nats;\n"
-        }
-      ]
-    },
-    {
       "label": "http:ServiceConfig",
       "kind": "Property",
       "detail": "Annotation",

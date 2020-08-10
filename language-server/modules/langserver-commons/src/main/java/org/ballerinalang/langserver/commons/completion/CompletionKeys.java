@@ -19,7 +19,6 @@ package org.ballerinalang.langserver.commons.completion;
 
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.model.tree.Node;
 import org.eclipse.lsp4j.CompletionCapabilities;
@@ -50,8 +49,6 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> TRANSACTION_COUNT_KEY
             = new LSContext.Key<>();
-    public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
-            = new LSContext.Key<>();
     public static final LSContext.Key<CompletionCapabilities> CLIENT_CAPABILITIES_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Integer> INVOCATION_TOKEN_TYPE_KEY
@@ -59,8 +56,6 @@ public class CompletionKeys {
     public static final LSContext.Key<Boolean> IN_WORKER_RETURN_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Boolean> IN_INVOCATION_PARAM_CONTEXT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<Class> ITEM_SORTER_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<Token> TOKEN_AT_CURSOR_KEY
             = new LSContext.Key<>();
