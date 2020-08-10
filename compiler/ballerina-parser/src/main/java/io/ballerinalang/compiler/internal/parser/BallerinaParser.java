@@ -13827,12 +13827,6 @@ public class BallerinaParser extends AbstractParser {
                     return solution.recoveredNode;
                 }
 
-                // If the recovered token is not something that can be re-parsed,
-                // then don't try to re-parse the same rule.
-                if (solution.tokenKind == SyntaxKind.NONE) {
-                    return typeOrExpr;
-                }
-
                 return parseTypedBindingPatternOrExprRhs(solution.tokenKind, typeOrExpr, allowAssignment);
         }
     }
