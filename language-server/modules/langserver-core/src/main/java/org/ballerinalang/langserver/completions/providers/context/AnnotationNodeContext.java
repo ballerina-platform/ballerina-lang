@@ -59,12 +59,17 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     public List<LSCompletionItem> getCompletions(LSContext context, AnnotationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         SyntaxKind attachedNode = node.parent().parent().kind();
-        if (attachedNode == SyntaxKind.FUNCTION_DEFINITION
-                && ((FunctionDefinitionNode) node.parent().parent()).visibilityQualifier().isPresent()
-                && ((FunctionDefinitionNode) node.parent().parent()).visibilityQualifier().get().kind()
-                == SyntaxKind.RESOURCE_KEYWORD) {
-            attachedNode = SyntaxKind.RESOURCE_KEYWORD;
+
+        if (attachedNode == SyntaxKind.FUNCTION_DEFINITION) {
+            NodeList<Token> qualifierList = ((FunctionDefinitionNode) node.parent().parent()).qualifierList();
+            for (Token qualifier : qualifierList) {
+                if (qualifier.kind() == SyntaxKind.RESOURCE_KEYWORD) {
+                    attachedNode = SyntaxKind.RESOURCE_KEYWORD;
+                    break;
+                }
+            }
         }
+
         Node annotRef = node.annotReference();
         String finalAlias = annotRef.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE ? null
                 : ((QualifiedNameReferenceNode) annotRef).modulePrefix().text();
