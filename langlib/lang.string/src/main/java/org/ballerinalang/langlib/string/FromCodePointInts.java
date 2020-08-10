@@ -43,7 +43,6 @@ public class FromCodePointInts {
                 codePoint = (int) codePoints.getInt(i);
                 builder.appendCodePoint(codePoint);
             }
-//            return builder.toString();
             return StringUtils.fromString(builder.toString());
         } catch (IllegalArgumentException e) {
             return BallerinaErrors.createError("Invalid codepoint: " + codePoint);
