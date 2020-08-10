@@ -55,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.ballerinalang.sql.Constants.AFFECTED_ROW_COUNT_FIELD;
 import static org.ballerinalang.sql.Constants.CONNECTION_NATIVE_DATA_FIELD;
@@ -62,6 +64,7 @@ import static org.ballerinalang.sql.Constants.DATABASE_CLIENT;
 import static org.ballerinalang.sql.Constants.EXECUTION_RESULT_FIELD;
 import static org.ballerinalang.sql.Constants.EXECUTION_RESULT_RECORD;
 import static org.ballerinalang.sql.Constants.LAST_INSERTED_ID_FIELD;
+import static org.ballerinalang.sql.Constants.PROCEDURE_CALL_META_DATA;
 import static org.ballerinalang.sql.Constants.PROCEDURE_CALL_PARAM_CACHE;
 import static org.ballerinalang.sql.Constants.PROCEDURE_CALL_RESULT;
 import static org.ballerinalang.sql.Constants.QUERY_RESULT_FIELD;
@@ -101,17 +104,28 @@ public class CallUtils {
                 statement = connection.prepareCall(sqlQuery);
 
                 Object cacheObject = client.getNativeData(PROCEDURE_CALL_PARAM_CACHE);
-                boolean isCached = false;
+                Object metaDataObject = client.getNativeData(PROCEDURE_CALL_META_DATA);
+
                 HashMap<Integer, Integer> cache;
                 if (cacheObject != null) {
-                    isCached = true;
                     cache = (HashMap<Integer, Integer>) cacheObject;
                 } else {
                     cache = new HashMap<>();
                 }
-                boolean isCachedUpdated = setCallParameters(connection, statement, paramSQLString, isCached, cache);
-                if (isCachedUpdated) {
+
+                HashMap<Integer, Integer> metaData;
+                if (metaDataObject != null) {
+                    metaData = (HashMap<Integer, Integer>) metaDataObject;
+                } else {
+                    metaData = new HashMap<>();
+                }
+
+                setCallParameters(connection, statement, sqlQuery, paramSQLString, cache, metaData);
+                if (!cache.isEmpty()) {
                     client.addNativeData(PROCEDURE_CALL_PARAM_CACHE, cache);
+                }
+                if (!metaData.isEmpty()) {
+                    client.addNativeData(PROCEDURE_CALL_META_DATA, metaData);
                 }
 
                 boolean resultType = statement.execute();
@@ -181,8 +195,9 @@ public class CallUtils {
         }
     }
 
-    static boolean setCallParameters(Connection connection, CallableStatement statement,
-                                     AbstractObjectValue paramString, boolean isCached, HashMap<Integer, Integer> cache)
+    static void setCallParameters(Connection connection, CallableStatement statement, String sqlQuery,
+                                  AbstractObjectValue paramString, HashMap<Integer, Integer> cache,
+                                  HashMap<Integer, Integer> metaData)
             throws SQLException, ApplicationError, IOException {
         ArrayValue arrayValue = paramString.getArrayValue(Constants.ParameterizedQueryFields.INSERTIONS);
         for (int i = 0; i < arrayValue.size(); i++) {
@@ -196,32 +211,39 @@ public class CallUtils {
                 }
 
                 String objectType = objectValue.getType().getName();
-                Integer sqlType = isCached ? cache.get(index) : null;
-
-                Object innerObject = objectValue.get(Constants.ParameterObject.IN_VALUE_FIELD);
+                Integer sqlType;
                 switch (objectType) {
                     case Constants.ParameterObject.INOUT_PARAMETER:
+                        Object innerObject = objectValue.get(Constants.ParameterObject.IN_VALUE_FIELD);
+                        sqlType = !cache.isEmpty() ? cache.get(index) : null;
                         if (sqlType == null) {
                             sqlType = setSQLValueParam(connection, statement, innerObject, index, true);
                             cache.put(index, sqlType);
-                            isCached = true;
                         } else {
                             setSQLValueParam(connection, statement, innerObject, index, false);
                         }
                         statement.registerOutParameter(index, sqlType);
                         break;
+                    case Constants.ParameterObject.OUT_PARAMETER:
+                        sqlType = !cache.isEmpty() ? cache.get(index) : null;
+                        if (sqlType == null) {
+                            metaData.putAll(getOutParameterTypes(connection, sqlQuery, arrayValue.size()));
+                            sqlType = metaData.get(index);
+                            cache.put(index, sqlType);
+                        }
+                        statement.registerOutParameter(index, sqlType);
+                        break;
                     default:
-                        setSQLValueParam(connection, statement, innerObject, index, false);
+                        setSQLValueParam(connection, statement, object, index, false);
                 }
             } else {
                 setSQLValueParam(connection, statement, object, index, false);
             }
         }
-        return isCached;
     }
 
-    public static void populateOutParameters(CallableStatement statement, AbstractObjectValue paramSQLString,
-                                             HashMap<Integer, Integer> cache) throws SQLException, ApplicationError {
+    static void populateOutParameters(CallableStatement statement, AbstractObjectValue paramSQLString,
+                                      HashMap<Integer, Integer> cache) throws SQLException, ApplicationError {
         if (cache.size() == 0) {
             return;
         }
@@ -344,5 +366,36 @@ public class CallUtils {
                             "Out parameter of index '" + paramIndex + "'.");
             }
         }
+    }
+
+    static HashMap<Integer, Integer> getOutParameterTypes(Connection connection, String sqlQuery, int size)
+            throws ApplicationError {
+        HashMap<Integer, Integer> colTypes = new HashMap<>();
+        Pattern pattern = Pattern.compile("[^(]*\\s([^(]*).*");
+        Matcher m = pattern.matcher(sqlQuery);
+        if (m.matches() && m.groupCount() == 1) {
+            String procedureCallName = m.group(1);
+            try {
+                ResultSet procCols = connection.getMetaData().getProcedureColumns(connection.getCatalog(),
+                        connection.getSchema(), procedureCallName, null);
+                int count = 1;
+                while (procCols.next()) {
+                    colTypes.put(count, procCols.getInt("DATA_TYPE"));
+                    count++;
+                }
+                if (colTypes.size() != size) {
+                    throw new ApplicationError("Unable to parse SQL call query to get metadata for OutParameter, " +
+                            "as column count does not match for procedure '" + procCols.getString("PROCEDURE_NAME") +
+                            "'.");
+                }
+            } catch (SQLException e) {
+                throw new ApplicationError("Unable to parse SQL call query to get metadata for OutParameters of " +
+                        "procedure, '" + procedureCallName + "', " + e.getMessage());
+            }
+        } else {
+            throw new ApplicationError("Unable to parse SQL call query to process type of the Parameters. Ensure " +
+                    "that the query follows standard format for procedure calls.");
+        }
+        return colTypes;
     }
 }
