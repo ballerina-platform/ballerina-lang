@@ -63,6 +63,8 @@ import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
+import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
+import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.Node;
 import io.ballerinalang.compiler.syntax.tree.NodeFactory;
 import io.ballerinalang.compiler.syntax.tree.NodeList;
@@ -1137,6 +1139,29 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withDotToken(formatToken(dotToken, 0, 0, 0, 0))
                 .withExpression(expression)
                 .withMethodName(methodName)
+                .apply();
+    }
+
+    @Override
+    public NilLiteralNode transform(NilLiteralNode nilLiteralNode) {
+        Token openParenToken = getToken(nilLiteralNode.openParenToken());
+        Token closeParenToken = getToken(nilLiteralNode.closeParenToken());
+
+        return nilLiteralNode.modify()
+                .withOpenParenToken(formatToken(openParenToken, 0, 0, 0, 0))
+                .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public NilTypeDescriptorNode transform(NilTypeDescriptorNode nilTypeDescriptorNode) {
+        int startCol = getStartColumn(nilTypeDescriptorNode, nilTypeDescriptorNode.kind(), true);
+        Token openParenToken = getToken(nilTypeDescriptorNode.openParenToken());
+        Token closeParenToken = getToken(nilTypeDescriptorNode.closeParenToken());
+
+        return nilTypeDescriptorNode.modify()
+                .withOpenParenToken(formatToken(openParenToken, startCol, 0, 0, 0))
+                .withCloseParenToken(formatToken(closeParenToken, 0, 0, 0, 0))
                 .apply();
     }
 
