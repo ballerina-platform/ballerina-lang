@@ -1,162 +1,103 @@
-function testReturnStmtLocation1() {
-    int a = 2;
-    if (a > 0) {
-        string s1 = "hello if";
-    } else {
-        string s2 = "hello else";
-    }
-    return;
+import ballerina/io;
+//function test1() returns error {
+function test1()  {
+
+//int o = 1;
+//while(true) {
+//     io:println("Asda");
+//
+//     break;
+//    //if(o < 5) {
+//    //
+//    //        o = o + 1;
+//    //} else {
+//    //    break;
+//    //}
+//
+//}
+   do {
+        error err = error("custom error", message = "error value");
+        io:println("Before fail");
+        fail err;
+
+        io:println("After fail");
+   }
+   on fail error e {
+      //error err = error("custom error", message = "error value");
+      io:println("whoops!!!!");
+      //return err;
+
+   }
+   //error err = error("custom error", message = "error value");
+     io:println("After do !!!");
+      //return err;
+   //  error err = error("custom error", message = "error value");
+   //        return err;
+   //do {
+   //   check foo(true);
+   //   io:println("After check");
+   //}
+   //on fail error e {
+   //   error err = error("custom error", message = "error value");
+   //   io:println("whoops!!!!");
+   //   return err;
+   //}
+   //io:println("After do");
+   //
+   // do {
+   //     var onFailFunc = function () returns error {
+   //                           io:println("whoops!!!!");
+   //                           error err = error("custom error");
+   //                           return err;
+   //                      };
+   //     match (foo(true)) {
+   //             var error(message) => {
+   //                 io:println("inside error");
+   //                 return onFailFunc();
+   //                 //break; no break needed since we return
+   //             }
+   //             1 => {
+   //                 io:println("inside int");
+   //                 break;  //had to add this since do desugared to while(true)
+   //             }
+   //     }
+   //     io:println("After check");
+   // }
+   // io:println("Outside do");
+   // io:println("==================================================================================");
+   // do {
+   //    check foo(true);
+   //    error e = error("custom error");
+   //    io:println("After check");
+   // } on fail error e
+   //    io:println("whoops!!!!");
+   // }
+   // io:println("After do");
+
+        //do {
+        //    var onFailFunc = function () {
+        //                          io:println("whoops!!!!");
+        //                     };
+        //    match (foo(true)) {
+        //            var error(message) => {
+        //                io:println("inside error");
+        //                onFailFunc();
+        //                break;  //break needed since no return
+        //            }
+        //            1 => {
+        //                io:println("inside int");
+        //                break;  //had to add this since do desugared to while(true)
+        //            }
+        //    }
+        //    io:println("After check");
+        //}
+        //io:println("Outside do");
 }
-
-function testReturnStmtLocation2() returns (int) {
-    int a = 2;
-    if (a > 0) {
-        string s1 = "hello if";
-    } else {
-        string s2 = "hello else";
-    }
-    return a;
-}
-
-function testReturnStmtLocation3() {
-    int a = 2;
-    if (a > 0) {
-        string s1 = "hello if";
-        return;
-    } else {
-        string s2 = "hello else";
-    }
-}
-
-function testReturnStmtLocation4() {
-    int a = 2;
-    while(a < 4) {
-        a = a + 1;
-        if (a == 3) {
-            return;
-        }
-    }
-}
-
-function testCommentAfterReturnStmt() returns (int) {
-    int a = 2;
-    if (a > 0) {
-        string s1 = "hello if";
-        return 1;
-        //comment after return stmt
-    } else {
-        string s2 = "hello else";
-    }
-    return a;
-    //comment after return stmt
-}
-
-function testVariableShadowingBasic() returns int{
-    int a = 5;
-    int b = 4;
-
-    if (a > 3) {
-        b = a + b;
-    }
-    return b;
-}
-
-
-function testVariableShadowingInCurrentScope1(int a) returns int{
-    int b = 4;
-
-    if (a > 3) {
-        b = a + b;
-    }
-    return b;
-}
-
-function testVariableShadowingInCurrentScope2(int a) returns function (float) returns (string){
-    int b = 4;
-
-    if (a < 10) {
-        b = a + b;
-    }
-
-    var foo = function (float f) returns (string) {
-        if (a > 8) {
-            b = a + <int>f + b;
-        }
-        return "K" + b.toString();
-    };
-    return foo;
-}
-
-function test1() returns int {
-    int a = testVariableShadowingBasic();
-    return a;
-}
-
-function test2() returns int {
-    int a = testVariableShadowingInCurrentScope1(4);
-    return a;
-}
-
-function test3() returns string {
-    var foo = testVariableShadowingInCurrentScope2(9);
-    string a = foo(3.4);
-    return a;
-}
-
-function returnStmtLocation1InBlock() returns int {
-    int a = 2;
-    {
-        a = 10;
-    }
-    return a;
-}
-
-function returnStmtLocation2InBlock() returns int {
-    int a = 2;
-    {
-        a = 10;
-        return a;
-    }
-}
-
-int a = 10;
-function testScopeOfBlock() {
-    {
-        int a = 5;
-    }
-    assertEquality(10, a);
-}
-
-function testStmtInBlock() {
-    int a = 2;
-    int b = 5;
-    {
-        while (a < 4) {
-            a = a + 1;
-            if (a == 3) {
-                b = 8;
-            }
-        }
-    }
-    assertEquality(8, b);
-}
-
-function testReturnStmtLocationInBlock() {
-    assertEquality(10, returnStmtLocation1InBlock());
-    assertEquality(10, returnStmtLocation2InBlock());
-}
-
-const ASSERTION_ERROR_REASON = "AssertionError";
-
-function assertEquality(any|error expected, any|error actual) {
-    if (expected is anydata && actual is anydata && expected == actual) {
-        return;
-    }
-
-    if (expected === actual) {
-        return;
-    }
-
-    panic error(ASSERTION_ERROR_REASON,
-                 message = "expected '" + expected.toString() + "', found '" + actual.toString () + "'");
-}
+//
+//function foo(boolean er) returns int|error {
+//    if(er) {
+//        error err = error("custom error");
+//        return err;
+//    }
+//    return 1;
+//}

@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.bir.model.VarKind;
 import org.wso2.ballerinalang.compiler.bir.model.VarScope;
 import org.wso2.ballerinalang.compiler.bir.optimizer.BIROptimizer;
 import org.wso2.ballerinalang.compiler.bir.writer.BIRBinaryWriter;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -89,6 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFailExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -141,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
@@ -937,18 +940,76 @@ public class BIRGen extends BLangNodeVisitor {
     // Statements
 
     @Override
+    public void visit(BLangDo doNode) {
+
+    }
+
+    @Override
     public void visit(BLangBlockStmt astBlockStmt) {
+        BIRBasicBlock blockEndBB = null;
+        BIRBasicBlock prevOnFailEndBB = this.env.enclOnFailEndBB;
         BlockNode prevBlock = this.currentBlock;
         this.currentBlock = astBlockStmt;
         this.varDclsByBlock.computeIfAbsent(astBlockStmt, k -> new ArrayList<>());
+        if (astBlockStmt.isBreakable) {
+            BIRBasicBlock blockBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(blockBB);
+            this.env.enclBasicBlocks.add(blockBB);
+
+            // Insert a GOTO instruction as the terminal instruction into current basic block.
+            this.env.enclBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, blockBB);
+
+            blockEndBB = new BIRBasicBlock(this.env.nextBBId(names));
+            addToTrapStack(blockEndBB);
+
+            blockBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, blockEndBB);
+
+            this.env.enclBB = blockBB;
+            this.env.enclOnFailEndBB = blockEndBB;
+            this.env.unlockVars.push(new BIRLockDetailsHolder());
+
+        }
         for (BLangStatement astStmt : astBlockStmt.stmts) {
             astStmt.accept(this);
         }
         this.varDclsByBlock.get(astBlockStmt).forEach(birVariableDcl ->
-            birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
+                birVariableDcl.endBB = this.env.enclBasicBlocks.get(this.env.enclBasicBlocks.size() - 1)
         );
+        if (astBlockStmt.isBreakable) {
+            this.env.unlockVars.pop();
+            if (this.env.enclLoopEndBB != null) {
+                blockEndBB.terminator = new BIRTerminator.GOTO(astBlockStmt.pos, this.env.enclLoopEndBB);
+            }
+            this.env.enclBasicBlocks.add(blockEndBB);
+            this.env.enclBB = blockEndBB;
+            this.env.enclOnFailEndBB = null;
+        }
+        this.env.enclOnFailEndBB = prevOnFailEndBB;
         this.currentBlock = prevBlock;
     }
+
+    @Override
+    public void visit(BLangFailExpr failExpr) {
+        // Create a basic block for the while expression.
+        BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(whileExprBB);
+        this.env.enclBasicBlocks.add(whileExprBB);
+
+        // Insert a GOTO instruction as the terminal instruction into current basic block.
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, whileExprBB);
+
+        // Visit condition expression
+        this.env.enclBB = whileExprBB;
+        failExpr.exprStmt.accept(this);
+        this.env.enclBB.terminator = new BIRTerminator.GOTO(failExpr.pos, this.env.enclOnFailEndBB);
+
+        // Statements after fail expression are unreachable, hence ignored
+        BIRBasicBlock ignoreBlock = new BIRBasicBlock(this.env.nextBBId(names));
+        addToTrapStack(ignoreBlock);
+        this.env.enclBasicBlocks.add(ignoreBlock);
+        this.env.enclBB = ignoreBlock;
+    }
+
 
     @Override
     public void visit(BLangSimpleVariableDef astVarDefStmt) {
@@ -1237,7 +1298,9 @@ public class BIRGen extends BLangNodeVisitor {
                     invocationExpr.symbol.pkgID, getFuncName((BInvokableSymbol) invocationExpr.symbol), args, lhsOp,
                     thenBB, calleeAnnots, bInvokableSymbol.getFlags());
         }
-
+        if (thenBB.terminator == null && this.env.enclOnFailEndBB != null) {
+            thenBB.terminator = new BIRTerminator.GOTO(invocationExpr.pos, this.env.enclOnFailEndBB);
+        }
         this.env.enclBB = thenBB;
     }
 

@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.FailExpressionNode;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 
 import java.util.List;
 
@@ -33,6 +34,7 @@ import java.util.List;
 public class BLangFailExpr extends BLangExpression implements FailExpressionNode {
 
     public BLangExpression expr;
+    public BLangExpressionStmt exprStmt;
 
     // This list catches types that are equivalent to the error type which are returned by the rhs expression.
     public List<BType> equivalentErrorTypeList;

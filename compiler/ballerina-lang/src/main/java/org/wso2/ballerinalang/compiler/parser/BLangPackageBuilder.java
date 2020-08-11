@@ -2149,6 +2149,7 @@ public class BLangPackageBuilder {
                 false, false, isDeclaredWithVar);
 
         BLangOnFailClause onFailClause = (BLangOnFailClause) TreeBuilder.createOnFailClauseNode();
+        onFailClause.pos = pos;
         onFailClause.isDeclaredWithVar = isDeclaredWithVar;
         markVariableAsFinal((BLangVariable) variableDefinitionNode.getVariable());
         onFailClause.variableDefinitionNode = variableDefinitionNode;

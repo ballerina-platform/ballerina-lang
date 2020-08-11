@@ -107,9 +107,9 @@ public class CodeGenerator {
 
     public BLangPackage generate(BLangPackage bLangPackage) {
 
-        if (dumbBIR) {
+//        if (dumbBIR) {
             birEmitter.emit(bLangPackage.symbol.bir);
-        }
+//        }
 
         // find module dependencies path
         Set<Path> moduleDependencies = findDependencies(bLangPackage.packageID);

@@ -1386,9 +1386,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.resetLastStatement();
         this.loopWithinTransactionCheckStack.pop();
 
-        if (doNode.onFailClause != null) {
-            analyzeNode(doNode.onFailClause, env);
-        }
+//        if (doNode.onFailClause != null) {
+//            analyzeNode(doNode.onFailClause, env);
+//        }
     }
 
     @Override
@@ -2713,17 +2713,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(failExpr.expr);
 
         if (failExpr.expectedType.tag == symTable.noType.tag) {
-            this.statementReturns = true;
+//            this.statementReturns = true;
             if (this.env.scope.owner.getKind() == SymbolKind.PACKAGE) {
                 // Check at module level.
                 return;
             }
 
             BType exprType = env.enclInvokable.getReturnTypeNode().type;
+            failExpr.expr.type = symTable.errorType;
 
-            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
-                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
-            }
+//            if (!types.isAssignable(getErrorTypes(failExpr.expr.type), exprType)) {
+//                dlog.error(failExpr.pos, DiagnosticCode.FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE);
+//            }
 
             returnTypes.peek().add(exprType);
             validateActionParentNode(failExpr.pos, failExpr);
