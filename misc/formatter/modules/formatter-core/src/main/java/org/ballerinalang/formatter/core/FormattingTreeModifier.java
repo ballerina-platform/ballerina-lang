@@ -86,6 +86,8 @@ import io.ballerinalang.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerinalang.compiler.syntax.tree.StatementNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
+import io.ballerinalang.compiler.syntax.tree.TemplateExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.TemplateMemberNode;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
@@ -440,17 +442,17 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-    @Override
-    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
-        if (!isInLineRange(basicLiteralNode)) {
-            return basicLiteralNode;
-        }
-        Token literalToken = getToken(basicLiteralNode.literalToken());
-
-        return basicLiteralNode.modify()
-                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
-                .apply();
-    }
+//    @Override
+//    public BasicLiteralNode transform(BasicLiteralNode basicLiteralNode) {
+//        if (!isInLineRange(basicLiteralNode)) {
+//            return basicLiteralNode;
+//        }
+//        Token literalToken = getToken(basicLiteralNode.literalToken());
+//
+//        return basicLiteralNode.modify()
+//                .withLiteralToken(formatToken(literalToken, 0, 0, 0, 0))
+//                .apply();
+//    }
 
 
     @Override
@@ -1257,6 +1259,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        int startColumn = getStartColumn(xmlTypeDescriptorNode, xmlTypeDescriptorNode.kind(), true);
         Token xmlKeywordToken = getToken(xmlTypeDescriptorNode.xmlKeywordToken());
         TypeParameterNode xmlTypeParamsNode = this.modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
 
@@ -1266,7 +1269,7 @@ public class FormattingTreeModifier extends TreeModifier {
                     .apply();
         }
         return xmlTypeDescriptorNode.modify()
-                .withXmlKeywordToken(formatToken(xmlKeywordToken, 0, 1, 0, 0))
+                .withXmlKeywordToken(formatToken(xmlKeywordToken, startColumn, 0, 0, 0))
                 .apply();
     }
 
@@ -1387,14 +1390,14 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-    @Override
-    public XMLTextNode transform(XMLTextNode xMLTextNode) {
-        Token content = getToken(xMLTextNode.content());
-
-        return xMLTextNode.modify()
-                .withContent(formatToken(content, 0, 0, 0, 0))
-                .apply();
-    }
+//    @Override
+//    public XMLTextNode transform(XMLTextNode xMLTextNode) {
+//        Token content = getToken(xMLTextNode.content());
+//
+//        return xMLTextNode.modify()
+//                .withContent(formatToken(content, 0, 0, 0, 0))
+//                .apply();
+//    }
 
     @Override
     public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
@@ -1531,6 +1534,21 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
+    @Override
+    public TemplateExpressionNode transform(TemplateExpressionNode templateExpressionNode) {
+        Token type = getToken(templateExpressionNode.type());
+        Token startBacktick = getToken(templateExpressionNode.startBacktick());
+        NodeList<TemplateMemberNode> content = modifyNodeList(templateExpressionNode.content());
+        Token endBacktick = getToken(templateExpressionNode.endBacktick());
+
+        return templateExpressionNode.modify()
+                .withStartBacktick(formatToken(startBacktick, 1, 0, 0, 0))
+                .withContent(content)
+                .withType(formatToken(type, 0, 0, 0, 0))
+                .withEndBacktick(formatToken(endBacktick, 0, 0, 0, 0))
+                .apply();
+    }
+
     /**
      * Update the minutiae and return the token.
      *
@@ -1543,6 +1561,9 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private Token formatToken(Token token, int leadingSpaces, int trailingSpaces, int leadingNewLines,
                               int trailingNewLines) {
+        if (token == null) {
+            return token;
+        }
         MinutiaeList leadingMinutiaeList = token.leadingMinutiae();
         MinutiaeList trailingMinutiaeList = token.trailingMinutiae();
 
