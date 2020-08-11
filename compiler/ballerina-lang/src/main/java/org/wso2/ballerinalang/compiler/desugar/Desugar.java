@@ -5707,10 +5707,21 @@ public class Desugar extends BLangNodeVisitor {
         patternBlockFailureCase.pos = pos;
         if (!isCheckPanicExpr && returnOnError) {
             //return e;
-            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-            returnStmt.pos = pos;
-            returnStmt.expr = patternFailureCaseVarRef;
-            patternBlockFailureCase.stmts.add(returnStmt);
+//            BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+            BLangFailExpr failExpressionNode = (BLangFailExpr) TreeBuilder.createFailExpressionNode();
+            BLangStatementExpression expression = ASTBuilderUtil.createStatementExpression(onFailFuncBlock,
+                    ASTBuilderUtil.createLiteral(pos, symTable.nilType, Names.NIL_VALUE));
+            BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            exprStmt.expr = expression;
+            exprStmt.pos = pos;
+            failExpressionNode.exprStmt = exprStmt;
+
+            BLangExpressionStmt failExprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            failExprStmt.expr = failExpressionNode;
+            failExprStmt.pos = pos;
+//            returnStmt.pos = pos;
+//            returnStmt.expr = patternFailureCaseVarRef;
+            patternBlockFailureCase.stmts.add(failExprStmt);
         } else {
             // throw e
             BLangPanic panicNode = (BLangPanic) TreeBuilder.createPanicNode();

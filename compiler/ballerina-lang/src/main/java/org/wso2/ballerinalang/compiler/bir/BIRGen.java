@@ -991,6 +991,7 @@ public class BIRGen extends BLangNodeVisitor {
     @Override
     public void visit(BLangFailExpr failExpr) {
         // Create a basic block for the while expression.
+        //todo rename blocks
         BIRBasicBlock whileExprBB = new BIRBasicBlock(this.env.nextBBId(names));
         addToTrapStack(whileExprBB);
         this.env.enclBasicBlocks.add(whileExprBB);

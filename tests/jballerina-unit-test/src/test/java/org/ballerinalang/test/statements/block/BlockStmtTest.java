@@ -48,7 +48,7 @@ public class BlockStmtTest {
 
     @Test
     public void testVariableShadowingBasic() {
-       BRunUtil.invoke(result, "test1");
+       BRunUtil.invoke(result, "testCheckExp");
 //        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
 
