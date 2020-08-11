@@ -76,11 +76,27 @@ class JMethodResolver {
 
     private ClassLoader classLoader;
     private SymbolTable symbolTable;
+    private final BType[] definedReadOnlyMemberTypes;
 
     JMethodResolver(ClassLoader classLoader, SymbolTable symbolTable) {
 
         this.classLoader = classLoader;
         this.symbolTable = symbolTable;
+        this.definedReadOnlyMemberTypes = new BType[]{
+                symbolTable.nilType,
+                symbolTable.booleanType,
+                symbolTable.intType,
+                symbolTable.signed8IntType,
+                symbolTable.signed16IntType,
+                symbolTable.signed32IntType,
+                symbolTable.unsigned32IntType,
+                symbolTable.unsigned16IntType,
+                symbolTable.unsigned8IntType,
+                symbolTable.floatType,
+                symbolTable.decimalType,
+                symbolTable.stringType,
+                symbolTable.charStringType
+        };
     }
 
     JMethod resolve(JMethodRequest jMethodRequest) {
@@ -561,7 +577,7 @@ class JMethodResolver {
             return true;
         }
 
-        for (BType member : getDefinedReadOnlyMemberTypes()) {
+        for (BType member : definedReadOnlyMemberTypes) {
             if (isValidReturnBType(jType, member, jMethodRequest)) {
                 return true;
             }
@@ -601,24 +617,6 @@ class JMethodResolver {
         }
 
         return this.classLoader.loadClass(TableValue.class.getCanonicalName()).isAssignableFrom(jType);
-    }
-
-    private BType[] getDefinedReadOnlyMemberTypes() {
-        return new BType[]{
-                symbolTable.nilType,
-                symbolTable.booleanType,
-                symbolTable.intType,
-                symbolTable.signed8IntType,
-                symbolTable.signed16IntType,
-                symbolTable.signed32IntType,
-                symbolTable.unsigned32IntType,
-                symbolTable.unsigned16IntType,
-                symbolTable.unsigned8IntType,
-                symbolTable.floatType,
-                symbolTable.decimalType,
-                symbolTable.stringType,
-                symbolTable.charStringType
-        };
     }
 
     private JMethod resolveExactMethod(Class<?> clazz, String name, JMethodKind kind,
