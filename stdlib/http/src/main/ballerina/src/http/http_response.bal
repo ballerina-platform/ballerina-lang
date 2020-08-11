@@ -339,7 +339,7 @@ public type Response object {
     public function setJsonPayload(json payload, public string contentType = "application/json") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setJson(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets an `xml` as the payload
@@ -350,7 +350,7 @@ public type Response object {
     public function setXmlPayload(xml payload, public string contentType = "application/xml") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setXml(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `string` as the payload.
@@ -361,7 +361,7 @@ public type Response object {
     public function setTextPayload(string payload, public string contentType = "text/plain") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setText(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `byte[]` as the payload.
@@ -372,7 +372,7 @@ public type Response object {
     public function setBinaryPayload(byte[] payload, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteArray(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Set multiparts as the payload.
@@ -383,7 +383,7 @@ public type Response object {
     public function setBodyParts(mime:Entity[] bodyParts, public string contentType = "multipart/form-data") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setBodyParts(bodyParts, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets the content of the specified file as the entity body of the response.
@@ -394,7 +394,7 @@ public type Response object {
     public function setFileAsPayload(string filePath, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setFileAsEntityBody(filePath, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets a `ByteChannel` as the payload.
@@ -405,7 +405,7 @@ public type Response object {
     public function setByteChannel(io:ReadableByteChannel payload, public string contentType = "application/octet-stream") {
         mime:Entity entity = self.getEntityWithoutBodyAndHeaders();
         entity.setByteChannel(payload, contentType);
-        self.setEntity(entity);
+        self.setEntityAndUpdateContentTypeHeader(entity);
     }
 
     # Sets the response payload.
