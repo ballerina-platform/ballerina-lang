@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.runtime;
 
+import com.google.gson.Gson;
 import org.ballerinalang.jvm.scheduling.Scheduler;
 import org.ballerinalang.jvm.scheduling.Strand;
 import org.ballerinalang.jvm.types.BArrayType;
@@ -49,7 +50,15 @@ import org.ballerinalang.test.runtime.entity.TesterinaResult;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -404,6 +413,13 @@ public class BTestRunner {
                                  Scheduler scheduler, AtomicBoolean shouldSkip, AtomicBoolean shouldSkipTest,
                                  List<String> failedOrSkippedTests, List<String> failedAfterFuncTests) {
         TesterinaResult functionResult;
+        Path sourceRootPath = Paths.get(suite.getSourceRootPath());
+        Path jsonCacheDir = sourceRootPath.resolve("target").resolve("caches").resolve("json_cache");
+        Path rerunJson =
+                jsonCacheDir.resolve(suite.getOrgName()).resolve(suite.getPackageID()).resolve(suite.getVersion());
+        Path jsonPath = Paths.get(rerunJson.toString(), "retun_test.json");
+        File jsonFile = new File(jsonPath.toString());
+
         try {
             if (isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedOrSkippedTests) ||
                 isTestDependsOnFailedFunctions(test.getDependsOnTestFunctions(), failedAfterFuncTests)) {
@@ -450,6 +466,9 @@ public class BTestRunner {
         for (String groupName : test.getGroups()) {
             suite.getGroups().get(groupName).incrementExecutedCount();
         }
+
+        writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
+
     }
 
     private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -721,6 +740,25 @@ public class BTestRunner {
      */
     public TesterinaReport getTesterinaReport() {
         return tReport;
+    }
+
+    /**
+     * Store the failed tests as an array in the JSON cache.
+     * @param failedTests List of failed tests
+     * @param jsonFile File to save failed tests
+     */
+    private void writeFailedTestsToJson(List<String> failedTests, File jsonFile) {
+        String errorMsg;
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(failedTests);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
+            errStream.println(errorMsg);
+        }
+
     }
 
 }
