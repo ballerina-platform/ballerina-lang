@@ -2,6 +2,10 @@
   "kind": "FUNCTION_DEFINITION",
   "children": [
     {
+      "kind": "LIST",
+      "children": []
+    },
+    {
       "kind": "FUNCTION_KEYWORD",
       "trailingMinutiae": [
         {
@@ -240,6 +244,10 @@
                             {
                               "kind": "OBJECT_METHOD_DEFINITION",
                               "children": [
+                                {
+                                  "kind": "LIST",
+                                  "children": []
+                                },
                                 {
                                   "kind": "FUNCTION_KEYWORD",
                                   "leadingMinutiae": [

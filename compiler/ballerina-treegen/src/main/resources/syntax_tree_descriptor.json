@@ -41,7 +41,6 @@
         {
             "name": "FunctionDefinitionNode",
             "base": "ModuleMemberDeclarationNode",
-            "kind": "FUNCTION_DEFINITION",
             "attributes": [
                 {
                     "name": "metadata",
@@ -49,14 +48,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -2923,9 +2917,9 @@
                     "isOptional": true
                 },
                 {
-                    "name": "visibilityQualifier",
+                    "name": "qualifierList",
                     "type": "Token",
-                    "isOptional": true
+                    "occurrences": "MULTIPLE"
                 },
                 {
                     "name": "functionKeyword",
@@ -3756,49 +3750,6 @@
                 {
                     "name": "expression",
                     "type": "ExpressionNode"
-                }
-            ]
-        },
-        {
-            "name": "ObjectMethodDefinitionNode",
-            "base": "Node",
-            "kind": "OBJECT_METHOD_DEFINITION",
-            "attributes": [
-                {
-                    "name": "metadata",
-                    "type": "MetadataNode",
-                    "isOptional": true
-                },
-                {
-                    "name": "visibilityQualifier",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "remoteKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "transactionalKeyword",
-                    "type": "Token",
-                    "isOptional": true
-                },
-                {
-                    "name": "functionKeyword",
-                    "type": "Token"
-                },
-                {
-                    "name": "methodName",
-                    "type": "IdentifierToken"
-                },
-                {
-                    "name": "methodSignature",
-                    "type": "FunctionSignatureNode"
-                },
-                {
-                    "name": "functionBody",
-                    "type": "FunctionBodyNode"
                 }
             ]
         },
