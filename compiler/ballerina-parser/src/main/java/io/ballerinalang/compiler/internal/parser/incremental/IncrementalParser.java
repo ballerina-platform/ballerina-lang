@@ -62,18 +62,15 @@ public class IncrementalParser extends BallerinaParser {
         return node;
     }
 
-    private Predicate<SyntaxKind> isModelLevelDeclaration = kind -> kind == SyntaxKind.FUNCTION_DEFINITION ||
-            kind == SyntaxKind.TYPE_DEFINITION || kind == SyntaxKind.IMPORT_DECLARATION;
+    private Predicate<SyntaxKind> isModelLevelDeclaration =
+            kind -> SyntaxKind.IMPORT_DECLARATION.compareTo(kind) <= 0 &&
+                    SyntaxKind.ENUM_DECLARATION.compareTo(kind) >= 0;
 
     private Predicate<SyntaxKind> isFunctionBody = kind ->
             kind == SyntaxKind.FUNCTION_BODY_BLOCK ||
             kind == SyntaxKind.EXTERNAL_FUNCTION_BODY ||
             kind == SyntaxKind.EXPRESSION_FUNCTION_BODY;
 
-    private Predicate<SyntaxKind> isStatement = kind -> kind == SyntaxKind.BLOCK_STATEMENT ||
-            kind == SyntaxKind.IF_ELSE_STATEMENT ||
-            kind == SyntaxKind.CALL_STATEMENT ||
-            kind == SyntaxKind.LOCAL_VAR_DECL ||
-            kind == SyntaxKind.ASSIGNMENT_STATEMENT ||
-            kind == SyntaxKind.WHILE_STATEMENT;
+    private Predicate<SyntaxKind> isStatement = kind -> SyntaxKind.BLOCK_STATEMENT.compareTo(kind) <= 0 &&
+            SyntaxKind.INVALID_EXPRESSION_STATEMENT.compareTo(kind) >= 0;
 }

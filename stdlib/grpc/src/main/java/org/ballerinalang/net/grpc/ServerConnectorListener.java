@@ -63,7 +63,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
     }
 
     private ExecutorService workerExecutor = Executors.newFixedThreadPool(10,
-            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-worker-thread-pool"));
+            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-service-worker-thread-pool"));
 
     @Override
     public void onMessage(HttpCarbonMessage inboundMessage) {

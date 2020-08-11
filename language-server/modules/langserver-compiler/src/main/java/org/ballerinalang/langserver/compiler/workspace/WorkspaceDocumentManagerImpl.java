@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.langserver.compiler.workspace;
 
 import io.ballerinalang.compiler.syntax.tree.SyntaxTree;
@@ -61,7 +61,7 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
 
     protected WorkspaceDocumentManagerImpl() {
     }
-    
+
     public static WorkspaceDocumentManagerImpl getInstance() {
         return INSTANCE;
     }
@@ -112,13 +112,13 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
             documentList.get(filePath).getDocument().ifPresent(document -> {
                 TextEdit[] edits = new TextEdit[changeEvent.size()];
                 TextDocument textDocument = document.getTree().textDocument();
-                    for (int i = 0; i < changeEvent.size(); i++) {
-                        TextDocumentContentChangeEvent change = changeEvent.get(i);
-                        edits[i] = TextEdit.from(getTextRange(textDocument, change), change.getText());
-                    }
-                    document.setTree(SyntaxTree.from(document.getTree(), TextDocumentChange.from(edits)));
-                });
-            }
+                for (int i = 0; i < changeEvent.size(); i++) {
+                    TextDocumentContentChangeEvent change = changeEvent.get(i);
+                    edits[i] = TextEdit.from(getTextRange(textDocument, change), change.getText());
+                }
+                document.setTree(SyntaxTree.from(document.getTree(), TextDocumentChange.from(edits)));
+            });
+        }
     }
 
     private TextRange getTextRange(TextDocument textDocument, TextDocumentContentChangeEvent change) {
@@ -136,31 +136,6 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
     public void setCodeLenses(Path filePath, List<CodeLens> codeLens) throws WorkspaceDocumentException {
         if (isFileOpen(filePath)) {
             documentList.get(filePath).getDocument().ifPresent(document -> document.setCodeLenses(codeLens));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void setPrunedContent(Path filePath, String prunedSource) throws WorkspaceDocumentException {
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(document -> document.setPrunedContent(prunedSource));
-        } else {
-            throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void resetPrunedContent(Path filePath) throws WorkspaceDocumentException {
-
-        if (isFileOpen(filePath)) {
-            documentList.get(filePath).getDocument().ifPresent(WorkspaceDocument::resetPrunedContent);
         } else {
             throw new WorkspaceDocumentException("File " + filePath.toString() + " is not opened in document manager.");
         }

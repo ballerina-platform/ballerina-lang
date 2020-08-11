@@ -26,6 +26,8 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -89,8 +91,9 @@ public class ImplicitNewExpressionNodeContext extends AbstractCompletionProvider
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            Optional<Scope.ScopeEntry> pkgSymbol = this.getPackageSymbolFromAlias(context,
-                    nameReferenceNode.modulePrefix().text());
+            
+            Optional<Scope.ScopeEntry> pkgSymbol = CommonUtil.packageSymbolFromAlias(context,
+                    QNameReferenceUtil.getAlias(nameReferenceNode));
             if (!pkgSymbol.isPresent()) {
                 return Optional.empty();
             }

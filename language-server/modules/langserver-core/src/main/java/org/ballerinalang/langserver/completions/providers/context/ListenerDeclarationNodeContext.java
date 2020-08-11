@@ -26,6 +26,7 @@ import io.ballerinalang.compiler.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.LSContext;
 import org.ballerinalang.langserver.commons.completion.CompletionKeys;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -200,8 +201,8 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         List<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         if (typeDescriptor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             QualifiedNameReferenceNode nameReferenceNode = (QualifiedNameReferenceNode) typeDescriptor;
-            Optional<Scope.ScopeEntry> pkgSymbol = this.getPackageSymbolFromAlias(context,
-                    nameReferenceNode.modulePrefix().text());
+            Optional<Scope.ScopeEntry> pkgSymbol = CommonUtil.packageSymbolFromAlias(context,
+                    QNameReferenceUtil.getAlias(nameReferenceNode));
             if (!pkgSymbol.isPresent()) {
                 return Optional.empty();
             }

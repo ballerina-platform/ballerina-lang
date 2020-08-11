@@ -234,61 +234,56 @@ public class SignatureHelpUtil {
         }
     }
 
-    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String funcName,
+    public static Optional<Scope.ScopeEntry> getFuncScopeEntry(LSContext context, String pathStr,
                                                                List<Scope.ScopeEntry> visibleSymbols) {
         CompilerContext compilerContext = context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         SymbolTable symbolTable = SymbolTable.getInstance(compilerContext);
         Types types = Types.getInstance(compilerContext);
-
-        String[] nameComps = funcName.split("\\.");
+        Scope.ScopeEntry searchSymbol = null;
+        // Resolve package prefixes first
+        int pkgPrefix = pathStr.indexOf(":");
+        if (pkgPrefix > -1) {
+            String packagePart = pathStr.substring(0, pkgPrefix);
+            pathStr = pathStr.substring(pkgPrefix + 1);
+            String alias = packagePart.split("\\sversion\\s")[0].split("\\sas\\s")[0].split("/")[1];
+            Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
+                    .filter(entry -> entry.symbol.name.getValue().equals(alias))
+                    .findFirst();
+            visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
+        }
+        // Resolve rest of the path
+        String[] nameComps = pathStr.split("\\.");
         int index = 0;
-        Optional<Scope.ScopeEntry> searchSymbol = Optional.empty();
         while (index < nameComps.length) {
             String name = nameComps[index];
-            int pkgPrefix = name.indexOf(":");
-            boolean hasPkgPrefix = pkgPrefix > -1;
-            if (!hasPkgPrefix) {
-                searchSymbol = visibleSymbols.stream()
-                        .filter(symbol ->
-                                name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
-                        .findFirst();
-            } else {
-                String[] moduleComps = name.substring(0, pkgPrefix).split("/");
-                String alias = moduleComps[1].split(" ")[0];
-                Optional<Scope.ScopeEntry> moduleSymbol = visibleSymbols.stream()
-                        .filter(entry -> entry.symbol.name.getValue().equals(alias))
-                        .findFirst();
-                visibleSymbols = new ArrayList<>(moduleSymbol.get().symbol.scope.entries.values());
-                searchSymbol = visibleSymbols.stream()
-                        .filter(entry -> name.substring(pkgPrefix + 1)
-                                .equals(getLastItem(entry.symbol.name.getValue().split("\\."))))
-                        .findFirst();
-            }
+            searchSymbol = visibleSymbols.stream()
+                    .filter(symbol -> name.equals(getLastItem(symbol.symbol.name.getValue().split("\\."))))
+                    .findFirst().orElse(null);
             // If search symbol not found, return
-            if (!searchSymbol.isPresent()) {
+            if (searchSymbol == null) {
                 break;
             }
             // The `searchSymbol` found, resolve further
-            boolean isInvocation = searchSymbol.get().symbol instanceof BInvokableSymbol;
-            boolean isObject = searchSymbol.get().symbol instanceof BObjectTypeSymbol;
-            boolean isVariable = searchSymbol.get().symbol instanceof BVarSymbol;
+            boolean isInvocation = searchSymbol.symbol instanceof BInvokableSymbol;
+            boolean isObject = searchSymbol.symbol instanceof BObjectTypeSymbol;
+            boolean isVariable = searchSymbol.symbol instanceof BVarSymbol;
             boolean hasNextNameComp = index + 1 < nameComps.length;
             if (isInvocation && hasNextNameComp) {
-                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.get().symbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) searchSymbol.symbol;
                 BTypeSymbol returnTypeSymbol = invokableSymbol.getReturnType().tsymbol;
                 if (returnTypeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) returnTypeSymbol;
                     visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isObject && hasNextNameComp) {
-                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.get().symbol;
+                BObjectTypeSymbol bObjectTypeSymbol = (BObjectTypeSymbol) searchSymbol.symbol;
                 BTypeSymbol typeSymbol = bObjectTypeSymbol.type.tsymbol;
                 if (typeSymbol instanceof BObjectTypeSymbol) {
                     BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(objectTypeSymbol.methodScope.entries.values());
                 }
             } else if (isVariable && hasNextNameComp) {
-                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.get().symbol;
+                BVarSymbol bVarSymbol = (BVarSymbol) searchSymbol.symbol;
                 BTypeSymbol typeSymbol = bVarSymbol.type.tsymbol;
                 if (typeSymbol.type instanceof BUnionType) {
                     // Check for optional field accesses.
@@ -311,26 +306,27 @@ public class SignatureHelpUtil {
                     BRecordTypeSymbol bRecordTypeSymbol = (BRecordTypeSymbol) typeSymbol;
                     visibleSymbols = new ArrayList<>(bRecordTypeSymbol.scope.entries.values());
                 } else {
-                    visibleSymbols = new ArrayList<>(getLangLibScopeEntries(typeSymbol.type, symbolTable, types)
-                            .values());
+                    visibleSymbols = getLangLibScopeEntries(typeSymbol.type, symbolTable, types);
                 }
             }
             index++;
         }
-        return searchSymbol;
+        return searchSymbol != null ? Optional.of(searchSymbol) : Optional.empty();
     }
 
     /**
      * Get the signature information for the given Ballerina function.
      *
-     * @param bInvokableSymbol                  BLang Invokable symbol
-     * @param context                      Lang Server Signature Help Context
+     * @param bInvokableSymbol BLang Invokable symbol
+     * @param isMethodCall
+     * @param context          Lang Server Signature Help Context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    public static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol, LSContext context) {
+    public static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
+                                                               boolean isMethodCall, LSContext context) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, context);
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, isMethodCall, context);
 
         // Override label for 'new' constructor
         String label = bInvokableSymbol.name.value;
@@ -374,11 +370,13 @@ public class SignatureHelpUtil {
     /**
      * Get the required signature information filled model.
      *
-     * @param bInvokableSymbol                  Invokable symbol
-     * @param signatureCtx                      Lang Server Signature Help Context
+     * @param bInvokableSymbol Invokable symbol
+     * @param isMethodCall     Whether invoked on an object
+     * @param signatureCtx     Lang Server Signature Help Context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, LSContext signatureCtx) {
+    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol, boolean isMethodCall,
+                                                            LSContext signatureCtx) {
         Map<String, String> paramToDesc = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
@@ -425,8 +423,14 @@ public class SignatureHelpUtil {
         if (restParam != null) {
             parameters.add(new Parameter(restParam.name.value, restParam.type, false, true));
         }
+        boolean skipFirstParam = isMethodCall && CommonUtil.isLangLibSymbol(bInvokableSymbol);
         // Create a list of param info models
-        parameters.forEach(param -> {
+        for (int i = 0; i < parameters.size(); i++) {
+            if (i == 0 && skipFirstParam) {
+                // If langlib, skip first param
+                continue;
+            }
+            Parameter param = parameters.get(i);
             String name = param.isOptional ? param.name + "?" : param.name;
             String desc = "";
             if (paramToDesc.containsKey(param.name)) {
@@ -441,7 +445,7 @@ public class SignatureHelpUtil {
                 type += "...";
             }
             paramModels.add(new ParameterInfoModel(name, type, desc));
-        });
+        }
         signatureInfoModel.setParameterInfoModels(paramModels);
         return signatureInfoModel;
     }

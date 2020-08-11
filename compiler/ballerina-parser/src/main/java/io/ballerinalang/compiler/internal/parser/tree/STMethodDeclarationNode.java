@@ -32,7 +32,7 @@ import java.util.Collections;
  */
 public class STMethodDeclarationNode extends STNode {
     public final STNode metadata;
-    public final STNode visibilityQualifier;
+    public final STNode qualifierList;
     public final STNode functionKeyword;
     public final STNode methodName;
     public final STNode methodSignature;
@@ -40,14 +40,14 @@ public class STMethodDeclarationNode extends STNode {
 
     STMethodDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
             STNode semicolon) {
         this(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -57,7 +57,7 @@ public class STMethodDeclarationNode extends STNode {
 
     STMethodDeclarationNode(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
@@ -65,7 +65,7 @@ public class STMethodDeclarationNode extends STNode {
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.METHOD_DECLARATION, diagnostics);
         this.metadata = metadata;
-        this.visibilityQualifier = visibilityQualifier;
+        this.qualifierList = qualifierList;
         this.functionKeyword = functionKeyword;
         this.methodName = methodName;
         this.methodSignature = methodSignature;
@@ -73,7 +73,7 @@ public class STMethodDeclarationNode extends STNode {
 
         addChildren(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -83,7 +83,7 @@ public class STMethodDeclarationNode extends STNode {
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STMethodDeclarationNode(
                 this.metadata,
-                this.visibilityQualifier,
+                this.qualifierList,
                 this.functionKeyword,
                 this.methodName,
                 this.methodSignature,
@@ -93,14 +93,14 @@ public class STMethodDeclarationNode extends STNode {
 
     public STMethodDeclarationNode modify(
             STNode metadata,
-            STNode visibilityQualifier,
+            STNode qualifierList,
             STNode functionKeyword,
             STNode methodName,
             STNode methodSignature,
             STNode semicolon) {
         if (checkForReferenceEquality(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -110,7 +110,7 @@ public class STMethodDeclarationNode extends STNode {
 
         return new STMethodDeclarationNode(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,

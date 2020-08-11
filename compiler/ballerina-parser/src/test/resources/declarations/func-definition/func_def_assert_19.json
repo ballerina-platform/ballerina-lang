@@ -59,20 +59,16 @@
           "kind": "FUNCTION_DEFINITION",
           "children": [
             {
-              "kind": "METADATA",
+              "kind": "LIST",
               "children": [
                 {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
-            {
-              "kind": "PUBLIC_KEYWORD",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
+                  "kind": "PUBLIC_KEYWORD",
+                  "trailingMinutiae": [
+                    {
+                      "kind": "WHITESPACE_MINUTIAE",
+                      "value": " "
+                    }
+                  ]
                 }
               ]
             },
@@ -210,15 +206,6 @@
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
           "children": [
-            {
-              "kind": "METADATA",
-              "children": [
-                {
-                  "kind": "LIST",
-                  "children": []
-                }
-              ]
-            },
             {
               "kind": "TYPED_BINDING_PATTERN",
               "hasDiagnostics": true,

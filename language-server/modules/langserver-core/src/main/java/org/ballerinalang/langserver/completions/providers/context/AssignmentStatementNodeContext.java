@@ -45,4 +45,9 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
         completionItems.addAll(this.expressionCompletions(context));
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(AssignmentStatementNode node) {
+        return !node.equalsToken().isMissing();
+    }
 }
