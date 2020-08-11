@@ -46,8 +46,8 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     private boolean headersReceived;
     private ClientInboundStateListener stateListener;
 
-    private ExecutorService workerExecutor = Executors.newFixedThreadPool(10,
-            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-worker-thread-pool"));
+    private static ExecutorService workerExecutor = Executors.newFixedThreadPool(10,
+            new BLangThreadFactory(new ThreadGroup("grpc-worker"), "grpc-client-worker-thread-pool"));
 
     ClientConnectorListener(ClientCall.ClientStreamListener streamListener) {
         this.stateListener = new ClientInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);

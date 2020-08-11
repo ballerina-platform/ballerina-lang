@@ -15,13 +15,8 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
-import com.google.common.collect.Lists;
 import io.ballerinalang.compiler.syntax.tree.NonTerminalNode;
 import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -55,8 +50,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
-import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -165,17 +158,6 @@ public class CommonUtil {
     }
 
     /**
-     * Calculate the user defined type position.
-     *
-     * @param position position of the node
-     * @param name     name of the user defined type
-     * @param pkgAlias package alias name of the user defined type
-     */
-    public static void calculateEndColumnOfGivenName(DiagnosticPos position, String name, String pkgAlias) {
-        position.eCol = position.sCol + name.length() + (!pkgAlias.isEmpty() ? (pkgAlias + ":").length() : 0);
-    }
-
-    /**
      * Convert the diagnostic position to a zero based positioning diagnostic position.
      *
      * @param diagnosticPos - diagnostic position to be cloned
@@ -201,68 +183,6 @@ public class CommonUtil {
         int startColumn = diagnosticPos.getStartColumn();
         int endColumn = diagnosticPos.getEndColumn();
         return new DiagnosticPos(diagnosticPos.getSource(), startLine, endLine, startColumn, endColumn);
-    }
-
-    /**
-     * Get the previous default token from the given start index.
-     *
-     * @param tokenStream Token Stream
-     * @param startIndex  Start token index
-     * @return {@link Optional}      Previous default token
-     */
-    public static Optional<Token> getPreviousDefaultToken(TokenStream tokenStream, int startIndex) {
-        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
-    }
-
-    /**
-     * Get the next default token from the given start index.
-     *
-     * @param tokenStream Token Stream
-     * @param startIndex  Start token index
-     * @return {@link Optional}      Previous default token
-     */
-    public static Optional<Token> getNextDefaultToken(TokenStream tokenStream, int startIndex) {
-        return getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
-    }
-
-    /**
-     * Get n number of default tokens from a given start index.
-     *
-     * @param tokenStream Token Stream
-     * @param n           number of tokens to extract
-     * @param startIndex  Start token index
-     * @return {@link List}     List of tokens extracted
-     */
-    public static List<Token> getNDefaultTokensToLeft(TokenStream tokenStream, int n, int startIndex) {
-        List<Token> tokens = new ArrayList<>();
-        Optional<Token> token;
-        while (n > 0) {
-            token = getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
-            if (!token.isPresent()) {
-                return new ArrayList<>();
-            }
-            tokens.add(token.get());
-            n--;
-            startIndex = token.get().getTokenIndex();
-        }
-
-        return Lists.reverse(tokens);
-    }
-
-    private static Optional<Token> getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex,
-                                                                int direction) {
-        Token token = null;
-        while (true) {
-            startIndex += direction;
-            if (startIndex < 0 || startIndex == tokenStream.size()) {
-                break;
-            }
-            token = tokenStream.get(startIndex);
-            if (token.getChannel() == Token.DEFAULT_CHANNEL) {
-                break;
-            }
-        }
-        return Optional.ofNullable(token);
     }
 
     /**
@@ -917,26 +837,6 @@ public class CommonUtil {
         return snippet
                 .replaceAll("\\$\\{\\d+:([^\\{^\\}]*)\\}", "$1")
                 .replaceAll("(\\$\\{\\d+\\})", "");
-    }
-
-    public static BallerinaParser prepareParser(String content) {
-        CommonTokenStream commonTokenStream = getTokenStream(content);
-        BallerinaParser parser = new BallerinaParser(commonTokenStream);
-        parser.removeErrorListeners();
-        return parser;
-    }
-
-    static CommonTokenStream getTokenStream(String content) {
-        ANTLRInputStream inputStream = new ANTLRInputStream(content);
-        BallerinaLexer lexer = new BallerinaLexer(inputStream);
-        lexer.removeErrorListeners();
-        return new CommonTokenStream(lexer);
-    }
-
-    public static List<Token> getTokenList(String content) {
-        CommonTokenStream tokenStream = getTokenStream(content);
-        tokenStream.fill();
-        return new ArrayList<>(tokenStream.getTokens());
     }
 
     public static boolean symbolContainsInvalidChars(BSymbol bSymbol) {
