@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -48,7 +49,8 @@ public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSe
             throws LSCompletionException {
         ArrayList<Scope.ScopeEntry> visibleSymbols = new ArrayList<>(context.get(CommonKeys.VISIBLE_SYMBOLS_KEY));
         List<Scope.ScopeEntry> filteredWorkers = visibleSymbols.stream()
-                .filter(scopeEntry -> (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
+                .filter(scopeEntry -> !(scopeEntry.symbol instanceof BInvokableSymbol)
+                        && (scopeEntry.symbol.flags & Flags.WORKER) == Flags.WORKER)
                 .collect(Collectors.toList());
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));

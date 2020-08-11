@@ -14,11 +14,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "w3",
+      "label": "w2",
       "kind": "Variable",
       "detail": "future<()>",
       "sortText": "130",
-      "insertText": "w3",
+      "insertText": "w2",
       "insertTextFormat": "Snippet"
     },
     {

@@ -105,14 +105,6 @@ public class FunctionDefinitionCompletionTest extends CompletionTest {
 //                {"completionWithinInvocationArgs13.json", "function"}, // Revamp needed
 //                {"chainCompletion6.json", "function"}, // Revamp needed
 //                {"chainCompletion7.json", "function"}, // Revamp needed
-                {"externalKeywordSuggestion1.json", "function"},
-//                {"externalKeywordSuggestion2.json", "function"}, // Parser fix needed
-//                {"ifWhileConditionContextCompletion1.json", "function"}, //TODO: Fix this
-                {"ifWhileConditionContextCompletion2.json", "function"},
-//                {"ifWhileConditionContextCompletion3.json", "function"},
-//                {"ifWhileConditionContextCompletion4.json", "function"}, // LS Fix
-                {"ifWhileConditionContextCompletion5.json", "function"},
-//                {"ifWhileConditionContextCompletion6.json", "function"}, // LS Fix
                 {"newObjectCompletion1.json", "function"},
                 {"newObjectCompletion2.json", "function"},
                 {"newObjectCompletion3.json", "function"},
