@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ~ Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+  ~
+  ~ WSO2 Inc. licenses this file to you under the Apache License,
+  ~ Version 2.0 (the "License"); you may not use this file except
+  ~ in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing,
+  ~ software distributed under the License is distributed on an
+  ~ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+  ~ KIND, either express or implied.  See the License for the
+  ~ specific language governing permissions and limitations
+  ~ under the License.
+  -->
+
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+<suite name="Transport test Suite" parallel="false">
+
+    <listeners>
+        <listener class-name="org.wso2.transport.http.netty.util.TestNGListener" />
+    </listeners>
+
+    <test name="Transport test" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpTestCase" />
+            <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpsTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.contentaware.EchoServerConnectorListenerTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseCreationTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseStreamingTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformStreamingTestCase" />
+
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpsProxyServerTestCase" />
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpProxyServerTestCase" />
+
+            <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientTimeoutWhileWritingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientTimeoutWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerCloseWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerCloseWhileWritingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
+            <class name="org.wso2.transport.http.netty.ClientConnectorClosureAfterRequestReadTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutWhileReadingBodyTestCase" />
+            <class name="org.wso2.transport.http.netty.ServerConnectorTimeoutWhileSendingBodyTestCase" />
+
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkAutoServerTestCase" />
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableServerTestCase" />
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableServerTestCase" />
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkAutoClientTestCase" />
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableClientTestCase" />
+            <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
+
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100TestCase" />
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientAbnormal100ContinueTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ChunkingTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ContentLengthTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ClosureTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100TimeoutTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100ResponseTimeoutTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100AfterRespReceivedTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ListenerContinue100WhileRespReceivingTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100WhileSendingReqTestCase"/>
+            <class name="org.wso2.transport.http.netty.expect100continue.ClientContinue100AfterSendingReqTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
+            <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
+            <class name="org.wso2.transport.http.netty.unitfunction.ForwardedTestCase" />
+            <class name="org.wso2.transport.http.netty.unitfunction.BlockingEntityCollectorTestCase" />
+
+            <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
+            <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.HttpOnePointZeroServerConnectorTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.KeepAliveHttpOnePointZeroClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.ChunkAutoHttpOnePointZeroClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.http1point0test.ChunkAlwaysHttpOnePointZeroClientTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolWaitingTimeoutTestCase" />
+
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedEnableTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDefaultTestCase" />
+
+            <class name="org.wso2.transport.http.netty.method.head.HeadRequestTestCase"/>
+            <class name="org.wso2.transport.http.netty.message.GetFullMessageTestCase" />
+
+            <class name="org.wso2.transport.http.netty.trailer.ListenerResponseTrailerHeaderTestCase"/>
+            <class name="org.wso2.transport.http.netty.trailer.NegativeListenerResponseTrailerHeaderTestCase"/>
+            <class name="org.wso2.transport.http.netty.trailer.ClientReadTrailerHeaderTestCase"/>
+        </classes>
+    </test>
+    <test name="WebSocket Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketUnitTestCase"/>
+        </classes>
+    </test>
+    <test name="HTTP2 Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerConnectorBasicTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerPushTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.clienttimeout.TimeoutAfterRequestWrite"/>
+            <class name="org.wso2.transport.http.netty.http2.clienttimeout.TimeoutDuringRequestWrite"/>
+            <class name="org.wso2.transport.http.netty.http2.clienttimeout.TimeoutDuringResponseReceive"/>
+            <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithALPN"/>
+            <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithPriorKnowledge"/>
+            <class name="org.wso2.transport.http.netty.http2.connectionpool.H2ConnectionPoolWithUpgrade"/>
+            <class name="org.wso2.transport.http.netty.http2.TestExhaustedStreamIdForClient"/>
+            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringRequestReceive"/>
+            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutAfterRequestReceived"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedDefaultTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedEnableTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedTransitionTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.http2forwardedextension.Http2ForwardedEnableWithoutForceHttp2"/>
+<!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite"/>-->
+<!--            <class name="org.wso2.transport.http.netty.http2.servertimeout.TimeoutDuringResponseDataWrite2"/>-->
+            <class name="org.wso2.transport.http.netty.http2.clientchannelclose.RemoteChannelCloseWithSSLError"/>
+            <class name="org.wso2.transport.http.netty.http2.compression.ResponseBodyCompressionTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.Abnormal100ContinueTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinue100ChunkingTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.Expect100ContinueClientTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinue100TimeoutTestcase"/>
+            <class name="org.wso2.transport.http.netty.http2.expect100continue.ClientContinueResponseTimeout"/>
+            <class name="org.wso2.transport.http.netty.http2.trailer.H2ListenerIntendedResponseTrailerHeaderTestCase"/>
+            <class name="org.wso2.transport.http.netty.http2.trailer.H2ListenerPushResponseTrailerHeaderTestCase"/>
+        </classes>
+    </test>
+    <test name="Transport Security Tests" parallel="false">
+        <classes>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.RevocationVerificationTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest"/>
+            <class name="org.wso2.transport.http.netty.https.HttpsInvalidServerCertificateTest"/>
+            <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest"/>
+            <class name="org.wso2.transport.http.netty.https.MutualSSLTestCase"/>
+            <class name="org.wso2.transport.http.netty.https.CipherSuitesTest"/>
+            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest"/>
+            <class name="org.wso2.transport.http.netty.pkcs.PKCSTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPStaplingTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPValidationTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.ListCertificateListFromCertChain"/>
+            <class name="org.wso2.transport.http.netty.https.MutualSSLwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.https.CipherSuiteswithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.https.OptionalMutualSSLTest"/>
+            <class name="org.wso2.transport.http.netty.https.SSLProtocolsWithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.Http2ALPNwithCertsTest"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.TestHttp2WithALPN"/>
+            <class name="org.wso2.transport.http.netty.http2.ssl.Http2MutualSslTest"/>
+            <class name="org.wso2.transport.http.netty.disablessl.SslDisabledClientTest"/>
+            <class name="org.wso2.transport.http.netty.https.ServerCloseConnectionDuringSslTest"/>
+        </classes>
+    </test>
+</suite>
