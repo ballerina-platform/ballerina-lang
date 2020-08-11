@@ -33,7 +33,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public abstract class FormatterTestUtils {
+abstract class FormatterTestUtils {
 
     private static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/");
 
@@ -43,7 +43,7 @@ public abstract class FormatterTestUtils {
      * @param sourceFilePath Path to the ballerina file
      * @param assertFilePath File to assert the resulting tree after formatting
      */
-    public static void test(Path sourceFilePath, Path assertFilePath) {
+    static void test(Path sourceFilePath, Path assertFilePath) throws IOException {
         String content = getSourceText(sourceFilePath);
         TextDocument textDocument = TextDocuments.from(content);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
@@ -52,11 +52,7 @@ public abstract class FormatterTestUtils {
         Assert.assertEquals(newSyntaxTree.toSourceCode(), getSourceText(assertFilePath));
     }
 
-    private static String getSourceText(Path sourceFilePath) {
-        try {
-            return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    private static String getSourceText(Path sourceFilePath) throws IOException {
+        return new String(Files.readAllBytes(RESOURCE_DIRECTORY.resolve(sourceFilePath)), StandardCharsets.UTF_8);
     }
 }

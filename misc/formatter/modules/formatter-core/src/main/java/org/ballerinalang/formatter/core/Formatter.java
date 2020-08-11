@@ -26,8 +26,12 @@ import io.ballerinalang.compiler.text.TextDocuments;
  */
 public class Formatter {
 
-    public static String format(String node, FormattingOptions options) {
-        TextDocument textDocument = TextDocuments.from(node);
+    // TODO: Add test cases for error scenarios also
+    // TODO: Add some syntax errors and see how the parser behaves
+    // TODO: overload these functions to have default formatting options
+    // TODO: Doc comments
+    public static String format(String source, FormattingOptions options) {
+        TextDocument textDocument = TextDocuments.from(source);
         SyntaxTree syntaxTree = SyntaxTree.from(textDocument);
         FormattingTreeModifier treeModifier = new FormattingTreeModifier();
         ModulePartNode newModulePart = treeModifier.transform((ModulePartNode) syntaxTree.rootNode());

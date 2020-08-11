@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
@@ -26,57 +27,57 @@ import java.nio.file.Paths;
  */
 public class ActionsTest {
 
-    private void testFile(String path, String filePath) {
+    private void testFile(String path, String filePath) throws IOException {
         FormatterTestUtils.test(Paths.get("actions/", path), Paths.get("actions/", filePath));
     }
 
     @Test(description = "Test the formatting of checking actions")
-    public void testCheckingActions() {
+    public void testCheckingActions() throws IOException {
         testFile("source/checking-actions.bal", "expected/checking-actions.bal");
     }
 
     @Test(description = "Test the formatting of flush actions")
-    public void testFlushActions() {
+    public void testFlushActions() throws IOException {
         testFile("source/flush-actions.bal", "expected/flush-actions.bal");
     }
 
     @Test(description = "Test the formatting of query actions")
-    public void testQueryActions() {
+    public void testQueryActions() throws IOException {
         testFile("source/query-actions.bal", "expected/query-actions.bal");
     }
 
     @Test(description = "Test the formatting of receive actions")
-    public void testReceiveActions() {
+    public void testReceiveActions() throws IOException {
         testFile("source/receive-actions.bal", "expected/receive-actions.bal");
     }
 
     @Test(description = "Test the formatting of send actions")
-    public void testSendActions() {
+    public void testSendActions() throws IOException {
         testFile("source/send-actions.bal", "expected/send-actions.bal");
     }
 
     @Test(description = "Test the formatting of start actions")
-    public void testStartActions() {
+    public void testStartActions() throws IOException {
         testFile("source/start-actions.bal", "expected/start-actions.bal");
     }
 
     @Test(description = "Test the formatting of trap actions")
-    public void testTrapActions() {
+    public void testTrapActions() throws IOException {
         testFile("source/trap-actions.bal", "expected/trap-actions.bal");
     }
 
     @Test(description = "Test the formatting of wait actions")
-    public void testWaitActions() {
+    public void testWaitActions() throws IOException {
         testFile("source/wait-actions.bal", "expected/wait-actions.bal");
     }
 
     @Test(description = "Test the formatting of type cast actions")
-    public void testTypeCastActions() {
+    public void testTypeCastActions() throws IOException {
         testFile("source/type-cast-actions.bal", "expected/type-cast-actions.bal");
     }
 
     @Test(description = "Test the formatting of remote method call actions")
-    public void testRemoteMethodCallActions() {
+    public void testRemoteMethodCallActions() throws IOException {
         testFile("source/remote-method-call-actions.bal", "expected/remote-method-call-actions.bal");
     }
 }

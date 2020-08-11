@@ -20,6 +20,7 @@ package org.ballerinalang.formatter.core;
  */
 public class FormattingOptions {
 
+    // TODO: set default values for the options
     // Size of a tab in spaces.
     private int tabSize;
 

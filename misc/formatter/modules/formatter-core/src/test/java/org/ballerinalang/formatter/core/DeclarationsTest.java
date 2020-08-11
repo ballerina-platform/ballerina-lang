@@ -17,6 +17,7 @@ package org.ballerinalang.formatter.core;
 
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 /**
@@ -26,52 +27,52 @@ import java.nio.file.Paths;
  */
 public class DeclarationsTest {
 
-    private void testFile(String sourceFilePath, String filePath) {
+    private void testFile(String sourceFilePath, String filePath) throws IOException {
         FormatterTestUtils.test(Paths.get("declarations/", sourceFilePath), Paths.get("declarations/", filePath));
     }
 
     @Test(description = "Test the formatting of function definitions")
-    public void testFunctionDefinitions() {
+    public void testFunctionDefinitions() throws IOException {
         testFile("source/function-definitions.bal", "expected/function-definitions.bal");
     }
 
     @Test(description = "Test the formatting of import declarations")
-    public void testImportDeclarations() {
+    public void testImportDeclarations() throws IOException {
         testFile("source/import-declarations.bal", "expected/import-declarations.bal");
     }
 
     @Test(description = "Test the formatting of listener declarations")
-    public void testListenerDeclarations() {
+    public void testListenerDeclarations() throws IOException {
         testFile("source/listener-declarations.bal", "expected/listener-declarations.bal");
     }
 
     @Test(description = "Test the formatting of module class definitions")
-    public void testModuleClassDefinitions() {
+    public void testModuleClassDefinitions() throws IOException {
         testFile("source/module-class-definitions.bal", "expected/module-class-definitions.bal");
     }
 
     @Test(description = "Test the formatting of module type definitions")
-    public void testModuleTypeDefinitions() {
+    public void testModuleTypeDefinitions() throws IOException {
         testFile("source/module-type-definitions.bal", "expected/module-type-definitions.bal");
     }
 
     @Test(description = "Test the formatting of module constant declarations")
-    public void testModuleConstantDeclarations() {
+    public void testModuleConstantDeclarations() throws IOException {
         testFile("source/module-constant-declarations.bal", "expected/module-constant-declarations.bal");
     }
 
     @Test(description = "Test the formatting of module enumeration declarations")
-    public void testModuleEnumDeclarations() {
+    public void testModuleEnumDeclarations() throws IOException {
         testFile("source/module-enum-declarations.bal", "expected/module-enum-declarations.bal");
     }
 
     @Test(description = "Test the formatting of module variable declarations")
-    public void testModuleVarDeclarations() {
+    public void testModuleVarDeclarations() throws IOException {
         testFile("source/module-variable-declarations.bal", "expected/module-variable-declarations.bal");
     }
 
     @Test(description = "Test the formatting of service declarations")
-    public void testServiceDeclarations() {
+    public void testServiceDeclarations() throws IOException {
         testFile("source/service-declarations.bal", "expected/service-declarations.bal");
     }
 }
