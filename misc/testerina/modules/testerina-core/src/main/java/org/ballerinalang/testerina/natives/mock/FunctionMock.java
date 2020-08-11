@@ -9,7 +9,6 @@ import org.ballerinalang.jvm.types.BRecordType;
 import org.ballerinalang.jvm.values.AbstractObjectValue;
 import org.ballerinalang.jvm.values.ArrayValue;
 import org.ballerinalang.jvm.values.ErrorValue;
-import org.ballerinalang.jvm.values.IteratorValue;
 import org.ballerinalang.jvm.values.ObjectValue;
 import org.ballerinalang.jvm.values.StringValue;
 import org.ballerinalang.jvm.values.connector.Executor;
@@ -41,7 +40,7 @@ public class FunctionMock {
         return null;
     }
 
-    public static Object mockHandler(ObjectValue mockFuncObj, ArrayValue args) {
+    public static Object mockHandler(ObjectValue mockFuncObj, Object... args) {
         List<String> caseIds = getCaseIds(mockFuncObj, args);
         String originalFunction =
                 mockFuncObj.getStringValue(StringUtils.fromString("functionToMock")).toString();
@@ -68,7 +67,7 @@ public class FunctionMock {
     }
 
     private static Object callFunction(String originalFunction, String originalFunctionPackage, String returnVal,
-                                       ArrayValue args) {
+                                       Object... args) {
         int prefixPos = returnVal.indexOf(MockConstants.FUNCTION_CALL_PLACEHOLDER);
         String methodName = returnVal.substring(prefixPos + MockConstants.FUNCTION_CALL_PLACEHOLDER.length());
         Strand strand = Scheduler.getStrand();
@@ -92,9 +91,8 @@ public class FunctionMock {
         }
 
         List<Object> argsList = new ArrayList<>();
-        IteratorValue argIterator = args.getIterator();
-        while (argIterator.hasNext()) {
-            argsList.add(argIterator.next());
+        for (Object arg : args) {
+            argsList.add(arg);
         }
 
         ClassLoader classLoader = FunctionMock.class.getClassLoader();
@@ -195,7 +193,7 @@ public class FunctionMock {
         return null;
     }
 
-    private static List<String> getCaseIds(ObjectValue mockObj, ArrayValue args) {
+    private static List<String> getCaseIds(ObjectValue mockObj, Object... args) {
         List<String> caseIdList = new ArrayList<>();
         StringBuilder caseId = new StringBuilder();
 
@@ -204,16 +202,15 @@ public class FunctionMock {
         caseIdList.add(caseId.toString());
 
         // add case for function with ANY specified for objects and records
-        IteratorValue it = args.getIterator();
-        while (it.hasNext()) {
-            Object arg = it.next();
+        for (Object arg: args) {
             caseId.append("-");
-            if (arg instanceof AbstractObjectValue || arg instanceof BRecordType) {
+            if (arg instanceof AbstractObjectValue || arg instanceof  BRecordType) {
                 caseId.append(MockRegistry.ANY);
             } else {
                 caseId.append(arg);
             }
         }
+
         // skip if entry exists in list
         if (!caseIdList.contains(caseId.toString())) {
             caseIdList.add(caseId.toString());

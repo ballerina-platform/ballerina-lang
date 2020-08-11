@@ -107,6 +107,51 @@ public abstract class NonTerminalNode extends Node {
         return (Token) foundNode;
     }
 
+    public Token findToken(int position, boolean insideMinutiae) {
+        Token token = findToken(position);
+        if (!insideMinutiae) {
+            return token;
+        }
+
+        Optional<Token> tokenInsideMinutiae = Optional.empty();
+        if (positionWithinLeadingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.leadingMinutiae(), position);
+        } else if (positionWithinTrailingMinutiae(position, token)) {
+            tokenInsideMinutiae = getInvalidNodeMinutiae(token.trailingMinutiae(), position);
+        }
+
+        return tokenInsideMinutiae.orElse(token);
+    }
+
+    /**
+     * Find the inner most node encapsulating the a text range.
+     * Note: When evaluating the position of a node to check the range this will include the start offset while
+     * excluding the end offset
+     *
+     * @param textRange to evaluate and find the node
+     * @return {@link NonTerminalNode} which is the inner most non terminal node, encapsulating the given position
+     */
+    public NonTerminalNode findNode(TextRange textRange) {
+        TextRange textRangeWithMinutiae = textRangeWithMinutiae();
+        if (textRangeWithMinutiae.endOffset() == textRange.startOffset() && this instanceof ModulePartNode) {
+            return this;
+        }
+
+        if (!textRangeWithMinutiae.contains(textRange.startOffset())
+                || !textRangeWithMinutiae.contains(textRange.endOffset())) {
+            throw new IllegalStateException("Invalid Text Range for: " + textRange.toString());
+        }
+
+        NonTerminalNode foundNode = null;
+        Optional<Node> temp = Optional.of(this);
+        while (temp.isPresent() && SyntaxUtils.isNonTerminalNode(temp.get())) {
+            foundNode = (NonTerminalNode) temp.get();
+            temp = ((NonTerminalNode) temp.get()).findChildNode(textRange);
+        }
+
+        return foundNode;
+    }
+
     // Node modification operations
 
     /**
@@ -200,6 +245,31 @@ public abstract class NonTerminalNode extends Node {
         throw new IllegalStateException();
     }
 
+    /**
+     * Find a child node enclosing the given text range.
+     * If there is no child node which can wrap the given range, this method will return empty
+     *
+     * @param textRange text range to evaluate
+     * @return {@link Optional} node found, which is enclosing the given range
+     */
+    private Optional<Node> findChildNode(TextRange textRange) {
+        int offset = textRangeWithMinutiae().startOffset();
+        for (int bucket = 0; bucket < internalNode.bucketCount(); bucket++) {
+            STNode internalChildNode = internalNode.childInBucket(bucket);
+            if (!isSTNodePresent(internalChildNode)) {
+                continue;
+            }
+            int offsetWithMinutiae = offset + internalChildNode.widthWithMinutiae();
+            if (textRange.startOffset() > offset && textRange.endOffset() < offsetWithMinutiae) {
+                // Populate the external node.
+                return Optional.ofNullable(this.childInBucket(bucket));
+            }
+            offset += internalChildNode.widthWithMinutiae();
+        }
+
+        return Optional.empty();
+    }
+
     private List<Diagnostic> collectDiagnostics() {
         List<Diagnostic> diagnosticList = new ArrayList<>();
         collectDiagnostics(this, diagnosticList);
@@ -217,5 +287,22 @@ public abstract class NonTerminalNode extends Node {
         internalNode.diagnostics().stream()
                 .map(this::createSyntaxDiagnostic)
                 .forEach(diagnosticList::add);
+    }
+
+    private boolean positionWithinLeadingMinutiae(int position, Token token) {
+        return token.containsLeadingMinutiae() && position < token.textRange().startOffset();
+    }
+
+    private boolean positionWithinTrailingMinutiae(int position, Token token) {
+        return token.containsTrailingMinutiae() && token.textRange().endOffset() <= position;
+    }
+
+    private Optional<Token> getInvalidNodeMinutiae(MinutiaeList minutiaeList, int position) {
+        for (Minutiae minutiae : minutiaeList) {
+            if (minutiae.textRange().contains(position) && minutiae.isInvalidNodeMinutiae()) {
+                return Optional.of(minutiae.invalidTokenMinutiaeNode().get().invalidToken());
+            }
+        }
+        return Optional.empty();
     }
 }

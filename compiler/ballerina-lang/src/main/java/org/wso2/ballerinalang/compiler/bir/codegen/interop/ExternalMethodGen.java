@@ -229,6 +229,7 @@ public class ExternalMethodGen {
                                                                    BIRFunction birFunc, String orgName,
                                                                    String moduleName, String version,
                                                                    String birModuleClassName,
+                                                                   String lookupKey,
                                                                    JvmPackageGen jvmPackageGen) {
 
         BIRFunctionWrapper birFuncWrapper;
@@ -236,7 +237,7 @@ public class ExternalMethodGen {
         if (jInteropValidationReq == null) {
             // This is a old-style external Java interop function
             String pkgName = getPackageName(orgName, moduleName, version);
-            String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), birFunc.name.value);
+            String jClassName = jvmPackageGen.lookupExternClassName(cleanupPackageName(pkgName), lookupKey);
             if (jClassName != null) {
                 if (isBallerinaBuiltinModule(orgName, moduleName)) {
                     birFuncWrapper = getFunctionWrapper(birFunc, orgName, moduleName, version, jClassName);
