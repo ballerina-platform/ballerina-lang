@@ -51,10 +51,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             FunctionDefinitionNode functionDefinitionNode) {
         MetadataNode metadata =
                 modifyNode(functionDefinitionNode.metadata().orElse(null));
-        Token visibilityQualifier =
-                modifyToken(functionDefinitionNode.visibilityQualifier().orElse(null));
-        Token transactionalKeyword =
-                modifyToken(functionDefinitionNode.transactionalKeyword().orElse(null));
+        NodeList<Token> qualifierList =
+                modifyNodeList(functionDefinitionNode.qualifierList());
         Token functionKeyword =
                 modifyToken(functionDefinitionNode.functionKeyword());
         IdentifierToken functionName =
@@ -64,9 +62,9 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         FunctionBodyNode functionBody =
                 modifyNode(functionDefinitionNode.functionBody());
         return functionDefinitionNode.modify(
+                functionDefinitionNode.kind(),
                 metadata,
-                visibilityQualifier,
-                transactionalKeyword,
+                qualifierList,
                 functionKeyword,
                 functionName,
                 functionSignature,
@@ -2181,8 +2179,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             MethodDeclarationNode methodDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(methodDeclarationNode.metadata().orElse(null));
-        Token visibilityQualifier =
-                modifyToken(methodDeclarationNode.visibilityQualifier().orElse(null));
+        NodeList<Token> qualifierList =
+                modifyNodeList(methodDeclarationNode.qualifierList());
         Token functionKeyword =
                 modifyToken(methodDeclarationNode.functionKeyword());
         IdentifierToken methodName =
@@ -2193,7 +2191,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(methodDeclarationNode.semicolon());
         return methodDeclarationNode.modify(
                 metadata,
-                visibilityQualifier,
+                qualifierList,
                 functionKeyword,
                 methodName,
                 methodSignature,
@@ -2813,36 +2811,6 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         return matchGuardNode.modify(
                 ifKeyword,
                 expression);
-    }
-
-    @Override
-    public ObjectMethodDefinitionNode transform(
-            ObjectMethodDefinitionNode objectMethodDefinitionNode) {
-        MetadataNode metadata =
-                modifyNode(objectMethodDefinitionNode.metadata().orElse(null));
-        Token visibilityQualifier =
-                modifyToken(objectMethodDefinitionNode.visibilityQualifier().orElse(null));
-        Token remoteKeyword =
-                modifyToken(objectMethodDefinitionNode.remoteKeyword().orElse(null));
-        Token transactionalKeyword =
-                modifyToken(objectMethodDefinitionNode.transactionalKeyword().orElse(null));
-        Token functionKeyword =
-                modifyToken(objectMethodDefinitionNode.functionKeyword());
-        IdentifierToken methodName =
-                modifyNode(objectMethodDefinitionNode.methodName());
-        FunctionSignatureNode methodSignature =
-                modifyNode(objectMethodDefinitionNode.methodSignature());
-        FunctionBodyNode functionBody =
-                modifyNode(objectMethodDefinitionNode.functionBody());
-        return objectMethodDefinitionNode.modify(
-                metadata,
-                visibilityQualifier,
-                remoteKeyword,
-                transactionalKeyword,
-                functionKeyword,
-                methodName,
-                methodSignature,
-                functionBody);
     }
 
     @Override

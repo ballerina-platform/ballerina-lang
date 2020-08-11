@@ -3,11 +3,16 @@
   "hasDiagnostics": true,
   "children": [
     {
-      "kind": "PUBLIC_KEYWORD",
-      "trailingMinutiae": [
+      "kind": "LIST",
+      "children": [
         {
-          "kind": "WHITESPACE_MINUTIAE",
-          "value": " "
+          "kind": "PUBLIC_KEYWORD",
+          "trailingMinutiae": [
+            {
+              "kind": "WHITESPACE_MINUTIAE",
+              "value": " "
+            }
+          ]
         }
       ]
     },
@@ -269,6 +274,10 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
+                                          "kind": "LIST",
+                                          "children": []
+                                        },
+                                        {
                                           "kind": "FUNCTION_KEYWORD",
                                           "leadingMinutiae": [
                                             {
@@ -401,6 +410,10 @@
                         {
                           "kind": "OBJECT_METHOD_DEFINITION",
                           "children": [
+                            {
+                              "kind": "LIST",
+                              "children": []
+                            },
                             {
                               "kind": "FUNCTION_KEYWORD",
                               "leadingMinutiae": [
