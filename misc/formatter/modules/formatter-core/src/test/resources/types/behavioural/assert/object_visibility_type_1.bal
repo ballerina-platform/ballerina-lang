@@ -1,0 +1,2 @@
+public type Student object {
+};

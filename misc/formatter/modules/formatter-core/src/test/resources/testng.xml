@@ -26,12 +26,12 @@ under the License.
                 <exclude name="broken"/>
             </run>
         </groups>
-        <classes>
-<!--            <class name="org.ballerinalang.formatter.core.types.TypeTestImpl"/>-->
-<!--            <class name="org.ballerinalang.formatter.core.actions.ActionTestImpl"/>-->
-<!--            <class name="org.ballerinalang.formatter.core.declarations.DeclarationTestImpl"/>-->
-<!--            <class name="org.ballerinalang.formatter.core.expressions.ExpressionTestImpl"/>-->
-<!--            <class name="org.ballerinalang.formatter.core.statements.StatementTestImpl"/>-->
-        </classes>
+        <packages>
+<!--            <package name="org.ballerinalang.formatter.core.types.*" />-->
+<!--            <package name="org.ballerinalang.formatter.core.statements.*" />-->
+<!--            <package name="org.ballerinalang.formatter.core.expressions.*" />-->
+<!--            <package name="org.ballerinalang.formatter.core.declarations.*" />-->
+<!--            <package name="org.ballerinalang.formatter.core.actions.*" />-->
+        </packages>
     </test>
 </suite>
