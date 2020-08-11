@@ -18,9 +18,7 @@
 apply from: "$rootDir/gradle/javaProjectWithExtBalo.gradle"
 
 dependencies {
-    implementation 'commons-io:commons-io'
     implementation 'info.picocli:picocli'
-    implementation 'org.wso2.orbit.org.antlr:antlr4-runtime'
     implementation project(':ballerina-parser')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-tool')
