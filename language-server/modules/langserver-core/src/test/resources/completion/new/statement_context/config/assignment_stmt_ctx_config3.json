@@ -3,7 +3,7 @@
     "line": 6,
     "character": 16
   },
-  "source": "statement_context/source/assignment_stmt_ctx_source1.bal",
+  "source": "statement_context/source/assignment_stmt_ctx_source3.bal",
   "items": [
     {
       "label": "start",
@@ -1195,7 +1195,7 @@
     {
       "label": "testValue",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "module1:TestObject1",
       "sortText": "130",
       "insertText": "testValue",
       "insertTextFormat": "Snippet"
@@ -1213,6 +1213,24 @@
       "sortText": "120",
       "insertText": "testFunction();",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "new(int field1, int field2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ls_org1/module1:0.1.0_  \n  \n  \n**Params**  \n- `int` field1  \n- `int` field2"
+        }
+      },
+      "sortText": "120",
+      "insertText": "new(${1});",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "is",
