@@ -102,7 +102,7 @@ public class BLangClassDefinition extends BLangNode implements ClassDefinition {
 
     @Override
     public NodeKind getKind() {
-        return NodeKind.OBJECT_TYPE;
+        return NodeKind.CLASS_DEFN;
     }
 
     @Override

@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangBlockFunctionBody;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangExprFunctionBody;
@@ -397,6 +398,59 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         });
         validateAnnotationAttachmentCount(typeDefinition.annAttachments);
         validateBuiltinTypeAnnotationAttachment(typeDefinition.annAttachments);
+    }
+
+    @Override
+    public void visit(BLangClassDefinition classDefinition) {
+        classDefinition.annAttachments.forEach(annotationAttachment -> {
+            annotationAttachment.attachPoints.add(AttachPoint.Point.CLASS);
+            annotationAttachment.accept(this);
+        });
+        validateAnnotationAttachmentCount(classDefinition.annAttachments);
+
+        analyzeClassDefinition(classDefinition);
+    }
+
+    private void analyzeClassDefinition(BLangClassDefinition classDefinition) {
+        SymbolEnv classEnv = SymbolEnv.createClassEnv(classDefinition, classDefinition.symbol.scope, env);
+        for (BLangSimpleVariable field : classDefinition.fields) {
+            analyzeDef(field, classEnv);
+        }
+
+        // Visit functions as they are not in the same scope/env as the object fields
+        for (BLangFunction function : classDefinition.functions) {
+            analyzeDef(function, env);
+            if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
+                this.dlog.error(function.pos, DiagnosticCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
+            }
+        }
+
+        // Validate the referenced functions that don't have implementations within the function.
+        for (BAttachedFunction func : ((BObjectTypeSymbol) classDefinition.symbol).referencedFunctions) {
+            validateReferencedFunction(classDefinition.pos, func, env);
+        }
+
+        analyzerClassInitMethod(classDefinition);
+    }
+
+    private void analyzerClassInitMethod(BLangClassDefinition classDefinition) {
+        if (classDefinition.initFunction == null) {
+            return;
+        }
+
+        if (classDefinition.initFunction.flagSet.contains(Flag.PRIVATE)) {
+            this.dlog.error(classDefinition.initFunction.pos, DiagnosticCode.PRIVATE_OBJECT_CONSTRUCTOR,
+                    classDefinition.symbol.name);
+            return;
+        }
+
+        if (classDefinition.initFunction.flagSet.contains(Flag.NATIVE)) {
+            this.dlog.error(classDefinition.initFunction.pos, DiagnosticCode.OBJECT_INIT_FUNCTION_CANNOT_BE_EXTERN,
+                    classDefinition.symbol.name);
+            return;
+        }
+
+        analyzeDef(classDefinition.initFunction, env);
     }
 
     public void visit(BLangTypeConversionExpr conversionExpr) {

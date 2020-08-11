@@ -100,7 +100,11 @@ public class AttachPoint {
         /**
          * Indicate Worker Attach point.
          */
-        WORKER("worker");
+        WORKER("worker"),
+        /**
+         * Indicate class Attach point.
+         */
+        CLASS("class");
 
         private String value;
 

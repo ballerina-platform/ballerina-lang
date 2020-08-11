@@ -23,6 +23,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangFunctionBody;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
@@ -139,6 +140,12 @@ public class SymbolEnv {
         SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
         objectEnv.envCount = env.envCount;
         objectEnv.enclType = node;
+        return objectEnv;
+    }
+
+    public static SymbolEnv createClassEnv(BLangClassDefinition node, Scope scope, SymbolEnv env) {
+        SymbolEnv objectEnv = createPkgLevelSymbolEnv(node, scope, env);
+        objectEnv.envCount = env.envCount;
         return objectEnv;
     }
 

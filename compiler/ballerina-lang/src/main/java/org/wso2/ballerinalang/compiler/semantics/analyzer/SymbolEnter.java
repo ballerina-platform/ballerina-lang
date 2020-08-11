@@ -77,6 +77,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeIdSet;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangErrorVariable;
@@ -131,6 +132,7 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -187,6 +189,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private List<TypeDefinition> unresolvedTypes;
+    private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
     private List<PackageID> importedPackages;
     private int typePrecedence;
@@ -335,6 +338,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.constants.forEach(constant -> typDefs.add(constant));
         pkgNode.typeDefinitions.forEach(typDef -> typDefs.add(typDef));
         defineTypeNodes(typDefs, pkgEnv);
+        defineClasses(pkgNode.topLevelNodes, pkgEnv);
 
         for (BLangSimpleVariable variable : pkgNode.globalVars) {
             if (variable.expr != null && variable.expr.getKind() == NodeKind.LAMBDA && variable.isDeclaredWithVar) {
@@ -379,6 +383,46 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.globalVars.stream().filter(var -> var.symbol.type.tsymbol != null && Symbols
                 .isFlagOn(var.symbol.type.tsymbol.flags, Flags.CLIENT)).map(varNode -> varNode.symbol)
                 .forEach(varSymbol -> varSymbol.tag = SymTag.ENDPOINT);
+    }
+
+    private void defineClasses(List<TopLevelNode> topLevelNodes, SymbolEnv pkgEnv) {
+        for (TopLevelNode topLevelNode : topLevelNodes) {
+            if (topLevelNode.getKind() != NodeKind.CLASS_DEFN) {
+                continue;
+            }
+            BLangClassDefinition classDefinition = (BLangClassDefinition) topLevelNode;
+
+            EnumSet<Flag> flags = EnumSet.copyOf(classDefinition.flagSet);
+            boolean isReadOnly = flags.contains(Flag.READONLY);
+            if (isReadOnly) {
+                flags.add(Flag.READONLY);
+            }
+
+            BTypeSymbol classSymbol = Symbols.createClassSymbol(Flags.asMask(flags),
+                    names.fromIdNode(classDefinition.name),
+                    pkgEnv.enclPkg.symbol.pkgID, null, pkgEnv.scope.owner);
+
+            BObjectType objectType = isReadOnly ?
+                    new BObjectType(classSymbol, Flags.READONLY) :
+                    new BObjectType(classSymbol);
+
+            classSymbol.type = objectType;
+            classDefinition.symbol = classSymbol;
+
+            // For each referenced type, check whether the types are already resolved.
+            // If not, then that type should get a higher precedence.
+            for (BLangType typeRef : classDefinition.typeRefs) {
+                BType referencedType = symResolver.resolveTypeNode(typeRef, env);
+                if (referencedType == symTable.noType) {
+                    if (!this.unresolvedClasses.contains(classDefinition)) {
+                        this.unresolvedClasses.add(classDefinition);
+                        return;
+                    }
+                }
+            }
+
+            pkgEnv.scope.define(classSymbol.name, classSymbol);
+        }
     }
 
     public void visit(BLangAnnotation annotationNode) {
@@ -608,7 +652,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void defineTypeNodes(List<? extends TypeDefinition> typeDefs, SymbolEnv env) {
-        if (typeDefs.size() == 0) {
+        if (typeDefs.isEmpty()) {
             return;
         }
 
