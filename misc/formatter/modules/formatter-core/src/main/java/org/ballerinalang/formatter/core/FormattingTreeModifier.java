@@ -62,6 +62,7 @@ import io.ballerinalang.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.Minutiae;
 import io.ballerinalang.compiler.syntax.tree.MinutiaeList;
 import io.ballerinalang.compiler.syntax.tree.ModuleVariableDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.NameReferenceNode;
 import io.ballerinalang.compiler.syntax.tree.NilLiteralNode;
 import io.ballerinalang.compiler.syntax.tree.NilTypeDescriptorNode;
@@ -88,11 +89,31 @@ import io.ballerinalang.compiler.syntax.tree.SyntaxKind;
 import io.ballerinalang.compiler.syntax.tree.Token;
 import io.ballerinalang.compiler.syntax.tree.TreeModifier;
 import io.ballerinalang.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerinalang.compiler.syntax.tree.TypeParameterNode;
 import io.ballerinalang.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerinalang.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerinalang.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerinalang.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerinalang.compiler.syntax.tree.WhileStatementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAtomicNamePatternNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeNode;
+import io.ballerinalang.compiler.syntax.tree.XMLAttributeValue;
+import io.ballerinalang.compiler.syntax.tree.XMLComment;
+import io.ballerinalang.compiler.syntax.tree.XMLElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEmptyElementNode;
+import io.ballerinalang.compiler.syntax.tree.XMLEndTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLFilterExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLItemNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamePatternChainingNode;
+import io.ballerinalang.compiler.syntax.tree.XMLNamespaceDeclarationNode;
+import io.ballerinalang.compiler.syntax.tree.XMLProcessingInstruction;
+import io.ballerinalang.compiler.syntax.tree.XMLQualifiedNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLSimpleNameNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStartTagNode;
+import io.ballerinalang.compiler.syntax.tree.XMLStepExpressionNode;
+import io.ballerinalang.compiler.syntax.tree.XMLTextNode;
+import io.ballerinalang.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerinalang.compiler.text.LinePosition;
 import io.ballerinalang.compiler.text.LineRange;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
@@ -1176,6 +1197,337 @@ public class FormattingTreeModifier extends TreeModifier {
                 .withLeftTypeDesc(leftTypeDesc)
                 .withPipeToken(pipeToken)
                 .withRightTypeDesc(rightTypeDesc)
+                .apply();
+    }
+
+    @Override
+    public XMLNamespaceDeclarationNode transform(XMLNamespaceDeclarationNode xMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = getToken(xMLNamespaceDeclarationNode.xmlnsKeyword());
+        ExpressionNode namespaceuri = this.modifyNode(xMLNamespaceDeclarationNode.namespaceuri());
+        Token asKeyword = getToken(xMLNamespaceDeclarationNode.asKeyword());
+        IdentifierToken namespacePrefix = this.modifyNode(xMLNamespaceDeclarationNode.namespacePrefix());
+        Token semicolonToken = getToken(xMLNamespaceDeclarationNode.semicolonToken());
+
+        if (namespaceuri != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespaceuri(namespaceuri)
+                    .apply();
+        }
+
+        if (namespacePrefix != null) {
+            xMLNamespaceDeclarationNode = xMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix)
+                    .apply();
+        }
+
+        return xMLNamespaceDeclarationNode.modify()
+                .withXmlnsKeyword(formatToken(xmlnsKeyword, 0, 0, 0, 0))
+                .withAsKeyword(formatToken(asKeyword, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public ModuleXMLNamespaceDeclarationNode transform(
+            ModuleXMLNamespaceDeclarationNode moduleXMLNamespaceDeclarationNode) {
+        Token xmlnsKeyword = getToken(moduleXMLNamespaceDeclarationNode.xmlnsKeyword());
+        ExpressionNode namespaceuri = this.modifyNode(moduleXMLNamespaceDeclarationNode.namespaceuri());
+        Token asKeyword = getToken(moduleXMLNamespaceDeclarationNode.asKeyword());
+        IdentifierToken namespacePrefix = this.modifyNode(moduleXMLNamespaceDeclarationNode.namespacePrefix());
+        Token semicolonToken = getToken(moduleXMLNamespaceDeclarationNode.semicolonToken());
+
+        if (namespaceuri != null) {
+            moduleXMLNamespaceDeclarationNode = moduleXMLNamespaceDeclarationNode.modify()
+                    .withNamespaceuri(namespaceuri)
+                    .apply();
+        }
+
+        if (namespacePrefix != null) {
+            moduleXMLNamespaceDeclarationNode = moduleXMLNamespaceDeclarationNode.modify()
+                    .withNamespacePrefix(namespacePrefix)
+                    .apply();
+        }
+
+        return moduleXMLNamespaceDeclarationNode.modify()
+                .withXmlnsKeyword(formatToken(xmlnsKeyword, 0, 0, 0, 0))
+                .withAsKeyword(formatToken(asKeyword, 0, 0, 0, 0))
+                .withSemicolonToken(formatToken(semicolonToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XmlTypeDescriptorNode transform(XmlTypeDescriptorNode xmlTypeDescriptorNode) {
+        Token xmlKeywordToken = getToken(xmlTypeDescriptorNode.xmlKeywordToken());
+        TypeParameterNode xmlTypeParamsNode = this.modifyNode(xmlTypeDescriptorNode.xmlTypeParamsNode().orElse(null));
+
+        if (xmlTypeParamsNode != null) {
+            xmlTypeDescriptorNode = xmlTypeDescriptorNode.modify()
+                    .withXmlTypeParamsNode(xmlTypeParamsNode)
+                    .apply();
+        }
+        return xmlTypeDescriptorNode.modify()
+                .withXmlKeywordToken(formatToken(xmlKeywordToken, 0, 1, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLElementNode transform(XMLElementNode xMLElementNode) {
+        XMLStartTagNode startTag = this.modifyNode(xMLElementNode.startTag());
+        NodeList<XMLItemNode> content = modifyNodeList(xMLElementNode.content());
+        XMLEndTagNode endTag = this.modifyNode(xMLElementNode.endTag());
+
+        if (startTag != null) {
+            xMLElementNode = xMLElementNode.modify()
+                    .withStartTag(startTag)
+                    .apply();
+        }
+
+        if (endTag != null) {
+            xMLElementNode = xMLElementNode.modify()
+                    .withEndTag(endTag)
+                    .apply();
+        }
+
+        return xMLElementNode.modify()
+                .withContent(content)
+                .apply();
+    }
+
+    @Override
+    public XMLStartTagNode transform(XMLStartTagNode xMLStartTagNode) {
+        Token ltToken = getToken(xMLStartTagNode.ltToken());
+        XMLNameNode name = this.modifyNode(xMLStartTagNode.name());
+        NodeList<XMLAttributeNode> attributes = modifyNodeList(xMLStartTagNode.attributes());
+        Token getToken = getToken(xMLStartTagNode.getToken());
+
+        if (name != null) {
+            xMLStartTagNode = xMLStartTagNode.modify()
+                    .withName(name)
+                    .apply();
+        }
+
+        return xMLStartTagNode.modify()
+                .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
+                .withAttributes(attributes)
+                .withGetToken(formatToken(getToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLEndTagNode transform(XMLEndTagNode xMLEndTagNode) {
+        Token ltToken = getToken(xMLEndTagNode.ltToken());
+        Token slashToken = getToken(xMLEndTagNode.slashToken());
+        XMLNameNode name = this.modifyNode(xMLEndTagNode.name());
+        Token getToken = getToken(xMLEndTagNode.getToken());
+
+        if (name != null) {
+            xMLEndTagNode = xMLEndTagNode.modify()
+                    .withName(name)
+                    .apply();
+        }
+
+        return xMLEndTagNode.modify()
+                .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
+                .withSlashToken(formatToken(slashToken, 0, 0, 0, 0))
+                .withGetToken(formatToken(getToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLSimpleNameNode transform(XMLSimpleNameNode xMLSimpleNameNode) {
+        Token name = getToken(xMLSimpleNameNode.name());
+
+        return xMLSimpleNameNode.modify()
+                .withName(name)
+                .apply();
+    }
+
+    @Override
+    public XMLQualifiedNameNode transform(XMLQualifiedNameNode xMLQualifiedNameNode) {
+        XMLSimpleNameNode prefix = this.modifyNode(xMLQualifiedNameNode.prefix());
+        Token colon = getToken(xMLQualifiedNameNode.colon());
+        XMLSimpleNameNode name = this.modifyNode(xMLQualifiedNameNode.name());
+
+        if (prefix != null) {
+            xMLQualifiedNameNode = xMLQualifiedNameNode.modify()
+                    .withPrefix(prefix)
+                    .apply();
+        }
+
+        if (name != null) {
+            xMLQualifiedNameNode = xMLQualifiedNameNode.modify()
+                    .withName(name)
+                    .apply();
+        }
+
+        return xMLQualifiedNameNode.modify()
+                .withColon(formatToken(colon, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLEmptyElementNode transform(XMLEmptyElementNode xMLEmptyElementNode) {
+        Token ltToken = getToken(xMLEmptyElementNode.ltToken());
+        XMLNameNode name = this.modifyNode(xMLEmptyElementNode.name());
+        NodeList<XMLAttributeNode> attributes = this.modifyNodeList(xMLEmptyElementNode.attributes());
+        Token slashToken = getToken(xMLEmptyElementNode.slashToken());
+        Token getToken = getToken(xMLEmptyElementNode.getToken());
+
+        if (name != null) {
+            xMLEmptyElementNode = xMLEmptyElementNode.modify()
+                    .withName(name)
+                    .apply();
+        }
+
+        return xMLEmptyElementNode.modify()
+                .withAttributes(attributes)
+                .withLtToken(formatToken(ltToken, 0, 0, 0, 0))
+                .withSlashToken(formatToken(slashToken, 0, 0, 0, 0))
+                .withGetToken(formatToken(getToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLTextNode transform(XMLTextNode xMLTextNode) {
+        Token content = getToken(xMLTextNode.content());
+
+        return xMLTextNode.modify()
+                .withContent(formatToken(content, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLAttributeNode transform(XMLAttributeNode xMLAttributeNode) {
+        XMLNameNode attributeName = this.modifyNode(xMLAttributeNode.attributeName());
+        Token equalToken = getToken(xMLAttributeNode.equalToken());
+        XMLAttributeValue value = this.modifyNode(xMLAttributeNode.value());
+
+        if (attributeName != null) {
+            xMLAttributeNode = xMLAttributeNode.modify()
+                    .withAttributeName(attributeName)
+                    .apply();
+        }
+
+        if (value != null) {
+            xMLAttributeNode = xMLAttributeNode.modify()
+                    .withValue(value)
+                    .apply();
+        }
+
+        return xMLAttributeNode.modify()
+                .withEqualToken(formatToken(equalToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLAttributeValue transform(XMLAttributeValue xMLAttributeValue) {
+        Token startQuote = getToken(xMLAttributeValue.startQuote());
+        NodeList<Node> value = this.modifyNodeList(xMLAttributeValue.value());
+        Token endQuote = getToken(xMLAttributeValue.endQuote());
+
+        return xMLAttributeValue.modify()
+                .withStartQuote(formatToken(startQuote, 0, 0, 0, 0))
+                .withValue(value)
+                .withEndQuote(formatToken(endQuote, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLComment transform(XMLComment xMLComment) {
+        Token commentStart = getToken(xMLComment.commentStart());
+        NodeList<Node> content = this.modifyNodeList(xMLComment.content());
+        Token commentEnd = getToken(xMLComment.commentEnd());
+
+        return xMLComment.modify()
+                .withCommentStart(formatToken(commentStart, 0, 0, 0, 0))
+                .withContent(content)
+                .withCommentEnd(formatToken(commentEnd, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLProcessingInstruction transform(XMLProcessingInstruction xMLProcessingInstruction) {
+        Token piStart = getToken(xMLProcessingInstruction.piStart());
+        XMLNameNode target = this.modifyNode(xMLProcessingInstruction.target());
+        NodeList<Node> data = this.modifyNodeList(xMLProcessingInstruction.data());
+        Token piEnd = getToken(xMLProcessingInstruction.piEnd());
+
+        if (target != null) {
+            xMLProcessingInstruction = xMLProcessingInstruction.modify()
+                    .withTarget(target)
+                    .apply();
+        }
+
+        return xMLProcessingInstruction.modify()
+                .withPiStart(formatToken(piStart, 0, 0, 0, 0))
+                .withData(data)
+                .withPiEnd(formatToken(piEnd, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLFilterExpressionNode transform(XMLFilterExpressionNode xMLFilterExpressionNode) {
+        ExpressionNode expression = this.modifyNode(xMLFilterExpressionNode.expression());
+        XMLNamePatternChainingNode xmlPatternChain = this.modifyNode(xMLFilterExpressionNode.xmlPatternChain());
+
+        if (expression != null) {
+            xMLFilterExpressionNode = xMLFilterExpressionNode.modify()
+                    .withExpression(expression)
+                    .apply();
+        }
+
+        if (xmlPatternChain != null) {
+            xMLFilterExpressionNode = xMLFilterExpressionNode.modify()
+                    .withXmlPatternChain(xmlPatternChain)
+                    .apply();
+        }
+
+        return xMLFilterExpressionNode;
+    }
+
+    @Override
+    public XMLStepExpressionNode transform(XMLStepExpressionNode xMLStepExpressionNode) {
+        ExpressionNode expression = this.modifyNode(xMLStepExpressionNode.expression());
+        Node xmlStepStart = this.modifyNode(xMLStepExpressionNode.xmlStepStart());
+
+        if (expression != null) {
+            xMLStepExpressionNode = xMLStepExpressionNode.modify()
+                    .withExpression(expression)
+                    .apply();
+        }
+
+        if (xmlStepStart != null) {
+            xMLStepExpressionNode = xMLStepExpressionNode.modify()
+                    .withXmlStepStart(xmlStepStart)
+                    .apply();
+        }
+
+        return xMLStepExpressionNode;
+    }
+
+    @Override
+    public XMLNamePatternChainingNode transform(XMLNamePatternChainingNode xMLNamePatternChainingNode) {
+        Token startToken = getToken(xMLNamePatternChainingNode.startToken());
+        SeparatedNodeList<Node> xmlNamePattern = modifySeparatedNodeList(xMLNamePatternChainingNode.xmlNamePattern());
+        Token gtToken = getToken(xMLNamePatternChainingNode.gtToken());
+
+        return xMLNamePatternChainingNode.modify()
+                .withStartToken(formatToken(startToken, 0, 0, 0, 0))
+                .withXmlNamePattern(xmlNamePattern)
+                .withGtToken(formatToken(gtToken, 0, 0, 0, 0))
+                .apply();
+    }
+
+    @Override
+    public XMLAtomicNamePatternNode transform(XMLAtomicNamePatternNode xMLAtomicNamePatternNode) {
+        Token prefix = getToken(xMLAtomicNamePatternNode.prefix());
+        Token colon = getToken(xMLAtomicNamePatternNode.colon());
+        Token name = getToken(xMLAtomicNamePatternNode.name());
+
+        return xMLAtomicNamePatternNode.modify()
+                .withPrefix(formatToken(prefix, 0, 0, 0, 0))
+                .withColon(formatToken(colon, 0, 0, 0, 0))
+                .withName(formatToken(name, 0, 0, 0, 0))
                 .apply();
     }
 
