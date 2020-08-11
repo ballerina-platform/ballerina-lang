@@ -50,6 +50,7 @@ public class TestSuite {
     private List<String> beforeEachFunctionNames = new ArrayList<>();
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
+    private Map<String, TestGroup> groups = new HashMap<>();
 
     private boolean isReportRequired;
 
@@ -220,5 +221,40 @@ public class TestSuite {
 
     public void setReportRequired(boolean reportRequired) {
         isReportRequired = reportRequired;
+    }
+
+    public Map<String, TestGroup> getGroups() {
+        return groups;
+    }
+
+    public void addAfterGroupFunction(String afterGroupFunc, List<String> groups) {
+        for (String groupName : groups) {
+            if (this.groups.get(groupName) == null) {
+                this.groups.put(groupName, new TestGroup());
+            }
+            this.groups.get(groupName).addAfterGroupsFunction(afterGroupFunc);
+        }
+    }
+
+    public void addBeforeGroupsFunction(String beforeGroupsFunc, List<String> groups) {
+        for (String groupName : groups) {
+            if (this.groups.get(groupName) == null) {
+                this.groups.put(groupName, new TestGroup());
+            }
+            this.groups.get(groupName).addBeforeGroupsFunction(beforeGroupsFunc);
+        }
+    }
+
+    public void addTestToGroups(Test test) {
+        TestGroup testGroup;
+        for (String groupName : test.getGroups()) {
+            if (this.getGroups().get(groupName) != null) {
+                testGroup = this.getGroups().get(groupName);
+            } else {
+                testGroup = new TestGroup();
+            }
+            testGroup.incrementTestCount();
+            this.groups.put(groupName, testGroup);
+        }
     }
 }
