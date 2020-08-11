@@ -588,10 +588,6 @@ public class BCompileUtil {
         return Boolean.parseBoolean(value);
     }
 
-    public static boolean newParserEnabled() {
-        return !Boolean.parseBoolean(System.getProperty(ENABLE_OLD_PARSER_FOR_TESTS));
-    }
-
     private static CompileResult compileOnJBallerina(String sourceRoot, String packageName,
                                                      SourceDirectory sourceDirectory, boolean init, boolean withTests) {
 
@@ -721,10 +717,6 @@ public class BCompileUtil {
             if (withTests) {
                 options.put(SKIP_TESTS, Boolean.FALSE.toString());
                 options.put(TEST_ENABLED, Boolean.TRUE.toString());
-            }
-
-            if (newParserEnabled()) {
-                options.put(NEW_PARSER_ENABLED, Boolean.TRUE.toString());
             }
 
             CompileResult compileResult = compile(context, packageName, CompilerPhase.CODE_GEN, withTests);

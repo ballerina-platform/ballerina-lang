@@ -80,7 +80,6 @@ public class BLangNodeTransformerTest {
         options.put(OFFLINE, String.valueOf(true));
         options.put(TEST_ENABLED, String.valueOf(true));
         options.put(SKIP_TESTS, String.valueOf(false));
-        options.put(CompilerOptionName.NEW_PARSER_ENABLED, String.valueOf(true));
         options.put(CompilerOptionName.PROJECT_DIR, RES_DIR.resolve("src").toString());
 
         this.context = context;
