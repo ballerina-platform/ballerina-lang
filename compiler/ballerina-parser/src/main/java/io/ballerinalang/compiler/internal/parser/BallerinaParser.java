@@ -664,6 +664,7 @@ public class BallerinaParser extends AbstractParser {
                 return resumeOtherNodesParsing(context, args);
         }
     }
+
     public STNode resumeOtherNodesParsing(ParserRuleContext context, Object... args) {
         switch (context) {
             case BRACKETED_LIST_RHS:
@@ -3294,7 +3295,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseRecordBodyCloseDelimiter(SyntaxKind startingDelimeter) {
-        if (startingDelimeter ==  SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
+        if (startingDelimeter == SyntaxKind.OPEN_BRACE_PIPE_TOKEN) {
             return parseClosedRecordBodyEnd();
         }
         return parseCloseBrace();
